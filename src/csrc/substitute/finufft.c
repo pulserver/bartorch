@@ -1,16 +1,10 @@
 /*
- * The FINUFFT libraries, as BART reaches them.
+ * FINUFFT and cuFINUFFT, as BART reaches them.
  *
- * The `finufft` and `cufinufft` wheels each carry a compiled shared library
- * with a plain C plan API.  The host hands the entry points and the byte
- * layout of the options struct across the ABI, both read from those same
- * packages, so a release that moves a field cannot be misread here and
- * nothing is built or vendored.
- *
- * The two libraries have the same entry points and answer different memory --
- * cuFINUFFT spells its defaults without the precision suffix, and carries a
- * device number in its options where FINUFFT carries a thread count -- so
- * they are held as two tables, picked by where the data is.
+ * Both are compiled from external/finufft into this library and called
+ * through their C API.  The two answer different memory -- cuFINUFFT carries a
+ * device number in its options where FINUFFT carries a thread count -- so a
+ * plan records which of them made it, picked by where the data is.
  *
  * What is done with a plan belongs to nufft_finufft.c, which builds BART's
  * NUFFT operator out of a pair of them.
@@ -22,34 +16,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <finufft.h>
+#ifdef USE_CUDA
+#include <cufinufft.h>
+#endif
+
 #include "include/bartorch.h"
 
-typedef void* finufft_plan_t;
-
-typedef int (*fi_makeplan_t)(int type, int dim, const int64_t* n_modes, int iflag, int ntrans, float eps, finufft_plan_t* plan, void* opts);
-typedef int (*fi_setpts_t)(finufft_plan_t plan, int64_t M, float* x, float* y, float* z, int64_t N, float* s, float* t, float* u);
-typedef int (*fi_execute_t)(finufft_plan_t plan, complex float* c, complex float* f);
-typedef int (*fi_destroy_t)(finufft_plan_t plan);
-typedef void (*fi_default_opts_t)(void* opts);
-
-struct fi_table {
-
-	fi_makeplan_t makeplan;
-	fi_setpts_t setpts;
-	fi_execute_t execute;
-	fi_destroy_t destroy;
-	fi_default_opts_t default_opts;
-
-	int opts_size;
-	int off_device;		/* nthreads on the host, gpu_device_id on a device */
-	int off_upsampling;	/* upsampfac, a double, which both spell alike */
-	int off_spreadonly;	/* spreadinterponly on the host, gpu_ prefixed on a device */
-};
-
 static struct {
-
-	struct fi_table host;
-	struct fi_table device;
 
 	int use_in_tools;
 	double tolerance;
@@ -60,44 +34,21 @@ static struct {
 
 static pthread_mutex_t fi_lock = PTHREAD_MUTEX_INITIALIZER;
 
-/* "finufftf_makeplan" fills the host table, "cufinufftf_makeplan" the device
- * one, and the two carry the same five entry points. */
-int bartorch_finufft_set(const char* symbol, void* fn)
+/* The version of FINUFFT compiled in, from the submodule's CMakeLists. */
+const char* bartorch_finufft_version(void)
 {
-	bool cuda = (0 == strncmp(symbol, "cu", 2));
-	struct fi_table* t = cuda ? &fi.device : &fi.host;
-	const char* name = symbol + (cuda ? 2 : 0);
-
-	if (0 == strcmp(name, "finufftf_makeplan")) t->makeplan = (fi_makeplan_t)fn;
-	else if (0 == strcmp(name, "finufftf_setpts")) t->setpts = (fi_setpts_t)fn;
-	else if (0 == strcmp(name, "finufftf_execute")) t->execute = (fi_execute_t)fn;
-	else if (0 == strcmp(name, "finufftf_destroy")) t->destroy = (fi_destroy_t)fn;
-	else if ((0 == strcmp(name, "finufftf_default_opts")) || (0 == strcmp(name, "finufft_default_opts"))) t->default_opts = (fi_default_opts_t)fn;
-	else return -1;
-
-	return 0;
+	return BARTORCH_FINUFFT_VERSION;
 }
 
-/* The byte offsets of the fields this sets: the thread count on the host and
- * the device number on a card, and the grid FINUFFT spreads onto. */
-int bartorch_finufft_layout(int device, int opts_size, int device_field, int upsampling_field, int spreadonly_field)
+/* Whether this build carries the transform for that side: FINUFFT always,
+ * cuFINUFFT in a CUDA build. */
+int bartorch_finufft_built_on(int device)
 {
-	struct fi_table* t = device ? &fi.device : &fi.host;
-
-	if ((opts_size < 16) || (opts_size > 4096) || (device_field < 0) || (device_field + 4 > opts_size))
-		return -1;
-
-	if ((spreadonly_field < 0) || (spreadonly_field + 4 > opts_size))
-		return -1;
-
-	if ((upsampling_field < 0) || (upsampling_field + 8 > opts_size))
-		return -1;
-
-	t->opts_size = opts_size;
-	t->off_device = device_field;
-	t->off_upsampling = upsampling_field;
-	t->off_spreadonly = spreadonly_field;
-	return 0;
+#ifdef USE_CUDA
+	return 1;
+#else
+	return device ? 0 : 1;
+#endif
 }
 
 void bartorch_finufft_set_tolerance(double eps)
@@ -146,22 +97,9 @@ int bartorch_finufft_threads(void)
 	return fi.threads;
 }
 
-/* The entry points are there and the options layout is known. */
-static bool table_ready(const struct fi_table* t)
-{
-	return (NULL != t->makeplan) && (NULL != t->setpts) && (NULL != t->execute)
-		&& (NULL != t->destroy) && (NULL != t->default_opts) && (0 != t->opts_size);
-}
-
-/* The cufinufft wheel can be installed beside a library built without CUDA,
- * and then nothing can ever be on a device for it to serve. */
 int bartorch_finufft_usable_on(int device)
 {
-	if (device && !bartorch_cuda_built())
-		return 0;
-
-	const struct fi_table* t = device ? &fi.device : &fi.host;
-	return (table_ready(t) && fi.use_in_tools) ? 1 : 0;
+	return (bartorch_finufft_built_on(device) && fi.use_in_tools) ? 1 : 0;
 }
 
 int bartorch_finufft_usable(void)
@@ -177,9 +115,22 @@ void bartorch_finufft_use_in_tools(int enable)
 /* A plan carries which library made it, so the operator does not have to. */
 struct bartorch_fi_plan {
 
-	const struct fi_table* table;
-	finufft_plan_t plan;
+	int device;
+	void* plan;
 };
+
+static void destroy(int device, void* plan)
+{
+#ifdef USE_CUDA
+	if (device) {
+
+		cufinufftf_destroy(plan);
+		return;
+	}
+#endif
+	(void)device;
+	finufftf_destroy(plan);
+}
 
 /* Plans made and not yet destroyed.  A plan belongs to whatever made it -- an
  * operator, a point spread function, the spreading a compressed one is masked
@@ -196,37 +147,56 @@ static int64_t fi_live_plans;
 int bartorch_finufft_plan(int device, int type, int dim, const int64_t n_modes[3], int ntrans,
 		int isign, double eps, double upsampling, int spread_only, void** plan)
 {
-	const struct fi_table* t = device ? &fi.device : &fi.host;
-
-	if (!table_ready(t))
+	if (!bartorch_finufft_built_on(device))
 		return -1;
 
-	char opts[4096];
+	void* p = NULL;
+	int ret;
 
 	pthread_mutex_lock(&fi_lock);
 
-	t->default_opts(opts);
-
-	/* One offset, a different option on each side: the device to run on, or
-	 * the number of threads to take. */
 	if (device) {
+#ifdef USE_CUDA
+		cufinufft_opts opts;
+		cufinufft_default_opts(&opts);
 
 		int which = bartorch_cuda_device();
-		*(int*)(opts + t->off_device) = (which > 0) ? which : 0;
+		opts.gpu_device_id = (which > 0) ? which : 0;
 
+		if (0. != upsampling)
+			opts.upsampfac = upsampling;
+
+		if (0 != spread_only)
+			opts.gpu_spreadinterponly = 1;
+
+		cufinufftf_plan q = NULL;
+		ret = cufinufftf_makeplan(type, dim, n_modes, isign, ntrans, (float)eps, &q, &opts);
+		p = q;
+#else
+		ret = -1;
+#endif
 	} else {
 
-		*(int*)(opts + t->off_device) = fi.threads;
+		finufft_opts opts;
+		finufftf_default_opts(&opts);
+
+		opts.nthreads = fi.threads;
+
+		/* A tolerance below what single precision reaches at this size is
+		 * planned at the tolerance it can reach rather than refused, which is
+		 * what a caller asking for the most accurate transform means. */
+		opts.allow_eps_too_small = 1;
+
+		if (0. != upsampling)
+			opts.upsampfac = upsampling;
+
+		if (0 != spread_only)
+			opts.spreadinterponly = 1;
+
+		finufftf_plan q = NULL;
+		ret = finufftf_makeplan(type, dim, n_modes, isign, ntrans, (float)eps, &q, &opts);
+		p = q;
 	}
-
-	if (0. != upsampling)
-		*(double*)(opts + t->off_upsampling) = upsampling;
-
-	if (0 != spread_only)
-		*(int*)(opts + t->off_spreadonly) = 1;
-
-	finufft_plan_t p = NULL;
-	int ret = t->makeplan(type, dim, n_modes, isign, ntrans, (float)eps, &p, opts);
 
 	pthread_mutex_unlock(&fi_lock);
 
@@ -237,11 +207,11 @@ int bartorch_finufft_plan(int device, int type, int dim, const int64_t n_modes[3
 
 	if (NULL == held) {
 
-		t->destroy(p);
+		destroy(device, p);
 		return -1;
 	}
 
-	held->table = t;
+	held->device = device;
 	held->plan = p;
 	*plan = held;
 
@@ -257,13 +227,22 @@ int bartorch_finufft_setpts(void* plan, int64_t M, float* x, float* y, float* z)
 {
 	const struct bartorch_fi_plan* p = plan;
 
-	return p->table->setpts(p->plan, M, x, y, z, 0, NULL, NULL, NULL);
+#ifdef USE_CUDA
+	if (p->device)
+		return cufinufftf_setpts(p->plan, M, x, y, z, 0, NULL, NULL, NULL);
+#endif
+	return finufftf_setpts(p->plan, M, x, y, z, 0, NULL, NULL, NULL);
 }
 
 int bartorch_finufft_exec(void* plan, complex float* c, complex float* f)
 {
 	const struct bartorch_fi_plan* p = plan;
-	return p->table->execute(p->plan, c, f);
+
+#ifdef USE_CUDA
+	if (p->device)
+		return cufinufftf_execute(p->plan, (cuFloatComplex*)c, (cuFloatComplex*)f);
+#endif
+	return finufftf_execute(p->plan, c, f);
 }
 
 void bartorch_finufft_free(void* plan)
@@ -274,7 +253,7 @@ void bartorch_finufft_free(void* plan)
 	struct bartorch_fi_plan* p = plan;
 
 	pthread_mutex_lock(&fi_lock);
-	p->table->destroy(p->plan);
+	destroy(p->device, p->plan);
 	pthread_mutex_unlock(&fi_lock);
 
 	free(p);

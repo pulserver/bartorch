@@ -868,17 +868,15 @@ BARTORCH_API int64_t bartorch_cuda_free_memory(void);
  * the deapodisation together, so none of the three has to agree with BART's,
  * only the sign and the scaling.
  *
- * Give this the entry points of an installed FINUFFT and the byte layout of
- * its options struct, which the host reads from the same package, then turn
- * it on.  A subspace basis, weights that do not lie along k-space, and a
- * trajectory that changes across frames fall back to BART's own operator,
- * and bartorch_nufft_decline_reason says which.
+ * FINUFFT is compiled into this library, and cuFINUFFT beside it in a CUDA
+ * build; the substitution is off until turned on.  A subspace basis, weights
+ * that do not lie along k-space, and a trajectory that changes across frames
+ * are declined, and bartorch_nufft_decline_reason says which.
  */
-BARTORCH_API int bartorch_finufft_set(const char* symbol, void* fn);
-/* `device` picks the table: FINUFFT's on the host, cuFINUFFT's on a card.
- * `device_field` is the byte offset of the one option this sets -- the thread
- * count on the host, the device number on a card. */
-BARTORCH_API int bartorch_finufft_layout(int device, int opts_size, int device_field, int upsampling_field, int spreadonly_field);
+/* The FINUFFT release the compiled-in sources declare. */
+BARTORCH_API const char* bartorch_finufft_version(void);
+/* Whether the transform for a side is compiled in: 0 host, 1 device. */
+BARTORCH_API int bartorch_finufft_built_on(int device);
 BARTORCH_API void bartorch_finufft_set_tolerance(double eps);
 BARTORCH_API double bartorch_finufft_tolerance(void);
 BARTORCH_API void bartorch_finufft_set_upsampling(double upsampling);

@@ -67,9 +67,11 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get install -y cmake ${{ matrix.cc }} libomp-dev
 
-      - name: Install CMake (macOS)
+      # libomp for omp.h alone: the library links against the OpenMP
+      # runtime torch carries, not against Homebrew's (cmake/openmp.cmake).
+      - name: Install CMake and the OpenMP header (macOS)
         if: runner.os == 'macOS'
-        run: brew install cmake
+        run: brew install cmake libomp
 
       # omp.h comes from the openmp package; the library links against the
       # OpenMP runtime torch carries, not against MSYS2's.
@@ -130,31 +132,33 @@ jobs:
 
       # The library imports the system's DLLs and torch's OpenMP runtime and
       # nothing from MSYS2, so it loads into official CPython without it.
+      # FINUFFT is compiled in, so its C++ runtime and threads are the
+      # library's own too.
       - name: Nothing from MSYS2 in the library (Windows)
         if: runner.os == 'Windows'
         run: |
           lib=$(python -c "from bartorch._lib import library_path; print(library_path())")
           llvm-readobj --coff-imports "$lib" | grep 'Name:' | sort -u | tee imports.txt
-          ! grep -Ei 'libomp|libc\+\+|libunwind|libwinpthread|msys' imports.txt
+          ! grep -Ei 'libomp|libgomp|libc\+\+|libunwind|libwinpthread|libgcc|libstdc|msys|finufft' imports.txt
+          grep -qi 'libiomp5md.dll' imports.txt
 
-      # Both wheels carry their own copy of LLVM's OpenMP runtime, and the
-      # runtime ends the process rather than run beside a second copy.  The
-      # repair is bartorch's own, on the first NUFFT, so this reaches it the
-      # way an install does rather than patching ahead of it: the pair is
-      # read here while it is still two runtimes, the step below brings the
-      # library up and that is what repairs it, and `verify` after says the
-      # loader agrees and neither runtime aborts.
-      - name: The pair, before bartorch has repaired it (macOS)
+      # The runtime torch carries is the one OpenMP runtime: the library's
+      # load commands name it and nothing else.
+      - name: The library names torch's OpenMP runtime (macOS)
         if: runner.os == 'macOS'
-        run: python scripts/macos_openmp.py diagnose
+        run: |
+          lib=$(python -c "from bartorch._lib import library_path; print(library_path())")
+          otool -L "$lib" | tee loads.txt
+          otool -l "$lib" | grep -A2 LC_RPATH
+          grep -q '@rpath/libomp.dylib' loads.txt
+          ! grep -Ei 'homebrew|/usr/local/opt|finufft' loads.txt
 
       # Before the suite, because the suite is where the information goes
       # missing: bringing the library up is what installs the FINUFFT
-      # substitution -- repairing the OpenMP pair on macOS, then probing
-      # itself by running `bart nufft` both ways -- and pytest has stdout and
-      # stderr captured for collection, so a process that dies there dies
-      # with the reason unprinted.  Run it once with the log going straight
-      # to the console, so a failure says what it was.
+      # substitution, probing itself by running `bart nufft` both ways, and
+      # pytest has stdout and stderr captured for collection, so a process
+      # that dies there dies with the reason unprinted.  Run it once with the
+      # log going straight to the console, so a failure says what it was.
       - name: Report what the library came up with
         run: |
           python - <<'EOF'
@@ -167,7 +171,9 @@ jobs:
           print("backends:", bartorch.backend_sources())
           try:
               from bartorch import _finufft
-              print("finufft available:", _finufft.available())
+              print("finufft compiled in:", _finufft.available(), _finufft.version())
+              print("cufinufft compiled in:", _finufft.cuda_available())
+              _finufft.install_once()
               print("finufft in tools:", _finufft.used_in_tools())
           except Exception:
               # A diagnostic must not be able to fail the thing it is
@@ -176,11 +182,12 @@ jobs:
               traceback.print_exc()
           EOF
 
-      # After the step above, which is what brought the library up: on macOS
-      # that is where `_macos_openmp.ensure()` ran, and this says it took.
-      - name: One OpenMP runtime, repaired by bartorch itself (macOS)
-        if: runner.os == 'macOS'
-        run: python scripts/macos_openmp.py verify
+      # Threaded torch and threaded FINUFFT in one process, in either import
+      # order, with the OpenMP runtimes it loaded listed: one on macOS and
+      # Windows, and it is torch's.  Run on its own before the suite so that
+      # a process ended by a second runtime is reported as that.
+      - name: One OpenMP runtime with torch and FINUFFT threaded together
+        run: pytest tests/test_openmp.py -v -s
 
       - name: Run the test suite
         run: pytest tests/ -v ${{ matrix.coverage && '--cov --cov-report=xml' || '' }}
@@ -229,14 +236,21 @@ jobs:
 
       # BART is GCC 14's, for its heap trampolines; the host side of the
       # kernels is GCC 12's, the newest this distribution's nvcc accepts.
-      - name: Build with BART's CUDA kernels
+      # That nvcc is CUDA 12.0, which has no atomicAdd on float2 for compute
+      # capability 9.0 and so cannot compile cuFINUFFT for it; the wheel's
+      # toolkit is 12.8 and builds all five.
+      - name: Build with BART's CUDA kernels and cuFINUFFT
         env:
           CC: gcc-14
           CXX: g++-14
           CUDAHOSTCXX: g++-12
-        run: pip install -e . --no-build-isolation --config-settings=cmake.define.BARTORCH_CUDA=ON
+        run: >-
+          pip install -e . --no-build-isolation
+          --config-settings=cmake.define.BARTORCH_CUDA=ON
+          "--config-settings=cmake.define.BARTORCH_CUDA_ARCHITECTURES=75;80;86;89"
 
       - name: The CUDA build must report its device code and run on the host
         run: |
           python -c "import bartorch; assert 'cuda=ON' in bartorch.build_info()"
+          python -c "from bartorch import _finufft; assert _finufft.available() and _finufft.cuda_available()"
           pytest tests/ -v

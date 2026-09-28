@@ -14,6 +14,7 @@ else's sits inside it.
 | Path | What is in it |
 | --- | --- |
 | `external/bart/` | BART, as a git submodule of the downstream fork `pulserver/bart`. |
+| `external/finufft/` | FINUFFT and cuFINUFFT, as a git submodule of upstream `flatironinstitute/finufft` at one reviewed commit, unmodified. |
 | `external/pocketfft/`, `external/blocksruntime/` | Vendored with their licenses. |
 | `src/bartorch/` | The Python package. |
 | `src/csrc/` | The compiled library. |
@@ -41,9 +42,10 @@ would otherwise have been linked against.
 | `src/csrc/ops/iter.c` | The solve `pics` runs -- `italgo_config`, `lsqr2` -- over an operator and terms the host assembled. |
 | `src/csrc/substitute/fft.cpp` | The FFTW guru interface BART plans with, executed by MKL where the process has it. |
 | `src/csrc/substitute/backend.[ch]`, `ref_blas.c`, `cblas_shim.c`, `lapacke_shim.c` | CBLAS and LAPACKE as BART calls them, forwarded to a table of Fortran-ABI routines with reference BLAS as the fallback. |
-| `src/csrc/substitute/finufft.c`, `nufft_finufft.c` | FINUFFT's and cuFINUFFT's entry points, and BART's NUFFT operator built out of a pair of their plans -- and the normal, which stores one of those in BART's operator through `noncart/nufft_priv.h` rather than letting it grid one. |
+| `src/csrc/substitute/finufft.c`, `nufft_finufft.c` | FINUFFT's and cuFINUFFT's plans through their C API, and BART's NUFFT operator built out of a pair of their plans -- and the normal, which stores one of those in BART's operator through `noncart/nufft_priv.h` rather than letting it grid one. |
+| `src/csrc/substitute/openmp.c` | `__kmpc_dispatch_deinit` for an OpenMP runtime that lacks it, on macOS and Windows. |
 | `src/csrc/substitute/psf.c` | The three `compute_psf*` entry points, so that the adjoint transform a point spread function is comes from the substitution. |
-| `src/bartorch/` | The package.  Public: the functions in `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py` and `_settings.py`, re-exported flat as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (adapters between neural networks and this package's images and iterations); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications, in five sections); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_macos_openmp.py` (pointing FINUFFT's OpenMP runtime at torch's, so one is loaded); inside `linop/`, `form.py` (the encoding form and the plan it reports) and `plan.py` (matching a composition against that form). |
+| `src/bartorch/` | The package.  Public: the functions in `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py` and `_settings.py`, re-exported flat as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (adapters between neural networks and this package's images and iterations); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications, in five sections); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not); inside `linop/`, `form.py` (the encoding form and the plan it reports) and `plan.py` (matching a composition against that form). |
 | `scripts/gen_abi.py` | Generates `_abi.py` from `src/csrc/include/bartorch.h`. Run after changing the header; `tests/test_abi.py` fails when the checked-in file is not what it writes. |
 | `scripts/gen_catalogue.py` | Generates `_catalogue.py` from the BART sources: every command, its arguments, and every option with both spellings. Run after a submodule bump. |
 | `scripts/run_tests.sh` | Builds whatever changed on the C side, then runs the suite against `src/`, without installing. |
@@ -51,13 +53,14 @@ would otherwise have been linked against.
 | `scripts/lint.sh` | Ruff over `src/` and `tests/`, which is what the lint workflow runs; `--fix` writes. |
 | `scripts/benchmark_encodings.py` | The encoding timings `docs/design/composed-encodings.md` records, one case per process, each printing the plan it was lowered into beside its times. |
 | `scripts/benchmark_newton.py` | The Gauss-Newton timings `docs/design/nonlinear-fusion.md` records, with the encoding applied as its normal and as a pair. |
-| `scripts/macos_openmp.py` | `bartorch._macos_openmp` by hand: `diagnose` reads, `patch` rewrites and re-signs, `verify` proves it. The substitution does it for itself on first use, so this is for seeing what it found and for an environment where it could not. |
 | `scripts/build_docs.sh` | Builds the reference the way the workflow does. |
 | `scripts/build_docs_pdf.sh` | Builds the documentation as one PDF, `bartorch-docs.pdf`. |
 | `scripts/publish_docs.py` | Places a built site into the `gh-pages` branch as one version -- `latest` for `main`, the tag for a release, copied to `stable` when it is the newest -- and rewrites the root redirect and the `versions.json` the version switcher reads. |
 | `scripts/make_artwork.py` | Draws the logo, the mark and the explanation figures under `docs/_static/`. |
 | `scripts/check_device.py` | Everything a card can answer that a host cannot, in dependency order. |
 | `cmake/embed.cmake` | Writes a file's bytes into a C array, for the LTO-IR the CUDA build links. |
+| `cmake/finufft.cmake` | Builds `external/finufft` into the library, and writes the notices of what it compiles in. |
+| `cmake/openmp.cmake` | The OpenMP runtime BART and FINUFFT are bound to: the toolchain's on Linux, torch's on macOS and Windows. |
 | `attic/prototype/` | An earlier pybind11 extension, kept for reference and not built. |
 
 Every BART command is wrapped by hand, derived from the catalogue into a `tools` section, or
@@ -147,76 +150,69 @@ A tensor on a card selects that card for the length of the call, which is what
 path on: `bart_use_gpu` is what `-g` sets on the command line, so passing `-g`
 to a tool as well changes nothing.
 
-**FINUFFT is a dependency; cuFINUFFT is an extra.** The `finufft` and
-`cufinufft` wheels each carry a compiled shared library with a plain C plan
-API, so nothing is built or vendored either way. `src/csrc/substitute/finufft.c` holds the
-entry points and `_finufft.py` hands them over along with the byte offset of
-FINUFFT's options struct, read from the same package so a release that moves a
-field cannot silently corrupt it.
+**FINUFFT is compiled in, from upstream.** `external/finufft` is
+`flatironinstitute/finufft` at one reviewed commit, unmodified, and
+`cmake/finufft.cmake` builds it through its own CMake as static libraries
+linked into `libbartorch`: FINUFFT in every build, cuFINUFFT beside it when
+`BARTORCH_CUDA` is on.  `src/csrc/substitute/finufft.c` includes `finufft.h`
+and `cufinufft.h` and calls their plan API with the real options structs, so
+no FINUFFT package is installed, located or loaded, and `_finufft.available()`
+and `cuda_available()` report what the library was built with.  The static
+archives' symbols stay out of the dynamic table (hidden visibility, and
+`--exclude-libs` on Linux), so a `finufft` package some other code loads
+beside it cannot bind to them.
 
-The two are not optional in the same way. FINUFFT *is* the NUFFT here -- every
-non-Cartesian transform goes through the substitution under `nufft_create` --
-so a bartorch without it does non-Cartesian work slowly rather than well,
-which is a dependency and not a choice. cuFINUFFT serves a transform on a
-card, and most machines have no card, so it stays an extra.
+The pin is master rather than a release because 2.6, which consolidates CPU
+and CUDA under one CMake with the options used here, is not released yet; it
+is `b3584138`, whose upstream CMake CI completed green.  A bump is a change of
+its own (`docs/guides/developer/workflow.md`).  A change FINUFFT needs goes
+upstream rather than into the checkout.
 
-**On macOS the two wheels have to be made one runtime first.** torch carries
-an OpenMP runtime and the FINUFFT wheel carries its own, and LLVM's runtime
-ends the process rather than run beside a second copy of itself (`OMP: Error
-#15`).  `_finufft.openmp_runtimes()` reads the loaded images for that pair
-before the first call into FINUFFT; more than one and the substitution
-declines, `install_once` says so at warning level, and every non-Cartesian
-transform is then refused.  BART's gridder does not quietly take over: an
-answer an order further from the transform and several times slower, arriving
-with nothing to say so, is worse than no answer.
+The build fetches what FINUFFT's CMake pins -- xsimd, POET and DUCC0, and
+CCCL where a CUDA toolkit lacks it -- through FINUFFT's CPM, so a source build
+needs git and network access unless `CPM_SOURCE_CACHE` already holds them.
+Their notices are written at configure time and installed into the wheel's
+`.dist-info/licenses/finufft-dependencies/`.
 
-`_macos_openmp.ensure()` is the fix, and `use_in_tools` runs it before it
-loads FINUFFT's library -- which is the only moment it can, because loading
-that library is what brings its runtime into the process.  The two copies are
-the same runtime: both LLVM's libomp, both compatibility version 5.0.0, and
-every OpenMP symbol `libfinufft.dylib` imports is exported by the copy torch
-carries.  So FINUFFT's library is pointed at torch's with `install_name_tool`
-and re-signed -- not optional on Apple Silicon, where changing a load command
-invalidates the signature -- one runtime is loaded, and the substitution
-installs as it does everywhere else.
+FINUFFT's FFT is DUCC0's (`FINUFFT_USE_DUCC0`).  FFTW is the alternative, and
+it cannot be used here twice over: it is GPL, and this library already
+defines the FFTW guru symbols BART plans with (`src/csrc/substitute/fft.cpp`),
+so a FINUFFT linked against FFTW binds its FFT to those and crashes.  The DUCC0
+files FINUFFT compiles are each BSD-3-Clause or GPL-2.0-or-later and are taken
+under the first.  Against the FINUFFT 2.5.1 wheel's FFTW build, on a 256^2
+eight-coil radial set and a 128^3 volume of two million points, the transform
+agrees to 2e-05 and the error against an explicit sum is the same to three
+digits; `docs/design/finufft-embedding.md` has the timings.
 
-There is no pip post-install hook for a wheel, so this is the nearest thing:
-the first NUFFT repairs the install, and the next `pip install -U finufft`
-undoes it and the one after that repairs it again.  It refuses rather than
-patching where the two are not one runtime, checks afterwards that the load
-command really changed -- `codesign` can report success over a file that did
-not -- and raises nothing, because an environment where the file cannot be
-rewritten should refuse transforms rather than fail to import.  Where it could
-not, the refusal carries its reason and `scripts/macos_openmp.py diagnose`
-prints what it saw.
+`FINUFFT_ARCH_FLAGS` is `-march=x86-64` on x86-64 and empty elsewhere, as
+FINUFFT's own wheels are built, and `BARTORCH_CUDA_ARCHITECTURES` sets
+`CMAKE_CUDA_ARCHITECTURES` for cuFINUFFT as for BART's kernels.  cuFINUFFT at
+this pin does not compile for sm_90 with CUDA 12.0 (a vector `atomicAdd` it
+takes for that architecture arrives later), so a CUDA build that includes 90
+needs 12.1 or newer; the wheel is built with 12.8.
 
-`KMP_DUPLICATE_LIB_OK=TRUE` is not this: the flag tells one runtime to
-tolerate a second live copy and is documented by its own authors as unsafe;
-here there is one copy, and torch and FINUFFT share its pool.  The macOS CI
-job reads the pair with `diagnose`, brings the library up -- which is where
-`ensure()` runs, as it would on anyone's machine -- and then checks with
-`verify` that the loader agrees, all before the suite, so a repair that did
-not work lands there rather than inside a test.  Linux is not asked: its
-loader resolves the duplicate instead of dying on it.
-
-The requirement carries no marker, and that is a decision about which wheels
-exist rather than an oversight. FINUFFT ships none for Linux on aarch64 -- it
-never has -- and dropped the Intel Mac after 2.4.0; its sdist wants CMake,
-ninja, a C++ compiler and a fetched FFTW. A bartorch wheel for a platform
-FINUFFT has no wheel for could only either install something that cannot do
-non-Cartesian work, or start a source build for someone who asked for a wheel.
-So no such wheel is built: `publish.yml` builds Linux x86_64 and macOS arm64,
-which are platforms FINUFFT ships wheels for too, and aarch64 is served by the
-sdist -- where compiling BART is already the price of entry, and compiling
-FINUFFT beside it costs nothing new.
-
-There is no `finufft` extra. An old `pip install 'bartorch[finufft]'` still
-installs FINUFFT, and pip warns that the extra is not provided, which is the
-right thing to hear. `tests/test_dependencies.py` holds all of this: that the
-requirement is there, that it is unconditional, that no extra shadows it, and
-that the metadata pip was actually given promises what pyproject does.
-`_finufft.required_but_missing()` is the message for an absent one, and says
-it is a broken install rather than a choice.
+**One OpenMP runtime, and it is torch's where that matters.**
+`cmake/openmp.cmake` defines `OpenMP::OpenMP_C` and `OpenMP::OpenMP_CXX` for
+the whole build, BART linking the first and FINUFFT the second, and answers
+FINUFFT's own `find_package(OpenMP)` through `CMAKE_FIND_PACKAGE_REDIRECTS_DIR`
+so it cannot pick a runtime of its own.  On Linux it is the toolchain's
+runtime.  On Windows and macOS LLVM's runtime ends the process when a second
+copy initialises (`OMP: Error #15`), and torch has already loaded one, so the
+library is linked against a stub that names torch's and lists the entry
+points clang calls: an import library for `libiomp5md.dll` made from
+`src/csrc/compat/libiomp5md.def`, and a text stub for `@rpath/libomp.dylib`
+written from the same list, with `@loader_path/../torch/lib` on the rpath.
+`_lib._load` imports torch before it loads the library on both.  clang 19
+and later end a dynamically scheduled loop with `__kmpc_dispatch_deinit`,
+which the libomp in torch 2.3 to 2.5 does not export, so
+`src/csrc/substitute/openmp.c` answers it inside the library and forwards to
+the runtime's own where there is one; torch before 2.3 carries no libomp on
+macOS, hence the platform floor in `pyproject.toml`.  macOS needs
+`omp.h` to compile, which Homebrew's `libomp` provides; nothing links against
+that copy.  `tests/test_openmp.py` runs threaded torch and threaded FINUFFT in
+one process in either import order and reads the loaded images: one runtime
+on macOS and Windows, and it is torch's, with no installed file changed.
+`KMP_DUPLICATE_LIB_OK` is not used.
 
 **Underneath BART's own tools the seam is `nufft_create`, not the gridder.**
 `nufft.c` is compiled with `nufft_create`, `nufft_create2`, `nufft_get_psf*`
@@ -249,14 +245,10 @@ as it starts, before anyone has mentioned FINUFFT.
 BART's own gridder is not reachable from the package's surface at all, and
 nothing in the library opens it: `bartorch_nufft_allow_fallback` is set by
 `_finufft.barts_own_gridder()` and by `use_in_tools(False)`, which are the
-agreement check and the tests, and by nothing else.  Every way the
-substitution can fail to install -- `finufft` missing, `cufinufft` missing on
-a machine with a card, two OpenMP runtimes, the agreement check disagreeing --
-leaves it closed, so what follows is a refusal naming the reason.  There is
-nothing a caller can pass to end up on the gridder. `_finufft.use_in_tools` raises when `finufft` is missing
--- which on a platform it ships a wheel for means the install has lost it --
-or when `cufinufft` is missing on a machine whose card BART would otherwise
-use. A test that enters that block would carry it into the next test, so
+agreement check and the tests, and by nothing else.  The one way the
+substitution can fail to install -- the agreement check disagreeing -- leaves
+it closed, so what follows is a refusal naming the reason.  There is nothing a
+caller can pass to end up on the gridder. A test that enters that block would carry it into the next test, so
 `tests/conftest.py` puts the substitution back after every one.
 
 The operator layer says what the tools say: `linop.NUFFT` takes the
@@ -333,9 +325,8 @@ BART finds it by spreading the sampling pattern with its own, and that is the
 wrong footprint once the function is FINUFFT's: what the mask has to cover is
 where this function has signal. `spreadinterponly` is the spreading with
 nothing after it -- no transform, no deapodisation -- so what comes back is
-the kernel's own reach, on whichever grid it is asked for. Both wheels carry
-the field, spelled differently and at different offsets, which the options
-layout reads from each package like the others.
+the kernel's own reach, on whichever grid it is asked for. Both libraries
+carry the field, as `spreadinterponly` and `gpu_spreadinterponly`.
 
 It is asked for the grid the mask lives on, one set of frequencies at a time:
 the doubled grid decomposes into that many copies of the image, each carrying
@@ -525,12 +516,10 @@ and `pics` over the same data, agreeing with BART's own reconstruction to
 | BART | 1.66 s | 6.44 s |
 | FINUFFT | 1.06 s | 2.33 s |
 
-**cuFINUFFT is the same table.** `src/csrc/substitute/finufft.c` holds two of them, filled
-from the `finufft` and `cufinufft` wheels; without the `cufinufft` wheel on a
-machine with a card the substitution is not installed, and a transform is
-refused rather than quietly running on the host or on BART's own operator.
+**cuFINUFFT is the other side.** A plan records which of the two libraries
+made it, and a CUDA build carries both.
 
-Which table serves a transform is decided by where its arguments are, not by
+Which library serves a transform is decided by where its arguments are, not by
 where the trajectory is, because BART hands one operator memory on either
 side: `pics` takes its first adjoint from the k-space it mapped and then
 iterates on device vectors. So the operator holds a side per place -- a pair
@@ -542,10 +531,9 @@ piece of code serve both. A callback reaches a device buffer through the CUDA
 array interface (`src/bartorch/_buffer.py`), which is how a Python operator
 sees one.
 
-The cuFINUFFT wheel is taken through the C API it exports from 2.3 on: an
-int64 sample count in `cufinufftf_setpts`, and defaults filled from the
-options struct alone, spelled `cufinufft_default_opts` without the precision
-suffix FINUFFT uses.
+A tolerance below what single precision reaches at a size is planned at the
+tolerance it can reach (`allow_eps_too_small`) rather than refused, which is
+what asking for the most accurate transform means.
 
 **`-o` is `upsampfac`, and `-w` is the tolerance read backwards.** How far
 past the image the transform is computed on is the one gridding parameter both
@@ -1031,14 +1019,11 @@ which fails with a message that does not say which:
 * **A compiler that puts BART's nested functions on the heap.** GCC 14 or
   newer, for `-ftrampoline-impl=heap`, or clang -- `cmake -DCMAKE_C_COMPILER=clang
   -DCMAKE_CXX_COMPILER=clang++`. CMake says so and stops; GCC 13 is not enough.
-* **OpenMP for whichever of those it is.** `libomp-dev` beside clang. Without
-  it the build still works and the overlapped walks in `src/csrc/ops/sense.c` run in
-  sequence.
-* **FINUFFT**, which `pip install -e .` brings on every platform it ships a
-  wheel for. Working from a source checkout on `PYTHONPATH` instead, install
-  it by hand: without it seventeen tests fail rather than skip, because
-  nothing reaches BART's own gridder without having been sent there and the
-  substitution declining is an error, not a fallback.
+* **OpenMP for whichever of those it is.** `libomp-dev` beside clang on
+  Linux, and `brew install libomp` for the header on macOS; without it the
+  build stops unless `-DBARTORCH_OPENMP=OFF` asks for a single-threaded one.
+* **Network access on the first configure**, for the xsimd, POET and DUCC0
+  FINUFFT's CMake fetches; `CPM_SOURCE_CACHE` keeps them for the next build.
 
 With those, and `pip install torch numpy scipy pytest`, the suite is green
 apart from the CUDA tests, which skip without a card. `pip install mkl

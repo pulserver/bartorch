@@ -17,22 +17,13 @@ from bartorch._dispatch import dispatch
 from bartorch._lib import library
 
 
-# FINUFFT is a dependency, so its absence is a broken install rather than a
-# choice -- which test_dependencies.py fails on, loudly and once.  Skipping the
-# rest keeps that one failure readable instead of burying it in seventeen.
 def _no_substitution_to_test() -> str:
     """Why there is nothing here to test, or the empty string.
 
-    Two different absences, and they are not the same news.  Not installed is
-    a broken environment, and `test_dependencies.py` is where that is said
-    once and loudly.  Installed but unable to take BART's place is a platform:
-    macOS loads torch's OpenMP runtime and the FINUFFT wheel's own, and LLVM's
-    runtime ends the process rather than run beside itself -- so the
-    substitution declines, every non-uniform transform is refused, and a test
-    of the substitution has no subject.
+    FINUFFT is compiled into the library, so the one way to get here is a
+    substitution that declined to install itself -- which is a failure of the
+    build, and ``test_the_substitution_installs_itself`` says so once.
     """
-    if not _finufft.available():
-        return "finufft is not installed, and it is a dependency: see test_dependencies.py"
     try:
         # The substitution installs itself the first time the library is
         # brought up, and asking before that would say no for the wrong reason.
@@ -41,8 +32,8 @@ def _no_substitution_to_test() -> str:
         _ensure_ready()
         if not _finufft.used_in_tools():
             return (
-                "finufft is installed but could not be put in BART's place here, so there "
-                f"is no substitution to test: {_finufft.decline_reason()}"
+                "the substitution could not be put in BART's place here, so there is "
+                f"nothing to test: {_finufft.decline_reason()}"
             )
     except Exception as exc:  # the library did not come up; other tests say so
         return f"the library could not be asked whether FINUFFT is in use: {exc}"
@@ -193,7 +184,7 @@ def in_tools():
     """
     try:
         installed = _finufft.use_in_tools()
-    except (ImportError, RuntimeError) as exc:
+    except RuntimeError as exc:
         pytest.skip(f"the substitution declined to install itself: {exc}")
     if not installed:
         pytest.skip("the substitution declined to install itself")
@@ -363,63 +354,6 @@ def test_barts_own_gridder_is_reachable_only_from_inside_the_package():
     assert not _finufft.fallback_allowed()
 
 
-@contextlib.contextmanager
-def _two_openmp_runtimes():
-    """A process that looks like an unpatched macOS one, which is the pair's own answer.
-
-    ``openmp_runtimes`` reads the loaded images and answers nothing but on
-    macOS, so the one case that matters is unreachable on any other host
-    without saying what it would have found.
-    """
-    was = _finufft.openmp_runtimes
-    _finufft.openmp_runtimes = lambda: ["/torch/lib/libomp.dylib", "/finufft/.dylibs/libomp.dylib"]
-    try:
-        yield
-    finally:
-        _finufft.openmp_runtimes = was
-
-
-@requires_finufft
-def test_two_openmp_runtimes_refuse_the_transforms_rather_than_grid_them():
-    """What an unpatched macOS gets: a refusal, not an answer from BART's gridder.
-
-    Calling FINUFFT with a second runtime loaded is what ends the process, so
-    the substitution stays off -- and an answer an order further from the
-    transform, arriving with nothing to say so, is worse than no answer, so
-    the fallback is not opened either.
-    """
-    with _two_openmp_runtimes(), pytest.raises(RuntimeError, match="more than one OpenMP runtime"):
-        _finufft.use_in_tools(True)
-
-    assert not _finufft.used_in_tools(), "the substitution is off"
-    assert not _finufft.fallback_allowed(), "and BART's gridder was not opened instead"
-
-    n = 32
-    traj = bt.traj(x=n, y=16, r=True)
-    img = bt.phantom([n, n]).reshape(1, n, n)
-    with pytest.raises(bartorch.BartError, match="FINUFFT cannot serve this NUFFT"):
-        bartorch.nufft(img, traj)
-
-
-@pytest.mark.parametrize(
-    ("repaired", "says"),
-    [
-        # Patched in this process: too late for the image already loaded.
-        ("patched", "start again"),
-        # Nothing to do, so the second runtime is not one of this pair's.
-        ("already", "some other package's"),
-        # Anything else is the reason it could not, carried through.
-        ("no install_name_tool on PATH", "no install_name_tool on PATH"),
-    ],
-)
-def test_the_refusal_says_what_to_do_about_each_way_it_got_here(repaired, says):
-    """A message with no remedy in it is one a caller cannot act on."""
-    remedy = _finufft._remedy(repaired)
-    assert says in remedy
-    if repaired != "patched":
-        assert "scripts/macos_openmp.py" in remedy
-
-
 @requires_finufft
 def test_the_operator_is_unaffected_by_the_substitution():
     n = 32
@@ -438,9 +372,8 @@ def test_the_operator_is_unaffected_by_the_substitution():
 
 @requires_finufft
 def test_the_device_transform_is_offered_only_where_cufinufft_is(in_tools):
-    # The two libraries are registered together and picked by where the data
-    # is, so a trajectory on a card is BART's own operator's without the
-    # cufinufft wheel rather than a transform that quietly runs on the host.
+    # cuFINUFFT is compiled in exactly when the card is, so a device
+    # transform is offered by every CUDA build and by no other.
     assert _finufft.used_on_device() == (_finufft.cuda_available() and bartorch._cuda.built()), (
         _finufft.decline_reason()
     )
@@ -449,7 +382,7 @@ def test_the_device_transform_is_offered_only_where_cufinufft_is(in_tools):
 @requires_finufft
 @pytest.mark.skipif(
     not (bartorch._cuda.available() and _finufft.cuda_available()),
-    reason="this needs a CUDA device and the cufinufft package",
+    reason="this needs a CUDA device and a CUDA build",
 )
 def test_a_trajectory_on_a_card_is_transformed_by_cufinufft(in_tools):
     n = 32
@@ -468,7 +401,7 @@ def test_a_trajectory_on_a_card_is_transformed_by_cufinufft(in_tools):
 @requires_finufft
 @pytest.mark.skipif(
     not (bartorch._cuda.available() and _finufft.cuda_available()),
-    reason="this needs a CUDA device and the cufinufft package",
+    reason="this needs a CUDA device and a CUDA build",
 )
 def test_one_operator_serves_both_sides_of_the_bus(in_tools):
     """BART applies one operator to memory on either side, so it plans on both.
@@ -617,7 +550,7 @@ def test_a_subspace_forward_over_a_per_frame_trajectory_matches_an_explicit_sum(
 @requires_finufft
 @pytest.mark.skipif(
     not (bartorch._cuda.available() and _finufft.cuda_available()),
-    reason="this needs a CUDA device and the cufinufft package",
+    reason="this needs a CUDA device and a CUDA build",
 )
 def test_a_subspace_adjoint_on_a_card_agrees_with_the_host(in_tools):
     n, spokes, frames, coeffs = 16, 5, 4, 2
@@ -659,21 +592,15 @@ def test_a_transform_finufft_cannot_serve_is_an_error_rather_than_barts_gridder(
         assert _finufft.operators_built() == (0, 1)
 
 
-def test_enabling_without_finufft_says_so_rather_than_carrying_on(monkeypatch):
-    monkeypatch.setattr(_finufft, "available", lambda: False)
-    with pytest.raises(ImportError, match="finufft"):
-        _finufft.use_in_tools(True)
+def test_finufft_is_compiled_into_the_library():
+    """No FINUFFT package is involved: the transform is the library's own."""
+    assert _finufft.available()
+    assert _finufft.version().startswith("2.")
+    assert f"finufft={_finufft.version()}" in bartorch.build_info()
 
 
-@requires_finufft
-def test_enabling_on_a_machine_with_a_device_needs_cufinufft(monkeypatch):
-    """A card BART would use and no cuFINUFFT is a gap the caller should hear about."""
-    from bartorch import _cuda
-
-    monkeypatch.setattr(_cuda, "available", lambda: True)
-    monkeypatch.setattr(_finufft, "cuda_available", lambda: False)
-    with pytest.raises(ImportError, match="cufinufft"):
-        _finufft.use_in_tools(True)
+def test_cufinufft_is_compiled_in_exactly_when_cuda_is():
+    assert _finufft.cuda_available() == bartorch._cuda.built()
 
 
 @requires_finufft
@@ -2001,14 +1928,13 @@ def test_encoding_axes_behind_a_batch_are_transformed_a_batch_item_at_a_time():
     assert _inner(A(x), y) == pytest.approx(_inner(x, A.adjoint(y)), rel=1e-3)
 
 
-@pytest.mark.skipif(not _finufft.available(), reason="finufft is not installed")
 def test_a_failed_install_is_reported_as_the_refusal_it_leads_to(monkeypatch, caplog):
     """A substitution that could not be installed leaves the gridder closed, so
     what follows is a refusal; the warning says that, not that BART's gridder
     answers instead."""
 
     def fails(enable=True, **kwargs):
-        raise RuntimeError("two OpenMP runtimes are loaded")
+        raise RuntimeError("FINUFFT disagrees with BART")
 
     monkeypatch.setattr(_finufft, "_installed", False)
     monkeypatch.setattr(_finufft, "use_in_tools", fails)
@@ -2017,4 +1943,4 @@ def test_a_failed_install_is_reported_as_the_refusal_it_leads_to(monkeypatch, ca
     (record,) = caplog.records
     assert "refused" in record.getMessage()
     assert "gridder" not in record.getMessage()
-    assert "two OpenMP runtimes" in record.getMessage()
+    assert "FINUFFT disagrees with BART" in record.getMessage()

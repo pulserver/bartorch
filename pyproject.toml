@@ -28,6 +28,9 @@ dependencies = [
     "mri-nufft>=1.0",
     # 2.2 is deepinv's floor; stated here rather than left to the resolver.
     "torch>=2.2",
+    # On macOS the library's OpenMP is the libomp.dylib torch carries, which
+    # torch's wheels carry from 2.3 on.
+    "torch>=2.3; sys_platform == 'darwin'",
     # TorchSim is the signal model.  `nlop.FromTorchSim` turns any of its
     # simulators into a BART nonlinear operator -- value, Jacobian-vector
     # product and adjoint product, which is exactly what `nlop_s` asks for --
@@ -38,17 +41,6 @@ dependencies = [
     # It asks for numpy, scipy and torch, all of which are here already, and
     # nothing else.
     "torchsim>=0.0.5",
-    # FINUFFT is the NUFFT.  Every non-Cartesian transform BART makes goes
-    # through the substitution under `nufft_create`, and nothing reaches BART's
-    # own gridder without having been sent there, so a bartorch without FINUFFT
-    # is one that cannot do non-Cartesian work at all.  That is a dependency,
-    # and there is no extra to ask for it with.
-    #
-    # It carries no marker because it needs none: a wheel is built only for the
-    # platforms FINUFFT ships a wheel for too, so installing one never starts a
-    # build.  Anywhere else -- Linux on aarch64, an Intel Mac -- the install is
-    # from the sdist, and compiling BART is already the price of entry there.
-    "finufft>=2.2",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -84,14 +76,6 @@ deepinv = [
 mkl = [
     "mkl>=2024; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
-# There is no `finufft` extra: it is a dependency, above.  An old
-# `pip install 'bartorch[finufft]'` still installs FINUFFT, and pip warns that
-# the extra is not provided -- which is the right thing to hear.
-# cuFINUFFT stays optional: it serves a transform on a card, and there is no
-# card on most machines.  It is taken through the C API its wheel exports: a
-# sample count of int64 in `cufinufftf_setpts` and defaults filled from the
-# options struct alone.  That is the API from 2.3 on.
-cufinufft = ["cufinufft>=2.3"]
 dev = [
     "pytest>=7",
     # tests/test_docstrings.py reads the docstrings as the reference does.
@@ -115,12 +99,16 @@ cmake.build-type = "Release"
 build-dir = "build/{wheel_tag}"
 wheel.packages = ["src/bartorch"]
 wheel.py-api = "py3"
-# The wheel carries BART, pocketfft and the Blocks runtime compiled in, so it
-# carries their license notices too, each under its own path in the wheel's
-# `.dist-info/licenses/`.
+# The wheel carries BART, FINUFFT, pocketfft and the Blocks runtime compiled
+# in, so it carries their license notices too, each under its own path in the
+# wheel's `.dist-info/licenses/`.  FINUFFT's dependencies are compiled in with
+# it, and cmake/finufft.cmake writes their notices into the build tree at
+# configure time: DUCC0's, and xsimd's.
 wheel.license-files = [
     "LICENSE",
     "external/bart/LICENSE",
+    "external/finufft/LICENSE",
+    "external/finufft/NOTICE",
     "external/pocketfft/LICENSE.md",
     "external/blocksruntime/LICENSE.TXT",
 ]

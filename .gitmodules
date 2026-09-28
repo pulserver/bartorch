@@ -7,3 +7,9 @@
 	# docs/guides/developer/bart-fork.md describes the policy.
 	url = https://github.com/pulserver/bart.git
 	branch = downstream
+[submodule "external/finufft"]
+	path = external/finufft
+	# Upstream FINUFFT, unmodified, at one reviewed commit; no branch is
+	# followed.  cmake/finufft.cmake builds it into the library, and
+	# docs/design/finufft-embedding.md records why this commit.
+	url = https://github.com/flatironinstitute/finufft.git

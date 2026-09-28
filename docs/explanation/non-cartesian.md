@@ -122,18 +122,16 @@ measures.
 Every non-uniform transform is computed by FINUFFT or cuFINUFFT; BART's own
 gridding implementation is not used, and no configuration falls back to it.
 
-| Path | Backend | Device | Requirement and behaviour when unavailable |
+| Path | Backend | Device | Availability |
 | --- | --- | --- | --- |
-| Forward and adjoint transform, PSF | FINUFFT | CPU | Installed as a dependency; without it, a non-uniform transform raises an error |
-| Forward and adjoint transform, PSF | cuFINUFFT | CUDA | The `cufinufft` extra.  On a machine with a CUDA device and a CUDA build of bartorch, the substitution is not installed without it, and every non-uniform transform, on the host as well, raises an error |
+| Forward and adjoint transform, PSF | FINUFFT | CPU | Compiled into every build |
+| Forward and adjoint transform, PSF | cuFINUFFT | CUDA | Compiled into the CUDA build |
 | Multiplication by $\hat h$ | BART, with the FFT of the device: MKL or pocketfft on the host, cuFFT on a CUDA device | Either | — |
 | Unsupported configuration | None | Either | {class}`~bartorch.BartError` naming the reason: weights whose shape does not broadcast onto the k-space samples, an image that varies along an axis the trajectory indexes, a kernel width no tolerance produces, among others |
 
 The backend of a transform is chosen by where its arguments are, not by where
 the trajectory is: an operator holds one pair of plans per memory space and
-builds each the first time a transform is requested there.  On macOS, the
-OpenMP runtimes of the PyTorch and FINUFFT wheels must first be made one, as
-{ref}`the installation guide <macos-openmp>` describes.
+builds each the first time a transform is requested there.
 
 ## Trajectories
 
