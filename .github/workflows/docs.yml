@@ -107,9 +107,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      # libbartorch is a clang build: BART's nested functions become Blocks.
-      - name: Install the compiler, OpenMP and CMake
-        run: sudo apt-get install -y cmake clang libomp-dev
+      # GCC 14, as upstream BART builds on Linux: its heap trampolines are
+      # what BART's nested functions need.
+      - name: Install the compiler and CMake
+        run: sudo apt-get install -y cmake gcc-14 g++-14
 
       - name: Install torch (CPU) and the build backend
         run: |
@@ -119,8 +120,8 @@ jobs:
 
       - name: Build and install bartorch
         env:
-          CC: clang
-          CXX: clang++
+          CC: gcc-14
+          CXX: g++-14
         run: pip install -e . --no-build-isolation
 
       - name: Install the documentation and example requirements

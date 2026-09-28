@@ -10,8 +10,9 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  # BART's nested functions become Blocks under clang and heap trampolines
-  # under GCC 14.  Each platform runs the oldest and the newest Python the
+  # The toolchains are upstream BART's: GCC 14 on Linux, whose heap
+  # trampolines carry BART's nested functions, and clang on macOS, where they
+  # become Blocks.  Each platform runs the oldest and the newest Python the
   # package supports; the wheel workflow tests the wheel on both as well.
   # Windows is clang from MSYS2's CLANG64 environment, linked against the
   # Universal C Runtime that official CPython uses.
@@ -26,7 +27,7 @@ jobs:
             extras: "[mkl]"
           - os: ubuntu-latest
             python-version: "3.14"
-            cc: clang
+            cc: gcc-14
             # One job measures coverage for Codecov; the rest only test.
             coverage: true
           - os: macos-latest
@@ -210,8 +211,8 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install the CUDA toolkit, clang and OpenMP
-        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends cmake clang libomp-dev nvidia-cuda-toolkit
+      - name: Install the CUDA toolkit and GCC
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends cmake gcc-14 g++-14 g++-12 nvidia-cuda-toolkit
 
       - name: Install torch (CPU) and the build backend
         run: |
@@ -226,10 +227,13 @@ jobs:
       - name: Install torchvision from the same index as torch
         run: pip install torchvision --index-url https://download.pytorch.org/whl/cpu
 
+      # BART is GCC 14's, for its heap trampolines; the host side of the
+      # kernels is GCC 12's, the newest this distribution's nvcc accepts.
       - name: Build with BART's CUDA kernels
         env:
-          CC: clang
-          CXX: clang++
+          CC: gcc-14
+          CXX: g++-14
+          CUDAHOSTCXX: g++-12
         run: pip install -e . --no-build-isolation --config-settings=cmake.define.BARTORCH_CUDA=ON
 
       - name: The CUDA build must report its device code and run on the host

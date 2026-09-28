@@ -208,19 +208,25 @@ jobs:
             -w wheelhouse/ --plat manylinux_2_28_x86_64 \
             --exclude libcudart.so.12 --exclude libcufft.so.11 \
             --exclude libcublas.so.12 --exclude libcublasLt.so.12
-      - name: Check that it loads without a card
+      # The wheel carries no interpreter, so it is loaded from each Python the
+      # package supports.
+      - name: Check that it loads without a card, on every Python
         run: |
-          /opt/python/cp312-cp312/bin/python -m pip install wheelhouse/*.whl \
-            torch --index-url https://download.pytorch.org/whl/cpu \
-            --extra-index-url https://pypi.org/simple
-          /opt/python/cp312-cp312/bin/python -c "
+          for py in cp310-cp310 cp311-cp311 cp312-cp312 cp313-cp313 cp314-cp314; do
+            python=/opt/python/$py/bin/python
+            $python -m pip install wheelhouse/*.whl \
+              torch --index-url https://download.pytorch.org/whl/cpu \
+              --extra-index-url https://pypi.org/simple
+            $python -c "
+          import sys
           import bartorch
           from bartorch import _cuda
           info = bartorch.build_info()
-          print(info)
+          print(sys.version.split()[0], info)
           assert 'cuda=ON' in info, info
           print('devices:', _cuda.device_count())
           "
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: cuda-wheel
