@@ -71,11 +71,11 @@ CUDA support requires a CUDA build of both PyTorch and bartorch;
 `torch.cuda.is_available()` and {func}`bartorch.cuda_available` report each.
 The PyPI wheel is the CPU build.  The CUDA build of each version, a Linux
 x86-64 wheel with the same file name, is attached to the
-[GitHub release](https://github.com/mcencini/bartorch/releases) of that
+[GitHub release](https://github.com/pulserver/bartorch/releases) of that
 version:
 
 ```bash
-python -m pip install https://github.com/mcencini/bartorch/releases/download/<tag>/<wheel>
+python -m pip install https://github.com/pulserver/bartorch/releases/download/<tag>/<wheel>
 ```
 
 It contains device code for compute capabilities 7.5, 8.0, 8.6, 8.9 and 9.0

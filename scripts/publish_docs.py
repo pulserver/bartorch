@@ -128,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--url",
-        default="https://mcencini.github.io/bartorch",
+        default="https://pulserver.github.io/bartorch",
         help="where the site is served from",
     )
     arguments = parser.parse_args(argv)

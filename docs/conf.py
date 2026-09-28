@@ -25,7 +25,7 @@ author = "bartorch contributors"
 copyright = "2024–2026, bartorch contributors"
 #: Where the site is served from: GitHub Pages, from the gh-pages branch, with
 #: one directory per published version.
-PAGES_URL = "https://mcencini.github.io/bartorch"
+PAGES_URL = "https://pulserver.github.io/bartorch"
 
 #: The published version this build is, as the docs workflow names it:
 #: ``latest`` for main and the tag for a release.  The version switcher marks
@@ -137,7 +137,7 @@ autosummary_context = {
 html_theme = "sphinx_book_theme"
 html_title = "bartorch"
 html_theme_options = {
-    "repository_url": "https://github.com/mcencini/bartorch",
+    "repository_url": "https://github.com/pulserver/bartorch",
     "repository_branch": "main",
     "path_to_docs": "docs",
     "use_repository_button": True,
@@ -317,10 +317,10 @@ def _public_bases(_app, _name, _obj, _options, bases):
 #: a published version of the site; here they become this build's static files
 #: and pages, so each version's landing page links within that version.
 _SITE_PAGE = re.compile(
-    r"https://mcencini\.github\.io/bartorch/(?:latest|stable|v\d+\.\d+\.\d+)/"
+    r"https://pulserver\.github\.io/bartorch/(?:latest|stable|v\d+\.\d+\.\d+)/"
     r"([^\s)\"'<>#]+)\.html"
 )
-_RAW_STATIC = re.compile(r"https://raw\.githubusercontent\.com/mcencini/bartorch/main/docs/_static/")
+_RAW_STATIC = re.compile(r"https://raw\.githubusercontent\.com/pulserver/bartorch/main/docs/_static/")
 _PICTURE = re.compile(
     r"<picture>\s*<source[^>]*srcset=\"(?P<dark>[^\"]+)\"[^>]*>\s*"
     r"<img (?P<attributes>[^>]*)src=\"(?P<light>[^\"]+)\"(?P<rest>[^>]*)>\s*</picture>"

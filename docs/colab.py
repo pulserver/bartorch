@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 
 #: The repository whose gh-pages branch holds the published site.
-REPOSITORY = "mcencini/bartorch"
+REPOSITORY = "pulserver/bartorch"
 
 #: What every example installs beside bartorch, and what a section adds.
 PACKAGES = ["brainweb-dl", "matplotlib", "cmap"]

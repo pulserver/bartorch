@@ -1,12 +1,12 @@
 # Editable and source installation
 
-Fork [mcencini/bartorch](https://github.com/mcencini/bartorch) and clone the
+Fork [pulserver/bartorch](https://github.com/pulserver/bartorch) and clone the
 fork with its submodules:
 
 ```bash
 git clone --recurse-submodules https://github.com/YOUR-USERNAME/bartorch.git
 cd bartorch
-git remote add upstream https://github.com/mcencini/bartorch.git
+git remote add upstream https://github.com/pulserver/bartorch.git
 ```
 
 An existing clone is completed with `git submodule update --init --recursive`.

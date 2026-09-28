@@ -4,7 +4,7 @@
 
 Report a vulnerability privately through GitHub's private vulnerability
 reporting: the **Report a vulnerability** button under the repository's
-[Security](https://github.com/mcencini/bartorch/security) tab.  Do not open a
+[Security](https://github.com/pulserver/bartorch/security) tab.  Do not open a
 public issue for it.  If the button is not available, contact a maintainer
 through the contact details on their GitHub profile, without describing the
 vulnerability in a public place.

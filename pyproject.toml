@@ -65,10 +65,10 @@ classifiers = [
 bartorch = "bartorch.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/mcencini/bartorch"
-Documentation = "https://mcencini.github.io/bartorch/"
-Repository = "https://github.com/mcencini/bartorch"
-Issues = "https://github.com/mcencini/bartorch/issues"
+Homepage = "https://github.com/pulserver/bartorch"
+Documentation = "https://pulserver.github.io/bartorch/"
+Repository = "https://github.com/pulserver/bartorch"
+Issues = "https://github.com/pulserver/bartorch/issues"
 
 [project.optional-dependencies]
 # deepinv is a source of denoisers, losses and samplers, reached through
