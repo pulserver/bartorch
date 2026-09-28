@@ -18,7 +18,7 @@
 | macOS 11 or later on Apple silicon | Wheel | CPU only; see {ref}`macos-openmp` |
 | Linux aarch64 | Source distribution | BART is compiled on installation; FINUFFT publishes no wheel for this platform and is built from source as well |
 | macOS on Intel | Source distribution | BART is compiled on installation; FINUFFT releases after 2.4.0 have no wheel for this platform and are built from source as well |
-| Windows | Not supported | BART does not build on Windows; WSL2 provides a Linux environment |
+| Windows | Not supported | BART stores array sizes and strides in `long`, which is 32 bits on Windows, limiting every array to 2 GiB; WSL2 provides a Linux environment |
 
 A source installation needs the toolchain listed under {ref}`source-builds`.
 Apple MPS devices are not supported; the device paths are CPU and CUDA.

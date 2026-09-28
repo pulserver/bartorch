@@ -27,10 +27,10 @@ from bartorch._abi import (  # noqa: F401  (re-exported: these are the ABI's voc
 
 
 def _library_names() -> list[str]:
+    # No Windows name: BART does not build there, so neither does this, and
+    # WSL2 is a Linux install like any other.
     if sys.platform == "darwin":
         return ["libbartorch.dylib"]
-    if sys.platform == "win32":
-        return ["libbartorch.dll"]
     return ["libbartorch.so"]
 
 

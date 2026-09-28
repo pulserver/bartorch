@@ -37,27 +37,15 @@ struct prefault {
 	long size;
 };
 
-/* Writes back the byte it reads, which faults its page in writable. */
-static void touch(volatile char* at)
-{
-	char value = *at;
-	*at = value;
-}
-
 static void* prefault_run(void* arg)
 {
 	struct prefault* p = arg;
-#ifdef _WIN32
-	/* The page size of x86-64 Windows; a smaller stride would still reach every page. */
-	long page = 4096;
-#else
 	long page = sysconf(_SC_PAGESIZE);
-#endif
 
 	for (long i = 0; i < p->size; i += page)
-		touch(p->ptr + i);
+		p->ptr[i] = p->ptr[i];
 
-	touch(p->ptr + p->size - 1);
+	p->ptr[p->size - 1] = p->ptr[p->size - 1];
 
 	return NULL;
 }

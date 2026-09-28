@@ -614,12 +614,16 @@ the stack needs an executable stack, which glibc 2.41 refuses to `dlopen`; so
 GCC 14's `-ftrampoline-impl=heap` is required and older GCC is rejected at
 configure time. BART's own `NOEXEC_STACK` workaround does not help here: it
 parses a trampoline layout GCC emits only for non-PIC executables, not for a
-shared library. Both compilers are built and tested in CI.
+shared library. CI builds with upstream BART's toolchains: GCC 14 on Linux
+and Apple's clang on macOS. clang on Linux, with the vendored Blocks runtime,
+still builds and is not tested in CI.
 
-Windows is not a platform here. BART does not build on it, and nothing in
-this repository carries a path toward one: no `.dll` among the names the
-loader tries, no `__declspec(dllexport)`, no `win32` branch picking a
-different library. WSL2 is a Linux install and is the answer.
+Windows is not a platform here. BART builds there with MinGW, but Windows is
+LLP64: `long` is 32 bits, and BART holds every dimension, size and byte
+stride in a `long`, so no array could exceed 2 GiB. No macro fixes that
+without editing BART: `#define long long long` breaks every `long long` BART
+writes, a typedef breaks every `unsigned long`, and its `sscanf("%lu")` calls
+would still write four bytes. WSL2 is a Linux install and is the answer.
 
 The compiler's own runtime is linked statically on Linux, because otherwise
 the toolchain's floor becomes the target system's: a GCC 14 build asks
@@ -1109,8 +1113,8 @@ of it is written.  What comes back is finite stack memory.  `_call`'s
 `_PRECONDITIONS` refuses those combinations before the command runs, which is
 where any further "BART does not define this" case belongs.
 
-Windows is not on this list because it is not a target: BART does not build
-there, and WSL2 is a Linux install like any other.
+Windows is not on this list because it is not a target: BART's 32-bit `long`
+there caps every array at 2 GiB, and WSL2 is a Linux install like any other.
 
 A tool that takes device memory as it stands. BART guards the host reads that
 would break -- `estimate_im_dims` copies to the host when it is handed one --

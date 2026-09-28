@@ -15,5 +15,6 @@ suite is run from `src/` without installing, install it separately
 skip, because the substitution declining is an error.  `pip install mkl
 deepinv` enables the tests that need MKL and the DeepInverse adapter.
 
-Windows is not a target: BART does not build on it, and WSL2 is used as a Linux
+Windows is not a target: BART stores array sizes and strides in `long`, which
+is 32 bits there and limits every array to 2 GiB.  WSL2 is used as a Linux
 environment.

@@ -84,11 +84,9 @@ def _mkl_library() -> Path | None:
         "libmkl_rt.so.2",
         "libmkl_rt.so.3",
         "libmkl_rt.so",
-        "mkl_rt.2.dll",
-        "mkl_rt.3.dll",
     )
     for root in sorted(roots):
-        for sub in ("lib", "lib64", "Library/bin"):
+        for sub in ("lib", "lib64"):
             for name in names:
                 candidate = root / sub / name
                 if candidate.exists():
@@ -102,9 +100,7 @@ def _torch_library() -> Path | None:
     except ImportError:
         return None
     libdir = Path(torch.__file__).resolve().parent / "lib"
-    names = {"darwin": ["libtorch_cpu.dylib"], "win32": ["torch_cpu.dll"]}.get(
-        sys.platform, ["libtorch_cpu.so"]
-    )
+    names = ["libtorch_cpu.dylib"] if sys.platform == "darwin" else ["libtorch_cpu.so"]
     for name in names:
         if (libdir / name).exists():
             return libdir / name
@@ -132,10 +128,7 @@ def _torch_providers() -> list[_Provider | None]:
         found.append(
             _open("Accelerate", "/System/Library/Frameworks/Accelerate.framework/Accelerate")
         )
-    # Windows has no handle on the process's own symbols: each DLL exports
-    # its own, and torch_cpu.dll is asked above.
-    if sys.platform != "win32":
-        found.append(_open("process", None))
+    found.append(_open("process", None))
     return found
 
 

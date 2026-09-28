@@ -88,24 +88,16 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     # GCC turns BART's nested functions into trampolines.  On the stack those
     # need an executable stack, which glibc 2.41 refuses to dlopen; GCC 14
     # places them on the heap instead, so the library loads anywhere.
-    list(APPEND BART_C_OPTIONS
+    if(CMAKE_C_COMPILER_VERSION VERSION_LESS 14)
+        message(FATAL_ERROR
+            "GCC ${CMAKE_C_COMPILER_VERSION} would need an executable stack for BART's nested "
+            "functions.  Use GCC 14 or newer, which has -ftrampoline-impl=heap, or clang.")
+    endif()
+    list(APPEND BART_C_OPTIONS -ftrampoline-impl=heap
         -Wno-vla-parameter -Wno-nonnull -Wno-maybe-uninitialized
         -include assert.h)
-    if(WIN32)
-        # MinGW's GCC makes the page of the stack a trampoline is written to
-        # executable itself (libgcc's __enable_execute_stack, VirtualProtect),
-        # which is how BART's own MSYS2 build runs its nested functions.
-        set(BARTORCH_NESTED "gcc-stack-trampolines")
-    else()
-        if(CMAKE_C_COMPILER_VERSION VERSION_LESS 14)
-            message(FATAL_ERROR
-                "GCC ${CMAKE_C_COMPILER_VERSION} would need an executable stack for BART's nested "
-                "functions.  Use GCC 14 or newer, which has -ftrampoline-impl=heap, or clang.")
-        endif()
-        list(APPEND BART_C_OPTIONS -ftrampoline-impl=heap)
-        list(APPEND BART_LINK_OPTIONS -Wl,-z,noexecstack)
-        set(BARTORCH_NESTED "gcc-heap-trampolines")
-    endif()
+    list(APPEND BART_LINK_OPTIONS -Wl,-z,noexecstack)
+    set(BARTORCH_NESTED "gcc-heap-trampolines")
 else()
     message(FATAL_ERROR "BART needs clang or GCC 14+; ${CMAKE_C_COMPILER_ID} cannot compile it")
 endif()
@@ -133,15 +125,7 @@ endif()
 # would carry the toolchain's floor into every target system -- a GCC 14 build
 # asks for GCC_14.0.0 from libgcc_s, which no released distribution has -- and
 # that is a load-time failure, not a fallback.  Static leaves libc and libgomp.
-#
-# On Windows the same goes for everything MinGW would otherwise bring as a DLL
-# -- libgomp, winpthreads, libgcc and libstdc++ -- because Python does not
-# search PATH for a library's dependencies, so a DLL beside MSYS2's compiler is
-# a DLL the interpreter cannot find.  What is left is the C runtime and the
-# system's own libraries.
-if(WIN32)
-    list(APPEND BART_LINK_OPTIONS -static)
-elseif(NOT APPLE)
+if(NOT APPLE)
     list(APPEND BART_LINK_OPTIONS -static-libgcc -static-libstdc++)
 endif()
 
@@ -182,12 +166,7 @@ endif()
 
 if(BARTORCH_OPENMP)
     find_package(OpenMP COMPONENTS C)
-    if(OpenMP_C_FOUND AND WIN32)
-        # FindOpenMP names libgomp's import library, which -static cannot
-        # turn back into the archive; the flag lets the driver choose.
-        list(APPEND BART_C_OPTIONS ${OpenMP_C_FLAGS})
-        list(APPEND BART_LINK_OPTIONS ${OpenMP_C_FLAGS})
-    elseif(OpenMP_C_FOUND)
+    if(OpenMP_C_FOUND)
         list(APPEND BART_EXTRA_LIBS OpenMP::OpenMP_C)
     endif()
 endif()
@@ -203,12 +182,6 @@ file(READ "${BART_ROOT}/version.txt" BART_VERSION)
 string(STRIP "${BART_VERSION}" BART_VERSION)
 file(WRITE "${BART_GEN}/misc/version.inc" "\"${BART_VERSION}\"\n")
 
-# `tee` installs a SIGPIPE handler through sigaction, which Windows has
-# neither of; it copies a stream between files, which the package does not
-# expose anywhere (`_coverage.py`).
-set(BART_TOOLS_NOT_ON_WINDOWS tee)
-set(BART_SRC_NOT_ON_WINDOWS "${BART_SRC}/tee.c")
-
 file(STRINGS "${BART_ROOT}/Makefile" _tool_lines REGEX "^T(BASE|FLP|NUM|IO|RECO|CALIB|MRI|SIM|NN|MOTION)\\+=")
 set(_mainlist "")
 set(_all_tools "")
@@ -218,7 +191,7 @@ foreach(_cat BASE FLP NUM IO RECO CALIB MRI SIM NN MOTION)
         if(_line MATCHES "^T${_cat}\\+=(.*)$")
             string(REPLACE " " ";" _names "${CMAKE_MATCH_1}")
             foreach(_name ${_names})
-                if(EXISTS "${BART_SRC}/${_name}.c" AND NOT (WIN32 AND _name IN_LIST BART_TOOLS_NOT_ON_WINDOWS))
+                if(EXISTS "${BART_SRC}/${_name}.c")
                     list(APPEND _tools "${_name}")
                     list(APPEND _all_tools "${_name}")
                 endif()
@@ -257,12 +230,7 @@ file(GLOB _module_dirs LIST_DIRECTORIES true CONFIGURE_DEPENDS "${BART_SRC}/*")
 foreach(_dir ${_module_dirs})
     if(IS_DIRECTORY "${_dir}")
         get_filename_component(_mod "${_dir}" NAME)
-        # `win/` is BART's own port of mmap, fmemopen and the rest of what
-        # MinGW lacks, which its MSYS2 build links on Windows and nowhere else.
-        if(_mod STREQUAL "win" AND NOT WIN32)
-            continue()
-        endif()
-        if(NOT _mod MATCHES "^(ismrm|lapacke)$")
+        if(NOT _mod MATCHES "^(ismrm|lapacke|win)$")
             file(GLOB _srcs CONFIGURE_DEPENDS "${_dir}/*.c")
             list(APPEND BART_SOURCES ${_srcs})
         endif()
@@ -282,9 +250,6 @@ list(REMOVE_ITEM BART_SOURCES
     "${BART_SRC}/bbox.c"
     "${BART_SRC}/ismrmrd.c"
     "${BART_SRC}/misc/memcfl.c")
-if(WIN32)
-    list(REMOVE_ITEM BART_SOURCES ${BART_SRC_NOT_ON_WINDOWS})
-endif()
 
 # Three things, and a file belongs to whichever it is.  `abi/` is the boundary:
 # what the host calls, and what BART's environment asks of the host in return.
@@ -310,10 +275,6 @@ set(BARTORCH_SOURCES
     src/csrc/substitute/finufft.c
     src/csrc/substitute/nufft_finufft.c
     src/csrc/substitute/psf.c)
-
-if(WIN32)
-    list(APPEND BARTORCH_SOURCES src/csrc/substitute/posix.c)
-endif()
 
 if(BARTORCH_CUDA)
     list(APPEND BARTORCH_SOURCES src/csrc/ops/kernels.cu src/csrc/ops/fft_callbacks.cu)
@@ -430,32 +391,6 @@ set_source_files_properties("${BART_SRC}/misc/mri2.c" PROPERTIES
 
 set_source_files_properties("${BART_SRC}/sense/optcom.c" PROPERTIES
     COMPILE_DEFINITIONS "estimate_scaling_norm=bart_estimate_scaling_norm")
-
-# Windows, as BART's own MinGW build meets it.  BARTLIB_STATIC keeps the
-# handful of declarations BART marks for its bart.dll from asking for a
-# dllimport of what is defined here.  vptr.c installs a SIGSEGV handler through
-# sigaction, which Windows lacks, unless it is built as that DLL is.  bart.c
-# raises SIGSTOP for its --attach debugging flag, which the package never
-# passes and Windows has no signal for, and its readlink of /proc/self/exe is
-# answered by src/csrc/substitute/posix.c.  misc/lock.c wants C11's <threads.h>,
-# which MinGW's C library does not carry everywhere.  src/csrc/substitute/posix.c
-# is the rest of POSIX BART calls, declared into every file.  NO_FIFO is what
-# BART's own DLL is built with: a named pipe is a POSIX file.
-if(WIN32)
-    target_compile_definitions(bartorch PRIVATE BARTLIB_STATIC NO_FIFO)
-    target_compile_options(bartorch PRIVATE
-        "$<$<COMPILE_LANGUAGE:C>:SHELL:-include ${CMAKE_CURRENT_SOURCE_DIR}/src/csrc/substitute/posix.h>")
-    set_source_files_properties("${BART_SRC}/num/vptr.c" PROPERTIES
-        COMPILE_DEFINITIONS "BARTLIB_EXPORTS")
-    set_source_files_properties("${BART_SRC}/bart.c" PROPERTIES
-        COMPILE_DEFINITIONS "SIGSTOP=SIGABRT;readlink=bartorch_no_readlink")
-    include(CheckIncludeFile)
-    check_include_file(threads.h BARTORCH_HAS_THREADS_H)
-    if(NOT BARTORCH_HAS_THREADS_H)
-        target_include_directories(bartorch PRIVATE
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/csrc/compat/c11threads")
-    endif()
-endif()
 
 target_include_directories(bartorch PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/csrc"
