@@ -27,11 +27,23 @@ from bartorch._abi import (  # noqa: F401  (re-exported: these are the ABI's voc
 
 
 def _library_names() -> list[str]:
-    # No Windows name: BART does not build there, so neither does this, and
-    # WSL2 is a Linux install like any other.
     if sys.platform == "darwin":
         return ["libbartorch.dylib"]
+    if sys.platform == "win32":
+        return ["libbartorch.dll"]
     return ["libbartorch.so"]
+
+
+def _load(path: Path) -> ctypes.CDLL:
+    if sys.platform != "win32":
+        return ctypes.CDLL(str(path))
+    # The Windows library imports libiomp5md.dll, the OpenMP runtime torch
+    # carries and loads; importing torch first makes it the copy the loader
+    # binds to, and torch's directory is where it is found otherwise.
+    import torch
+
+    os.add_dll_directory(str(Path(torch.__file__).resolve().parent / "lib"))
+    return ctypes.CDLL(str(path))
 
 
 def _package_dirs() -> list[Path]:
@@ -74,7 +86,7 @@ def library() -> ctypes.CDLL:
     global _lib, _path
     if _lib is None:
         _path = _find_library()
-        _lib = bind(ctypes.CDLL(str(_path)))
+        _lib = bind(_load(_path))
     return _lib
 
 

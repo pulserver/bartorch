@@ -10,7 +10,11 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  # libbartorch is a clang build: BART's nested functions become Blocks.
+  # BART's nested functions become Blocks under clang and heap trampolines
+  # under GCC 14.  Each platform runs the oldest and the newest Python the
+  # package supports; the wheel workflow tests the wheel on both as well.
+  # Windows is clang from MSYS2's CLANG64 environment, linked against the
+  # Universal C Runtime that official CPython uses.
   tests:
     strategy:
       fail-fast: false
@@ -18,20 +22,29 @@ jobs:
         include:
           - os: ubuntu-latest
             python-version: "3.10"
-            cc: clang
+            cc: gcc-14
+            extras: "[mkl]"
           - os: ubuntu-latest
-            python-version: "3.12"
+            python-version: "3.14"
             cc: clang
             # One job measures coverage for Codecov; the rest only test.
             coverage: true
-          - os: ubuntu-latest
-            python-version: "3.12"
-            cc: gcc-14
-            extras: "[mkl]"
           - os: macos-latest
-            python-version: "3.12"
+            python-version: "3.10"
+            cc: clang
+          - os: macos-latest
+            python-version: "3.14"
+            cc: clang
+          - os: windows-latest
+            python-version: "3.10"
+            cc: clang
+          - os: windows-latest
+            python-version: "3.14"
             cc: clang
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     # Codecov takes the upload on GitHub's OIDC token, so no secret is needed.
     permissions:
       contents: read
@@ -57,6 +70,38 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install cmake
 
+      # omp.h comes from the openmp package; the library links against the
+      # OpenMP runtime torch carries, not against MSYS2's.
+      - name: Install clang, CMake and Ninja (Windows)
+        if: runner.os == 'Windows'
+        id: msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: >-
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-cmake
+            mingw-w64-clang-x86_64-ninja
+            mingw-w64-clang-x86_64-llvm-openmp
+            mingw-w64-clang-x86_64-llvm-tools
+
+      - name: Put CLANG64 on the path (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          "${{ steps.msys2.outputs.msys2-location }}\clang64\bin" >> $env:GITHUB_PATH
+          "CMAKE_GENERATOR=Ninja" >> $env:GITHUB_ENV
+
+      # long is 32 bits here, which is the case the fixed-width types exist
+      # for; this prints it, and tests/test_abi.py holds the library to it.
+      - name: The data model (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          printf '#include <stdio.h>\nint main(void) { printf("long %%d, long long %%d, void* %%d\\n", (int)sizeof(long), (int)sizeof(long long), (int)sizeof(void*)); return 4 != sizeof(long); }\n' > model.c
+          clang model.c -o model.exe
+          ./model.exe
+
       - name: Install torch (CPU) and the build backend
         run: |
           pip install scikit-build-core setuptools-scm numpy scipy pytest pytest-cov numpydoc
@@ -73,7 +118,7 @@ jobs:
       # Linux only because that index publishes no macOS wheel -- there both
       # come from PyPI, which is consistent with itself.
       - name: Install torchvision from the same index as torch
-        if: runner.os == 'Linux'
+        if: runner.os != 'macOS'
         run: pip install torchvision --index-url https://download.pytorch.org/whl/cpu
 
       - name: Build and install bartorch
@@ -81,6 +126,15 @@ jobs:
           CC: ${{ matrix.cc }}
           CXX: ${{ matrix.cc == 'gcc-14' && 'g++-14' || 'clang++' }}
         run: pip install -e ".${{ matrix.extras }}" --no-build-isolation -v
+
+      # The library imports the system's DLLs and torch's OpenMP runtime and
+      # nothing from MSYS2, so it loads into official CPython without it.
+      - name: Nothing from MSYS2 in the library (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          lib=$(python -c "from bartorch._lib import library_path; print(library_path())")
+          llvm-readobj --coff-imports "$lib" | grep 'Name:' | sort -u | tee imports.txt
+          ! grep -Ei 'libomp|libc\+\+|libunwind|libwinpthread|msys' imports.txt
 
       # Both wheels carry their own copy of LLVM's OpenMP runtime, and the
       # runtime ends the process rather than run beside a second copy.  The
@@ -107,6 +161,8 @@ jobs:
           logging.basicConfig(level=logging.DEBUG, format="%(name)s: %(message)s")
           import bartorch
           print("build:", bartorch.build_info())
+          import ctypes, sys
+          print("platform:", sys.platform, "sizeof(long):", ctypes.sizeof(ctypes.c_long))
           print("backends:", bartorch.backend_sources())
           try:
               from bartorch import _finufft

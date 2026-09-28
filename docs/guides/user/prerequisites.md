@@ -4,7 +4,7 @@
 
 | Requirement | Version |
 | --- | --- |
-| Python | 3.10 or later; wheels are tested on 3.10 to 3.14 |
+| Python | 3.10 or later; each wheel is tested on 3.10 and 3.14 |
 | PyTorch | 2.2 or later, CPU or CUDA build |
 | NumPy, SciPy | NumPy 1.24 and SciPy 1.10 or later; MRI-NUFFT, a dependency, raises these to NumPy 2.2 and SciPy 1.13 |
 | FINUFFT | 2.2 or later, installed as a dependency |
@@ -18,7 +18,7 @@
 | macOS 11 or later on Apple silicon | Wheel | CPU only; see {ref}`macos-openmp` |
 | Linux aarch64 | Source distribution | BART is compiled on installation; FINUFFT publishes no wheel for this platform and is built from source as well |
 | macOS on Intel | Source distribution | BART is compiled on installation; FINUFFT releases after 2.4.0 have no wheel for this platform and are built from source as well |
-| Windows | Not supported | BART does not build on Windows; WSL2 provides a Linux environment |
+| Windows 10 or later on x86-64 | Wheel | CPU only; OpenMP is the runtime PyTorch installs |
 
 A source installation needs the toolchain listed under {ref}`source-builds`.
 Apple MPS devices are not supported; the device paths are CPU and CUDA.

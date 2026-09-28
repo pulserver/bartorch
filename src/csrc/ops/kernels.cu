@@ -38,15 +38,15 @@ __global__ static void kern_phase_map_in(struct phase_conf c, cuFloatComplex* ds
 	int startZ = threadIdx.z + blockDim.z * blockIdx.z;
 	int strideZ = blockDim.z * gridDim.z;
 
-	for (long z = startZ; z < c.dims[2]; z += strideZ)
-		for (long y = startY; y < c.dims[1]; y += strideY)
-			for (long x = startX; x < c.dims[0]; x += strideX) {
+	for (bart_dim_t z = startZ; z < c.dims[2]; z += strideZ)
+		for (bart_dim_t y = startY; y < c.dims[1]; y += strideY)
+			for (bart_dim_t x = startX; x < c.dims[0]; x += strideX) {
 
-				long idx = x + c.dims[0] * (y + c.dims[1] * z);
+				bart_dim_t idx = x + c.dims[0] * (y + c.dims[1] * z);
 
 				cuFloatComplex w = cuCmulf(map[idx], phase_at(c, x, y, z, false));
 
-				for (long i = 0; i < c.batch; i++)
+				for (bart_dim_t i = 0; i < c.batch; i++)
 					dst[idx + i * c.tot] = cuCmulf(src[idx + i * c.tot], w);
 			}
 }
@@ -62,20 +62,20 @@ __global__ static void kern_phase_map_out(struct phase_conf c, cuFloatComplex* d
 	int startZ = threadIdx.z + blockDim.z * blockIdx.z;
 	int strideZ = blockDim.z * gridDim.z;
 
-	for (long z = startZ; z < c.dims[2]; z += strideZ)
-		for (long y = startY; y < c.dims[1]; y += strideY)
-			for (long x = startX; x < c.dims[0]; x += strideX) {
+	for (bart_dim_t z = startZ; z < c.dims[2]; z += strideZ)
+		for (bart_dim_t y = startY; y < c.dims[1]; y += strideY)
+			for (bart_dim_t x = startX; x < c.dims[0]; x += strideX) {
 
-				long idx = x + c.dims[0] * (y + c.dims[1] * z);
+				bart_dim_t idx = x + c.dims[0] * (y + c.dims[1] * z);
 
 				cuFloatComplex w = cuCmulf(cuConjf(map[idx]), phase_at(c, x, y, z, true));
 
-				for (long i = 0; i < c.batch; i++)
+				for (bart_dim_t i = 0; i < c.batch; i++)
 					dst[idx + i * c.tot] = cuCaddf(dst[idx + i * c.tot], cuCmulf(src[idx + i * c.tot], w));
 			}
 }
 
-extern "C" void bartorch_cuda_phase_map_in(int N, const long dims[], const float shift[3], float scale,
+extern "C" void bartorch_cuda_phase_map_in(int N, const bart_dim_t dims[], const float shift[3], float scale,
 		_Complex float* dst, const _Complex float* src, const _Complex float* map)
 {
 	struct phase_conf c = phase_setup(N, dims, shift, scale);
@@ -88,7 +88,7 @@ extern "C" void bartorch_cuda_phase_map_in(int N, const long dims[], const float
 	CUDA_KERNEL_ERROR;
 }
 
-extern "C" void bartorch_cuda_phase_map_out(int N, const long dims[], const float shift[3], float scale,
+extern "C" void bartorch_cuda_phase_map_out(int N, const bart_dim_t dims[], const float shift[3], float scale,
 		_Complex float* dst, const _Complex float* src, const _Complex float* map)
 {
 	struct phase_conf c = phase_setup(N, dims, shift, scale);
@@ -104,43 +104,43 @@ extern "C" void bartorch_cuda_phase_map_out(int N, const long dims[], const floa
 /* Gather and scatter over the places the samples reach, found through the
  * mask and counts of coset.cuh.  A scatter writes zeros everywhere else, which
  * is what the transform that follows it needs to see there. */
-__global__ static void kern_gather(long V, const unsigned int* mask, const int* prefix,
+__global__ static void kern_gather(bart_dim_t V, const unsigned int* mask, const int* prefix,
 		cuFloatComplex* dst, const cuFloatComplex* src)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
 
-	for (long i = start; i < V; i += stride) {
+	for (bart_dim_t i = start; i < V; i += stride) {
 
-		long j = kept_at(mask, prefix, i);
+		bart_dim_t j = kept_at(mask, prefix, i);
 
 		if (0 <= j)
 			dst[j] = src[i];
 	}
 }
 
-__global__ static void kern_scatter(long V, const unsigned int* mask, const int* prefix,
+__global__ static void kern_scatter(bart_dim_t V, const unsigned int* mask, const int* prefix,
 		cuFloatComplex* dst, const cuFloatComplex* src)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
 
-	for (long i = start; i < V; i += stride) {
+	for (bart_dim_t i = start; i < V; i += stride) {
 
-		long j = kept_at(mask, prefix, i);
+		bart_dim_t j = kept_at(mask, prefix, i);
 
 		dst[i] = (0 <= j) ? src[j] : make_cuFloatComplex(0.f, 0.f);
 	}
 }
 
-static dim3 grid_for(long n)
+static dim3 grid_for(bart_dim_t n)
 {
-	long blocks = (n + 255) / 256;
+	bart_dim_t blocks = (n + 255) / 256;
 
 	return dim3((unsigned int)((blocks < 65535) ? blocks : 65535));
 }
 
-extern "C" void bartorch_cuda_gather(long V, const unsigned int* mask, const int* prefix,
+extern "C" void bartorch_cuda_gather(bart_dim_t V, const unsigned int* mask, const int* prefix,
 		_Complex float* dst, const _Complex float* src)
 {
 	kern_gather<<<grid_for(V), 256, 0, cuda_get_stream()>>>(V, mask, prefix, (cuFloatComplex*)dst, (const cuFloatComplex*)src);
@@ -148,7 +148,7 @@ extern "C" void bartorch_cuda_gather(long V, const unsigned int* mask, const int
 	CUDA_KERNEL_ERROR;
 }
 
-extern "C" void bartorch_cuda_scatter(long V, const unsigned int* mask, const int* prefix,
+extern "C" void bartorch_cuda_scatter(bart_dim_t V, const unsigned int* mask, const int* prefix,
 		_Complex float* dst, const _Complex float* src)
 {
 	kern_scatter<<<grid_for(V), 256, 0, cuda_get_stream()>>>(V, mask, prefix, (cuFloatComplex*)dst, (const cuFloatComplex*)src);
@@ -188,7 +188,7 @@ __device__ static inline cuFloatComplex ifftmod_at(int n, int j)
  * what the centred transforms of a padded kernel put on around their
  * transforms.  Every axis after the third is a batch the same factor
  * multiplies. */
-__global__ static void kern_modulate(unsigned int d0, unsigned int d1, unsigned int d2, long rest,
+__global__ static void kern_modulate(unsigned int d0, unsigned int d1, unsigned int d2, bart_dim_t rest,
 		int g0, int g1, int g2, int o0, int o1, int o2, float scale, cuFloatComplex* x)
 {
 	unsigned int vol = d0 * d1 * d2;
@@ -204,15 +204,15 @@ __global__ static void kern_modulate(unsigned int d0, unsigned int d1, unsigned 
 
 		f = make_cuFloatComplex(scale * f.x, scale * f.y);
 
-		for (long r = 0; r < rest; r++)
+		for (bart_dim_t r = 0; r < rest; r++)
 			x[i + r * vol] = cuCmulf(x[i + r * vol], f);
 	}
 }
 
-extern "C" void bartorch_cuda_modulate(const long dims[3], long rest, const long grid[3], const long off[3],
+extern "C" void bartorch_cuda_modulate(const bart_dim_t dims[3], bart_dim_t rest, const bart_dim_t grid[3], const bart_stride_t off[3],
 		float scale, _Complex float* x)
 {
-	long vol = dims[0] * dims[1] * dims[2];
+	bart_dim_t vol = dims[0] * dims[1] * dims[2];
 
 	kern_modulate<<<grid_for(vol), 256, 0, cuda_get_stream()>>>((unsigned int)dims[0], (unsigned int)dims[1],
 			(unsigned int)dims[2], rest, (int)grid[0], (int)grid[1], (int)grid[2],
@@ -232,12 +232,12 @@ extern "C" void bartorch_cuda_modulate(const long dims[3], long rest, const long
 enum { CONTRACT_MAX = 16 };
 
 template <typename P>
-__global__ static void kern_contract_upper_real(long L, int R, cuFloatComplex* bank, const P* mat)
+__global__ static void kern_contract_upper_real(bart_dim_t L, int R, cuFloatComplex* bank, const P* mat)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
 
-	for (long l = start; l < L; l += stride) {
+	for (bart_dim_t l = start; l < L; l += stride) {
 
 		cuFloatComplex in[CONTRACT_MAX];
 
@@ -253,7 +253,7 @@ __global__ static void kern_contract_upper_real(long L, int R, cuFloatComplex* b
 
 				int lo = (r < c) ? r : c;
 				int hi = (r < c) ? c : r;
-				float m = widen(mat[(long)(lo + hi * (hi + 1) / 2) * L + l]);
+				float m = widen(mat[(bart_dim_t)(lo + hi * (hi + 1) / 2) * L + l]);
 
 				re += m * in[c].x;
 				im += m * in[c].y;
@@ -264,7 +264,7 @@ __global__ static void kern_contract_upper_real(long L, int R, cuFloatComplex* b
 	}
 }
 
-extern "C" int bartorch_cuda_contract_upper_real(long L, int R, _Complex float* bank, const float* mat)
+extern "C" int bartorch_cuda_contract_upper_real(bart_dim_t L, int R, _Complex float* bank, const float* mat)
 {
 	if ((R < 1) || (R > CONTRACT_MAX))
 		return -1;
@@ -277,7 +277,7 @@ extern "C" int bartorch_cuda_contract_upper_real(long L, int R, _Complex float* 
 }
 
 /* The same, against a function kept in bfloat16. */
-extern "C" int bartorch_cuda_contract_upper_real_bf16(long L, int R, _Complex float* bank, const void* mat)
+extern "C" int bartorch_cuda_contract_upper_real_bf16(bart_dim_t L, int R, _Complex float* bank, const void* mat)
 {
 	if ((R < 1) || (R > CONTRACT_MAX))
 		return -1;
@@ -296,15 +296,15 @@ extern "C" int bartorch_cuda_contract_upper_real_bf16(long L, int R, _Complex fl
  * kernel and written back over itself.  Entry (r, c) of the kernel at place l
  * is `K[(l R + r) R + c]`: the kernel varies over the transformed plane only,
  * so every batch reads the same one. */
-__global__ static void kern_contract_grid(long L, long B, int R, cuFloatComplex* bank, const cuFloatComplex* K)
+__global__ static void kern_contract_grid(bart_dim_t L, bart_dim_t B, int R, cuFloatComplex* bank, const cuFloatComplex* K)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
-	long n = L * B;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
+	bart_dim_t n = L * B;
 
-	for (long i = start; i < n; i += stride) {
+	for (bart_dim_t i = start; i < n; i += stride) {
 
-		long l = i % L;
+		bart_dim_t l = i % L;
 
 		cuFloatComplex in[CONTRACT_MAX];
 
@@ -323,7 +323,7 @@ __global__ static void kern_contract_grid(long L, long B, int R, cuFloatComplex*
 	}
 }
 
-extern "C" int bartorch_cuda_contract_grid(long L, long B, int R, _Complex float* bank, const _Complex float* K)
+extern "C" int bartorch_cuda_contract_grid(bart_dim_t L, bart_dim_t B, int R, _Complex float* bank, const _Complex float* K)
 {
 	if ((R < 1) || (R > CONTRACT_MAX))
 		return -1;
@@ -350,60 +350,60 @@ struct bartorch_grid_axes {
 
 /* Where coordinates `c` (x, y, z) sit in the spectrum, or -1, and the
  * centring there. */
-__device__ static inline long grid_spectrum_at(const struct bartorch_grid_axes* ax, long L,
-		const unsigned int* mask, const int* prefix, const long c[3], cuFloatComplex* mod)
+__device__ static inline bart_dim_t grid_spectrum_at(const struct bartorch_grid_axes* ax, bart_dim_t L,
+		const unsigned int* mask, const int* prefix, const bart_dim_t c[3], cuFloatComplex* mod)
 {
-	long place = 0;
-	long batch = 0;
+	bart_dim_t place = 0;
+	bart_dim_t batch = 0;
 	cuFloatComplex m = make_cuFloatComplex(1.f, 0.f);
 
 	for (int a = 0; a < 3; a++) {
 
 		if (0 != ax->pstr[a]) {
 
-			place += c[a] * (long)ax->pstr[a];
+			place += c[a] * (bart_dim_t)ax->pstr[a];
 			m = cuCmulf(m, ax->mod[a][c[a]]);
 
 		} else if (0 != ax->bstr[a]) {
 
-			batch += c[a] * (long)ax->bstr[a];
+			batch += c[a] * (bart_dim_t)ax->bstr[a];
 		}
 	}
 
 	*mod = m;
 
-	long j = kept_at(mask, prefix, place);
+	bart_dim_t j = kept_at(mask, prefix, place);
 
 	return (0 > j) ? -1 : batch * L + j;
 }
 
 /* table[e X + x] = centring * sum_r B[t R + r] bank[r per + at(x, place of e)],
  * with t = e / S, zero for a padding entry.  B NULL is one coefficient. */
-__global__ static void kern_bank_to_table(long E, long X, long S, int R, long L, long per,
+__global__ static void kern_bank_to_table(bart_dim_t E, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* entry_u, const int* u_coord, const unsigned int* mask, const int* prefix,
 		struct bartorch_grid_axes ax, const cuFloatComplex* B, const cuFloatComplex* bank, cuFloatComplex* table)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
-	long n = E * X;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
+	bart_dim_t n = E * X;
 
-	for (long i = start; i < n; i += stride) {
+	for (bart_dim_t i = start; i < n; i += stride) {
 
-		long e = i / X;
-		long u = entry_u[e];
+		bart_dim_t e = i / X;
+		bart_dim_t u = entry_u[e];
 
 		cuFloatComplex acc = make_cuFloatComplex(0.f, 0.f);
 
 		if (0 <= u) {
 
-			long c[3] = { i - e * X, u_coord[2 * u + 1], u_coord[2 * u] };
+			bart_dim_t c[3] = { i - e * X, u_coord[2 * u + 1], u_coord[2 * u] };
 
 			cuFloatComplex m;
-			long at = grid_spectrum_at(&ax, L, mask, prefix, c, &m);
+			bart_dim_t at = grid_spectrum_at(&ax, L, mask, prefix, c, &m);
 
 			if (0 <= at) {
 
-				long t = e / S;
+				bart_dim_t t = e / S;
 
 				for (int r = 0; r < R; r++) {
 
@@ -423,21 +423,21 @@ __global__ static void kern_bank_to_table(long E, long X, long S, int R, long L,
 /* The adjoint: bank[r per + at(x, u)] = conj(centring) * sum over the entries
  * e of place u of conj(B[t R + r]) table[e X + x].  Each (u, x) is its own
  * place of the spectrum, so no two threads write the same one. */
-__global__ static void kern_table_to_bank(long U, long X, long S, int R, long L, long per,
+__global__ static void kern_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* csr_start, const int* csr, const int* u_coord, const unsigned int* mask, const int* prefix,
 		struct bartorch_grid_axes ax, const cuFloatComplex* B, cuFloatComplex* bank, const cuFloatComplex* table)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
-	long n = U * X;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
+	bart_dim_t n = U * X;
 
-	for (long i = start; i < n; i += stride) {
+	for (bart_dim_t i = start; i < n; i += stride) {
 
-		long u = i / X;
-		long c[3] = { i - u * X, u_coord[2 * u + 1], u_coord[2 * u] };
+		bart_dim_t u = i / X;
+		bart_dim_t c[3] = { i - u * X, u_coord[2 * u + 1], u_coord[2 * u] };
 
 		cuFloatComplex m;
-		long at = grid_spectrum_at(&ax, L, mask, prefix, c, &m);
+		bart_dim_t at = grid_spectrum_at(&ax, L, mask, prefix, c, &m);
 
 		if (0 > at)
 			continue;
@@ -448,9 +448,9 @@ __global__ static void kern_table_to_bank(long U, long X, long S, int R, long L,
 
 			cuFloatComplex acc = make_cuFloatComplex(0.f, 0.f);
 
-			for (long k = csr_start[u]; k < csr_start[u + 1]; k++) {
+			for (bart_dim_t k = csr_start[u]; k < csr_start[u + 1]; k++) {
 
-				long e = csr[k];
+				bart_dim_t e = csr[k];
 				cuFloatComplex v = table[e * X + c[0]];
 
 				acc = cuCaddf(acc, (NULL == B) ? v : cuCmulf(cuConjf(B[(e / S) * R + r]), v));
@@ -461,7 +461,7 @@ __global__ static void kern_table_to_bank(long U, long X, long S, int R, long L,
 	}
 }
 
-extern "C" void bartorch_cuda_bank_to_table(long E, long X, long S, int R, long L, long per,
+extern "C" void bartorch_cuda_bank_to_table(bart_dim_t E, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* entry_u, const int* u_coord, const unsigned int* mask, const int* prefix,
 		const struct bartorch_grid_axes* ax, const _Complex float* B, const _Complex float* bank, _Complex float* table)
 {
@@ -471,7 +471,7 @@ extern "C" void bartorch_cuda_bank_to_table(long E, long X, long S, int R, long 
 	CUDA_KERNEL_ERROR;
 }
 
-extern "C" void bartorch_cuda_table_to_bank(long U, long X, long S, int R, long L, long per,
+extern "C" void bartorch_cuda_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* csr_start, const int* csr, const int* u_coord, const unsigned int* mask, const int* prefix,
 		const struct bartorch_grid_axes* ax, const _Complex float* B, _Complex float* bank, const _Complex float* table)
 {
@@ -485,17 +485,17 @@ extern "C" void bartorch_cuda_table_to_bank(long U, long X, long S, int R, long 
  * sensitivity, zero-filled along the readout from `sx` to `wx` about the
  * centre, and its adjoint.  The image is laid out as BART lays it, readout
  * fastest; `map` NULL is one. */
-__global__ static void kern_pad_map(long sx, long wx, long rest, long off,
+__global__ static void kern_pad_map(bart_dim_t sx, bart_dim_t wx, bart_dim_t rest, bart_stride_t off,
 		cuFloatComplex* dst, const cuFloatComplex* src, const cuFloatComplex* map)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
-	long n = wx * rest;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
+	bart_dim_t n = wx * rest;
 
-	for (long i = start; i < n; i += stride) {
+	for (bart_dim_t i = start; i < n; i += stride) {
 
-		long r = i / wx;
-		long x = i - r * wx - off;
+		bart_dim_t r = i / wx;
+		bart_dim_t x = i - r * wx - off;
 
 		if ((0 > x) || (x >= sx)) {
 
@@ -503,22 +503,22 @@ __global__ static void kern_pad_map(long sx, long wx, long rest, long off,
 			continue;
 		}
 
-		long j = x + r * sx;
+		bart_dim_t j = x + r * sx;
 
 		dst[i] = (NULL == map) ? src[j] : cuCmulf(src[j], map[j]);
 	}
 }
 
-__global__ static void kern_crop_mapc_add(long sx, long wx, long rest, long off,
+__global__ static void kern_crop_mapc_add(bart_dim_t sx, bart_dim_t wx, bart_dim_t rest, bart_stride_t off,
 		cuFloatComplex* dst, const cuFloatComplex* src, const cuFloatComplex* map)
 {
-	long start = threadIdx.x + (long)blockDim.x * blockIdx.x;
-	long stride = (long)blockDim.x * gridDim.x;
-	long n = sx * rest;
+	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
+	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
+	bart_dim_t n = sx * rest;
 
-	for (long j = start; j < n; j += stride) {
+	for (bart_dim_t j = start; j < n; j += stride) {
 
-		long r = j / sx;
+		bart_dim_t r = j / sx;
 		cuFloatComplex v = src[(j - r * sx) + off + r * wx];
 
 		if (NULL != map)
@@ -528,7 +528,7 @@ __global__ static void kern_crop_mapc_add(long sx, long wx, long rest, long off,
 	}
 }
 
-extern "C" void bartorch_cuda_pad_map(long sx, long wx, long rest, long off,
+extern "C" void bartorch_cuda_pad_map(bart_dim_t sx, bart_dim_t wx, bart_dim_t rest, bart_stride_t off,
 		_Complex float* dst, const _Complex float* src, const _Complex float* map)
 {
 	kern_pad_map<<<grid_for(wx * rest), 256, 0, cuda_get_stream()>>>(sx, wx, rest, off,
@@ -537,7 +537,7 @@ extern "C" void bartorch_cuda_pad_map(long sx, long wx, long rest, long off,
 	CUDA_KERNEL_ERROR;
 }
 
-extern "C" void bartorch_cuda_crop_mapc_add(long sx, long wx, long rest, long off,
+extern "C" void bartorch_cuda_crop_mapc_add(bart_dim_t sx, bart_dim_t wx, bart_dim_t rest, bart_stride_t off,
 		_Complex float* dst, const _Complex float* src, const _Complex float* map)
 {
 	kern_crop_mapc_add<<<grid_for(sx * rest), 256, 0, cuda_get_stream()>>>(sx, wx, rest, off,

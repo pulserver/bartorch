@@ -129,7 +129,7 @@ static bartorch_nlop* wrap_nlop(const struct nlop_s* op)
 	return h;
 }
 
-static void copy_dims(const struct iovec_s* iov, int N, long* dims)
+static void copy_dims(const struct iovec_s* iov, int N, bart_dim_t* dims)
 {
 	for (int i = 0; i < N; i++)
 		dims[i] = (i < iov->N) ? iov->dims[i] : 1;
@@ -186,7 +186,7 @@ static void cb_lin_del(const linop_data_t* _d)
 
 struct linop_callback_args {
 
-	int ON; const long* odims; int IN; const long* idims;
+	int ON; const bart_dim_t* odims; int IN; const bart_dim_t* idims;
 	bartorch_apply_fn forward; bartorch_apply_fn adjoint; bartorch_apply_fn normal;
 	void* ctx; bartorch_release_fn release;
 	bartorch_linop* result;
@@ -209,7 +209,7 @@ static int linop_callback_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_callback(int ON, const long* odims, int IN, const long* idims,
+bartorch_linop* bartorch_linop_callback(int ON, const int64_t* odims, int IN, const int64_t* idims,
 		bartorch_apply_fn forward, bartorch_apply_fn adjoint, bartorch_apply_fn normal,
 		void* ctx, bartorch_release_fn release)
 {
@@ -220,7 +220,7 @@ bartorch_linop* bartorch_linop_callback(int ON, const long* odims, int IN, const
 
 /* --- BART's own linear operators ------------------------------------------- */
 
-struct linop_fft_args { int N; const long* dims; unsigned long flags; int inverse; int centered; bartorch_linop* result; };
+struct linop_fft_args { int N; const bart_dim_t* dims; bart_flags_t flags; int inverse; int centered; bartorch_linop* result; };
 
 static int linop_fft_worker(void* p)
 {
@@ -236,13 +236,13 @@ static int linop_fft_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_fft(int N, const long* dims, unsigned long flags, int inverse, int centered)
+bartorch_linop* bartorch_linop_fft(int N, const int64_t* dims, uint64_t flags, int inverse, int centered)
 {
 	struct linop_fft_args a = { N, dims, flags, inverse, centered, NULL };
 	return (0 == guarded(linop_fft_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_cdiag_args { int N; const long* dims; unsigned long flags; const void* diag; bartorch_linop* result; };
+struct linop_cdiag_args { int N; const bart_dim_t* dims; bart_flags_t flags; const void* diag; bartorch_linop* result; };
 
 static int linop_cdiag_worker(void* p)
 {
@@ -251,13 +251,13 @@ static int linop_cdiag_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_cdiag(int N, const long* dims, unsigned long flags, const void* diag)
+bartorch_linop* bartorch_linop_cdiag(int N, const int64_t* dims, uint64_t flags, const void* diag)
 {
 	struct linop_cdiag_args a = { N, dims, flags, diag, NULL };
 	return (0 == guarded(linop_cdiag_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_fmac_args { int N; const long* odims; const long* idims; const long* tdims; const void* tensor; bartorch_linop* result; };
+struct linop_fmac_args { int N; const bart_dim_t* odims; const bart_dim_t* idims; const bart_dim_t* tdims; const void* tensor; bartorch_linop* result; };
 
 static int linop_fmac_worker(void* p)
 {
@@ -266,13 +266,13 @@ static int linop_fmac_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_fmac(int N, const long* odims, const long* idims, const long* tdims, const void* tensor)
+bartorch_linop* bartorch_linop_fmac(int N, const int64_t* odims, const int64_t* idims, const int64_t* tdims, const void* tensor)
 {
 	struct linop_fmac_args a = { N, odims, idims, tdims, tensor, NULL };
 	return (0 == guarded(linop_fmac_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_sampling_args { const long* dims; const long* pat_dims; const void* pattern; bartorch_linop* result; };
+struct linop_sampling_args { const bart_dim_t* dims; const bart_dim_t* pat_dims; const void* pattern; bartorch_linop* result; };
 
 static int linop_sampling_worker(void* p)
 {
@@ -281,13 +281,13 @@ static int linop_sampling_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_sampling(const long* dims, const long* pat_dims, const void* pattern)
+bartorch_linop* bartorch_linop_sampling(const int64_t* dims, const int64_t* pat_dims, const void* pattern)
 {
 	struct linop_sampling_args a = { dims, pat_dims, pattern, NULL };
 	return (0 == guarded(linop_sampling_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_set_diag_args { const bartorch_linop* h; int N; const long* ddims; const void* diag; };
+struct linop_set_diag_args { const bartorch_linop* h; int N; const bart_dim_t* ddims; const void* diag; };
 
 static int linop_set_diag_worker(void* p)
 {
@@ -303,7 +303,7 @@ static int linop_set_diag_worker(void* p)
 	return 0;
 }
 
-int bartorch_linop_set_diagonal(const bartorch_linop* h, int N, const long* ddims, const void* diag)
+int bartorch_linop_set_diagonal(const bartorch_linop* h, int N, const int64_t* ddims, const void* diag)
 {
 	struct linop_set_diag_args a = { h, N, ddims, diag };
 	return guarded(linop_set_diag_worker, &a);
@@ -311,9 +311,9 @@ int bartorch_linop_set_diagonal(const bartorch_linop* h, int N, const long* ddim
 
 struct linop_nufft_args {
 
-	int N; const long* ksp_dims; const long* cim_dims; const long* traj_dims; const void* traj;
-	const long* wgh_dims; const void* weights;
-	const long* bas_dims; const void* basis;
+	int N; const bart_dim_t* ksp_dims; const bart_dim_t* cim_dims; const bart_dim_t* traj_dims; const void* traj;
+	const bart_dim_t* wgh_dims; const void* weights;
+	const bart_dim_t* bas_dims; const void* basis;
 	int toeplitz; float os; float width;
 	bartorch_linop* result;
 };
@@ -334,7 +334,7 @@ static int linop_nufft_worker(void* p)
 	/* Weights and a subspace basis belong to the operator rather than to
 	 * something chained onto it: the normal is a point spread function over
 	 * both, which a chain could not be. */
-	long wgh_dims[a->N];
+	bart_dim_t wgh_dims[a->N];
 
 	if (NULL == a->weights)
 		md_singleton_dims(a->N, wgh_dims);
@@ -346,9 +346,9 @@ static int linop_nufft_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_nufft(int N, const long* ksp_dims, const long* cim_dims, const long* traj_dims,
-		const void* traj, const long* wgh_dims, const void* weights,
-		const long* bas_dims, const void* basis, int toeplitz, float os, float width)
+bartorch_linop* bartorch_linop_nufft(int N, const int64_t* ksp_dims, const int64_t* cim_dims, const int64_t* traj_dims,
+		const void* traj, const int64_t* wgh_dims, const void* weights,
+		const int64_t* bas_dims, const void* basis, int toeplitz, float os, float width)
 {
 	struct linop_nufft_args a = { N, ksp_dims, cim_dims, traj_dims, traj,
 		wgh_dims, weights, bas_dims, basis, toeplitz, os, width, NULL };
@@ -369,9 +369,9 @@ struct blocks_s {
 	linop_data_t super;
 
 	const struct linop_s* op;
-	long n;
-	long isize;
-	long osize;
+	bart_dim_t n;
+	bart_dim_t isize;
+	bart_dim_t osize;
 };
 
 static DEF_TYPEID(blocks_s);
@@ -380,7 +380,7 @@ static void blocks_forward(const linop_data_t* _d, complex float* dst, const com
 {
 	const auto d = CAST_DOWN(blocks_s, _d);
 
-	for (long k = 0; k < d->n; k++)
+	for (bart_dim_t k = 0; k < d->n; k++)
 		linop_forward_unchecked(d->op, dst + k * d->osize, src + k * d->isize);
 }
 
@@ -388,7 +388,7 @@ static void blocks_adjoint(const linop_data_t* _d, complex float* dst, const com
 {
 	const auto d = CAST_DOWN(blocks_s, _d);
 
-	for (long k = 0; k < d->n; k++)
+	for (bart_dim_t k = 0; k < d->n; k++)
 		linop_adjoint_unchecked(d->op, dst + k * d->isize, src + k * d->osize);
 }
 
@@ -396,7 +396,7 @@ static void blocks_normal(const linop_data_t* _d, complex float* dst, const comp
 {
 	const auto d = CAST_DOWN(blocks_s, _d);
 
-	for (long k = 0; k < d->n; k++)
+	for (bart_dim_t k = 0; k < d->n; k++)
 		linop_normal_unchecked(d->op, dst + k * d->isize, src + k * d->isize);
 }
 
@@ -410,7 +410,7 @@ static void blocks_del(const linop_data_t* _d)
 
 struct linop_blocks_args {
 
-	const bartorch_linop* block; int N; const long* odims; const long* idims; long n;
+	const bartorch_linop* block; int N; const bart_dim_t* odims; const bart_dim_t* idims; bart_dim_t n;
 	bartorch_linop* result;
 };
 
@@ -421,11 +421,11 @@ static int linop_blocks_worker(void* p)
 	auto dom = linop_domain(a->block->op);
 	auto cod = linop_codomain(a->block->op);
 
-	long isize = md_calc_size(dom->N, dom->dims);
-	long osize = md_calc_size(cod->N, cod->dims);
+	bart_dim_t isize = md_calc_size(dom->N, dom->dims);
+	bart_dim_t osize = md_calc_size(cod->N, cod->dims);
 
 	if ((a->n < 1) || (md_calc_size(a->N, a->idims) != a->n * isize) || (md_calc_size(a->N, a->odims) != a->n * osize))
-		error("bartorch: %ld blocks of an operator from %ld to %ld elements are not %ld to %ld elements\n",
+		error("bartorch: %" PRId64 " blocks of an operator from %" PRId64 " to %" PRId64 " elements are not %" PRId64 " to %" PRId64 " elements\n",
 				a->n, isize, osize, md_calc_size(a->N, a->idims), md_calc_size(a->N, a->odims));
 
 	PTR_ALLOC(struct blocks_s, d);
@@ -441,7 +441,7 @@ static int linop_blocks_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_blocks(const bartorch_linop* block, int N, const long* odims, const long* idims, long n)
+bartorch_linop* bartorch_linop_blocks(const bartorch_linop* block, int N, const int64_t* odims, const int64_t* idims, int64_t n)
 {
 	struct linop_blocks_args a = { block, N, odims, idims, n, NULL };
 	return (0 == guarded(linop_blocks_worker, &a)) ? a.result : NULL;
@@ -452,7 +452,7 @@ bartorch_linop* bartorch_linop_blocks(const bartorch_linop* block, int N, const 
  * hands the caller's buffers straight through.  An operator built on BART's
  * roles for a torch layout is given the plain reversal of the torch shapes
  * this way, so it chains with every other operator built on that reversal. */
-struct linop_reshaped_args { const bartorch_linop* op; int N; const long* odims; const long* idims; bartorch_linop* result; };
+struct linop_reshaped_args { const bartorch_linop* op; int N; const bart_dim_t* odims; const bart_dim_t* idims; bartorch_linop* result; };
 
 static int linop_reshaped_worker(void* p)
 {
@@ -469,7 +469,7 @@ static int linop_reshaped_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_reshaped(const bartorch_linop* op, int N, const long* odims, const long* idims)
+bartorch_linop* bartorch_linop_reshaped(const bartorch_linop* op, int N, const int64_t* odims, const int64_t* idims)
 {
 	struct linop_reshaped_args a = { op, N, odims, idims, NULL };
 	return (0 == guarded(linop_reshaped_worker, &a)) ? a.result : NULL;
@@ -520,8 +520,8 @@ static int linop_with_normal_worker(void* p)
 
 	/* `linop_from_ops` asserts this, and an assertion here would take the
 	 * process rather than the call. */
-	if (!md_check_equal_dims(dom->N, dom->dims, nrm_dom->dims, ~0UL)
-	 || !md_check_equal_dims(dom->N, dom->dims, nrm_cod->dims, ~0UL))
+	if (!md_check_equal_dims(dom->N, dom->dims, nrm_dom->dims, ~UINT64_C(0))
+	 || !md_check_equal_dims(dom->N, dom->dims, nrm_cod->dims, ~UINT64_C(0)))
 		error("bartorch: a normal operator maps the domain to itself\n");
 
 	/* `linop_from_ops` takes its own reference to each of these. */
@@ -639,7 +639,7 @@ bartorch_linop* bartorch_linop_normal_op(const bartorch_linop* a)
 	return (0 == guarded(linop_normal_op_worker, &args)) ? args.result : NULL;
 }
 
-struct linop_scale_args { int N; const long* dims; float re; float im; bartorch_linop* result; };
+struct linop_scale_args { int N; const bart_dim_t* dims; float re; float im; bartorch_linop* result; };
 
 static int linop_scale_worker(void* p)
 {
@@ -649,13 +649,13 @@ static int linop_scale_worker(void* p)
 }
 
 /* The scale is passed as two floats: a complex float is not in the ABI. */
-bartorch_linop* bartorch_linop_scale(int N, const long* dims, float re, float im)
+bartorch_linop* bartorch_linop_scale(int N, const int64_t* dims, float re, float im)
 {
 	struct linop_scale_args args = { N, dims, re, im, NULL };
 	return (0 == guarded(linop_scale_worker, &args)) ? args.result : NULL;
 }
 
-struct linop_dims_args { int N; const long* dims; bartorch_linop* result; };
+struct linop_dims_args { int N; const bart_dim_t* dims; bartorch_linop* result; };
 
 static int linop_zconj_worker(void* p)
 {
@@ -664,7 +664,7 @@ static int linop_zconj_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_zconj(int N, const long* dims)
+bartorch_linop* bartorch_linop_zconj(int N, const int64_t* dims)
 {
 	struct linop_dims_args args = { N, dims, NULL };
 	return (0 == guarded(linop_zconj_worker, &args)) ? args.result : NULL;
@@ -677,13 +677,13 @@ static int linop_identity_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_identity(int N, const long* dims)
+bartorch_linop* bartorch_linop_identity(int N, const int64_t* dims)
 {
 	struct linop_dims_args args = { N, dims, NULL };
 	return (0 == guarded(linop_identity_worker, &args)) ? args.result : NULL;
 }
 
-struct linop_null_args { int NO; const long* odims; int NI; const long* idims; bartorch_linop* result; };
+struct linop_null_args { int NO; const bart_dim_t* odims; int NI; const bart_dim_t* idims; bartorch_linop* result; };
 
 static int linop_null_worker(void* p)
 {
@@ -692,7 +692,7 @@ static int linop_null_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_null(int NO, const long* odims, int NI, const long* idims)
+bartorch_linop* bartorch_linop_null(int NO, const int64_t* odims, int NI, const int64_t* idims)
 {
 	struct linop_null_args args = { NO, odims, NI, idims, NULL };
 	return (0 == guarded(linop_null_worker, &args)) ? args.result : NULL;
@@ -741,7 +741,7 @@ double bartorch_linop_maxeigen(const bartorch_linop* a)
  * reversed and padded to DIMS by the host, so nothing here reorders anything.
  */
 
-struct linop_flagged_args { int N; const long* dims; unsigned long flags; const void* data; bartorch_linop* result; };
+struct linop_flagged_args { int N; const bart_dim_t* dims; bart_flags_t flags; const void* data; bartorch_linop* result; };
 
 static int linop_rdiag_worker(void* p)
 {
@@ -752,13 +752,13 @@ static int linop_rdiag_worker(void* p)
 
 /* md_zrmul: real parts by real parts and imaginary by imaginary, which is a
  * diagonal on each of the two components and not a real-valued diagonal. */
-bartorch_linop* bartorch_linop_rdiag(int N, const long* dims, unsigned long flags, const void* diag)
+bartorch_linop* bartorch_linop_rdiag(int N, const int64_t* dims, uint64_t flags, const void* diag)
 {
 	struct linop_flagged_args a = { N, dims, flags, diag, NULL };
 	return (0 == guarded(linop_rdiag_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_matrix_args { int N; const long* odims; const long* idims; const long* mdims; const void* matrix; bartorch_linop* result; };
+struct linop_matrix_args { int N; const bart_dim_t* odims; const bart_dim_t* idims; const bart_dim_t* mdims; const void* matrix; bartorch_linop* result; };
 
 static int linop_matrix_worker(void* p)
 {
@@ -767,13 +767,13 @@ static int linop_matrix_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_matrix(int N, const long* odims, const long* idims, const long* mdims, const void* matrix)
+bartorch_linop* bartorch_linop_matrix(int N, const int64_t* odims, const int64_t* idims, const int64_t* mdims, const void* matrix)
 {
 	struct linop_matrix_args a = { N, odims, idims, mdims, matrix, NULL };
 	return (0 == guarded(linop_matrix_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_conv_args { int N; unsigned long flags; int ctype; int cmode; const long* odims; const long* idims; const long* kdims; const void* kernel; bartorch_linop* result; };
+struct linop_conv_args { int N; bart_flags_t flags; int ctype; int cmode; const bart_dim_t* odims; const bart_dim_t* idims; const bart_dim_t* kdims; const void* kernel; bartorch_linop* result; };
 
 static int linop_conv_worker(void* p)
 {
@@ -783,14 +783,14 @@ static int linop_conv_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_conv(int N, unsigned long flags, int ctype, int cmode,
-		const long* odims, const long* idims, const long* kdims, const void* kernel)
+bartorch_linop* bartorch_linop_conv(int N, uint64_t flags, int ctype, int cmode,
+		const int64_t* odims, const int64_t* idims, const int64_t* kdims, const void* kernel)
 {
 	struct linop_conv_args a = { N, flags, ctype, cmode, odims, idims, kdims, kernel, NULL };
 	return (0 == guarded(linop_conv_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_grad_args { int N; const long* dims; int d; unsigned long flags; bartorch_linop* result; };
+struct linop_grad_args { int N; const bart_dim_t* dims; int d; bart_flags_t flags; bartorch_linop* result; };
 
 static int linop_grad_worker(void* p)
 {
@@ -801,7 +801,7 @@ static int linop_grad_worker(void* p)
 
 /* The finite differences along the flagged axes, stacked along d, which must
  * be a dimension the input has only one of. */
-bartorch_linop* bartorch_linop_grad(int N, const long* dims, int d, unsigned long flags)
+bartorch_linop* bartorch_linop_grad(int N, const int64_t* dims, int d, uint64_t flags)
 {
 	struct linop_grad_args a = { N, dims, d, flags, NULL };
 	return (0 == guarded(linop_grad_worker, &a)) ? a.result : NULL;
@@ -814,9 +814,9 @@ static int linop_zreal_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_zreal(int N, const long* dims)
+bartorch_linop* bartorch_linop_zreal(int N, const int64_t* dims)
 {
-	struct linop_flagged_args a = { N, dims, 0UL, NULL, NULL };
+	struct linop_flagged_args a = { N, dims, 0, NULL, NULL };
 	return (0 == guarded(linop_zreal_worker, &a)) ? a.result : NULL;
 }
 
@@ -828,7 +828,7 @@ static int linop_sum_worker(void* p)
 }
 
 /* The one BART operator with a closed-form pseudo-inverse. */
-bartorch_linop* bartorch_linop_sum(int N, const long* dims, unsigned long flags)
+bartorch_linop* bartorch_linop_sum(int N, const int64_t* dims, uint64_t flags)
 {
 	struct linop_flagged_args a = { N, dims, flags, NULL, NULL };
 	return (0 == guarded(linop_sum_worker, &a)) ? a.result : NULL;
@@ -844,7 +844,7 @@ static int linop_scaled_sum_worker(void* p)
 /* The sum divided by the square root of how many were summed, so that its
  * normal is an orthogonal projection.  That is the operator BART's closed-form
  * pseudo-inverse is written for. */
-bartorch_linop* bartorch_linop_scaled_sum(int N, const long* dims, unsigned long flags)
+bartorch_linop* bartorch_linop_scaled_sum(int N, const int64_t* dims, uint64_t flags)
 {
 	struct linop_flagged_args a = { N, dims, flags, NULL, NULL };
 	return (0 == guarded(linop_scaled_sum_worker, &a)) ? a.result : NULL;
@@ -857,7 +857,7 @@ static int linop_avg_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_avg(int N, const long* dims, unsigned long flags)
+bartorch_linop* bartorch_linop_avg(int N, const int64_t* dims, uint64_t flags)
 {
 	struct linop_flagged_args a = { N, dims, flags, NULL, NULL };
 	return (0 == guarded(linop_avg_worker, &a)) ? a.result : NULL;
@@ -871,13 +871,13 @@ static int linop_repmat_worker(void* p)
 }
 
 /* dims is the codomain: the domain is it with the flagged axes set to one. */
-bartorch_linop* bartorch_linop_repmat(int N, const long* odims, unsigned long flags)
+bartorch_linop* bartorch_linop_repmat(int N, const int64_t* odims, uint64_t flags)
 {
 	struct linop_flagged_args a = { N, odims, flags, NULL, NULL };
 	return (0 == guarded(linop_repmat_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_hankel_args { int N; const long* dims; int dim; int window_dim; int window; bartorch_linop* result; };
+struct linop_hankel_args { int N; const bart_dim_t* dims; int dim; int window_dim; int window; bartorch_linop* result; };
 
 static int linop_hankel_worker(void* p)
 {
@@ -889,7 +889,7 @@ static int linop_hankel_worker(void* p)
 /* A sliding window along dim, laid out along window_dim -- which the input
  * must have only one of.  BART builds it as a strided view, so nothing is
  * copied to make the windows overlap. */
-bartorch_linop* bartorch_linop_hankel(int N, const long* dims, int dim, int window_dim, int window)
+bartorch_linop* bartorch_linop_hankel(int N, const int64_t* dims, int dim, int window_dim, int window)
 {
 	struct linop_hankel_args a = { N, dims, dim, window_dim, window, NULL };
 	return (0 == guarded(linop_hankel_worker, &a)) ? a.result : NULL;
@@ -902,13 +902,13 @@ static int linop_flip_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_flip(int N, const long* dims, unsigned long flags)
+bartorch_linop* bartorch_linop_flip(int N, const int64_t* dims, uint64_t flags)
 {
 	struct linop_flagged_args a = { N, dims, flags, NULL, NULL };
 	return (0 == guarded(linop_flip_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_two_shapes_args { int NO; const long* odims; int NI; const long* idims; const long* pos; bartorch_linop* result; };
+struct linop_two_shapes_args { int NO; const bart_dim_t* odims; int NI; const bart_dim_t* idims; const bart_dim_t* pos; bartorch_linop* result; };
 
 static int linop_reshape_worker(void* p)
 {
@@ -917,7 +917,7 @@ static int linop_reshape_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_reshape(int NO, const long* odims, int NI, const long* idims)
+bartorch_linop* bartorch_linop_reshape(int NO, const int64_t* odims, int NI, const int64_t* idims)
 {
 	struct linop_two_shapes_args a = { NO, odims, NI, idims, NULL, NULL };
 	return (0 == guarded(linop_reshape_worker, &a)) ? a.result : NULL;
@@ -932,7 +932,7 @@ static int linop_resize_worker(void* p)
 
 /* Centred: what BART's `resize -c` does, cropping or zero-filling about the
  * middle of each axis rather than the corner. */
-bartorch_linop* bartorch_linop_resize(int N, const long* odims, const long* idims)
+bartorch_linop* bartorch_linop_resize(int N, const int64_t* odims, const int64_t* idims)
 {
 	struct linop_two_shapes_args a = { N, odims, N, idims, NULL, NULL };
 	return (0 == guarded(linop_resize_worker, &a)) ? a.result : NULL;
@@ -945,13 +945,13 @@ static int linop_extract_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_extract(int N, const long* pos, const long* odims, const long* idims)
+bartorch_linop* bartorch_linop_extract(int N, const int64_t* pos, const int64_t* odims, const int64_t* idims)
 {
 	struct linop_two_shapes_args a = { N, odims, N, idims, pos, NULL };
 	return (0 == guarded(linop_extract_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_transpose_args { int N; int a; int b; const long* dims; bartorch_linop* result; };
+struct linop_transpose_args { int N; int a; int b; const bart_dim_t* dims; bartorch_linop* result; };
 
 static int linop_transpose_worker(void* p)
 {
@@ -960,13 +960,13 @@ static int linop_transpose_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_transpose(int N, int a, int b, const long* dims)
+bartorch_linop* bartorch_linop_transpose(int N, int a, int b, const int64_t* dims)
 {
 	struct linop_transpose_args t = { N, a, b, dims, NULL };
 	return (0 == guarded(linop_transpose_worker, &t)) ? t.result : NULL;
 }
 
-struct linop_permute_args { int N; const int* order; const long* idims; bartorch_linop* result; };
+struct linop_permute_args { int N; const int* order; const bart_dim_t* idims; bartorch_linop* result; };
 
 static int linop_permute_worker(void* p)
 {
@@ -976,13 +976,13 @@ static int linop_permute_worker(void* p)
 }
 
 /* order is BART's: the output's dimension i is the input's order[i]. */
-bartorch_linop* bartorch_linop_permute(int N, const int* order, const long* idims)
+bartorch_linop* bartorch_linop_permute(int N, const int* order, const int64_t* idims)
 {
 	struct linop_permute_args a = { N, order, idims, NULL };
 	return (0 == guarded(linop_permute_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_shift_args { int N; const long* dims; int dim; long shift; int pad; bartorch_linop* result; };
+struct linop_shift_args { int N; const bart_dim_t* dims; int dim; bart_dim_t shift; int pad; bartorch_linop* result; };
 
 static int linop_shift_worker(void* p)
 {
@@ -991,21 +991,21 @@ static int linop_shift_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_shift(int N, const long* dims, int dim, long shift, int pad)
+bartorch_linop* bartorch_linop_shift(int N, const int64_t* dims, int dim, int64_t shift, int pad)
 {
 	struct linop_shift_args a = { N, dims, dim, shift, pad, NULL };
 	return (0 == guarded(linop_shift_worker, &a)) ? a.result : NULL;
 }
 
-struct linop_padding_args { int N; const long* dims; int pad; const long* before; const long* after; bartorch_linop* result; };
+struct linop_padding_args { int N; const bart_dim_t* dims; int pad; const bart_dim_t* before; const bart_dim_t* after; bartorch_linop* result; };
 
 static int linop_padding_worker(void* p)
 {
 	struct linop_padding_args* a = p;
 
 	/* BART takes these non-const and does not write through them. */
-	long before[DIMS];
-	long after[DIMS];
+	bart_dim_t before[DIMS];
+	bart_dim_t after[DIMS];
 	md_copy_dims(a->N, before, a->before);
 	md_copy_dims(a->N, after, a->after);
 
@@ -1013,7 +1013,7 @@ static int linop_padding_worker(void* p)
 	return 0;
 }
 
-bartorch_linop* bartorch_linop_padding(int N, const long* dims, int pad, const long* before, const long* after)
+bartorch_linop* bartorch_linop_padding(int N, const int64_t* dims, int pad, const int64_t* before, const int64_t* after)
 {
 	struct linop_padding_args a = { N, dims, pad, before, after, NULL };
 	return (0 == guarded(linop_padding_worker, &a)) ? a.result : NULL;
@@ -1052,14 +1052,14 @@ int bartorch_linop_pseudo_inv(const bartorch_linop* h, float lambda, void* dst, 
 	return guarded(linop_pinv_worker, &args);
 }
 
-int bartorch_linop_domain(const bartorch_linop* h, int N, long* dims)
+int bartorch_linop_domain(const bartorch_linop* h, int N, int64_t* dims)
 {
 	const struct iovec_s* iov = linop_domain(h->op);
 	copy_dims(iov, N, dims);
 	return iov->N;
 }
 
-int bartorch_linop_codomain(const bartorch_linop* h, int N, long* dims)
+int bartorch_linop_codomain(const bartorch_linop* h, int N, int64_t* dims)
 {
 	const struct iovec_s* iov = linop_codomain(h->op);
 	copy_dims(iov, N, dims);
@@ -1161,7 +1161,7 @@ static void cb_nl_del(const nlop_data_t* _d)
 
 struct nlop_callback_args {
 
-	int ON; const long* odims; int IN; const long* idims;
+	int ON; const bart_dim_t* odims; int IN; const bart_dim_t* idims;
 	bartorch_apply_fn forward; bartorch_apply_fn derivative; bartorch_apply_fn adjoint;
 	void* ctx; bartorch_release_fn release;
 	bartorch_nlop* result;
@@ -1236,8 +1236,8 @@ static void cbg_del(const nlop_data_t* _d)
 
 struct nlop_callback_generic_args {
 
-	int OO; int ON; const long* odims;
-	int II; int IN; const long* idims;
+	int OO; int ON; const bart_dim_t* odims;
+	int II; int IN; const bart_dim_t* idims;
 	bartorch_generic_apply_fn forward;
 	bartorch_pair_apply_fn derivative;
 	bartorch_pair_apply_fn adjoint;
@@ -1261,8 +1261,8 @@ static int nlop_callback_generic_worker(void* p)
 
 	/* The shapes arrive flat, one argument after another; BART wants them
 	 * as arrays of arrays, which is the same memory read differently. */
-	const long (*od)[a->ON] = (const long (*)[a->ON])a->odims;
-	const long (*id)[a->IN] = (const long (*)[a->IN])a->idims;
+	const bart_dim_t (*od)[a->ON] = (const bart_dim_t (*)[a->ON])a->odims;
+	const bart_dim_t (*id)[a->IN] = (const bart_dim_t (*)[a->IN])a->idims;
 
 	/* One derivative and one adjoint for every (input, output) pair.  The
 	 * two shims below dispatch on the pair themselves, so every entry is
@@ -1285,8 +1285,8 @@ static int nlop_callback_generic_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_callback_generic(int OO, int ON, const long* odims,
-		int II, int IN, const long* idims,
+bartorch_nlop* bartorch_nlop_callback_generic(int OO, int ON, const int64_t* odims,
+		int II, int IN, const int64_t* idims,
 		bartorch_generic_apply_fn forward,
 		bartorch_pair_apply_fn derivative,
 		bartorch_pair_apply_fn adjoint,
@@ -1304,7 +1304,7 @@ bartorch_nlop* bartorch_nlop_callback_generic(int OO, int ON, const long* odims,
 	return (0 == guarded(nlop_callback_generic_worker, &args)) ? args.result : NULL;
 }
 
-bartorch_nlop* bartorch_nlop_callback(int ON, const long* odims, int IN, const long* idims,
+bartorch_nlop* bartorch_nlop_callback(int ON, const int64_t* odims, int IN, const int64_t* idims,
 		bartorch_apply_fn forward, bartorch_apply_fn derivative, bartorch_apply_fn adjoint,
 		void* ctx, bartorch_release_fn release)
 {
@@ -1343,14 +1343,14 @@ bartorch_nlop* bartorch_nlop_chain(const bartorch_nlop* a, const bartorch_nlop* 
 	return (0 == guarded(nlop_chain_worker, &args)) ? args.result : NULL;
 }
 
-int bartorch_nlop_domain(const bartorch_nlop* h, int N, long* dims)
+int bartorch_nlop_domain(const bartorch_nlop* h, int N, int64_t* dims)
 {
 	const struct iovec_s* iov = nlop_domain(h->op);
 	copy_dims(iov, N, dims);
 	return iov->N;
 }
 
-int bartorch_nlop_codomain(const bartorch_nlop* h, int N, long* dims)
+int bartorch_nlop_codomain(const bartorch_nlop* h, int N, int64_t* dims)
 {
 	const struct iovec_s* iov = nlop_codomain(h->op);
 	copy_dims(iov, N, dims);
@@ -1366,7 +1366,7 @@ static int nlop_apply_worker(void* p)
 	const struct iovec_s* cod = nlop_codomain(a->h->op);
 
 	switch (a->mode) {
-	case 0: nlop_generic_apply_select_derivative_unchecked(a->h->op, 2, (void*[]){ a->dst, (void*)a->src }, ~0UL, ~0UL); break;
+	case 0: nlop_generic_apply_select_derivative_unchecked(a->h->op, 2, (void*[]){ a->dst, (void*)a->src }, ~UINT64_C(0), ~UINT64_C(0)); break;
 	case 1: nlop_derivative(a->h->op, cod->N, cod->dims, a->dst, dom->N, dom->dims, a->src); break;
 	default: nlop_adjoint(a->h->op, dom->N, dom->dims, a->dst, cod->N, cod->dims, a->src); break;
 	}
@@ -1412,7 +1412,7 @@ int bartorch_nlop_outputs(const bartorch_nlop* h)
 	return (NULL == h) ? -1 : nlop_get_nr_out_args(h->op);
 }
 
-int bartorch_nlop_input_domain(const bartorch_nlop* h, int i, int N, long* dims)
+int bartorch_nlop_input_domain(const bartorch_nlop* h, int i, int N, int64_t* dims)
 {
 	if ((NULL == h) || (NULL == dims) || (0 > i) || (i >= nlop_get_nr_in_args(h->op)))
 		return -1;
@@ -1427,7 +1427,7 @@ int bartorch_nlop_input_domain(const bartorch_nlop* h, int i, int N, long* dims)
 	return iov->N;
 }
 
-int bartorch_nlop_output_codomain(const bartorch_nlop* h, int o, int N, long* dims)
+int bartorch_nlop_output_codomain(const bartorch_nlop* h, int o, int N, int64_t* dims)
 {
 	if ((NULL == h) || (NULL == dims) || (0 > o) || (o >= nlop_get_nr_out_args(h->op)))
 		return -1;
@@ -1463,7 +1463,7 @@ struct nlop_generic_args { const bartorch_nlop* h; int nargs; void** args; };
 static int nlop_generic_worker(void* p)
 {
 	struct nlop_generic_args* a = p;
-	nlop_generic_apply_select_derivative_unchecked(a->h->op, a->nargs, a->args, ~0UL, ~0UL);
+	nlop_generic_apply_select_derivative_unchecked(a->h->op, a->nargs, a->args, ~UINT64_C(0), ~UINT64_C(0));
 	return 0;
 }
 
@@ -1517,7 +1517,7 @@ bartorch_linop* bartorch_nlop_derivative_linop(const bartorch_nlop* h, int o, in
  * operators side by side, an output tied back to an input, two inputs made
  * one, and the reorderings that make those usable.
  */
-struct nlop_reshape_args { const bartorch_nlop* a; int at; int N; const long* dims; int output; bartorch_nlop* result; };
+struct nlop_reshape_args { const bartorch_nlop* a; int at; int N; const bart_dim_t* dims; int output; bartorch_nlop* result; };
 
 static int nlop_reshape_worker(void* p)
 {
@@ -1532,7 +1532,7 @@ static int nlop_reshape_worker(void* p)
 	return 0;
 }
 
-static bartorch_nlop* nlop_reshape(const bartorch_nlop* a, int at, int N, const long* dims, int output)
+static bartorch_nlop* nlop_reshape(const bartorch_nlop* a, int at, int N, const bart_dim_t* dims, int output)
 {
 	if ((NULL == a) || (NULL == dims) || (0 >= N))
 		return NULL;
@@ -1542,12 +1542,12 @@ static bartorch_nlop* nlop_reshape(const bartorch_nlop* a, int at, int N, const 
 	return (0 == guarded(nlop_reshape_worker, &args)) ? args.result : NULL;
 }
 
-bartorch_nlop* bartorch_nlop_reshape_in(const bartorch_nlop* a, int i, int N, const long* dims)
+bartorch_nlop* bartorch_nlop_reshape_in(const bartorch_nlop* a, int i, int N, const int64_t* dims)
 {
 	return nlop_reshape(a, i, N, dims, 0);
 }
 
-bartorch_nlop* bartorch_nlop_reshape_out(const bartorch_nlop* a, int o, int N, const long* dims)
+bartorch_nlop* bartorch_nlop_reshape_out(const bartorch_nlop* a, int o, int N, const int64_t* dims)
 {
 	return nlop_reshape(a, o, N, dims, 1);
 }
@@ -1700,7 +1700,7 @@ static int nlop_flatten_worker(void* p)
 	 * checks the rank it was given against the operator's own -- so a
 	 * flattened model handed to a solver asserts unless the vector is
 	 * restated the way the rest of the library states it. */
-	long dims[DIMS];
+	bart_dim_t dims[DIMS];
 	md_singleton_dims(DIMS, dims);
 
 	dims[0] = md_calc_size(nlop_generic_domain(op, 0)->N, nlop_generic_domain(op, 0)->dims);
@@ -1757,12 +1757,12 @@ bartorch_nlop* bartorch_nlop_del_out(const bartorch_nlop* x, int o)
 struct nlop_dims_args {
 
 	int N;
-	const long* dims;
-	const long* dims2;
-	const long* dims3;
+	const bart_dim_t* dims;
+	const bart_dim_t* dims2;
+	const bart_dim_t* dims3;
 	float a;
 	float b;
-	unsigned long flags;
+	bart_flags_t flags;
 	bartorch_nlop* result;
 };
 
@@ -1773,12 +1773,12 @@ static int nlop_tenmul_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_tenmul(int N, const long* odims, const long* idims1, const long* idims2)
+bartorch_nlop* bartorch_nlop_tenmul(int N, const int64_t* odims, const int64_t* idims1, const int64_t* idims2)
 {
 	if ((NULL == odims) || (NULL == idims1) || (NULL == idims2))
 		return NULL;
 
-	struct nlop_dims_args v = { N, odims, idims1, idims2, 0., 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, odims, idims1, idims2, 0., 0., 0, NULL };
 
 	return (0 == guarded(nlop_tenmul_worker, &v)) ? v.result : NULL;
 }
@@ -1792,12 +1792,12 @@ static int nlop_zdiv_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zdiv(int N, const long* dims, float eps)
+bartorch_nlop* bartorch_nlop_zdiv(int N, const int64_t* dims, float eps)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, eps, 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, eps, 0., 0, NULL };
 
 	return (0 == guarded(nlop_zdiv_worker, &v)) ? v.result : NULL;
 }
@@ -1809,12 +1809,12 @@ static int nlop_zaxpbz_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zaxpbz(int N, const long* dims, float a, float b)
+bartorch_nlop* bartorch_nlop_zaxpbz(int N, const int64_t* dims, float a, float b)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, a, b, ~0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, a, b, ~UINT64_C(0), NULL };
 
 	return (0 == guarded(nlop_zaxpbz_worker, &v)) ? v.result : NULL;
 }
@@ -1826,12 +1826,12 @@ static int nlop_zexp_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zexp(int N, const long* dims)
+bartorch_nlop* bartorch_nlop_zexp(int N, const int64_t* dims)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0, NULL };
 
 	return (0 == guarded(nlop_zexp_worker, &v)) ? v.result : NULL;
 }
@@ -1843,12 +1843,12 @@ static int nlop_zlog_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zlog(int N, const long* dims)
+bartorch_nlop* bartorch_nlop_zlog(int N, const int64_t* dims)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0, NULL };
 
 	return (0 == guarded(nlop_zlog_worker, &v)) ? v.result : NULL;
 }
@@ -1862,12 +1862,12 @@ static int nlop_zinv_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zinv(int N, const long* dims, float eps)
+bartorch_nlop* bartorch_nlop_zinv(int N, const int64_t* dims, float eps)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, eps, 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, eps, 0., 0, NULL };
 
 	return (0 == guarded(nlop_zinv_worker, &v)) ? v.result : NULL;
 }
@@ -1879,12 +1879,12 @@ static int nlop_zsqrt_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zsqrt(int N, const long* dims)
+bartorch_nlop* bartorch_nlop_zsqrt(int N, const int64_t* dims)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0, NULL };
 
 	return (0 == guarded(nlop_zsqrt_worker, &v)) ? v.result : NULL;
 }
@@ -1896,12 +1896,12 @@ static int nlop_zspow_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zspow(int N, const long* dims, float re, float im)
+bartorch_nlop* bartorch_nlop_zspow(int N, const int64_t* dims, float re, float im)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, re, im, 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, re, im, 0, NULL };
 
 	return (0 == guarded(nlop_zspow_worker, &v)) ? v.result : NULL;
 }
@@ -1913,12 +1913,12 @@ static int nlop_zsadd_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zsadd(int N, const long* dims, float re, float im)
+bartorch_nlop* bartorch_nlop_zsadd(int N, const int64_t* dims, float re, float im)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, re, im, 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, re, im, 0, NULL };
 
 	return (0 == guarded(nlop_zsadd_worker, &v)) ? v.result : NULL;
 }
@@ -1930,12 +1930,12 @@ static int nlop_zabs_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zabs(int N, const long* dims)
+bartorch_nlop* bartorch_nlop_zabs(int N, const int64_t* dims)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, 0., 0., 0, NULL };
 
 	return (0 == guarded(nlop_zabs_worker, &v)) ? v.result : NULL;
 }
@@ -1947,12 +1947,12 @@ static int nlop_smo_abs_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_smo_abs(int N, const long* dims, float eps)
+bartorch_nlop* bartorch_nlop_smo_abs(int N, const int64_t* dims, float eps)
 {
 	if (NULL == dims)
 		return NULL;
 
-	struct nlop_dims_args v = { N, dims, NULL, NULL, eps, 0., 0ul, NULL };
+	struct nlop_dims_args v = { N, dims, NULL, NULL, eps, 0., 0, NULL };
 
 	return (0 == guarded(nlop_smo_abs_worker, &v)) ? v.result : NULL;
 }
@@ -1966,7 +1966,7 @@ static int nlop_zrss_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zrss(int N, const long* dims, unsigned long flags, float eps)
+bartorch_nlop* bartorch_nlop_zrss(int N, const int64_t* dims, uint64_t flags, float eps)
 {
 	if (NULL == dims)
 		return NULL;
@@ -1983,7 +1983,7 @@ static int nlop_zss_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_zss(int N, const long* dims, unsigned long flags)
+bartorch_nlop* bartorch_nlop_zss(int N, const int64_t* dims, uint64_t flags)
 {
 	if (NULL == dims)
 		return NULL;
@@ -1998,7 +1998,7 @@ bartorch_nlop* bartorch_nlop_zss(int N, const long* dims, unsigned long flags)
  * `nlop_const_create` copies, so the caller's buffer is free after the call.
  * Combined and linked, this is how an input is pinned to a value.
  */
-struct nlop_const_args { int N; const long* dims; const void* val; bartorch_nlop* result; };
+struct nlop_const_args { int N; const bart_dim_t* dims; const void* val; bartorch_nlop* result; };
 
 static int nlop_const_worker(void* p)
 {
@@ -2007,7 +2007,7 @@ static int nlop_const_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_const(int N, const long* dims, const void* val)
+bartorch_nlop* bartorch_nlop_const(int N, const int64_t* dims, const void* val)
 {
 	if ((NULL == dims) || (NULL == val))
 		return NULL;
@@ -2017,7 +2017,7 @@ bartorch_nlop* bartorch_nlop_const(int N, const long* dims, const void* val)
 	return (0 == guarded(nlop_const_worker, &v)) ? v.result : NULL;
 }
 
-struct nlop_set_const_args { const bartorch_nlop* a; int i; int N; const long* dims; const void* val; bartorch_nlop* result; };
+struct nlop_set_const_args { const bartorch_nlop* a; int i; int N; const bart_dim_t* dims; const void* val; bartorch_nlop* result; };
 
 static int nlop_set_input_const_worker(void* p)
 {
@@ -2026,7 +2026,7 @@ static int nlop_set_input_const_worker(void* p)
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_set_input_const(const bartorch_nlop* a, int i, int N, const long* dims, const void* val)
+bartorch_nlop* bartorch_nlop_set_input_const(const bartorch_nlop* a, int i, int N, const int64_t* dims, const void* val)
 {
 	if ((NULL == a) || (NULL == dims) || (NULL == val)
 	    || (0 > i) || (i >= nlop_get_nr_in_args(a->op)))
@@ -2038,7 +2038,7 @@ bartorch_nlop* bartorch_nlop_set_input_const(const bartorch_nlop* a, int i, int 
 }
 
 
-struct nlop_norm_inv_args { const bartorch_nlop* normal; int maxiter; float tol; float l2lambda; long batch; bartorch_nlop* result; };
+struct nlop_norm_inv_args { const bartorch_nlop* normal; int maxiter; float tol; float l2lambda; bart_dim_t batch; bartorch_nlop* result; };
 
 static int nlop_norm_inv_worker(void* p)
 {
@@ -2062,12 +2062,12 @@ static int nlop_norm_inv_worker(void* p)
 
 	/* Every axis of the vector takes its own weight, which is what
 	 * `model_net.c` asks for and what lets `lambda` arrive as a tensor. */
-	v->result = wrap_nlop(norm_inv_lambda_create(&conf, v->normal->op, ~0UL));
+	v->result = wrap_nlop(norm_inv_lambda_create(&conf, v->normal->op, ~UINT64_C(0)));
 
 	return 0;
 }
 
-bartorch_nlop* bartorch_nlop_norm_inv_lambda(const bartorch_nlop* normal, int maxiter, float tol, float l2lambda, long batch)
+bartorch_nlop* bartorch_nlop_norm_inv_lambda(const bartorch_nlop* normal, int maxiter, float tol, float l2lambda, int64_t batch)
 {
 	if ((NULL == normal) || (1 > batch))
 		return NULL;
@@ -2114,20 +2114,20 @@ void bartorch_nlop_free(bartorch_nlop* h)
 struct noir_create_args {
 
 	int N;
-	const long* ksp_dims;
-	const long* cim_dims;
-	const long* img_dims;
-	const long* kco_dims;
-	const long* col_dims;
-	const long* pat_dims;
+	const bart_dim_t* ksp_dims;
+	const bart_dim_t* cim_dims;
+	const bart_dim_t* img_dims;
+	const bart_dim_t* kco_dims;
+	const bart_dim_t* col_dims;
+	const bart_dim_t* pat_dims;
 	const void* pattern;
-	const long* trj_dims;
+	const bart_dim_t* trj_dims;
 	const void* traj;
-	const long* wgh_dims;
+	const bart_dim_t* wgh_dims;
 	const void* weights;
-	const long* bas_dims;
+	const bart_dim_t* bas_dims;
 	const void* basis;
-	const long* msk_dims;
+	const bart_dim_t* msk_dims;
 	const void* mask;
 	int noncart;
 	int optimized;
@@ -2174,15 +2174,15 @@ static int noir_create_worker(void* p)
 }
 
 bartorch_noir* bartorch_noir_create(int N,
-		const long* ksp_dims, const long* cim_dims, const long* img_dims,
-		const long* kco_dims, const long* col_dims,
-		const long* pat_dims, const void* pattern,
-		const long* trj_dims, const void* traj,
-		const long* wgh_dims, const void* weights,
-		const long* bas_dims, const void* basis,
-		const long* msk_dims, const void* mask,
+		const int64_t* ksp_dims, const int64_t* cim_dims, const int64_t* img_dims,
+		const int64_t* kco_dims, const int64_t* col_dims,
+		const int64_t* pat_dims, const void* pattern,
+		const int64_t* trj_dims, const void* traj,
+		const int64_t* wgh_dims, const void* weights,
+		const int64_t* bas_dims, const void* basis,
+		const int64_t* msk_dims, const void* mask,
 		int noncart, int optimized, int toeplitz,
-		unsigned long fft_flags, unsigned long wght_flags,
+		uint64_t fft_flags, uint64_t wght_flags,
 		int rvc, int sos, float a, float b, float c,
 		float oversampling_coils, int ret_os_coils)
 {
@@ -2288,12 +2288,12 @@ bartorch_linop* bartorch_noir_transform(const bartorch_noir* h)
 	return noir_linop(h, 3);
 }
 
-int bartorch_noir_dims(const bartorch_noir* h, int which, int N, long* dims)
+int bartorch_noir_dims(const bartorch_noir* h, int which, int N, int64_t* dims)
 {
 	if ((NULL == h) || (NULL == dims) || (N < h->model.N))
 		return -1;
 
-	const long* src = NULL;
+	const bart_dim_t* src = NULL;
 
 	switch (which) {
 	case 0: src = h->model.ksp_dims; break;
@@ -2357,8 +2357,8 @@ static int irgnm_worker(void* p)
 	const struct iovec_s* dom = nlop_domain(a->F->op);
 	const struct iovec_s* cod = nlop_codomain(a->F->op);
 
-	long N = 2 * md_calc_size(dom->N, dom->dims);
-	long M = 2 * md_calc_size(cod->N, cod->dims);
+	bart_dim_t N = 2 * md_calc_size(dom->N, dom->dims);
+	bart_dim_t M = 2 * md_calc_size(cod->N, cod->dims);
 
 	iter4_irgnm(CAST_UP(&conf), a->F->op, N, a->x, a->xref, M, a->y, NULL, (struct iter_op_s){ NULL, NULL });
 	return 0;
@@ -2404,8 +2404,8 @@ static int irgnm2_worker(void* p)
 	const struct iovec_s* dom = nlop_domain(a->F->op);
 	const struct iovec_s* cod = nlop_codomain(a->F->op);
 
-	long N = 2 * md_calc_size(dom->N, dom->dims);
-	long M = 2 * md_calc_size(cod->N, cod->dims);
+	bart_dim_t N = 2 * md_calc_size(dom->N, dom->dims);
+	bart_dim_t M = 2 * md_calc_size(cod->N, cod->dims);
 
 	iter4_irgnm2(CAST_UP(&conf), a->F->op, N, a->x, a->xref, M, a->y, NULL,
 			(struct iter_op_s){ NULL, NULL });

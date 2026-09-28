@@ -59,18 +59,18 @@
 
 #ifdef USE_CUDA
 struct bartorch_cb_grid;
-extern struct bartorch_cb_grid* bartorch_cb_grid_create(const long dims[3], unsigned long flags, long kept,
+extern struct bartorch_cb_grid* bartorch_cb_grid_create(const bart_dim_t dims[3], bart_flags_t flags, bart_dim_t kept,
 		const unsigned int* mask, const int* prefix, const complex float* mod[3], int unitary);
-extern void bartorch_cuda_pad_map(long sx, long wx, long rest, long off,
+extern void bartorch_cuda_pad_map(bart_dim_t sx, bart_dim_t wx, bart_dim_t rest, bart_stride_t off,
 		complex float* dst, const complex float* src, const complex float* map);
-extern void bartorch_cuda_crop_mapc_add(long sx, long wx, long rest, long off,
+extern void bartorch_cuda_crop_mapc_add(bart_dim_t sx, bart_dim_t wx, bart_dim_t rest, bart_stride_t off,
 		complex float* dst, const complex float* src, const complex float* map);
 extern void bartorch_cb_grid_free(struct bartorch_cb_grid* p);
 extern void bartorch_cb_grid_forward(struct bartorch_cb_grid* p, complex float* bank, complex float* volume,
 		const complex float* src, const complex float* map);
 extern void bartorch_cb_grid_inverse(struct bartorch_cb_grid* p, complex float* dst, complex float* volume,
 		const complex float* bank, const complex float* map);
-extern int bartorch_cuda_contract_grid(long L, long B, int R, complex float* bank, const complex float* K);
+extern int bartorch_cuda_contract_grid(bart_dim_t L, bart_dim_t B, int R, complex float* bank, const complex float* K);
 
 /* What the kernels between the gathered spectrum and a table of samples read
  * of the transform's layout (kernels.cu). */
@@ -81,17 +81,17 @@ struct bartorch_grid_axes {
 	const complex float* mod[3];
 };
 
-extern void bartorch_cuda_bank_to_table(long E, long X, long S, int R, long L, long per,
+extern void bartorch_cuda_bank_to_table(bart_dim_t E, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* entry_u, const int* u_coord, const unsigned int* mask, const int* prefix,
 		const struct bartorch_grid_axes* ax, const complex float* B, const complex float* bank, complex float* table);
-extern void bartorch_cuda_table_to_bank(long U, long X, long S, int R, long L, long per,
+extern void bartorch_cuda_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* csr_start, const int* csr, const int* u_coord, const unsigned int* mask, const int* prefix,
 		const struct bartorch_grid_axes* ax, const complex float* B, complex float* bank, const complex float* table);
 #endif
 
-static long grid_fused_count = 0;
+static bart_dim_t grid_fused_count = 0;
 
-long bartorch_grid_fused(void)
+int64_t bartorch_grid_fused(void)
 {
 	return grid_fused_count;
 }
@@ -100,8 +100,8 @@ struct grid_s {
 
 	linop_data_t super;
 
-	long cim_dims[DIMS];
-	long out_dims[DIMS];
+	bart_dim_t cim_dims[DIMS];
+	bart_dim_t out_dims[DIMS];
 
 	const struct linop_s* fwd;	/* transform, basis, pattern */
 	const struct linop_s* nrm;	/* the normal as BART's chain */
@@ -109,13 +109,13 @@ struct grid_s {
 	/* The normal through cuFFT's callbacks: the axes it transforms, the
 	 * places of a plane the pattern keeps, and the kernel at each of them
 	 * (NULL where it is one), on the host. */
-	unsigned long flags;
-	long R;
-	long vol;
-	long plane;
-	long batch;
-	long kept;
-	long words;
+	bart_flags_t flags;
+	bart_dim_t R;
+	bart_dim_t vol;
+	bart_dim_t plane;
+	bart_dim_t batch;
+	bart_dim_t kept;
+	bart_dim_t words;
 	unsigned int* mask;
 	int* prefix;
 	complex float* kernel;
@@ -143,9 +143,9 @@ struct grid_s {
 	 * by `psf` (over the spatial axes of `cim_dims`).  Without a wave
 	 * `dom_dims` is `cim_dims` and `img_vol` is `vol`. */
 	bool wave;
-	long dom_dims[DIMS];
-	long img_vol;
-	long wave_off;
+	bart_dim_t dom_dims[DIMS];
+	bart_dim_t img_vol;
+	bart_stride_t wave_off;
 	complex float* psf;
 	complex float* dpsf;
 
@@ -157,11 +157,11 @@ struct grid_s {
 	 * `kspace_readout` says the samples are in k-space along the readout. */
 	bool sampled;
 	bool kspace_readout;
-	long T;
-	long S;
-	long X;
-	long E;
-	long U;
+	bart_dim_t T;
+	bart_dim_t S;
+	bart_dim_t X;
+	bart_dim_t E;
+	bart_dim_t U;
 	int* entry_u;
 	int* u_coord;
 	int* csr_start;
@@ -177,9 +177,9 @@ struct grid_s {
 static DEF_TYPEID(grid_s);
 
 /* The spatial axes along which the pattern has more than one value. */
-static unsigned long varying(const long pat_dims[DIMS])
+static bart_flags_t varying(const bart_dim_t pat_dims[DIMS])
 {
-	unsigned long flags = 0UL;
+	bart_flags_t flags = 0;
 
 	for (int a = 0; a < 3; a++)
 		if (1 < pat_dims[a])
@@ -192,12 +192,12 @@ static unsigned long varying(const long pat_dims[DIMS])
  * arrangement a single multiply-accumulate contracts -- and the pattern's
  * spatial axes, and one everywhere else.  Computed on the host: it is
  * coefficients squared over a plane of phase encodes. */
-static complex float* grid_kernel(long kdims[DIMS], const long pat_dims[DIMS], const complex float* pattern,
-		const long bas_dims[DIMS], const complex float* basis)
+static complex float* grid_kernel(bart_dim_t kdims[DIMS], const bart_dim_t pat_dims[DIMS], const complex float* pattern,
+		const bart_dim_t bas_dims[DIMS], const complex float* basis)
 {
-	long R = (NULL == basis) ? 1 : bas_dims[COEFF_DIM];
-	long T = (NULL == basis) ? 1 : bas_dims[TE_DIM];
-	long F = (NULL == pattern) ? 1 : pat_dims[TE_DIM];
+	bart_dim_t R = (NULL == basis) ? 1 : bas_dims[COEFF_DIM];
+	bart_dim_t T = (NULL == basis) ? 1 : bas_dims[TE_DIM];
+	bart_dim_t F = (NULL == pattern) ? 1 : pat_dims[TE_DIM];
 
 	md_singleton_dims(DIMS, kdims);
 
@@ -208,7 +208,7 @@ static complex float* grid_kernel(long kdims[DIMS], const long pat_dims[DIMS], c
 	kdims[TE_DIM] = R;
 	kdims[COEFF_DIM] = R;
 
-	long places = md_calc_size(3, kdims);
+	bart_dim_t places = md_calc_size(3, kdims);
 
 	complex float* P = NULL;
 
@@ -229,22 +229,22 @@ static complex float* grid_kernel(long kdims[DIMS], const long pat_dims[DIMS], c
 	/* conj(B[k', t]) B[k, t], once per frame. */
 	complex float* G = xmalloc((size_t)(T * R * R) * sizeof(complex float));
 
-	for (long t = 0; t < T; t++)
-		for (long kp = 0; kp < R; kp++)
-			for (long k = 0; k < R; k++)
+	for (bart_dim_t t = 0; t < T; t++)
+		for (bart_dim_t kp = 0; kp < R; kp++)
+			for (bart_dim_t k = 0; k < R; k++)
 				G[t * R * R + kp * R + k] = (NULL == B) ? 1.f : conjf(B[t + T * kp]) * B[t + T * k];
 
 	complex float* K = md_alloc(DIMS, kdims, CFL_SIZE);
 
 #pragma omp parallel for
-	for (long p = 0; p < places; p++) {
+	for (bart_dim_t p = 0; p < places; p++) {
 
-		for (long kp = 0; kp < R; kp++)
-			for (long k = 0; k < R; k++) {
+		for (bart_dim_t kp = 0; kp < R; kp++)
+			for (bart_dim_t k = 0; k < R; k++) {
 
 				complex double acc = 0.;
 
-				for (long t = 0; t < T; t++) {
+				for (bart_dim_t t = 0; t < T; t++) {
 
 					double w = 1.;
 
@@ -274,12 +274,12 @@ static complex float* grid_kernel(long kdims[DIMS], const long pat_dims[DIMS], c
  * samples, as a bit per place and a count before each word, and the kernel at
  * those places alone, `kernel[(l R + r) R + c]` -- or no kernel, where every
  * kept place's is one. */
-static void grid_compress(struct grid_s* d, const long kdims[DIMS], const complex float* K,
-		const long pat_dims[DIMS], const complex float* pattern)
+static void grid_compress(struct grid_s* d, const bart_dim_t kdims[DIMS], const complex float* K,
+		const bart_dim_t pat_dims[DIMS], const complex float* pattern)
 {
-	long places = md_calc_size(3, kdims);
-	long R = d->R;
-	long F = pat_dims[TE_DIM];
+	bart_dim_t places = md_calc_size(3, kdims);
+	bart_dim_t R = d->R;
+	bart_dim_t F = pat_dims[TE_DIM];
 
 	complex float* P = md_alloc(DIMS, pat_dims, CFL_SIZE);
 	md_copy(DIMS, pat_dims, P, pattern, CFL_SIZE);
@@ -288,17 +288,17 @@ static void grid_compress(struct grid_s* d, const long kdims[DIMS], const comple
 	d->mask = xmalloc((size_t)d->words * sizeof(unsigned int));
 	d->prefix = xmalloc((size_t)d->words * sizeof(int));
 
-	long n = 0;
+	bart_dim_t n = 0;
 
-	for (long w = 0; w < d->words; w++) {
+	for (bart_dim_t w = 0; w < d->words; w++) {
 
 		unsigned int bits = 0;
 
-		for (long b = 0; (b < 32) && (w * 32 + b < places); b++) {
+		for (bart_dim_t b = 0; (b < 32) && (w * 32 + b < places); b++) {
 
 			bool taken = false;
 
-			for (long t = 0; (t < F) && !taken; t++)
+			for (bart_dim_t t = 0; (t < F) && !taken; t++)
 				taken = (0. != cabsf(P[w * 32 + b + places * t]));
 
 			if (taken)
@@ -318,15 +318,15 @@ static void grid_compress(struct grid_s* d, const long kdims[DIMS], const comple
 	complex float* kernel = xmalloc((size_t)MAX(1, n * R * R) * sizeof(complex float));
 	bool ones = (1 == R);
 
-	long l = 0;
+	bart_dim_t l = 0;
 
-	for (long p = 0; p < places; p++) {
+	for (bart_dim_t p = 0; p < places; p++) {
 
 		if (0 == (d->mask[p >> 5] & (1u << (p & 31))))
 			continue;
 
-		for (long r = 0; r < R; r++)
-			for (long c = 0; c < R; c++) {
+		for (bart_dim_t r = 0; r < R; r++)
+			for (bart_dim_t c = 0; c < R; c++) {
 
 				complex float v = K[p + places * (r + R * c)];
 
@@ -354,13 +354,13 @@ static void grid_compress(struct grid_s* d, const long kdims[DIMS], const comple
 		if (!MD_IS_SET(d->flags, a))
 			continue;
 
-		long ad[1] = { d->cim_dims[a] };
+		bart_dim_t ad[1] = { d->cim_dims[a] };
 
 		d->mod[a] = md_alloc(1, ad, CFL_SIZE);
 		md_zfill(1, ad, d->mod[a], 1.);
 
 		if (d->centred)
-			fftmod(1, ad, 1UL, d->mod[a], d->mod[a]);
+			fftmod(1, ad, 1, d->mod[a], d->mod[a]);
 	}
 }
 
@@ -368,7 +368,7 @@ static void grid_compress(struct grid_s* d, const long kdims[DIMS], const comple
  * on, making what it needs there the first time it is asked. */
 static bool grid_ready(struct grid_s* d, const void* ref)
 {
-	if (0UL == d->flags)
+	if (0 == d->flags)
 		return false;
 
 #ifdef USE_CUDA
@@ -379,7 +379,7 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 
 		d->tried = true;
 
-		long wd[1] = { d->words };
+		bart_dim_t wd[1] = { d->words };
 
 		d->dmask = md_alloc_gpu(1, wd, sizeof(unsigned int));
 		d->dprefix = md_alloc_gpu(1, wd, sizeof(int));
@@ -388,7 +388,7 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 
 		if (NULL != d->kernel) {
 
-			long kd[1] = { d->kept * d->R * d->R };
+			bart_dim_t kd[1] = { d->kept * d->R * d->R };
 
 			d->dkernel = md_alloc_gpu(1, kd, CFL_SIZE);
 			md_copy(1, kd, d->dkernel, d->kernel, CFL_SIZE);
@@ -399,7 +399,7 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 			if (NULL == d->mod[a])
 				continue;
 
-			long ad[1] = { d->cim_dims[a] };
+			bart_dim_t ad[1] = { d->cim_dims[a] };
 
 			d->dmod[a] = md_alloc_gpu(1, ad, CFL_SIZE);
 			md_copy(1, ad, d->dmod[a], d->mod[a], CFL_SIZE);
@@ -407,7 +407,7 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 
 		if (NULL != d->psf) {
 
-			long pd[1] = { d->vol };
+			bart_dim_t pd[1] = { d->vol };
 
 			d->dpsf = md_alloc_gpu(1, pd, CFL_SIZE);
 			md_copy(1, pd, d->dpsf, d->psf, CFL_SIZE);
@@ -415,10 +415,10 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 
 		if (d->sampled) {
 
-			long ed[1] = { MAX(1, d->E) };
-			long ud[1] = { MAX(1, 2 * d->U) };
-			long sd[1] = { d->U + 1 };
-			long cd[1] = { MAX(1, d->csr_start[d->U]) };
+			bart_dim_t ed[1] = { MAX(1, d->E) };
+			bart_dim_t ud[1] = { MAX(1, 2 * d->U) };
+			bart_dim_t sd[1] = { d->U + 1 };
+			bart_dim_t cd[1] = { MAX(1, d->csr_start[d->U]) };
 
 			d->d_entry_u = md_alloc_gpu(1, ed, sizeof(int));
 			d->d_u_coord = md_alloc_gpu(1, ud, sizeof(int));
@@ -431,7 +431,7 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 
 			if (NULL != d->bt) {
 
-				long bd[1] = { d->T * d->R };
+				bart_dim_t bd[1] = { d->T * d->R };
 
 				d->d_bt = md_alloc_gpu(1, bd, CFL_SIZE);
 				md_copy(1, bd, d->d_bt, d->bt, CFL_SIZE);
@@ -454,9 +454,9 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 
 /* BART's transform along `flags` in place, in the grid's convention, or its
  * adjoint: fftuc and ifftuc centred, fft and ifft otherwise. */
-static void grid_ft(const struct grid_s* d, const long dims[DIMS], unsigned long flags, complex float* x, bool adjoint)
+static void grid_ft(const struct grid_s* d, const bart_dim_t dims[DIMS], bart_flags_t flags, complex float* x, bool adjoint)
 {
-	if (0UL == flags)
+	if (0 == flags)
 		return;
 
 	if (d->centred)
@@ -478,9 +478,9 @@ static void grid_in(struct grid_s* d, complex float* bank, complex float* volume
 		return;
 	}
 
-	long wx = d->cim_dims[READ_DIM];
+	bart_dim_t wx = d->cim_dims[READ_DIM];
 
-	long hdims[DIMS];
+	bart_dim_t hdims[DIMS];
 	md_select_dims(DIMS, FFT_FLAGS, hdims, d->cim_dims);
 
 	bartorch_cuda_pad_map(d->dom_dims[READ_DIM], wx, d->vol / wx, d->wave_off, hybrid, src, map);
@@ -498,9 +498,9 @@ static void grid_out(struct grid_s* d, complex float* dst, complex float* volume
 		return;
 	}
 
-	long wx = d->cim_dims[READ_DIM];
+	bart_dim_t wx = d->cim_dims[READ_DIM];
 
-	long hdims[DIMS];
+	bart_dim_t hdims[DIMS];
 	md_select_dims(DIMS, FFT_FLAGS, hdims, d->cim_dims);
 
 	md_clear(DIMS, hdims, hybrid, CFL_SIZE);
@@ -515,29 +515,29 @@ static void grid_out(struct grid_s* d, complex float* dst, complex float* volume
  * `coeff_step` after the one before, and a coil's sensitivity `map_step`
  * after the one before in `map` (or no map). */
 static void grid_fused(struct grid_s* d, complex float* dst, const complex float* src,
-		long coils, long coil_step, long coeff_step, const complex float* map, long map_step)
+		bart_dim_t coils, bart_dim_t coil_step, bart_dim_t coeff_step, const complex float* map, bart_dim_t map_step)
 {
 #ifdef USE_CUDA
-	long vd[1] = { d->vol };
-	long bd[1] = { d->R * d->batch * MAX(1, d->kept) };
+	bart_dim_t vd[1] = { d->vol };
+	bart_dim_t bd[1] = { d->R * d->batch * MAX(1, d->kept) };
 
 	complex float* volume = md_alloc_gpu(1, vd, CFL_SIZE);
 	complex float* bank = md_alloc_gpu(1, bd, CFL_SIZE);
 	complex float* hybrid = d->wave ? md_alloc_gpu(1, vd, CFL_SIZE) : NULL;
 
-	long per = d->batch * d->kept;
+	bart_dim_t per = d->batch * d->kept;
 
-	for (long c = 0; c < coils; c++) {
+	for (bart_dim_t c = 0; c < coils; c++) {
 
 		const complex float* m = (NULL == map) ? NULL : map + c * map_step;
 
-		for (long r = 0; r < d->R; r++)
+		for (bart_dim_t r = 0; r < d->R; r++)
 			grid_in(d, bank + r * per, volume, hybrid, src + c * coil_step + r * coeff_step, m);
 
 		if (NULL != d->dkernel)
 			bartorch_cuda_contract_grid(d->kept, d->batch, (int)d->R, bank, d->dkernel);
 
-		for (long r = 0; r < d->R; r++)
+		for (bart_dim_t r = 0; r < d->R; r++)
 			grid_out(d, dst + c * coil_step + r * coeff_step, volume, hybrid, bank + r * per, m);
 	}
 
@@ -559,7 +559,7 @@ static void grid_fused(struct grid_s* d, complex float* dst, const complex float
  * has been transformed by its front already, so the grid never transforms it
  * again for a table -- where cuFFT's callbacks would (a plane of one axis
  * takes the readout along), the table is served on the host instead. */
-static unsigned long sampled_flags(const struct grid_s* d)
+static bart_flags_t sampled_flags(const struct grid_s* d)
 {
 	return d->wave ? (d->flags & ~READ_FLAG) : d->flags;
 }
@@ -574,13 +574,13 @@ static bool sampled_fusable(const struct grid_s* d)
  * function -- and the adjoint back.  Without a wave both are copies. */
 static void wave_psf_host(const struct grid_s* d, complex float* k, bool conj)
 {
-	long pdims[DIMS];
+	bart_dim_t pdims[DIMS];
 	md_select_dims(DIMS, FFT_FLAGS, pdims, d->cim_dims);
 
-	long kstr[DIMS];
+	bart_stride_t kstr[DIMS];
 	md_calc_strides(DIMS, kstr, d->cim_dims, CFL_SIZE);
 
-	long pstr[DIMS];
+	bart_stride_t pstr[DIMS];
 	md_calc_strides(DIMS, pstr, pdims, CFL_SIZE);
 
 	for (int i = 0; i < DIMS; i++)
@@ -629,7 +629,7 @@ static void wave_back_host(const struct grid_s* d, complex float* dst, complex f
  * axis alone takes a second), so the table is transformed along its samples
  * where the two differ: into k-space forward, out of it for the adjoint, and
  * the other way round for samples in image space along the readout. */
-static void sampled_readout(const struct grid_s* d, const long dims[DIMS], complex float* table, bool forward)
+static void sampled_readout(const struct grid_s* d, const bart_dim_t dims[DIMS], complex float* table, bool forward)
 {
 	bool transformed = (0 != MD_IS_SET(sampled_flags(d), READ_DIM));
 
@@ -646,32 +646,32 @@ static void sampled_readout(const struct grid_s* d, const long dims[DIMS], compl
  * readout, contracted with the basis for its frame. */
 static void sampled_gather(const struct grid_s* d, complex float* out, const complex float* k)
 {
-	long cstr[DIMS];
+	bart_stride_t cstr[DIMS];
 	md_calc_strides(DIMS, cstr, d->cim_dims, 1);
 
-	long ostr[DIMS];
+	bart_stride_t ostr[DIMS];
 	md_calc_strides(DIMS, ostr, d->out_dims, 1);
 
-	long C = d->cim_dims[COIL_DIM];
+	bart_dim_t C = d->cim_dims[COIL_DIM];
 
 #pragma omp parallel for collapse(2)
-	for (long c = 0; c < C; c++) {
-		for (long e = 0; e < d->E; e++) {
+	for (bart_dim_t c = 0; c < C; c++) {
+		for (bart_dim_t e = 0; e < d->E; e++) {
 
-			long t = e / d->S;
-			long u = d->entry_u[e];
-			long base = (e - t * d->S) * ostr[PHS2_DIM] + c * ostr[COIL_DIM] + t * ostr[TE_DIM];
+			bart_dim_t t = e / d->S;
+			bart_dim_t u = d->entry_u[e];
+			bart_dim_t base = (e - t * d->S) * ostr[PHS2_DIM] + c * ostr[COIL_DIM] + t * ostr[TE_DIM];
 
-			for (long x = 0; x < d->X; x++) {
+			for (bart_dim_t x = 0; x < d->X; x++) {
 
 				complex float acc = 0.;
 
 				if (0 <= u) {
 
-					long at = x * cstr[READ_DIM] + d->u_coord[2 * u + 1] * cstr[PHS1_DIM]
+					bart_dim_t at = x * cstr[READ_DIM] + d->u_coord[2 * u + 1] * cstr[PHS1_DIM]
 						+ d->u_coord[2 * u] * cstr[PHS2_DIM] + c * cstr[COIL_DIM];
 
-					for (long r = 0; r < d->R; r++)
+					for (bart_dim_t r = 0; r < d->R; r++)
 						acc += ((NULL == d->bt) ? 1.f : d->bt[t * d->R + r]) * k[at + r * cstr[COEFF_DIM]];
 				}
 
@@ -687,31 +687,31 @@ static void sampled_scatter(const struct grid_s* d, complex float* k, const comp
 {
 	md_clear(DIMS, d->cim_dims, k, CFL_SIZE);
 
-	long cstr[DIMS];
+	bart_stride_t cstr[DIMS];
 	md_calc_strides(DIMS, cstr, d->cim_dims, 1);
 
-	long ostr[DIMS];
+	bart_stride_t ostr[DIMS];
 	md_calc_strides(DIMS, ostr, d->out_dims, 1);
 
-	long C = d->cim_dims[COIL_DIM];
+	bart_dim_t C = d->cim_dims[COIL_DIM];
 
 #pragma omp parallel for collapse(2)
-	for (long c = 0; c < C; c++) {
-		for (long u = 0; u < d->U; u++) {
+	for (bart_dim_t c = 0; c < C; c++) {
+		for (bart_dim_t u = 0; u < d->U; u++) {
 
-			for (long x = 0; x < d->X; x++) {
+			for (bart_dim_t x = 0; x < d->X; x++) {
 
-				long at = x * cstr[READ_DIM] + d->u_coord[2 * u + 1] * cstr[PHS1_DIM]
+				bart_dim_t at = x * cstr[READ_DIM] + d->u_coord[2 * u + 1] * cstr[PHS1_DIM]
 					+ d->u_coord[2 * u] * cstr[PHS2_DIM] + c * cstr[COIL_DIM];
 
-				for (long r = 0; r < d->R; r++) {
+				for (bart_dim_t r = 0; r < d->R; r++) {
 
 					complex float acc = 0.;
 
-					for (long q = d->csr_start[u]; q < d->csr_start[u + 1]; q++) {
+					for (bart_dim_t q = d->csr_start[u]; q < d->csr_start[u + 1]; q++) {
 
-						long e = d->csr[q];
-						long t = e / d->S;
+						bart_dim_t e = d->csr[q];
+						bart_dim_t t = e / d->S;
 						complex float v = out[x * ostr[PHS1_DIM] + (e - t * d->S) * ostr[PHS2_DIM]
 							+ c * ostr[COIL_DIM] + t * ostr[TE_DIM]];
 
@@ -787,18 +787,18 @@ static void grid_axes(const struct grid_s* d, struct bartorch_grid_axes* ax)
  * centring on and whose write gathers the kept places, then the table read
  * off the gathered spectrum on the card. */
 static void sampled_fused_forward(struct grid_s* d, complex float* dst, const complex float* src,
-		long coils, long coil_step, long coeff_step, const complex float* map, long map_step)
+		bart_dim_t coils, bart_dim_t coil_step, bart_dim_t coeff_step, const complex float* map, bart_dim_t map_step)
 {
-	long vd[1] = { d->vol };
-	long bd[1] = { d->R * d->batch * MAX(1, d->kept) };
+	bart_dim_t vd[1] = { d->vol };
+	bart_dim_t bd[1] = { d->R * d->batch * MAX(1, d->kept) };
 
-	long td[DIMS];
+	bart_dim_t td[DIMS];
 	md_select_dims(DIMS, ~COIL_FLAG, td, d->out_dims);
 
-	long tstr[DIMS];
+	bart_stride_t tstr[DIMS];
 	md_calc_strides(DIMS, tstr, td, CFL_SIZE);
 
-	long ostr[DIMS];
+	bart_stride_t ostr[DIMS];
 	md_calc_strides(DIMS, ostr, d->out_dims, CFL_SIZE);
 
 	complex float* volume = md_alloc_gpu(1, vd, CFL_SIZE);
@@ -809,13 +809,13 @@ static void sampled_fused_forward(struct grid_s* d, complex float* dst, const co
 	struct bartorch_grid_axes ax;
 	grid_axes(d, &ax);
 
-	long per = d->batch * d->kept;
+	bart_dim_t per = d->batch * d->kept;
 
-	for (long c = 0; c < coils; c++) {
+	for (bart_dim_t c = 0; c < coils; c++) {
 
 		const complex float* m = (NULL == map) ? NULL : map + c * map_step;
 
-		for (long r = 0; r < d->R; r++)
+		for (bart_dim_t r = 0; r < d->R; r++)
 			grid_in(d, bank + r * per, volume, hybrid, src + c * coil_step + r * coeff_step, m);
 
 		bartorch_cuda_bank_to_table(d->E, d->X, d->S, (int)d->R, d->kept, per, d->d_entry_u, d->d_u_coord,
@@ -823,7 +823,7 @@ static void sampled_fused_forward(struct grid_s* d, complex float* dst, const co
 
 		sampled_readout(d, td, table, true);
 
-		md_copy2(DIMS, td, ostr, dst + c * (ostr[COIL_DIM] / (long)CFL_SIZE), tstr, table, CFL_SIZE);
+		md_copy2(DIMS, td, ostr, dst + c * (ostr[COIL_DIM] / (bart_stride_t)CFL_SIZE), tstr, table, CFL_SIZE);
 	}
 
 	md_free(table);
@@ -841,18 +841,18 @@ static void sampled_fused_forward(struct grid_s* d, complex float* dst, const co
  * spectrum on the card, and per coefficient one transform back whose read
  * scatters it and whose write takes the conjugates off into the image. */
 static void sampled_fused_adjoint(struct grid_s* d, complex float* dst, const complex float* src,
-		long coils, long coil_step, long coeff_step, const complex float* map, long map_step)
+		bart_dim_t coils, bart_dim_t coil_step, bart_dim_t coeff_step, const complex float* map, bart_dim_t map_step)
 {
-	long vd[1] = { d->vol };
-	long bd[1] = { d->R * d->batch * MAX(1, d->kept) };
+	bart_dim_t vd[1] = { d->vol };
+	bart_dim_t bd[1] = { d->R * d->batch * MAX(1, d->kept) };
 
-	long td[DIMS];
+	bart_dim_t td[DIMS];
 	md_select_dims(DIMS, ~COIL_FLAG, td, d->out_dims);
 
-	long tstr[DIMS];
+	bart_stride_t tstr[DIMS];
 	md_calc_strides(DIMS, tstr, td, CFL_SIZE);
 
-	long ostr[DIMS];
+	bart_stride_t ostr[DIMS];
 	md_calc_strides(DIMS, ostr, d->out_dims, CFL_SIZE);
 
 	complex float* volume = md_alloc_gpu(1, vd, CFL_SIZE);
@@ -863,13 +863,13 @@ static void sampled_fused_adjoint(struct grid_s* d, complex float* dst, const co
 	struct bartorch_grid_axes ax;
 	grid_axes(d, &ax);
 
-	long per = d->batch * d->kept;
+	bart_dim_t per = d->batch * d->kept;
 
-	for (long c = 0; c < coils; c++) {
+	for (bart_dim_t c = 0; c < coils; c++) {
 
 		const complex float* m = (NULL == map) ? NULL : map + c * map_step;
 
-		md_copy2(DIMS, td, tstr, table, ostr, src + c * (ostr[COIL_DIM] / (long)CFL_SIZE), CFL_SIZE);
+		md_copy2(DIMS, td, tstr, table, ostr, src + c * (ostr[COIL_DIM] / (bart_stride_t)CFL_SIZE), CFL_SIZE);
 
 		sampled_readout(d, td, table, false);
 
@@ -878,7 +878,7 @@ static void sampled_fused_adjoint(struct grid_s* d, complex float* dst, const co
 		bartorch_cuda_table_to_bank(d->U, d->X, d->S, (int)d->R, d->kept, per, d->d_csr_start, d->d_csr,
 				d->d_u_coord, d->dmask, d->dprefix, &ax, d->d_bt, bank, table);
 
-		for (long r = 0; r < d->R; r++)
+		for (bart_dim_t r = 0; r < d->R; r++)
 			grid_out(d, dst + c * coil_step + r * coeff_step, volume, hybrid, bank + r * per, m);
 	}
 
@@ -903,7 +903,7 @@ static void grid_forward(const linop_data_t* _d, complex float* dst, const compl
 #ifdef USE_CUDA
 		if (grid_ready(d, dst) && cuda_ondevice(src) && sampled_fusable(d)) {
 
-			long coils = d->cim_dims[COIL_DIM];
+			bart_dim_t coils = d->cim_dims[COIL_DIM];
 
 			sampled_fused_forward(d, dst, src, coils, d->img_vol, d->img_vol * coils, NULL, 0);
 			return;
@@ -925,7 +925,7 @@ static void grid_adjoint(const linop_data_t* _d, complex float* dst, const compl
 #ifdef USE_CUDA
 		if (grid_ready(d, dst) && cuda_ondevice(src) && sampled_fusable(d)) {
 
-			long coils = d->cim_dims[COIL_DIM];
+			bart_dim_t coils = d->cim_dims[COIL_DIM];
 
 			md_clear(DIMS, d->dom_dims, dst, CFL_SIZE);
 			sampled_fused_adjoint(d, dst, src, coils, d->img_vol, d->img_vol * coils, NULL, 0);
@@ -945,7 +945,7 @@ static void grid_normal(const linop_data_t* _d, complex float* dst, const comple
 
 	if (grid_ready(d, dst) && cuda_ondevice(src)) {
 
-		long coils = d->cim_dims[COIL_DIM];
+		bart_dim_t coils = d->cim_dims[COIL_DIM];
 
 		md_clear(DIMS, d->dom_dims, dst, CFL_SIZE);
 		grid_fused(d, dst, src, coils, d->img_vol, d->img_vol * coils, NULL, 0);
@@ -1008,11 +1008,11 @@ int bartorch_grid_folds(const struct linop_s* op, const void* ref)
 /* The normal of a slab of coils, each with its sensitivity from `map`,
  * against the image `src`, added to the image `dst`. */
 void bartorch_grid_normal_sense(const struct linop_s* op, complex float* dst, const complex float* src,
-		const long map_strs[DIMS], const complex float* map)
+		const int64_t map_strs[DIMS], const complex float* map)
 {
 	struct grid_s* d = CAST_DOWN(grid_s, linop_get_data(op));
 
-	grid_fused(d, dst, src, d->cim_dims[COIL_DIM], 0, d->img_vol, map, map_strs[COIL_DIM] / (long)CFL_SIZE);
+	grid_fused(d, dst, src, d->cim_dims[COIL_DIM], 0, d->img_vol, map, map_strs[COIL_DIM] / (bart_stride_t)CFL_SIZE);
 }
 
 /* Whether `op` is a sampled-only Cartesian transform whose forward and adjoint
@@ -1027,12 +1027,12 @@ int bartorch_grid_folds_samples(const struct linop_s* op, const void* ref)
 /* The samples of a slab of coils, each with its sensitivity from `map`, of the
  * image `src`, into the slab's samples `dst`. */
 void bartorch_grid_forward_sense(const struct linop_s* op, complex float* dst, const complex float* src,
-		const long map_strs[DIMS], const complex float* map)
+		const int64_t map_strs[DIMS], const complex float* map)
 {
 	struct grid_s* d = CAST_DOWN(grid_s, linop_get_data(op));
 
 #ifdef USE_CUDA
-	sampled_fused_forward(d, dst, src, d->cim_dims[COIL_DIM], 0, d->img_vol, map, map_strs[COIL_DIM] / (long)CFL_SIZE);
+	sampled_fused_forward(d, dst, src, d->cim_dims[COIL_DIM], 0, d->img_vol, map, map_strs[COIL_DIM] / (bart_stride_t)CFL_SIZE);
 #else
 	(void)d; (void)dst; (void)src; (void)map_strs; (void)map;
 	error("bartorch: the Cartesian callbacks run on a card\n");
@@ -1041,12 +1041,12 @@ void bartorch_grid_forward_sense(const struct linop_s* op, complex float* dst, c
 
 /* The adjoint of the slab's samples `src`, added to the image `dst`. */
 void bartorch_grid_adjoint_sense(const struct linop_s* op, complex float* dst, const complex float* src,
-		const long map_strs[DIMS], const complex float* map)
+		const int64_t map_strs[DIMS], const complex float* map)
 {
 	struct grid_s* d = CAST_DOWN(grid_s, linop_get_data(op));
 
 #ifdef USE_CUDA
-	sampled_fused_adjoint(d, dst, src, d->cim_dims[COIL_DIM], 0, d->img_vol, map, map_strs[COIL_DIM] / (long)CFL_SIZE);
+	sampled_fused_adjoint(d, dst, src, d->cim_dims[COIL_DIM], 0, d->img_vol, map, map_strs[COIL_DIM] / (bart_stride_t)CFL_SIZE);
 #else
 	(void)d; (void)dst; (void)src; (void)map_strs; (void)map;
 	error("bartorch: the Cartesian callbacks run on a card\n");
@@ -1057,7 +1057,7 @@ void bartorch_grid_adjoint_sense(const struct linop_s* op, complex float* dst, c
  * dense forward, the normal as BART's chain, and what the callbacks need.
  * See grid_transform_create. */
 /* BART's transform as a linop in the convention asked for, or its adjoint. */
-static struct linop_s* grid_ft_create(const long dims[DIMS], unsigned long flags, bool centred, bool adjoint)
+static struct linop_s* grid_ft_create(const bart_dim_t dims[DIMS], bart_flags_t flags, bool centred, bool adjoint)
 {
 	if (centred)
 		return adjoint ? linop_ifftc_create(DIMS, dims, flags) : linop_fftc_create(DIMS, dims, flags);
@@ -1065,29 +1065,29 @@ static struct linop_s* grid_ft_create(const long dims[DIMS], unsigned long flags
 	return adjoint ? linop_ifft_create(DIMS, dims, flags) : linop_fft_create(DIMS, dims, flags);
 }
 
-static struct grid_s* grid_state(const long cim_dims[DIMS],
-		const long pat_dims[DIMS], const complex float* pattern,
-		const long bas_dims[DIMS], const complex float* basis, int toeplitz, bool centred)
+static struct grid_s* grid_state(const bart_dim_t cim_dims[DIMS],
+		const bart_dim_t pat_dims[DIMS], const complex float* pattern,
+		const bart_dim_t bas_dims[DIMS], const complex float* basis, int toeplitz, bool centred)
 {
-	unsigned long fft_flags = FFT_FLAGS & md_nontriv_dims(DIMS, cim_dims);
+	bart_flags_t fft_flags = FFT_FLAGS & md_nontriv_dims(DIMS, cim_dims);
 
 	if (NULL != pattern) {
 
 		/* The kernel is laid out over the spatial axes and the frames and
 		 * nothing else, so a pattern that differs between coils or sets
 		 * of maps is not one this can collapse. */
-		if (0UL != (md_nontriv_dims(DIMS, pat_dims) & ~(FFT_FLAGS | TE_FLAG)))
+		if (0 != (md_nontriv_dims(DIMS, pat_dims) & ~(FFT_FLAGS | TE_FLAG)))
 			error("bartorch: a Cartesian pattern varies along the spatial axes and the frames only\n");
 
 		for (int a = 0; a < 3; a++)
 			if ((1 != pat_dims[a]) && (pat_dims[a] != cim_dims[a]))
-				error("bartorch: the pattern is %ld along axis %d, where the images are %ld\n",
+				error("bartorch: the pattern is %" PRId64 " along axis %d, where the images are %" PRId64 "\n",
 						pat_dims[a], a, cim_dims[a]);
 
-		long frames = (NULL == basis) ? 1 : bas_dims[TE_DIM];
+		bart_dim_t frames = (NULL == basis) ? 1 : bas_dims[TE_DIM];
 
 		if ((1 != pat_dims[TE_DIM]) && (frames != pat_dims[TE_DIM]))
-			error("bartorch: the pattern has %ld frames and the basis %ld\n", pat_dims[TE_DIM], frames);
+			error("bartorch: the pattern has %" PRId64 " frames and the basis %" PRId64 "\n", pat_dims[TE_DIM], frames);
 	}
 
 	PTR_ALLOC(struct grid_s, d);
@@ -1099,14 +1099,14 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 
 	struct linop_s* fwd = grid_ft_create(cim_dims, fft_flags, centred, false);
 
-	long R = 1;
+	bart_dim_t R = 1;
 
 	if (NULL != basis) {
 
 		R = bas_dims[COEFF_DIM];
 
 		if (R != cim_dims[COEFF_DIM])
-			error("bartorch: the basis has %ld coefficients and the image %ld\n", R, cim_dims[COEFF_DIM]);
+			error("bartorch: the basis has %" PRId64 " coefficients and the image %" PRId64 "\n", R, cim_dims[COEFF_DIM]);
 
 		d->out_dims[COEFF_DIM] = 1;
 		d->out_dims[TE_DIM] = bas_dims[TE_DIM];
@@ -1117,7 +1117,7 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 	if (NULL != pattern)
 		fwd = linop_chain_FF(fwd, linop_sampling_create(d->out_dims, pat_dims, pattern));
 
-	unsigned long flags = (NULL == pattern) ? 0UL : (varying(pat_dims) & fft_flags);
+	bart_flags_t flags = (NULL == pattern) ? 0 : (varying(pat_dims) & fft_flags);
 
 	/* cuFFT links no callbacks into a transform along a single axis -- its
 	 * plan answers CUFFT_INTERNAL_ERROR -- so a pattern that varies along one
@@ -1125,9 +1125,9 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 	 * Along that axis the transform and its inverse cancel, and so do the
 	 * centring and its conjugate, so the normal is the same one; the pattern
 	 * the kernel and the kept places are read from is repeated along it. */
-	long kpat_dims[DIMS];
+	bart_dim_t kpat_dims[DIMS];
 	complex float* repeated = NULL;
-	long promoted = 1;
+	bart_dim_t promoted = 1;
 
 	if (NULL != pattern)
 		md_copy_dims(DIMS, kpat_dims, pat_dims);
@@ -1144,11 +1144,11 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 
 			kpat_dims[extra] = cim_dims[extra];
 
-			long istrs[DIMS];
+			bart_stride_t istrs[DIMS];
 			md_calc_strides(DIMS, istrs, pat_dims, CFL_SIZE);
 			istrs[extra] = 0;
 
-			long ostrs[DIMS];
+			bart_stride_t ostrs[DIMS];
 			md_calc_strides(DIMS, ostrs, kpat_dims, CFL_SIZE);
 
 			complex float* host = md_alloc(DIMS, pat_dims, CFL_SIZE);
@@ -1166,7 +1166,7 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 
 	const complex float* kpattern = (NULL != repeated) ? repeated : pattern;
 
-	long kdims[DIMS];
+	bart_dim_t kdims[DIMS];
 	complex float* K = grid_kernel(kdims, kpat_dims, kpattern, bas_dims, basis);
 
 	/* The uncentred transform is unnormalized, so along the axis taken in
@@ -1186,7 +1186,7 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 		/* The coefficients go out on TE, where the multiply-accumulate
 		 * can put them, and a reshape reads them back on COEFF; the two
 		 * layouts are the same memory. */
-		long mixed_dims[DIMS];
+		bart_dim_t mixed_dims[DIMS];
 		md_copy_dims(DIMS, mixed_dims, cim_dims);
 		mixed_dims[COEFF_DIM] = 1;
 		mixed_dims[TE_DIM] = R;
@@ -1218,11 +1218,11 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 	}
 
 	if (0 == toeplitz)
-		d->flags = 0UL;
+		d->flags = 0;
 
 	struct linop_s* nrm = core;
 
-	if (0UL != d->flags) {
+	if (0 != d->flags) {
 
 		nrm = linop_chain_FF(linop_chain_FF(grid_ft_create(cim_dims, d->flags, centred, false), core),
 				grid_ft_create(cim_dims, d->flags, centred, true));
@@ -1263,7 +1263,7 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 	d->d_csr = NULL;
 	d->d_bt = NULL;
 
-	debug_printf(DP_DEBUG1, "Cartesian slab: %ld coefficients, normal transforms axes %lx of %lx, %ld of %ld places kept\n",
+	debug_printf(DP_DEBUG1, "Cartesian slab: %" PRId64 " coefficients, normal transforms axes %" PRIx64 " of %" PRIx64 ", %" PRId64 " of %" PRId64 " places kept\n",
 			R, d->flags, fft_flags, d->kept, d->plane);
 
 	return PTR_PASS(d);
@@ -1272,13 +1272,13 @@ static struct grid_s* grid_state(const long cim_dims[DIMS],
 /* The slab transform over coil images of `cim_dims`, or over every coil when
  * the loop does not run.  `pattern` and `basis` may each be NULL.  Without
  * `toeplitz` the normal is the two applications, as BART derives it. */
-const struct linop_s* grid_transform_create(const long cim_dims[DIMS],
-		const long pat_dims[DIMS], const complex float* pattern,
-		const long bas_dims[DIMS], const complex float* basis, int toeplitz)
+const struct linop_s* grid_transform_create(const bart_dim_t cim_dims[DIMS],
+		const bart_dim_t pat_dims[DIMS], const complex float* pattern,
+		const bart_dim_t bas_dims[DIMS], const complex float* basis, int toeplitz)
 {
 	struct grid_s* d = grid_state(cim_dims, pat_dims, pattern, bas_dims, basis, toeplitz, true);
 
-	long out_dims[DIMS];
+	bart_dim_t out_dims[DIMS];
 	md_copy_dims(DIMS, out_dims, d->out_dims);
 
 	return linop_create(DIMS, out_dims, DIMS, cim_dims, CAST_UP(d),
@@ -1297,38 +1297,38 @@ const struct linop_s* grid_transform_create(const long cim_dims[DIMS],
  * does in the two applications.  Forward, the table is read off the gathered
  * spectrum and transformed along its readout where that is asked for; that
  * is a transform of the table, not of the volume. */
-static struct grid_s* sampled_state(const long cim_dims[DIMS], long T, long S, int components,
-		const long* positions, const long bas_dims[DIMS], const complex float* basis, bool centred)
+static struct grid_s* sampled_state(const bart_dim_t cim_dims[DIMS], bart_dim_t T, bart_dim_t S, int components,
+		const bart_dim_t* positions, const bart_dim_t bas_dims[DIMS], const complex float* basis, bool centred)
 {
-	long ny = cim_dims[PHS1_DIM];
-	long nz = cim_dims[PHS2_DIM];
+	bart_dim_t ny = cim_dims[PHS1_DIM];
+	bart_dim_t nz = cim_dims[PHS2_DIM];
 
 	if (((1 < nz) ? 2 : 1) != components)
 		error("bartorch: positions of %d indices for an image of %d phase-encode axes\n", components, (1 < nz) ? 2 : 1);
 
 	if ((NULL == basis) ? (1 != T) : (bas_dims[TE_DIM] != T))
-		error("bartorch: positions over %ld frames, and a basis of %ld\n", T, (NULL == basis) ? 1L : bas_dims[TE_DIM]);
+		error("bartorch: positions over %" PRId64 " frames, and a basis of %" PRId64 "\n", T, (NULL == basis) ? 1 : bas_dims[TE_DIM]);
 
-	long plane = ny * nz;
-	long E = T * S;
+	bart_dim_t plane = ny * nz;
+	bart_dim_t E = T * S;
 
 	int* place_u = xmalloc((size_t)plane * sizeof(int));
 	float* counts = xmalloc((size_t)(T * plane) * sizeof(float));
 	int* entry_u = xmalloc((size_t)MAX(1, E) * sizeof(int));
 
-	for (long p = 0; p < plane; p++)
+	for (bart_dim_t p = 0; p < plane; p++)
 		place_u[p] = -1;
 
-	for (long i = 0; i < T * plane; i++)
+	for (bart_dim_t i = 0; i < T * plane; i++)
 		counts[i] = 0.f;
 
-	long U = 0;
-	long valid = 0;
+	bart_dim_t U = 0;
+	bart_dim_t valid = 0;
 
-	for (long e = 0; e < E; e++) {
+	for (bart_dim_t e = 0; e < E; e++) {
 
-		long zc = (2 == components) ? positions[e * components] : 0;
-		long yc = positions[e * components + components - 1];
+		bart_dim_t zc = (2 == components) ? positions[e * components] : 0;
+		bart_dim_t yc = positions[e * components + components - 1];
 
 		if ((-1 == zc) || (-1 == yc)) {
 
@@ -1337,9 +1337,9 @@ static struct grid_s* sampled_state(const long cim_dims[DIMS], long T, long S, i
 		}
 
 		if ((zc < 0) || (zc >= nz) || (yc < 0) || (yc >= ny))
-			error("bartorch: a phase encode lies outside the %ld x %ld plane\n", nz, ny);
+			error("bartorch: a phase encode lies outside the %" PRId64 " x %" PRId64 " plane\n", nz, ny);
 
-		long p = yc + ny * zc;
+		bart_dim_t p = yc + ny * zc;
 
 		if (-1 == place_u[p])
 			place_u[p] = (int)U++;
@@ -1354,7 +1354,7 @@ static struct grid_s* sampled_state(const long cim_dims[DIMS], long T, long S, i
 	int* csr = xmalloc((size_t)MAX(1, valid) * sizeof(int));
 	int* fill = xmalloc((size_t)MAX(1, U) * sizeof(int));
 
-	for (long p = 0; p < plane; p++) {
+	for (bart_dim_t p = 0; p < plane; p++) {
 
 		if (0 > place_u[p])
 			continue;
@@ -1363,27 +1363,27 @@ static struct grid_s* sampled_state(const long cim_dims[DIMS], long T, long S, i
 		u_coord[2 * place_u[p] + 1] = (int)(p % ny);
 	}
 
-	for (long u = 0; u <= U; u++)
+	for (bart_dim_t u = 0; u <= U; u++)
 		csr_start[u] = 0;
 
-	for (long e = 0; e < E; e++)
+	for (bart_dim_t e = 0; e < E; e++)
 		if (0 <= entry_u[e])
 			csr_start[entry_u[e] + 1]++;
 
-	for (long u = 0; u < U; u++) {
+	for (bart_dim_t u = 0; u < U; u++) {
 
 		csr_start[u + 1] += csr_start[u];
 		fill[u] = csr_start[u];
 	}
 
-	for (long e = 0; e < E; e++)
+	for (bart_dim_t e = 0; e < E; e++)
 		if (0 <= entry_u[e])
 			csr[fill[entry_u[e]]++] = (int)e;
 
 	xfree(fill);
 	xfree(place_u);
 
-	long pat_dims[DIMS];
+	bart_dim_t pat_dims[DIMS];
 	md_singleton_dims(DIMS, pat_dims);
 	pat_dims[PHS1_DIM] = ny;
 	pat_dims[PHS2_DIM] = nz;
@@ -1391,7 +1391,7 @@ static struct grid_s* sampled_state(const long cim_dims[DIMS], long T, long S, i
 
 	complex float* pattern = md_alloc(DIMS, pat_dims, CFL_SIZE);
 
-	for (long i = 0; i < T * plane; i++)
+	for (bart_dim_t i = 0; i < T * plane; i++)
 		pattern[i] = sqrtf(counts[i]);
 
 	xfree(counts);
@@ -1424,8 +1424,8 @@ static struct grid_s* sampled_state(const long cim_dims[DIMS], long T, long S, i
 
 		d->bt = xmalloc((size_t)(T * d->R) * sizeof(complex float));
 
-		for (long t = 0; t < T; t++)
-			for (long r = 0; r < d->R; r++)
+		for (bart_dim_t t = 0; t < T; t++)
+			for (bart_dim_t r = 0; r < d->R; r++)
 				d->bt[t * d->R + r] = B[t + T * r];
 
 		md_free(B);
@@ -1436,14 +1436,14 @@ static struct grid_s* sampled_state(const long cim_dims[DIMS], long T, long S, i
 	d->out_dims[PHS2_DIM] = S;
 	d->out_dims[TE_DIM] = T;
 
-	debug_printf(DP_DEBUG1, "Cartesian samples: %ld frames x %ld shots x %ld readout at %ld places\n",
+	debug_printf(DP_DEBUG1, "Cartesian samples: %" PRId64 " frames x %" PRId64 " shots x %" PRId64 " readout at %" PRId64 " places\n",
 			T, S, d->X, U);
 
 	return d;
 }
 
-const struct linop_s* grid_sampled_create(const long cim_dims[DIMS], long T, long S, int components,
-		const long* positions, const long bas_dims[DIMS], const complex float* basis,
+const struct linop_s* grid_sampled_create(const bart_dim_t cim_dims[DIMS], bart_dim_t T, bart_dim_t S, int components,
+		const bart_dim_t* positions, const bart_dim_t bas_dims[DIMS], const complex float* basis,
 		int kspace_readout, int toeplitz)
 {
 	struct grid_s* d = sampled_state(cim_dims, T, S, components, positions, bas_dims, basis, true);
@@ -1451,7 +1451,7 @@ const struct linop_s* grid_sampled_create(const long cim_dims[DIMS], long T, lon
 	d->toeplitz = (0 != toeplitz);
 	d->kspace_readout = (0 != kspace_readout);
 
-	long out_dims[DIMS];
+	bart_dim_t out_dims[DIMS];
 	md_copy_dims(DIMS, out_dims, d->out_dims);
 
 	return linop_create(DIMS, out_dims, DIMS, cim_dims, CAST_UP(d),
@@ -1460,17 +1460,17 @@ const struct linop_s* grid_sampled_create(const long cim_dims[DIMS], long T, lon
 
 /* A wave over the grid `d` holds: the domain, the offset of the zero-fill,
  * and the point spread function over the grid's spatial axes. */
-static void wave_setup(struct grid_s* d, const long dom_dims[DIMS], const complex float* psf)
+static void wave_setup(struct grid_s* d, const bart_dim_t dom_dims[DIMS], const complex float* psf)
 {
-	long wx = d->cim_dims[READ_DIM];
-	long sx = dom_dims[READ_DIM];
+	bart_dim_t wx = d->cim_dims[READ_DIM];
+	bart_dim_t sx = dom_dims[READ_DIM];
 
 	d->wave = true;
 	md_copy_dims(DIMS, d->dom_dims, dom_dims);
 	d->img_vol = md_calc_size(3, dom_dims);
 	d->wave_off = (wx / 2 > sx / 2) ? (wx / 2 - sx / 2) : (sx / 2 - wx / 2);
 
-	long pdims[DIMS];
+	bart_dim_t pdims[DIMS];
 	md_select_dims(DIMS, FFT_FLAGS, pdims, d->cim_dims);
 
 	d->psf = md_alloc(DIMS, pdims, CFL_SIZE);
@@ -1505,11 +1505,11 @@ static void wave_normal_chain(struct grid_s* d)
  * closed-form normal puts its kernel between the phase-encode transforms, so
  * it takes a pattern the same all along the readout -- the readout is not
  * the transform's to cancel -- and any other normal is the two applications. */
-const struct linop_s* wave_transform_create(const long dom_dims[DIMS], long wx, const complex float* psf, int centred,
-		const long pat_dims[DIMS], const complex float* pattern,
-		const long bas_dims[DIMS], const complex float* basis, int toeplitz)
+const struct linop_s* wave_transform_create(const bart_dim_t dom_dims[DIMS], bart_dim_t wx, const complex float* psf, int centred,
+		const bart_dim_t pat_dims[DIMS], const complex float* pattern,
+		const bart_dim_t bas_dims[DIMS], const complex float* basis, int toeplitz)
 {
-	long cim_dims[DIMS];
+	bart_dim_t cim_dims[DIMS];
 	md_copy_dims(DIMS, cim_dims, dom_dims);
 	cim_dims[READ_DIM] = wx;
 
@@ -1519,7 +1519,7 @@ const struct linop_s* wave_transform_create(const long dom_dims[DIMS], long wx, 
 
 	wave_setup(d, dom_dims, psf);
 
-	unsigned long pe = FFT_FLAGS & ~READ_FLAG & md_nontriv_dims(DIMS, cim_dims);
+	bart_flags_t pe = FFT_FLAGS & ~READ_FLAG & md_nontriv_dims(DIMS, cim_dims);
 
 	struct linop_s* fwd = linop_chain_FF(wave_front(d), grid_ft_create(cim_dims, pe, d->centred, false));
 
@@ -1534,7 +1534,7 @@ const struct linop_s* wave_transform_create(const long dom_dims[DIMS], long wx, 
 
 	wave_normal_chain(d);
 
-	long out_dims[DIMS];
+	bart_dim_t out_dims[DIMS];
 	md_copy_dims(DIMS, out_dims, d->out_dims);
 
 	return linop_create(DIMS, out_dims, DIMS, d->dom_dims, CAST_UP(d),
@@ -1543,11 +1543,11 @@ const struct linop_s* wave_transform_create(const long dom_dims[DIMS], long wx, 
 
 /* The same over sampled-only k-space: a table of phase encodes per frame with
  * the oversampled readout along each, as the front leaves it. */
-const struct linop_s* wave_sampled_create(const long dom_dims[DIMS], long wx, const complex float* psf, int centred,
-		long T, long S, int components, const long* positions,
-		const long bas_dims[DIMS], const complex float* basis, int toeplitz)
+const struct linop_s* wave_sampled_create(const bart_dim_t dom_dims[DIMS], bart_dim_t wx, const complex float* psf, int centred,
+		bart_dim_t T, bart_dim_t S, int components, const bart_dim_t* positions,
+		const bart_dim_t bas_dims[DIMS], const complex float* basis, int toeplitz)
 {
-	long cim_dims[DIMS];
+	bart_dim_t cim_dims[DIMS];
 	md_copy_dims(DIMS, cim_dims, dom_dims);
 	cim_dims[READ_DIM] = wx;
 
@@ -1560,7 +1560,7 @@ const struct linop_s* wave_sampled_create(const long dom_dims[DIMS], long wx, co
 
 	wave_normal_chain(d);
 
-	long out_dims[DIMS];
+	bart_dim_t out_dims[DIMS];
 	md_copy_dims(DIMS, out_dims, d->out_dims);
 
 	return linop_create(DIMS, out_dims, DIMS, d->dom_dims, CAST_UP(d),

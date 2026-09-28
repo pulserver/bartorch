@@ -26,7 +26,7 @@ __device__ static inline cuFloatComplex phase_of(const struct coset_info* c, uns
 	unsigned int ny = (unsigned int)c->phase.dims[1];
 	unsigned int yz = i / nx;
 
-	return phase_at(c->phase, (long)(i - yz * nx), (long)(yz % ny), (long)(yz / ny), conj);
+	return phase_at(c->phase, (int64_t)(i - yz * nx), (int64_t)(yz % ny), (int64_t)(yz / ny), conj);
 }
 
 __device__ cufftComplex bartorch_load_in(void* in, unsigned long long off, void* info, void* shared)
@@ -45,7 +45,7 @@ __device__ void bartorch_store_gather(void* out, unsigned long long off, cufftCo
 {
 	const struct coset_info* c = (const struct coset_info*)info;
 
-	long j = kept_at(c->mask, c->prefix, (long)off);
+	int64_t j = kept_at(c->mask, c->prefix, (int64_t)off);
 
 	if (0 <= j)
 		c->bank[j] = val;
@@ -55,7 +55,7 @@ __device__ cufftComplex bartorch_load_scatter(void* in, unsigned long long off, 
 {
 	const struct coset_info* c = (const struct coset_info*)info;
 
-	long j = kept_at(c->mask, c->prefix, (long)off);
+	int64_t j = kept_at(c->mask, c->prefix, (int64_t)off);
 
 	return (0 <= j) ? c->bank[j] : make_cuFloatComplex(0.f, 0.f);
 }
@@ -102,7 +102,7 @@ __device__ void bartorch_grid_store_gather(void* out, unsigned long long off, cu
 {
 	const struct grid_info* g = (const struct grid_info*)info;
 
-	long j = grid_kept(g, (unsigned int)off);
+	int64_t j = grid_kept(g, (unsigned int)off);
 
 	if (0 <= j)
 		g->bank[j] = val;
@@ -112,7 +112,7 @@ __device__ cufftComplex bartorch_grid_load_scatter(void* in, unsigned long long 
 {
 	const struct grid_info* g = (const struct grid_info*)info;
 
-	long j = grid_kept(g, (unsigned int)off);
+	int64_t j = grid_kept(g, (unsigned int)off);
 
 	return (0 <= j) ? g->bank[j] : make_cuFloatComplex(0.f, 0.f);
 }

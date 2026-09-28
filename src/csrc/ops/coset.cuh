@@ -19,6 +19,7 @@
 #include <cuComplex.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -26,15 +27,15 @@
 
 struct phase_conf {
 
-	long dims[3];
-	long tot;
-	long batch;
+	int64_t dims[3];
+	int64_t tot;
+	int64_t batch;
 	float shifts[3];
 	float cn;
 	float scale;
 };
 
-static inline struct phase_conf phase_setup(int N, const long dims[], const float shift[3], float scale)
+static inline struct phase_conf phase_setup(int N, const int64_t dims[], const float shift[3], float scale)
 {
 	struct phase_conf c;
 
@@ -55,7 +56,7 @@ static inline struct phase_conf phase_setup(int N, const long dims[], const floa
 		c.dims[n] = dims[n];
 		c.tot *= dims[n];
 
-		long centre = dims[n] / 2;
+		int64_t centre = dims[n] / 2;
 		double half = (double)centre / (double)dims[n];
 
 		c.shifts[n] += 2. * M_PI * half;
@@ -70,7 +71,7 @@ static inline struct phase_conf phase_setup(int N, const long dims[], const floa
 	return c;
 }
 
-__device__ static inline cuFloatComplex phase_at(const struct phase_conf& c, long x, long y, long z, bool conj)
+__device__ static inline cuFloatComplex phase_at(const struct phase_conf& c, int64_t x, int64_t y, int64_t z, bool conj)
 {
 	float val = c.cn + x * c.shifts[0] + y * c.shifts[1] + z * c.shifts[2];
 
@@ -85,7 +86,7 @@ __device__ static inline cuFloatComplex phase_at(const struct phase_conf& c, lon
 }
 
 /* Where grid point `i` sits in the gathered spectrum, or -1 where it is not kept. */
-__device__ static inline long kept_at(const unsigned int* mask, const int* prefix, long i)
+__device__ static inline int64_t kept_at(const unsigned int* mask, const int* prefix, int64_t i)
 {
 	unsigned int word = mask[i >> 5];
 	unsigned int bit = 1u << (i & 31);
@@ -93,7 +94,7 @@ __device__ static inline long kept_at(const unsigned int* mask, const int* prefi
 	if (0 == (word & bit))
 		return -1;
 
-	return (long)prefix[i >> 5] + __popc(word & (bit - 1));
+	return (int64_t)prefix[i >> 5] + __popc(word & (bit - 1));
 }
 
 /* What the callbacks of one transform read: a set's phase, a coil's

@@ -17,6 +17,12 @@
 #include "include/bartorch.h"
 #include "substitute/backend.h"
 
+/* The ABI spells BART's dimension, stride and flag types by their widths, so
+ * a dimension vector crosses as it stands, without a copy. */
+_Static_assert(_Generic((bart_dim_t*)0, int64_t*: 1, default: 0), "BART dimensions are the ABI's int64_t");
+_Static_assert(_Generic((bart_stride_t*)0, int64_t*: 1, default: 0), "BART strides are the ABI's int64_t");
+_Static_assert(_Generic((bart_flags_t*)0, uint64_t*: 1, default: 0), "BART flags are the ABI's uint64_t");
+
 extern int bart_command(int len, char* buf, int argc, char* argv[]);
 
 /* A failed assertion reaches the caller instead of the process.
@@ -35,14 +41,43 @@ extern int bart_command(int len, char* buf, int argc, char* argv[]);
  * Apple's libc calls __assert_rtn(func, file, line, expr) -- a different name,
  * a different order, and a different type for the line.  Answering only the
  * first left every one of BART's assertions aborting on macOS, which is a
- * process death where every other platform gets an exception.
+ * process death where every other platform gets an exception.  MinGW's
+ * assert() calls the C runtime's _assert, or _wassert under the Universal C
+ * Runtime, through the import table, so the import-table slots are what is
+ * answered there.
  */
-#ifdef __APPLE__
+#if defined(_WIN32)
 
-__attribute__((noreturn))
+#include <wchar.h>
+
+void _assert(const char* assertion, const char* file, unsigned line);
+void _wassert(const wchar_t* assertion, const wchar_t* file, unsigned line);
+
+__attribute__((__noreturn__))
+void _assert(const char* assertion, const char* file, unsigned line)
+{
+	error("Assertion '%s' failed in %s:%u\n", assertion, file, line);
+}
+
+__attribute__((__noreturn__))
+void _wassert(const wchar_t* assertion, const wchar_t* file, unsigned line)
+{
+	error("Assertion '%ls' failed in %ls:%u\n", assertion, file, line);
+}
+
+/* <assert.h> declares both dllimport, so BART reaches them through these
+ * slots, and the C++ runtime linked in statically calls them by name.
+ * Defining both keeps the C runtime's import library from supplying
+ * either. */
+void (*__imp__assert)(const char*, const char*, unsigned) = _assert;
+void (*__imp__wassert)(const wchar_t*, const wchar_t*, unsigned) = _wassert;
+
+#elif defined(__APPLE__)
+
+__attribute__((__noreturn__))
 void __assert_rtn(const char* function, const char* file, int line, const char* assertion);
 
-__attribute__((noreturn))
+__attribute__((__noreturn__))
 void __assert_rtn(const char* function, const char* file, int line, const char* assertion)
 {
 	error("Assertion '%s' failed in %s:%d (%s)\n", assertion, file, line, function);

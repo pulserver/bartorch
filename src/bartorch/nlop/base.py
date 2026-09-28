@@ -741,7 +741,7 @@ class _Reshape(_Unary):
             self.x._h.ptr,
             self.at,
             len(self.shape),
-            _marshal.longs(list(self.shape)[::-1]),
+            _marshal.int64s(list(self.shape)[::-1]),
             device=self.x.device,
         )
         ishapes, oshapes = list(self.x.ishapes), list(self.x.oshapes)

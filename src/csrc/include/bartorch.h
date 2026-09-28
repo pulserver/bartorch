@@ -13,12 +13,17 @@
 #define BARTORCH_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifdef _WIN32
+#define BARTORCH_API __declspec(dllexport)
+#else
 #define BARTORCH_API __attribute__((visibility("default")))
+#endif
 
 /* Number of dimensions BART carries for every array. */
 #define BARTORCH_DIMS 16
@@ -41,7 +46,7 @@ enum bartorch_log_level {
  * free callback receives the same pointer.  Returning NULL aborts the
  * running command with an error.
  */
-typedef void* (*bartorch_alloc_fn)(void* ctx, int D, const long* dims);
+typedef void* (*bartorch_alloc_fn)(void* ctx, int D, const int64_t* dims);
 typedef void (*bartorch_free_fn)(void* ctx, void* data);
 
 /* Receives every BART log line at or below the current debug level. */
@@ -63,9 +68,9 @@ BARTORCH_API void bartorch_set_num_threads(int n);
  * freed by BART; arrays BART creates itself come from the allocator
  * callback and are released through the free callback on unlink.
  */
-BARTORCH_API int bartorch_register(const char* name, int D, const long* dims, void* data);
+BARTORCH_API int bartorch_register(const char* name, int D, const int64_t* dims, void* data);
 BARTORCH_API int bartorch_exists(const char* name);
-BARTORCH_API int bartorch_lookup(const char* name, int D, long* dims, void** data);
+BARTORCH_API int bartorch_lookup(const char* name, int D, int64_t* dims, void** data);
 BARTORCH_API int bartorch_unlink(const char* name);
 BARTORCH_API int bartorch_unlink_all(void);
 
@@ -146,7 +151,7 @@ BARTORCH_API int bartorch_nufft_bf16(void);
  * it is one.  Ordinary memory when it is not asked for, or where there is no
  * card: page-locking is not free, and only a crossing that overlaps something
  * repays it. */
-BARTORCH_API void* bartorch_host_alloc(long size, int pinned);
+BARTORCH_API void* bartorch_host_alloc(int64_t size, int pinned);
 BARTORCH_API void bartorch_host_free(void* ptr);
 
 /* A stream of its own for bringing a function over, so the set that will be
@@ -155,18 +160,18 @@ BARTORCH_API void bartorch_host_free(void* ptr);
  * until it has arrived, `release` says BART is done reading it. */
 BARTORCH_API int bartorch_cuda_stage_open(void** stage);
 BARTORCH_API void bartorch_cuda_stage_close(void* stage);
-BARTORCH_API int bartorch_cuda_stage_copy(void* stage, int slot, void* dst, const void* src, long size);
+BARTORCH_API int bartorch_cuda_stage_copy(void* stage, int slot, void* dst, const void* src, int64_t size);
 BARTORCH_API int bartorch_cuda_stage_wait(void* stage, int slot);
 BARTORCH_API int bartorch_cuda_stage_release(void* stage, int slot);
 
 /* A copy between the card and pageable host memory through two page-locked
  * buffers, so it runs near the bus's rate even into pages never touched. */
-BARTORCH_API int bartorch_cuda_copy_pageable(void* dst, const void* src, long size);
-BARTORCH_API void* bartorch_host_prefault_begin(void* ptr, long size);
+BARTORCH_API int bartorch_cuda_copy_pageable(void* dst, const void* src, int64_t size);
+BARTORCH_API void* bartorch_host_prefault_begin(void* ptr, int64_t size);
 BARTORCH_API void bartorch_host_prefault_end(void* handle);
 
 /* Page-lock, and release, host memory that already exists. */
-BARTORCH_API int bartorch_cuda_host_register(void* ptr, long size);
+BARTORCH_API int bartorch_cuda_host_register(void* ptr, int64_t size);
 BARTORCH_API void bartorch_cuda_host_unregister(void* ptr);
 
 BARTORCH_API void bartorch_sense_set_coil_batch(int coils);
@@ -179,13 +184,13 @@ BARTORCH_API void bartorch_sense_set_fold_maps(int enable);
 BARTORCH_API int bartorch_sense_fold_maps(void);
 /* Operators built since the last reset: 0 with the coil loop, 1 as BART's
  * own chain because the arrangement could not be sliced. */
-BARTORCH_API long bartorch_sense_counter(int which);
+BARTORCH_API int64_t bartorch_sense_counter(int which);
 BARTORCH_API void bartorch_sense_reset_counters(void);
 
 BARTORCH_API int bartorch_fft_set(const char* symbol, void* fn);
 BARTORCH_API int bartorch_fft_usable(void);
 /* Plans built since the last reset: 0 by MKL, 1 by the built-in transform. */
-BARTORCH_API long bartorch_fft_counter(int which);
+BARTORCH_API int64_t bartorch_fft_counter(int which);
 BARTORCH_API void bartorch_fft_reset_counters(void);
 
 /*
@@ -209,16 +214,16 @@ typedef int (*bartorch_generic_apply_fn)(void* ctx, int N, void** args);
 typedef int (*bartorch_pair_apply_fn)(void* ctx, int o, int i, void* dst, const void* src);
 typedef void (*bartorch_release_fn)(void* ctx);
 
-BARTORCH_API bartorch_linop* bartorch_linop_callback(int ON, const long* odims, int IN, const long* idims,
+BARTORCH_API bartorch_linop* bartorch_linop_callback(int ON, const int64_t* odims, int IN, const int64_t* idims,
 		bartorch_apply_fn forward, bartorch_apply_fn adjoint, bartorch_apply_fn normal,
 		void* ctx, bartorch_release_fn release);
-BARTORCH_API bartorch_linop* bartorch_linop_fft(int N, const long* dims, unsigned long flags, int inverse, int centered);
-BARTORCH_API bartorch_linop* bartorch_linop_cdiag(int N, const long* dims, unsigned long flags, const void* diag);
-BARTORCH_API bartorch_linop* bartorch_linop_fmac(int N, const long* odims, const long* idims, const long* tdims, const void* tensor);
-BARTORCH_API bartorch_linop* bartorch_linop_sampling(const long* dims, const long* pat_dims, const void* pattern);
-BARTORCH_API bartorch_linop* bartorch_linop_nufft(int N, const long* ksp_dims, const long* cim_dims, const long* traj_dims,
-		const void* traj, const long* wgh_dims, const void* weights,
-		const long* bas_dims, const void* basis, int toeplitz, float os, float width);
+BARTORCH_API bartorch_linop* bartorch_linop_fft(int N, const int64_t* dims, uint64_t flags, int inverse, int centered);
+BARTORCH_API bartorch_linop* bartorch_linop_cdiag(int N, const int64_t* dims, uint64_t flags, const void* diag);
+BARTORCH_API bartorch_linop* bartorch_linop_fmac(int N, const int64_t* odims, const int64_t* idims, const int64_t* tdims, const void* tensor);
+BARTORCH_API bartorch_linop* bartorch_linop_sampling(const int64_t* dims, const int64_t* pat_dims, const void* pattern);
+BARTORCH_API bartorch_linop* bartorch_linop_nufft(int N, const int64_t* ksp_dims, const int64_t* cim_dims, const int64_t* traj_dims,
+		const void* traj, const int64_t* wgh_dims, const void* weights,
+		const int64_t* bas_dims, const void* basis, int toeplitz, float os, float width);
 /* Write a new diagonal into a `cdiag` or a sampling operator, which is the
  * one already built rather than a second one.  The values are copied and the
  * cached normal is dropped, so an operator this is applied to -- and every
@@ -226,7 +231,7 @@ BARTORCH_API bartorch_linop* bartorch_linop_nufft(int N, const long* ksp_dims, c
  * the next application.  `ddims` is what the operator was built with: the
  * shape selected by the broadcast flags, not the operator's own.  Returns
  * non-zero where the operator is not a diagonal or the shape disagrees. */
-BARTORCH_API int bartorch_linop_set_diagonal(const bartorch_linop* op, int N, const long* ddims,
+BARTORCH_API int bartorch_linop_set_diagonal(const bartorch_linop* op, int N, const int64_t* ddims,
 		const void* diag);
 /* SENSE, over sensitivities held as maps or as k-space kernels, walking the
  * coils a slab at a time.  A NULL trajectory makes the Cartesian operator,
@@ -239,11 +244,11 @@ BARTORCH_API int bartorch_linop_set_diagonal(const bartorch_linop* op, int N, co
  * are slowest in memory, is built on BART's dimensions without a copy.  The
  * block operator is referenced, so the caller still frees it. */
 BARTORCH_API bartorch_linop* bartorch_linop_blocks(const bartorch_linop* block, int N,
-		const long* odims, const long* idims, long n);
+		const int64_t* odims, const int64_t* idims, int64_t n);
 /* `op` over the same memory described by `idims` and `odims`, with nothing
  * copied.  The operator is referenced, so the caller still frees it. */
 BARTORCH_API bartorch_linop* bartorch_linop_reshaped(const bartorch_linop* op, int N,
-		const long* odims, const long* idims);
+		const int64_t* odims, const int64_t* idims);
 /*
  * The MRI encoding form.  Every encoding this library builds reduces to
  *
@@ -275,26 +280,26 @@ struct bartorch_encoding {
 	/* The whole operator's dimensions -- spatial axes, coils, sets of
 	 * maps, coefficients -- and one coil's samples with the coefficients
 	 * a basis contracts still on them. */
-	const long* max_dims;
-	const long* ksp_dims;
+	const int64_t* max_dims;
+	const int64_t* ksp_dims;
 
 	/* The image-side factor: coil sensitivities as maps, or as the
 	 * k-space kernels they band-limit to, inflated a slab at a time. */
-	const long* sens_dims;
+	const int64_t* sens_dims;
 	const void* sens;
 	int kernels;
 
 	/* The k-space factors.  Each pointer may be NULL, and its dimensions
 	 * are then not read. */
-	const long* pat_dims;
+	const int64_t* pat_dims;
 	const void* pattern;
-	const long* bas_dims;
+	const int64_t* bas_dims;
 	const void* basis;
-	const long* wgh_dims;
+	const int64_t* wgh_dims;
 	const void* weights;
 
 	/* A NUFFT's trajectory, in grid units. */
-	const long* traj_dims;
+	const int64_t* traj_dims;
 	const void* traj;
 	/* A stack whose kz lies on the image's own z grid, decoupled: the
 	 * trajectory is one position's in-plane shots, kz zero, the transform
@@ -304,25 +309,25 @@ struct bartorch_encoding {
 	/* The positions along z a stack's blocks of shots lie at, one per block,
 	 * where they are not every position in order; NULL is every position,
 	 * block j at position j. */
-	long stack_count;
-	const long* stack_positions;
+	int64_t stack_count;
+	const int64_t* stack_positions;
 
 	/* A table of the phase encodes that were sampled, instead of a dense
-	 * pattern: `frames` x `shots` places of `components` long indices
+	 * pattern: `frames` x `shots` places of `components` indices
 	 * each -- (y) for a 2D image, (z, y) for a 3D one, -1 for padding --
 	 * with the whole readout along each.  `kspace_readout` says the
 	 * samples are in k-space along the readout rather than transformed
 	 * back along it.  NULL `positions` is dense samples. */
-	long frames;
-	long shots;
+	int64_t frames;
+	int64_t shots;
 	int components;
-	const long* positions;
+	const int64_t* positions;
 	int kspace_readout;
 
 	/* A wave: the oversampled readout the coil images are zero-filled to,
 	 * the point spread function over it, and whether its two transforms
 	 * are centred and unitary rather than BART's own. */
-	long readout;
+	int64_t readout;
 	const void* psf;
 	int centred;
 
@@ -330,10 +335,10 @@ struct bartorch_encoding {
 	 * diag(image_l): off-resonance by time segmentation.  Each weight is
 	 * laid out on its own dimensions, the terms contiguous one after
 	 * another.  Zero segments is no contraction. */
-	long segments;
-	const long* segment_sample_dims;
+	int64_t segments;
+	const int64_t* segment_sample_dims;
 	const void* segment_sample;
-	const long* segment_image_dims;
+	const int64_t* segment_image_dims;
 	const void* segment_image;
 
 	/* The BART dimension a batch the sensitivities vary along lies on, or
@@ -347,7 +352,7 @@ struct bartorch_encoding {
 	 * trajectory: the extent of each such axis, and one elsewhere, or NULL
 	 * for none.  Every item is its own transform and normal kernel under one
 	 * coil loop. */
-	const long* item_dims;
+	const int64_t* item_dims;
 
 	/* A k-space factor that differs between sets of maps, applied after
 	 * the transform, with the sets summed over after it: the slice phase
@@ -355,7 +360,7 @@ struct bartorch_encoding {
 	 * sensitivities rather than being contracted by them, so the transform
 	 * runs once per set -- which is what the sum being on the far side of
 	 * it costs.  NULL leaves the sets where the sensitivities sum them. */
-	const long* slice_dims;
+	const int64_t* slice_dims;
 	const void* slice;
 
 	/* The closed-form normal rather than the two applications. */
@@ -396,11 +401,11 @@ enum bartorch_encoding_count {
 	/* Forms built with a transform per item. */
 	BARTORCH_ENCODING_ITEMS = 8,
 };
-BARTORCH_API long bartorch_encoding_counter(int which);
+BARTORCH_API int64_t bartorch_encoding_counter(int which);
 BARTORCH_API void bartorch_encoding_reset_counters(void);
 /* Normals of a Cartesian encoding applied through cuFFT's callbacks since the
  * library was loaded; the rest were applied as BART's chain of operators. */
-BARTORCH_API long bartorch_grid_fused(void);
+BARTORCH_API int64_t bartorch_grid_fused(void);
 /* `a`, answering `normal` when it is asked for A^H A, rather than the adjoint
  * chained onto the forward. */
 BARTORCH_API bartorch_linop* bartorch_linop_with_normal(const bartorch_linop* a, const bartorch_linop* normal);
@@ -410,33 +415,33 @@ BARTORCH_API bartorch_linop* bartorch_linop_adjoint_op(const bartorch_linop* a);
 BARTORCH_API bartorch_linop* bartorch_linop_stack_cod(int n, const bartorch_linop** ops, int stack_dim);
 BARTORCH_API bartorch_linop* bartorch_linop_stack(int cod_dim, int dom_dim, const bartorch_linop* a, const bartorch_linop* b);
 BARTORCH_API bartorch_linop* bartorch_linop_normal_op(const bartorch_linop* a);
-BARTORCH_API bartorch_linop* bartorch_linop_scale(int N, const long* dims, float re, float im);
-BARTORCH_API bartorch_linop* bartorch_linop_zconj(int N, const long* dims);
-BARTORCH_API bartorch_linop* bartorch_linop_identity(int N, const long* dims);
-BARTORCH_API bartorch_linop* bartorch_linop_null(int NO, const long* odims, int NI, const long* idims);
+BARTORCH_API bartorch_linop* bartorch_linop_scale(int N, const int64_t* dims, float re, float im);
+BARTORCH_API bartorch_linop* bartorch_linop_zconj(int N, const int64_t* dims);
+BARTORCH_API bartorch_linop* bartorch_linop_identity(int N, const int64_t* dims);
+BARTORCH_API bartorch_linop* bartorch_linop_null(int NO, const int64_t* odims, int NI, const int64_t* idims);
 BARTORCH_API double bartorch_linop_maxeigen(const bartorch_linop* a);
-BARTORCH_API bartorch_linop* bartorch_linop_zreal(int N, const long* dims);
-BARTORCH_API bartorch_linop* bartorch_linop_rdiag(int N, const long* dims, unsigned long flags, const void* diag);
-BARTORCH_API bartorch_linop* bartorch_linop_matrix(int N, const long* odims, const long* idims, const long* mdims, const void* matrix);
-BARTORCH_API bartorch_linop* bartorch_linop_conv(int N, unsigned long flags, int ctype, int cmode, const long* odims, const long* idims, const long* kdims, const void* kernel);
-BARTORCH_API bartorch_linop* bartorch_linop_grad(int N, const long* dims, int d, unsigned long flags);
-BARTORCH_API bartorch_linop* bartorch_linop_sum(int N, const long* dims, unsigned long flags);
-BARTORCH_API bartorch_linop* bartorch_linop_scaled_sum(int N, const long* dims, unsigned long flags);
-BARTORCH_API bartorch_linop* bartorch_linop_avg(int N, const long* dims, unsigned long flags);
-BARTORCH_API bartorch_linop* bartorch_linop_repmat(int N, const long* odims, unsigned long flags);
-BARTORCH_API bartorch_linop* bartorch_linop_flip(int N, const long* dims, unsigned long flags);
-BARTORCH_API bartorch_linop* bartorch_linop_hankel(int N, const long* dims, int dim, int window_dim, int window);
-BARTORCH_API bartorch_linop* bartorch_linop_reshape(int NO, const long* odims, int NI, const long* idims);
-BARTORCH_API bartorch_linop* bartorch_linop_resize(int N, const long* odims, const long* idims);
-BARTORCH_API bartorch_linop* bartorch_linop_extract(int N, const long* pos, const long* odims, const long* idims);
-BARTORCH_API bartorch_linop* bartorch_linop_transpose(int N, int a, int b, const long* dims);
-BARTORCH_API bartorch_linop* bartorch_linop_permute(int N, const int* order, const long* idims);
-BARTORCH_API bartorch_linop* bartorch_linop_shift(int N, const long* dims, int dim, long shift, int pad);
-BARTORCH_API bartorch_linop* bartorch_linop_padding(int N, const long* dims, int pad, const long* before, const long* after);
+BARTORCH_API bartorch_linop* bartorch_linop_zreal(int N, const int64_t* dims);
+BARTORCH_API bartorch_linop* bartorch_linop_rdiag(int N, const int64_t* dims, uint64_t flags, const void* diag);
+BARTORCH_API bartorch_linop* bartorch_linop_matrix(int N, const int64_t* odims, const int64_t* idims, const int64_t* mdims, const void* matrix);
+BARTORCH_API bartorch_linop* bartorch_linop_conv(int N, uint64_t flags, int ctype, int cmode, const int64_t* odims, const int64_t* idims, const int64_t* kdims, const void* kernel);
+BARTORCH_API bartorch_linop* bartorch_linop_grad(int N, const int64_t* dims, int d, uint64_t flags);
+BARTORCH_API bartorch_linop* bartorch_linop_sum(int N, const int64_t* dims, uint64_t flags);
+BARTORCH_API bartorch_linop* bartorch_linop_scaled_sum(int N, const int64_t* dims, uint64_t flags);
+BARTORCH_API bartorch_linop* bartorch_linop_avg(int N, const int64_t* dims, uint64_t flags);
+BARTORCH_API bartorch_linop* bartorch_linop_repmat(int N, const int64_t* odims, uint64_t flags);
+BARTORCH_API bartorch_linop* bartorch_linop_flip(int N, const int64_t* dims, uint64_t flags);
+BARTORCH_API bartorch_linop* bartorch_linop_hankel(int N, const int64_t* dims, int dim, int window_dim, int window);
+BARTORCH_API bartorch_linop* bartorch_linop_reshape(int NO, const int64_t* odims, int NI, const int64_t* idims);
+BARTORCH_API bartorch_linop* bartorch_linop_resize(int N, const int64_t* odims, const int64_t* idims);
+BARTORCH_API bartorch_linop* bartorch_linop_extract(int N, const int64_t* pos, const int64_t* odims, const int64_t* idims);
+BARTORCH_API bartorch_linop* bartorch_linop_transpose(int N, int a, int b, const int64_t* dims);
+BARTORCH_API bartorch_linop* bartorch_linop_permute(int N, const int* order, const int64_t* idims);
+BARTORCH_API bartorch_linop* bartorch_linop_shift(int N, const int64_t* dims, int dim, int64_t shift, int pad);
+BARTORCH_API bartorch_linop* bartorch_linop_padding(int N, const int64_t* dims, int pad, const int64_t* before, const int64_t* after);
 BARTORCH_API int bartorch_linop_has_pseudo_inv(const bartorch_linop* h);
 BARTORCH_API int bartorch_linop_pseudo_inv(const bartorch_linop* h, float lambda, void* dst, const void* src);
-BARTORCH_API int bartorch_linop_domain(const bartorch_linop* h, int N, long* dims);
-BARTORCH_API int bartorch_linop_codomain(const bartorch_linop* h, int N, long* dims);
+BARTORCH_API int bartorch_linop_domain(const bartorch_linop* h, int N, int64_t* dims);
+BARTORCH_API int bartorch_linop_codomain(const bartorch_linop* h, int N, int64_t* dims);
 BARTORCH_API int bartorch_linop_forward(const bartorch_linop* h, void* dst, const void* src);
 BARTORCH_API int bartorch_linop_adjoint(const bartorch_linop* h, void* dst, const void* src);
 BARTORCH_API int bartorch_linop_normal(const bartorch_linop* h, void* dst, const void* src);
@@ -517,7 +522,7 @@ BARTORCH_API int bartorch_maxeigen(const bartorch_linop* A, const bartorch_linop
 
 BARTORCH_API int bartorch_solve(const bartorch_linop* A,
 		const char* algorithm,
-		const char* const* reg_kinds, const long* reg_xflags, const long* reg_jflags,
+		const char* const* reg_kinds, const uint64_t* reg_xflags, const uint64_t* reg_jflags,
 		const float* reg_lambda, const int* reg_k,
 		const bartorch_prox* const* reg_ops, int n_reg,
 		float cclambda, int maxiter, float step, int eigen, int hogwild,
@@ -538,7 +543,7 @@ BARTORCH_API int bartorch_solve(const bartorch_linop* A,
 		 * BART's own.  Ignored otherwise. */
 		int llr_blk, const char* wavelet, int shift_mode,
 		const float* alpha, const float* gamma,
-		void* x, const void* y, long* iterations);
+		void* x, const void* y, int64_t* iterations);
 BARTORCH_API const char* bartorch_solve_error(int code);
 
 /*
@@ -551,7 +556,7 @@ BARTORCH_API const char* bartorch_solve_error(int code);
  * sorts what it is given.  `p` is a percentile in (0, 1], or negative for the
  * rule `pics` uses.
  */
-BARTORCH_API float bartorch_scaling_norm(long size, const void* image, float rescale,
+BARTORCH_API float bartorch_scaling_norm(int64_t size, const void* image, float rescale,
 		int compat, float p);
 
 /*
@@ -572,9 +577,9 @@ BARTORCH_API float bartorch_scaling_norm(long size, const void* image, float res
  * generator of its own, which `bartorch_solve` rewinds before each solve, so a
  * term that is reused is a term freshly built as far as the answer goes.
  */
-BARTORCH_API int bartorch_prox_create(const char* kind, long xflags, long jflags,
+BARTORCH_API int bartorch_prox_create(const char* kind, uint64_t xflags, uint64_t jflags,
 		float lambda, int k, int llr_blk, const char* wavelet, int shift_mode,
-		const long* img_dims, bartorch_prox** out);
+		const int64_t* img_dims, bartorch_prox** out);
 /* A set of terms configured together, as `bartorch_solve` configures a set
  * holding a term that extends the optimisation variable.
  *
@@ -586,13 +591,13 @@ BARTORCH_API int bartorch_prox_create(const char* kind, long xflags, long jflags
  * `bartorch_prox_free`.  `alpha` and `gamma` are the set's pairs, or NULL.
  */
 BARTORCH_API int bartorch_prox_set_create(int n, const char* const* kinds,
-		const long* xflags, const long* jflags, const float* lambda, const int* k,
+		const uint64_t* xflags, const uint64_t* jflags, const float* lambda, const int* k,
 		int llr_blk, const char* wavelet, int shift_mode,
-		const float* alpha, const float* gamma, const long* img_dims,
-		int max_out, bartorch_prox** out, int* count, long* svars);
+		const float* alpha, const float* gamma, const int64_t* img_dims,
+		int max_out, bartorch_prox** out, int* count, int64_t* svars);
 /* The shape a term's proximal operator works on -- the image's, or the
  * codomain of the transform the term applies first.  Returns the rank. */
-BARTORCH_API int bartorch_prox_domain(const bartorch_prox* h, int N, long* dims);
+BARTORCH_API int bartorch_prox_domain(const bartorch_prox* h, int N, int64_t* dims);
 /* prox_{gamma f}(src) into dst, over that shape. */
 BARTORCH_API int bartorch_prox_apply(const bartorch_prox* h, float gamma, void* dst, const void* src);
 /* The transform applied in place, for the one whose rank an operator here
@@ -615,7 +620,7 @@ BARTORCH_API int bartorch_prox_transform_is_identity(const bartorch_prox* h);
 BARTORCH_API int bartorch_prox_rewind(const bartorch_prox* h);
 BARTORCH_API void bartorch_prox_free(bartorch_prox* h);
 
-BARTORCH_API bartorch_nlop* bartorch_nlop_callback(int ON, const long* odims, int IN, const long* idims,
+BARTORCH_API bartorch_nlop* bartorch_nlop_callback(int ON, const int64_t* odims, int IN, const int64_t* idims,
 		bartorch_apply_fn forward, bartorch_apply_fn derivative, bartorch_apply_fn adjoint,
 		void* ctx, bartorch_release_fn release);
 
@@ -630,16 +635,16 @@ BARTORCH_API bartorch_nlop* bartorch_nlop_callback(int ON, const long* odims, in
  * What this is for is a Python function with more than one argument standing
  * inside a BART graph: a denoiser whose weights are an *input* rather than
  * something it closed over, so that a gradient reaches them. */
-BARTORCH_API bartorch_nlop* bartorch_nlop_callback_generic(int OO, int ON, const long* odims,
-		int II, int IN, const long* idims,
+BARTORCH_API bartorch_nlop* bartorch_nlop_callback_generic(int OO, int ON, const int64_t* odims,
+		int II, int IN, const int64_t* idims,
 		bartorch_generic_apply_fn forward,
 		bartorch_pair_apply_fn derivative,
 		bartorch_pair_apply_fn adjoint,
 		void* ctx, bartorch_release_fn release);
 BARTORCH_API bartorch_nlop* bartorch_nlop_from_linop(const bartorch_linop* lin);
 BARTORCH_API bartorch_nlop* bartorch_nlop_chain(const bartorch_nlop* a, const bartorch_nlop* b);
-BARTORCH_API int bartorch_nlop_domain(const bartorch_nlop* h, int N, long* dims);
-BARTORCH_API int bartorch_nlop_codomain(const bartorch_nlop* h, int N, long* dims);
+BARTORCH_API int bartorch_nlop_domain(const bartorch_nlop* h, int N, int64_t* dims);
+BARTORCH_API int bartorch_nlop_codomain(const bartorch_nlop* h, int N, int64_t* dims);
 BARTORCH_API int bartorch_nlop_apply(const bartorch_nlop* h, void* dst, const void* src);
 BARTORCH_API int bartorch_nlop_derivative(const bartorch_nlop* h, void* dst, const void* src);
 BARTORCH_API int bartorch_nlop_adjoint(const bartorch_nlop* h, void* dst, const void* src);
@@ -653,8 +658,8 @@ BARTORCH_API int bartorch_nlop_adjoint(const bartorch_nlop* h, void* dst, const 
  */
 BARTORCH_API int bartorch_nlop_inputs(const bartorch_nlop* h);
 BARTORCH_API int bartorch_nlop_outputs(const bartorch_nlop* h);
-BARTORCH_API int bartorch_nlop_input_domain(const bartorch_nlop* h, int i, int N, long* dims);
-BARTORCH_API int bartorch_nlop_output_codomain(const bartorch_nlop* h, int o, int N, long* dims);
+BARTORCH_API int bartorch_nlop_input_domain(const bartorch_nlop* h, int i, int N, int64_t* dims);
+BARTORCH_API int bartorch_nlop_output_codomain(const bartorch_nlop* h, int o, int N, int64_t* dims);
 /* Apply an operator of any arity; `args` is outputs then inputs.  Fixes the
  * point every derivative is taken at, as the one-argument apply does. */
 BARTORCH_API int bartorch_nlop_apply_generic(const bartorch_nlop* h, int nargs, void** args);
@@ -676,8 +681,8 @@ BARTORCH_API bartorch_linop* bartorch_nlop_derivative_linop(const bartorch_nlop*
  * the callbacks above is built at DIMS.  So two arguments of the same shape
  * can still refuse to meet.  Padding a shape with ones is not a change to it,
  * and this is how that is said. */
-BARTORCH_API bartorch_nlop* bartorch_nlop_reshape_in(const bartorch_nlop* a, int i, int N, const long* dims);
-BARTORCH_API bartorch_nlop* bartorch_nlop_reshape_out(const bartorch_nlop* a, int o, int N, const long* dims);
+BARTORCH_API bartorch_nlop* bartorch_nlop_reshape_in(const bartorch_nlop* a, int i, int N, const int64_t* dims);
+BARTORCH_API bartorch_nlop* bartorch_nlop_reshape_out(const bartorch_nlop* a, int o, int N, const int64_t* dims);
 
 BARTORCH_API bartorch_nlop* bartorch_nlop_chain2(const bartorch_nlop* a, int o, const bartorch_nlop* b, int i);
 BARTORCH_API bartorch_nlop* bartorch_nlop_combine(const bartorch_nlop* a, const bartorch_nlop* b);
@@ -706,22 +711,22 @@ BARTORCH_API bartorch_nlop* bartorch_nlop_flatten(const bartorch_nlop* x, int in
  * constructor cannot be called at all.  The same operator is built out of
  * the two pieces on the Python side, where the indices are right.
  */
-BARTORCH_API bartorch_nlop* bartorch_nlop_tenmul(int N, const long* odims, const long* idims1, const long* idims2);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zdiv(int N, const long* dims, float eps);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zaxpbz(int N, const long* dims, float a, float b);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zexp(int N, const long* dims);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zlog(int N, const long* dims);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zinv(int N, const long* dims, float eps);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zsqrt(int N, const long* dims);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zspow(int N, const long* dims, float re, float im);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zsadd(int N, const long* dims, float re, float im);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zabs(int N, const long* dims);
-BARTORCH_API bartorch_nlop* bartorch_nlop_smo_abs(int N, const long* dims, float eps);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zrss(int N, const long* dims, unsigned long flags, float eps);
-BARTORCH_API bartorch_nlop* bartorch_nlop_zss(int N, const long* dims, unsigned long flags);
+BARTORCH_API bartorch_nlop* bartorch_nlop_tenmul(int N, const int64_t* odims, const int64_t* idims1, const int64_t* idims2);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zdiv(int N, const int64_t* dims, float eps);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zaxpbz(int N, const int64_t* dims, float a, float b);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zexp(int N, const int64_t* dims);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zlog(int N, const int64_t* dims);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zinv(int N, const int64_t* dims, float eps);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zsqrt(int N, const int64_t* dims);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zspow(int N, const int64_t* dims, float re, float im);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zsadd(int N, const int64_t* dims, float re, float im);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zabs(int N, const int64_t* dims);
+BARTORCH_API bartorch_nlop* bartorch_nlop_smo_abs(int N, const int64_t* dims, float eps);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zrss(int N, const int64_t* dims, uint64_t flags, float eps);
+BARTORCH_API bartorch_nlop* bartorch_nlop_zss(int N, const int64_t* dims, uint64_t flags);
 /* An operator of no inputs, and pinning one input of an operator to a value. */
-BARTORCH_API bartorch_nlop* bartorch_nlop_const(int N, const long* dims, const void* val);
-BARTORCH_API bartorch_nlop* bartorch_nlop_set_input_const(const bartorch_nlop* a, int i, int N, const long* dims, const void* val);
+BARTORCH_API bartorch_nlop* bartorch_nlop_const(int N, const int64_t* dims, const void* val);
+BARTORCH_API bartorch_nlop* bartorch_nlop_set_input_const(const bartorch_nlop* a, int i, int N, const int64_t* dims, const void* val);
 
 BARTORCH_API void bartorch_nlop_free(bartorch_nlop* h);
 
@@ -738,7 +743,7 @@ BARTORCH_API void bartorch_nlop_free(bartorch_nlop* h);
  * another; with more than one, the conjugate gradients keep their step lengths
  * and stopping test per item.
  */
-BARTORCH_API bartorch_nlop* bartorch_nlop_norm_inv_lambda(const bartorch_nlop* normal, int maxiter, float tol, float l2lambda, long batch);
+BARTORCH_API bartorch_nlop* bartorch_nlop_norm_inv_lambda(const bartorch_nlop* normal, int maxiter, float tol, float l2lambda, int64_t batch);
 
 /* The nonlinear SENSE model `nlinv` inverts, from `noir/model2.c`.
  *
@@ -762,15 +767,15 @@ BARTORCH_API bartorch_nlop* bartorch_nlop_norm_inv_lambda(const bartorch_nlop* n
  * input, which the arity queries above report.
  */
 BARTORCH_API bartorch_noir* bartorch_noir_create(int N,
-		const long* ksp_dims, const long* cim_dims, const long* img_dims,
-		const long* kco_dims, const long* col_dims,
-		const long* pat_dims, const void* pattern,
-		const long* trj_dims, const void* traj,
-		const long* wgh_dims, const void* weights,
-		const long* bas_dims, const void* basis,
-		const long* msk_dims, const void* mask,
+		const int64_t* ksp_dims, const int64_t* cim_dims, const int64_t* img_dims,
+		const int64_t* kco_dims, const int64_t* col_dims,
+		const int64_t* pat_dims, const void* pattern,
+		const int64_t* trj_dims, const void* traj,
+		const int64_t* wgh_dims, const void* weights,
+		const int64_t* bas_dims, const void* basis,
+		const int64_t* msk_dims, const void* mask,
 		int noncart, int optimized, int toeplitz,
-		unsigned long fft_flags, unsigned long wght_flags,
+		uint64_t fft_flags, uint64_t wght_flags,
 		int rvc, int sos, float a, float b, float c,
 		float oversampling_coils, int ret_os_coils);
 BARTORCH_API bartorch_nlop* bartorch_noir_model(const bartorch_noir* h);
@@ -778,7 +783,7 @@ BARTORCH_API bartorch_linop* bartorch_noir_coils(const bartorch_noir* h);
 BARTORCH_API bartorch_linop* bartorch_noir_image(const bartorch_noir* h);
 BARTORCH_API bartorch_linop* bartorch_noir_data(const bartorch_noir* h);
 BARTORCH_API bartorch_linop* bartorch_noir_transform(const bartorch_noir* h);
-BARTORCH_API int bartorch_noir_dims(const bartorch_noir* h, int which, int N, long* dims);
+BARTORCH_API int bartorch_noir_dims(const bartorch_noir* h, int which, int N, int64_t* dims);
 BARTORCH_API void bartorch_noir_free(bartorch_noir* h);
 
 /* The same model, built for a network rather than for a solve: `noir2_net_s`
@@ -854,7 +859,7 @@ BARTORCH_API int bartorch_cuda_use_memcache(int enable);
 BARTORCH_API void bartorch_cuda_memcache_clear_all(void);
 BARTORCH_API int bartorch_cuda_wait_for_stream(void* stream);
 BARTORCH_API int bartorch_cuda_signal_stream(void* stream);
-BARTORCH_API long bartorch_cuda_free_memory(void);
+BARTORCH_API int64_t bartorch_cuda_free_memory(void);
 
 /*
  * FINUFFT under BART's own NUFFT operator, which is what makes nufft, pics,
@@ -888,7 +893,7 @@ BARTORCH_API int bartorch_finufft_usable_on(int device);
 BARTORCH_API int bartorch_finufft_usable(void);
 /* Plans made and not yet destroyed: zero once every operator, point spread
  * function and mask that asked for one has been freed. */
-BARTORCH_API long bartorch_finufft_live_plans(void);
+BARTORCH_API int64_t bartorch_finufft_live_plans(void);
 BARTORCH_API const char* bartorch_last_error(void);
 BARTORCH_API void bartorch_clear_error(void);
 BARTORCH_API int bartorch_nufft_decline_reason(void);
@@ -896,7 +901,7 @@ BARTORCH_API const char* bartorch_nufft_decline_text(void);
 BARTORCH_API void bartorch_nufft_allow_fallback(int enable);
 BARTORCH_API int bartorch_nufft_fallback_allowed(void);
 /* Operators built since the last reset: 0 by FINUFFT, 1 by BART. */
-BARTORCH_API long bartorch_nufft_counter(int which);
+BARTORCH_API int64_t bartorch_nufft_counter(int which);
 BARTORCH_API void bartorch_nufft_reset_counters(void);
 
 /*
@@ -909,7 +914,7 @@ BARTORCH_API void bartorch_nufft_reset_counters(void);
  * Normal operators since the last reset: 0 answered by a point spread
  * function, 1 by the transform pair.
  */
-BARTORCH_API long bartorch_toeplitz_counter(int which);
+BARTORCH_API int64_t bartorch_toeplitz_counter(int which);
 BARTORCH_API void bartorch_toeplitz_reset_counters(void);
 
 /* Whether a pointer is device memory; always false without CUDA. */

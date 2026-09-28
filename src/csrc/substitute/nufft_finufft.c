@@ -58,61 +58,61 @@ struct bartorch_paired;
 #include "noncart/gpu_grid.h"
 
 /* csrc/kernels.cu: the set's phase and the coil's sensitivity in one pass. */
-extern void bartorch_cuda_phase_map_in(int N, const long dims[], const float shift[3], float scale,
+extern void bartorch_cuda_phase_map_in(int N, const bart_dim_t dims[], const float shift[3], float scale,
 		complex float* dst, const complex float* src, const complex float* map);
-extern void bartorch_cuda_phase_map_out(int N, const long dims[], const float shift[3], float scale,
+extern void bartorch_cuda_phase_map_out(int N, const bart_dim_t dims[], const float shift[3], float scale,
 		complex float* dst, const complex float* src, const complex float* map);
-extern void bartorch_cuda_gather(long V, const unsigned int* mask, const int* prefix, complex float* dst, const complex float* src);
-extern int bartorch_cuda_contract_upper_real(long L, int R, complex float* bank, const float* mat);
-extern int bartorch_cuda_contract_upper_real_bf16(long L, int R, complex float* bank, const void* mat);
-extern void bartorch_cuda_scatter(long V, const unsigned int* mask, const int* prefix, complex float* dst, const complex float* src);
+extern void bartorch_cuda_gather(bart_dim_t V, const unsigned int* mask, const int* prefix, complex float* dst, const complex float* src);
+extern int bartorch_cuda_contract_upper_real(bart_dim_t L, int R, complex float* bank, const float* mat);
+extern int bartorch_cuda_contract_upper_real_bf16(bart_dim_t L, int R, complex float* bank, const void* mat);
+extern void bartorch_cuda_scatter(bart_dim_t V, const unsigned int* mask, const int* prefix, complex float* dst, const complex float* src);
 
-extern struct bartorch_cb_fft* bartorch_cb_fft_create(const long dims[3]);
+extern struct bartorch_cb_fft* bartorch_cb_fft_create(const bart_dim_t dims[3]);
 extern void bartorch_cb_fft_free(struct bartorch_cb_fft* p);
-extern void bartorch_cb_fft_forward(struct bartorch_cb_fft* p, int N, const long dims[],
+extern void bartorch_cb_fft_forward(struct bartorch_cb_fft* p, int N, const bart_dim_t dims[],
 		const float shift[3], float scale, const unsigned int* mask, const int* prefix,
 		complex float* bank, complex float* volume, const complex float* src, const complex float* map);
-extern void bartorch_cb_fft_inverse(struct bartorch_cb_fft* p, int N, const long dims[],
+extern void bartorch_cb_fft_inverse(struct bartorch_cb_fft* p, int N, const bart_dim_t dims[],
 		const float shift[3], float scale, const unsigned int* mask, const int* prefix,
 		complex float* dst, complex float* volume, const complex float* bank, const complex float* map);
 #endif
 
 #ifdef BARTORCH_PAIRED
-extern struct bartorch_paired* bartorch_paired_create(const long dims[3], int coeffs, int sets, const float (*shifts)[3]);
+extern struct bartorch_paired* bartorch_paired_create(const bart_dim_t dims[3], int coeffs, int sets, const float (*shifts)[3]);
 extern void bartorch_paired_free(struct bartorch_paired* p);
 extern void bartorch_paired_in(const struct bartorch_paired* p, int k,
 		const complex float* src, const complex float* map, complex float* scratch);
 extern void bartorch_paired_fused(const struct bartorch_paired* p, int k, complex float* scratch,
-		const void* psf0, const void* psf1, int bf16, const unsigned int* mask, const int* prefix, long L);
+		const void* psf0, const void* psf1, int bf16, const unsigned int* mask, const int* prefix, bart_dim_t L);
 extern void bartorch_paired_back(const struct bartorch_paired* p, int k,
 		complex float* dst, const complex float* map, complex float* scratch);
 #endif
 
 #include "include/bartorch.h"
 
-extern struct linop_s* bart_nufft_create2(int N, const long ksp_dims[N], const long cim_dims[N], const long traj_dims[N], const complex float* traj, const long wgh_dims[N], const complex float* weights, const long bas_dims[N], const complex float* basis, struct nufft_conf_s conf);
-extern int bart_nufft_get_psf_dims(const struct linop_s* nufft, int N, long psf_dims[N]);
-extern void bart_nufft_get_psf(const struct linop_s* nufft, int N, const long psf_dims[N], complex float* psf);
-extern void bart_nufft_get_psf2(const struct linop_s* nufft, int N, const long psf_dims[N], const long psf_strs[N], complex float* psf);
-extern void bart_nufft_update_psf(const struct linop_s* nufft, int ND, const long psf_dims[ND], const complex float* psf);
-extern void bart_nufft_update_psf2(const struct linop_s* nufft, int ND, const long psf_dims[ND], const long psf_strs[ND], const complex float* psf);
-extern void bart_nufft_update_traj(const struct linop_s* nufft, int N, const long trj_dims[N], const complex float* traj, const long wgh_dims[N], const complex float* weights, const long bas_dims[N], const complex float* basis);
+extern struct linop_s* bart_nufft_create2(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N], const bart_dim_t traj_dims[N], const complex float* traj, const bart_dim_t wgh_dims[N], const complex float* weights, const bart_dim_t bas_dims[N], const complex float* basis, struct nufft_conf_s conf);
+extern int bart_nufft_get_psf_dims(const struct linop_s* nufft, int N, bart_dim_t psf_dims[N]);
+extern void bart_nufft_get_psf(const struct linop_s* nufft, int N, const bart_dim_t psf_dims[N], complex float* psf);
+extern void bart_nufft_get_psf2(const struct linop_s* nufft, int N, const bart_dim_t psf_dims[N], const bart_stride_t psf_strs[N], complex float* psf);
+extern void bart_nufft_update_psf(const struct linop_s* nufft, int ND, const bart_dim_t psf_dims[ND], const complex float* psf);
+extern void bart_nufft_update_psf2(const struct linop_s* nufft, int ND, const bart_dim_t psf_dims[ND], const bart_stride_t psf_strs[ND], const complex float* psf);
+extern void bart_nufft_update_traj(const struct linop_s* nufft, int N, const bart_dim_t trj_dims[N], const complex float* traj, const bart_dim_t wgh_dims[N], const complex float* weights, const bart_dim_t bas_dims[N], const complex float* basis);
 extern const struct operator_s* bart_nufft_precond_create(const struct linop_s* nufft_op);
 
 /* Provided by psf.c, which computes the function this convolves with. */
-extern void bartorch_psf_shift(int NS, float shift[NS], int N, const long factors[N], int idx);
-extern complex float* bartorch_psf_to_host(int N, const long psf_dims[N + 1], unsigned long flags,
-		const long trj_dims[N + 1], const complex float* traj,
-		const long bas_dims[N + 1], const complex float* basis,
-		const long wgh_dims[N + 1], const complex float* weights,
+extern void bartorch_psf_shift(int NS, float shift[NS], int N, const bart_dim_t factors[N], int idx);
+extern complex float* bartorch_psf_to_host(int N, const bart_dim_t psf_dims[N + 1], bart_flags_t flags,
+		const bart_dim_t trj_dims[N + 1], const complex float* traj,
+		const bart_dim_t bas_dims[N + 1], const complex float* basis,
+		const bart_dim_t wgh_dims[N + 1], const complex float* weights,
 		bool periodic, bool lowmem, bool upper_triag,
-		const long com_dims[N + 1], const long* idx,
-		const long com_psf_dims[N + 1], const long com_psf_dims3[N + 1], int real);
+		const bart_dim_t com_dims[N + 1], const bart_dim_t* idx,
+		const bart_dim_t com_psf_dims[N + 1], const bart_dim_t com_psf_dims3[N + 1], int real);
 
 /* Provided by finufft.c, which owns the FINUFFT entry points. */
 extern int bartorch_finufft_plan(int device, int type, int dim, const int64_t n_modes[3],
 		int ntrans, int isign, double eps, double upsampling, int spread_only, void** plan);
-extern int bartorch_finufft_setpts(void* plan, long M, float* x, float* y, float* z);
+extern int bartorch_finufft_setpts(void* plan, bart_dim_t M, float* x, float* y, float* z);
 extern int bartorch_finufft_exec(void* plan, complex float* c, complex float* f);
 extern void bartorch_finufft_free(void* plan);
 extern double bartorch_finufft_tolerance(void);
@@ -127,7 +127,7 @@ extern double bartorch_finufft_upsampling(void);
  * pairs of sets convolved together by the pair kernels; and the functions
  * kept in bfloat16. */
 enum { TP_PSF, TP_PAIR, TP_COMPRESSED, TP_CALLBACKS, TP_REAL, TP_PAIRED, TP_BF16, TP_COUNTERS };
-static long toeplitz_counters[TP_COUNTERS];
+static bart_dim_t toeplitz_counters[TP_COUNTERS];
 
 /* Building a point spread function needs a transform of its own, and that
  * transform is nobody's normal: it is asked for one adjoint and freed.  While
@@ -135,7 +135,7 @@ static long toeplitz_counters[TP_COUNTERS];
  * answered a normal either way. */
 static _Thread_local int making_psf;
 
-long bartorch_toeplitz_counter(int which)
+int64_t bartorch_toeplitz_counter(int which)
 {
 	return ((0 <= which) && (which < TP_COUNTERS)) ? toeplitz_counters[which] : -1;
 }
@@ -173,7 +173,7 @@ struct fi_side {
 	 * transforms rather than inside one, so there it keeps them.
 	 */
 	int ntrans;
-	long executes;
+	bart_dim_t executes;
 };
 
 struct nufft_fi_s {
@@ -200,9 +200,9 @@ struct nufft_fi_s {
 	double eps;
 	double upsampling;
 
-	long samples;
-	long batch;
-	long image_elements;
+	bart_dim_t samples;
+	bart_dim_t batch;
+	bart_dim_t image_elements;
 	float scale;
 
 	/* out_dims is k-space as the caller sees it -- what BART calls out_dims,
@@ -222,22 +222,22 @@ struct nufft_fi_s {
 	 */
 	int N;
 	bool needs_tmp;
-	long* cim_dims;
-	long* out_dims;
-	long* out_strs;
-	long* grd_dims;
-	long* trf_strs;
-	long* wgh_dims;
-	long* wgh_strs;
-	long* bas_dims;
-	long* trj_dims;
-	long* ksp_dims;
+	bart_dim_t* cim_dims;
+	bart_dim_t* out_dims;
+	bart_stride_t* out_strs;
+	bart_dim_t* grd_dims;
+	bart_stride_t* trf_strs;
+	bart_dim_t* wgh_dims;
+	bart_stride_t* wgh_strs;
+	bart_dim_t* bas_dims;
+	bart_dim_t* trj_dims;
+	bart_dim_t* ksp_dims;
 
 	/* What the normal is built from, for a trajectory that arrives after the
 	 * operator: a point spread function is over one, so there is none to
 	 * convolve with until there is a trajectory to make it from. */
 	struct nufft_conf_s conf;
-	long* bas_strs;
+	bart_stride_t* bas_strs;
 
 	/* The function the normal convolves with, kept where the card is not.
 	 *
@@ -259,7 +259,7 @@ struct nufft_fi_s {
 	int slot_pending;		/* a slot the card has not yet been held for, or -1 */
 	int coset;			/* the set in it */
 	bool psf_registered;		/* the host copy is page-locked */
-	long psf_coset;			/* elements in one set of the function */
+	bart_dim_t psf_coset;			/* elements in one set of the function */
 	size_t psf_size;		/* a real function is stored as floats */
 	int cosets;
 	int unit;			/* sets in a slot: one, or the two of a pair */
@@ -298,15 +298,15 @@ static DEF_TYPEID(nufft_fi_s);
  * A trajectory can arrive after the operator: `nlinv` and the network models
  * build theirs against dimensions alone and fill it in with
  * `nufft_update_traj` once there is one. */
-static void install_traj(struct nufft_fi_s* d, const long traj_dims[], const complex float* traj)
+static void install_traj(struct nufft_fi_s* d, const bart_dim_t traj_dims[], const complex float* traj)
 {
 	int N = d->N;
 
-	long one_dims[N];
-	long one_strs[N];
-	long trj_strs[N];
+	bart_dim_t one_dims[N];
+	bart_stride_t one_strs[N];
+	bart_stride_t trj_strs[N];
 
-	md_select_dims(N, ~1UL, one_dims, traj_dims);
+	md_select_dims(N, ~UINT64_C(1), one_dims, traj_dims);
 	md_calc_strides(N, one_strs, one_dims, CFL_SIZE);
 	md_calc_strides(N, trj_strs, traj_dims, CFL_SIZE);
 
@@ -329,7 +329,7 @@ static void install_traj(struct nufft_fi_s* d, const long traj_dims[], const com
 /* Memory on one side of the bus.  A device only exists in a CUDA build, and
  * `device` is never set without one: `bartorch_on_device` says no, and
  * `bart_use_gpu` stays false. */
-static void* alloc_on(int device, int N, const long dims[N], size_t size)
+static void* alloc_on(int device, int N, const bart_dim_t dims[N], size_t size)
 {
 #ifdef USE_CUDA
 	if (device)
@@ -381,7 +381,7 @@ static int side_build(struct nufft_fi_s* d, int which)
 		return 12;
 	}
 
-	long one[1] = { d->samples };
+	bart_dim_t one[1] = { d->samples };
 
 	for (int i = 0; i < d->dim; i++) {
 
@@ -425,7 +425,7 @@ static int side_retarget(struct nufft_fi_s* d, int which)
 	if (NULL == s->forward_plan)
 		return 0;
 
-	long one[1] = { d->samples };
+	bart_dim_t one[1] = { d->samples };
 
 	for (int i = 0; i < d->dim; i++)
 		md_copy(1, one, s->coord[i], d->radians[i], FL_SIZE);
@@ -477,7 +477,7 @@ static complex float* transform_buffer(const struct nufft_fi_s* d, const void* r
 	if (!d->needs_tmp)
 		return NULL;
 
-	long dims[1] = { d->samples * d->batch };
+	bart_dim_t dims[1] = { d->samples * d->batch };
 
 	return md_alloc_sameplace(1, dims, CFL_SIZE, ref);
 }
@@ -502,7 +502,7 @@ static void nufft_fi_forward(const linop_data_t* _d, complex float* dst, const c
 
 	int ret = 0;
 
-	for (long i = 0; (0 == ret) && (i < s->executes); i++)
+	for (bart_dim_t i = 0; (0 == ret) && (i < s->executes); i++)
 		ret = bartorch_finufft_exec(s->forward_plan,
 				out + i * s->ntrans * d->samples,
 				(complex float*)src + i * s->ntrans * d->image_elements);
@@ -573,7 +573,7 @@ static void nufft_fi_adjoint(const linop_data_t* _d, complex float* dst, const c
 
 	int ret = 0;
 
-	for (long i = 0; (0 == ret) && (i < s->executes); i++)
+	for (bart_dim_t i = 0; (0 == ret) && (i < s->executes); i++)
 		ret = bartorch_finufft_exec(s->adjoint_plan,
 				(complex float*)src + i * s->ntrans * d->samples,
 				dst + i * s->ntrans * d->image_elements);
@@ -726,7 +726,7 @@ static void open_slots(struct nufft_fi_s* d, const void* ref)
 	struct nufft_data* t = d->toeplitz_data;
 	int ND = t->N + 1;
 
-	long psf_dims[ND];
+	bart_dim_t psf_dims[ND];
 	md_copy_dims(ND, psf_dims, t->psf_dims);
 	psf_dims[t->N] = d->unit;
 
@@ -756,7 +756,7 @@ static void issue_coset(struct nufft_fi_s* d, int i, int slot)
 	struct nufft_data* t = d->toeplitz_data;
 	int ND = t->N + 1;
 
-	long psf_bytes = d->psf_coset * (long)d->psf_size * d->unit;
+	bart_dim_t psf_bytes = d->psf_coset * (bart_dim_t)d->psf_size * d->unit;
 
 	const char* psf_src = (const char*)d->psf_host + (size_t)i * (size_t)psf_bytes;
 
@@ -766,7 +766,7 @@ static void issue_coset(struct nufft_fi_s* d, int i, int slot)
 		return;
 	}
 
-	long psf_dims[ND];
+	bart_dim_t psf_dims[ND];
 	md_copy_dims(ND, psf_dims, t->psf_dims);
 	psf_dims[t->N] = d->unit;
 
@@ -821,7 +821,7 @@ static void use_coset(struct nufft_fi_s* d, int s)
 	struct nufft_data* t = d->toeplitz_data;
 	int ND = t->N + 1;
 
-	long psf_dims[ND];
+	bart_dim_t psf_dims[ND];
 	md_copy_dims(ND, psf_dims, t->psf_dims);
 	psf_dims[t->N] = 1;
 
@@ -839,7 +839,7 @@ static void coset_shift(const struct nufft_fi_s* d, int set, float shift[3])
 {
 	const struct nufft_data* t = d->toeplitz_data;
 
-	long factors[3];
+	bart_dim_t factors[3];
 
 	for (int i = 0; i < 3; i++)
 		factors[i] = ((t->img_dims[i] > 1) && MD_IS_SET(t->flags, i)) ? 2 : 1;
@@ -852,7 +852,7 @@ static void coset_shift(const struct nufft_fi_s* d, int set, float shift[3])
  * rather than read from a volume of it.  It is BART's own kernel, over the
  * shift, centring and scale its precomputed phases carry, so what it applies
  * is what they would have. */
-static void apply_phase(const struct nufft_data* t, const long dims[], const float shift[3],
+static void apply_phase(const struct nufft_data* t, const bart_dim_t dims[], const float shift[3],
 		complex float* dst, const complex float* src, bool out)
 {
 	float scale = 1.f / sqrtf((float)md_calc_size(3, t->img_dims));
@@ -902,7 +902,7 @@ static void apply_phase_map(const struct nufft_data* t, const float shift[3],
 enum { CONTRACT_CHUNK = 1 << 18 };
 
 static void contract_bank(struct nufft_data* t, const void* psf,
-		const long bank_dims[], const long ciT_dims[], complex float* bank)
+		const bart_dim_t bank_dims[], const bart_dim_t ciT_dims[], complex float* bank)
 {
 	int N = t->N;
 
@@ -912,7 +912,7 @@ static void contract_bank(struct nufft_data* t, const void* psf,
 	 * buffer that has to be cleared and copied back. */
 	if (contraction_kernel && t->conf.real && t->conf.upper_triag && cuda_ondevice(bank)) {
 
-		long L = bank_dims[0];
+		bart_dim_t L = bank_dims[0];
 		int R = (int)(md_calc_size(N, bank_dims) / L);
 
 		if ((md_calc_size(N, ciT_dims) == md_calc_size(N, bank_dims))
@@ -921,17 +921,17 @@ static void contract_bank(struct nufft_data* t, const void* psf,
 	}
 #endif
 
-	long locations = bank_dims[0];
-	long chunk = MIN(locations, (long)CONTRACT_CHUNK);
+	bart_dim_t locations = bank_dims[0];
+	bart_dim_t chunk = MIN(locations, (bart_dim_t)CONTRACT_CHUNK);
 
-	long bank_strs[N];
-	long ciT_strs[N];
+	bart_stride_t bank_strs[N];
+	bart_stride_t ciT_strs[N];
 
 	md_calc_strides(N, bank_strs, bank_dims, CFL_SIZE);
 	md_calc_strides(N, ciT_strs, ciT_dims, CFL_SIZE);
 
-	long in_dims[N];
-	long out_dims[N];
+	bart_dim_t in_dims[N];
+	bart_dim_t out_dims[N];
 
 	md_copy_dims(N, in_dims, bank_dims);
 	md_copy_dims(N, out_dims, ciT_dims);
@@ -941,18 +941,18 @@ static void contract_bank(struct nufft_data* t, const void* psf,
 
 	complex float* out = md_alloc_sameplace(N, out_dims, CFL_SIZE, bank);
 
-	for (long start = 0; start < locations; start += chunk) {
+	for (bart_dim_t start = 0; start < locations; start += chunk) {
 
-		long here = MIN(chunk, locations - start);
+		bart_dim_t here = MIN(chunk, locations - start);
 
 		in_dims[0] = here;
 		out_dims[0] = here;
 
-		long out_strs[N];
+		bart_stride_t out_strs[N];
 		md_calc_strides(N, out_strs, out_dims, CFL_SIZE);
 
-		long max_dims[N];
-		md_max_dims(N, ~0UL, max_dims, out_dims, in_dims);
+		bart_dim_t max_dims[N];
+		md_max_dims(N, ~UINT64_C(0), max_dims, out_dims, in_dims);
 
 		complex float* in = bank + start;
 		const void* mat = (const char*)psf + (size_t)start * (size_t)t->psf_strs[0];
@@ -995,13 +995,13 @@ static void contract_bank(struct nufft_data* t, const void* psf,
  * it is a matrix at every frequency and the contraction needs somewhere to
  * land, so what comes back may not be what went in. */
 static complex float* multiply_transfer(struct nufft_data* t, const void* psf,
-		const long cim_dims[], const long ciT_dims[], complex float* grid)
+		const bart_dim_t cim_dims[], const bart_dim_t ciT_dims[], complex float* grid)
 {
 	int N = t->N;
 
-	if (md_check_equal_dims(N, cim_dims, ciT_dims, ~0UL)) {
+	if (md_check_equal_dims(N, cim_dims, ciT_dims, ~UINT64_C(0))) {
 
-		long cim_strs[N];
+		bart_stride_t cim_strs[N];
 		md_calc_strides(N, cim_strs, cim_dims, CFL_SIZE);
 
 		if (t->conf.real)
@@ -1015,13 +1015,13 @@ static complex float* multiply_transfer(struct nufft_data* t, const void* psf,
 		return grid;
 	}
 
-	long max_dims[N];
-	md_max_dims(N, ~0UL, max_dims, ciT_dims, cim_dims);
+	bart_dim_t max_dims[N];
+	md_max_dims(N, ~UINT64_C(0), max_dims, ciT_dims, cim_dims);
 
-	long ciT_strs[N];
+	bart_stride_t ciT_strs[N];
 	md_calc_strides(N, ciT_strs, ciT_dims, CFL_SIZE);
 
-	long cim_strs[N];
+	bart_stride_t cim_strs[N];
 	md_calc_strides(N, cim_strs, cim_dims, CFL_SIZE);
 
 	complex float* out = md_alloc_sameplace(N, ciT_dims, CFL_SIZE, grid);
@@ -1154,7 +1154,7 @@ static struct bartorch_cb_fft* callbacks_for(struct nufft_fi_s* d)
 
 #ifdef USE_CUDA
 		const struct nufft_data* t = d->toeplitz_data;
-		unsigned long flags = t->flags | t->conf.cfft;
+		bart_flags_t flags = t->flags | t->conf.cfft;
 		bool covered = true;
 
 		for (int i = 0; i < t->N; i++)
@@ -1188,7 +1188,7 @@ static void slot_ready(struct nufft_fi_s* d)
 }
 
 /* Down to the places the samples reach, and back up with zeros elsewhere. */
-static void gather(const struct nufft_fi_s* d, long grid, complex float* dst, const complex float* src)
+static void gather(const struct nufft_fi_s* d, bart_dim_t grid, complex float* dst, const complex float* src)
 {
 #ifdef USE_CUDA
 	bartorch_cuda_gather(grid, d->kept_mask, d->kept_prefix, dst, src);
@@ -1198,7 +1198,7 @@ static void gather(const struct nufft_fi_s* d, long grid, complex float* dst, co
 #endif
 }
 
-static void scatter(const struct nufft_fi_s* d, long grid, complex float* dst, const complex float* src)
+static void scatter(const struct nufft_fi_s* d, bart_dim_t grid, complex float* dst, const complex float* src)
 {
 #ifdef USE_CUDA
 	bartorch_cuda_scatter(grid, d->kept_mask, d->kept_prefix, dst, src);
@@ -1215,7 +1215,7 @@ static void coefficient_in(struct nufft_fi_s* d, struct bartorch_cb_fft* cb, con
 {
 	struct nufft_data* t = d->toeplitz_data;
 	int N = t->N;
-	long grid = md_calc_size(3, t->img_dims);
+	bart_dim_t grid = md_calc_size(3, t->img_dims);
 
 #ifdef USE_CUDA
 	if (NULL != cb) {
@@ -1242,7 +1242,7 @@ static void coefficient_out(struct nufft_fi_s* d, struct bartorch_cb_fft* cb, co
 {
 	struct nufft_data* t = d->toeplitz_data;
 	int N = t->N;
-	long grid = md_calc_size(3, t->img_dims);
+	bart_dim_t grid = md_calc_size(3, t->img_dims);
 
 #ifdef USE_CUDA
 	if (NULL != cb) {
@@ -1278,7 +1278,7 @@ static void coefficient_out(struct nufft_fi_s* d, struct bartorch_cb_fft* cb, co
  * inside the transforms, they run there.
  */
 static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex float* src,
-		const void* psf, const long map_strs[], const complex float* map, bool last)
+		const void* psf, const bart_stride_t map_strs[], const complex float* map, bool last)
 {
 	struct nufft_data* t = d->toeplitz_data;
 	int N = t->N;
@@ -1293,9 +1293,9 @@ static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex
 
 	/* The spectrum of one coil, gathered: the places the samples reach on
 	 * the first axis, the coefficients on the axis the function contracts. */
-	long bank_dims[N];
-	long ciT_bank_dims[N];
-	long one_bank_dims[N];
+	bart_dim_t bank_dims[N];
+	bart_dim_t ciT_bank_dims[N];
+	bart_dim_t one_bank_dims[N];
 
 	md_select_dims(N, ~MD_BIT(3), bank_dims, t->cim_dims);
 	md_select_dims(N, ~MD_BIT(3), ciT_bank_dims, t->ciT_dims);
@@ -1305,10 +1305,10 @@ static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex
 
 	md_select_dims(N, MD_BIT(0), one_bank_dims, bank_dims);
 
-	long locations = bank_dims[0];
-	long coils = t->cim_dims[3];
-	long coeffs = md_calc_size(N, bank_dims) / locations;
-	long out_coeffs = md_calc_size(N, ciT_bank_dims) / locations;
+	bart_dim_t locations = bank_dims[0];
+	bart_dim_t coils = t->cim_dims[3];
+	bart_dim_t coeffs = md_calc_size(N, bank_dims) / locations;
+	bart_dim_t out_coeffs = md_calc_size(N, ciT_bank_dims) / locations;
 
 	/* Where a coil's coefficient sits in what is read and written.  Counted
 	 * here rather than read off `cim_strs`, which carries a zero for every
@@ -1317,22 +1317,22 @@ static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex
 	 * With the sensitivity folded in, what is read and written is the image
 	 * rather than a coil image: it has no coil axis, every coil accumulates
 	 * into the same one, and the map is what tells them apart. */
-	long vol = md_calc_size(3, t->cim_dims);
+	bart_dim_t vol = md_calc_size(3, t->cim_dims);
 
-	long coil_step = (NULL == map) ? vol : 0;
-	long rest_step = (NULL == map) ? vol * t->cim_dims[3] : vol;
+	bart_dim_t coil_step = (NULL == map) ? vol : 0;
+	bart_dim_t rest_step = (NULL == map) ? vol * t->cim_dims[3] : vol;
 
-	long map_coil_step = (NULL == map) ? 0 : map_strs[3] / (long)CFL_SIZE;
+	bart_dim_t map_coil_step = (NULL == map) ? 0 : map_strs[3] / (bart_stride_t)CFL_SIZE;
 
 	complex float* volume = md_alloc_sameplace(N, t->img_dims, CFL_SIZE, dst);
 
-	for (long c = 0; c < coils; c++) {
+	for (bart_dim_t c = 0; c < coils; c++) {
 
 		const complex float* m = (NULL == map) ? NULL : map + c * map_coil_step;
 
 		complex float* bank = md_alloc_sameplace(N, bank_dims, CFL_SIZE, dst);
 
-		for (long r = 0; r < coeffs; r++)
+		for (bart_dim_t r = 0; r < coeffs; r++)
 			coefficient_in(d, cb, shift, bank + r * locations, volume, src + c * coil_step + r * rest_step, m);
 
 		slot_ready(d);
@@ -1342,14 +1342,14 @@ static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex
 			bartorch_cuda_contract_upper_real_bf16(locations, (int)coeffs, bank, psf);
 		else
 #endif
-		if (md_check_equal_dims(N, bank_dims, ciT_bank_dims, ~0UL))
+		if (md_check_equal_dims(N, bank_dims, ciT_bank_dims, ~UINT64_C(0)))
 			bank = multiply_transfer(t, psf, bank_dims, ciT_bank_dims, bank);
 		else
 			contract_bank(t, psf, bank_dims, ciT_bank_dims, bank);
 
 		slot_read(d, last && (c == coils - 1));
 
-		for (long r = 0; r < out_coeffs; r++)
+		for (bart_dim_t r = 0; r < out_coeffs; r++)
 			coefficient_out(d, cb, shift, dst + c * coil_step + r * rest_step, volume, bank + r * locations, m);
 
 		md_free(bank);
@@ -1368,11 +1368,11 @@ static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex
  * turn.  The kernels read a coil's coefficients a volume apart, which a folded
  * sensitivity or a single coil gives; anything else goes a set at a time. */
 static void paired_unit(struct nufft_fi_s* d, complex float* dst, const complex float* src,
-		const long map_strs[], const complex float* map, bool last)
+		const bart_stride_t map_strs[], const complex float* map, bool last)
 {
 	struct nufft_data* t = d->toeplitz_data;
 
-	long coils = t->cim_dims[3];
+	bart_dim_t coils = t->cim_dims[3];
 
 	if ((NULL == map) && (1 != coils)) {
 
@@ -1390,17 +1390,17 @@ static void paired_unit(struct nufft_fi_s* d, complex float* dst, const complex 
 	}
 
 #ifdef BARTORCH_PAIRED
-	long vol = md_calc_size(3, t->cim_dims);
-	long coeffs = md_calc_size(t->N, t->cim_dims) / md_calc_size(4, t->cim_dims);
-	long map_coil_step = (NULL == map) ? 0 : map_strs[3] / (long)CFL_SIZE;
+	bart_dim_t vol = md_calc_size(3, t->cim_dims);
+	bart_dim_t coeffs = md_calc_size(t->N, t->cim_dims) / md_calc_size(4, t->cim_dims);
+	bart_dim_t map_coil_step = (NULL == map) ? 0 : map_strs[3] / (bart_stride_t)CFL_SIZE;
 
-	long sdims[1] = { coeffs * vol };
+	bart_dim_t sdims[1] = { coeffs * vol };
 	complex float* scratch = md_alloc_sameplace(1, sdims, CFL_SIZE, dst);
 
 	const char* psf0 = d->psf_slot[d->slot];
 	const char* psf1 = psf0 + (size_t)d->psf_coset * d->psf_size;
 
-	for (long c = 0; c < coils; c++) {
+	for (bart_dim_t c = 0; c < coils; c++) {
 
 		const complex float* m = (NULL == map) ? NULL : map + c * map_coil_step;
 
@@ -1438,7 +1438,7 @@ static void paired_unit(struct nufft_fi_s* d, complex float* dst, const complex 
  * triangle -- and the arrangements it does not cover go back to BART's own.
  */
 static bool fused_coset(struct nufft_fi_s* d, complex float* dst, const complex float* src,
-		const long map_strs[], const complex float* map, bool last)
+		const bart_stride_t map_strs[], const complex float* map, bool last)
 {
 	if (2 == d->unit) {
 
@@ -1524,7 +1524,7 @@ static void coset_begin(struct nufft_fi_s* d, const void* ref)
 
 /* The set that is loaded, convolved with `src` and added to `dst`. */
 static void coset_normal(struct nufft_fi_s* d, complex float* dst, const complex float* src,
-		const long map_strs[], const complex float* map, bool last)
+		const bart_stride_t map_strs[], const complex float* map, bool last)
 {
 	if (!fused_coset(d, dst, src, map_strs, map, last))
 		error("bartorch: a streamed set with no function in its slot\n");
@@ -1572,7 +1572,7 @@ int bartorch_nufft_coset_folds(const struct linop_s* op)
  * each of those is half a gigabyte.  Folded in here neither is made. */
 void bartorch_nufft_coset_normal_sense(const struct linop_s* op,
 		complex float* dst, const complex float* src,
-		const long map_strs[], const complex float* map, int last)
+		const int64_t map_strs[], const complex float* map, int last)
 {
 	coset_normal(CAST_DOWN(nufft_fi_s, linop_get_data(op)), dst, src, map_strs, map, (0 != last));
 }
@@ -1726,9 +1726,9 @@ int bartorch_nufft_fallback_allowed(void)
 /* Which operator each nufft_create call returned, so a test can say that a
  * tool ran on FINUFFT rather than that FINUFFT was merely available. */
 enum { CNT_FI, CNT_BART };
-static long counters[2];
+static bart_dim_t counters[2];
 
-long bartorch_nufft_counter(int which)
+int64_t bartorch_nufft_counter(int which)
 {
 	return ((0 == which) || (1 == which)) ? counters[which] : -1;
 }
@@ -1787,8 +1787,8 @@ static int fi_measure_width(int device, int dim, double eps, double upsampling)
 	enum { PROBE = 32 };	/* wider than any kernel FINUFFT will use */
 
 	int64_t n_modes[3] = { PROBE, PROBE, PROBE };
-	long grid_dims[3] = { 1, 1, 1 };
-	long one[1] = { 1 };
+	bart_dim_t grid_dims[3] = { 1, 1, 1 };
+	bart_dim_t one[1] = { 1 };
 
 	for (int i = 0; i < dim; i++)
 		grid_dims[i] = PROBE;
@@ -1833,8 +1833,8 @@ static int fi_measure_width(int device, int dim, double eps, double upsampling)
 	md_free(grid);
 
 	/* Along one axis through the middle, where the sample was put. */
-	long stride = 1;
-	long centre = 0;
+	bart_stride_t stride = 1;
+	bart_dim_t centre = 0;
 
 	for (int i = 1; i < dim; i++) {
 
@@ -1909,7 +1909,7 @@ static double fi_tolerance_for(int device, int dim, double width, double upsampl
  * is also what keeps the doubled grid from ever being allocated, which is the
  * whole reason the decomposition is there.
  */
-static int spread_mask(struct nufft_data* data, const complex float* traj, long* max_idx)
+static int spread_mask(struct nufft_data* data, const complex float* traj, bart_dim_t* max_idx)
 {
 	int N = data->N;
 	int ND = N + 1;
@@ -1964,7 +1964,7 @@ static int spread_mask(struct nufft_data* data, const complex float* traj, long*
 	int dim = 0;
 	int axis[3];
 	int64_t n_modes[3];
-	unsigned long whole = 0UL;
+	bart_flags_t whole = 0;
 
 	for (int i = 0; i < 3; i++) {
 
@@ -1982,24 +1982,24 @@ static int spread_mask(struct nufft_data* data, const complex float* traj, long*
 		dim++;
 	}
 
-	long factors[N];
+	bart_dim_t factors[N];
 
 	for (int i = 0; i < N; i++)
 		factors[i] = ((data->img_dims[i] > 1) && MD_IS_SET(data->flags, i)) ? 2 : 1;
 
-	long sets = md_calc_size(N, factors);
+	bart_dim_t sets = md_calc_size(N, factors);
 
-	long one_dims[ND];
-	long one_strs[ND];
-	long trj_strs[ND];
-	long wgh_strs[ND];
+	bart_dim_t one_dims[ND];
+	bart_stride_t one_strs[ND];
+	bart_stride_t trj_strs[ND];
+	bart_stride_t wgh_strs[ND];
 
-	md_select_dims(ND, ~1UL, one_dims, data->trj_dims);
+	md_select_dims(ND, ~UINT64_C(1), one_dims, data->trj_dims);
 	md_calc_strides(ND, one_strs, one_dims, CFL_SIZE);
 	md_calc_strides(ND, trj_strs, data->trj_dims, CFL_SIZE);
 	md_calc_strides(ND, wgh_strs, data->wgh_dims, CFL_SIZE);
 
-	long samples = md_calc_size(ND, one_dims);
+	bart_dim_t samples = md_calc_size(ND, one_dims);
 
 	/* One component of the trajectory per transformed axis, in grid samples,
 	 * before the shift of a set turns it into that set's coordinates. */
@@ -2023,7 +2023,7 @@ static int spread_mask(struct nufft_data* data, const complex float* traj, long*
 	else
 		md_copy2(ND, one_dims, one_strs, samples_in, wgh_strs, pattern, CFL_SIZE);
 
-	long spread_dims[ND];
+	bart_dim_t spread_dims[ND];
 	md_select_dims(ND, ~whole, spread_dims, data->com_dims);
 
 	complex float* reach = alloc_on(device, ND, spread_dims, CFL_SIZE);
@@ -2045,7 +2045,7 @@ static int spread_mask(struct nufft_data* data, const complex float* traj, long*
 	if (0 == dim)
 		md_zfill(ND, spread_dims, mask, 1.);
 
-	for (long set = 0; (0 < dim) && (0 == ret) && (set < sets); set++) {
+	for (bart_dim_t set = 0; (0 < dim) && (0 == ret) && (set < sets); set++) {
 
 		float shift[3];
 		bartorch_psf_shift(3, shift, N, factors, (int)set);
@@ -2104,12 +2104,12 @@ static int spread_mask(struct nufft_data* data, const complex float* traj, long*
 			MD_STRIDES(ND, spread_dims, CFL_SIZE), mask, CFL_SIZE);
 	md_free(mask);
 
-	long* idx = md_alloc(ND, data->com_dims, sizeof(long));
+	bart_dim_t* idx = md_alloc(ND, data->com_dims, sizeof(bart_dim_t));
 	*max_idx = md_compress_mask_to_index(ND, data->com_dims, idx, mask_cpu);
 	md_free(mask_cpu);
 
 	multiplace_free(data->compress);
-	data->compress = multiplace_move_F(ND, data->com_dims, sizeof(long), idx);
+	data->compress = multiplace_move_F(ND, data->com_dims, sizeof(bart_dim_t), idx);
 
 	debug_printf(DP_DEBUG1, "Compressing PSF to %.0f%%\n",
 			100. * *max_idx / md_calc_size(ND, data->com_dims));
@@ -2135,12 +2135,12 @@ static int spread_mask(struct nufft_data* data, const complex float* traj, long*
  * and cancels.  A basis is small enough to ask about on the host, and the
  * angle is half the argument of the sum of its squares -- which is `e^{2it}`
  * times something real when there is one angle to find. */
-static bool basis_is_real(int N, const long bas_dims[N], const complex float* basis)
+static bool basis_is_real(int N, const bart_dim_t bas_dims[N], const complex float* basis)
 {
 	if (NULL == basis)
 		return true;
 
-	long size = md_calc_size(N, bas_dims);
+	bart_dim_t size = md_calc_size(N, bas_dims);
 
 	complex float* host = md_alloc(N, bas_dims, CFL_SIZE);
 	md_copy(N, bas_dims, host, basis, CFL_SIZE);
@@ -2148,7 +2148,7 @@ static bool basis_is_real(int N, const long bas_dims[N], const complex float* ba
 	complex float squares = 0.;
 	double energy = 0.;
 
-	for (long i = 0; i < size; i++) {
+	for (bart_dim_t i = 0; i < size; i++) {
 
 		squares += host[i] * host[i];
 		energy += (double)crealf(host[i]) * crealf(host[i]) + (double)cimagf(host[i]) * cimagf(host[i]);
@@ -2158,7 +2158,7 @@ static bool basis_is_real(int N, const long bas_dims[N], const complex float* ba
 
 	double left = 0.;
 
-	for (long i = 0; i < size; i++) {
+	for (bart_dim_t i = 0; i < size; i++) {
 
 		float part = cimagf(host[i] * turn);
 		left += (double)part * part;
@@ -2205,7 +2205,7 @@ static void install_psf(struct nufft_data* data, const complex float* traj, comp
 
 	/* The places the samples reach.  Worked out before the function is
 	 * built, because an entry is compressed as it is made. */
-	long max_idx = 0;
+	bart_dim_t max_idx = 0;
 
 	if (data->conf.compress_psf) {
 
@@ -2232,13 +2232,13 @@ static void install_psf(struct nufft_data* data, const complex float* traj, comp
 		 * dimensional radial trajectory leaves the corners of the cube
 		 * outside its ball, which is a fraction 1 - pi/6 of it before
 		 * the spreading kernel's width is added back. */
-		long grid = md_calc_size(ND, data->com_dims);
-		long entries = md_calc_size(N, data->psf_dims) / md_calc_size(3, data->psf_dims);
+		bart_dim_t grid = md_calc_size(ND, data->com_dims);
+		bart_dim_t entries = md_calc_size(N, data->psf_dims) / md_calc_size(3, data->psf_dims);
 		size_t element = store_real ? FL_SIZE : CFL_SIZE;
 
 		double dropped = 1. - (double)max_idx / (double)grid;
 
-		if (dropped * (double)entries * (double)element <= (double)sizeof(long)) {
+		if (dropped * (double)entries * (double)element <= (double)sizeof(bart_dim_t)) {
 
 			debug_printf(DP_DEBUG1, "Not compressing: %.0f%% of the grid is reached\n",
 					100. * max_idx / grid);
@@ -2254,9 +2254,9 @@ static void install_psf(struct nufft_data* data, const complex float* traj, comp
 #pragma omp atomic
 		toeplitz_counters[TP_COMPRESSED]++;
 
-	long com_psf_dims[ND];
-	long com_psf_dims3[ND];
-	const long* idx = NULL;
+	bart_dim_t com_psf_dims[ND];
+	bart_dim_t com_psf_dims3[ND];
+	const bart_dim_t* idx = NULL;
 
 	if (stream && (NULL != data->compress)) {
 
@@ -2313,7 +2313,7 @@ static void install_psf(struct nufft_data* data, const complex float* traj, comp
 
 		size_t size = store_real ? FL_SIZE : CFL_SIZE;
 
-		long com_psf_dims[ND];
+		bart_dim_t com_psf_dims[ND];
 		md_compress_dims(ND, com_psf_dims, data->psf_dims, data->com_dims, max_idx);
 
 		complex float* com_psf = md_alloc_sameplace(ND, com_psf_dims, size, traj);
@@ -2388,21 +2388,21 @@ static void stream_psf(struct nufft_fi_s* d)
 
 		int ND = t->N + 1;
 
-		long grid = md_calc_size(ND, t->com_dims);
-		const long* map = multiplace_read(t->compress, d->radians[0]);
+		bart_dim_t grid = md_calc_size(ND, t->com_dims);
+		const bart_dim_t* map = multiplace_read(t->compress, d->radians[0]);
 
-		long wdims[1] = { (grid + 31) / 32 };
+		bart_dim_t wdims[1] = { (grid + 31) / 32 };
 
 		unsigned int* mask = xmalloc((size_t)wdims[0] * sizeof(unsigned int));
 		int* prefix = xmalloc((size_t)wdims[0] * sizeof(int));
 
-		long n = 0;
+		bart_dim_t n = 0;
 
-		for (long w = 0; w < wdims[0]; w++) {
+		for (bart_dim_t w = 0; w < wdims[0]; w++) {
 
 			unsigned int bits = 0;
 
-			for (long b = 0; (b < 32) && (w * 32 + b < grid); b++)
+			for (bart_dim_t b = 0; (b < 32) && (w * 32 + b < grid); b++)
 				if (0 <= map[w * 32 + b])
 					bits |= 1u << b;
 
@@ -2443,7 +2443,7 @@ static void stream_psf(struct nufft_fi_s* d)
 			for (int i = 0; i < 8; i++)
 				coset_shift(d, i, shifts[i]);
 
-			long coeffs = md_calc_size(t->N, t->cim_dims) / md_calc_size(4, t->cim_dims);
+			bart_dim_t coeffs = md_calc_size(t->N, t->cim_dims) / md_calc_size(4, t->cim_dims);
 
 			d->paired = bartorch_paired_create(t->img_dims, (int)coeffs, 8, (const float (*)[3])shifts);
 		}
@@ -2462,11 +2462,11 @@ static void stream_psf(struct nufft_fi_s* d)
 	 * contraction kernel, so that kernel is a condition. */
 	if ((2 == d->unit) && bf16_enabled && contraction_kernel) {
 
-		long n = (long)cosets * d->psf_coset;
+		bart_dim_t n = (bart_dim_t)cosets * d->psf_coset;
 		const float* in = (const float*)d->psf_host;
 		uint16_t* out = (uint16_t*)d->psf_host;
 
-		for (long i = 0; i < n; i++)
+		for (bart_dim_t i = 0; i < n; i++)
 			out[i] = to_bf16(in[i]);
 
 		void* shrunk = realloc(d->psf_host, (size_t)n * sizeof(uint16_t));
@@ -2481,18 +2481,18 @@ static void stream_psf(struct nufft_fi_s* d)
 	/* Page-locked, so a set's crossing runs behind the convolution rather
 	 * than holding up the host that issued it. */
 	d->psf_registered = (0 == bartorch_cuda_host_register(d->psf_host,
-				(long)cosets * d->psf_coset * (long)d->psf_size));
+				(bart_dim_t)cosets * d->psf_coset * (bart_dim_t)d->psf_size));
 
 	/* One set is all BART is told it has, so its own loop runs once. */
 	t->lph_dims[t->N] = 1;
 
-	debug_printf(DP_DEBUG1, "Streaming the function: %d sets of %ld, %d to a slot\n", cosets, d->psf_coset, d->unit);
+	debug_printf(DP_DEBUG1, "Streaming the function: %d sets of %" PRId64 ", %d to a slot\n", cosets, d->psf_coset, d->unit);
 }
 
-static const struct linop_s* toeplitz_for(int N, const long ksp_dims[N], const long cim_dims[N],
-		const long traj_dims[N], const complex float* traj,
-		const long wgh_dims[N], const complex float* weights,
-		const long bas_dims[N], const complex float* basis, struct nufft_conf_s conf,
+static const struct linop_s* toeplitz_for(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N],
+		const bart_dim_t traj_dims[N], const complex float* traj,
+		const bart_dim_t wgh_dims[N], const complex float* weights,
+		const bart_dim_t bas_dims[N], const complex float* basis, struct nufft_conf_s conf,
 		complex float** to_host)
 {
 	if (!conf.toeplitz) {
@@ -2574,14 +2574,14 @@ static const struct linop_s* toeplitz_for(int N, const long ksp_dims[N], const l
 	 * its place before the function is built from it. */
 	bool along_samples = (NULL != basis) && ((1 != bas_dims[1]) || (1 != bas_dims[2]));
 
-	long stand_dims[N];
+	bart_dim_t stand_dims[N];
 	complex float* stand = NULL;
 
 	if (along_samples) {
 
 		md_select_dims(N, ~(MD_BIT(1) | MD_BIT(2)), stand_dims, bas_dims);
 
-		long pos[N];
+		bart_dim_t pos[N];
 		md_set_dims(N, pos, 0);
 
 		complex float* whole = md_alloc(N, bas_dims, CFL_SIZE);
@@ -2649,10 +2649,10 @@ static const struct linop_s* toeplitz_for(int N, const long ksp_dims[N], const l
 	return op;
 }
 
-static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_dims[N],
-		const long traj_dims[N], const complex float* traj,
-		const long wgh_dims[N], const complex float* weights,
-		const long bas_dims[N], const complex float* basis, struct nufft_conf_s conf)
+static struct linop_s* try_create(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N],
+		const bart_dim_t traj_dims[N], const complex float* traj,
+		const bart_dim_t wgh_dims[N], const complex float* weights,
+		const bart_dim_t bas_dims[N], const complex float* basis, struct nufft_conf_s conf)
 {
 	/* Which sides the operator may be applied on.  BART on a card applies
 	 * one to either: `pics` takes its first adjoint from the k-space it
@@ -2676,7 +2676,7 @@ static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_
 	if (1 != ksp_dims[0])
 		DECLINE(5);
 
-	if ((0UL != conf.flags) && (7UL != conf.flags))
+	if ((0 != conf.flags) && (7 != conf.flags))
 		DECLINE(6);
 
 	int dim = 0;
@@ -2704,8 +2704,8 @@ static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_
 	 * A caller may pass either one in: `nufft` gives k-space with a single
 	 * coefficient and `pics` gives it with all of them, which is why BART
 	 * fills the coefficient axis in rather than reading it. */
-	long out_dims[N];
-	long grd_dims[N];
+	bart_dim_t out_dims[N];
+	bart_dim_t grd_dims[N];
 
 	md_copy_dims(N, out_dims, ksp_dims);
 	md_copy_dims(N, grd_dims, ksp_dims);
@@ -2747,8 +2747,8 @@ static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_
 	 * rest are separate transforms.  A frame is a sample axis when the
 	 * trajectory varies across frames, which is what lets one plan over the
 	 * whole raveled trajectory serve every coefficient and every coil. */
-	long samples = md_calc_size(N - 1, traj_dims + 1);
-	long batch = 1;
+	bart_dim_t samples = md_calc_size(N - 1, traj_dims + 1);
+	bart_dim_t batch = 1;
 
 	for (int i = 1; i < N; i++) {
 
@@ -2832,10 +2832,10 @@ static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_
 			DECLINE(17);
 	}
 
-	long image_elements = 1;
+	bart_dim_t image_elements = 1;
 
 	for (int i = 0; i < dim; i++)
-		image_elements *= (long)n_modes[i];
+		image_elements *= (bart_dim_t)n_modes[i];
 
 	PTR_ALLOC(struct nufft_fi_s, d);
 	SET_TYPEID(nufft_fi_s, d);
@@ -2888,17 +2888,17 @@ static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_
 	d->N = N;
 	d->host_weights = NULL;
 	d->host_basis = NULL;
-	d->cim_dims = xmalloc((size_t)N * sizeof(long));
-	d->out_dims = xmalloc((size_t)N * sizeof(long));
-	d->out_strs = xmalloc((size_t)N * sizeof(long));
-	d->grd_dims = xmalloc((size_t)N * sizeof(long));
-	d->trf_strs = xmalloc((size_t)N * sizeof(long));
-	d->wgh_dims = xmalloc((size_t)N * sizeof(long));
-	d->wgh_strs = xmalloc((size_t)N * sizeof(long));
-	d->bas_dims = xmalloc((size_t)N * sizeof(long));
-	d->bas_strs = xmalloc((size_t)N * sizeof(long));
-	d->trj_dims = xmalloc((size_t)N * sizeof(long));
-	d->ksp_dims = xmalloc((size_t)N * sizeof(long));
+	d->cim_dims = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->out_dims = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->out_strs = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->grd_dims = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->trf_strs = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->wgh_dims = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->wgh_strs = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->bas_dims = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->bas_strs = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->trj_dims = xmalloc((size_t)N * sizeof(bart_dim_t));
+	d->ksp_dims = xmalloc((size_t)N * sizeof(bart_dim_t));
 	md_copy_dims(N, d->trj_dims, traj_dims);
 	md_copy_dims(N, d->ksp_dims, ksp_dims);
 	d->conf = conf;
@@ -2916,26 +2916,26 @@ static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_
 	 * stepping over them, so the sample axes take the fastest strides and
 	 * the rest follow.  BART's own order is already that unless a sample
 	 * axis sits above a batch axis. */
-	long stride = 1;
+	bart_stride_t stride = 1;
 
 	for (int i = 1; i < N; i++)
 		if (1 < traj_dims[i]) {
 
-			d->trf_strs[i] = (1 == grd_dims[i]) ? 0 : stride * (long)CFL_SIZE;
+			d->trf_strs[i] = (1 == grd_dims[i]) ? 0 : stride * (bart_stride_t)CFL_SIZE;
 			stride *= grd_dims[i];
 		}
 
 	for (int i = 0; i < N; i++)
 		if ((0 == i) || (1 >= traj_dims[i])) {
 
-			d->trf_strs[i] = (1 == grd_dims[i]) ? 0 : stride * (long)CFL_SIZE;
+			d->trf_strs[i] = (1 == grd_dims[i]) ? 0 : stride * (bart_stride_t)CFL_SIZE;
 			stride *= grd_dims[i];
 		}
 
-	long grd_strs[N];
+	bart_stride_t grd_strs[N];
 	md_calc_strides(N, grd_strs, grd_dims, CFL_SIZE);
 
-	d->needs_tmp = (NULL != basis) || (0 != memcmp(d->trf_strs, grd_strs, (size_t)N * sizeof(long)));
+	d->needs_tmp = (NULL != basis) || (0 != memcmp(d->trf_strs, grd_strs, (size_t)N * sizeof(bart_dim_t)));
 
 	if (NULL != basis) {
 
@@ -2991,10 +2991,10 @@ static struct linop_s* try_create(int N, const long ksp_dims[N], const long cim_
 	return op;
 }
 
-struct linop_s* nufft_create2(int N, const long ksp_dims[N], const long cim_dims[N],
-		const long traj_dims[N], const complex float* traj,
-		const long wgh_dims[N], const complex float* weights,
-		const long bas_dims[N], const complex float* basis, struct nufft_conf_s conf)
+struct linop_s* nufft_create2(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N],
+		const bart_dim_t traj_dims[N], const complex float* traj,
+		const bart_dim_t wgh_dims[N], const complex float* weights,
+		const bart_dim_t bas_dims[N], const complex float* basis, struct nufft_conf_s conf)
 {
 	struct linop_s* op = try_create(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, bas_dims, basis, conf);
 
@@ -3014,11 +3014,11 @@ struct linop_s* nufft_create2(int N, const long ksp_dims[N], const long cim_dims
 	return bart_nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, bas_dims, basis, barts_conf(conf));
 }
 
-struct linop_s* nufft_create(int N, const long ksp_dims[N], const long cim_dims[N],
-		const long traj_dims[N], const complex float* traj,
+struct linop_s* nufft_create(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N],
+		const bart_dim_t traj_dims[N], const complex float* traj,
 		const complex float* weights, struct nufft_conf_s conf)
 {
-	long wgh_dims[N];
+	bart_dim_t wgh_dims[N];
 	md_select_dims(N, ~MD_BIT(0), wgh_dims, traj_dims);
 
 	return nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, NULL, NULL, conf);
@@ -3033,7 +3033,7 @@ static void refuse(const char* what)
 	      "Turn the substitution off with bartorch.finufft.use_in_tools(False).\n", what);
 }
 
-int nufft_get_psf_dims(const struct linop_s* nufft, int N, long psf_dims[N])
+int nufft_get_psf_dims(const struct linop_s* nufft, int N, bart_dim_t psf_dims[N])
 {
 	if (is_ours(nufft))
 		refuse("reading a point spread function");
@@ -3041,7 +3041,7 @@ int nufft_get_psf_dims(const struct linop_s* nufft, int N, long psf_dims[N])
 	return bart_nufft_get_psf_dims(nufft, N, psf_dims);
 }
 
-void nufft_get_psf(const struct linop_s* nufft, int N, const long psf_dims[N], complex float* psf)
+void nufft_get_psf(const struct linop_s* nufft, int N, const bart_dim_t psf_dims[N], complex float* psf)
 {
 	if (is_ours(nufft))
 		refuse("reading a point spread function");
@@ -3049,7 +3049,7 @@ void nufft_get_psf(const struct linop_s* nufft, int N, const long psf_dims[N], c
 	bart_nufft_get_psf(nufft, N, psf_dims, psf);
 }
 
-void nufft_get_psf2(const struct linop_s* nufft, int N, const long psf_dims[N], const long psf_strs[N], complex float* psf)
+void nufft_get_psf2(const struct linop_s* nufft, int N, const bart_dim_t psf_dims[N], const bart_stride_t psf_strs[N], complex float* psf)
 {
 	if (is_ours(nufft))
 		refuse("reading a point spread function");
@@ -3057,7 +3057,7 @@ void nufft_get_psf2(const struct linop_s* nufft, int N, const long psf_dims[N], 
 	bart_nufft_get_psf2(nufft, N, psf_dims, psf_strs, psf);
 }
 
-void nufft_update_psf(const struct linop_s* nufft, int ND, const long psf_dims[ND], const complex float* psf)
+void nufft_update_psf(const struct linop_s* nufft, int ND, const bart_dim_t psf_dims[ND], const complex float* psf)
 {
 	if (is_ours(nufft))
 		refuse("supplying a point spread function");
@@ -3065,7 +3065,7 @@ void nufft_update_psf(const struct linop_s* nufft, int ND, const long psf_dims[N
 	bart_nufft_update_psf(nufft, ND, psf_dims, psf);
 }
 
-void nufft_update_psf2(const struct linop_s* nufft, int ND, const long psf_dims[ND], const long psf_strs[ND], const complex float* psf)
+void nufft_update_psf2(const struct linop_s* nufft, int ND, const bart_dim_t psf_dims[ND], const bart_stride_t psf_strs[ND], const complex float* psf)
 {
 	if (is_ours(nufft))
 		refuse("supplying a point spread function");
@@ -3077,7 +3077,7 @@ void nufft_update_psf2(const struct linop_s* nufft, int ND, const long psf_dims[
  * alone and hand the trajectory over here, once per frame of a run.  The
  * plans belong to it, so both sides go and are made again on the next
  * transform, over whatever else arrived with it. */
-void nufft_update_traj(const struct linop_s* nufft, int N, const long trj_dims[N], const complex float* traj, const long wgh_dims[N], const complex float* weights, const long bas_dims[N], const complex float* basis)
+void nufft_update_traj(const struct linop_s* nufft, int N, const bart_dim_t trj_dims[N], const complex float* traj, const bart_dim_t wgh_dims[N], const complex float* weights, const bart_dim_t bas_dims[N], const complex float* basis)
 {
 	if (!is_ours(nufft)) {
 
@@ -3091,13 +3091,13 @@ void nufft_update_traj(const struct linop_s* nufft, int N, const long trj_dims[N
 		error("bartorch: a trajectory of %d axes for an operator of %d\n", N, d->N);
 
 	if (d->samples != md_calc_size(N - 1, trj_dims + 1))
-		error("bartorch: a trajectory of %ld samples for an operator of %ld\n",
+		error("bartorch: a trajectory of %" PRId64 " samples for an operator of %" PRId64 "\n",
 				md_calc_size(N - 1, trj_dims + 1), d->samples);
 
-	if ((NULL != weights) && !md_check_equal_dims(N, wgh_dims, d->wgh_dims, ~0UL))
+	if ((NULL != weights) && !md_check_equal_dims(N, wgh_dims, d->wgh_dims, ~UINT64_C(0)))
 		error("bartorch: weights of a shape the operator was not built for\n");
 
-	if ((NULL != basis) && !md_check_equal_dims(N, bas_dims, d->bas_dims, ~0UL))
+	if ((NULL != basis) && !md_check_equal_dims(N, bas_dims, d->bas_dims, ~UINT64_C(0)))
 		error("bartorch: a basis of a shape the operator was not built for\n");
 
 	pthread_mutex_lock(&d->lock);

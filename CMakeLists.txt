@@ -77,7 +77,16 @@ set(BART_EXTRA_LIBS "")
 if(CMAKE_C_COMPILER_ID MATCHES "Clang")
     list(APPEND BART_C_OPTIONS -fblocks)
     set(BARTORCH_NESTED "clang-blocks")
-    if(NOT APPLE)
+    if(WIN32)
+        # clang declares the runtime dllimport on Windows, and the linker
+        # resolves an import to a definition in the same image only when that
+        # definition is already present: objects are, archive members are not
+        # pulled in for it.
+        add_library(blocksruntime OBJECT
+            external/blocksruntime/runtime.c
+            external/blocksruntime/data.c)
+        list(APPEND BART_EXTRA_LIBS $<TARGET_OBJECTS:blocksruntime>)
+    elseif(NOT APPLE)
         add_library(blocksruntime STATIC
             external/blocksruntime/runtime.c
             external/blocksruntime/data.c)
@@ -109,6 +118,11 @@ endif()
 # the way BART's own fallback does.  Tested rather than guessed, because
 # defining it where it does exist collides with the system header.
 include(CheckCSourceCompiles)
+# The data model, reported in build_info: long is 64 bits on LP64 (Linux,
+# macOS) and 32 on LLP64 (Windows), and nothing BART or the ABI stores in an
+# array's shape depends on it.
+include(CheckTypeSize)
+check_type_size(long BARTORCH_SIZEOF_LONG LANGUAGE C)
 # Through <complex.h>, because that is where BART's translation units get it:
 # glibc typedefs it in <bits/floatn-common.h>, which <complex.h> and <math.h>
 # pull in and <stdio.h> does not on every glibc, and clang does not offer it as
@@ -125,7 +139,14 @@ endif()
 # would carry the toolchain's floor into every target system -- a GCC 14 build
 # asks for GCC_14.0.0 from libgcc_s, which no released distribution has -- and
 # that is a load-time failure, not a fallback.  Static leaves libc and libgomp.
-if(NOT APPLE)
+#
+# On Windows the same goes for everything the MinGW toolchain would otherwise
+# bring as a DLL -- winpthreads and the compiler's runtime -- because Python
+# does not search PATH for a library's dependencies.  What is left is the
+# Universal C Runtime and the system's own libraries.
+if(WIN32)
+    list(APPEND BART_LINK_OPTIONS -static)
+elseif(NOT APPLE)
     list(APPEND BART_LINK_OPTIONS -static-libgcc -static-libstdc++)
 endif()
 
@@ -164,7 +185,28 @@ if(BARTORCH_CUDA)
     message(STATUS "CUDA ${CUDAToolkit_VERSION}: architectures ${BARTORCH_CUDA_ARCH_SPEC}")
 endif()
 
-if(BARTORCH_OPENMP)
+if(BARTORCH_OPENMP AND WIN32)
+    # torch loads Intel's OpenMP runtime on Windows, and LLVM's refuses to
+    # initialise beside it (OMP: Error #15), as on macOS.  The two share an
+    # ABI, so the library is bound to the runtime torch has already loaded:
+    # clang compiles with -fopenmp, and the link is against an import library
+    # for libiomp5md.dll made from the entry points clang calls.  The loader
+    # resolves that name to the copy in the process.
+    if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+        message(FATAL_ERROR "OpenMP on Windows is built with clang; pass -DBARTORCH_OPENMP=OFF to build without it")
+    endif()
+    find_program(BARTORCH_DLLTOOL NAMES llvm-dlltool dlltool x86_64-w64-mingw32-dlltool REQUIRED)
+    set(_iomp_def "${CMAKE_CURRENT_SOURCE_DIR}/src/csrc/compat/libiomp5md.def")
+    set(_iomp_lib "${CMAKE_CURRENT_BINARY_DIR}/libiomp5md.dll.a")
+    add_custom_command(OUTPUT "${_iomp_lib}"
+        COMMAND "${BARTORCH_DLLTOOL}" -m i386:x86-64 -d "${_iomp_def}" -l "${_iomp_lib}" -D libiomp5md.dll
+        DEPENDS "${_iomp_def}"
+        VERBATIM)
+    add_custom_target(iomp5_import DEPENDS "${_iomp_lib}")
+    set(OpenMP_C_FOUND TRUE)
+    list(APPEND BART_C_OPTIONS -fopenmp)
+    list(APPEND BART_EXTRA_LIBS "${_iomp_lib}")
+elseif(BARTORCH_OPENMP)
     find_package(OpenMP COMPONENTS C)
     if(OpenMP_C_FOUND)
         list(APPEND BART_EXTRA_LIBS OpenMP::OpenMP_C)
@@ -230,7 +272,12 @@ file(GLOB _module_dirs LIST_DIRECTORIES true CONFIGURE_DEPENDS "${BART_SRC}/*")
 foreach(_dir ${_module_dirs})
     if(IS_DIRECTORY "${_dir}")
         get_filename_component(_mod "${_dir}" NAME)
-        if(NOT _mod MATCHES "^(ismrm|lapacke|win)$")
+        # `win/` is BART's own port of mmap, fmemopen, getsubopt and the rest
+        # of what the Windows C runtime lacks, and is built there alone.
+        if(_mod STREQUAL "win" AND NOT WIN32)
+            continue()
+        endif()
+        if(NOT _mod MATCHES "^(ismrm|lapacke)$")
             file(GLOB _srcs CONFIGURE_DEPENDS "${_dir}/*.c")
             list(APPEND BART_SOURCES ${_srcs})
         endif()
@@ -407,7 +454,11 @@ target_compile_definitions(bartorch PRIVATE
     NO_PNG
     _GNU_SOURCE
     ${BART_C_DEFS}
-    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA}")
+    # Windows: a 64-bit off_t, so a file past 2 GiB can be mapped; BART's own
+    # functions linked into this library rather than imported from its DLL
+    # (misc/dllspec.h); and no named pipes, which are a POSIX file type.
+    $<$<BOOL:${WIN32}>:_FILE_OFFSET_BITS=64;BARTLIB_STATIC;NO_FIFO>
+    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},long=${BARTORCH_SIZEOF_LONG}")
 
 target_compile_options(bartorch PRIVATE
     $<$<COMPILE_LANGUAGE:C>:${BART_C_OPTIONS}>
@@ -435,6 +486,10 @@ target_link_options(bartorch PRIVATE ${BART_LINK_OPTIONS})
 target_link_libraries(bartorch PRIVATE Threads::Threads ${BART_EXTRA_LIBS})
 
 target_link_libraries(bartorch PRIVATE m)
+
+if(TARGET iomp5_import)
+    add_dependencies(bartorch iomp5_import)
+endif()
 
 set_target_properties(bartorch PROPERTIES
     OUTPUT_NAME bartorch

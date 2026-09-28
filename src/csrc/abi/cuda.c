@@ -16,7 +16,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 
 #include "include/bartorch.h"
 
@@ -34,15 +39,21 @@ struct prefault {
 
 	pthread_t thread;
 	volatile char* ptr;
-	long size;
+	bart_dim_t size;
 };
 
 static void* prefault_run(void* arg)
 {
 	struct prefault* p = arg;
-	long page = sysconf(_SC_PAGESIZE);
+#ifdef _WIN32
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	bart_dim_t page = info.dwPageSize;
+#else
+	bart_dim_t page = sysconf(_SC_PAGESIZE);
+#endif
 
-	for (long i = 0; i < p->size; i += page)
+	for (bart_dim_t i = 0; i < p->size; i += page)
 		p->ptr[i] = p->ptr[i];
 
 	p->ptr[p->size - 1] = p->ptr[p->size - 1];
@@ -50,7 +61,7 @@ static void* prefault_run(void* arg)
 	return NULL;
 }
 
-void* bartorch_host_prefault_begin(void* ptr, long size)
+void* bartorch_host_prefault_begin(void* ptr, int64_t size)
 {
 	if ((NULL == ptr) || (0 >= size))
 		return NULL;
@@ -266,7 +277,7 @@ int bartorch_cuda_signal_stream(void* stream)
  * is what the function a normal is streamed from is kept in.  Where there is
  * no card, or where the card will not lock that much, it is ordinary
  * memory. */
-void* bartorch_host_alloc(long size, int pinned)
+void* bartorch_host_alloc(int64_t size, int pinned)
 {
 	if (0 >= size)
 		return NULL;
@@ -336,7 +347,7 @@ static bool bounce_open(void)
 
 static void host_copy(void* dst, const void* src, size_t n)
 {
-	long parts = (long)(n >> 22);
+	bart_dim_t parts = (bart_dim_t)(n >> 22);
 
 	if (parts < 2) {
 
@@ -345,7 +356,7 @@ static void host_copy(void* dst, const void* src, size_t n)
 	}
 
 #pragma omp parallel for
-	for (long p = 0; p < parts; p++) {
+	for (bart_dim_t p = 0; p < parts; p++) {
 
 		size_t a = n * (size_t)p / (size_t)parts;
 		size_t b = n * (size_t)(p + 1) / (size_t)parts;
@@ -354,7 +365,7 @@ static void host_copy(void* dst, const void* src, size_t n)
 	}
 }
 
-int bartorch_cuda_copy_pageable(void* dst, const void* src, long size)
+int bartorch_cuda_copy_pageable(void* dst, const void* src, int64_t size)
 {
 	if ((-1 == current_device) || (0 >= size) || !bounce_open())
 		return -1;
@@ -365,12 +376,12 @@ int bartorch_cuda_copy_pageable(void* dst, const void* src, long size)
 	for (int i = 0; i < 2; i++)
 		cudaEventSynchronize(bounce_done[i]);
 
-	long chunks = (size + BOUNCE_BYTES - 1) / BOUNCE_BYTES;
+	bart_dim_t chunks = (size + BOUNCE_BYTES - 1) / BOUNCE_BYTES;
 
-	for (long k = 0; k <= chunks; k++) {
+	for (bart_dim_t k = 0; k <= chunks; k++) {
 
-		long off = k * (long)BOUNCE_BYTES;
-		long len = MIN((long)BOUNCE_BYTES, size - off);
+		bart_stride_t off = k * (bart_dim_t)BOUNCE_BYTES;
+		bart_dim_t len = MIN((bart_dim_t)BOUNCE_BYTES, size - off);
 		int b = (int)(k & 1);
 
 		if (to_host) {
@@ -386,8 +397,8 @@ int bartorch_cuda_copy_pageable(void* dst, const void* src, long size)
 
 			if (0 < k) {
 
-				long poff = (k - 1) * (long)BOUNCE_BYTES;
-				long plen = MIN((long)BOUNCE_BYTES, size - poff);
+				bart_dim_t poff = (k - 1) * (bart_dim_t)BOUNCE_BYTES;
+				bart_dim_t plen = MIN((bart_dim_t)BOUNCE_BYTES, size - poff);
 
 				cudaEventSynchronize(bounce_done[b ^ 1]);
 				host_copy((char*)dst + poff, bounce[b ^ 1], (size_t)plen);
@@ -413,7 +424,7 @@ int bartorch_cuda_copy_pageable(void* dst, const void* src, long size)
  * its own and a copy out of it runs behind whatever the card is doing.  For
  * gigabytes it is a fraction of a second here, where allocating as much
  * page-locked takes seconds. */
-int bartorch_cuda_host_register(void* ptr, long size)
+int bartorch_cuda_host_register(void* ptr, int64_t size)
 {
 	if ((NULL == ptr) || (0 >= size) || (-1 == current_device))
 		return -1;
@@ -500,7 +511,7 @@ void bartorch_cuda_stage_close(void* stage)
 }
 
 /* Start a slot's crossing, once the card has finished reading what is in it. */
-int bartorch_cuda_stage_copy(void* stage, int slot, void* dst, const void* src, long size)
+int bartorch_cuda_stage_copy(void* stage, int slot, void* dst, const void* src, int64_t size)
 {
 	if ((NULL == stage) || (0 > slot) || (1 < slot))
 		return -1;
@@ -542,7 +553,7 @@ int bartorch_on_device(const void* ptr)
 	return cuda_ondevice(ptr) ? 1 : 0;
 }
 
-long bartorch_cuda_free_memory(void)
+int64_t bartorch_cuda_free_memory(void)
 {
 	size_t free_bytes = 0;
 	size_t total_bytes = 0;
@@ -553,7 +564,7 @@ long bartorch_cuda_free_memory(void)
 		return -1;
 	}
 
-	return (long)free_bytes;
+	return (bart_dim_t)free_bytes;
 }
 
 #else /* !USE_CUDA */
@@ -569,17 +580,17 @@ int bartorch_cuda_use_memcache(int enable) { (void)enable; return -1; }
 void bartorch_cuda_memcache_clear_all(void) { }
 int bartorch_cuda_wait_for_stream(void* stream) { (void)stream; return -1; }
 int bartorch_cuda_signal_stream(void* stream) { (void)stream; return -1; }
-void* bartorch_host_alloc(long size, int pinned) { (void)pinned; return (0 < size) ? xmalloc((size_t)size) : NULL; }
+void* bartorch_host_alloc(int64_t size, int pinned) { (void)pinned; return (0 < size) ? xmalloc((size_t)size) : NULL; }
 void bartorch_host_free(void* ptr) { if (NULL != ptr) xfree(ptr); }
 int bartorch_cuda_stage_open(void** stage) { (void)stage; return -1; }
-int bartorch_cuda_copy_pageable(void* dst, const void* src, long size) { (void)dst; (void)src; (void)size; return -1; }
-int bartorch_cuda_host_register(void* ptr, long size) { (void)ptr; (void)size; return -1; }
+int bartorch_cuda_copy_pageable(void* dst, const void* src, int64_t size) { (void)dst; (void)src; (void)size; return -1; }
+int bartorch_cuda_host_register(void* ptr, int64_t size) { (void)ptr; (void)size; return -1; }
 void bartorch_cuda_host_unregister(void* ptr) { (void)ptr; }
 void bartorch_cuda_stage_close(void* stage) { (void)stage; }
-int bartorch_cuda_stage_copy(void* stage, int slot, void* dst, const void* src, long size)
+int bartorch_cuda_stage_copy(void* stage, int slot, void* dst, const void* src, int64_t size)
 { (void)stage; (void)slot; (void)dst; (void)src; (void)size; return -1; }
 int bartorch_cuda_stage_wait(void* stage, int slot) { (void)stage; (void)slot; return -1; }
 int bartorch_cuda_stage_release(void* stage, int slot) { (void)stage; (void)slot; return -1; }
-long bartorch_cuda_free_memory(void) { return -1; }
+int64_t bartorch_cuda_free_memory(void) { return -1; }
 
 #endif

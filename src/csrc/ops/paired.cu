@@ -196,7 +196,7 @@ struct XArgs {
 	const unsigned* mask;
 	const int* prefix;
 	const cplx* tx;			/* 2 x N: each set's phase along x */
-	long L;
+	bart_dim_t L;
 };
 
 /* The pass along x of both sets of the pair: per line of four coefficients,
@@ -307,7 +307,7 @@ __global__ void __launch_bounds__(Shape<N>::XF::max_threads_per_block) fused(XAr
 
 			if (word & bit) {
 
-				const long j = a.prefix[g >> 5] + __popc(word & (bit - 1));
+				const bart_dim_t j = a.prefix[g >> 5] + __popc(word & (bit - 1));
 
 #pragma unroll
 				for (unsigned r = 0; r < R; r++)
@@ -316,7 +316,7 @@ __global__ void __launch_bounds__(Shape<N>::XF::max_threads_per_block) fused(XAr
 
 						const unsigned lo = (r < c) ? r : c;
 						const unsigned hi = (r < c) ? c : r;
-						const float m = widen(static_cast<const P*>(a.psf[sx])[(long)(lo + hi * (hi + 1) / 2) * a.L + j]);
+						const float m = widen(static_cast<const P*>(a.psf[sx])[(bart_dim_t)(lo + hi * (hi + 1) / 2) * a.L + j]);
 
 						o[r].x += m * v[c].x;
 						o[r].y += m * v[c].y;
@@ -377,7 +377,7 @@ struct Call {
 	int bf16;
 	const unsigned* mask;
 	const int* prefix;
-	long L;
+	bart_dim_t L;
 	const cplx* tab;		/* the pair's tables: x of each set, y, z */
 	float scale;
 };
@@ -496,7 +496,7 @@ const Entry table[] = { BARTORCH_PAIRED_SIZES(BARTORCH_PAIRED_ENTRY) };
 
 /* A set's phase along one axis, as `phase_setup` in coset.cuh builds it --
  * the shift, the centring, the fftmod folded in -- in double precision. */
-void axis_phase(long d, float shift, cplx* out)
+void axis_phase(bart_dim_t d, float shift, cplx* out)
 {
 	double s = shift;
 
@@ -506,13 +506,13 @@ void axis_phase(long d, float shift, cplx* out)
 	double slope = 2. * M_PI * s / d;
 	double offset = -slope * d / 2.;
 
-	long centre = d / 2;
+	bart_dim_t centre = d / 2;
 	double half = (double)centre / d;
 
 	slope += 2. * M_PI * half;
 	offset -= 2. * M_PI * half * centre / 2.;
 
-	for (long i = 0; i < d; i++) {
+	for (bart_dim_t i = 0; i < d; i++) {
 
 		double v = offset + i * slope;
 		out[i].x = (float)cos(v);
@@ -533,7 +533,7 @@ struct bartorch_paired {
 /* The pair kernels for a grid of `dims`, with the sets' shifts as
  * `bartorch_psf_shift` gives them (set i and i + 1, i even, differ only along
  * x); NULL where there are none or the card cannot run them. */
-extern "C" struct bartorch_paired* bartorch_paired_create(const long dims[3], int coeffs, int sets, const float (*shifts)[3])
+extern "C" struct bartorch_paired* bartorch_paired_create(const bart_dim_t dims[3], int coeffs, int sets, const float (*shifts)[3])
 {
 	if ((R != (unsigned)coeffs) || (8 != sets) || (dims[0] != dims[1]) || (dims[0] != dims[2]))
 		return NULL;
@@ -541,7 +541,7 @@ extern "C" struct bartorch_paired* bartorch_paired_create(const long dims[3], in
 	const Entry* entry = NULL;
 
 	for (const Entry& e : table)
-		if ((long)e.n == dims[0])
+		if ((bart_dim_t)e.n == dims[0])
 			entry = &e;
 
 	if ((NULL == entry) || (0 != entry->prepare()))
@@ -551,7 +551,7 @@ extern "C" struct bartorch_paired* bartorch_paired_create(const long dims[3], in
 		if ((shifts[i][1] != shifts[i + 1][1]) || (shifts[i][2] != shifts[i + 1][2]))
 			return NULL;
 
-	const long n = dims[0];
+	const bart_dim_t n = dims[0];
 	const int pairs = sets / 2;
 
 	cplx* host = (cplx*)xmalloc(sizeof(cplx) * 4 * n * pairs);
@@ -583,7 +583,7 @@ extern "C" struct bartorch_paired* bartorch_paired_create(const long dims[3], in
 	cudaMemcpy(p->tables, host, sizeof(cplx) * 4 * n * pairs, cudaMemcpyHostToDevice);
 	xfree(host);
 
-	debug_printf(DP_DEBUG1, "bartorch: paired kernels for %ld^3\n", n);
+	debug_printf(DP_DEBUG1, "bartorch: paired kernels for %" PRId64 "^3\n", n);
 
 	return p;
 }
@@ -623,7 +623,7 @@ extern "C" void bartorch_paired_in(const struct bartorch_paired* p, int k,
 }
 
 extern "C" void bartorch_paired_fused(const struct bartorch_paired* p, int k, _Complex float* scratch,
-		const void* psf0, const void* psf1, int bf16, const unsigned int* mask, const int* prefix, long L)
+		const void* psf0, const void* psf1, int bf16, const unsigned int* mask, const int* prefix, bart_dim_t L)
 {
 	Call c;
 

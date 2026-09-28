@@ -293,14 +293,14 @@ def _solve(
     block, family, shift_mode = _shared_options(terms)
     alpha, gamma = _shared_pairs(terms)
 
-    counter = _marshal.long_out()
+    counter = _marshal.int64_out()
     with _lock, _on_device(op.device or y.device):
         code = lib.bartorch_solve(
             op._h.ptr,
             algorithm.encode(),
             _marshal.argv([term.kind for term in terms]) if terms else None,
-            _marshal.longs([f for f, _ in flags]) if terms else None,
-            _marshal.longs([j for _, j in flags]) if terms else None,
+            _marshal.uint64s([f for f, _ in flags]) if terms else None,
+            _marshal.uint64s([j for _, j in flags]) if terms else None,
             _marshal.floats([term.weight for term in terms]) if terms else None,
             _marshal.ints([term.count for term in terms]) if terms else None,
             _marshal.pointers(handles) if handles else None,
@@ -410,13 +410,13 @@ def _penalties(terms, image_shape: tuple[int, ...]):
 
     _ensure_ready()
     handles = _marshal.pointer_buffer(_MAX_PENALTIES)
-    count, svars = _marshal.int_out(), _marshal.long_out()
+    count, svars = _marshal.int_out(), _marshal.int64_out()
     with _lock:
         code = library().bartorch_prox_set_create(
             len(terms),
             _marshal.argv([term.kind for term in terms]),
-            _marshal.longs([f for f, _ in flags]),
-            _marshal.longs([j for _, j in flags]),
+            _marshal.uint64s([f for f, _ in flags]),
+            _marshal.uint64s([j for _, j in flags]),
             _marshal.floats([term.weight for term in terms]),
             _marshal.ints([term.count for term in terms]),
             block,

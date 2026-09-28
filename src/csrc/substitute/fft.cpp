@@ -23,8 +23,10 @@
  * pocketfft's.
  */
 #include <atomic>
+#include <cstdint>
 #include <complex>
 #include <cstring>
+#include <limits>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -37,10 +39,25 @@
 
 namespace {
 
-/* DFTI, as much of it as this needs.  MKL_LONG is `long` on the platforms
- * that have MKL at all, and the two calls that take a variable argument are
- * declared that way so the ABI is the one MKL was compiled with. */
+/* DFTI, as much of it as this needs.  MKL_LONG is `long` in MKL's LP64
+ * interface, which is the one every source of DFTI here exports: 64 bits
+ * on Linux and macOS, 32 on Windows.  So a length, a stride or a distance
+ * DFTI is handed has to fit it, and a plan with one that does not is
+ * walked here or left to pocketfft, whose sizes are size_t and ptrdiff_t.
+ * The two calls that take a variable argument are declared that way so
+ * the ABI is the one MKL was compiled with. */
 typedef long mkl_long;
+
+bool fits_mkl_long(ptrdiff_t v)
+{
+	return (v >= (ptrdiff_t)std::numeric_limits<mkl_long>::min())
+		&& (v <= (ptrdiff_t)std::numeric_limits<mkl_long>::max());
+}
+
+bool fits_mkl_long(const fftwf_iodim64& d)
+{
+	return fits_mkl_long(d.n) && fits_mkl_long(d.is) && fits_mkl_long(d.os);
+}
 
 enum {
 	DFTI_COMPLEX = 32,
@@ -73,11 +90,11 @@ bool dfti_ready()
 		&& (NULL != dfti.forward) && (NULL != dfti.backward) && (NULL != dfti.release);
 }
 
-std::atomic<long> g_planned[2];	/* by MKL, by pocketfft */
+std::atomic<int64_t> g_planned[2];	/* by MKL, by pocketfft */
 
 /* One loop dimension, in elements. */
 struct loop {
-	long n, is, os;
+	ptrdiff_t n, is, os;
 };
 
 struct plan_s {
@@ -90,7 +107,8 @@ struct plan_s {
 	bool forward;
 
 	/* What DFTI was given, when it took it: the transformed axes and at
-	 * most one loop axis.  `outer` is what is left to walk. */
+	 * most one loop axis.  `outer` is what is left to walk.  A rank of
+	 * zero is a plan DFTI is not given. */
 	int rank = 0;
 	std::vector<mkl_long> lengths;
 	std::vector<mkl_long> strides_in;	/* displacement first, then one per length */
@@ -190,7 +208,7 @@ void dfti_walk(const plan_s& p, void* desc, size_t level, const std::complex<flo
 
 	const loop& d = p.outer[level];
 
-	for (long i = 0; i < d.n; i++)
+	for (ptrdiff_t i = 0; i < d.n; i++)
 		dfti_walk(p, desc, level + 1, in + i * d.is, out + i * d.os);
 }
 
@@ -256,7 +274,7 @@ int bartorch_fft_usable(void)
 	return dfti_ready() ? 1 : 0;
 }
 
-long bartorch_fft_counter(int which)
+int64_t bartorch_fft_counter(int which)
 {
 	return g_planned[(0 == which) ? 0 : 1].load();
 }
@@ -299,21 +317,29 @@ fftwf_plan fftwf_plan_guru64_dft(int rank, const fftwf_iodim64* dims, int howman
 	/* The same description for DFTI: strides in elements, the displacement
 	 * first, and the longest loop axis handed over as its own count so the
 	 * fewest are left to walk.  A loop axis of length one is no loop. */
-	p->rank = rank;
+	bool fits = true;
+
+	for (int i = 0; i < rank; i++)
+		fits = fits && fits_mkl_long(dims[i]);
+
+	p->rank = fits ? rank : 0;
 	p->strides_in.push_back(0);
 	p->strides_out.push_back(0);
 
-	for (int i = 0; i < rank; i++) {
+	for (int i = 0; i < p->rank; i++) {
 
-		p->lengths.push_back(dims[i].n);
-		p->strides_in.push_back(dims[i].is);
-		p->strides_out.push_back(dims[i].os);
+		p->lengths.push_back((mkl_long)dims[i].n);
+		p->strides_in.push_back((mkl_long)dims[i].is);
+		p->strides_out.push_back((mkl_long)dims[i].os);
 	}
 
+	/* The loop axis DFTI takes has to fit it as well; one that does not
+	 * is walked with the rest. */
 	int longest = -1;
 
 	for (int i = 0; i < howmany_rank; i++)
-		if ((howmany_dims[i].n > 1) && ((longest < 0) || (howmany_dims[i].n > howmany_dims[longest].n)))
+		if ((howmany_dims[i].n > 1) && fits_mkl_long(howmany_dims[i])
+		    && ((longest < 0) || (howmany_dims[i].n > howmany_dims[longest].n)))
 			longest = i;
 
 	if (longest >= 0)
