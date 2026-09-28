@@ -5,7 +5,7 @@ its scripts under `scripts/`; code from other projects is under `external/`.
 
 | Path | Contents |
 | --- | --- |
-| `external/bart/` | BART, a Git submodule, compiled without source changes |
+| `external/bart/` | BART, a Git submodule of the downstream fork `pulserver/bart` ({doc}`bart-fork`) |
 | `external/pocketfft/`, `external/blocksruntime/` | Vendored FFT and Blocks runtime, with their licenses |
 | `src/csrc/include/bartorch.h` | The C ABI, the only header the Python side sees |
 | `src/csrc/abi/` | Command execution, the in-memory CFL registry, CUDA stream ordering |
@@ -24,7 +24,9 @@ The compiled library uses no Python or PyTorch C API.  Python passes data
 pointers and reversed dimension vectors through ctypes, which is why one wheel
 per platform serves every Python and PyTorch version.  Changes to BART's
 behaviour are made by replacing a translation unit or by a compile definition,
-never by editing the submodule; `AGENTS.md` lists each replacement.
+never by editing the submodule checkout; `AGENTS.md` lists each replacement.
+A change that belongs in BART itself goes to the fork, as {doc}`bart-fork`
+describes.
 
 ## Documentation sources
 

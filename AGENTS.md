@@ -13,7 +13,7 @@ else's sits inside it.
 
 | Path | What is in it |
 | --- | --- |
-| `external/bart/` | BART, as a git submodule, compiled unchanged. |
+| `external/bart/` | BART, as a git submodule of the downstream fork `pulserver/bart`. |
 | `external/pocketfft/`, `external/blocksruntime/` | Vendored with their licenses. |
 | `src/bartorch/` | The Python package. |
 | `src/csrc/` | The compiled library. |
@@ -67,10 +67,14 @@ a BART update adds has to be placed.  `tests/test_docs.py` holds every public na
 
 ## Design rules
 
-**No BART edit.** Whatever BART needs changed is done by leaving a
-translation unit out of the build and compiling one with the same
-signatures, or by a compile definition. Moving the submodule to a newer BART
-should be a pointer bump plus regenerating the tool wrappers.
+**No BART edit here.** Whatever bartorch needs BART to do differently is done
+by leaving a translation unit out of the build and compiling one with the same
+signatures, or by a compile definition. The submodule is `pulserver/bart`, a
+downstream fork of Codeberg's `mrirecon/bart` whose `downstream` branch
+carries a small patch stack; a generic portability fix or an embedding hook
+belongs there, as a patch of its own, and FINUFFT, cuFFTDx, PyTorch and the
+C ABI stay here (`docs/guides/developer/bart-fork.md`). Moving the submodule
+to a newer BART should be a pointer bump plus regenerating the tool wrappers.
 
 **No torch or Python in the compiled code.** The library exports only the
 `bartorch_*` ABI. Torch owns every tensor; the library sees data pointers and
