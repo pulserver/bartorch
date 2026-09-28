@@ -40,7 +40,12 @@ struct prefault {
 static void* prefault_run(void* arg)
 {
 	struct prefault* p = arg;
+#ifdef _WIN32
+	/* The page size of x86-64 Windows; a smaller stride would still reach every page. */
+	long page = 4096;
+#else
 	long page = sysconf(_SC_PAGESIZE);
+#endif
 
 	for (long i = 0; i < p->size; i += page)
 		p->ptr[i] = p->ptr[i];

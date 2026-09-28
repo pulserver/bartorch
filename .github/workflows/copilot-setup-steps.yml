@@ -20,7 +20,7 @@ jobs:
           submodules: recursive
 
       - name: Install compiler and CMake
-        run: sudo apt-get install -y cmake clang
+        run: sudo apt-get install -y cmake gcc-14 g++-14
 
       - name: Install torch (CPU) and the build backend
         run: |
@@ -37,6 +37,6 @@ jobs:
 
       - name: Build and install bartorch
         env:
-          CC: clang
-          CXX: clang++
+          CC: gcc-14
+          CXX: g++-14
         run: pip install -e . --no-build-isolation

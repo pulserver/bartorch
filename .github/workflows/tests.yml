@@ -10,7 +10,9 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  # libbartorch is a clang build: BART's nested functions become Blocks.
+  # The toolchains are upstream BART's: GCC on Linux and on Windows, where
+  # it is MSYS2's MinGW build, and Apple's clang on macOS, where BART's nested
+  # functions become Blocks.
   tests:
     strategy:
       fail-fast: false
@@ -18,24 +20,37 @@ jobs:
         include:
           - os: ubuntu-latest
             python-version: "3.10"
-            cc: clang
+            cc: gcc-14
+            cxx: g++-14
           - os: ubuntu-latest
             python-version: "3.12"
-            cc: clang
+            cc: gcc-14
+            cxx: g++-14
             # One job measures coverage for Codecov; the rest only test.
             coverage: true
           - os: ubuntu-latest
             python-version: "3.12"
             cc: gcc-14
+            cxx: g++-14
             extras: "[mkl]"
           - os: macos-latest
             python-version: "3.12"
             cc: clang
+            cxx: clang++
+          - os: windows-latest
+            python-version: "3.12"
+            cc: gcc
+            cxx: g++
     runs-on: ${{ matrix.os }}
     # Codecov takes the upload on GitHub's OIDC token, so no secret is needed.
     permissions:
       contents: read
       id-token: write
+
+    # Git's bash on Windows, so that every step reads the same everywhere.
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
@@ -49,9 +64,29 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
-      - name: Install compiler, OpenMP and CMake (Linux)
+      - name: Install compiler and CMake (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get install -y cmake ${{ matrix.cc }} libomp-dev
+        run: sudo apt-get install -y cmake ${{ matrix.cc }} ${{ matrix.cxx }}
+
+      # MSYS2's UCRT64 GCC, which is how BART builds on Windows.  The library
+      # links its GCC runtime, OpenMP and winpthreads statically, so nothing
+      # from MSYS2 has to be found when Python loads it; only the build uses
+      # this path.  The interpreter is python.org's, as a user's would be.
+      - name: Install compiler and CMake (Windows)
+        if: runner.os == 'Windows'
+        id: msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+
+      - name: Put MSYS2's compiler on the path (Windows)
+        if: runner.os == 'Windows'
+        run: echo "$(cygpath -u '${{ steps.msys2.outputs.msys2-location }}')/ucrt64/bin" >> "$GITHUB_PATH"
 
       - name: Install CMake (macOS)
         if: runner.os == 'macOS'
@@ -70,17 +105,21 @@ jobs:
       #
       # Every job needs this now: deepinv is a dependency rather than an
       # extra, so every install pulls torchvision whatever the matrix says.
-      # Linux only because that index publishes no macOS wheel -- there both
+      # Not on macOS, because that index publishes no macOS wheel -- there both
       # come from PyPI, which is consistent with itself.
       - name: Install torchvision from the same index as torch
-        if: runner.os == 'Linux'
+        if: runner.os != 'macOS'
         run: pip install torchvision --index-url https://download.pytorch.org/whl/cpu
 
+      # scikit-build-core asks for Visual Studio on Windows unless told
+      # otherwise, and MSVC cannot compile GNU C.
       - name: Build and install bartorch
         env:
           CC: ${{ matrix.cc }}
-          CXX: ${{ matrix.cc == 'gcc-14' && 'g++-14' || 'clang++' }}
-        run: pip install -e ".${{ matrix.extras }}" --no-build-isolation -v
+          CXX: ${{ matrix.cxx }}
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then export CMAKE_GENERATOR=Ninja; fi
+          pip install -e ".${{ matrix.extras }}" --no-build-isolation -v
 
       # Both wheels carry their own copy of LLVM's OpenMP runtime, and the
       # runtime ends the process rather than run beside a second copy.  The
@@ -154,8 +193,8 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install the CUDA toolkit, clang and OpenMP
-        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends cmake clang libomp-dev nvidia-cuda-toolkit
+      - name: Install the CUDA toolkit and GCC
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends cmake gcc-14 g++-14 g++-12 nvidia-cuda-toolkit
 
       - name: Install torch (CPU) and the build backend
         run: |
@@ -170,10 +209,13 @@ jobs:
       - name: Install torchvision from the same index as torch
         run: pip install torchvision --index-url https://download.pytorch.org/whl/cpu
 
+      # BART is GCC 14's, for its heap trampolines; the host side of the
+      # kernels is GCC 12's, the newest this distribution's nvcc accepts.
       - name: Build with BART's CUDA kernels
         env:
-          CC: clang
-          CXX: clang++
+          CC: gcc-14
+          CXX: g++-14
+          CUDAHOSTCXX: g++-12
         run: pip install -e . --no-build-isolation --config-settings=cmake.define.BARTORCH_CUDA=ON
 
       - name: The CUDA build must report its device code and run on the host

@@ -71,7 +71,7 @@ def strip_comments(text: str) -> str:
 
 
 def strip_directives(text: str) -> str:
-    """Drop the preprocessor lines, including the two that define BARTORCH_API."""
+    """Drop the preprocessor lines, including those that define BARTORCH_API."""
     return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
 
 
