@@ -35,14 +35,16 @@ def _library_names() -> list[str]:
 
 
 def _load(path: Path) -> ctypes.CDLL:
-    if sys.platform != "win32":
+    if sys.platform not in ("win32", "darwin"):
         return ctypes.CDLL(str(path))
-    # The Windows library imports libiomp5md.dll, the OpenMP runtime torch
-    # carries and loads; importing torch first makes it the copy the loader
-    # binds to, and torch's directory is where it is found otherwise.
+    # The library imports the OpenMP runtime torch carries -- libiomp5md.dll
+    # on Windows, @rpath/libomp.dylib on macOS -- rather than one of its own.
+    # Importing torch first makes the copy torch loaded the one the loader
+    # binds to; torch's directory is where it is found otherwise.
     import torch
 
-    os.add_dll_directory(str(Path(torch.__file__).resolve().parent / "lib"))
+    if sys.platform == "win32":
+        os.add_dll_directory(str(Path(torch.__file__).resolve().parent / "lib"))
     return ctypes.CDLL(str(path))
 
 

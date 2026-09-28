@@ -55,6 +55,15 @@ pointer, regenerate the catalogue, and review the resulting API differences.  `t
 to be wrapped by hand, generated into {mod}`bartorch.tools`, or listed as
 private with a reason in `src/bartorch/_coverage.py`.
 
+## Updating the FINUFFT submodule
+
+`external/finufft` is upstream FINUFFT at one commit, unmodified.  Moving it is
+a change of its own: pick a commit whose upstream CI is green, update the
+submodule pointer, record the commit and the reason in the pull request, and
+run the suite on every platform; `tests/test_finufft.py` holds the transform
+against explicit discrete Fourier sums and against BART's gridder.  A change
+FINUFFT itself needs goes upstream rather than into the checkout.
+
 ## Tests
 
 A numerical test compares BART with a reference outside BART: an independent

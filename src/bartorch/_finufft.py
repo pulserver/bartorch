@@ -1,57 +1,39 @@
-"""FINUFFT under BART's ``nufft_create``: loading it, and the substitution's switches and counters.
+"""FINUFFT under BART's ``nufft_create``: the substitution's switches and counters.
 
-The substitution installs itself on first use (:func:`install_once`).  Tests and
+FINUFFT, and cuFINUFFT in a CUDA build, are compiled into ``libbartorch``.  The
+substitution installs itself on first use (:func:`install_once`).  Tests and
 ``scripts/check_device.py`` read the counters.
 """
 
 from __future__ import annotations
 
 import contextlib
-import importlib
 import logging
-import sys
-from pathlib import Path
 
 import torch
-
-from bartorch import _macos_openmp
-
-_keepalive: list[object] = []
 
 Shape = tuple[int, ...]
 
 
 def available() -> bool:
-    """Whether the ``finufft`` package is installed.
+    """Whether ``libbartorch`` carries FINUFFT, which every build does."""
+    from bartorch._lib import library
 
-    Found rather than imported: importing ``finufft`` loads its library, and
-    with it the OpenMP runtime the macOS wheel carries, before
-    ``_macos_openmp.ensure()`` has pointed that library at torch's copy.  The
-    repair would then only take effect in the next interpreter, and this one
-    would refuse every non-Cartesian transform.
-    """
-    import importlib.util
-
-    return importlib.util.find_spec("finufft") is not None
-
-
-def required_but_missing() -> str:
-    """Error text for a missing ``finufft``, which is a dependency rather than an option."""
-    return (
-        "FINUFFT computes every non-Cartesian transform here: BART's own "
-        "gridder is not reachable from this package's surface.  It is a "
-        "dependency of bartorch rather than an extra, so it should already be "
-        "installed and something has removed it.  pip install finufft"
-    )
+    return bool(library().bartorch_finufft_built_on(0))
 
 
 def cuda_available() -> bool:
-    """Whether the ``cufinufft`` package is installed."""
-    try:
-        import cufinufft  # noqa: F401
-    except ImportError:
-        return False
-    return True
+    """Whether ``libbartorch`` carries cuFINUFFT, which a CUDA build does."""
+    from bartorch._lib import library
+
+    return bool(library().bartorch_finufft_built_on(1))
+
+
+def version() -> str:
+    """The FINUFFT release the compiled-in sources declare."""
+    from bartorch._lib import library
+
+    return library().bartorch_finufft_version().decode()
 
 
 def used_on_device() -> bool:
@@ -59,123 +41,6 @@ def used_on_device() -> bool:
     from bartorch._lib import library
 
     return bool(library().bartorch_finufft_usable_on(1))
-
-
-def _library_path(package: str, stem: str) -> str | None:
-    """Path of the compiled library inside an installed wheel, or None."""
-    try:
-        module = importlib.import_module(package)
-    except ImportError:
-        return None
-    here = Path(module.__file__).resolve().parent
-    for name in (f"lib{stem}.so", f"lib{stem}.dylib", f"lib{stem}.dll"):
-        candidate = here / name
-        if candidate.exists():
-            return str(candidate)
-    return None
-
-
-#: What an OpenMP runtime's library is called, whoever built it.
-_OPENMP_LIBRARIES = ("libomp.", "libiomp5.", "libgomp.")
-
-
-def openmp_runtimes() -> list[str]:
-    """Paths of the OpenMP runtimes loaded in this process, in load order.
-
-    Answered on macOS only, where LLVM's runtime aborts the process when a second
-    copy initializes.  On Linux the loader resolves the duplicate and this returns
-    an empty list.
-    """
-    import ctypes as c
-
-    if sys.platform != "darwin":
-        return []
-
-    try:
-        dyld = c.CDLL(None)
-        dyld._dyld_image_count.restype = c.c_uint32
-        dyld._dyld_image_count.argtypes = []
-        dyld._dyld_get_image_name.restype = c.c_char_p
-        dyld._dyld_get_image_name.argtypes = [c.c_uint32]
-        loaded = [dyld._dyld_get_image_name(i) for i in range(dyld._dyld_image_count())]
-    except (AttributeError, OSError):  # pragma: no cover - macOS only
-        return []
-
-    found = []
-    for name in loaded:
-        if name is None:
-            continue
-        path = name.decode(errors="replace")
-        base = path.rsplit("/", 1)[-1]
-        if base.startswith(_OPENMP_LIBRARIES):
-            found.append(path)
-    return found
-
-
-def _load_symbols() -> bool:
-    """Register FINUFFT's entry points and options layout; False if unusable.
-
-    cuFINUFFT's are registered too when its wheel is installed.  Each layout is read
-    from the package that interprets the struct.
-    """
-    return _load_one(0, "finufft", "finufft", "finufftf_") and (
-        _load_one(1, "cufinufft", "cufinufft", "cufinufftf_") or True
-    )
-
-
-def _load_one(device: int, package: str, stem: str, prefix: str) -> bool:
-    """Register one wheel's entry points and options offsets for ``device`` (0 host, 1 card)."""
-    import ctypes as c
-
-    from bartorch._lib import library
-
-    lib = library()
-    path = _library_path(package, stem)
-    if path is None:
-        return False
-
-    try:
-        opts, field, upsampling, spreadonly = _options_layout(package)
-    except (ImportError, AttributeError):
-        return False
-
-    handle = c.CDLL(path)
-    _keepalive.append(handle)
-    symbols = [prefix + name for name in ("makeplan", "setpts", "execute", "destroy")]
-    symbols.append(_default_opts_symbol(handle, prefix))
-    for symbol in symbols:
-        fn = getattr(handle, symbol, None)
-        if fn is None:
-            return False
-        if lib.bartorch_finufft_set(symbol.encode(), c.cast(fn, c.c_void_p)) != 0:
-            return False
-
-    return 0 == lib.bartorch_finufft_layout(
-        device, c.sizeof(opts), field.offset, upsampling.offset, spreadonly.offset
-    )
-
-
-def _default_opts_symbol(handle, prefix: str) -> str:
-    """FINUFFT spells its defaults per precision and cuFINUFFT does not."""
-    name = prefix + "default_opts"
-    if getattr(handle, name, None) is not None:
-        return name
-    return prefix.replace("f_", "_") + "default_opts"
-
-
-def _options_layout(package: str):
-    """The options struct ``package`` interprets, and the fields set in it.
-
-    Threads (FINUFFT) or device id (cuFINUFFT), upsampling, and spread-only; the two
-    packages spell the last differently.
-    """
-    if package == "finufft":
-        from finufft._finufft import FinufftOpts as opts
-
-        return opts, opts.nthreads, opts.upsampfac, opts.spreadinterponly
-    from cufinufft._cufinufft import NufftOpts as opts
-
-    return opts, opts.gpu_device_id, opts.upsampfac, opts.gpu_spreadinterponly
 
 
 def use_in_tools(
@@ -202,14 +67,9 @@ def use_in_tools(
 
     Raises
     ------
-    ImportError
-        ``finufft`` is missing or its library lacks the entry points, or
-        ``cufinufft`` is missing on a machine where BART would run on a card.
     RuntimeError
-        Two OpenMP runtimes are loaded (macOS), or FINUFFT disagrees with BART's
-        gridder on a test transform.
+        FINUFFT disagrees with BART's gridder on a test transform.
     """
-    from bartorch import _cuda
     from bartorch._lib import library
 
     lib = library()
@@ -217,51 +77,6 @@ def use_in_tools(
         lib.bartorch_finufft_use_in_tools(0)
         lib.bartorch_nufft_allow_fallback(1)
         return False
-
-    if not available():
-        raise ImportError(required_but_missing())
-
-    if _cuda.available() and not cuda_available():
-        raise ImportError(
-            "this machine has a device BART can use, and cuFINUFFT is what would serve it: "
-            "pip install 'bartorch[cufinufft]'"
-        )
-
-    # Before the library is loaded, because loading it is what brings its own
-    # OpenMP runtime into the process: patched first, the image that arrives
-    # resolves to the copy torch already has and there is one runtime rather
-    # than two.  Answers "elsewhere" off macOS, and a reason where it could
-    # not, which the runtime check below turns into the refusal.
-    repaired = _macos_openmp.ensure()
-
-    if not _load_symbols():
-        raise ImportError(
-            "the finufft package is installed but its library did not hand over the entry "
-            "points this needs; check that it matches the version pyproject.toml asks for"
-        )
-
-    # Loading FINUFFT's library is safe; calling into it is what starts its
-    # OpenMP runtime, and starting a second one is what LLVM's answers with
-    # abort().  torch brings one and the macOS FINUFFT wheel brings its own,
-    # so on that platform the pair is checked before the first call rather
-    # than found out by the process ending.  Continuing anyway is what
-    # KMP_DUPLICATE_LIB_OK asks for, and what it buys is a crash later or a
-    # wrong answer quietly -- neither of which a reconstruction should risk.
-    #
-    # The fallback is not opened: an answer from BART's gridder, an order
-    # further from the transform and several times slower, is worse than no
-    # answer when nobody asked for it.  So the transforms are refused, and the
-    # message says what makes them work.
-    runtimes = openmp_runtimes()
-    if len(runtimes) > 1:
-        lib.bartorch_finufft_use_in_tools(0)
-        raise RuntimeError(
-            "this process has loaded more than one OpenMP runtime ("
-            + ", ".join(runtimes)
-            + "), and calling FINUFFT would start the second, which LLVM's runtime ends "
-            "the process over (OMP: Error #15).  Every non-Cartesian transform is refused "
-            "until there is one runtime.  " + _remedy(repaired)
-        )
 
     lib.bartorch_finufft_set_tolerance(float(tolerance))
     lib.bartorch_finufft_set_upsampling(float(upsampling))
@@ -271,38 +86,10 @@ def use_in_tools(
     if not _tools_agree_with_bart():
         lib.bartorch_finufft_use_in_tools(0)
         raise RuntimeError(
-            "FINUFFT is installed but its NUFFT does not agree with BART's own; "
-            "the substitution has been left off"
+            "FINUFFT's NUFFT does not agree with BART's own; the substitution has been left off"
         )
 
     return bool(lib.bartorch_finufft_usable())
-
-
-def _remedy(repaired: str) -> str:
-    """What to do about two runtimes, given what the attempt to make them one did.
-
-    ``ensure`` having patched the file and the process still carrying two
-    images means FINUFFT was loaded before bartorch asked -- the file is right
-    for the next run and nothing can unload the one in this one.  Its having
-    found nothing to do means the pair this knows about is already one, so the
-    second runtime came in with something else.
-    """
-    if repaired == "patched":
-        return (
-            "FINUFFT's library has been pointed at the copy torch carries, which the next "
-            "interpreter will pick up; this one loaded it before that could take effect, so "
-            "start again"
-        )
-    if repaired == "already":
-        return (
-            "FINUFFT's library already points at the copy torch carries, so the second runtime "
-            "is some other package's; `python scripts/macos_openmp.py diagnose` says what this "
-            "pair looks like"
-        )
-    return (
-        f"Pointing FINUFFT's library at the copy torch carries did not work here ({repaired}); "
-        "`python scripts/macos_openmp.py diagnose` says what it found"
-    )
 
 
 def used_in_tools() -> bool:
@@ -685,13 +472,11 @@ def install_once() -> None:
     if _installed:
         return
     _installed = True
-    if not available():
-        return
     try:
         use_in_tools(True)
-    except (ImportError, RuntimeError) as exc:
+    except RuntimeError as exc:
         logging.getLogger("bartorch._finufft").warning(
-            "FINUFFT is installed but was not put in BART's place, so every non-uniform "
-            "transform will be refused: %s",
+            "FINUFFT was not put in BART's place, so every non-uniform transform will be "
+            "refused: %s",
             exc,
         )

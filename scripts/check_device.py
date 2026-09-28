@@ -1,7 +1,7 @@
 """Checks of the CUDA paths, in dependency order, each independent of the others.
 
-Needs a CUDA build (``pip install -e . --config-settings=cmake.define.BARTORCH_CUDA=ON``)
-and, for the transform checks, the ``cufinufft`` wheel::
+Needs a CUDA build (``pip install -e . --config-settings=cmake.define.BARTORCH_CUDA=ON``),
+which carries cuFINUFFT for the transform checks::
 
     python scripts/check_device.py
 """
@@ -109,11 +109,11 @@ def _nufft_on_device():
 @check("cuFINUFFT is what serves a trajectory on the card")
 def _cufinufft():
     if not bartorch._finufft.cuda_available():
-        return False, "the cufinufft wheel is not installed: pip install 'bartorch[cufinufft]'"
+        return False, "this library was built without CUDA, so it carries no cuFINUFFT"
     if not bartorch._finufft.used_in_tools():
         return False, "the substitution did not install itself"
     if not bartorch._finufft.used_on_device():
-        return False, f"the device table is empty: {bartorch._finufft.decline_reason()}"
+        return False, f"cuFINUFFT declined the card: {bartorch._finufft.decline_reason()}"
 
     n = 128
     traj, image = _radial(n, 64, "cuda")

@@ -315,8 +315,8 @@ SYMBOLS = (
     "bartorch_cuda_wait_for_stream",
     "bartorch_cuda_signal_stream",
     "bartorch_cuda_free_memory",
-    "bartorch_finufft_set",
-    "bartorch_finufft_layout",
+    "bartorch_finufft_version",
+    "bartorch_finufft_built_on",
     "bartorch_finufft_set_tolerance",
     "bartorch_finufft_tolerance",
     "bartorch_finufft_set_upsampling",
@@ -1179,16 +1179,10 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
     lib.bartorch_cuda_signal_stream.argtypes = [ctypes.c_void_p]
     lib.bartorch_cuda_free_memory.restype = ctypes.c_int64
     lib.bartorch_cuda_free_memory.argtypes = []
-    lib.bartorch_finufft_set.restype = ctypes.c_int
-    lib.bartorch_finufft_set.argtypes = [ctypes.c_char_p, ctypes.c_void_p]
-    lib.bartorch_finufft_layout.restype = ctypes.c_int
-    lib.bartorch_finufft_layout.argtypes = [
-        ctypes.c_int,
-        ctypes.c_int,
-        ctypes.c_int,
-        ctypes.c_int,
-        ctypes.c_int,
-    ]
+    lib.bartorch_finufft_version.restype = ctypes.c_char_p
+    lib.bartorch_finufft_version.argtypes = []
+    lib.bartorch_finufft_built_on.restype = ctypes.c_int
+    lib.bartorch_finufft_built_on.argtypes = [ctypes.c_int]
     lib.bartorch_finufft_set_tolerance.restype = None
     lib.bartorch_finufft_set_tolerance.argtypes = [ctypes.c_double]
     lib.bartorch_finufft_tolerance.restype = ctypes.c_double

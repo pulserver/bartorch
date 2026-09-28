@@ -28,7 +28,7 @@ python -m pip install pre-commit 'codespell[toml]' -r docs/requirements.txt
 With CUDA:
 
 ```bash
-python -m pip install -e '.[dev,cufinufft]' \
+python -m pip install -e '.[dev]' \
     --config-settings=cmake.define.BARTORCH_CUDA=ON
 ```
 

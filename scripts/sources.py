@@ -15,19 +15,23 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-#: Everything that ends up in ``libbartorch``.  The BART submodule is here
-#: because its sources are compiled in too, so a bump is a rebuild; the CMake
+#: Everything that ends up in ``libbartorch``.  The BART and FINUFFT submodules
+#: are here because their sources are compiled in too, so a bump is a rebuild; the CMake
 #: files are here because what they say is compiled is part of the answer.
 SOURCES = (
     ROOT / "src" / "csrc",
     ROOT / "cmake",
     ROOT / "external" / "bart" / "src",
+    ROOT / "external" / "finufft" / "src",
+    ROOT / "external" / "finufft" / "include",
+    ROOT / "external" / "finufft" / "cmake",
+    ROOT / "external" / "finufft" / "CMakeLists.txt",
     ROOT / "CMakeLists.txt",
 )
 
 #: What a source file is.  Anything else under those directories -- a README,
 #: a stray object file -- says nothing about whether the library is current.
-SUFFIXES = frozenset({".c", ".h", ".cc", ".cpp", ".cu", ".cuh", ".cmake", ".txt"})
+SUFFIXES = frozenset({".c", ".h", ".hpp", ".cc", ".cpp", ".cu", ".cuh", ".cmake", ".txt"})
 
 
 def files(roots=SOURCES):

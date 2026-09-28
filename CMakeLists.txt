@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.25)
 project(bartorch LANGUAGES C CXX)
 
 # ---------------------------------------------------------------------------
@@ -21,7 +21,7 @@ if(NOT EXISTS "${BART_SRC}/bart.c")
     message(FATAL_ERROR "BART sources not found at ${BART_SRC}; run `git submodule update --init`")
 endif()
 
-option(BARTORCH_OPENMP "Build BART with OpenMP" ON)
+option(BARTORCH_OPENMP "Build BART and FINUFFT with OpenMP" ON)
 option(BARTORCH_CUDA "Build BART's CUDA kernels" OFF)
 set(BARTORCH_CUDA_ARCHITECTURES "75;80;86;89;90" CACHE STRING
     "Architectures to emit SASS for; PTX for the last one is added for newer cards")
@@ -147,7 +147,10 @@ endif()
 if(WIN32)
     list(APPEND BART_LINK_OPTIONS -static)
 elseif(NOT APPLE)
-    list(APPEND BART_LINK_OPTIONS -static-libgcc -static-libstdc++)
+    # --exclude-libs keeps what those runtimes and FINUFFT's archives define
+    # out of the dynamic symbol table, which is then the bartorch_* ABI and
+    # BART's own symbols: nothing another library in the process could bind.
+    list(APPEND BART_LINK_OPTIONS -static-libgcc -static-libstdc++ -Wl,--exclude-libs,ALL)
 endif()
 
 find_package(Threads REQUIRED)
@@ -185,33 +188,12 @@ if(BARTORCH_CUDA)
     message(STATUS "CUDA ${CUDAToolkit_VERSION}: architectures ${BARTORCH_CUDA_ARCH_SPEC}")
 endif()
 
-if(BARTORCH_OPENMP AND WIN32)
-    # torch loads Intel's OpenMP runtime on Windows, and LLVM's refuses to
-    # initialise beside it (OMP: Error #15), as on macOS.  The two share an
-    # ABI, so the library is bound to the runtime torch has already loaded:
-    # clang compiles with -fopenmp, and the link is against an import library
-    # for libiomp5md.dll made from the entry points clang calls.  The loader
-    # resolves that name to the copy in the process.
-    if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
-        message(FATAL_ERROR "OpenMP on Windows is built with clang; pass -DBARTORCH_OPENMP=OFF to build without it")
-    endif()
-    find_program(BARTORCH_DLLTOOL NAMES llvm-dlltool dlltool x86_64-w64-mingw32-dlltool REQUIRED)
-    set(_iomp_def "${CMAKE_CURRENT_SOURCE_DIR}/src/csrc/compat/libiomp5md.def")
-    set(_iomp_lib "${CMAKE_CURRENT_BINARY_DIR}/libiomp5md.dll.a")
-    add_custom_command(OUTPUT "${_iomp_lib}"
-        COMMAND "${BARTORCH_DLLTOOL}" -m i386:x86-64 -d "${_iomp_def}" -l "${_iomp_lib}" -D libiomp5md.dll
-        DEPENDS "${_iomp_def}"
-        VERBATIM)
-    add_custom_target(iomp5_import DEPENDS "${_iomp_lib}")
-    set(OpenMP_C_FOUND TRUE)
-    list(APPEND BART_C_OPTIONS -fopenmp)
-    list(APPEND BART_EXTRA_LIBS "${_iomp_lib}")
-elseif(BARTORCH_OPENMP)
-    find_package(OpenMP COMPONENTS C)
-    if(OpenMP_C_FOUND)
-        list(APPEND BART_EXTRA_LIBS OpenMP::OpenMP_C)
-    endif()
+include(cmake/openmp.cmake)
+if(OpenMP_C_FOUND)
+    list(APPEND BART_EXTRA_LIBS OpenMP::OpenMP_C)
 endif()
+
+include(cmake/finufft.cmake)
 
 # ---------------------------------------------------------------------------
 # Files BART's Makefile generates: the version string and the tool table.
@@ -421,6 +403,9 @@ set_source_files_properties("${BART_SRC}/noncart/nufft.c" PROPERTIES
 # The SENSE operators keep their implementations under another name, so
 # src/csrc/ops/sense.c can walk the coils a slab at a time and still hand back BART's
 # own chain for an arrangement it cannot serve.
+set_source_files_properties(src/csrc/substitute/finufft.c PROPERTIES
+    COMPILE_DEFINITIONS "BARTORCH_FINUFFT_VERSION=\"${BARTORCH_FINUFFT_VERSION}\"")
+
 set_source_files_properties("${BART_SRC}/sense/modelnc.c" PROPERTIES
     COMPILE_DEFINITIONS "sense_nc_init=bart_sense_nc_init")
 
@@ -458,7 +443,7 @@ target_compile_definitions(bartorch PRIVATE
     # functions linked into this library rather than imported from its DLL
     # (misc/dllspec.h); and no named pipes, which are a POSIX file type.
     $<$<BOOL:${WIN32}>:_FILE_OFFSET_BITS=64;BARTLIB_STATIC;NO_FIFO>
-    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},long=${BARTORCH_SIZEOF_LONG}")
+    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},long=${BARTORCH_SIZEOF_LONG}")
 
 target_compile_options(bartorch PRIVATE
     $<$<COMPILE_LANGUAGE:C>:${BART_C_OPTIONS}>
@@ -487,8 +472,24 @@ target_link_libraries(bartorch PRIVATE Threads::Threads ${BART_EXTRA_LIBS})
 
 target_link_libraries(bartorch PRIVATE m)
 
-if(TARGET iomp5_import)
-    add_dependencies(bartorch iomp5_import)
+target_link_libraries(bartorch PRIVATE ${BARTORCH_FINUFFT_LIBS})
+
+# macOS: the OpenMP stub names @rpath/libomp.dylib, which is torch's.  In a
+# wheel torch is the library's sibling package; an in-place build finds it
+# where the interpreter that configured the build has it.
+if(APPLE AND OpenMP_C_FOUND)
+    set_property(TARGET bartorch APPEND PROPERTY INSTALL_RPATH "@loader_path/../torch/lib")
+    set_property(TARGET bartorch APPEND PROPERTY BUILD_RPATH "@loader_path/../torch/lib")
+    find_package(Python COMPONENTS Interpreter QUIET)
+    if(Python_Interpreter_FOUND)
+        execute_process(
+            COMMAND "${Python_EXECUTABLE}" -c "import importlib.util, pathlib; s = importlib.util.find_spec('torch'); print(pathlib.Path(s.origin).parent / 'lib')"
+            OUTPUT_VARIABLE _torch_lib OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET RESULT_VARIABLE _torch_rc)
+        if(_torch_rc EQUAL 0 AND EXISTS "${_torch_lib}")
+            set_property(TARGET bartorch APPEND PROPERTY INSTALL_RPATH "${_torch_lib}")
+            set_property(TARGET bartorch APPEND PROPERTY BUILD_RPATH "${_torch_lib}")
+        endif()
+    endif()
 endif()
 
 set_target_properties(bartorch PROPERTIES

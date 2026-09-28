@@ -14,8 +14,7 @@ from bartorch import _finufft
 @pytest.fixture(autouse=True)
 def _finufft_defaults():
     yield
-    if _finufft.available():
-        try:
-            _finufft.use_in_tools(True)
-        except (ImportError, RuntimeError):
-            pass
+    try:
+        _finufft.use_in_tools(True)
+    except RuntimeError:
+        pass

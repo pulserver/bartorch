@@ -1,11 +1,8 @@
 """What the package asks to be installed with, and why.
 
-FINUFFT is a dependency rather than an extra: BART's own gridder is not
-reachable from this package's surface, so a bartorch without FINUFFT cannot do
-non-Cartesian work at all.  It carries no marker, because a wheel is built only
-for the platforms FINUFFT ships a wheel for too -- installing one never starts
-a build, and anywhere else the install is from the sdist, where compiling BART
-is already the price of entry.
+FINUFFT, and cuFINUFFT in a CUDA build, are compiled into the library from the
+pinned submodule, so neither Python package is a requirement or an extra, and
+a NUFFT runs in an environment that has neither.
 
 deepinv is an extra: denoisers, losses and samplers come from it through
 `priors.ImplicitPrior` and `bartorch.interop`, and nothing else imports it.
@@ -14,23 +11,13 @@ torchsim is a dependency because `nlop.SignalModel`
 turns any of its simulators into a BART nonlinear operator, and
 `nlop.InversionRecovery`, `nlop.MultiEcho` and `nlop.Bloch` are `moba`'s
 families written on it, so every quantitative reconstruction here imports it.
-
-cuFINUFFT is the one that stays optional: it serves a transform on a card, and
-most machines have no card.
-
-The promise is checked twice over -- against pyproject, and against the
-metadata pip was actually given -- because a dependency that quietly became an
-extra again would show up as seventeen failing tests and no explanation.
 """
 
-import platform
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
-
-from bartorch import _finufft
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -46,15 +33,14 @@ def _requirements(specs: list[str], name: str) -> list:
     return [r for r in (packaging.Requirement(s) for s in specs) if r.name == name]
 
 
-def test_finufft_is_a_dependency_and_not_an_extra():
+@pytest.mark.parametrize("name", ["finufft", "cufinufft"])
+def test_neither_finufft_package_is_asked_for(name):
+    """The transforms are compiled in; a requirement would install a second copy."""
     project = _pyproject()["project"]
-    assert _requirements(project["dependencies"], "finufft"), (
-        "FINUFFT computes every non-Cartesian transform; it belongs in "
-        "dependencies, not in optional-dependencies"
-    )
-    assert "finufft" not in project["optional-dependencies"], (
-        "an extra named finufft says it is optional, and it is not"
-    )
+    assert not _requirements(project["dependencies"], name)
+    for extra, specs in project["optional-dependencies"].items():
+        assert not _requirements(specs, name), f"the {extra} extra asks for {name}"
+    assert name not in project["optional-dependencies"]
 
 
 def test_deepinv_is_an_extra_and_not_a_dependency():
@@ -89,32 +75,8 @@ def test_the_models_really_do_reach_torchsim():
     assert isinstance(model.model, ModelOperator)
 
 
-def test_the_finufft_requirement_holds_on_every_platform():
-    """No marker: a wheel is built only where FINUFFT ships one too, and every
-    other install is already a source build."""
-    project = _pyproject()["project"]
-    for requirement in _requirements(project["dependencies"], "finufft"):
-        assert requirement.marker is None, (
-            f"{requirement} is conditional, and a platform where it does not "
-            "apply is one where the package cannot do non-Cartesian work"
-        )
-
-
-def test_cufinufft_stays_optional():
-    """It serves a transform on a card, and most machines have no card."""
-    project = _pyproject()["project"]
-    assert not _requirements(project["dependencies"], "cufinufft")
-    assert _requirements(project["optional-dependencies"]["cufinufft"], "cufinufft")
-
-
-def test_finufft_is_installed_wherever_this_package_says_it_will_be():
-    """The promise the metadata makes, checked against this environment.
-
-    Read off the installed distribution rather than off pyproject, so what is
-    checked is what pip was actually told.  ``extra`` is empty in the
-    environment, so a requirement belonging to an extra evaluates false and
-    only the unconditional ones are counted.
-    """
+def test_the_installed_metadata_asks_for_no_finufft_package():
+    """What pip was actually told, read off the installed distribution."""
     from importlib import metadata
 
     packaging = pytest.importorskip("packaging.requirements")
@@ -122,41 +84,27 @@ def test_finufft_is_installed_wherever_this_package_says_it_will_be():
         specs = metadata.requires("bartorch") or []
     except metadata.PackageNotFoundError:
         pytest.skip("bartorch is on the path but not installed, so it has no metadata")
-
-    env = {
-        "sys_platform": sys.platform,
-        "platform_machine": platform.machine(),
-        "extra": "",
-    }
-    required = [
-        r
-        for r in (packaging.Requirement(s) for s in specs)
-        if r.name == "finufft" and (r.marker is None or r.marker.evaluate(env))
-    ]
-    assert required, (
-        "the installed bartorch does not require FINUFFT; it was built from a "
-        "pyproject where FINUFFT was still optional"
-    )
-    assert _finufft.available(), _finufft.required_but_missing()
+    names = {packaging.Requirement(s).name for s in specs}
+    assert not names & {"finufft", "cufinufft"}
 
 
-def test_a_missing_finufft_is_reported_as_the_broken_install_it_is():
-    said = _finufft.required_but_missing()
-    assert "dependency" in said
-    assert "bartorch[finufft]" not in said, "there is no such extra to point anyone at"
-
-
-def test_asking_whether_finufft_is_installed_does_not_load_it():
-    """The macOS repair has to come before FINUFFT's library is loaded.
-
-    Importing ``finufft`` loads the library, and with it the OpenMP runtime its
-    macOS wheel carries, so a check that imported it would leave two runtimes
-    in the first interpreter after an install whatever the repair then did.
-    """
+def test_a_nufft_runs_where_no_finufft_package_can_be_imported():
+    """In a fresh interpreter whose import system refuses both packages."""
     code = (
         "import sys\n"
+        "class Refuse:\n"
+        "    def find_spec(self, name, path=None, target=None):\n"
+        "        if name.split('.')[0] in ('finufft', 'cufinufft'):\n"
+        "            raise ImportError(name + ' is refused in this test')\n"
+        "sys.meta_path.insert(0, Refuse())\n"
+        "import bartorch, bartorch.tools as bt\n"
         "from bartorch import _finufft\n"
-        "assert _finufft.available()\n"
-        "assert 'finufft' not in sys.modules, 'available() imported finufft'\n"
+        "traj = bt.traj(x=32, y=16, r=True)\n"
+        "img = bt.phantom([32, 32]).reshape(1, 32, 32)\n"
+        "_finufft.reset_counters()\n"
+        "y = bartorch.nufft(img, traj)\n"
+        "assert _finufft.operators_built() == (1, 0), _finufft.operators_built()\n"
+        "assert float(y.abs().max()) > 0\n"
+        "assert not {'finufft', 'cufinufft'} & set(sys.modules)\n"
     )
     subprocess.run([sys.executable, "-c", code], check=True)

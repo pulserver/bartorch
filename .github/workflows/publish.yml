@@ -47,13 +47,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # No Linux aarch64 wheel.  FINUFFT computes every non-Cartesian
-        # transform here and ships no wheel for that platform, so a wheel
-        # built for it would install a bartorch that cannot do non-Cartesian
-        # work -- and requiring the source build instead would ask for CMake,
-        # ninja and a C++ compiler from someone installing a wheel.  aarch64
-        # is served by the sdist, where that toolchain is already the price of
-        # entry.
+        # No Linux aarch64 wheel yet: the sdist serves it, and a wheel for it
+        # is a matter of a runner rather than of a dependency.
         #
         # Windows is CPU only: clang from MSYS2's CLANG64 environment, which
         # links against the Universal C Runtime official CPython uses.
@@ -100,6 +95,11 @@ jobs:
           # The library imports the system's DLLs and the OpenMP runtime torch
           # carries, so there is nothing to vendor and no repair step.
           CIBW_ENVIRONMENT_WINDOWS: CC=clang CXX=clang++ CMAKE_GENERATOR=Ninja
+          # omp.h for macOS; the library links against torch's runtime, not
+          # Homebrew's, so there is nothing to vendor there either.  delocate
+          # would try to vendor @rpath/libomp.dylib, which is torch's.
+          CIBW_BEFORE_ALL_MACOS: brew install libomp
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           # BART's nested functions need heap trampolines -- GCC 14 -- or
           # clang's Blocks.  cibuildwheel's default Linux image has neither:
           # manylinux2014 is CentOS 7, whose GCC is 10 and whose `clang` is
@@ -110,10 +110,33 @@ jobs:
           # The floor it sets, glibc 2.28, is the one torch and FINUFFT
           # already ship their own Linux wheels against.
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-          # FINUFFT is a dependency, so installing the wheel brings it and the
-          # non-Cartesian tests run.
+          # FINUFFT is compiled in, so the non-Cartesian tests run with no
+          # finufft package installed.
           CIBW_TEST_REQUIRES: pytest numpy scipy
           CIBW_TEST_COMMAND: pip install torch --index-url https://download.pytorch.org/whl/cpu && pytest {project}/tests -q
+      # What the wheel carries and what its library loads: the license
+      # notices of everything compiled in, one library, and on each platform
+      # no OpenMP runtime or C++ runtime of its own besides what is stated.
+      - name: Inspect the wheel
+        shell: bash
+        run: |
+          python -m zipfile -l wheelhouse/*.whl | tee contents.txt
+          grep -q 'licenses/external/finufft/LICENSE' contents.txt
+          grep -q 'licenses/finufft-dependencies/DUCC0/LICENSE' contents.txt
+          grep -q 'licenses/finufft-dependencies/xsimd/LICENSE' contents.txt
+          ! grep -Ei 'finufft/.*\.(so|dylib|dll)|libomp|libiomp' contents.txt
+          mkdir unpacked && python -m zipfile -e wheelhouse/*.whl unpacked
+          case "${{ runner.os }}" in
+            Linux)
+              pip install auditwheel && auditwheel show wheelhouse/*.whl
+              readelf -d unpacked/bartorch/libbartorch.so | grep NEEDED ;;
+            macOS)
+              otool -L unpacked/bartorch/libbartorch.dylib | tee loads.txt
+              ! grep -Ei 'homebrew|/usr/local/opt' loads.txt ;;
+            Windows)
+              llvm-readobj --coff-imports unpacked/bartorch/libbartorch.dll | grep 'Name:' | sort -u | tee imports.txt
+              ! grep -Ei 'libomp|libgomp|libc\+\+|libunwind|libwinpthread|msys' imports.txt ;;
+          esac
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}
@@ -147,6 +170,8 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu \
             --extra-index-url https://pypi.org/simple
           pip install pytest numpy scipy wheelhouse/*.whl
+          ! pip show finufft cufinufft
+          pytest tests/test_openmp.py -v -s
           pytest tests -q
 
   # A CUDA wheel carries BART's device code and links the runtime libraries
@@ -208,11 +233,19 @@ jobs:
             -w wheelhouse/ --plat manylinux_2_28_x86_64 \
             --exclude libcudart.so.12 --exclude libcufft.so.11 \
             --exclude libcublas.so.12 --exclude libcublasLt.so.12
-      # The wheel carries no interpreter, so it is loaded from each Python the
-      # package supports.
-      - name: Check that it loads without a card, on every Python
+      # cuFINUFFT is in the library, bound to the same cudart and cuFFT as
+      # BART's kernels, and nothing is vendored beside it but libgomp.
+      - name: Inspect the CUDA wheel
         run: |
-          for py in cp310-cp310 cp311-cp311 cp312-cp312 cp313-cp313 cp314-cp314; do
+          /opt/python/cp312-cp312/bin/python -m auditwheel show wheelhouse/*.whl
+          /opt/python/cp312-cp312/bin/python -m zipfile -l wheelhouse/*.whl | tee contents.txt
+          ! grep -Ei 'libcudart|libcufft|libcublas|cufinufft.*\.so' contents.txt
+          grep -q 'licenses/finufft-dependencies/DUCC0/LICENSE' contents.txt
+      # The wheel carries no interpreter, so it is loaded from the oldest and
+      # the newest Python the package supports.
+      - name: Check that it loads without a card, on Python 3.10 and 3.14
+        run: |
+          for py in cp310-cp310 cp314-cp314; do
             python=/opt/python/$py/bin/python
             $python -m pip install wheelhouse/*.whl \
               torch --index-url https://download.pytorch.org/whl/cpu \
@@ -224,6 +257,11 @@ jobs:
           info = bartorch.build_info()
           print(sys.version.split()[0], info)
           assert 'cuda=ON' in info, info
+          from bartorch import _finufft
+          assert _finufft.available() and _finufft.cuda_available()
+          import importlib.util
+          assert importlib.util.find_spec('cufinufft') is None
+          assert importlib.util.find_spec('finufft') is None
           print('devices:', _cuda.device_count())
           "
           done
