@@ -62,13 +62,6 @@ jobs:
           pip install scikit-build-core setuptools-scm numpy scipy pytest pytest-cov numpydoc
           pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-      # mri-nufft requires matplotlib.  Resolved inside the editable install
-      # beside the mkl extra, pip rejects every matplotlib wheel and falls back
-      # to an sdist that cannot build without isolation; installed first as a
-      # wheel, it is already satisfied there.
-      - name: Install matplotlib as a wheel
-        run: pip install --only-binary matplotlib "matplotlib>=3.9"
-
       # deepinv pulls in torchvision, whose compiled operators are built
       # against one particular torch.  Left to PyPI it takes the default
       # build while torch here is the CPU one, and the mismatch shows up as
