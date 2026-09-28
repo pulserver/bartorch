@@ -16,7 +16,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 
 #include "include/bartorch.h"
 
@@ -40,7 +45,13 @@ struct prefault {
 static void* prefault_run(void* arg)
 {
 	struct prefault* p = arg;
+#ifdef _WIN32
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	bart_dim_t page = info.dwPageSize;
+#else
 	bart_dim_t page = sysconf(_SC_PAGESIZE);
+#endif
 
 	for (bart_dim_t i = 0; i < p->size; i += page)
 		p->ptr[i] = p->ptr[i];

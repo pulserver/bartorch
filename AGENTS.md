@@ -620,10 +620,22 @@ configure time. BART's own `NOEXEC_STACK` workaround does not help here: it
 parses a trampoline layout GCC emits only for non-PIC executables, not for a
 shared library. Both compilers are built and tested in CI.
 
-Windows is not a platform here. BART does not build on it, and nothing in
-this repository carries a path toward one: no `.dll` among the names the
-loader tries, no `__declspec(dllexport)`, no `win32` branch picking a
-different library. WSL2 is a Linux install and is the answer.
+**Windows** is LLP64: `long` is 32 bits, so BART keeps every extent, stride
+and flag set in the fixed-width types of `misc/dimtypes.h` (`bart_dim_t`,
+`bart_stride_t`, `bart_flags_t`, all 64 bits), and the ABI spells them
+`int64_t` and `uint64_t`; `api.c` asserts the two agree, and
+`tests/test_abi.py` holds the header to having no `long` and `build_info()`'s
+`long=` to the platform.  The library is clang from MSYS2's CLANG64
+environment: Blocks from the vendored runtime, linked in as objects because
+clang declares it `dllimport`; everything the toolchain would bring as a DLL
+linked statically; the Universal C Runtime official CPython uses.  OpenMP is
+torch's: torch loads Intel's `libiomp5md.dll`, LLVM's runtime refuses to start
+beside it, and the two share an ABI, so the library links against an import
+library made from `src/csrc/compat/libiomp5md.def` and the loader binds it to
+the copy torch has loaded.  A build without OpenMP there is refused unless
+`-DBARTORCH_OPENMP=OFF` asks for it.  BART's POSIX gaps -- `getsubopt`,
+C11 threads, `SIGSTOP`, `SIGPIPE`, `readlink` -- are patches on the fork, and
+named pipes are off (`NO_FIFO`).  CPU only: there is no CUDA build on Windows.
 
 The compiler's own runtime is linked statically on Linux, because otherwise
 the toolchain's floor becomes the target system's: a GCC 14 build asks
@@ -1113,8 +1125,7 @@ of it is written.  What comes back is finite stack memory.  `_call`'s
 `_PRECONDITIONS` refuses those combinations before the command runs, which is
 where any further "BART does not define this" case belongs.
 
-Windows is not on this list because it is not a target: BART does not build
-there, and WSL2 is a Linux install like any other.
+A CUDA build on Windows.
 
 A tool that takes device memory as it stands. BART guards the host reads that
 would break -- `estimate_im_dims` copies to the host when it is handed one --

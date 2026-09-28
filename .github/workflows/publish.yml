@@ -54,13 +54,34 @@ jobs:
         # ninja and a C++ compiler from someone installing a wheel.  aarch64
         # is served by the sdist, where that toolchain is already the price of
         # entry.
-        os: [ubuntu-latest, macos-latest]
+        #
+        # Windows is CPU only: clang from MSYS2's CLANG64 environment, which
+        # links against the Universal C Runtime official CPython uses.
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
           # setuptools-scm reads the version from the tag history.
           fetch-depth: 0
+      - name: Install clang, CMake and Ninja (Windows)
+        if: runner.os == 'Windows'
+        id: msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: >-
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-cmake
+            mingw-w64-clang-x86_64-ninja
+            mingw-w64-clang-x86_64-openmp
+            mingw-w64-clang-x86_64-llvm-tools
+      - name: Put CLANG64 on the path (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          "${{ steps.msys2.outputs.msys2-location }}\clang64\bin" >> $env:GITHUB_PATH
       - uses: pypa/cibuildwheel@v2.23
         env:
           # One build per platform: the wheel is tagged py3 and carries no
@@ -75,6 +96,10 @@ jobs:
           # wheel in any case: torch publishes no i686 build, and it is a hard
           # dependency here.
           CIBW_ARCHS_LINUX: x86_64
+          CIBW_ARCHS_WINDOWS: AMD64
+          # The library imports the system's DLLs and the OpenMP runtime torch
+          # carries, so there is nothing to vendor and no repair step.
+          CIBW_ENVIRONMENT_WINDOWS: CC=clang CXX=clang++ CMAKE_GENERATOR=Ninja
           # BART's nested functions need heap trampolines -- GCC 14 -- or
           # clang's Blocks.  cibuildwheel's default Linux image has neither:
           # manylinux2014 is CentOS 7, whose GCC is 10 and whose `clang` is
@@ -104,8 +129,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        # The oldest and the newest Python the package supports.
+        python: ["3.10", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

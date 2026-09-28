@@ -8,6 +8,7 @@ point the header exports has a signature at all.
 """
 
 import ast
+import ctypes
 import importlib
 import re
 import sys
@@ -113,3 +114,10 @@ def test_the_header_names_no_type_whose_width_is_the_platforms():
     code = gen_abi.strip_directives(gen_abi.strip_comments(gen_abi.HEADER.read_text()))
     assert not re.search(r"\blong\b", code)
 
+
+def test_build_info_reports_the_platforms_data_model():
+    import bartorch
+
+    info = dict(item.split("=", 1) for item in bartorch.build_info().split(","))
+    assert int(info["long"]) == ctypes.sizeof(ctypes.c_long)
+    assert info["long"] == ("4" if sys.platform == "win32" else "8")
