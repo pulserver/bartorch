@@ -25,6 +25,9 @@ jobs:
             python-version: "3.10"
             cc: gcc-14
             extras: "[mkl]"
+            # FINUFFT's FFT from oneMKL, the source-build alternative to
+            # DUCC0; the wheels and every other job carry DUCC0.
+            finufft-fft: MKL
           - os: ubuntu-latest
             python-version: "3.14"
             cc: gcc-14
@@ -124,11 +127,17 @@ jobs:
         if: runner.os != 'macOS'
         run: pip install torchvision --index-url https://download.pytorch.org/whl/cpu
 
+      - name: Install oneMKL's headers and library for FINUFFT
+        if: matrix.finufft-fft == 'MKL'
+        run: pip install mkl mkl-devel
+
       - name: Build and install bartorch
         env:
           CC: ${{ matrix.cc }}
           CXX: ${{ matrix.cc == 'gcc-14' && 'g++-14' || 'clang++' }}
-        run: pip install -e ".${{ matrix.extras }}" --no-build-isolation -v
+        run: >-
+          pip install -e ".${{ matrix.extras }}" --no-build-isolation -v
+          ${{ matrix.finufft-fft && format('-C cmake.define.BARTORCH_FINUFFT_FFT={0}', matrix.finufft-fft) || '' }}
 
       # The library imports the system's DLLs and torch's OpenMP runtime and
       # nothing from MSYS2, so it loads into official CPython without it.

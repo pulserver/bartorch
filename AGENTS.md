@@ -174,10 +174,18 @@ needs git and network access unless `CPM_SOURCE_CACHE` already holds them.
 Their notices are written at configure time and installed into the wheel's
 `.dist-info/licenses/finufft-dependencies/`.
 
-FINUFFT's FFT is DUCC0's (`FINUFFT_USE_DUCC0`).  FFTW is the alternative, and
-it cannot be used here twice over: it is GPL, and this library already
-defines the FFTW guru symbols BART plans with (`src/csrc/substitute/fft.cpp`),
-so a FINUFFT linked against FFTW binds its FFT to those and crashes.  The DUCC0
+FINUFFT's FFT is DUCC0's (`FINUFFT_USE_DUCC0`) in every wheel.  FFTW itself
+is GPL and is not built.  `BARTORCH_FINUFFT_FFT=MKL` is the one alternative: a
+source build on x86-64 Linux that links FINUFFT's own FFTW path against
+oneMKL's FFTW3 interface in `libmkl_rt`, the library the `mkl` extra puts in
+the process for BART's tables too.  It is not the default because that
+interface is in the `mkl` package alone -- torch exports DFTI on Linux and no
+MKL symbol at all on Windows -- and because what it buys is 10 to 35 per cent
+on a 2D transform and up to 15 on a 3D one on an AVX-512 machine, less on
+AVX2; `docs/design/finufft-embedding.md` has the measurements.  The FFTW names
+in the library are that interface's: the substitution BART plans with defines
+its functions as `bartorch_fftwf_*` (`src/csrc/compat/fftw3.h`), so a plan
+FINUFFT makes in MKL is executed and destroyed there.  The DUCC0
 files FINUFFT compiles are each BSD-3-Clause or GPL-2.0-or-later and are taken
 under the first.  Against the FINUFFT 2.5.1 wheel's FFTW build, on a 256^2
 eight-coil radial set and a 128^3 volume of two million points, the transform

@@ -1,7 +1,21 @@
 /* The FFTW3 single-precision surface BART's num/fft_plan.c uses, served by
- * fftw_pocketfft.cpp. */
+ * src/csrc/substitute/fft.cpp.
+ *
+ * The functions are defined under names of their own, so that FFTW's names in
+ * this library belong to whatever FINUFFT's FFT is linked against: a FINUFFT
+ * built on FFTW's interface calls fftwf_plan_many_dft from that library and
+ * has to execute and destroy the plan there too. */
 #ifndef BARTORCH_FFTW3_H
 #define BARTORCH_FFTW3_H
+
+#define fftwf_plan_guru64_dft bartorch_fftwf_plan_guru64_dft
+#define fftwf_execute_dft bartorch_fftwf_execute_dft
+#define fftwf_destroy_plan bartorch_fftwf_destroy_plan
+#define fftwf_export_wisdom_to_filename bartorch_fftwf_export_wisdom_to_filename
+#define fftwf_import_wisdom_from_filename bartorch_fftwf_import_wisdom_from_filename
+#define fftwf_init_threads bartorch_fftwf_init_threads
+#define fftwf_plan_with_nthreads bartorch_fftwf_plan_with_nthreads
+#define fftwf_cleanup_threads bartorch_fftwf_cleanup_threads
 
 #include <stddef.h>
 #include <stdio.h>

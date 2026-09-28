@@ -40,13 +40,19 @@ upstream CMake CI run completed green.
 
 ## FFT backend
 
-DUCC0.  FFTW is excluded on two counts:
+DUCC0, in every wheel.  FFTW itself is excluded: it is GPL-2.0-or-later, and
+would be compiled into an MIT wheel.  `BARTORCH_FINUFFT_FFT=MKL` builds
+FINUFFT's FFTW path against oneMKL's FFTW3 interface instead, on x86-64 Linux
+only; [the comparison below](#fft-inside-finufft-ducc0-and-onemkl) is why that is an option
+and not the default.
 
-- it is GPL-2.0-or-later, and would be compiled into an MIT wheel;
-- this library defines the FFTW guru symbols BART plans with
-  (`src/csrc/substitute/fft.cpp`), so a FINUFFT linked against FFTW has its
-  FFT bound to those.  Built that way the library crashes on the first
-  transform.
+The substitution BART plans with (`src/csrc/substitute/fft.cpp`) defines its
+FFTW functions as `bartorch_fftwf_*`, through `src/csrc/compat/fftw3.h`, so
+FFTW's names in the library resolve to whatever FINUFFT is linked against: a
+plan FINUFFT makes with `fftwf_plan_many_dft` is executed and destroyed by the
+library that made it.  With both under one name, the static link binds
+FINUFFT's `fftwf_execute_dft` to the substitution and the first transform
+crashes.
 
 The DUCC0 sources FINUFFT compiles are each `BSD-3-Clause OR
 GPL-2.0-or-later` and are used under BSD-3-Clause; the notice is written from
@@ -107,3 +113,157 @@ so the macOS floor is 2.3.
 one process, both import orders, the loaded OpenMP images listed.  On Linux
 the one image found is torch's `libgomp.so.1`, which satisfies the library's
 `NEEDED` entry as well.
+
+## FFT inside FINUFFT: DUCC0 and oneMKL
+
+### Where transforms are computed
+
+| Path | Engine | Linux CPU wheel | macOS CPU wheel | Windows CPU wheel | Linux CUDA wheel |
+| --- | --- | --- | --- | --- | --- |
+| BART's `fft` and every `md_` FFT on the host | `src/csrc/substitute/fft.cpp`: MKL DFTI from the process, else pocketfft | DFTI from torch's MKL, or from the `mkl` extra | pocketfft | pocketfft | as Linux CPU |
+| BART on a device | cuFFT, through BART's `fft-cuda.c` | -- | -- | -- | `libcufft` from the nvidia wheels |
+| The grid transforms' normal, and the paired Toeplitz kernels | cuFFT with LTO callbacks; cuFFTDx where built with MathDx | -- | -- | -- | as built |
+| FINUFFT on the host | DUCC0, compiled in | DUCC0 | DUCC0 | DUCC0 | DUCC0 |
+| cuFINUFFT | cuFFT | -- | -- | -- | `libcufft` |
+
+Read off the built library and from the dependencies it loads: `libbartorch`
+imports no FFT library on any platform (`readelf -d`, `otool -L`, the PE import
+table), carries DUCC0's and pocketfft's code as hidden symbols, and reaches
+DFTI through the table `_backend.py` fills.  torch's `libtorch_cpu.so` exports
+DFTI on Linux x86-64; `torch_cpu.dll` exports no MKL symbol at all, and macOS
+has no MKL.  No torch library exports MKL's FFTW3 interface: it is in
+`libmkl_rt` from the `mkl` package alone.
+
+### What FINUFFT's two paths compute
+
+FINUFFT at the pin calls the FFT once per batch of `batchSize` transforms, from
+`execute.hpp` between spreading and deconvolution and outside any OpenMP region
+of its own, with `opts.nthreads`.
+
+- `FINUFFT_USE_DUCC0` calls `ducc0::c2c` over the batch.  For a 2D or 3D type
+  1 or 2 it transforms one axis in full and only the rows of the others that
+  hold modes: roughly `(1 + 1/σ)/2` of the work in 2D and `(1 + 1/σ + 1/σ²)/3`
+  in 3D.  Its threads are DUCC0's own pool of `std::thread`s, not OpenMP.
+- Otherwise it includes `fftw3.h` and calls `fftw{f}_plan_many_dft` (one
+  plan per direction, in place, the whole batch as `howmany`, `FFTW_ESTIMATE`
+  by default), `fftw{f}_execute_dft`, `fftw{f}_destroy_plan`,
+  `fftw{f}_init_threads` and `fftw{f}_plan_with_nthreads` under `_OPENMP`,
+  and `forget_wisdom`, `cleanup` and `cleanup_threads`.  No guru interface, no
+  wisdom it depends on, and the full transform on every axis.
+
+oneMKL's `libmkl_rt` exports all sixteen, single and double precision; a
+build linked against it leaves each of them undefined in `libbartorch` and
+bound to `libmkl_rt` (`nm -D --undefined-only`).  So the MKL path does more
+arithmetic than the DUCC0 path and still finishes first where it does.
+
+### Method
+
+`finufftf_*` on single-precision data, as `src/csrc/substitute/finufft.c`
+calls it; tolerance 1e-3 and σ = 1.25 (the library's defaults) and σ = 2 (BART's
+own, and the calibrating tools'); four threads unless stated.  2D: golden-angle
+radial, `π/2 · N` spokes of `2N` samples; 3D: a kooshball of `N³/2` samples.
+Batches of 1, 8 and 32 transforms in 2D (coils, and coils times four subspace
+coefficients) and 1, 4 and 8 in 3D.  Each case in its own process, the three
+builds interleaved; plan, `setpts`, first and best of five (three in 3D)
+executions, FINUFFT's own FFT timer, peak RSS, and the error against an
+explicit sum on 16 outputs.  FINUFFT from this pin three ways with GCC and
+`-march=x86-64`: DUCC0, oneMKL 2026.1 (`mkl-devel`) through its FFTW3
+interface, and Ubuntu's FFTW 3.3.10 as a reference.  4-core Xeon at 2.1 GHz
+with AVX-512.
+
+### Results
+
+Best execution in ms, forward (type 2) and adjoint (type 1) alike:
+
+| | N | samples | transforms | σ | DUCC0 | oneMKL | FFTW | oneMKL / DUCC0 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2D | 256 | 0.21 M | 8 | 1.25 | 18.7 | 15.4 | 16.6 | 0.82 |
+| 2D | 256 | 0.21 M | 8 | 2 | 21.2 | 13.9 | 22.0 | 0.66 |
+| 2D | 256 | 0.21 M | 32 | 1.25 | 83.7 | 68.6 | 71.6 | 0.82 |
+| 2D | 512 | 0.82 M | 8 | 1.25 | 81.9 | 68.6 | 72.5 | 0.84 |
+| 2D | 512 | 0.82 M | 32 | 2 | 339.8 | 269.0 | 430.1 | 0.79 |
+| 3D | 128 | 1.05 M | 8 | 1.25 | 360.6 | 310.7 | 331.8 | 0.86 |
+| 3D | 192 | 3.54 M | 4 | 1.25 | 766.8 | 662.8 | 752.0 | 0.86 |
+| 3D | 192 | 3.54 M | 4 | 2 | 1682.7 | 1518.8 | 2925.8 | 0.90 |
+| 3D | 256 | 8.39 M | 1 | 1.25 | 503.9 | 448.8 | 498.7 | 0.89 |
+| 3D | 256 | 8.39 M | 4 | 2 | 3906.8 | 3815.9 | 8244.6 | 0.98 |
+
+Over all 76 cases oneMKL takes 0.63 to 0.86 of DUCC0's time in 2D and 0.8 to
+1.0 in 3D.  The FFT is 15 to 40 per cent of a DUCC0 transform and 2 to 25 per
+cent of a oneMKL one; the rest is spreading, which the backend does not touch.
+Plan creation is 8 ms for oneMKL against under a millisecond for DUCC0, once
+per operator; the first execution costs what a steady one does for both.  Peak
+memory is the same to within the 10 MB `libmkl_rt` maps.  The error against the
+explicit sum agrees to three digits in every case, at tolerances from 1e-3 to
+1e-6.
+
+The margin depends on the machine rather than on the transform alone.  With
+oneMKL held to AVX2 (`MKL_ENABLE_INSTRUCTIONS=AVX2`), the 3D σ = 2 case above
+is level with DUCC0 and the 2D ones keep 0.75 to 0.85.  And the build's own
+instruction set costs more than the FFT library: FINUFFT at `-march=x86-64-v3`
+takes 0.6 to 0.85 of its `-march=x86-64` time with DUCC0, most of it in
+spreading, and oneMKL at v3 still takes 0.7 to 0.9 of DUCC0 at v3.  The wheel
+stays at `x86-64` for portability.
+
+### Numerics
+
+The library built each way, the same inputs: a 128² image with eight coils
+over 201 radial spokes, and a 48³ volume.  Relative difference between the
+two builds, and between two runs of one build:
+
+| | DUCC0 against oneMKL | DUCC0, run to run | oneMKL, run to run |
+| --- | --- | --- | --- |
+| forward, 2D and 3D | 1.5e-07 to 5.5e-07 | 0 | 0 |
+| adjoint, 2D and 3D | 7.0e-07 to 2.2e-06 | 0 to 6.2e-08 | 0 to 6.0e-08 |
+| `A^H A` as the pair | 7.0e-07 | 0 | 0 |
+| `A^H A` as a Toeplitz convolution | 9.4e-08 | 5.7e-08 | 5.4e-08 |
+| `pics`, 30 iterations, Toeplitz | 7.5e-04 | 1.7e-04 | 1.5e-04 |
+| `pics`, 30 iterations, transform pair | 7.0e-05 | 2.3e-05 | 2.7e-05 |
+
+Both are three orders of magnitude inside the 1e-3 tolerance the plans are
+made with, and the run-to-run differences are the threaded spreading's
+summation order, the same for both.  The whole suite passes on each build
+(the explicit-sum, adjoint, Toeplitz, reconstruction and batched tests among
+it).
+
+### Threading
+
+The FFT runs outside FINUFFT's parallel regions, so it takes the plan's
+threads itself.  Both backends scale with them: in 3D at 192³, 1, 2 and 4
+threads give oneMKL's FFT 56, 28 and 13 ms and DUCC0's 136, 89 and 56 ms.
+There is no nesting to avoid on this path, and neither backend is held to one
+thread.  `libmkl_rt` chooses its threading layer on first use and, with GNU's
+runtime already loaded by the library, takes its GNU layer: its FFT runs on the
+OpenMP threads that spread, and no `libiomp5` is loaded
+(`tests/test_openmp.py`).  Nothing sets `MKL_THREADING_LAYER` or
+`MKL_NUM_THREADS`.
+
+DUCC0's threads are a pool of its own beside OpenMP's, and they start while
+the OpenMP threads that have just finished spreading are still spinning for
+their next region.  On four cores that contention is most of DUCC0's FFT time
+in 2D: with `OMP_WAIT_POLICY=passive` its FFT takes a third to a half as long
+(256², eight transforms, σ = 2: 9.9 ms against 3.0) and the whole transform 5
+to 25 per cent less, which closes about half the gap to oneMKL; oneMKL's times
+do not change.  In 3D, where one FFT outlasts the spin, the policy changes
+neither.  The library does not set the policy: it is process-wide, and it
+applies to torch's and BART's regions too.
+
+Called from inside a parallel region, oneMKL runs its FFT on the one thread it
+is given while DUCC0's pool starts its own threads anyway: two such
+transforms of 384² with eight coils, four threads each on four cores, take
+151 ms on oneMKL and 254 ms on DUCC0.  The library does not call FINUFFT
+from inside a parallel region on the host.
+
+### Packaging
+
+oneMKL's FFTW3 interface is in the `mkl` wheel alone (224 MB, 672 MB installed,
+with `intel-openmp` and `tbb`), so a FINUFFT that calls it makes that wheel a
+dependency of every install, and a second MKL beside the one torch links on
+Linux.  On Windows the `mkl` extra is not offered and torch exports no MKL,
+so it would be a new runtime dependency with nothing to share; macOS has none.
+The CPU wheels therefore keep DUCC0, which adds nothing to load, and
+`BARTORCH_FINUFFT_FFT=MKL` is for a source build on x86-64 Linux where oneMKL
+is installed: the library then names `libmkl_rt` in `NEEDED` with the build's
+MKL directory on its run path, and with the `mkl` extra the same `libmkl_rt`
+serves BART's DFTI table (`tests/test_finufft.py`).  cuFINUFFT and the CUDA
+paths are unchanged.

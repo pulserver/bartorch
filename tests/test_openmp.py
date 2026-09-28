@@ -131,3 +131,19 @@ def test_loading_modifies_no_installed_file():
     assert before
     _runtimes("bartorch-first")
     assert digests() == before
+
+
+def test_finufft_on_onemkl_threads_on_the_librarys_own_runtime():
+    """oneMKL's FFT under FINUFFT adds no OpenMP runtime of Intel's beside GNU's.
+
+    libmkl_rt picks its threading layer when it is first called, and with GNU's
+    runtime already in the process it takes its GNU layer.
+    """
+    import bartorch
+
+    info = dict(item.split("=", 1) for item in bartorch.build_info().split(","))
+    if info.get("finufft_fft") != "mkl":
+        pytest.skip("FINUFFT's FFT is DUCC0's in this build")
+    runtimes = _runtimes("bartorch-first")
+    print(runtimes)
+    assert not [p for p in runtimes if "iomp5" in p.lower()], runtimes
