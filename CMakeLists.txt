@@ -436,7 +436,8 @@ set_source_files_properties("${BART_SRC}/sense/optcom.c" PROPERTIES
 # dllimport of what is defined here.  vptr.c installs a SIGSEGV handler through
 # sigaction, which Windows lacks, unless it is built as that DLL is.  bart.c
 # raises SIGSTOP for its --attach debugging flag, which the package never
-# passes and Windows has no signal for.  misc/lock.c wants C11's <threads.h>,
+# passes and Windows has no signal for, and its readlink of /proc/self/exe is
+# answered by src/csrc/substitute/posix.c.  misc/lock.c wants C11's <threads.h>,
 # which MinGW's C library does not carry everywhere.  src/csrc/substitute/posix.c
 # is the rest of POSIX BART calls, declared into every file.  NO_FIFO is what
 # BART's own DLL is built with: a named pipe is a POSIX file.
@@ -447,7 +448,7 @@ if(WIN32)
     set_source_files_properties("${BART_SRC}/num/vptr.c" PROPERTIES
         COMPILE_DEFINITIONS "BARTLIB_EXPORTS")
     set_source_files_properties("${BART_SRC}/bart.c" PROPERTIES
-        COMPILE_DEFINITIONS "SIGSTOP=SIGABRT")
+        COMPILE_DEFINITIONS "SIGSTOP=SIGABRT;readlink=bartorch_no_readlink")
     include(CheckIncludeFile)
     check_include_file(threads.h BARTORCH_HAS_THREADS_H)
     if(NOT BARTORCH_HAS_THREADS_H)

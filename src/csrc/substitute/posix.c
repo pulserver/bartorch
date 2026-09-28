@@ -2,10 +2,11 @@
  * The POSIX functions BART calls that MinGW's C library does not provide.
  *
  * Compiled on Windows only.  getsubopt is POSIX's, since BART parses the
- * sub-options of flags such as --nufft-conf with it.  readlink is asked only
- * for /proc/self/exe, to find a directory of external commands beside the
- * `bart` executable; there is no such file on Windows and no such executable
- * here, and the failure is what BART already expects on a system without one.
+ * sub-options of flags such as --nufft-conf with it.  bart.c's one readlink
+ * call, which CMake renames to bartorch_no_readlink, asks for /proc/self/exe
+ * to find a directory of external commands beside the `bart` executable; there
+ * is no such file on Windows and no such executable here, and the failure is
+ * what BART already expects on a system without one.
  */
 #include <errno.h>
 #include <string.h>
@@ -45,7 +46,7 @@ int getsubopt(char** optionp, char* const* tokens, char** valuep)
 	return -1;
 }
 
-ssize_t readlink(const char* path, char* buf, size_t size)
+ssize_t bartorch_no_readlink(const char* path, char* buf, size_t size)
 {
 	(void)path;
 	(void)buf;

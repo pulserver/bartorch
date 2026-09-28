@@ -10,6 +10,6 @@
 #include <sys/types.h>
 
 extern int getsubopt(char** optionp, char* const* tokens, char** valuep);
-extern ssize_t readlink(const char* path, char* buf, size_t size);
+extern ssize_t bartorch_no_readlink(const char* path, char* buf, size_t size);
 
 #endif
