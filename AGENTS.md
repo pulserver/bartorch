@@ -624,7 +624,9 @@ the stack needs an executable stack, which glibc 2.41 refuses to `dlopen`; so
 GCC 14's `-ftrampoline-impl=heap` is required and older GCC is rejected at
 configure time. BART's own `NOEXEC_STACK` workaround does not help here: it
 parses a trampoline layout GCC emits only for non-PIC executables, not for a
-shared library. Both compilers are built and tested in CI.
+shared library. CI builds and tests with upstream BART's toolchains, GCC 14 on
+Linux and clang on macOS, and with clang on Windows, whose Blocks come from the
+vendored runtime.
 
 **Windows** is LLP64: `long` is 32 bits, so BART keeps every extent, stride
 and flag set in the fixed-width types of `misc/dimtypes.h` (`bart_dim_t`,
