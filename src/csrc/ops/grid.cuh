@@ -67,14 +67,14 @@ __device__ static inline unsigned int grid_index(const struct grid_info* g, unsi
 
 /* Where cuFFT offset `off` sits in the gathered spectrum, or -1 where the
  * pattern does not keep its place. */
-__device__ static inline bart_dim_t grid_kept(const struct grid_info* g, unsigned int off)
+__device__ static inline int64_t grid_kept(const struct grid_info* g, unsigned int off)
 {
 	unsigned int batch = off / g->plane;
 	unsigned int place = off - batch * g->plane;
 
-	bart_dim_t j = kept_at(g->mask, g->prefix, (bart_dim_t)place);
+	int64_t j = kept_at(g->mask, g->prefix, (int64_t)place);
 
-	return (0 > j) ? -1 : (bart_dim_t)batch * g->L + j;
+	return (0 > j) ? -1 : (int64_t)batch * g->L + j;
 }
 
 #endif

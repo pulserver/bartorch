@@ -16,7 +16,7 @@ skip, because the substitution declining is an error.  `pip install mkl
 deepinv` enables the tests that need MKL and the DeepInverse adapter.
 
 On Windows the compiler is clang from MSYS2's CLANG64 environment, with the
-packages `mingw-w64-clang-x86_64-{clang,cmake,ninja,openmp,llvm-tools}`,
+packages `mingw-w64-clang-x86_64-{clang,cmake,ninja,llvm-openmp,llvm-tools}`,
 `clang64/bin` on `PATH` and `CMAKE_GENERATOR=Ninja`.  The build links against
 the OpenMP runtime PyTorch installs rather than MSYS2's, and loads into the
 official CPython with nothing from MSYS2 at run time.  There is no CUDA build on
