@@ -32,6 +32,11 @@ PROBE = textwrap.dedent(
             psapi = ctypes.WinDLL("psapi")
             kernel32 = ctypes.WinDLL("kernel32")
             kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+            psapi.EnumProcessModules.argtypes = [
+                wintypes.HANDLE, ctypes.POINTER(wintypes.HMODULE), wintypes.DWORD,
+                ctypes.POINTER(wintypes.DWORD)]
+            psapi.GetModuleFileNameExW.argtypes = [
+                wintypes.HANDLE, wintypes.HMODULE, wintypes.LPWSTR, wintypes.DWORD]
             process = kernel32.GetCurrentProcess()
             modules = (wintypes.HMODULE * 4096)()
             needed = wintypes.DWORD()
@@ -39,7 +44,7 @@ PROBE = textwrap.dedent(
             images = []
             for handle in modules[: needed.value // ctypes.sizeof(wintypes.HMODULE)]:
                 name = ctypes.create_unicode_buffer(1024)
-                psapi.GetModuleFileNameExW(process, ctypes.c_void_p(handle), name, 1024)
+                psapi.GetModuleFileNameExW(process, handle, name, 1024)
                 images.append(name.value)
         else:
             with open("/proc/self/maps") as maps:
