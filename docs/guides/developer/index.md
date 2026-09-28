@@ -10,6 +10,7 @@ library and the operator layer in more detail.
 | {doc}`installation` | Editable installation, and building and testing without installing |
 | {doc}`layout` | What each directory of the repository holds |
 | {doc}`workflow` | Branches, generated files, the BART submodule and the checks to run |
+| {doc}`bart-fork` | The downstream BART fork: its branches, what belongs in it, and syncing with Codeberg |
 | {doc}`pre-commit` | Local hooks, and bypassing them |
 | {doc}`style` | Python and C conventions |
 | {doc}`documentation` | Documentation types, scientific writing and docstrings |
@@ -24,6 +25,7 @@ prerequisites
 installation
 layout
 workflow
+bart-fork
 pre-commit
 style
 documentation

@@ -13,7 +13,7 @@ replace; their notices are distributed with the source and in each wheel's
 
 | Component | Location | License |
 | --- | --- | --- |
-| BART | `external/bart/` (Git submodule) | BSD-3-Clause, `external/bart/LICENSE`, with further notices in individual files |
+| BART | `external/bart/` (Git submodule, `pulserver/bart`) | BSD-3-Clause, `external/bart/LICENSE`, with further notices in individual files |
 | pocketfft | `external/pocketfft/` | BSD-3-Clause, `external/pocketfft/LICENSE.md` |
 | BlocksRuntime (LLVM compiler-rt) | `external/blocksruntime/` | University of Illinois/NCSA or MIT, at the user's choice, `external/blocksruntime/LICENSE.TXT`; linked into Linux builds made with clang |
 | GNU OpenMP runtime (`libgomp`) | Added to the Linux wheel by `auditwheel` | GPL-3.0 with the GCC Runtime Library Exception |

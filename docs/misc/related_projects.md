@@ -4,7 +4,7 @@
 
 | Project | Relationship |
 | --- | --- |
-| [BART](https://mrirecon.codeberg.page/) | The reconstruction toolbox bartorch embeds, pinned as the `external/bart` submodule and compiled without source changes |
+| [BART](https://mrirecon.codeberg.page/) | The reconstruction toolbox bartorch embeds, developed at [codeberg.org/mrirecon/bart](https://codeberg.org/mrirecon/bart) and pinned as the `external/bart` submodule from the downstream fork [pulserver/bart](https://github.com/pulserver/bart) |
 | [PyTorch](https://pytorch.org/) | Tensors, devices and automatic differentiation of every interface |
 | [FINUFFT and cuFINUFFT](https://finufft.readthedocs.io/) | Non-uniform fast Fourier transforms substituted for BART's gridding on the host and on CUDA devices |
 | [MRI-NUFFT](https://mind-inria.github.io/mri-nufft/) | Fits the time-segmentation coefficients of {func}`bartorch.linop.FieldCorrected` |

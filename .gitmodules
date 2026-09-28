@@ -1,9 +1,9 @@
 [submodule "bart"]
 	path = external/bart
-	# Canonical upstream: https://codeberg.org/mrirecon/bart.git
-	# The GitHub mirror (https://github.com/mrirecon/bart) is used here
-	# because Codeberg may not be reachable in all CI/CD environments.
-	# To switch to Codeberg, run:
-	#   git config submodule.bart.url https://codeberg.org/mrirecon/bart.git
-	#   git submodule update --remote
-	url = https://github.com/mrirecon/bart.git
+	# pulserver/bart is the downstream integration fork bartorch builds from:
+	# the upstream history unchanged, plus a small patch stack on its
+	# `downstream` branch.  Canonical upstream is
+	# https://codeberg.org/mrirecon/bart.git, mirrored on the fork's `master`.
+	# docs/guides/developer/bart-fork.md describes the policy.
+	url = https://github.com/pulserver/bart.git
+	branch = downstream
