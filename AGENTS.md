@@ -124,6 +124,12 @@ runtime spinning against BART's, which inside a tool costs several times more
 than the transform gains. Where no source has DFTI, which is macOS, and for a
 description DFTI declines, the transform compiled into the library serves
 instead. On a device it is cuFFT, through BART's own `fft-cuda.c`.
+DFTI is taken through MKL's LP64 interface, whose `MKL_LONG` is `long`: 32
+bits on Windows.  A length or stride past that is a description DFTI is not
+handed -- the loop axis is walked instead, and a transformed axis leaves the
+plan to pocketfft -- so LP64 is enough and ILP64 is not needed; the loop is
+over BART's own `ptrdiff_t` strides.  BLAS and LAPACK take `int` everywhere,
+and BART range-checks each extent before a call (`checked_int`).
 
 **CUDA is the same ABI.** `-DBARTORCH_CUDA=ON` compiles BART's thirteen `.cu`
 files with nvcc and links cudart, cuFFT and cuBLAS dynamically, which are the
