@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -598,7 +599,7 @@ command itself runs.  <a class="reference internal" href="../generated/bartorch.
 <td><p>Runs commands and operators under BART’s error handler, so an error or a failed assertion inside BART raises <a class="reference internal" href="../generated/bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BartError</span></code></a> instead of ending the process.  Arrays BART allocates are allocated by PyTorch on the device of the call.</p></td>
 </tr>
 <tr class="row-even"><td><p>Embedded BART</p></td>
-<td><p>The commands, the linear and nonlinear operators and the iterative algorithms, compiled from the pinned submodule without source changes.</p></td>
+<td><p>The commands, the linear and nonlinear operators and the iterative algorithms, compiled from the pinned revision of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code>, which follows the Codeberg upstream with a small patch stack.</p></td>
 </tr>
 <tr class="row-odd"><td><p>Encoding executor</p></td>
 <td><p>bartorch’s implementation of the MRI encoding operators: SENSE over an FFT, a NUFFT or a wave transform, applied to a slab of coils at a time and built from BART’s operators; described in <a class="reference internal" href="encoding.html"><span class="doc">The MRI encoding operator</span></a>.</p></td>

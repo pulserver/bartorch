@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:40.845** total execution time for 2 files **from auto_examples/03-applications**:
+**00:37.751** total execution time for 2 files **from auto_examples/03-applications**:
 
 .. container::
 
@@ -33,8 +33,8 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_03-applications_02-subspace-t1-mapping.py` (``02-subspace-t1-mapping.py``)
-     - 00:30.127
+     - 00:26.588
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-applications_01-dynamic-golden-angle.py` (``01-dynamic-golden-angle.py``)
-     - 00:10.718
+     - 00:11.163
      - 0.0

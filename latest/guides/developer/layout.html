@@ -210,6 +210,7 @@
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Editable and source installation</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Development workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">The BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -495,7 +496,7 @@ its scripts under <code class="docutils literal notranslate"><span class="pre">s
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">external/bart/</span></code></p></td>
-<td><p>BART, a Git submodule, compiled without source changes</p></td>
+<td><p>BART, a Git submodule of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code> (<a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">external/pocketfft/</span></code>, <code class="docutils literal notranslate"><span class="pre">external/blocksruntime/</span></code></p></td>
 <td><p>Vendored FFT and Blocks runtime, with their licenses</p></td>
@@ -543,7 +544,9 @@ its scripts under <code class="docutils literal notranslate"><span class="pre">s
 pointers and reversed dimension vectors through ctypes, which is why one wheel
 per platform serves every Python and PyTorch version.  Changes to BART’s
 behaviour are made by replacing a translation unit or by a compile definition,
-never by editing the submodule; <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> lists each replacement.</p>
+never by editing the submodule checkout; <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> lists each replacement.
+A change that belongs in BART itself goes to the fork, as <a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>
+describes.</p>
 <section id="documentation-sources">
 <h2>Documentation sources<a class="headerlink" href="#documentation-sources" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">

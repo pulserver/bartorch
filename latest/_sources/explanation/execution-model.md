@@ -71,7 +71,7 @@ command itself runs.  {func}`bartorch.cli.route` reports which.
 | --- | --- |
 | Python and ctypes | A tensor crosses as its data pointer and its shape reversed into a BART dimension vector; a C-order tensor and a BART array of the reversed dimensions are the same memory, so operators copy nothing.  Commands work on copies of their inputs by default, because some BART commands write into their inputs. |
 | bartorch C ABI (`libbartorch`) | Runs commands and operators under BART's error handler, so an error or a failed assertion inside BART raises {class}`~bartorch.BartError` instead of ending the process.  Arrays BART allocates are allocated by PyTorch on the device of the call. |
-| Embedded BART | The commands, the linear and nonlinear operators and the iterative algorithms, compiled from the pinned submodule without source changes. |
+| Embedded BART | The commands, the linear and nonlinear operators and the iterative algorithms, compiled from the pinned revision of the downstream fork `pulserver/bart`, which follows the Codeberg upstream with a small patch stack. |
 | Encoding executor | bartorch's implementation of the MRI encoding operators: SENSE over an FFT, a NUFFT or a wave transform, applied to a slab of coils at a time and built from BART's operators; described in {doc}`encoding`. |
 | Substitutions and backends | Components compiled in place of BART's, and the libraries they call: FINUFFT and cuFINUFFT for every non-uniform Fourier transform and point spread function ({doc}`non-cartesian`); MKL's DFTI or the compiled pocketfft for the FFT; BLAS and LAPACK routines from MKL, from PyTorch's linked library, or from SciPy. |
 

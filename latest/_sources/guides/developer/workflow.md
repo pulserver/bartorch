@@ -48,9 +48,10 @@ tracked; `./scripts/build_docs.sh --clean` removes them.
 
 ## Updating the BART submodule
 
-Moving `external/bart` to a newer BART revision is a change of its own:
-update the submodule pointer, regenerate the catalogue, and review the
-resulting API differences.  `tests/test_tools.py` requires every BART command
+`external/bart` is a revision of the downstream fork `pulserver/bart`, whose
+branches and sync procedure are described in {doc}`bart-fork`.  Moving it to a
+newer revision is a change of its own: sync the fork, update the submodule
+pointer, regenerate the catalogue, and review the resulting API differences.  `tests/test_tools.py` requires every BART command
 to be wrapped by hand, generated into {mod}`bartorch.tools`, or listed as
 private with a reason in `src/bartorch/_coverage.py`.
 
