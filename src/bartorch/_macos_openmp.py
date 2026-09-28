@@ -21,7 +21,7 @@ copy is left alone.
 
 from __future__ import annotations
 
-import os
+import posixpath
 import shutil
 import struct
 import subprocess
@@ -251,7 +251,7 @@ def rpath_for(finufft_lib: Path, torch_omp: Path) -> str:
     Relative to ``@loader_path`` so that the environment can be moved or
     renamed, which an absolute path into site-packages would not survive.
     """
-    relative = os.path.relpath(torch_omp.parent, finufft_lib.parent)
+    relative = posixpath.relpath(torch_omp.parent.as_posix(), finufft_lib.parent.as_posix())
     return f"@loader_path/{relative}"
 
 

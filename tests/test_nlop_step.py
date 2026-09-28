@@ -488,7 +488,11 @@ def test_a_model_of_items_steps_each_as_it_would_step_alone(off_grid):
     kspace = torch.stack([single.forward(*pair) for pair in zip(*_phantoms(items, n, coils))])
 
     def run(F, y):
-        block = nlop.IRGNMBlock(cg_maxiter=30)
+        # A tolerance stops each item's conjugate gradients on its own residual.
+        # At zero, BART's batched solve stops an item only once its residual is
+        # exactly zero and runs until every item's is, so whether an item waits
+        # on the others is a question of underflow.
+        block = nlop.IRGNMBlock(cg_maxiter=30, cg_tol=1e-4)
         state = block.start(y, F)
         for _ in range(4):
             state = block(state, F)
