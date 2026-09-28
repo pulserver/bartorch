@@ -498,7 +498,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Python</p></td>
-<td><p>3.10 or later; wheels are tested on 3.10 to 3.14</p></td>
+<td><p>3.10 or later; each wheel is tested on 3.10 and 3.14</p></td>
 </tr>
 <tr class="row-odd"><td><p>PyTorch</p></td>
 <td><p>2.2 or later, CPU or CUDA build</p></td>
@@ -542,9 +542,9 @@
 <td><p>Source distribution</p></td>
 <td><p>BART is compiled on installation; FINUFFT releases after 2.4.0 have no wheel for this platform and are built from source as well</p></td>
 </tr>
-<tr class="row-even"><td><p>Windows</p></td>
-<td><p>Not supported</p></td>
-<td><p>BART does not build on Windows; WSL2 provides a Linux environment</p></td>
+<tr class="row-even"><td><p>Windows 10 or later on x86-64</p></td>
+<td><p>Wheel</p></td>
+<td><p>CPU only; OpenMP is the runtime PyTorch installs</p></td>
 </tr>
 </tbody>
 </table>
