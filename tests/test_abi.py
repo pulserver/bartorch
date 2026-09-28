@@ -9,6 +9,7 @@ point the header exports has a signature at all.
 
 import ast
 import importlib
+import re
 import sys
 from pathlib import Path
 
@@ -104,3 +105,11 @@ def test_the_generator_refuses_a_type_it_has_not_been_taught():
 def test_bartorch_imports_without_naming_ctypes_at_the_top_level():
     """The package's own surface is shapes and tensors."""
     importlib.import_module("bartorch")
+
+
+def test_the_header_names_no_type_whose_width_is_the_platforms():
+    # long is 32 bits on Windows and 64 elsewhere, so a shape or a stride
+    # carried in one would be truncated there and not here.
+    code = gen_abi.strip_directives(gen_abi.strip_comments(gen_abi.HEADER.read_text()))
+    assert not re.search(r"\blong\b", code)
+

@@ -83,7 +83,7 @@ extern "C" void bartorch_cb_fft_free(struct bartorch_cb_fft* p)
 
 /* The pair for a volume of `dims`, or NULL where cuFFT cannot link the
  * callbacks in. */
-extern "C" struct bartorch_cb_fft* bartorch_cb_fft_create(const long dims[3])
+extern "C" struct bartorch_cb_fft* bartorch_cb_fft_create(const bart_dim_t dims[3])
 {
 	set_jit_t set_jit = set_jit_callback();
 
@@ -105,7 +105,7 @@ extern "C" struct bartorch_cb_fft* bartorch_cb_fft_create(const long dims[3])
 		return NULL;
 
 	/* The callbacks index the volume in 32 bits. */
-	if (dims[0] * dims[1] * dims[2] > (long)UINT32_MAX)
+	if (dims[0] * dims[1] * dims[2] > (bart_dim_t)UINT32_MAX)
 		return NULL;
 
 	struct bartorch_cb_fft* p = (struct bartorch_cb_fft*)xmalloc(sizeof *p);
@@ -190,7 +190,7 @@ static void run(struct bartorch_cb_fft* p, int which, const struct coset_info* i
 
 	CUDA_KERNEL_ERROR;
 
-	void* work = (0 < p->work) ? cuda_malloc((long)p->work) : NULL;
+	void* work = (0 < p->work) ? cuda_malloc((bart_dim_t)p->work) : NULL;
 
 	cufftHandle plan = p->plan[which];
 
@@ -205,7 +205,7 @@ static void run(struct bartorch_cb_fft* p, int which, const struct coset_info* i
 		cuda_free(work);
 }
 
-static struct coset_info info_for(int N, const long dims[], const float shift[3], float scale,
+static struct coset_info info_for(int N, const bart_dim_t dims[], const float shift[3], float scale,
 		const unsigned int* mask, const int* prefix, const _Complex float* map)
 {
 	struct coset_info c;
@@ -223,7 +223,7 @@ static struct coset_info info_for(int N, const long dims[], const float shift[3]
 /* The coefficient `src`, multiplied by the set's phase and the coil's
  * sensitivity, transformed, and gathered into `bank`.  `volume` is where the
  * transform works; `src` is left as it is. */
-extern "C" void bartorch_cb_fft_forward(struct bartorch_cb_fft* p, int N, const long dims[],
+extern "C" void bartorch_cb_fft_forward(struct bartorch_cb_fft* p, int N, const bart_dim_t dims[],
 		const float shift[3], float scale, const unsigned int* mask, const int* prefix,
 		_Complex float* bank, _Complex float* volume, const _Complex float* src, const _Complex float* map)
 {
@@ -236,7 +236,7 @@ extern "C" void bartorch_cb_fft_forward(struct bartorch_cb_fft* p, int N, const 
 
 /* The gathered spectrum `bank`, scattered, transformed back, multiplied by the
  * conjugates of the phase and the sensitivity, and added to `dst`. */
-extern "C" void bartorch_cb_fft_inverse(struct bartorch_cb_fft* p, int N, const long dims[],
+extern "C" void bartorch_cb_fft_inverse(struct bartorch_cb_fft* p, int N, const bart_dim_t dims[],
 		const float shift[3], float scale, const unsigned int* mask, const int* prefix,
 		_Complex float* dst, _Complex float* volume, const _Complex float* bank, const _Complex float* map)
 {
@@ -291,7 +291,7 @@ extern "C" void bartorch_cb_grid_free(struct bartorch_cb_grid* p)
  * and stay the caller's.  `unitary` scales each direction by one over the
  * square root of the plane; without it the forward is cuFFT's unnormalized
  * transform and the inverse its adjoint, as BART's uncentred `fft` is. */
-extern "C" struct bartorch_cb_grid* bartorch_cb_grid_create(const long dims[3], unsigned long flags, long kept,
+extern "C" struct bartorch_cb_grid* bartorch_cb_grid_create(const bart_dim_t dims[3], bart_flags_t flags, bart_dim_t kept,
 		const unsigned int* mask, const int* prefix, const _Complex float* mod[3], int unitary)
 {
 	set_jit_t set_jit = set_jit_callback();
@@ -299,7 +299,7 @@ extern "C" struct bartorch_cb_grid* bartorch_cb_grid_create(const long dims[3], 
 	if (NULL == set_jit)
 		return NULL;
 
-	if (dims[0] * dims[1] * dims[2] > (long)UINT32_MAX)
+	if (dims[0] * dims[1] * dims[2] > (bart_dim_t)UINT32_MAX)
 		return NULL;
 
 	struct grid_info g;
@@ -309,7 +309,7 @@ extern "C" struct bartorch_cb_grid* bartorch_cb_grid_create(const long dims[3], 
 	int rank = 0;
 
 	for (int i = 2; i >= 0; i--)
-		if ((0 != ((flags >> i) & 1UL)) && (1 < dims[i]))
+		if ((0 != ((flags >> i) & 1)) && (1 < dims[i]))
 			n[rank++] = (int)dims[i];
 
 	if (0 == rank)
@@ -321,7 +321,7 @@ extern "C" struct bartorch_cb_grid* bartorch_cb_grid_create(const long dims[3], 
 
 	for (int a = 0; a < 3; a++) {
 
-		bool t = (0 != ((flags >> a) & 1UL)) && (1 < dims[a]);
+		bool t = (0 != ((flags >> a) & 1)) && (1 < dims[a]);
 
 		g.n[a] = (unsigned int)dims[a];
 		g.mstr[a] = ms;
@@ -421,7 +421,7 @@ static void run_grid(struct bartorch_cb_grid* p, int which, const struct grid_in
 
 	CUDA_KERNEL_ERROR;
 
-	void* work = (0 < p->work) ? cuda_malloc((long)p->work) : NULL;
+	void* work = (0 < p->work) ? cuda_malloc((bart_dim_t)p->work) : NULL;
 
 	cufftHandle plan = p->plan[which];
 

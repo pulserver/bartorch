@@ -100,9 +100,9 @@ struct bartorch_prox_s {
 	int xform;
 };
 
-int bartorch_prox_create(const char* kind, long xflags, long jflags, float lambda, int k,
+int bartorch_prox_create(const char* kind, uint64_t xflags, uint64_t jflags, float lambda, int k,
 		int llr_blk, const char* wavelet, int shift_mode,
-		const long* img_dims, bartorch_prox** out)
+		const int64_t* img_dims, bartorch_prox** out)
 {
 	int xform;
 
@@ -113,8 +113,8 @@ int bartorch_prox_create(const char* kind, long xflags, long jflags, float lambd
 	(void)opt_reg_init(&ropts);
 
 	ropts.regs[0].xform = xform;
-	ropts.regs[0].xflags = (unsigned long)xflags;
-	ropts.regs[0].jflags = (unsigned long)jflags;
+	ropts.regs[0].xflags = xflags;
+	ropts.regs[0].jflags = jflags;
 	ropts.regs[0].lambda = lambda;
 	ropts.regs[0].k = k;
 	ropts.regs[0].graph_file = NULL;
@@ -123,9 +123,9 @@ int bartorch_prox_create(const char* kind, long xflags, long jflags, float lambd
 
 	const struct operator_p_s* prox_ops[NUM_REGS] = { NULL };
 	const struct linop_s* trafos[NUM_REGS] = { NULL };
-	const long (*sdims[NUM_REGS])[DIMS + 1] = { NULL };
+	const bart_dim_t (*sdims[NUM_REGS])[DIMS + 1] = { NULL };
 
-	long dims[DIMS];
+	bart_dim_t dims[DIMS];
 	md_copy_dims(DIMS, dims, img_dims);
 
 	opt_reg_configure(DIMS, dims, &ropts, prox_ops, trafos, sdims,
@@ -150,10 +150,10 @@ int bartorch_prox_create(const char* kind, long xflags, long jflags, float lambd
 }
 
 int bartorch_prox_set_create(int n, const char* const* kinds,
-		const long* xflags, const long* jflags, const float* lambda, const int* k,
+		const uint64_t* xflags, const uint64_t* jflags, const float* lambda, const int* k,
 		int llr_blk, const char* wavelet, int shift_mode,
-		const float* alpha, const float* gamma, const long* img_dims,
-		int max_out, bartorch_prox** out, int* count, long* svars)
+		const float* alpha, const float* gamma, const int64_t* img_dims,
+		int max_out, bartorch_prox** out, int* count, int64_t* svars)
 {
 	if ((0 > n) || (NUM_REGS < n) || (NULL == out) || (NULL == count) || (NULL == svars))
 		return -1;
@@ -169,8 +169,8 @@ int bartorch_prox_set_create(int n, const char* const* kinds,
 			return -4;
 
 		ropts.regs[i].xform = xform;
-		ropts.regs[i].xflags = (unsigned long)xflags[i];
-		ropts.regs[i].jflags = (unsigned long)jflags[i];
+		ropts.regs[i].xflags = xflags[i];
+		ropts.regs[i].jflags = jflags[i];
 		ropts.regs[i].lambda = lambda[i];
 		ropts.regs[i].k = k[i];
 		ropts.regs[i].graph_file = NULL;
@@ -189,9 +189,9 @@ int bartorch_prox_set_create(int n, const char* const* kinds,
 
 	const struct operator_p_s* prox_ops[NUM_REGS] = { NULL };
 	const struct linop_s* trafos[NUM_REGS] = { NULL };
-	const long (*sdims[NUM_REGS])[DIMS + 1] = { NULL };
+	const bart_dim_t (*sdims[NUM_REGS])[DIMS + 1] = { NULL };
 
-	long dims[DIMS];
+	bart_dim_t dims[DIMS];
 	md_copy_dims(DIMS, dims, img_dims);
 
 	opt_reg_configure(DIMS, dims, &ropts, prox_ops, trafos, sdims,
@@ -232,7 +232,7 @@ int bartorch_prox_set_create(int n, const char* const* kinds,
  * Returns the rank, or a negative code.  `dims` holds `N` entries and is
  * filled with ones past the rank.
  */
-int bartorch_prox_domain(const bartorch_prox* h, int N, long* dims)
+int bartorch_prox_domain(const bartorch_prox* h, int N, int64_t* dims)
 {
 	if ((NULL == h) || (NULL == h->op) || (NULL == dims) || (1 > N))
 		return -1;
@@ -383,7 +383,7 @@ void bartorch_prox_free(bartorch_prox* h)
 struct counting_monitor {
 
 	struct iter_monitor_s super;
-	long count;
+	bart_dim_t count;
 };
 
 static void counting_monitor_fun(struct iter_monitor_s* monitor, const struct vec_iter_s* /*ops*/, const float* /*x*/)
@@ -403,7 +403,7 @@ struct maxeigen_data {
 	operator_data_t super;
 
 	float lambda;
-	long size;
+	bart_dim_t size;
 
 	const struct linop_s* model_op;
 };
@@ -510,7 +510,7 @@ int bartorch_maxeigen(const bartorch_linop* handle, const bartorch_linop* precon
 
 int bartorch_solve(const bartorch_linop* handle,
 		const char* algorithm,
-		const char* const* reg_kinds, const long* reg_xflags, const long* reg_jflags,
+		const char* const* reg_kinds, const uint64_t* reg_xflags, const uint64_t* reg_jflags,
 		const float* reg_lambda, const int* reg_k,
 		const bartorch_prox* const* reg_ops, int n_reg,
 		float cclambda, int maxiter, float step, int eigen, int hogwild,
@@ -522,7 +522,7 @@ int bartorch_solve(const bartorch_linop* handle,
 		const bartorch_linop* precond,
 		int llr_blk, const char* wavelet, int shift_mode,
 		const float* alpha, const float* gamma,
-		void* x, const void* y, long* iterations)
+		void* x, const void* y, int64_t* iterations)
 {
 	const struct linop_s* model_op = bartorch_linop_unwrap(handle);
 
@@ -582,8 +582,8 @@ int bartorch_solve(const bartorch_linop* handle,
 			return -4;
 
 		ropts.regs[i].xform = xform;
-		ropts.regs[i].xflags = (unsigned long)reg_xflags[i];
-		ropts.regs[i].jflags = (unsigned long)reg_jflags[i];
+		ropts.regs[i].xflags = reg_xflags[i];
+		ropts.regs[i].jflags = reg_jflags[i];
 		ropts.regs[i].lambda = reg_lambda[i];
 		ropts.regs[i].k = reg_k[i];
 		ropts.regs[i].graph_file = NULL;
@@ -595,10 +595,10 @@ int bartorch_solve(const bartorch_linop* handle,
 	const struct operator_p_s* thresh_ops[NUM_REGS] = { NULL };
 	const struct linop_s* trafos[NUM_REGS] = { NULL };
 
-	long img_dims[DIMS];
+	bart_dim_t img_dims[DIMS];
 	md_copy_dims(DIMS, img_dims, linop_domain(model_op)->dims);
 
-	long ksp_dims[DIMS];
+	bart_dim_t ksp_dims[DIMS];
 	md_copy_dims(DIMS, ksp_dims, linop_codomain(model_op)->dims);
 
 	/* Three terms are not one proximal operator on the image: total
@@ -619,7 +619,7 @@ int bartorch_solve(const bartorch_linop* handle,
 
 	if (extending) {
 
-		const long (*sdims[NUM_REGS])[DIMS + 1] = { NULL };
+		const bart_dim_t (*sdims[NUM_REGS])[DIMS + 1] = { NULL };
 
 		/* `--alpha` and `--gamma` are one pair each for the whole set, and
 		 * only these three terms read them; `opt_reg_init` has already put
@@ -720,8 +720,8 @@ int bartorch_solve(const bartorch_linop* handle,
 	 * of that vector out and the encoding is chained onto it, which is what
 	 * `pics.c` does.  The solve then walks the long vector and the image is
 	 * the front of the answer. */
-	long total = md_calc_size(DIMS, img_dims);
-	long ext = total + ropts.svars;
+	bart_dim_t total = md_calc_size(DIMS, img_dims);
+	bart_dim_t ext = total + ropts.svars;
 
 	complex float* xbig = NULL;
 
@@ -785,7 +785,7 @@ int bartorch_solve(const bartorch_linop* handle,
 	return 0;
 }
 
-float bartorch_scaling_norm(long size, const void* image, float rescale, int compat, float p)
+float bartorch_scaling_norm(int64_t size, const void* image, float rescale, int compat, float p)
 {
 	/* On the host, and on a copy: the estimate is read off order statistics
 	 * and BART sorts the array it is handed to get them. */

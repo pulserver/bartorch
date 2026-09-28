@@ -27,7 +27,7 @@ struct entry {
 
 	char* name;
 	int D;
-	long* dims;
+	bart_dim_t* dims;
 	complex float* data;
 	int refcount;
 	enum owner owner;
@@ -78,13 +78,13 @@ static struct entry* find_data_locked(const complex float* data)
 	return NULL;
 }
 
-static void insert_locked(const char* name, int D, const long* dims, complex float* data, enum owner owner)
+static void insert_locked(const char* name, int D, const bart_dim_t* dims, complex float* data, enum owner owner)
 {
 	struct entry* e = malloc(sizeof(*e));
 	e->name = strdup(name);
 	e->D = D;
-	e->dims = malloc(sizeof(long) * (size_t)D);
-	memcpy(e->dims, dims, sizeof(long) * (size_t)D);
+	e->dims = malloc(sizeof(bart_dim_t) * (size_t)D);
+	memcpy(e->dims, dims, sizeof(bart_dim_t) * (size_t)D);
 	e->data = data;
 	e->refcount = 1;
 	e->owner = owner;
@@ -123,14 +123,14 @@ static void unlink_locked(struct entry** ep)
 
 /* BART-facing API (misc/memcfl.h). */
 
-void memcfl_register(const char* name, int D, const long dims[D], complex float* data, bool managed)
+void memcfl_register(const char* name, int D, const bart_dim_t dims[D], complex float* data, bool managed)
 {
 	pthread_mutex_lock(&lock);
 	insert_locked(name, D, dims, data, managed ? OWNER_XMALLOC : OWNER_HOST);
 	pthread_mutex_unlock(&lock);
 }
 
-complex float* memcfl_create(const char* name, int D, const long dims[D])
+complex float* memcfl_create(const char* name, int D, const bart_dim_t dims[D])
 {
 	pthread_mutex_lock(&lock);
 
@@ -200,7 +200,7 @@ const char** memcfl_list_all(void)
 	return out;
 }
 
-complex float* memcfl_load(const char* name, int D, long dims[D])
+complex float* memcfl_load(const char* name, int D, bart_dim_t dims[D])
 {
 	pthread_mutex_lock(&lock);
 
@@ -265,7 +265,7 @@ void memcfl_unlink(const char* name)
 
 /* Host-facing API (include/bartorch.h). */
 
-int bartorch_register(const char* name, int D, const long* dims, void* data)
+int bartorch_register(const char* name, int D, const int64_t* dims, void* data)
 {
 	if ((D < 1) || (D > BARTORCH_DIMS) || (NULL == data))
 		return -1;
@@ -291,7 +291,7 @@ int bartorch_exists(const char* name)
 	return memcfl_exists(name) ? 1 : 0;
 }
 
-int bartorch_lookup(const char* name, int D, long* dims, void** data)
+int bartorch_lookup(const char* name, int D, int64_t* dims, void** data)
 {
 	pthread_mutex_lock(&lock);
 

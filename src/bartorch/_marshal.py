@@ -21,7 +21,7 @@ __all__ = [
     "float_buffer",
     "floats",
     "ints",
-    "longs",
+    "int64s",
     "null_apply",
     "null_release",
     "out_pointer",
@@ -29,6 +29,7 @@ __all__ = [
     "padded_dims",
     "shape_from_dims",
     "text_buffer",
+    "uint64s",
 ]
 
 
@@ -37,7 +38,7 @@ def padded_dims(shape: tuple[int, ...]) -> ctypes.Array:
     rev = list(shape)[::-1]
     if len(rev) > DIMS:
         raise ValueError(f"BART supports at most {DIMS} dimensions, got {len(rev)}")
-    return (ctypes.c_long * DIMS)(*(rev + [1] * (DIMS - len(rev))))
+    return (ctypes.c_int64 * DIMS)(*(rev + [1] * (DIMS - len(rev))))
 
 
 def padded_offsets(values, ndim: int, what: str) -> ctypes.Array:
@@ -53,7 +54,7 @@ def padded_offsets(values, ndim: int, what: str) -> ctypes.Array:
     if ndim > DIMS:
         raise ValueError(f"BART supports at most {DIMS} dimensions, got {ndim}")
     rev = [int(v) for v in values][::-1]
-    return (ctypes.c_long * DIMS)(*(rev + [0] * (DIMS - ndim)))
+    return (ctypes.c_int64 * DIMS)(*(rev + [0] * (DIMS - ndim)))
 
 
 def padded_order(order, ndim: int) -> ctypes.Array:
@@ -84,7 +85,7 @@ def dims(shape: tuple[int, ...]) -> tuple[int, ctypes.Array]:
     rev = list(shape)[::-1] or [1]
     if len(rev) > DIMS:
         raise ValueError(f"BART supports at most {DIMS} dimensions, got {len(rev)}")
-    return len(rev), (ctypes.c_long * len(rev))(*rev)
+    return len(rev), (ctypes.c_int64 * len(rev))(*rev)
 
 
 def shape_from_dims(vector: ctypes.Array, min_ndim: int) -> list[int]:
@@ -100,8 +101,13 @@ def argv(args: list[str]) -> ctypes.Array:
     return (ctypes.c_char_p * len(args))(*[a.encode() for a in args])
 
 
-def longs(values) -> ctypes.Array:
-    return (ctypes.c_long * len(values))(*[int(v) for v in values])
+def int64s(values) -> ctypes.Array:
+    return (ctypes.c_int64 * len(values))(*[int(v) for v in values])
+
+
+def uint64s(values) -> ctypes.Array:
+    """Bit masks, as the ABI's ``uint64_t``."""
+    return (ctypes.c_uint64 * len(values))(*[int(v) for v in values])
 
 
 def ints(values) -> ctypes.Array:
@@ -141,7 +147,7 @@ def null_release() -> ctypes.Array:
 
 def dim_vector() -> ctypes.Array:
     """A dimension vector of :data:`DIMS` entries for the library to fill in."""
-    return (ctypes.c_long * DIMS)()
+    return (ctypes.c_int64 * DIMS)()
 
 
 def wide_dim_vector() -> ctypes.Array:
@@ -151,12 +157,12 @@ def wide_dim_vector() -> ctypes.Array:
     thresholds a gradient's components, an axis beyond the image's, and total
     generalized variation's symmetric gradient adds a second (``tgv.c``).
     """
-    return (ctypes.c_long * (DIMS + 2))()
+    return (ctypes.c_int64 * (DIMS + 2))()
 
 
-def long_out() -> ctypes.c_long:
+def int64_out() -> ctypes.c_int64:
     """A number the library writes into; read it back off ``.value``."""
-    return ctypes.c_long()
+    return ctypes.c_int64()
 
 
 def int_out() -> ctypes.c_int:

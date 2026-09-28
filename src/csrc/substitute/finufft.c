@@ -187,7 +187,7 @@ struct bartorch_fi_plan {
  * them is gone.  That is a property worth testing, and one RSS cannot be read
  * for: FINUFFT's own multithreaded execute retains a kilobyte per thread per
  * call, which any measurement of the process would drown this in. */
-static long fi_live_plans;
+static int64_t fi_live_plans;
 
 /* `spread_only` asks FINUFFT for the spreading alone -- no transform, no
  * deapodisation -- which puts the kernel's own footprint on the grid.  That is
@@ -253,7 +253,7 @@ int bartorch_finufft_plan(int device, int type, int dim, const int64_t n_modes[3
 
 /* A plan keeps the points by pointer rather than copying them, so the arrays
  * given here have to outlive it. */
-int bartorch_finufft_setpts(void* plan, long M, float* x, float* y, float* z)
+int bartorch_finufft_setpts(void* plan, int64_t M, float* x, float* y, float* z)
 {
 	const struct bartorch_fi_plan* p = plan;
 
@@ -283,7 +283,7 @@ void bartorch_finufft_free(void* plan)
 	fi_live_plans--;
 }
 
-long bartorch_finufft_live_plans(void)
+int64_t bartorch_finufft_live_plans(void)
 {
 	return fi_live_plans;
 }

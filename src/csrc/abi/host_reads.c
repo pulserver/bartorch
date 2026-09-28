@@ -23,12 +23,12 @@
 
 #include "include/bartorch.h"
 
-extern void bart_estimate_im_dims(int N, unsigned long flags, long dims[N], const long tdims[N], const complex float* traj);
-extern void bart_estimate_fast_sq_im_dims(int N, long dims[3], const long tdims[N], const complex float* traj);
+extern void bart_estimate_im_dims(int N, bart_flags_t flags, bart_dim_t dims[N], const bart_dim_t tdims[N], const complex float* traj);
+extern void bart_estimate_fast_sq_im_dims(int N, bart_dim_t dims[3], const bart_dim_t tdims[N], const complex float* traj);
 extern float bart_estimate_scaling_norm(float rescale, int imsize, complex float* tmpnorm, bool compat, float p);
 
 /* A copy of the trajectory on the host, or NULL when it is already there. */
-static complex float* host_copy(int N, const long tdims[N], const complex float* traj)
+static complex float* host_copy(int N, const bart_dim_t tdims[N], const complex float* traj)
 {
 	if (!bartorch_on_device(traj))
 		return NULL;
@@ -40,7 +40,7 @@ static complex float* host_copy(int N, const long tdims[N], const complex float*
 	return host;
 }
 
-void estimate_im_dims(int N, unsigned long flags, long dims[N], const long tdims[N], const complex float* traj)
+void estimate_im_dims(int N, bart_flags_t flags, bart_dim_t dims[N], const bart_dim_t tdims[N], const complex float* traj)
 {
 	complex float* host = host_copy(N, tdims, traj);
 
@@ -49,7 +49,7 @@ void estimate_im_dims(int N, unsigned long flags, long dims[N], const long tdims
 	md_free(host);
 }
 
-void estimate_fast_sq_im_dims(int N, long dims[3], const long tdims[N], const complex float* traj)
+void estimate_fast_sq_im_dims(int N, bart_dim_t dims[3], const bart_dim_t tdims[N], const complex float* traj)
 {
 	complex float* host = host_copy(N, tdims, traj);
 
@@ -66,7 +66,7 @@ float estimate_scaling_norm(float rescale, int imsize, complex float* tmpnorm, b
 	if (!bartorch_on_device(tmpnorm))
 		return bart_estimate_scaling_norm(rescale, imsize, tmpnorm, compat, p);
 
-	long dims[1] = { imsize };
+	bart_dim_t dims[1] = { imsize };
 	complex float* host = md_alloc(1, dims, CFL_SIZE);
 
 	md_copy(1, dims, host, tmpnorm, CFL_SIZE);

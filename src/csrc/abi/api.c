@@ -17,6 +17,12 @@
 #include "include/bartorch.h"
 #include "substitute/backend.h"
 
+/* The ABI spells BART's dimension, stride and flag types by their widths, so
+ * a dimension vector crosses as it stands, without a copy. */
+_Static_assert(_Generic((bart_dim_t*)0, int64_t*: 1, default: 0), "BART dimensions are the ABI's int64_t");
+_Static_assert(_Generic((bart_stride_t*)0, int64_t*: 1, default: 0), "BART strides are the ABI's int64_t");
+_Static_assert(_Generic((bart_flags_t*)0, uint64_t*: 1, default: 0), "BART flags are the ABI's uint64_t");
+
 extern int bart_command(int len, char* buf, int argc, char* argv[]);
 
 /* A failed assertion reaches the caller instead of the process.

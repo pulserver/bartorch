@@ -26,15 +26,15 @@
 
 struct phase_conf {
 
-	long dims[3];
-	long tot;
-	long batch;
+	bart_dim_t dims[3];
+	bart_dim_t tot;
+	bart_dim_t batch;
 	float shifts[3];
 	float cn;
 	float scale;
 };
 
-static inline struct phase_conf phase_setup(int N, const long dims[], const float shift[3], float scale)
+static inline struct phase_conf phase_setup(int N, const bart_dim_t dims[], const float shift[3], float scale)
 {
 	struct phase_conf c;
 
@@ -55,7 +55,7 @@ static inline struct phase_conf phase_setup(int N, const long dims[], const floa
 		c.dims[n] = dims[n];
 		c.tot *= dims[n];
 
-		long centre = dims[n] / 2;
+		bart_dim_t centre = dims[n] / 2;
 		double half = (double)centre / (double)dims[n];
 
 		c.shifts[n] += 2. * M_PI * half;
@@ -70,7 +70,7 @@ static inline struct phase_conf phase_setup(int N, const long dims[], const floa
 	return c;
 }
 
-__device__ static inline cuFloatComplex phase_at(const struct phase_conf& c, long x, long y, long z, bool conj)
+__device__ static inline cuFloatComplex phase_at(const struct phase_conf& c, bart_dim_t x, bart_dim_t y, bart_dim_t z, bool conj)
 {
 	float val = c.cn + x * c.shifts[0] + y * c.shifts[1] + z * c.shifts[2];
 
@@ -85,7 +85,7 @@ __device__ static inline cuFloatComplex phase_at(const struct phase_conf& c, lon
 }
 
 /* Where grid point `i` sits in the gathered spectrum, or -1 where it is not kept. */
-__device__ static inline long kept_at(const unsigned int* mask, const int* prefix, long i)
+__device__ static inline bart_dim_t kept_at(const unsigned int* mask, const int* prefix, bart_dim_t i)
 {
 	unsigned int word = mask[i >> 5];
 	unsigned int bit = 1u << (i & 31);
@@ -93,7 +93,7 @@ __device__ static inline long kept_at(const unsigned int* mask, const int* prefi
 	if (0 == (word & bit))
 		return -1;
 
-	return (long)prefix[i >> 5] + __popc(word & (bit - 1));
+	return (bart_dim_t)prefix[i >> 5] + __popc(word & (bit - 1));
 }
 
 /* What the callbacks of one transform read: a set's phase, a coil's

@@ -28,16 +28,17 @@ LINE_LENGTH = 100
 # Every one of these appears in bartorch.h; a type that does not is a type the
 # generator has not been taught, and it stops rather than guessing.  Pointers
 # to the opaque operator structs are void pointers here: the host never reads
-# through them.
+# through them.  There is no ``long``: it is 32 bits on Windows and 64
+# elsewhere, and every integer in the ABI has one width on every platform.
 
 SCALARS = {
     "void": "None",
     "int": "ctypes.c_int",
-    "long": "ctypes.c_long",
+    "int64_t": "ctypes.c_int64",
+    "uint64_t": "ctypes.c_uint64",
     "float": "ctypes.c_float",
     "double": "ctypes.c_double",
     "size_t": "ctypes.c_size_t",
-    "unsigned long": "ctypes.c_ulong",
     "unsigned int": "ctypes.c_uint",
 }
 
@@ -46,7 +47,8 @@ POINTERS = {
     "char**": "ctypes.POINTER(ctypes.c_char_p)",
     "void*": "ctypes.c_void_p",
     "void**": "ctypes.POINTER(ctypes.c_void_p)",
-    "long*": "ctypes.POINTER(ctypes.c_long)",
+    "int64_t*": "ctypes.POINTER(ctypes.c_int64)",
+    "uint64_t*": "ctypes.POINTER(ctypes.c_uint64)",
     "int*": "ctypes.POINTER(ctypes.c_int)",
     "float*": "ctypes.POINTER(ctypes.c_float)",
     "double*": "ctypes.POINTER(ctypes.c_double)",
@@ -84,7 +86,7 @@ def normalise(decl: str) -> str:
 
 
 #: Words that begin a type rather than name a parameter.
-TYPE_WORDS = {"void", "int", "long", "float", "double", "size_t", "unsigned", "char"}
+TYPE_WORDS = {"void", "int", "int64_t", "uint64_t", "float", "double", "size_t", "unsigned", "char"}
 
 
 def ctype(decl: str, callbacks: dict[str, str]) -> str:
