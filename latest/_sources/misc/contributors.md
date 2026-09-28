@@ -1,7 +1,7 @@
 # Contributors and citation
 
 bartorch is developed by its
-[contributors](https://github.com/mcencini/bartorch/graphs/contributors)
+[contributors](https://github.com/pulserver/bartorch/graphs/contributors)
 (`git shortlog -sne HEAD` in a clone) and builds on the work of the BART
 developers, whose history is that of the `external/bart` submodule.
 {doc}`../guides/developer/index` describes how to contribute.

@@ -57,13 +57,13 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/02-non-cartesian/02-radial-sense';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://mcencini.github.io/bartorch/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://mcencini.github.io/bartorch/latest/auto_examples/02-non-cartesian/02-radial-sense.html" />
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/auto_examples/02-non-cartesian/02-radial-sense.html" />
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -316,7 +316,7 @@
       
       
       
-      <li><a href="https://github.com/mcencini/bartorch" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch" target="_blank"
    class="btn btn-sm btn-source-repository-button dropdown-item"
    title="Source repository"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -333,7 +333,7 @@
       
       
       
-      <li><a href="https://github.com/mcencini/bartorch/edit/main/docs/auto_examples/02-non-cartesian/02-radial-sense.rst" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/auto_examples/02-non-cartesian/02-radial-sense.rst" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -350,7 +350,7 @@
       
       
       
-      <li><a href="https://github.com/mcencini/bartorch/issues/new?title=Issue%20on%20page%20%2Fauto_examples/02-non-cartesian/02-radial-sense.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fauto_examples/02-non-cartesian/02-radial-sense.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -497,7 +497,7 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="radial-sense-reconstruction">
 <span id="sphx-glr-auto-examples-02-non-cartesian-02-radial-sense-py"></span><h1>Radial SENSE reconstruction<a class="headerlink" href="#radial-sense-reconstruction" title="Link to this heading">#</a></h1>
-<a class="reference external image-reference" href="https://colab.research.google.com/github/mcencini/bartorch/blob/gh-pages/latest/_colab/02-non-cartesian/02-radial-sense.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
+<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/02-non-cartesian/02-radial-sense.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
 <p>An undersampled golden-angle radial acquisition reconstructed by regularized
 least squares, with the non-Cartesian SENSE operator</p>
@@ -599,7 +599,7 @@ non-Cartesian SENSE model <a class="footnote-reference brackets" href="#pruessma
 </span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">pics: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> s</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>pics: 2.73 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>pics: 2.77 s
 </pre></div>
 </div>
 <p>The same solve through the operator. Besides the iteration, the application
@@ -617,7 +617,7 @@ built above, now over the estimated sensitivities rather than the true ones.</p>
 </span><span class="n">difference</span> <span class="o">=</span> <span class="p">(</span><span class="n">assembled</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="p">)</span> <span class="o">-</span> <span class="n">reconstruction</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference from pics: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">difference</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">reconstruction</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>operator and solver: 3.06 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>operator and solver: 3.02 s
 relative difference from pics: 0.0e+00
 </pre></div>
 </div>
@@ -679,7 +679,7 @@ encoding with arbitrary k-space trajectories. <em>Magn Reson Med</em>
 46(4):638-651 (2001). <a class="reference external" href="https://doi.org/10.1002/mrm.1241">https://doi.org/10.1002/mrm.1241</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 9.073 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 9.041 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-non-cartesian-02-radial-sense-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/72690241dfa7d0a916152801917da92e/02-radial-sense.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-radial-sense.ipynb</span></code></a></p>

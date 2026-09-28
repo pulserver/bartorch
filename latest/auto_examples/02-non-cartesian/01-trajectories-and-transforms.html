@@ -57,13 +57,13 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/02-non-cartesian/01-trajectories-and-transforms';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://mcencini.github.io/bartorch/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://mcencini.github.io/bartorch/latest/auto_examples/02-non-cartesian/01-trajectories-and-transforms.html" />
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/auto_examples/02-non-cartesian/01-trajectories-and-transforms.html" />
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -316,7 +316,7 @@
       
       
       
-      <li><a href="https://github.com/mcencini/bartorch" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch" target="_blank"
    class="btn btn-sm btn-source-repository-button dropdown-item"
    title="Source repository"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -333,7 +333,7 @@
       
       
       
-      <li><a href="https://github.com/mcencini/bartorch/edit/main/docs/auto_examples/02-non-cartesian/01-trajectories-and-transforms.rst" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/auto_examples/02-non-cartesian/01-trajectories-and-transforms.rst" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -350,7 +350,7 @@
       
       
       
-      <li><a href="https://github.com/mcencini/bartorch/issues/new?title=Issue%20on%20page%20%2Fauto_examples/02-non-cartesian/01-trajectories-and-transforms.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fauto_examples/02-non-cartesian/01-trajectories-and-transforms.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -496,7 +496,7 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="trajectories-and-transforms">
 <span id="sphx-glr-auto-examples-02-non-cartesian-01-trajectories-and-transforms-py"></span><h1>Trajectories and transforms<a class="headerlink" href="#trajectories-and-transforms" title="Link to this heading">#</a></h1>
-<a class="reference external image-reference" href="https://colab.research.google.com/github/mcencini/bartorch/blob/gh-pages/latest/_colab/02-non-cartesian/01-trajectories-and-transforms.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
+<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/02-non-cartesian/01-trajectories-and-transforms.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
 <p>The non-Cartesian interfaces: the trajectories
 <a class="reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> generates, the non-uniform Fourier transform along
@@ -640,8 +640,8 @@ spread function on a doubled grid rather than a transform each way
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">A^H A as two transforms  </span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">transforms</span><span class="si">:</span><span class="s2">6.1f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference      </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">toeplitz</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">pair</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pair</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>A^H A as a convolution      1.7 ms
-A^H A as two transforms     5.4 ms
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>A^H A as a convolution      2.4 ms
+A^H A as two transforms     8.7 ms
 relative difference      2.7e-03
 </pre></div>
 </div>
@@ -688,7 +688,7 @@ inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
 <a class="reference external" href="https://doi.org/10.1109/TSP.2005.853152">https://doi.org/10.1109/TSP.2005.853152</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.157 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.159 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-non-cartesian-01-trajectories-and-transforms-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0d4b6ba90d4bc1e82b547bf20b8ca175/01-trajectories-and-transforms.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-trajectories-and-transforms.ipynb</span></code></a></p>

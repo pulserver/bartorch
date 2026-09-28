@@ -1,6 +1,6 @@
 # Pull requests
 
-A pull request is opened against `mcencini/bartorch:main` from a topic branch,
+A pull request is opened against `pulserver/bartorch:main` from a topic branch,
 as a draft while work remains.  Its description follows the repository's
 template:
 
