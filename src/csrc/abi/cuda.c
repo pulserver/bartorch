@@ -37,6 +37,13 @@ struct prefault {
 	long size;
 };
 
+/* Writes back the byte it reads, which faults its page in writable. */
+static void touch(volatile char* at)
+{
+	char value = *at;
+	*at = value;
+}
+
 static void* prefault_run(void* arg)
 {
 	struct prefault* p = arg;
@@ -48,9 +55,9 @@ static void* prefault_run(void* arg)
 #endif
 
 	for (long i = 0; i < p->size; i += page)
-		p->ptr[i] = p->ptr[i];
+		touch(p->ptr + i);
 
-	p->ptr[p->size - 1] = p->ptr[p->size - 1];
+	touch(p->ptr + p->size - 1);
 
 	return NULL;
 }
