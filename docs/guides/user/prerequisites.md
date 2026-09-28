@@ -5,7 +5,7 @@
 | Requirement | Version |
 | --- | --- |
 | Python | 3.10 or later; each wheel is tested on 3.10 and 3.14 |
-| PyTorch | 2.2 or later, CPU or CUDA build |
+| PyTorch | 2.2 or later (2.3 on macOS, the first to carry `libomp.dylib`), CPU or CUDA build |
 | NumPy, SciPy | NumPy 1.24 and SciPy 1.10 or later; MRI-NUFFT, a dependency, raises these to NumPy 2.2 and SciPy 1.13 |
 | TorchSim, MRI-NUFFT | TorchSim 0.0.5 and MRI-NUFFT 1.0 or later, installed as dependencies |
 

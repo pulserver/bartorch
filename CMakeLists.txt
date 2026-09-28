@@ -304,6 +304,9 @@ set(BARTORCH_SOURCES
     src/csrc/substitute/finufft.c
     src/csrc/substitute/nufft_finufft.c
     src/csrc/substitute/psf.c)
+if(OpenMP_C_FOUND AND (WIN32 OR APPLE))
+    list(APPEND BARTORCH_SOURCES src/csrc/substitute/openmp.c)
+endif()
 
 if(BARTORCH_CUDA)
     list(APPEND BARTORCH_SOURCES src/csrc/ops/kernels.cu src/csrc/ops/fft_callbacks.cu)

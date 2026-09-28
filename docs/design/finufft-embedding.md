@@ -96,7 +96,12 @@ FINUFFT's `find_package(OpenMP)` is answered from
 module, so on macOS and Windows it gets the targets bound to torch's runtime
 rather than whatever the toolchain has.  The entry-point list is
 `src/csrc/compat/libiomp5md.def`; clang's code for BART, FINUFFT and DUCC0
-calls nothing outside it (checked with `nm -u` on a clang build).
+calls nothing outside it (checked with `nm -u` on a clang build), except
+`__kmpc_dispatch_deinit`, which clang 19 and later emit after a dynamically
+scheduled loop and which the libomp of torch 2.3 to 2.5 does not export.
+`src/csrc/substitute/openmp.c` defines it inside the library, forwarding to the
+runtime's own when the process has one.  torch 2.2 carries no libomp on macOS,
+so the macOS floor is 2.3.
 
 `tests/test_openmp.py` is the check: threaded torch and threaded FINUFFT in
 one process, both import orders, the loaded OpenMP images listed.  On Linux
