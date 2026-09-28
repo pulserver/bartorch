@@ -50,29 +50,34 @@ extern int bart_command(int len, char* buf, int argc, char* argv[]);
 
 #include <wchar.h>
 
-__attribute__((noreturn))
-static void crt_assert(const char* assertion, const char* file, unsigned line)
+void _assert(const char* assertion, const char* file, unsigned line);
+void _wassert(const wchar_t* assertion, const wchar_t* file, unsigned line);
+
+__attribute__((__noreturn__))
+void _assert(const char* assertion, const char* file, unsigned line)
 {
 	error("Assertion '%s' failed in %s:%u\n", assertion, file, line);
 }
 
-__attribute__((noreturn))
-static void crt_wassert(const wchar_t* assertion, const wchar_t* file, unsigned line)
+__attribute__((__noreturn__))
+void _wassert(const wchar_t* assertion, const wchar_t* file, unsigned line)
 {
 	error("Assertion '%ls' failed in %ls:%u\n", assertion, file, line);
 }
 
-/* <assert.h> declares both dllimport, so a caller reaches them through these
- * slots; defined here, the import library's are never linked. */
-void (*__imp__assert)(const char*, const char*, unsigned) = crt_assert;
-void (*__imp__wassert)(const wchar_t*, const wchar_t*, unsigned) = crt_wassert;
+/* <assert.h> declares both dllimport, so BART reaches them through these
+ * slots, and the C++ runtime linked in statically calls them by name.
+ * Defining both keeps the C runtime's import library from supplying
+ * either. */
+void (*__imp__assert)(const char*, const char*, unsigned) = _assert;
+void (*__imp__wassert)(const wchar_t*, const wchar_t*, unsigned) = _wassert;
 
 #elif defined(__APPLE__)
 
-__attribute__((noreturn))
+__attribute__((__noreturn__))
 void __assert_rtn(const char* function, const char* file, int line, const char* assertion);
 
-__attribute__((noreturn))
+__attribute__((__noreturn__))
 void __assert_rtn(const char* function, const char* file, int line, const char* assertion)
 {
 	error("Assertion '%s' failed in %s:%d (%s)\n", assertion, file, line, function);
