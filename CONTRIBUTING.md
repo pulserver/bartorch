@@ -1,6 +1,6 @@
 # Contributing to bartorch
 
-The [developer guide](https://mcencini.github.io/bartorch/latest/guides/developer/index.html)
+The [developer guide](https://pulserver.github.io/bartorch/latest/guides/developer/index.html)
 documents the toolchain, the editable installation, the repository layout, the
 coding and documentation conventions, the pre-commit hooks and the pull-request
 procedure.  A development setup is:
@@ -22,6 +22,6 @@ Before opening a pull request:
 ```
 
 Open the pull request against
-[`mcencini/bartorch:main`](https://github.com/mcencini/bartorch/compare).
+[`pulserver/bartorch:main`](https://github.com/pulserver/bartorch/compare).
 Participation is governed by the [code of conduct](CODE_OF_CONDUCT.md);
 security vulnerabilities are reported as described in [SECURITY.md](SECURITY.md).
