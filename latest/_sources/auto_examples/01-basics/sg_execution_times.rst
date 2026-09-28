@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:11.756** total execution time for 3 files **from auto_examples/01-basics**:
+**00:07.649** total execution time for 3 files **from auto_examples/01-basics**:
 
 .. container::
 
@@ -33,11 +33,11 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_01-basics_03-noise-prewhitening.py` (``03-noise-prewhitening.py``)
-     - 00:06.447
+     - 00:04.066
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_02-operators-and-solvers.py` (``02-operators-and-solvers.py``)
-     - 00:02.739
+     - 00:01.804
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_01-from-kspace-to-image.py` (``01-from-kspace-to-image.py``)
-     - 00:02.570
+     - 00:01.778
      - 0.0

@@ -6,6 +6,7 @@ its scripts under `scripts/`; code from other projects is under `external/`.
 | Path | Contents |
 | --- | --- |
 | `external/bart/` | BART, a Git submodule of the downstream fork `pulserver/bart` ({doc}`bart-fork`) |
+| `external/finufft/` | FINUFFT and cuFINUFFT, a Git submodule of upstream `flatironinstitute/finufft` at one reviewed commit, built by its own CMake and linked into the library (`cmake/finufft.cmake`) |
 | `external/pocketfft/`, `external/blocksruntime/` | Vendored FFT and Blocks runtime, with their licenses |
 | `src/csrc/include/bartorch.h` | The C ABI, the only header the Python side sees |
 | `src/csrc/abi/` | Command execution, the in-memory CFL registry, CUDA stream ordering |
@@ -14,7 +15,7 @@ its scripts under `scripts/`; code from other projects is under `external/`.
 | `src/bartorch/` | The Python package; private modules begin with an underscore |
 | `src/bartorch/_abi.py`, `_catalogue.py` | Generated from the header and from BART's command declarations |
 | `scripts/` | Scripts run by hand: tests, lint, documentation, generators, device checks, artwork |
-| `cmake/` | Build helpers |
+| `cmake/` | Build helpers: FINUFFT's configuration, and the OpenMP runtime the library binds to |
 | `tests/` | The test suite |
 | `docs/` | Documentation sources, the example gallery under `docs/examples/`, and the Sphinx configuration |
 | `docs/design/` | Design records for maintainers, excluded from the built documentation |

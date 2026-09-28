@@ -498,43 +498,46 @@ its scripts under <code class="docutils literal notranslate"><span class="pre">s
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">external/bart/</span></code></p></td>
 <td><p>BART, a Git submodule of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code> (<a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">external/pocketfft/</span></code>, <code class="docutils literal notranslate"><span class="pre">external/blocksruntime/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">external/finufft/</span></code></p></td>
+<td><p>FINUFFT and cuFINUFFT, a Git submodule of upstream <code class="docutils literal notranslate"><span class="pre">flatironinstitute/finufft</span></code> at one reviewed commit, built by its own CMake and linked into the library (<code class="docutils literal notranslate"><span class="pre">cmake/finufft.cmake</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">external/pocketfft/</span></code>, <code class="docutils literal notranslate"><span class="pre">external/blocksruntime/</span></code></p></td>
 <td><p>Vendored FFT and Blocks runtime, with their licenses</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/include/bartorch.h</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/include/bartorch.h</span></code></p></td>
 <td><p>The C ABI, the only header the Python side sees</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/abi/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/abi/</span></code></p></td>
 <td><p>Command execution, the in-memory CFL registry, CUDA stream ordering</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/ops/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/ops/</span></code></p></td>
 <td><p>Operators, the encoding executor, and the configuration of BART’s iterative solve as <code class="docutils literal notranslate"><span class="pre">pics</span></code> sets it up</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/substitute/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/substitute/</span></code></p></td>
 <td><p>Components compiled in place of BART’s: the FINUFFT NUFFT, point spread functions, the FFT and BLAS/LAPACK tables</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/</span></code></p></td>
 <td><p>The Python package; private modules begin with an underscore</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_catalogue.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_catalogue.py</span></code></p></td>
 <td><p>Generated from the header and from BART’s command declarations</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scripts/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scripts/</span></code></p></td>
 <td><p>Scripts run by hand: tests, lint, documentation, generators, device checks, artwork</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cmake/</span></code></p></td>
-<td><p>Build helpers</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cmake/</span></code></p></td>
+<td><p>Build helpers: FINUFFT’s configuration, and the OpenMP runtime the library binds to</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tests/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tests/</span></code></p></td>
 <td><p>The test suite</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code></p></td>
 <td><p>Documentation sources, the example gallery under <code class="docutils literal notranslate"><span class="pre">docs/examples/</span></code>, and the Sphinx configuration</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/design/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/design/</span></code></p></td>
 <td><p>Design records for maintainers, excluded from the built documentation</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">attic/prototype/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">attic/prototype/</span></code></p></td>
 <td><p>An earlier pybind11 extension, kept for reference and not built</p></td>
 </tr>
 </tbody>

@@ -501,15 +501,12 @@
 <td><p>3.10 or later; each wheel is tested on 3.10 and 3.14</p></td>
 </tr>
 <tr class="row-odd"><td><p>PyTorch</p></td>
-<td><p>2.2 or later, CPU or CUDA build</p></td>
+<td><p>2.2 or later (2.3 on macOS, the first to carry <code class="docutils literal notranslate"><span class="pre">libomp.dylib</span></code>), CPU or CUDA build</p></td>
 </tr>
 <tr class="row-even"><td><p>NumPy, SciPy</p></td>
 <td><p>NumPy 1.24 and SciPy 1.10 or later; MRI-NUFFT, a dependency, raises these to NumPy 2.2 and SciPy 1.13</p></td>
 </tr>
-<tr class="row-odd"><td><p>FINUFFT</p></td>
-<td><p>2.2 or later, installed as a dependency</p></td>
-</tr>
-<tr class="row-even"><td><p>TorchSim, MRI-NUFFT</p></td>
+<tr class="row-odd"><td><p>TorchSim, MRI-NUFFT</p></td>
 <td><p>TorchSim 0.0.5 and MRI-NUFFT 1.0 or later, installed as dependencies</p></td>
 </tr>
 </tbody>
@@ -532,15 +529,15 @@
 </tr>
 <tr class="row-odd"><td><p>macOS 11 or later on Apple silicon</p></td>
 <td><p>Wheel</p></td>
-<td><p>CPU only; see <a class="reference internal" href="installation.html#macos-openmp"><span class="std std-ref">macOS OpenMP compatibility</span></a></p></td>
+<td><p>CPU only; OpenMP is the runtime PyTorch installs (see <a class="reference internal" href="installation.html#openmp-runtime"><span class="std std-ref">OpenMP runtime</span></a>)</p></td>
 </tr>
 <tr class="row-even"><td><p>Linux aarch64</p></td>
 <td><p>Source distribution</p></td>
-<td><p>BART is compiled on installation; FINUFFT publishes no wheel for this platform and is built from source as well</p></td>
+<td><p>BART and FINUFFT are compiled on installation</p></td>
 </tr>
 <tr class="row-odd"><td><p>macOS on Intel</p></td>
 <td><p>Source distribution</p></td>
-<td><p>BART is compiled on installation; FINUFFT releases after 2.4.0 have no wheel for this platform and are built from source as well</p></td>
+<td><p>BART and FINUFFT are compiled on installation</p></td>
 </tr>
 <tr class="row-even"><td><p>Windows 10 or later on x86-64</p></td>
 <td><p>Wheel</p></td>
@@ -566,11 +563,7 @@ Apple MPS devices are not supported; the device paths are CPU and CUDA.</p>
 <td><p>Intel MKL (Linux x86-64)</p></td>
 <td><p>MKL as the source of BLAS, LAPACK and FFT routines</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cufinufft</span></code></p></td>
-<td><p>cuFINUFFT 2.3 or later</p></td>
-<td><p>Non-uniform Fourier transforms of CUDA tensors</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deepinv</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">deepinv</span></code></p></td>
 <td><p>DeepInverse</p></td>
 <td><p><a class="reference internal" href="../../generated/bartorch.interop.to_deepinv.html#bartorch.interop.to_deepinv" title="bartorch.interop.to_deepinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.interop.to_deepinv()</span></code></a></p></td>
 </tr>

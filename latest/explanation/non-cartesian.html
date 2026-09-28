@@ -659,19 +659,19 @@ gridding implementation is not used, and no configuration falls back to it.</p>
 <tr class="row-odd"><th class="head"><p>Path</p></th>
 <th class="head"><p>Backend</p></th>
 <th class="head"><p>Device</p></th>
-<th class="head"><p>Requirement and behaviour when unavailable</p></th>
+<th class="head"><p>Availability</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Forward and adjoint transform, PSF</p></td>
 <td><p>FINUFFT</p></td>
 <td><p>CPU</p></td>
-<td><p>Installed as a dependency; without it, a non-uniform transform raises an error</p></td>
+<td><p>Compiled into every build</p></td>
 </tr>
 <tr class="row-odd"><td><p>Forward and adjoint transform, PSF</p></td>
 <td><p>cuFINUFFT</p></td>
 <td><p>CUDA</p></td>
-<td><p>The <code class="docutils literal notranslate"><span class="pre">cufinufft</span></code> extra.  On a machine with a CUDA device and a CUDA build of bartorch, the substitution is not installed without it, and every non-uniform transform, on the host as well, raises an error</p></td>
+<td><p>Compiled into the CUDA build</p></td>
 </tr>
 <tr class="row-even"><td><p>Multiplication by <span class="math notranslate nohighlight">\(\hat h\)</span></p></td>
 <td><p>BART, with the FFT of the device: MKL or pocketfft on the host, cuFFT on a CUDA device</p></td>
@@ -688,9 +688,7 @@ gridding implementation is not used, and no configuration falls back to it.</p>
 </div>
 <p>The backend of a transform is chosen by where its arguments are, not by where
 the trajectory is: an operator holds one pair of plans per memory space and
-builds each the first time a transform is requested there.  On macOS, the
-OpenMP runtimes of the PyTorch and FINUFFT wheels must first be made one, as
-<a class="reference internal" href="../guides/user/installation.html#macos-openmp"><span class="std std-ref">the installation guide</span></a> describes.</p>
+builds each the first time a transform is requested there.</p>
 </section>
 <section id="trajectories">
 <h2>Trajectories<a class="headerlink" href="#trajectories" title="Link to this heading">#</a></h2>

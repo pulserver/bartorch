@@ -475,6 +475,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-change">Making a change</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generated-files">Generated files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-bart-submodule">Updating the BART submodule</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-finufft-submodule">Updating the FINUFFT submodule</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-a-topic-branch">Updating a topic branch</a></li>
 </ul>
@@ -561,6 +562,15 @@ pointer, regenerate the catalogue, and review the resulting API differences.  <c
 to be wrapped by hand, generated into <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code>, or listed as
 private with a reason in <code class="docutils literal notranslate"><span class="pre">src/bartorch/_coverage.py</span></code>.</p>
 </section>
+<section id="updating-the-finufft-submodule">
+<h2>Updating the FINUFFT submodule<a class="headerlink" href="#updating-the-finufft-submodule" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">external/finufft</span></code> is upstream FINUFFT at one commit, unmodified.  Moving it is
+a change of its own: pick a commit whose upstream CI is green, update the
+submodule pointer, record the commit and the reason in the pull request, and
+run the suite on every platform; <code class="docutils literal notranslate"><span class="pre">tests/test_finufft.py</span></code> holds the transform
+against explicit discrete Fourier sums and against BART’s gridder.  A change
+FINUFFT itself needs goes upstream rather than into the checkout.</p>
+</section>
 <section id="tests">
 <h2>Tests<a class="headerlink" href="#tests" title="Link to this heading">#</a></h2>
 <p>A numerical test compares BART with a reference outside BART: an independent
@@ -631,6 +641,7 @@ git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-change">Making a change</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generated-files">Generated files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-bart-submodule">Updating the BART submodule</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-finufft-submodule">Updating the FINUFFT submodule</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-a-topic-branch">Updating a topic branch</a></li>
 </ul>

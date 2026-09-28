@@ -484,7 +484,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Git</p></td>
-<td><p>With submodule support; BART is the submodule <code class="docutils literal notranslate"><span class="pre">external/bart</span></code></p></td>
+<td><p>With submodule support; BART and FINUFFT are the submodules <code class="docutils literal notranslate"><span class="pre">external/bart</span></code> and <code class="docutils literal notranslate"><span class="pre">external/finufft</span></code>.  FINUFFT’s build also fetches the xsimd, POET and DUCC0 versions it pins, and CCCL for a CUDA build; <code class="docutils literal notranslate"><span class="pre">CPM_SOURCE_CACHE</span></code> keeps them between builds</p></td>
 </tr>
 <tr class="row-odd"><td><p>Python</p></td>
 <td><p>3.10 or later, with PyTorch installed first as described in <a class="reference internal" href="../user/installation.html"><span class="doc">Installation</span></a></p></td>
@@ -493,21 +493,20 @@
 <td><p>clang, or GCC 14 or later.  BART’s nested functions are compiled as Blocks by clang and as heap trampolines (<code class="docutils literal notranslate"><span class="pre">-ftrampoline-impl=heap</span></code>) by GCC 14; CMake rejects older GCC at configuration</p></td>
 </tr>
 <tr class="row-odd"><td><p>CMake</p></td>
-<td><p>3.18 or later, with Ninja or Make</p></td>
+<td><p>3.25 or later, with Ninja or Make</p></td>
 </tr>
 <tr class="row-even"><td><p>OpenMP</p></td>
-<td><p>The runtime matching the compiler, for example <code class="docutils literal notranslate"><span class="pre">libomp-dev</span></code> with clang on Debian and Ubuntu.  Without it the build succeeds and runs single-threaded</p></td>
+<td><p>Linux: the runtime matching the compiler, for example <code class="docutils literal notranslate"><span class="pre">libomp-dev</span></code> with clang on Debian and Ubuntu.  macOS: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">libomp</span></code>, for <code class="docutils literal notranslate"><span class="pre">omp.h</span></code> only; the library links against PyTorch’s runtime.  Without it the build fails unless <code class="docutils literal notranslate"><span class="pre">-DBARTORCH_OPENMP=OFF</span></code> asks for a single-threaded library</p></td>
 </tr>
 <tr class="row-odd"><td><p>CUDA (optional)</p></td>
-<td><p>A CUDA toolkit with <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> for <code class="docutils literal notranslate"><span class="pre">-DBARTORCH_CUDA=ON</span></code>; a CUDA build of PyTorch does not include a compiler</p></td>
+<td><p>A CUDA toolkit with <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> for <code class="docutils literal notranslate"><span class="pre">-DBARTORCH_CUDA=ON</span></code>, 12.1 or later for compute capability 9.0; a CUDA build of PyTorch does not include a compiler</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>FINUFFT is a runtime dependency that <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> installs.  When the
-suite is run from <code class="docutils literal notranslate"><span class="pre">src/</span></code> without installing, install it separately
-(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">finufft</span></code>): without it the non-Cartesian tests fail rather than
-skip, because the substitution declining is an error.  <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mkl</span> <span class="pre">deepinv</span></code> enables the tests that need MKL and the DeepInverse adapter.</p>
+<p>FINUFFT and cuFINUFFT are compiled into the library from <code class="docutils literal notranslate"><span class="pre">external/finufft</span></code>;
+no FINUFFT package is installed or used.  <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mkl</span> <span class="pre">deepinv</span></code> enables
+the tests that need MKL and the DeepInverse adapter.</p>
 <p>On Windows the compiler is clang from MSYS2’s CLANG64 environment, with the
 packages <code class="docutils literal notranslate"><span class="pre">mingw-w64-clang-x86_64-{clang,cmake,ninja,llvm-openmp,llvm-tools}</span></code>,
 <code class="docutils literal notranslate"><span class="pre">clang64/bin</span></code> on <code class="docutils literal notranslate"><span class="pre">PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">CMAKE_GENERATOR=Ninja</span></code>.  The build links against
