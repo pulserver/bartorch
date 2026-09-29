@@ -78,8 +78,8 @@ def mobafit(
     redu : float, default=2.0
         Factor the weight is divided by after each step.
     magnitude : bool, default=False
-        Fit the magnitude of the model to the data rather than the signal
-        itself, which is BART's ``-a``.
+        Fit the magnitude of the model to the magnitude of the data rather
+        than the signal itself, which is BART's ``-a``.
     start : torch.Tensor, default=None
         Maps to start from, of the model's input shape.  Built from
         ``**values`` when it is not given.
@@ -114,7 +114,10 @@ def mobafit(
         cg_maxiter=cg_maxiter,
         inner=optim.CG(maxiter=cg_maxiter) if inner is None else inner,
     )
-    fitted = solver(images.reshape(forward.oshape), forward, x0=x0)
+    data = images.reshape(forward.oshape)
+    if magnitude:
+        data = data.abs().to(data.dtype)
+    fitted = solver(data, forward, x0=x0)
 
     # A voxel with no signal at all constrains nothing, and a Gauss-Newton
     # step on it walks wherever the bounds allow; the command skips such a

@@ -97,3 +97,10 @@ def test_a_trajectory_out_of_range_is_refused() -> None:
     samples = torch.ones(1, traj.shape[1], dtype=torch.complex64)
     with pytest.raises(ValueError, match="grid units"):
         reconstruct_navigator(samples, traj, (16, 16))
+
+
+def test_samples_that_are_not_planes_of_coils_are_refused() -> None:
+    with pytest.raises(ValueError, match="expected \\(planes, samples\\)"):
+        reconstruct_navigator(
+            torch.ones(1, 1, 1, 10, dtype=torch.complex64), torch.as_tensor(radial(16)), (16, 16)
+        )

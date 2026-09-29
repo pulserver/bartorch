@@ -486,3 +486,49 @@ def test_off_the_grid_the_last_stage_carries_the_normal_and_its_adjoint_carries_
     coil_images = _rand(*F.oshapes[0])
     assert torch.allclose(stage.forward(coil_images), F.transform.normal(coil_images), atol=1e-5)
     assert torch.equal(stage._bundled.adjoint(coil_images, coil_images), coil_images)
+
+
+# --- nlinv's options -----------------------------------------------------------
+
+
+def test_nlinv_constrained_to_a_real_image_returns_one():
+    kspace = _cartesian_data()
+    # A phase across the object, which the unconstrained image keeps.
+    phase = torch.exp(1j * torch.linspace(0, 2.0, 24))[None, None, None, :]
+    coil_images = torch.fft.fftshift(
+        torch.fft.ifft2(torch.fft.ifftshift(kspace, dim=(-2, -1))), dim=(-2, -1)
+    )
+    kspace = torch.fft.fftshift(
+        torch.fft.fft2(torch.fft.ifftshift(coil_images * phase, dim=(-2, -1))), dim=(-2, -1)
+    ).to(torch.complex64)
+
+    free = bt.nlinv(kspace, maxiter=4)
+    real = bt.nlinv(kspace, maxiter=4, real=True)
+
+    assert float(free.imag.abs().max()) > 0.1 * float(free.abs().max())
+    assert 0.0 == float(real.imag.abs().max())
+
+
+def test_nlinv_estimates_as_many_sets_of_sensitivities_as_asked():
+    _, sensitivities = bt.nlinv(_cartesian_data(), maxiter=3, maps=2, return_sensitivities=True)
+    assert tuple(sensitivities.shape) == (2, 4, 1, 24, 24)
+
+
+def test_nlinv_given_the_pattern_it_would_estimate_answers_the_same():
+    # Fully sampled data: every sample is nonzero, so the pattern nlinv
+    # estimates is all ones.
+    kspace = _cartesian_data()
+    ones = torch.ones(1, 1, 24, 24, dtype=torch.complex64)
+    assert torch.equal(bt.nlinv(kspace, maxiter=3, pattern=ones), bt.nlinv(kspace, maxiter=3))
+
+
+def test_a_stronger_sobolev_weight_smooths_the_sensitivities():
+    kspace = _cartesian_data()
+
+    def high_frequency_fraction(alpha):
+        _, maps = bt.nlinv(kspace, maxiter=4, alpha=alpha, return_sensitivities=True)
+        spectrum = torch.fft.fftshift(torch.fft.fft2(maps), dim=(-2, -1)).abs() ** 2
+        centre = spectrum[..., 8:16, 8:16].sum()
+        return float(1 - centre / spectrum.sum())
+
+    assert high_frequency_fraction(1000.0) < high_frequency_fraction(1.0)

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import importlib.util
+import os
+
 import numpy as np
 import pytest
 import torch
@@ -174,3 +177,141 @@ def test_amplification_climbs_with_the_accrued_phase(timing: ReadoutTiming) -> N
     lightly = fit_transfer(short, band=260.0, terms=40)
     heavily = fit_transfer(long, band=260.0, terms=40)
     assert heavily.amplification > 3 * lightly.amplification
+
+
+def test_the_term_weights_interpolate_the_table_and_clamp_at_its_ends() -> None:
+    from bartorch.tools._correct._spiral import SpiralTransfer, _term_weights
+
+    frequencies = np.linspace(-100.0, 100.0, 5)
+    table = np.array([1.0, 2.0 - 1.0j, 3.0, 4.0 + 2.0j, 5.0 + 1.0j])
+    transfer = SpiralTransfer(np.zeros(1, dtype=complex), table[None], frequencies)
+    field = np.array([-150.0, -100.0, -30.0, 0.0, 70.0, 99.0, 100.0, 150.0])
+
+    weights = _term_weights(transfer, 0, torch.as_tensor(field)).numpy()
+
+    expected = np.interp(field, frequencies, table.real) + 1j * np.interp(
+        field, frequencies, table.imag
+    )
+    np.testing.assert_allclose(weights, expected, atol=1e-12)
+
+
+def test_on_the_host_the_automatic_backend_is_the_transform(timing: ReadoutTiming) -> None:
+    transfer = fit_transfer(timing, band=80.0, terms=4)
+    torch.manual_seed(0)
+    image = torch.randn(16, 16, dtype=torch.complex64)
+    field = torch.rand(16, 16) * 160 - 80
+    assert torch.equal(
+        deblur(image, field, transfer), deblur(image, field, transfer, backend="fft")
+    )
+
+
+def test_an_unknown_backend_is_refused(timing: ReadoutTiming) -> None:
+    transfer = fit_transfer(timing, band=80.0, terms=2)
+    with pytest.raises(ValueError, match="backend must be"):
+        deblur(torch.zeros(8, 8, dtype=torch.complex64), torch.zeros(8, 8), transfer, backend="x")
+
+
+def test_a_trajectory_that_is_not_samples_by_axes_is_refused() -> None:
+    with pytest.raises(ValueError, match=r"expected \(samples, ndim\)"):
+        ReadoutTiming.from_trajectory(np.zeros(16), duration=1e-3)
+
+
+def test_a_trajectory_that_stays_at_the_centre_is_refused() -> None:
+    with pytest.raises(ValueError, match="zero extent"):
+        ReadoutTiming.from_trajectory(np.zeros((16, 2)), duration=1e-3)
+
+
+def test_a_factorization_without_terms_is_refused(timing: ReadoutTiming) -> None:
+    with pytest.raises(ValueError, match="at least 1"):
+        fit_transfer(timing, band=80.0, terms=0)
+
+
+# --- the Triton kernels ------------------------------------------------------------
+#
+# On a card these compile; without one they run under Triton's interpreter,
+# which is read when a kernel is defined, so ``TRITON_INTERPRET=1`` has to be in
+# the environment before the suite starts.
+
+_interpreted = os.environ.get("TRITON_INTERPRET") == "1"
+requires_triton = pytest.mark.skipif(
+    importlib.util.find_spec("triton") is None or not (torch.cuda.is_available() or _interpreted),
+    reason="needs Triton, and a CUDA device or TRITON_INTERPRET=1",
+)
+_kernel_device = "cuda" if torch.cuda.is_available() and not _interpreted else "cpu"
+
+
+@requires_triton
+def test_the_separable_convolution_is_the_k_space_factor_to_its_truncation() -> None:
+    from bartorch.tools._correct._triton_spiral import separable_convolve
+
+    torch.manual_seed(0)
+    image = torch.randn(3, 40, 64, dtype=torch.complex64, device=_kernel_device)
+    rate = complex(-4.0, 6.0)
+
+    convolved = separable_convolve(image, rate, (1, 2))
+
+    ky = torch.fft.fftfreq(40, device=_kernel_device)[:, None] * 2
+    kx = torch.fft.fftfreq(64, device=_kernel_device)[None, :] * 2
+    factor = torch.exp(torch.as_tensor(rate) * (ky**2 + kx**2)).to(torch.complex64)
+    exact = torch.fft.ifft2(torch.fft.fft2(image) * factor)
+    # Each axis drops at most a hundred-thousandth of its kernel's energy.
+    assert float((convolved - exact).norm() / exact.norm()) < 1e-2
+
+
+@requires_triton
+def test_a_one_dimensional_image_is_convolved_along_its_only_axis() -> None:
+    from bartorch.tools._correct._triton_spiral import separable_convolve
+
+    torch.manual_seed(0)
+    line = torch.randn(64, dtype=torch.complex64, device=_kernel_device)
+    rate = complex(-2.0, 10.0)
+    k = torch.fft.fftfreq(64, device=_kernel_device) * 2
+    exact = torch.fft.ifft(torch.fft.fft(line) * torch.exp(torch.as_tensor(rate) * k**2))
+    convolved = separable_convolve(line, rate, (0,))
+    assert float((convolved - exact).norm() / exact.norm()) < 1e-2
+
+
+@requires_triton
+def test_a_kernel_that_does_not_fit_inside_its_axis_is_refused() -> None:
+    from bartorch.tools._correct._triton_spiral import separable_convolve
+
+    image = torch.ones(8, 8, dtype=torch.complex64, device=_kernel_device)
+    with pytest.raises(ValueError, match="use backend='fft'"):
+        separable_convolve(image, complex(-200.0, 0.0), (0, 1))
+    with pytest.raises(ValueError, match="complex"):
+        separable_convolve(image.real, complex(-1.0, 0.0), (0, 1))
+
+
+@requires_triton
+def test_the_fused_accumulation_adds_the_interpolated_weight_times_the_term() -> None:
+    from bartorch.tools._correct._triton_spiral import accumulate_weighted
+
+    torch.manual_seed(0)
+    frequencies = np.linspace(-100.0, 100.0, 9)
+    table = torch.randn(9, dtype=torch.complex64, device=_kernel_device)
+    field = torch.rand(6, 7, device=_kernel_device) * 260 - 130
+    working = torch.randn(2, 6, 7, dtype=torch.complex64, device=_kernel_device)
+    result = torch.randn(2, 6, 7, dtype=torch.complex64, device=_kernel_device)
+    before = result.clone()
+
+    accumulate_weighted(
+        result, working, field, table, frequencies[0], frequencies[1] - frequencies[0]
+    )
+
+    grid, values = frequencies, table.cpu().numpy()
+    at = field.cpu().numpy()
+    weight = np.interp(at, grid, values.real) + 1j * np.interp(at, grid, values.imag)
+    expected = before.cpu().numpy() + weight * working.cpu().numpy()
+    np.testing.assert_allclose(result.cpu().numpy(), expected, rtol=1e-5, atol=1e-5)
+
+
+@requires_triton
+def test_the_convolution_backend_deblurs_as_the_transform_does(timing: ReadoutTiming) -> None:
+    transfer = fit_transfer(timing, band=120.0, terms=6)
+    torch.manual_seed(0)
+    image = torch.randn(64, 64, dtype=torch.complex64, device=_kernel_device)
+    field = torch.rand(64, 64, device=_kernel_device) * 200 - 100
+
+    exact = deblur(image, field, transfer, backend="fft")
+    truncated = deblur(image, field, transfer, backend="conv")
+    assert float((truncated - exact).norm() / exact.norm()) < 2e-2

@@ -172,6 +172,82 @@ def test_a_mobafit_the_app_cannot_express_goes_to_the_command(line, tmp_path, mo
     assert route(line[0], line[1:]) == ("command", None)
 
 
+def test_a_magnitude_mobafit_writes_the_commands_coefficients(tmp_path, monkeypatch):
+    """``-a`` fits the modulus of the model to the modulus of the data, so the
+    phased series answers ``|M0|`` and ``R2``.  The command needs a start off
+    zero, where the modulus has no gradient."""
+    monkeypatch.chdir(tmp_path)
+    _, times, series, (_, rate) = _FITS["T"]
+    _series(times, series)
+    line = ["mobafit", "-T", "-a", "--init", "1:10", "t", "y"]
+    where, plan = route(line[0], [*line[1:], "x"])
+    assert where == "app" and plan["call"].keywords["magnitude"] is True
+
+    assert main([*line, "app"]) == 0
+    code, _, failure = run_command([*line, "cmd"])
+    assert code == 0, failure
+
+    ours, theirs = readcfl("app"), readcfl("cmd")
+    for coefficient, expected in enumerate([np.full(T2.shape, abs(M0)), rate]):
+        assert _relative(np.abs(ours[..., coefficient].squeeze()), expected) < 1e-4
+        assert _relative(np.abs(theirs[..., coefficient].squeeze()), expected) < 1e-4
+
+
+def test_mobafits_conjugate_gradient_count_is_the_apps(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    _, times, series, _ = _FITS["T"]
+    _series(times, series)
+    where, plan = route("mobafit", ["-T", "--liniter", "7", "t", "y", "x"])
+    assert where == "app" and plan["call"].keywords["cg_maxiter"] == 7
+
+
+def _written(name: str, array: np.ndarray) -> str:
+    writecfl(name, array.astype(np.complex64))
+    return name
+
+
+@pytest.mark.parametrize(
+    ("flags", "times", "images"),
+    [
+        (["-L", "--init", "0:1:1"], None, None),
+        (["-I", "--init", "1:1:5"], None, None),
+        (["-T"], np.ones((1, 1, 1, 1, 1, 8, 2)), None),
+        (["-T"], (1 + 1j) * ECHO_TIMES.reshape((1,) * 5 + (-1,)), None),
+        (["-T"], None, np.ones((FIT, FIT, 1, 1, 1, 1, 8))),
+    ],
+    ids=[
+        "L start with no steady state",
+        "I start past the efficiency bounds",
+        "times along two axes",
+        "complex times",
+        "contrasts along COEFF_DIM",
+    ],
+)
+def test_a_mobafit_whose_files_the_app_cannot_read_goes_to_the_command(
+    flags, times, images, tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+    _, echo_times, series, _ = _FITS["T"]
+    _series(echo_times, series)
+    t = "t" if times is None else _written("t_other", times)
+    y = "y" if images is None else _written("y_other", images)
+    assert route("mobafit", [*flags, t, y, "x"]) == ("command", None)
+
+
+def test_an_array_with_more_dimensions_than_bart_has_is_unsupported():
+    from bartorch.cli._apps import _bart
+
+    with pytest.raises(_argv.Unsupported, match="more dimensions than BART has"):
+        _bart(torch.zeros((1,) * 17))
+
+
+def test_pics_writes_one_output():
+    from bartorch.cli._apps import ADAPTERS
+
+    with pytest.raises(_argv.Unsupported, match="one output"):
+        ADAPTERS["pics"]({}, [torch.ones(1, 8, 8), torch.ones(1, 8, 8)], 2)
+
+
 def test_a_mobafit_that_goes_to_the_command_answers_its_bits(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     _, times, series, _ = _FITS["T"]
@@ -305,6 +381,71 @@ def test_a_moba_the_app_cannot_express_goes_to_the_command(flags, tmp_path, monk
     images = amplitude[..., None] * np.exp(-ECHO_TIMES[:6] / MOBA_T2[..., None])
     _moba_kspace(ECHO_TIMES[:6], images, coils)
     assert route("moba", [*flags, "k", "t", "x"]) == ("command", None)
+
+
+def _moba_decay_with_coils():
+    support, amplitude, coils = _disc_and_coils()
+    images = amplitude[..., None] * np.exp(-ECHO_TIMES[:6] / MOBA_T2[..., None])
+    _moba_kspace(ECHO_TIMES[:6], images, coils)
+    writecfl("s", coils.astype(np.complex64).reshape(MOBA, MOBA, 1, MOBA_COILS))
+    return support
+
+
+@pytest.mark.parametrize(
+    "scaling", [[], ["--scale_data=100", "--normalize_scaling"]], ids=["unscaled", "normalized"]
+)
+def test_moba_given_the_coils_fits_the_maps_they_were_made_with(scaling, tmp_path, monkeypatch):
+    """``moba --sens``: the coils are the ones the k-space was made with, so the
+    fit is of the maps alone.  Held to the truth: the command itself does not
+    converge on this phantom with its coils given (its R2 comes back a quarter
+    of the truth unscaled and zero scaled)."""
+    monkeypatch.chdir(tmp_path)
+    support = _moba_decay_with_coils()
+    _, amplitude, _ = _disc_and_coils()
+    flags = ["-T", "-l2", "--sens", "s", *scaling]
+    where, plan = route("moba", [*flags, "k", "t", "x"])
+    assert where == "app" and len(plan["call"].arguments) == 3
+
+    assert main(["moba", *flags, "k", "t", "app"]) == 0
+
+    ours = readcfl("app")
+    assert ours.shape == (MOBA, MOBA, 1, 1, 1, 1, 2)
+    rate = ours[..., 1].squeeze().real
+    against_truth = np.abs(rate - 1 / MOBA_T2)[support] * MOBA_T2[support]
+    assert np.median(against_truth) < 1e-3 and against_truth.max() < 5e-3
+    if not scaling:
+        fitted = ours[..., 0].squeeze()[support]
+        assert np.abs(fitted - amplitude[support]).max() < 1e-3
+
+
+def test_mobas_regularization_schedule_and_sobolev_weight_reach_the_app(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    _moba_decay_with_coils()
+    flags = ["-T", "-l2", "-j", "0.01", "--reduction", "3", "--sobolev_a", "100"]
+    where, plan = route("moba", [*flags, "k", "t", "x"])
+    assert where == "app"
+    assert plan["call"].keywords["alpha_min"] == 0.01
+    assert plan["call"].keywords["redu"] == 3.0
+    assert plan["call"].keywords["sobolev"] == (100.0, 32.0)
+
+
+@pytest.mark.parametrize(
+    ("flags", "files"),
+    [
+        (["-T", "-l2", "--sens", "s"], ["k", "t", "x", "sens_out"]),
+        (["-T", "-l2", "--sens", "s_wrong"], ["k", "t", "x"]),
+        (["-T", "-l2"], ["k_more", "t", "x"]),
+    ],
+    ids=["coils given and asked for", "coils of another shape", "k-space beyond echoes"],
+)
+def test_a_moba_whose_files_the_app_cannot_take_goes_to_the_command(
+    flags, files, tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+    _moba_decay_with_coils()
+    writecfl("s_wrong", np.ones((MOBA, MOBA, 1, MOBA_COILS + 1), dtype=np.complex64))
+    writecfl("k_more", np.ones((MOBA, MOBA, 1, MOBA_COILS, 2, 6), dtype=np.complex64))
+    assert route("moba", [*flags, *files]) == ("command", None)
 
 
 def test_a_command_with_no_app_runs_as_itself(_dataset):

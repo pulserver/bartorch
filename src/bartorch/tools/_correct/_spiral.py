@@ -266,18 +266,13 @@ def _term_weights(transfer: SpiralTransfer, term: int, field_map: torch.Tensor) 
     spacing = frequencies[1] - frequencies[0]
     position = (field_map - float(frequencies[0])) / float(spacing)
     position = position.clamp(0, len(frequencies) - 1)
-    lower = position.floor()
+    lower = position.floor().clamp(max=len(frequencies) - 2)
     fraction = (position - lower).to(field_map.dtype)
     index = lower.long()
-    upper = index.clamp(max=len(frequencies) - 2) + 1
     table = torch.as_tensor(transfer.weights[term], device=field_map.device).to(
         _complex_for(field_map.dtype)
     )
-    return torch.lerp(
-        table[index.clamp(max=len(frequencies) - 2)],
-        table[upper],
-        fraction.to(table.dtype),
-    )
+    return torch.lerp(table[index], table[index + 1], fraction.to(table.dtype))
 
 
 def _complex_for(dtype: torch.dtype) -> torch.dtype:

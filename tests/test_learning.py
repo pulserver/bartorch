@@ -218,6 +218,16 @@ def test_a_layout_the_adapter_cannot_make_is_refused(kwargs, match):
         _Planes(_Seen(), **kwargs)
 
 
+def test_a_denoiser_that_cannot_be_called_is_refused():
+    with pytest.raises(TypeError, match="is not"):
+        _Planes(object())
+
+
+def test_an_image_with_fewer_axes_than_the_network_takes_is_refused():
+    with pytest.raises(ValueError, match="at least its 2 spatial axes"):
+        _Planes(_Seen(), channels=2)(_rand(8))
+
+
 def test_a_network_that_answers_the_wrong_shape_is_named():
     class _Crop(nn.Module):
         def forward(self, v):

@@ -143,6 +143,16 @@ def test_the_adjoint_is_the_adjoint_of_the_derivative():
     assert _inner(M._derivative(u), v) == pytest.approx(_inner(u, M._adjoint(v)), rel=1e-3)
 
 
+def test_a_model_without_an_amplitude_has_an_adjoint_over_the_reals():
+    # Its images are real, so the adjoint reads the real part of a complex
+    # cotangent: <J u, v> taken over the reals is <u, J^H v>.
+    M = nlop.MultiEcho((5.0, 15.0, 35.0, 70.0), (4, 4), amplitude=False)
+    M.forward(M.initial(T2=60.0))
+    u = _rand(*M.ishape).real.to(torch.complex64)
+    v = _rand(*M.oshape)
+    assert _inner(M._derivative(u), v) == pytest.approx(_inner(u, M._adjoint(v)), rel=1e-3)
+
+
 def test_the_imaginary_half_of_the_domain_is_a_null_direction():
     # TorchSim's maps are real; they are carried in the real part of a complex
     # buffer, and nothing reads the other half.  An iterate that starts real

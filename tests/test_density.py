@@ -122,3 +122,28 @@ def test_a_kz_on_a_two_dimensional_grid_is_refused() -> None:
     traj = torch.ones(SPOKES * GRID, 3)
     with pytest.raises(ValueError, match="takes no kz"):
         bartorch.estimate_density(traj, (GRID, GRID), iterations=2)
+
+
+def test_a_zero_kz_on_a_plane_weighs_as_the_planar_trajectory() -> None:
+    planar = torch.as_tensor(spokes(16, 32), dtype=torch.float32)
+    padded = torch.cat([planar, torch.zeros(planar.shape[0], 1)], dim=-1)
+    torch.testing.assert_close(
+        bartorch.estimate_density(padded, (GRID, GRID), iterations=3),
+        bartorch.estimate_density(planar, (GRID, GRID), iterations=3),
+        rtol=0,
+        atol=0,
+    )
+
+
+@pytest.mark.parametrize(
+    ("traj", "shape", "match"),
+    [
+        (torch.zeros(8, 2), (GRID,), "two- or three-dimensional"),
+        (torch.zeros(8), (GRID, GRID), "samples, 2 or 3"),
+        (torch.zeros(8, 4), (GRID, GRID), "samples, 2 or 3"),
+        (torch.zeros(8, 2), (GRID, GRID, GRID), "3D grid needs 3"),
+    ],
+)
+def test_a_trajectory_that_does_not_fit_the_grid_is_refused(traj, shape, match) -> None:
+    with pytest.raises(ValueError, match=match):
+        bartorch.estimate_density(traj, shape)
