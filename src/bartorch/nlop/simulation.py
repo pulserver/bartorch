@@ -98,19 +98,24 @@ class SignalModel(_Callback):
         if contrasts is None:
             contrasts = int(model.A(model.initial(())).shape[-1])
         self.contrasts = int(contrasts)
+        # A model without a complex amplitude returns real images, and its
+        # adjoint is taken against the real part of a complex cotangent.
+        self._real: bool | None = None
 
         state: dict[str, torch.Tensor] = {}
 
         def forward(x: torch.Tensor) -> torch.Tensor:
             maps = self._to_maps(x)
             state["x"] = maps
-            return self._to_bart(model.A(maps))
+            images = model.A(maps)
+            self._real = not images.is_complex()
+            return self._to_bart(images)
 
         def derivative(dx: torch.Tensor) -> torch.Tensor:
             return self._to_bart(model.A_jvp(state["x"], self._to_maps(dx)))
 
         def adjoint(dy: torch.Tensor) -> torch.Tensor:
-            return self._to_bart(model.A_vjp(state["x"], self._cotangent(dy)))
+            return self._to_bart(model.A_vjp(state["x"], self._cotangent(dy, state["x"])))
 
         super().__init__(
             (self.contrasts, *self.voxels),
@@ -130,9 +135,12 @@ class SignalModel(_Callback):
         """The way back, into the real part of a complex buffer."""
         return x.movedim(-1, 0).to(torch.complex64).contiguous()
 
-    def _cotangent(self, dy: torch.Tensor) -> torch.Tensor:
-        """One image per contrast, in TorchSim's layout."""
-        return dy.reshape(self.contrasts, *self.voxels).movedim(0, -1).contiguous()
+    def _cotangent(self, dy: torch.Tensor, maps: torch.Tensor) -> torch.Tensor:
+        """One image per contrast, in TorchSim's layout and the images' own field."""
+        if self._real is None:
+            self._real = not self.model.A(maps).is_complex()
+        dy = dy.reshape(self.contrasts, *self.voxels).movedim(0, -1)
+        return (dy.real if self._real else dy).contiguous()
 
     def _bundle(self):
         """TorchSim takes the point as an argument already, so the bundle is its own pair.
@@ -152,7 +160,8 @@ class SignalModel(_Callback):
             return self._to_bart(model.A_jvp(self._to_maps(x), self._to_maps(dx)))
 
         def adjoint(dy: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
-            return self._to_bart(model.A_vjp(self._to_maps(x), self._cotangent(dy)))
+            maps = self._to_maps(x)
+            return self._to_bart(model.A_vjp(maps, self._cotangent(dy, maps)))
 
         return Bundle(
             self,
