@@ -212,7 +212,7 @@ class Reconstruction(lightning.LightningModule):
         if "greedy" != self.stage:
             loss = self._loss(item)
             self.manual_backward(scale * loss)
-            return float(loss)
+            return float(loss.detach())
         weights = self._weights()
         total = 0.0
         y, A, target = self._problem(item)
@@ -222,7 +222,7 @@ class Reconstruction(lightning.LightningModule):
             if loss.requires_grad:
                 self.manual_backward(scale * loss)
                 learned = True
-            total += float(loss)
+            total += float(loss.detach())
         if not learned:
             raise ValueError(
                 "no iteration's image depends on that iteration's parameters, so greedy training "
