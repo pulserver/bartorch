@@ -48,8 +48,8 @@ parameter of the block and is trained with the network's weights.
   per-iteration training.
 
 It follows :doc:`01-plug-and-play`, which used a pretrained denoiser without
-training. This lesson ends the course; the standalone examples of
-:doc:`../07-tours/index` apply the package to individual problems.
+training. The next lesson, :doc:`03-networks-for-complex-volumes`, builds
+networks for complex multi-channel volumes.
 """
 
 # %%
@@ -471,22 +471,12 @@ plt.show()
 #
 # Pretraining the denoiser in isolation, then greedy per-iteration training,
 # then end-to-end fine-tuning with checkpointing, is the staged schedule
-# reported for a fully three-dimensional unrolled reconstruction [#urman]_.
-
-greedy, greedy_block = modl()
-greedy.detach = True
-
-optimizer = torch.optim.Adam(greedy.parameters(), lr=1e-3)
-x, y, start = measure(train_images[:2], torch.Generator().manual_seed(3))
-
-for step in range(3):
-    optimizer.zero_grad()
-    # One loss per iteration, each propagating only into the step that produced it.
-    for image in greedy.steps(y, A, x0=start):
-        (image - x).abs().square().mean().backward()
-    optimizer.step()
-
-print(f"greedy: rho {float(greedy_block.rho.detach()):.3f}")
+# reported for a fully three-dimensional unrolled reconstruction [#urman]_,
+# and the subject of :doc:`04-staged-training`. Greedy training does not apply
+# to the ADMM step: its image is the x-update, which depends on the denoiser
+# only through the previous iteration's auxiliary variable, and a detached
+# start removes that dependence. The staged lesson uses a proximal-gradient
+# step, whose image is the denoiser's output.
 
 # %%
 #
