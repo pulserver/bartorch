@@ -24,7 +24,6 @@ __all__ = [
     "resize",
     "rss",
     "unwrap",
-    "window",
 ]
 
 
@@ -199,19 +198,6 @@ def conv(input: torch.Tensor, kernel: torch.Tensor, axes: int | tuple[int, ...])
         raise ValueError(f"kernel has {kernel.ndim} axes, more than the input's {input.ndim}")
     flags = axes_flags(axes, input.ndim)
     return dispatch("conv", [input, kernel], None, _pos=[flags]).reshape(input.shape)
-
-
-@curated("window")
-def window(input: torch.Tensor, axes: int | tuple[int, ...], *, hann: bool = False) -> torch.Tensor:
-    """Multiply by a Hamming window along each of ``axes``, or a Hann window.
-
-    The window along an axis of size ``n`` is
-    ``a - (1 - a) * cos(2 pi i / (n - 1))`` with ``a = 0.54`` (Hamming) or
-    ``0.5`` (Hann), as :func:`numpy.hamming` and :func:`numpy.hanning`; a
-    size-one axis is left alone.
-    """
-    flags = axes_flags(axes, input.ndim)
-    return dispatch("window", [input], None, _pos=[flags], H=hann).reshape(input.shape)
 
 
 def _filter_shape(input: torch.Tensor, axis: int, length: int) -> tuple[int, ...]:

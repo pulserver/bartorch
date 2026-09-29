@@ -1,9 +1,9 @@
 # Array functions and settings
 
-The `bartorch` namespace holds array functions that call BART's commands on
-tensors, and the process-wide settings of the embedded library.  Axis
-arguments are indices into a C-order shape; results are not recorded by
-autograd.
+The `bartorch` namespace holds array functions on tensors, most of them
+calling BART's commands, and the process-wide settings of the embedded
+library.  Axis arguments are indices into a C-order shape; results are not
+recorded by autograd.
 
 ```{eval-rst}
 .. currentmodule:: bartorch
@@ -19,6 +19,16 @@ autograd.
 | {obj}`~bartorch.fftmod` | Multiplication by the alternating phase relating centred and uncentred transforms |
 | {obj}`~bartorch.nufft` | Non-uniform Fourier transform of an image along a trajectory |
 | {obj}`~bartorch.nufft_adjoint` | Adjoint non-uniform Fourier transform, from samples to an image |
+| {obj}`~bartorch.estimate_density` | Sampling density compensation weights of a trajectory (Pipe-Menon iteration) |
+
+## K-space windows and readout
+
+| Object | Description |
+| --- | --- |
+| {obj}`~bartorch.hann_window` | Radial or separable Hann window on a k-space grid |
+| {obj}`~bartorch.fermi_window` | Radial or separable Fermi window on a k-space grid |
+| {obj}`~bartorch.apodize` | Multiplication of k-space by a Hann or Fermi window over its trailing axes |
+| {obj}`~bartorch.remove_readout_oversampling` | Cropping of the readout field of view in image space |
 
 ## Wavelet transforms
 
@@ -42,7 +52,6 @@ autograd.
 | {obj}`~bartorch.flip` | Reversal along axes |
 | {obj}`~bartorch.circshift` | Cyclic shift along axes |
 | {obj}`~bartorch.conv` | Cyclic convolution with a kernel |
-| {obj}`~bartorch.window` | Hamming or Hann window along axes |
 | {obj}`~bartorch.median_filter` | Moving median along one axis |
 | {obj}`~bartorch.moving_average` | Moving average along one axis |
 | {obj}`~bartorch.normalize` | Division by the $\ell_2$ or $\ell_1$ norm over axes |

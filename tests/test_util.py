@@ -91,17 +91,6 @@ def test_conv_per_slice_kernel():
     np.testing.assert_allclose(out.numpy(), ref, atol=1e-5)
 
 
-@pytest.mark.parametrize("hann", [False, True])
-def test_window(hann):
-    x = _complex(2, 5, 8)
-    w = np.hanning if hann else np.hamming
-    out = util.window(x, (1, 2), hann=hann)
-    ref = x.numpy() * w(5)[:, None] * w(8)[None, :]
-    np.testing.assert_allclose(out.numpy(), ref, rtol=1e-5, atol=1e-6)
-    out = util.window(x, 1, hann=hann)
-    np.testing.assert_allclose(out.numpy(), x.numpy() * w(5)[:, None], rtol=1e-5, atol=1e-6)
-
-
 @pytest.mark.parametrize("length", [1, 3, 4, 9])
 def test_median_filter_real(length):
     a = RNG.uniform(0.1, 1.0, (4, 9))
