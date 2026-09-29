@@ -207,6 +207,25 @@ def test_removing_oversampling_keeps_the_object_it_cropped_around(device):
     np.testing.assert_allclose(recovered[0], image[0, 32:96], atol=1e-5)
 
 
+def test_a_partial_echo_keeps_its_object_where_it_is(device):
+    """The crop is in the image domain, so an echo off the readout's centre moves nothing.
+
+    192 of 256 samples, the echo at index 64: the centred transform then puts a
+    phase ramp on the image, and the magnitude still lands on the same pixels.
+    """
+    samples, echo, pixels = 192, 64, (-20, 30)
+    k = np.arange(samples) - echo
+    readout = sum(np.exp(-2j * np.pi * k * p / samples) for p in pixels)[None]
+    kspace = torch.as_tensor(readout, dtype=torch.complex64, device=device)
+    cropped = bartorch.remove_readout_oversampling(kspace, samples // 2).cpu().numpy()
+    magnitude = np.abs(_centred_fft(cropped, inverse=True)[0])
+    centre = samples // 4
+    assert sorted(np.argsort(magnitude)[-2:] - centre) == list(pixels)
+    np.testing.assert_allclose(
+        np.delete(magnitude, [centre + p for p in pixels]), 0, atol=1e-4 * magnitude.max()
+    )
+
+
 def test_a_target_wider_than_the_samples_there_are_is_refused():
     with pytest.raises(ValueError, match=r"must be in \[1, 64\]"):
         bartorch.remove_readout_oversampling(torch.ones(2, 64, dtype=torch.complex64), 128)
