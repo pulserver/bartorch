@@ -9,11 +9,23 @@ bartorch ecalib -m1 kspace maps
 bartorch --list
 ```
 
-A command for which {mod}`bartorch.apps` has a pipeline is parsed into a call
-of that app; every other command runs as the BART command, in the same
-process, through the entry point {mod}`bartorch.tools` uses.  The options are
-read from BART's own command declarations, and an option the app does not
-express sends the command line to the BART command.
+A command for which {mod}`bartorch.apps` has a pipeline -- `pics`, `mobafit`
+and `moba` -- is parsed into a call of that app; every other command runs as
+the BART command, in the same process, through the entry point
+{mod}`bartorch.tools` uses.  The options are read from BART's own command
+declarations, and an option the app does not express sends the command line to
+the BART command.
+
+Either route writes the output files of the BART command, in its array layout
+and units.  A `pics` command line routed to the app writes the same values
+bit for bit.  `mobafit` and `moba` are routed for the models whose parameters
+the TorchSim model of the app represents exactly -- `-T`, `-I` and `-L` for
+`mobafit`, and `-T` and `-L` with `-l2` on a Cartesian grid for `moba` -- and
+the fitted maps are converted to BART's coefficients: relaxation rates in 1/s
+for times in seconds, stacked along `COEFF_DIM`.  Their values agree with the
+BART command to the accuracy of the fit, since the two minimize the same
+objective in different parameterizations.  `-i`, which counts Gauss-Newton
+steps in BART's parameterization, sends either command to BART.
 `bartorch <command> --help` prints BART's help text for the command.
 
 ```{eval-rst}
