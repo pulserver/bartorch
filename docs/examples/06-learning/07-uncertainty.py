@@ -301,7 +301,10 @@ for name, (mean, deviation) in spreads.items():
 # maps below show: a spread that is large where the error is large gives
 # narrow intervals where the reconstruction is reliable and wide ones where it
 # is not, while a spread unrelated to the error gives intervals of the right
-# average width in the wrong places.
+# average width in the wrong places. Both correlations are weak here, so
+# the intervals are wider than the error over much of the head and narrower
+# where the error concentrates; the coverage is met on average, as the
+# calibration guarantees, and not voxel by voxel.
 
 # sphinx_gallery_start_ignore
 row = 12
