@@ -29,7 +29,7 @@ functions and classes with no BART command behind them.
 
 | Object | Description |
 | --- | --- |
-| {obj}`~bartorch.tools.traj` | Cartesian, radial, golden-angle and spiral trajectories in grid units (wrapped) |
+| {obj}`~bartorch.tools.traj` | Cartesian, radial and golden-angle trajectories in grid units (wrapped) |
 | {obj}`~bartorch.tools.grid` | Sampling grid coordinates in image space or k-space |
 | {obj}`~bartorch.tools.pattern` | Sampling pattern of a k-space array |
 | {obj}`~bartorch.tools.poisson` | Poisson-disc sampling pattern |
