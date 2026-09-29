@@ -1133,7 +1133,7 @@ def FieldCorrected(  # noqa: N802  (it is a constructor)
     r"""Off-resonance-corrected encoding operator, by time segmentation.
 
     A voxel off resonance by :math:`f` accrues a phase
-    :math:`e^{-i 2 \pi f t}` by the acquisition time :math:`t` of each sample,
+    :math:`e^{+i 2 \pi f t}` by the acquisition time :math:`t` of each sample,
     so the exact operator applies a different transform per sample and is not a
     single transform at all.  Time segmentation approximates it as a short sum
     of ordinary encodings, each preceded by a spatial weight and followed by a

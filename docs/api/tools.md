@@ -108,7 +108,7 @@ when {obj}`~bartorch.tools.correct_susceptibility` is called
 | {obj}`~bartorch.tools.Gradunwarp` | Gradient nonlinearity correction of images from a coefficient table |
 | {obj}`~bartorch.tools.field_map_from_phase` | Off-resonance field map from the phase of single-echo coil images |
 | {obj}`~bartorch.tools.ReadoutTiming` | Readout time of a spiral arm as a function of k-space radius |
-| {obj}`~bartorch.tools.SpiralTransfer` | Separable factorization of the off-resonance transfer of a spiral readout |
+| {obj}`~bartorch.tools.SpiralTransfer` | Low-rank factorization of the off-resonance transfer of a spiral readout |
 | {obj}`~bartorch.tools.fit_transfer` | Fit of a {obj}`~bartorch.tools.SpiralTransfer` to a readout's time map |
 | {obj}`~bartorch.tools.deblur` | Off-resonance deblurring of a spiral image |
 | {obj}`~bartorch.tools.correct_susceptibility` | Susceptibility distortion correction from a reversed phase-encoding pair, by PyHySCO |
