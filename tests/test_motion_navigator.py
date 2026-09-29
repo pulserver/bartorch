@@ -61,6 +61,31 @@ def test_a_plane_comes_back(device) -> None:
     assert np.corrcoef(recovered.ravel(), truth.ravel())[0, 1] > 0.9
 
 
+def test_three_planes_on_three_trajectories_each_come_back(device) -> None:
+    """A navigator of three planes, each with its own trajectory and image.
+
+    The planes are three differently shaped phantoms sampled on three
+    rotations of the spokes, so a plane gridded with a neighbour's trajectory
+    or image would not correlate with its own.
+    """
+    truths = [phantom(), phantom().T, np.roll(phantom(), 6, axis=1)]
+    trajs = [
+        radial(32) @ np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]])
+        for a in (0.0, 0.3, 0.7)
+    ]
+    samples = np.concatenate([sample(t, tr) for t, tr in zip(truths, trajs)])
+    traj = np.concatenate(trajs)
+    planes = reconstruct_navigator(
+        torch.as_tensor(samples, device=device),
+        torch.as_tensor(traj),
+        (32, 32),
+        density=torch.as_tensor(_ramp(traj[:1])),
+    )
+    assert planes.shape == (3, 32, 32)
+    for recovered, truth in zip(planes.cpu().numpy(), truths):
+        assert np.corrcoef(recovered.ravel(), truth.ravel())[0, 1] > 0.9
+
+
 @needs_simpleitk
 def test_the_planes_can_be_registered() -> None:
     """Sample, grid, register, and get the shift back."""

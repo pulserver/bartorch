@@ -66,10 +66,14 @@ def reconstruct_navigator(
         )
     traj = _check_trajectory(traj, shape)
 
-    values = kspace.to(torch.complex64).permute(1, 0, 2).reshape(coils, planes, 1, samples)
+    values = kspace.to(torch.complex64)
     if density is not None:
         weights = torch.as_tensor(density, device=kspace.device).to(torch.float32)
-        values = values * torch.broadcast_to(weights, (planes, samples)).reshape(planes, 1, samples)
-    operator = NUFFT(traj.reshape(planes, 1, samples, 2), (coils, planes, *shape), toeplitz=False)
-    images = operator.H(values.contiguous())
-    return images.abs().square().sum(dim=0).sqrt()
+        values = values * torch.broadcast_to(weights, (planes, samples))[:, None, :]
+    # Each plane has a trajectory and an image of its own, which is one
+    # transform per plane rather than one plan over all of them.
+    images = []
+    for plane in range(planes):
+        operator = NUFFT(traj[plane, None], (coils, *shape), toeplitz=False)
+        images.append(operator.H(values[plane, :, None].contiguous()).abs().square().sum(dim=0).sqrt())
+    return torch.stack(images)
