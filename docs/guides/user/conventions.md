@@ -1,86 +1,52 @@
-# Data layout and conventions
+# Preparing data
 
-## Array order and axes
+Raw data exported from a scanner, simulated in another package or written by
+BART's command line reaches bartorch as arrays whose axis order, trajectory
+units and file format follow someone else's convention.  This page gives the
+conversions into bartorch's; {doc}`../../explanation/data-layout` states those
+conventions and the reasons for them.
 
-Tensors are in C order, and a BART dimension vector is the reversed shape: the
-last axis of a tensor is BART's first dimension.
+## Arranging k-space as a tensor
 
-| Data | Tensor shape | BART dimensions |
-| --- | --- | --- |
-| Cartesian coil k-space | `(coils, z, y, x)` | `[x, y, z, coils]` |
-| Radial trajectory | `(spokes, samples, 3)` | `[3, samples, spokes]` |
-| Radial coil samples | `(coils, spokes, samples, 1)` | `[1, samples, spokes, coils]` |
+A tensor is in C order and lists BART's dimensions in reverse, so the readout
+is the last axis, the phase-encoding directions precede it, and the receive
+coils are the fourth axis from the end.  Multichannel Cartesian k-space for a
+BART command is therefore `(coils, z, y, x)`, with `z` a singleton for a 2D
+acquisition:
 
-An axis argument is an index into the tensor's shape, negative indices
-included: `bartorch.fft(x, axes=(-2, -1))`.  No argument takes a BART bitmask
-or dimension number, and a set of indices that are not axes, such as coil
-channels or parameter maps, is also a tuple of indices.  Regularization is
-given as {mod}`bartorch.priors` terms rather than as `-R` strings:
-`apps.pics(kspace, maps, regularizers=priors.Wavelet((-1, -2), 0.005))`.  An axis
-argument whose array is not given to the call counts from the last axis and
-accepts negative indices only.
+```python
+import torch
 
-## Commands
+# ksp: complex NumPy array of shape (x, y, coils), as loaded from a MATLAB file
+kspace = torch.from_numpy(ksp.T.copy()).to(torch.complex64)[:, None]  # (coils, 1, y, x)
+```
 
-The functions of {mod}`bartorch.tools` and of the `bartorch` namespace that
-run a BART command assign axes as BART does, in reversed order.  BART's coil dimension is its dimension 3 and sets of
-sensitivity maps its dimension 4, so the corresponding singleton axes are kept
-in inputs and outputs; returned shapes are those BART produces, with trailing
-BART singletons (leading tensor axes) removed.  Array inputs are converted to
-contiguous `complex64`, and a command works on a copy of each input unless
-{func}`bartorch.set_copy_inputs` is set to `False`, because some BART commands
-write into their inputs.  The corrections and the motion estimation of
-{mod}`bartorch.tools` run no BART command; their shapes and units are stated
-in each object's documentation.
+The MRI operators of {mod}`bartorch.linop` take the same k-space without the
+singleton, `(coils, y, x)`, and put batch axes such as slices or averages in
+front of the coils.  An axis argument is a tensor axis index:
+`bartorch.fft(kspace, axes=(-2, -1))` transforms `y` and `x`.
 
-## Operators
+## Converting a trajectory to grid units
 
-The MRI operators of {mod}`bartorch.linop` use a layout of their own: batch
-axes first, then coils, then the encoding.
+bartorch's trajectories are in grid units: multiples of $1/\mathrm{FOV}$, so
+that a readout of $N$ samples at the Nyquist rate spans $-N/2$ to $N/2$.  A
+trajectory in another convention is rescaled before it is passed on:
 
-| Array | Shape |
+| Trajectory given in | Grid units |
 | --- | --- |
-| Image | `(*batches, [sets,] *encoding, [z,] y, x)` |
-| Sensitivities | `([sets,] coils, [z,] y, x)` |
-| Trajectory | `(*encoding, shots, samples, ndim)` |
-| Non-Cartesian samples | `(*batches, coils, *encoding, shots, samples)` |
-| Cartesian samples | `(*batches, coils, *encoding, [z,] y, x)` |
-| Sampled phase-encode samples | `(*batches, coils, [frames,] shots, readout)` |
-| Sampled phase-encode table | `([frames,] shots, d)` |
-| NUFFT and FFT samples | `(*batches, *encoding, shots, samples)` |
+| Cycles per metre, $k$ | $k \cdot \mathrm{FOV}$, with $\mathrm{FOV}$ in metres |
+| Radians per metre, $k$ | $k \cdot \mathrm{FOV} / (2\pi)$ |
+| Fraction of the sampling bandwidth, $k \in [-0.5, 0.5)$ | $k \cdot N$ |
+| Radians, $k \in [-\pi, \pi)$, as in `torchkbnufft` | $k \cdot N / (2\pi)$ |
 
-A batch axis indexes independent volumes that share the trajectory or sampling
-pattern, such as slices or averages; each item is encoded separately.
-Encoding axes are the axes the trajectory has in front of its shots, such as
-frames, echoes or cardiac phases.  A two-dimensional problem has no `z` axis.
-A NUFFT or FFT without sensitivities treats coils as a batch axis.  A subspace
-basis of shape `(coeffs, frames)` contracts the last encoding axis, so the
-image has coefficients where the samples have frames.  A sampling pattern
-broadcasts over one coil's samples: a pattern of shape `(y, 1)` selects phase
-encodes for every coil and batch item.
+$N$ is the matrix size along the axis.  The components are the last axis of
+the tensor: `(spokes, samples, 3)` for a BART command, whose $k_z$ is zero
+throughout for a 2D trajectory, and `(shots, samples, 2)` or
+`(shots, samples, 3)` for {class}`bartorch.linop.NUFFT` and
+{class}`bartorch.linop.NoncartesianSense`.  {func}`bartorch.tools.traj`
+generates trajectories in grid units directly.
 
-## Trajectories
-
-Trajectories hold `kx, ky, kz` in grid units, the k-space coordinate in units
-of $1/\mathrm{FOV}$ of the image being encoded: a fully sampled readout of $N$
-samples spans $-N/2$ to $N/2$.  A trajectory given to a command has three
-components, and a `kz` that is zero throughout makes the transform
-two-dimensional; the operators of {mod}`bartorch.linop` also accept two
-components, `kx, ky`.
-{func}`bartorch.tools.traj` generates trajectories in these units.
-
-## Fourier transform conventions
-
-| Function or operator | Centring | Normalization |
-| --- | --- | --- |
-| {func}`bartorch.fft` | Centred unless `uncentred=True` | Unnormalized unless `unitary=True` |
-| {class}`bartorch.linop.FFT` | Centred unless `centred=False` | Unitary |
-| {func}`bartorch.nufft`, {class}`bartorch.linop.NUFFT` | — | $1/\sqrt{N}$ for $N$ image voxels; negative exponent in the forward transform |
-
-State the centring and normalization when comparing reconstructions from
-different software.
-
-## CFL files
+## Reading and writing CFL files
 
 {func}`bartorch.io.readcfl` and {func}`bartorch.io.writecfl` exchange NumPy
 arrays in BART's dimension order, so the axes are reversed at that boundary:
@@ -94,10 +60,14 @@ tensor = torch.from_numpy(np.ascontiguousarray(readcfl("kspace").T))  # kspace.h
 writecfl("result", tensor.detach().cpu().numpy().T)
 ```
 
-## Differentiation
+The `bartorch` command line reads and writes CFL files itself, so a script
+written for BART's `bart` executable runs unchanged with the command name
+replaced ({doc}`installation`).
 
-Applying an operator, a nonlinear operator or a solver of {mod}`bartorch.optim`
-to a tensor that requires a gradient records the operation for autograd; the
-BART commands of {mod}`bartorch.tools` and of the `bartorch` namespace record
-nothing.
-{doc}`../../explanation/differentiation` describes the backward pass of each.
+## Checking a Fourier convention
+
+{func}`bartorch.fft` is centred and unnormalized in both directions, which
+differs from NumPy's inverse transform by a factor of $N$.  When results are
+compared with another package, state the centring and the normalization of
+each; the table in {doc}`../../explanation/data-layout` lists them for every
+transform in bartorch.

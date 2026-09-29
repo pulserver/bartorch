@@ -4,7 +4,7 @@
 the dimensions and a `.cfl` file of complex64 values in Fortran order.  Arrays
 are NumPy arrays in BART's dimension order, the reverse of a C-order tensor
 shape, so `array.T` converts between the two; {doc}`../guides/user/conventions`
-shows the round trip.
+shows the round trip and {doc}`../explanation/data-layout` the conventions.
 
 ```{eval-rst}
 .. currentmodule:: bartorch.io

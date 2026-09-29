@@ -1262,9 +1262,9 @@ is:
 
 | Section | Directory | What is in it |
 | --- | --- | --- |
-| User guide | `docs/guides/user/` | Prerequisites, installation, data conventions, issues, security |
+| User guide | `docs/guides/user/` | Prerequisites, installation, preparing data, issues, security |
 | Developer guide | `docs/guides/developer/` | Building, layout, workflow, style, terminology, documentation, pull requests |
-| Explanation | `docs/explanation/` | The concepts: execution model, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation |
+| Explanation | `docs/explanation/` | The concepts: execution model, data layout, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation |
 | Examples | `docs/examples/` | The gallery: executable scripts rendered by sphinx-gallery |
 | API reference | `docs/api/` | One page per public module, listing its objects in tables |
 | Misc | `docs/misc/` | License, related projects, citation |

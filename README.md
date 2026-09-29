@@ -81,7 +81,7 @@ describes which interface fits which task.
 
 <https://pulserver.github.io/bartorch/> has the
 [user guide](https://pulserver.github.io/bartorch/latest/guides/user/index.html)
-(installation, supported platforms, data layout), the
+(installation, supported platforms, preparing data), the
 [developer guide](https://pulserver.github.io/bartorch/latest/guides/developer/index.html),
 conceptual [explanations](https://pulserver.github.io/bartorch/latest/explanation/index.html),
 executed [examples](https://pulserver.github.io/bartorch/latest/examples/index.html)
