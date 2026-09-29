@@ -154,12 +154,13 @@ images from.
 
 | Tour | Covers |
 | --- | --- |
-| {doc}`../auto_examples/07-tours/01-readout-oversampling-and-apodization` | Removal of readout oversampling; Hann and Fermi apodization |
-| {doc}`../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | EPI Nyquist-ghost correction from a navigator; regridding of ramp-sampled readouts |
-| {doc}`../auto_examples/07-tours/03-bias-field` | N4 correction of the receive bias field of a surface array |
-| {doc}`../auto_examples/07-tours/04-gradient-nonlinearity` | Geometric distortion from a spherical-harmonic gradient coil model |
-| {doc}`../auto_examples/07-tours/05-spiral-deblurring` | Off-resonance deblurring of a spiral image |
-| {doc}`../auto_examples/07-tours/06-navigator-motion` | Rigid head motion from three navigator planes, filtered across a scan |
+| {doc}`../auto_examples/07-tours/01-readout-oversampling-and-apodization` | Removal of readout oversampling; Gibbs ringing and resolution with Fermi and Hann apodization |
+| {doc}`../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | Nyquist ghost correction from a three-line navigator; resampling of ramp-sampled readouts |
+| {doc}`../auto_examples/07-tours/03-bias-field` | N4 correction of the receive bias field of a head array |
+| {doc}`../auto_examples/07-tours/04-gradient-nonlinearity` | Geometric and intensity correction of gradient nonlinearity from spherical-harmonic coefficients |
+| {doc}`../auto_examples/07-tours/05-spiral-deblurring` | Spiral off-resonance deblurring by multifrequency interpolation and time-segmented reconstruction |
+| {doc}`../auto_examples/07-tours/06-navigator-motion` | Rigid head motion from three orthogonal navigator planes, filtered across a scan |
+| {doc}`../auto_examples/07-tours/07-epi-susceptibility-distortion` | EPI susceptibility distortion corrected from a reversed phase-encoding pair |
 
 ```{toctree}
 :hidden:
@@ -171,4 +172,5 @@ images from.
 ../auto_examples/07-tours/04-gradient-nonlinearity
 ../auto_examples/07-tours/05-spiral-deblurring
 ../auto_examples/07-tours/06-navigator-motion
+../auto_examples/07-tours/07-epi-susceptibility-distortion
 ```

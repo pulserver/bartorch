@@ -75,18 +75,22 @@ def test_inward_arm_is_accepted() -> None:
     assert derived.times[0] > derived.times[-1]
 
 
-def test_more_terms_reduce_fit_error(timing: ReadoutTiming) -> None:
-    errors = [fit_transfer(timing, band=120.0, terms=n).error(timing) for n in (2, 4, 6)]
+@pytest.mark.parametrize("method", ["mfi", "separable"])
+def test_more_terms_reduce_fit_error(timing: ReadoutTiming, method: str) -> None:
+    errors = [
+        fit_transfer(timing, band=120.0, terms=n, method=method).error(timing) for n in (2, 4, 6)
+    ]
     assert errors[0] > errors[1] > errors[2]
     assert errors[-1] < 0.01
 
 
-def test_constant_offset_is_corrected_to_the_fit_error(timing: ReadoutTiming) -> None:
+@pytest.mark.parametrize("method", ["mfi", "separable"])
+def test_constant_offset_is_corrected_to_the_fit_error(timing: ReadoutTiming, method) -> None:
     size = 128
     image = phantom(size)
     offset = 90.0
     ideal, blurred = blur(image, timing, np.full((size, size), offset))
-    transfer = fit_transfer(timing, band=120.0, terms=6)
+    transfer = fit_transfer(timing, band=120.0, terms=6, method=method)
 
     corrected = deblur(
         torch.from_numpy(blurred),
@@ -146,7 +150,7 @@ def test_convolution_backend_matches_the_transform(timing: ReadoutTiming) -> Non
     torch.manual_seed(0)
     image = torch.randn(size, size, size, dtype=torch.complex64, device="cuda")
     field = torch.rand(size, size, size, device="cuda") * 200 - 100
-    transfer = fit_transfer(timing, band=120.0, terms=6)
+    transfer = fit_transfer(timing, band=120.0, terms=6, method="separable")
 
     exact = deblur(image, field, transfer, backend="fft")
     truncated = deblur(image, field, transfer, backend="conv")
@@ -174,9 +178,100 @@ def test_amplification_climbs_with_the_accrued_phase(timing: ReadoutTiming) -> N
     """Cancelling weights, not a poor fit, are what break a long readout."""
     short = ReadoutTiming.from_trajectory(variable_density_arm(), duration=8e-3)
     long = ReadoutTiming.from_trajectory(variable_density_arm(), duration=30e-3)
-    lightly = fit_transfer(short, band=260.0, terms=40)
-    heavily = fit_transfer(long, band=260.0, terms=40)
+    lightly = fit_transfer(short, band=260.0, terms=40, method="separable")
+    heavily = fit_transfer(long, band=260.0, terms=40, method="separable")
     assert heavily.amplification > 3 * lightly.amplification
+
+
+def archimedean_arm(samples: int = 3000) -> np.ndarray:
+    """A centre-out arm at constant angular velocity: readout time proportional to |k|."""
+    time = np.linspace(0.0, 1.0, samples)
+    angle = 40 * np.pi * time
+    return np.stack([time * np.cos(angle), time * np.sin(angle)], axis=1)
+
+
+def test_mfi_is_exact_at_its_demodulation_frequencies(timing: ReadoutTiming) -> None:
+    """At f = f_m the transfer is the m-th basis function itself, so a_m(f) = delta."""
+    transfer = fit_transfer(timing, band=120.0, terms=5)
+    np.testing.assert_allclose(transfer.demodulation, np.linspace(-120.0, 120.0, 5))
+    # 65 tabulated frequencies over the same band: every 16th is a demodulation one.
+    at_demodulation = transfer.weights[:, ::16]
+    np.testing.assert_allclose(at_demodulation, np.eye(5), atol=1e-8)
+
+
+def test_mfi_matches_the_transfer_between_its_frequencies_by_least_squares() -> None:
+    """Against Man et al.'s coefficients, solved here over the readout samples directly."""
+    duration, band, terms = 12e-3, 150.0, 9
+    arm = archimedean_arm()
+    timing = ReadoutTiming.from_trajectory(arm, duration=duration)
+    transfer = fit_transfer(timing, band=band, terms=terms)
+
+    sample_times = np.linspace(0.0, duration, len(arm))
+    demodulation = np.linspace(-band, band, terms)
+    basis = np.exp(-2j * np.pi * np.outer(sample_times, demodulation))
+    for column, frequency in ((7, transfer.frequencies[7]), (40, transfer.frequencies[40])):
+        target = np.exp(-2j * np.pi * frequency * sample_times)
+        coefficients = np.linalg.lstsq(basis, target, rcond=None)[0]
+        np.testing.assert_allclose(transfer.weights[:, column], coefficients, atol=2e-2)
+
+
+def test_mfi_is_better_conditioned_than_the_separable_basis_on_an_archimedean_spiral() -> None:
+    timing = ReadoutTiming.from_trajectory(archimedean_arm(), duration=16e-3)
+    mfi = fit_transfer(timing, band=150.0, terms=8)
+    separable = fit_transfer(timing, band=150.0, terms=8, method="separable")
+    assert mfi.error(timing) < 0.5 * separable.error(timing)
+    assert mfi.amplification < 0.1 * separable.amplification
+
+
+def test_the_default_number_of_terms_starts_from_gadgetrons_and_meets_the_tolerance() -> None:
+    """``L = ceil(2.5 fmax T)``, made odd, as MFIOperator::prepare computes it, then grown."""
+    timing = ReadoutTiming.from_trajectory(archimedean_arm(), duration=16e-3)
+    loose = fit_transfer(timing, band=150.0, tolerance=1.0)
+    assert loose.terms == 7  # ceil(6.0) = 6, made odd
+    assert fit_transfer(timing, band=110.0, tolerance=1.0).terms == 5  # ceil(4.4) = 5
+
+    tight = fit_transfer(timing, band=150.0, tolerance=1e-3)
+    assert tight.error(timing) <= 1e-3
+    fewer = fit_transfer(timing, band=150.0, terms=tight.terms - 1)
+    assert fewer.error(timing) > 1e-3
+
+
+def test_mfi_deblurs_better_than_the_separable_basis_at_equal_cost() -> None:
+    """A constant offset is a plain convolution: only the factorization stands in between."""
+    size = 128
+    image = phantom(size)
+    timing = ReadoutTiming.from_trajectory(archimedean_arm(), duration=16e-3)
+    offset = 140.0
+    ideal, blurred = blur(image, timing, np.full((size, size), offset))
+    field = torch.full((size, size), offset, dtype=torch.float64)
+
+    errors = {}
+    for method in ("mfi", "separable"):
+        transfer = fit_transfer(timing, band=150.0, terms=9, method=method)
+        errors[method] = relative(deblur(torch.from_numpy(blurred), field, transfer).numpy(), ideal)
+    assert relative(blurred, ideal) > 0.5
+    assert errors["mfi"] < 0.02
+    assert errors["mfi"] < 0.5 * errors["separable"]
+
+
+def test_the_convolution_backend_refuses_an_mfi_transfer(timing: ReadoutTiming) -> None:
+    transfer = fit_transfer(timing, band=80.0, terms=3)
+    with pytest.raises(ValueError, match="separable factorization"):
+        deblur(
+            torch.zeros(8, 8, dtype=torch.complex64), torch.zeros(8, 8), transfer, backend="conv"
+        )
+
+
+def test_an_unknown_method_is_refused(timing: ReadoutTiming) -> None:
+    with pytest.raises(ValueError, match="method must be"):
+        fit_transfer(timing, band=80.0, method="svd")
+
+
+def test_a_transfer_names_one_basis() -> None:
+    from bartorch.tools import SpiralTransfer
+
+    with pytest.raises(ValueError, match="either rates"):
+        SpiralTransfer(None, np.ones((1, 3)), np.linspace(-1, 1, 3))
 
 
 def test_the_term_weights_interpolate_the_table_and_clamp_at_its_ends() -> None:
@@ -307,7 +402,7 @@ def test_the_fused_accumulation_adds_the_interpolated_weight_times_the_term() ->
 
 @requires_triton
 def test_the_convolution_backend_deblurs_as_the_transform_does(timing: ReadoutTiming) -> None:
-    transfer = fit_transfer(timing, band=120.0, terms=6)
+    transfer = fit_transfer(timing, band=120.0, terms=6, method="separable")
     torch.manual_seed(0)
     image = torch.randn(64, 64, dtype=torch.complex64, device=_kernel_device)
     field = torch.rand(64, 64, device=_kernel_device) * 200 - 100

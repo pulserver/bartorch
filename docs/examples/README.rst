@@ -13,6 +13,7 @@ BrainWeb phantoms several examples build their images from, and
 
 The learned-regularization section additionally requires ``lightning``,
 ``torchio``, ``monai`` and ``deepinv``, and downloads the DRUNet weights
-``deepinv`` distributes; the tours require ``SimpleITK``::
+``deepinv`` distributes; the tours require ``SimpleITK`` and ``PyHySCO``,
+which is GPL-3.0-only and not distributed with bartorch::
 
-    pip install lightning torchio monai deepinv SimpleITK
+    pip install lightning torchio monai deepinv SimpleITK PyHySCO

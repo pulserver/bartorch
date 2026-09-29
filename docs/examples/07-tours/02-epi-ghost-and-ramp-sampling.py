@@ -3,14 +3,34 @@
 EPI Nyquist ghost and ramp sampling
 ===================================
 
-Two corrections an echo-planar readout needs before its lines form a
-Cartesian k-space: the odd/even phase that produces the Nyquist ghost,
-estimated from a three-line navigator, and the resampling of samples taken on
-the gradient ramps onto the uniform grid.
+An echo-planar readout acquires k-space in a train of lines of alternating
+readout gradient polarity, and two corrections are applied before the lines
+form a Cartesian k-space. A timing error between the readout gradient and the
+ADC, and eddy currents, displace the echoes of the reversed lines relative to
+the forward ones; the resulting odd/even phase produces a Nyquist ghost, a
+copy of the object displaced by half the field of view along the
+phase-encoding direction. Sampling during the ramps of the readout gradient
+shortens the echo spacing, and the samples, uniform in time, are not uniform
+in :math:`k_x`.
 
-The data is BART's analytical Shepp-Logan phantom with eight simulated coils,
-into which a known readout delay is introduced, so the estimate can be
-compared with the delay.
+This example simulates an eight-channel EPI acquisition of a Shepp-Logan
+phantom with a known ADC delay and constant phase error, estimates the
+odd/even phase from a three-line navigator, and compares the ghosted and the
+corrected image with the delay-free image. It then resamples a ramp-sampled
+readout onto a uniform :math:`k_x` grid and compares the result with linear
+interpolation.
+
+**Learning objectives**
+
+* Relate an ADC delay to a linear phase in hybrid space and to the Nyquist
+  ghost at half the field of view.
+* Estimate the odd/even phase from a three-line navigator with
+  :func:`~bartorch.tools.estimate_epi_phase`, and apply it to the reversed
+  lines with :func:`~bartorch.tools.correct_lines`.
+* Quantify the ghost by the ghost-to-signal ratio.
+* Resample a ramp-sampled readout with
+  :func:`~bartorch.tools.epi_ramp_operator`, and check the sampling condition
+  under which the resampling is exact.
 """
 
 # %%
@@ -18,15 +38,16 @@ compared with the delay.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 10,
-        "axes.titlesize": 10,
-        "figure.constrained_layout.use": True,
-    }
-)
+COLOURS = {"ghosted": "#e8a33d", "corrected": "#3dbde8", "linear": "#e8a33d"}
+
+
+def show(axis, values, title, vmin=0.0, vmax=1.0, cmap="gray"):
+    handle = axis.imshow(values, cmap=cmap, vmin=vmin, vmax=vmax)
+    axis.set_title(title)
+    axis.set_axis_off()
+    return handle
+
+
 # sphinx_gallery_end_ignore
 import math
 
@@ -41,24 +62,25 @@ import bartorch.tools as bt
 # The Nyquist ghost
 # -----------------
 #
-# An EPI train reads alternate lines with readout gradients of opposite
-# polarity. A delay between the gradient and the ADC shifts the echo of every
-# line by the same time, which is a shift towards positive :math:`k_x` on a
+# A delay :math:`\delta` of the ADC relative to the readout gradient shifts
+# the echo of every line by the same time: towards positive :math:`k_x` on a
 # forward line and towards negative :math:`k_x` on a reversed one. In hybrid
-# space -- after the inverse transform along the readout -- a shift in
-# :math:`k_x` is a linear phase in :math:`x`, so the reversed lines carry a
-# phase the forward ones do not. A phase that alternates from line to line
-# modulates k-space at the Nyquist frequency of the phase-encoding direction,
-# and the image acquires a copy of the object displaced by half the field of
-# view.
+# space -- after the inverse Fourier transform along the readout -- a shift of
+# :math:`\delta` dwell times is a linear phase :math:`\pi \delta u` over the
+# readout coordinate :math:`u \in [-1, 1]`. A constant phase :math:`\phi_0`,
+# from eddy currents or a :math:`B_0` offset during the readout, adds to it
+# with the same alternating sign. The phase difference between odd and even
+# lines modulates k-space at the Nyquist frequency of the phase-encoding
+# direction, and the image acquires a ghost at half the field of view.
 #
-# Below, forward lines carry :math:`+(a u + b)` and reversed lines
-# :math:`-(a u + b)` in hybrid space, with :math:`u \in [-1, 1]` the readout
-# coordinate. A reversed line is stored in the order it was digitised, that is
-# flipped along the readout.
+# Forward lines carry :math:`+(\pi \delta u + \phi_0)` and reversed lines
+# :math:`-(\pi \delta u + \phi_0)`. A reversed line is stored in the order it
+# was digitised, that is flipped along the readout.
 
 SIZE = 128
-SLOPE, OFFSET = 0.6, 0.25  # rad
+DELAY = 0.2  # dwell times
+PHASE_0 = 0.25  # rad
+SLOPE = math.pi * DELAY * (SIZE - 1) / SIZE  # rad over u in [-1, 1]
 
 kspace = bt.phantom(SIZE, kspace=True, coils=8)[:, 0]  # (coils, ky, kx)
 hybrid = bartorch.fft(kspace, axes=(-1,), inverse=True, unitary=True)
@@ -67,7 +89,7 @@ u = torch.linspace(-1.0, 1.0, SIZE)
 
 def acquire(row, polarity):
     """One readout of polarity +1 or -1, digitised in the order it was played."""
-    delayed = row * torch.polar(torch.ones(SIZE), polarity * (SLOPE * u + OFFSET))
+    delayed = row * torch.polar(torch.ones(SIZE), polarity * (SLOPE * u + PHASE_0))
     line = bartorch.fft(delayed, axes=(-1,), unitary=True)
     return torch.flip(line, [-1]) if polarity < 0 else line
 
@@ -79,7 +101,7 @@ train = [(acquire(hybrid[:, ky], 1 - 2 * (ky % 2)), ky % 2 == 1) for ky in range
 # The navigator
 # -------------
 #
-# Three lines of alternating polarity acquired without a phase-encoding blip
+# Three lines of alternating polarity acquired without phase-encoding blips
 # sample the same line of k-space, so the phase between the reversed line and
 # the mean of its two neighbours is the odd/even phase alone.
 # :func:`~bartorch.tools.estimate_epi_phase` fits a polynomial to it,
@@ -91,17 +113,18 @@ navigator = [acquire(centre, 1), torch.flip(acquire(centre, -1), [-1]), acquire(
 
 fit = bt.estimate_epi_phase(navigator)
 print(f"fitted     constant {float(fit[0]):+.3f}  linear {float(fit[1]):+.3f} rad")
-print(f"impressed  constant {2 * OFFSET:+.3f}  linear {2 * SLOPE:+.3f} rad")
+print(f"impressed  constant {2 * PHASE_0:+.3f}  linear {2 * SLOPE:+.3f} rad")
 
 # %%
 #
 # The fitted phase is twice the impressed one, because the navigator measures
 # the difference between a forward and a reversed line. The correction is
-# applied to the reversed lines only, which rotates them onto the forward ones
-# and leaves the image in place.
+# applied to the reversed lines only: it brings them into phase with the
+# forward lines, whose remaining phase is common to all lines and does not
+# change the magnitude image.
 #
-# :func:`~bartorch.tools.correct_lines` flips the reversed lines back
-# and, given the fit, removes the phase.
+# The ghost is measured by the ghost-to-signal ratio: the mean signal outside
+# the object divided by the mean signal inside it.
 
 
 def reconstruct(lines):
@@ -113,40 +136,93 @@ ideal = reconstruct([kspace[:, ky] for ky in range(SIZE)])
 ghosted = reconstruct(bt.correct_lines(train))
 corrected = reconstruct(bt.correct_lines(train, fit))
 
-for name, estimate in (("flipped only", ghosted), ("phase-corrected", corrected)):
-    error = float((estimate - ideal).norm() / ideal.norm())
-    print(f"{name:>16}: difference from the delay-free image {error:.1e}")
+inside = ideal > 0.05 * ideal.max()
+outside = ideal < 0.01 * ideal.max()
+
+
+def nrmse(estimate, target):
+    return float((estimate - target).norm() / target.norm())
+
+
+def ghost_to_signal(image):
+    return float(image[outside].mean() / image[inside].mean())
+
+
+for name, image in (("delay-free", ideal), ("flipped only", ghosted), ("corrected", corrected)):
+    print(
+        f"{name:>12}: ghost-to-signal {100 * ghost_to_signal(image):5.2f} %, "
+        f"NRMSE {nrmse(image, ideal):.1e}"
+    )
 
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 3, figsize=(8.0, 2.8), width_ratios=(1, 1, 1.3))
 peak = float(ideal.max())
-for axis, values, title in ((axes[0], ghosted, "flipped only"), (axes[1], corrected, "corrected")):
-    axis.imshow(values, cmap="gray", vmin=0, vmax=0.3 * peak)
-    axis.set_title(f"{title}, window 0-30 %")
-    axis.set_xticks([])
-    axis.set_yticks([])
-axes[2].semilogy(ghosted[:, SIZE // 2] / peak + 1e-9, label="flipped only")
-axes[2].semilogy(corrected[:, SIZE // 2] / peak + 1e-9, label="corrected")
-axes[2].set_xlabel("phase-encoding index")
-axes[2].set_title("central column")
-axes[2].legend(fontsize=8)
+figure, axes = plt.subplots(1, 4, figsize=(10.4, 3.0))
+show(axes[0], ideal / peak, "delay-free", 0, 0.3)
+show(
+    axes[1],
+    ghosted / peak,
+    f"flipped only\nGSR {100 * ghost_to_signal(ghosted):.1f} %, NRMSE {nrmse(ghosted, ideal):.2f}",
+    0,
+    0.3,
+)
+show(
+    axes[2],
+    corrected / peak,
+    f"navigator-corrected\nGSR {100 * ghost_to_signal(corrected):.1f} %, "
+    f"NRMSE {nrmse(corrected, ideal):.0e}",
+    0,
+    0.3,
+)
+handle = show(axes[3], (ghosted - ideal) / peak, "flipped only - delay-free", -0.3, 0.3, "RdBu_r")
+figure.colorbar(handle, ax=axes[3], fraction=0.046)
+figure.suptitle("displayed from 0 to 30 % of the peak; phase encoding vertical")
+plt.show()
+
+readout = bartorch.fft(torch.stack(navigator), axes=(-1,), inverse=True, unitary=True)
+cross = (0.5 * (readout[0] + readout[2]) * readout[1].conj()).sum(0)
+keep = (cross.abs() > 0.1 * cross.abs().max()).numpy()
+fitted = (fit[0] + fit[1] * u.double()).numpy()
+figure, axes = plt.subplots(1, 2, figsize=(10.4, 3.0))
+axes[0].plot(u[keep], torch.angle(cross)[keep], ".", color="#8a8a8a", label="navigator")
+axes[0].plot(u, fitted, color=COLOURS["corrected"], label="first-order fit")
+axes[0].set_xlabel("readout coordinate u")
+axes[0].set_ylabel("odd/even phase [rad]")
+axes[0].set_title("navigator phase in hybrid space")
+axes[0].legend()
+axes[1].semilogy(
+    ideal[:, SIZE // 2] / peak + 1e-6, color="#8a8a8a", linewidth=3.0, label="delay-free"
+)
+axes[1].semilogy(
+    ghosted[:, SIZE // 2] / peak + 1e-6, color=COLOURS["ghosted"], label="flipped only"
+)
+axes[1].semilogy(
+    corrected[:, SIZE // 2] / peak + 1e-6, "--", color=COLOURS["corrected"], label="corrected"
+)
+axes[1].set_ylim(1e-3, 8)
+axes[1].set_xlabel("phase-encoding index")
+axes[1].set_title("central column")
+axes[1].legend(loc="upper center", ncol=3)
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The images are windowed to 30 % of the peak, where the ghost at half the
-# field of view is visible. What remains after correction is the difference
-# between the first-order phase model and the impressed phase, which here is
-# zero up to single-precision round-off.
+# Without the phase correction the ghost appears at the top and bottom of the
+# field of view and overlaps the object where it wraps. With the first-order
+# fit the ghost-to-signal ratio returns to that of the delay-free image, whose
+# signal outside the object is the truncation ringing of the phantom, since
+# the simulated phase error is exactly first order. On measured data, higher
+# orders of the phase, and phase errors that differ between lines of the same
+# polarity, leave a residual ghost.
 #
 # Ramp sampling
 # -------------
 #
-# Sampling during the gradient ramps shortens the echo spacing, but the
-# samples are not uniformly spaced in :math:`k_x`. The readout is the
+# Sampling during the ramps of the trapezoidal readout gradient places the
+# samples at :math:`k_x(t) = \gamma \int_0^t G_x(\tau)\, d\tau`, which is
+# denser on the ramps than on the plateau. The readout is the Fourier
 # transform of an object that spans ``support`` pixels, so samples at any
 # positions determine it, provided no two neighbouring samples are further
 # apart than one over the support, the Nyquist spacing of that object.
@@ -154,9 +230,9 @@ plt.show()
 # least-squares inverse of the transform at the sampled positions followed by
 # the transform at the uniform ones.
 #
-# A trapezoidal readout gradient of 160 samples with ramps of 30 % of its
-# duration is simulated for a one-dimensional object of 64 pixels, positions
-# in cycles per pixel.
+# The readout gradient is a trapezoid whose ramps each take 30 % of the ADC
+# window, sampled with 160 samples, for a one-dimensional object of 64 pixels;
+# positions are in cycles per pixel.
 
 SUPPORT, SAMPLES = 64, 160
 profile = torch.zeros(SUPPORT, dtype=torch.complex128)
@@ -179,11 +255,13 @@ def encode(positions):
 measured, truth = encode(sampled_at), encode(uniform_at)
 
 operator = bt.epi_ramp_operator(sampled_at, uniform_at, SUPPORT)
-resampled = (measured.to(torch.complex64)[None] @ operator.T)[0]
+resampled = (measured.to(torch.complex64)[None] @ operator.T)[0].to(torch.complex128)
 
 # %%
 #
-# Linear interpolation between neighbouring samples is the comparison.
+# Linear interpolation between neighbouring samples is the comparison. Both
+# are assessed on the image profile, the inverse transform of the uniform
+# samples.
 
 linear = torch.complex(
     torch.from_numpy(np.interp(uniform_at, sampled_at, measured.real)),
@@ -191,45 +269,60 @@ linear = torch.complex(
 )
 
 
-def error(estimate):
-    return float((estimate.to(torch.complex128) - truth).norm() / truth.norm())
+def image_profile(samples):
+    return torch.fft.fftshift(torch.fft.ifft(torch.fft.ifftshift(samples))).abs()
 
 
 step = float(torch.diff(sampled_at).max()) * SUPPORT
 print(f"largest step x support: {step:.2f}  (the samples determine the object below 1)")
-print(f"band-limited resampling {error(resampled):.1e}   linear interpolation {error(linear):.3f}")
+for name, estimate in (("band-limited resampling", resampled), ("linear interpolation", linear)):
+    print(f"{name:>24}: image NRMSE {nrmse(image_profile(estimate), image_profile(truth)):.1e}")
 
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 3, figsize=(8.0, 2.6))
-axes[0].plot(time, sampled_at, label="sampled")
-axes[0].plot(time, uniform_at, "--", label="uniform")
-axes[0].set_xlabel("readout time")
-axes[0].set_ylabel("$k_x$ [cycles/pixel]")
-axes[0].legend(fontsize=8)
-axes[1].plot(uniform_at, truth.abs(), color="k", label="uniform samples")
-axes[1].plot(uniform_at, resampled.abs(), label="resampled")
-axes[1].plot(uniform_at, linear.abs(), "--", label="linear")
-axes[1].set_xlabel("$k_x$")
-axes[1].legend(fontsize=8)
-axes[2].semilogy(
-    uniform_at, (resampled.to(torch.complex128) - truth).abs() + 1e-18, label="resampled"
-)
-axes[2].semilogy(uniform_at, (linear - truth).abs() + 1e-18, "--", label="linear")
-axes[2].set_xlabel("$k_x$")
-axes[2].set_title("error")
-axes[2].legend(fontsize=8)
+figure, axes = plt.subplots(1, 3, figsize=(10.4, 3.0))
+axes[0].plot(time, gradient, color="#8a8a8a", label="$G_x / G_{max}$")
+axes[0].plot(time, 2 * sampled_at, color=COLOURS["corrected"], label="$k_x / k_{max}$, sampled")
+axes[0].plot(time, 2 * uniform_at, "--", color=COLOURS["ghosted"], label="$k_x / k_{max}$, uniform")
+axes[0].set_xlabel("time in the ADC window")
+axes[0].set_title("trapezoidal readout gradient")
+axes[0].legend(loc="lower right")
+position = torch.arange(SAMPLES) - SAMPLES // 2
+reference = image_profile(truth)
+axes[1].plot(position, reference, color="#8a8a8a", linewidth=3.0, label="uniform")
+axes[1].plot(position, image_profile(resampled), color=COLOURS["corrected"], label="resampled")
+axes[1].plot(position, image_profile(linear), "--", color=COLOURS["linear"], label="linear")
+axes[1].set_xlim(-50, 50)
+axes[1].set_xlabel("pixel")
+axes[1].set_title("image profile")
+axes[1].legend(loc="upper left")
+for estimate, name, style in ((resampled, "resampled", "-"), (linear, "linear", "--")):
+    axes[2].semilogy(
+        position,
+        (image_profile(estimate) - reference).abs() / reference.max() + 1e-9,
+        style,
+        color=COLOURS[name if name == "linear" else "corrected"],
+        label=f"{name}, NRMSE {nrmse(image_profile(estimate), reference):.0e}",
+    )
+axes[2].set_xlim(-80, 80)
+axes[2].set_ylim(1e-8, 1)
+axes[2].set_xlabel("pixel")
+axes[2].set_title("|error| / peak")
+axes[2].legend(loc="upper left")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The resampling is exact to the precision of the operator, which is returned
-# in single precision; linear interpolation errs most on the plateau, where
-# the samples are furthest apart. The ratio printed above is the condition to
-# check on a measured trajectory: where a step exceeds one over the support,
-# the readout is aliased and no resampling recovers it.
+# The band-limited resampling reproduces the profile of a uniformly sampled
+# readout to the precision of the operator, which is returned in single
+# precision. Linear interpolation errs most on the plateau, where the samples
+# are furthest apart; in the image its error is spread over the whole field of
+# view, inside and outside the object, at up to a few per cent of the peak.
+# The ratio printed above is the condition to check on a measured trajectory:
+# where a step exceeds one over the support, the readout is aliased and no
+# resampling recovers it.
 #
 # References
 # ----------
