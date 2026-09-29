@@ -3,18 +3,20 @@
 ```{admonition} TL;DR
 :class: tldr
 
-- bartorch has two interfaces to one embedded BART: BART's commands as functions of tensors ({mod}`bartorch.tools`, the `bartorch` command line), and the objects the commands are built from — operators, regularization terms and solvers ({mod}`bartorch.linop`, {mod}`bartorch.nlop`, {mod}`bartorch.priors`, {mod}`bartorch.optim`).
-- A command runs a standard reconstruction in one call and returns BART's result; the composable objects are needed for an encoding BART has no application for, a solver inside an outer loop, or gradients.
-- {mod}`bartorch.apps` re-expresses applications with the composable objects: identical results on a Cartesian grid, agreement to floating-point round-off along a trajectory.
+- bartorch drives one embedded BART through three layers: reconstruction pipelines ({mod}`bartorch.apps`), the objects the pipelines are assembled from — operators, regularization terms and solvers ({mod}`bartorch.linop`, {mod}`bartorch.nlop`, {mod}`bartorch.priors`, {mod}`bartorch.optim`) — and BART's remaining commands as functions of tensors ({mod}`bartorch.tools`).
+- An app runs a standard reconstruction in one call; the objects are needed for an encoding BART has no application for, a solver inside an outer loop, or gradients.
+- {func}`bartorch.apps.pics` returns the tensor BART's `pics` returns on a Cartesian grid and agrees with it to floating-point round-off along a trajectory; {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit TorchSim signal models and return named maps in physical units.
 - Operators pass tensors to BART without copying and commands copy their inputs by default; an error inside BART raises {class}`~bartorch.BartError`, and FINUFFT or cuFINUFFT computes every non-uniform Fourier transform.
 ```
 
-bartorch exposes BART at two levels.  The command-style interface calls BART's
-applications — `pics`, `ecalib`, `nlinv` — as functions of tensors.  The
-composable interface exposes the objects those applications are built from:
-the encoding operator, the regularization terms and the iterative algorithm,
-which a reconstruction assembles in Python.  Both call the same embedded BART
-through one C interface.
+bartorch exposes BART at three levels.  A pipeline in {mod}`bartorch.apps`
+performs one of BART's reconstructions — `pics`, `moba`, `mobafit`,
+POCSENSE — in one call.  The composable interface exposes the objects those
+pipelines are assembled from: the encoding operator, the regularization terms
+and the iterative algorithm.  The functions of {mod}`bartorch.tools` call the
+BART commands that have no counterpart among those objects — calibration,
+trajectories, simulation, registration — as functions of tensors.  All three
+call the same embedded BART through one C interface.
 
 ```{image} ../_static/architecture.svg
 :class: only-light
@@ -32,22 +34,21 @@ through one C interface.
 
 | Interface | Unit | Autograd | Runs as |
 | --- | --- | --- | --- |
+| {mod}`bartorch.apps` | One reconstruction | As its solver | Operators and solvers of the composable interface |
 | {mod}`bartorch.tools` | One BART command | No | The command, in this process |
 | `bartorch.fft`, `fwt`, `rss`, ... ({doc}`../api/functions`) | One array operation | No | A BART command |
 | `bartorch` command line ({mod}`bartorch.cli`) | A `bart` command line on CFL files | No | An app where one exists, otherwise the command |
 | {mod}`bartorch.linop`, {mod}`bartorch.nlop` | An operator and its adjoint or derivative | Yes | A BART operator, or Python callbacks |
 | {mod}`bartorch.optim`, {mod}`bartorch.priors` | A solver or one iteration step, and its terms | Yes, per solver | BART's iteration: CG in the library, proximal steps in Python over BART's operators |
-| {mod}`bartorch.apps` | A BART application re-expressed with operators and solvers | As its solver | The composable interface |
 | {mod}`bartorch.learning`, {mod}`bartorch.interop` | Adapters to networks and to DeepInverse | Yes | PyTorch around the composable interface |
 
-A command runs a standard reconstruction in one call, and its result is
-BART's by construction.  The composable interface is needed when the
-encoding has no BART application — an additional factor in the forward model,
+An app runs a standard reconstruction in one call.  The composable interface
+is needed when the encoding has no BART application — an additional factor in the forward model,
 a subspace with an off-resonance correction, an operator defined in Python — when a
 solver is called from an outer loop such as Gauss-Newton, or when gradients
 are required.
 
-## Commands and apps
+## Apps and BART's commands
 
 {func}`bartorch.apps.pics` performs the steps of BART's `pics` with this
 package's objects: the sampling pattern, the modulation into BART's uncentred
@@ -56,11 +57,12 @@ convention and the data scaling in Python, then an encoding from
 Cartesian grid it returns the tensor the command returns; along a trajectory
 the two agree to floating-point round-off, because FINUFFT accumulates over
 threads in an order that varies between runs.  The command itself is not
-public; the test suite holds the app to it.  An app is the
-starting point for a variant of an application: its steps are Python that can
-be read and changed.  {func}`bartorch.apps.mobafit` does not reproduce its command: it fits a
-TorchSim signal model rather than BART's, and returns named maps in physical
-units.
+public; the test suite holds the app to it.  An app is the starting point for
+a variant of an application: its steps are Python that can be read and
+changed.  {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` use
+BART's Gauss-Newton method but not its signal models: they fit TorchSim
+models, which carry bounds and a starting state, and return named maps in
+physical units rather than BART's scaled coefficients.
 
 The `bartorch` command line reads a `bart` command line.  Where an app exists
 for the command and expresses every option given, the app runs; otherwise the
@@ -90,8 +92,8 @@ non-uniform FFT that is the tolerance it is planned with, $10^{-3}$ by default.
 The iterations of {mod}`bartorch.optim` reproduce BART's step sizes, penalty
 updates and stopping rules; for the Cartesian configurations the test suite
 covers, the assembled solvers return the same tensors as `pics`, bit for bit.
-{func}`bartorch.apps.mobafit` fits a TorchSim signal model and does not
-reproduce its command.  Where a configuration cannot be
+{func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit TorchSim
+signal models and do not reproduce their commands.  Where a configuration cannot be
 served — a non-Cartesian transform FINUFFT cannot compute, a term an iteration
 cannot apply — the call raises an error with the reason rather than computing
 the result by another method.
