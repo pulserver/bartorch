@@ -24,7 +24,7 @@ REPOSITORY = "pulserver/bartorch"
 PACKAGES = ["brainweb-dl", "matplotlib", "cmap"]
 SECTION_PACKAGES = {
     "06-learning": ["lightning", "torchio", "monai", "deepinv"],
-    "07-tours": ["SimpleITK"],
+    "07-tours": ["SimpleITK", "PyHySCO"],
 }
 
 #: The gallery's output directory under the documentation sources.
