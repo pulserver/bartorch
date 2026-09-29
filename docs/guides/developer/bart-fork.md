@@ -12,7 +12,7 @@ that fork.
 
 | Branch | Contents |
 | --- | --- |
-| `master` | Codeberg's `master`, fast-forwarded on each sync and never committed to |
+| `master` | Codeberg's `master`, fast-forwarded weekly by the fork's workflow and never committed to |
 | `downstream` | `master` plus the patch stack; the default branch, and the branch the submodule follows |
 | Other upstream branches | Copied from Codeberg as they are, for reference |
 
@@ -46,21 +46,21 @@ of BART's translation units, as `AGENTS.md` lists, not written into the fork.
 
 ## Syncing with Codeberg
 
-The patch stack is rebased onto the new upstream, so that it remains a list of
-patches on top of an unmodified upstream rather than a history of merges:
+The fork's *Upstream sync* workflow fast-forwards `master` to Codeberg's
+`master` every week and carries over Codeberg's new tags; it forces no ref and
+never touches `downstream`.  When `downstream` no longer contains `master`, it
+opens one issue in the fork, *Sync downstream with current Codeberg master*,
+and closes it once the patch stack has been rebased.
 
-```bash
-git fetch upstream --tags
-git checkout master
-git merge --ff-only upstream/master
-git tag downstream-$(date +%Y%m%d) downstream
-git checkout downstream
-git rebase master
-git push origin master --tags
-git push --force-with-lease origin downstream
-```
+The rebase is done by hand, onto `master`, so that the stack remains a list of
+patches on top of an unmodified upstream rather than a history of merges.  The
+procedure, and what the workflow checks, are in the fork's
+[`.github/sync/README.md`](https://github.com/pulserver/bart/blob/downstream/.github/sync/README.md).
+Every conflict in the rebase is resolved explicitly, a patch that upstream has
+made redundant is dropped, and a `downstream-YYYYMMDD` tag keeps the previous
+stack, and with it every revision an earlier bartorch pinned, reachable after
+`downstream` is rewritten.
 
-Every conflict in the rebase is resolved explicitly, and a patch that upstream
-has made redundant is dropped.  The tag keeps the previous stack, and with it
-every revision an earlier bartorch pinned, reachable after `downstream` is
-rewritten.  The submodule is then moved as {doc}`workflow` describes.
+The submodule pins an exact `downstream` commit, so neither the workflow nor a
+rebase changes what bartorch builds; the submodule is then moved as
+{doc}`workflow` describes.
