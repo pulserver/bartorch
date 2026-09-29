@@ -3,26 +3,29 @@ r"""
 Networks for complex volumes
 ===============================
 
-A convolutional denoiser for complex, multi-contrast volumes, trained on
-patches and applied to a whole volume patch by patch.
+**Aim.** Train a 3D convolutional denoiser on patches of a complex,
+multi-contrast brain volume, apply it to a whole volume of another subject
+patch by patch, as it would run on a scanner card too small for the volume,
+and check that the patch boundaries leave no visible seams.
 
-The networks of the previous lessons denoise one complex slice. The data a
-learned reconstruction is most needed for are larger: a volume of several
-contrasts, of subspace coefficients, or of frames of a cine. Three things
-change. The contrasts are denoised jointly, as channels of one image, and
-differ in energy, so they are balanced before the network sees them. The
-volume does not fit a network's activations on a card, so the network is
-trained on patches of it and applied to it patch by patch. And a network
+The networks of the previous lessons denoise a single complex 2D slice. The
+data a learned reconstruction is most needed for are larger: a 3D volume of
+several contrasts, of subspace coefficients in MR fingerprinting, or of the
+frames of a cine. Three things change. The contrasts are denoised jointly, as
+channels of one image, so that the network can use the anatomy they share;
+their signal levels differ, so they are balanced before the network sees
+them. The volume does not fit the network's activations in GPU memory, so the
+network is trained on patches and applied patch by patch. And a network
 applied on a fixed grid of patches leaves seams at the patch boundaries,
 which a random offset of the grid averages out.
 
 **Learning objectives**
 
-- Build a three-dimensional :class:`bartorch.learning.UNet` for complex
-  multi-contrast images with :class:`bartorch.learning.ComplexNet`, and
-  balance the contrasts by whitening.
+- Build a 3D :class:`bartorch.learning.UNet` for complex multi-contrast images
+  with :class:`bartorch.learning.ComplexNet`, and balance the contrasts by
+  whitening.
 - Train it on patches drawn by ``torchio``, with augmentations that preserve
-  the complex signal model.
+  the complex MR signal.
 - Apply it to a whole volume with :class:`bartorch.learning.Patchwise`, and
   average the seams out with :func:`bartorch.learning.moments`.
 - Compare the size of spatial and spatiotemporal networks.
@@ -35,29 +38,19 @@ It follows :doc:`02-modl-with-admm`. The next lesson,
 
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
-
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
+from matplotlib.patches import Rectangle
 
 PAGE_WIDTH = 8.0  # inches, the width of the documentation column
 
 
-def panels(rows, columns, height=1.0):
+def panels(rows, columns):
     """A grid of square image panels filling the documentation column."""
     side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side))
     for axis in axes.ravel():
         axis.set_xticks([])
         axis.set_yticks([])
+        axis.set_frame_on(False)
     return figure, axes
 
 
@@ -68,6 +61,49 @@ def show(axis, values, title=None, vmax=None, cmap="gray"):
     if title is not None:
         axis.set_title(title)
     return handle
+
+
+def nrmse(made, truth):
+    return float((made.abs() - truth.abs()).norm() / truth.abs().norm())
+
+
+def compare(truth, results, crop, gain=3.0):
+    """The reference and each result, whole, magnified on ``crop``, and their errors.
+
+    Row one holds whole images, row two the region ``crop`` magnified, row
+    three the magnitude error multiplied by ``gain`` on the scale of the
+    reference, with the NRMSE of each result.
+    """
+    columns = 1 + len(results)
+    figure, axes = panels(3, columns)
+    top = float(truth.abs().max())
+    rows, cols = crop
+    show(axes[0, 0], truth, "reference", vmax=top)
+    axes[0, 0].add_patch(
+        Rectangle(
+            (cols.start, rows.start),
+            cols.stop - cols.start,
+            rows.stop - rows.start,
+            fill=False,
+            edgecolor="#e8a33d",
+            linewidth=1.2,
+        )
+    )
+    show(axes[1, 0], truth[crop], vmax=top)
+    axes[2, 0].text(
+        0.5, 0.5, f"error\n× {gain:g}", ha="center", va="center", transform=axes[2, 0].transAxes
+    )
+    for column, (name, made) in enumerate(results.items(), start=1):
+        show(axes[0, column], made, name, vmax=top)
+        show(axes[1, column], made[crop], vmax=top)
+        show(
+            axes[2, column],
+            gain * (made.abs() - truth.abs()),
+            f"NRMSE {nrmse(made, truth):.3f}",
+            vmax=top,
+            cmap="magma",
+        )
+    return figure
 
 
 # sphinx_gallery_end_ignore
@@ -97,11 +133,14 @@ _ = torch.manual_seed(0)
 # A multi-contrast complex volume
 # -------------------------------
 #
-# Three spin-echo contrasts of a BrainWeb subject -- T1-, T2- and proton
-# density-weighted -- on a :math:`64^3` grid, each with its own smooth phase,
-# as a ``(3, z, y, x)`` complex tensor. Subject 0 is the training volume and
-# subject 4 the test volume. Each contrast of a voxel is the sum over the
-# tissues it contains of their spin-echo signals.
+# Three spin-echo contrasts of a BrainWeb subject -- :math:`T_1`-weighted
+# (TR 600 ms, TE 12 ms), :math:`T_2`-weighted (TR 4000 ms, TE 100 ms) and
+# proton-density-weighted (TR 4000 ms, TE 12 ms) -- on a :math:`64^3` grid,
+# each with its own smooth background phase, as a ``(3, z, y, x)`` complex
+# tensor. Each voxel's signal is the sum of the spin-echo signals of the
+# tissues it contains. Subject 0 is the training volume and subject 4 the test
+# volume. Complex Gaussian noise of 6 per cent of each contrast's peak gives
+# the test volume an SNR typical of a fast high-resolution scan.
 
 # sphinx_gallery_start_ignore
 logging.getLogger("lightning.pytorch").setLevel(logging.ERROR)
@@ -187,16 +226,16 @@ with torch.no_grad():
 # ------------------------
 #
 # ``torchio`` holds the training volume as a :class:`torchio.ScalarImage` of
-# real channels (:func:`~bartorch.learning.as_real`) and draws patches from it
-# through a :class:`torchio.Queue`. The augmentations are the ones that map a
-# complex image to another the acquisition could have produced: a flip, and
-# :class:`~bartorch.learning.training.RandomGain`, a complex gain shared by the
-# contrasts, which varies the overall scale and phase. An intensity
-# transformation applied to the real and imaginary channels separately, such
-# as a gamma correction, would not. The phase is varied over a limited range:
-# a network trained over every global phase has to learn to commute with a
-# rotation of its real and imaginary channels, which takes more training than
-# this lesson runs.
+# real channels (:func:`~bartorch.learning.as_real`) and draws :math:`32^3`
+# patches from it through a :class:`torchio.Queue`. The augmentations are
+# those that map one MR image to another the acquisition could have produced:
+# a flip, and :class:`~bartorch.learning.training.RandomGain`, a receiver gain
+# and global phase shared by the contrasts. An intensity transform applied to
+# the real and imaginary channels separately, such as a gamma correction,
+# would produce a signal no acquisition can. The global phase is varied over a
+# limited range: a network trained over every phase must learn to commute with
+# a rotation of its real and imaginary channels, which takes more training
+# than this lesson runs.
 #
 # Each patch becomes a training pair when a new draw of noise is added to it,
 # so the network sees a different noise realization at every epoch.
@@ -224,7 +263,7 @@ def pairs(patches):
 
 validation = [{"input": noisy, "target": test_volume}]
 trainer = lightning.Trainer(
-    max_epochs=12,
+    max_epochs=30,
     accelerator="cpu",
     logger=False,
     enable_checkpointing=False,
@@ -242,13 +281,16 @@ trainer.fit(
 # Applying the network patch by patch
 # -----------------------------------
 #
-# :class:`~bartorch.learning.Patchwise` applies the network to an image held
-# on the host a few patches at a time, on the network's device, under mixed
-# precision there, and assembles the result on the host. On a card only the
-# network and ``batch`` patches are resident, so a volume larger than the
-# card's memory is denoised by a network trained on patches of it. Here, on the
-# host, the whole volume is also small enough to be denoised in one call,
-# which is the reference the patchwise result is compared with.
+# :class:`~bartorch.learning.Patchwise` keeps the volume in host memory and
+# sends it to the network's device a few patches at a time, runs the network
+# there in mixed precision, and assembles the result on the host. On a GPU
+# only the network and ``batch`` patches are resident, so a volume larger than
+# the card's memory -- a whole-brain fingerprinting series on a scanner's
+# 16 GB card -- is denoised by a network trained on patches of it. At
+# inference the copies of one group of patches overlap the computation on the
+# previous one. Here, on the host, the whole volume is also small enough to be
+# denoised in one call, which is the reference the patchwise result is
+# compared with.
 #
 # A U-Net is not translation invariant at a patch boundary: its receptive field
 # extends past the patch, where it sees zeros rather than the neighbouring
@@ -283,31 +325,42 @@ for name, made in (("whole volume", whole), ("fixed grid", grid), ("8 random gri
     )
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 4)
-top = float(test_volume[0, :, :, SIZE // 2 + 3].abs().max())
-show(axes[0, 0], whole[0, :, :, SIZE // 2 + 3], "whole volume", vmax=top)
-departure_grid = (grid - whole)[0, :, :, SIZE // 2 + 3].abs()
-departure_avg = (averaged - whole)[0, :, :, SIZE // 2 + 3].abs()
+cut = (1, slice(None), slice(None), SIZE // 2 + 3)  # the T2w contrast, a sagittal slice
+compare(
+    test_volume[cut],
+    {"noisy": noisy[cut], "denoised, whole": whole[cut]},
+    crop=(slice(14, 46), slice(16, 48)),
+    gain=5.0,
+)
+plt.show()
+
+figure, axes = panels(1, 2)
+departure_grid = (grid - whole)[cut].abs()
+departure_avg = (averaged - whole)[cut].abs()
 scale = float(departure_grid.max())
-show(axes[0, 1], grid[0, :, :, SIZE // 2 + 3], "fixed grid", vmax=top)
-show(axes[0, 2], departure_grid, "fixed grid, departure", vmax=scale, cmap="magma")
-show(axes[0, 3], departure_avg, "8 random grids, departure", vmax=scale, cmap="magma")
+show(axes[0, 0], departure_grid, "fixed grid − whole", vmax=scale, cmap="magma")
+show(axes[0, 1], departure_avg, "8 random grids − whole", vmax=scale, cmap="magma")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The departure of the fixed grid lies on the planes between patches, the same
-# planes at every call. A shifted grid covers the volume with one more patch
-# along each axis and so has more boundaries, and each call departs further
-# from the whole-volume result; but the boundaries move from call to call, and
-# the average of eight calls spreads the departure across the volume instead
-# of concentrating it on planes. Neither changes the error against the
-# reference beyond the third digit. Inside an iteration, which applies the
-# denoiser once per step, a single shifted grid per call is enough: no plane
-# receives the boundary error at every step. The variance
-# :func:`~bartorch.learning.moments` returns is a map of how much the result
-# depends on where the patches fall, one of the spreads of
+# The network, 0.14 million weights trained for a few minutes on patches of
+# one head, removes a third or more of the noise of the other head's volume
+# without blurring the white-matter tracts or the corpus callosum; a real
+# training set and a wider network remove more.
+#
+# The departure of the fixed grid from the whole-volume result lies on the
+# planes between patches -- the seams -- and on the same planes at every call.
+# A shifted grid covers the volume with one more patch along each axis and so
+# has more boundaries, and a single call departs further from the
+# whole-volume result; but the boundaries move from call to call, and the
+# average of eight calls spreads the departure over the volume instead of
+# concentrating it on planes, where it would read as an anatomical edge.
+# Inside an iteration, which applies the denoiser once per step, one shifted
+# grid per call is enough: no plane receives the boundary error at every step.
+# The variance :func:`~bartorch.learning.moments` returns is a map of how much
+# the result depends on where the patches fall, one of the spreads of
 # :doc:`07-uncertainty`.
 
 # %%

@@ -29,10 +29,12 @@ uncertainty estimate from it does and does not state.
 | Deep equilibrium | As unrolled | As unrolled, differentiated at the fixed point | Until the fixed point |
 
 A plug-and-play denoiser is independent of the acquisition, so one network
-serves every protocol whose images resemble its training images; it is not
-adapted to the artefacts a given undersampling produces.  An unrolled network
-is trained on those artefacts and needs few iterations, which is what bounds
-the runtime on a scanner, and is tied to the encoding it was trained with.
+serves every protocol whose images resemble its training images, whatever the
+acceleration, sampling pattern or coil array; it is not adapted to the
+aliasing and g-factor noise a given undersampling produces.  An unrolled
+network is trained on exactly those artefacts and needs few iterations, which
+is what bounds the reconstruction time on the scanner, and is tied to the
+encoding it was trained with.
 {class}`~bartorch.priors.ImplicitPrior` places a network in the proximal
 step of any block of {mod}`bartorch.optim`, {class}`~bartorch.learning.Unrolled`
 repeats a block a fixed number of times, and
@@ -63,8 +65,9 @@ after it.  A time series is taken with a frame axis
 (`frames=True`), convolved separately from the spatial axes and never
 downsampled.
 
-A volume, or a series of volumes, rarely fits a network's activations on a
-card.  The network is trained on patches, and
+A 3D volume, or a series of them such as a cine or a fingerprinting
+acquisition, rarely fits a network's activations in the memory of a scanner's
+GPU.  The network is trained on patches, and
 {class}`~bartorch.learning.Patchwise` applies it to the whole image a few
 patches at a time: the image stays on the host, each group of patches is
 copied to the device, passed through the network under mixed precision
@@ -97,8 +100,10 @@ image of an ADMM step, its x-update.
 Lightning module; the items stay where the dataset put them, and a network
 inside decides where it runs.
 
-References are rarely available for the data a learned reconstruction is most
-needed for.  Self-supervision via data undersampling splits the acquired
+Fully sampled references are rarely available for the data a learned
+reconstruction is most needed for: a dynamic or high-dimensional acquisition
+is undersampled because full sampling does not fit a breath-hold or a
+reasonable scan time.  Self-supervision via data undersampling splits the acquired
 samples $\Omega$ into disjoint sets $\Theta$ and $\Lambda$, reconstructs from
 $\Theta$, and scores the reconstruction's k-space on $\Lambda$.[^ssdu]  A new split is drawn at every step
 ({func}`~bartorch.learning.split`), and the reconstruction at inference uses
@@ -106,8 +111,10 @@ all of $\Omega$.
 
 ## Uncertainty
 
-A spread is obtained by repeating a randomized reconstruction and taking the
-voxel-wise variance ({func}`~bartorch.learning.moments`): with dropout active
+Where the undersampling leaves the image underdetermined, a network fills in
+what its training data suggest, and a hallucinated structure is not
+distinguishable from anatomy in the image alone.  A spread is obtained by
+repeating a randomized reconstruction and taking the voxel-wise variance ({func}`~bartorch.learning.moments`): with dropout active
 in the network, from random subsets of the acquired samples, or with a random
 patch grid.  Each spread measures one source of variability and none is the
 reconstruction error or a posterior distribution.  Split conformal calibration

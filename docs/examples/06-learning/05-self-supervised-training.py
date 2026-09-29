@@ -3,36 +3,38 @@ r"""
 Training without a reference
 ============================
 
-The unrolled network of :doc:`04-staged-training`, trained from undersampled
-k-space alone by holding out part of the acquired samples and scoring the
-reconstruction on them.
+**Aim.** Train the unrolled network of :doc:`04-staged-training` from
+undersampled k-space alone, with no fully sampled reference, and measure how
+much of the supervised network's image quality it retains.
 
-A time series of volumes -- a cine, a functional run, a fingerprinting
-acquisition -- is rarely acquired fully sampled, because the undersampling is
-what makes it possible to acquire at all. Self-supervised learning via data
-undersampling (SSDU) [#ssdu]_ does without the reference. The acquired
-samples :math:`\Omega` are split into two disjoint sets, :math:`\Theta` and
-:math:`\Lambda`; the network reconstructs from :math:`\Theta`, and the loss
-compares the reconstruction's k-space with the measured data on
-:math:`\Lambda`,
+Dynamic and high-dimensional acquisitions -- a cine, a functional run, a
+fingerprinting series -- are rarely acquired fully sampled: undersampling is
+what makes them feasible within a breath-hold or a scan time. There is then no
+reference image to train against. Self-supervised learning via data
+undersampling (SSDU) [#ssdu]_ trains against the measured k-space itself. The
+acquired phase encodes :math:`\Omega` are split into two disjoint sets,
+:math:`\Theta` and :math:`\Lambda`; the network reconstructs from
+:math:`\Theta`, and the loss compares the k-space of its reconstruction with
+the measured data on the held-out set :math:`\Lambda`,
 
 .. math::
 
    \mathcal{L} = \frac{\|y_\Lambda - A_\Lambda f_\theta(y_\Theta)\|_2}{\|y_\Lambda\|_2}
    + \frac{\|y_\Lambda - A_\Lambda f_\theta(y_\Theta)\|_1}{\|y_\Lambda\|_1},
 
-where :math:`A_\Lambda` is the encoding restricted to :math:`\Lambda`. A new
-split is drawn at every step, so over the training every acquired sample is
-both reconstructed from and held out [#multimask]_. At inference the network
-reconstructs from all of :math:`\Omega`.
+where :math:`A_\Lambda` is the SENSE encoding restricted to :math:`\Lambda`.
+A new split is drawn at every step, so over the training every acquired line
+is both reconstructed from and held out [#multimask]_. At inference the
+network reconstructs from all of :math:`\Omega`.
 
 **Learning objectives**
 
-- Partition acquired phase encodes with :func:`bartorch.learning.split`.
+- Partition the acquired phase encodes with :func:`bartorch.learning.split`.
 - Train an unrolled network self-supervised with
-  :class:`bartorch.learning.training.Reconstruction`, by giving items a
+  :class:`bartorch.learning.training.Reconstruction`, by giving items the
   sampling pattern instead of a reference.
-- Compare with the same network trained against references.
+- Compare with the same network trained against references, and with
+  CG-SENSE.
 
 It follows :doc:`04-staged-training`. The next lesson,
 :doc:`06-annealed-plug-and-play`, uses a denoiser trained once for any
@@ -43,29 +45,19 @@ acquisition.
 
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
-
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
+from matplotlib.patches import Rectangle
 
 PAGE_WIDTH = 8.0  # inches, the width of the documentation column
 
 
-def panels(rows, columns, height=1.0):
+def panels(rows, columns):
     """A grid of square image panels filling the documentation column."""
     side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side))
     for axis in axes.ravel():
         axis.set_xticks([])
         axis.set_yticks([])
+        axis.set_frame_on(False)
     return figure, axes
 
 
@@ -76,6 +68,49 @@ def show(axis, values, title=None, vmax=None, cmap="gray"):
     if title is not None:
         axis.set_title(title)
     return handle
+
+
+def nrmse(made, truth):
+    return float((made.abs() - truth.abs()).norm() / truth.abs().norm())
+
+
+def compare(truth, results, crop, gain=3.0):
+    """The reference and each result, whole, magnified on ``crop``, and their errors.
+
+    Row one holds whole images, row two the region ``crop`` magnified, row
+    three the magnitude error multiplied by ``gain`` on the scale of the
+    reference, with the NRMSE of each result.
+    """
+    columns = 1 + len(results)
+    figure, axes = panels(3, columns)
+    top = float(truth.abs().max())
+    rows, cols = crop
+    show(axes[0, 0], truth, "reference", vmax=top)
+    axes[0, 0].add_patch(
+        Rectangle(
+            (cols.start, rows.start),
+            cols.stop - cols.start,
+            rows.stop - rows.start,
+            fill=False,
+            edgecolor="#e8a33d",
+            linewidth=1.2,
+        )
+    )
+    show(axes[1, 0], truth[crop], vmax=top)
+    axes[2, 0].text(
+        0.5, 0.5, f"error\n× {gain:g}", ha="center", va="center", transform=axes[2, 0].transAxes
+    )
+    for column, (name, made) in enumerate(results.items(), start=1):
+        show(axes[0, column], made, name, vmax=top)
+        show(axes[1, column], made[crop], vmax=top)
+        show(
+            axes[2, column],
+            gain * (made.abs() - truth.abs()),
+            f"NRMSE {nrmse(made, truth):.3f}",
+            vmax=top,
+            cmap="magma",
+        )
+    return figure
 
 
 # sphinx_gallery_end_ignore
@@ -99,6 +134,7 @@ from bartorch.learning import training
 SIZE = 96
 COILS = 8
 ITERATIONS = 4
+ACCELERATION = 4
 EPOCHS = 16
 
 _ = torch.manual_seed(0)
@@ -173,12 +209,12 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 
 density = torch.exp(-0.5 * ((torch.arange(SIZE) - SIZE / 2) / (SIZE / 6)) ** 2)
 lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(1)) < density / density.sum() * (
-    SIZE / 4
+    SIZE / ACCELERATION
 )
 lines[SIZE // 2 - 4 : SIZE // 2 + 4] = True
 pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
 A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
-NOISE = 0.005
+NOISE = 0.02
 
 generator = torch.Generator().manual_seed(3)
 kspace = {
@@ -198,11 +234,12 @@ kspace = {
 # ---------
 #
 # The readout is fully sampled, so the unit of the split is the phase-encode
-# line: the pattern given to :func:`~bartorch.learning.split` is one entry per
-# line, which broadcasts over the coils and the readout. A quarter of the
-# acquired lines are held out, drawn with a Gaussian density across k-space,
-# and the eight central lines always stay in :math:`\Theta` so that every
-# reconstruction keeps the low frequencies.
+# line: the pattern given to :func:`~bartorch.learning.split` has one entry per
+# line and broadcasts over the coils and the readout. A quarter of the acquired
+# lines are held out, drawn with a Gaussian density across :math:`k_y`, and
+# the eight central lines always stay in :math:`\Theta`: a reconstruction
+# without the centre of k-space would lose the image contrast, and the loss
+# would be dominated by it.
 
 acquired = lines.float()[:, None]
 keep, held = learning.split(acquired, 0.25, keep=(8, 1), generator=torch.Generator().manual_seed(0))
@@ -212,12 +249,18 @@ print(
 )
 
 # sphinx_gallery_start_ignore
-figure, axis = plt.subplots(figsize=(PAGE_WIDTH, 1.2))
-axis.imshow(
-    torch.stack([acquired[:, 0], keep[:, 0], held[:, 0]]).numpy(), cmap="gray", aspect="auto"
-)
-axis.set_yticks([0, 1, 2], ["acquired", "reconstruct from", "held out"])
-axis.set_xlabel("phase-encode line")
+figure, axis = plt.subplots(figsize=(PAGE_WIDTH, 1.6))
+for lane, (row, colour) in enumerate(
+    zip((acquired[:, 0], keep[:, 0], held[:, 0]), ("0.55", "#4c9be8", "#e8a33d"))
+):
+    lines_in = torch.nonzero(row).ravel().numpy()
+    axis.bar(lines_in, 0.8, bottom=lane - 0.4, width=0.85, color=colour)
+axis.set_yticks([0, 1, 2], [r"acquired $\Omega$", r"reconstruct $\Theta$", r"held out $\Lambda$"])
+axis.set_ylim(2.6, -0.6)
+axis.set_xlim(-1, SIZE)
+axis.set_xlabel("phase-encode line $k_y$")
+for side in ("top", "right", "left"):
+    axis.spines[side].set_visible(False)
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -299,19 +342,29 @@ for name, made in results.items():
 
 # %%
 #
-# The self-supervised network is trained on less information: each step sees
-# three quarters of the lines and is told nothing about the lines never
-# acquired, which is where the supervised network learns most. The gap between
-# the two on a given dataset is what a reference would have bought; the
-# self-supervised network needs nothing beyond the data a protocol already
-# acquires.
+# The self-supervised network is trained on less information: each step
+# reconstructs from three quarters of the acquired lines and is told nothing
+# about the lines never acquired, which is where the supervised network learns
+# most. The gap between the two is what a fully sampled reference would have
+# bought; the self-supervised network needs nothing beyond the data the
+# protocol already acquires.
+#
+# In the images below, both networks suppress the noise that the CG-SENSE
+# unfolding amplifies across the whole field of view. The self-supervised
+# network keeps more residual aliasing along the phase-encode direction
+# (vertical), which its error map shows as horizontal striping: the lines never
+# acquired are the ones it cannot score against.
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 4)
-top = float(truth[5].max())
-show(axes[0, 0], valid_images[5], "reference", vmax=top)
-for column, (name, made) in enumerate(results.items(), start=1):
-    show(axes[0, column], made[5], name.split(",")[0], vmax=top)
+compare(
+    valid_images[5],
+    {
+        "CG-SENSE": results["CG SENSE, 20 iterations"][5],
+        "supervised": results["supervised"][5],
+        "self-supervised": results["self-supervised"][5],
+    },
+    crop=(slice(22, 58), slice(30, 66)),
+)
 plt.show()
 # sphinx_gallery_end_ignore
 
