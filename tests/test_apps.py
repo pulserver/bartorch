@@ -264,6 +264,22 @@ def test_the_magnitude_is_fitted_where_the_phase_is_thrown_away():
     assert torch.allclose(fitted, t2, rtol=1e-3)
 
 
+def test_a_magnitude_fit_discards_the_phase_of_complex_data():
+    """``mobafit -a`` takes the modulus of the data as well as of the model, so
+    a phased complex decay fits its T2 and the modulus of its amplitude."""
+    from bartorch import nlop
+
+    t2 = _two_halves(60.0, 110.0)
+    phase = torch.exp(1j * torch.linspace(-1.0, 1.0, FIT_SIZE))[None, :]
+    images = 2.0 * torch.exp(-torch.tensor(ECHO_TIMES)[:, None, None] / t2) * phase
+
+    model = nlop.MultiEcho(ECHO_TIMES, (FIT_SIZE, FIT_SIZE))
+    fitted = apps.mobafit(images.to(torch.complex64), model, magnitude=True, T2=80.0)
+
+    assert torch.allclose(fitted["T2"], t2, rtol=1e-3)
+    assert torch.allclose(fitted["amplitude"].abs(), torch.full_like(t2, 2.0), rtol=1e-3)
+
+
 def test_a_voxel_with_no_signal_keeps_the_value_it_started_from():
     """``mobafit`` skips a patch whose data is zero; an unconstrained voxel
     would otherwise walk wherever the bounds allow."""
