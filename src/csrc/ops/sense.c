@@ -54,6 +54,7 @@
 #include "noncart/nufft.h"
 
 #include "sense/model.h"
+#include "sense/modelnc.h"
 
 #include "include/bartorch.h"
 
@@ -95,6 +96,8 @@ extern const struct linop_s* bart_sense_nc_init(const bart_dim_t max_dims[DIMS],
 		const bart_dim_t traj_dims[DIMS], const complex float* traj, const struct nufft_conf_s* conf,
 		const bart_dim_t wgs_dims[DIMS], const complex float* weights,
 		const bart_dim_t basis_dims[DIMS], const complex float* basis,
+		const bart_dim_t fieldmap_dims[DIMS], const complex float* fieldmap,
+		const bart_dim_t timemap_dims[DIMS], const complex float* timemap,
 		const struct linop_s** fft_opp, bart_flags_t shared_img_dims);
 
 /* How many coils a slab holds.  Zero leaves the operators as BART builds
@@ -1440,6 +1443,8 @@ const struct linop_s* sense_nc_init(const bart_dim_t max_dims[DIMS], const bart_
 		const bart_dim_t traj_dims[DIMS], const complex float* traj, const struct nufft_conf_s* _conf,
 		const bart_dim_t wgs_dims[DIMS], const complex float* weights,
 		const bart_dim_t basis_dims[DIMS], const complex float* basis,
+		const bart_dim_t fieldmap_dims[DIMS], const complex float* fieldmap,
+		const bart_dim_t timemap_dims[DIMS], const complex float* timemap,
 		const struct linop_s** fft_opp, bart_flags_t shared_img_dims)
 {
 	bart_dim_t ksp_dims2[DIMS];
@@ -1448,13 +1453,15 @@ const struct linop_s* sense_nc_init(const bart_dim_t max_dims[DIMS], const bart_
 
 	bool sliced = sliceable((bart_dim_t)coil_batch, max_dims, map_dims, ksp_dims2, shared_img_dims)
 		&& ((NULL == weights) || (1 == wgs_dims[COIL_DIM]))
-		&& ((NULL == basis) || (1 == basis_dims[COIL_DIM]));
+		&& ((NULL == basis) || (1 == basis_dims[COIL_DIM]))
+		&& (NULL == fieldmap) && (NULL == timemap) && !_conf->dft;
 
 	if (!sliced) {
 
 		chained();
 		return bart_sense_nc_init(max_dims, map_dims, maps, ksp_dims, traj_dims, traj, _conf,
-				wgs_dims, weights, basis_dims, basis, fft_opp, shared_img_dims);
+				wgs_dims, weights, basis_dims, basis, fieldmap_dims, fieldmap,
+				timemap_dims, timemap, fft_opp, shared_img_dims);
 	}
 
 	struct sense_s* d = sense_slabs((bart_dim_t)coil_batch, 0 != fold_maps, max_dims, map_dims, ksp_dims2, shared_img_dims, false);
@@ -1466,7 +1473,7 @@ const struct linop_s* sense_nc_init(const bart_dim_t max_dims[DIMS], const bart_
 	d->maps = maps;
 	d->slab = nufft_create2(DIMS, slab_ksp_dims, d->cim_dims, traj_dims, traj,
 			(weights ? wgs_dims : NULL), weights,
-			(basis ? basis_dims : NULL), basis, *_conf);
+			(basis ? basis_dims : NULL), basis, NULL, NULL, NULL, NULL, *_conf);
 
 	sense_output_from(d, false, 0, NULL);
 
@@ -1675,7 +1682,7 @@ static const struct linop_s* form_transform(const struct bartorch_encoding* f, c
 
 		return nufft_create2(DIMS, f->ksp_dims, cim_dims, f->traj_dims, f->traj,
 				(f->weights ? f->wgh_dims : NULL), f->weights,
-				(f->basis ? f->bas_dims : NULL), f->basis, *conf);
+				(f->basis ? f->bas_dims : NULL), f->basis, NULL, NULL, NULL, NULL, *conf);
 	}
 
 	error("bartorch: %d is not one of this library's encoding transforms\n", f->transform);
@@ -1698,7 +1705,7 @@ static const struct linop_s* form_chain(const struct bartorch_encoding* f, const
 
 	if (BARTORCH_ENCODING_NUFFT == f->transform)
 		return bart_sense_nc_init(max_dims, map_dims, f->sens, f->ksp_dims, f->traj_dims, f->traj, conf,
-				f->wgh_dims, f->weights, f->bas_dims, f->basis, NULL, 0);
+				f->wgh_dims, f->weights, f->bas_dims, f->basis, NULL, NULL, NULL, NULL, NULL, 0);
 
 	if (0 != f->modulated) {
 

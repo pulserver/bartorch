@@ -90,7 +90,7 @@ extern void bartorch_paired_back(const struct bartorch_paired* p, int k,
 
 #include "include/bartorch.h"
 
-extern struct linop_s* bart_nufft_create2(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N], const bart_dim_t traj_dims[N], const complex float* traj, const bart_dim_t wgh_dims[N], const complex float* weights, const bart_dim_t bas_dims[N], const complex float* basis, struct nufft_conf_s conf);
+extern struct linop_s* bart_nufft_create2(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N], const bart_dim_t traj_dims[N], const complex float* traj, const bart_dim_t wgh_dims[N], const complex float* weights, const bart_dim_t bas_dims[N], const complex float* basis, const bart_dim_t fm_dims[N], const complex float* fieldmap, const bart_dim_t tm_dims[N], const complex float* timemap, struct nufft_conf_s conf);
 extern int bart_nufft_get_psf_dims(const struct linop_s* nufft, int N, bart_dim_t psf_dims[N]);
 extern void bart_nufft_get_psf(const struct linop_s* nufft, int N, const bart_dim_t psf_dims[N], complex float* psf);
 extern void bart_nufft_get_psf2(const struct linop_s* nufft, int N, const bart_dim_t psf_dims[N], const bart_stride_t psf_strs[N], complex float* psf);
@@ -2595,7 +2595,7 @@ static const struct linop_s* toeplitz_for(int N, const bart_dim_t ksp_dims[N], c
 
 	const struct linop_s* op = bart_nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj,
 			wgh_dims, weights, (NULL == basis) ? NULL : (along_samples ? stand_dims : bas_dims),
-			along_samples ? stand : basis, barts);
+			along_samples ? stand : basis, NULL, NULL, NULL, NULL, barts);
 
 	struct nufft_data* data = CAST_DOWN(nufft_data, linop_get_data_nested(op));
 
@@ -2994,8 +2994,19 @@ static struct linop_s* try_create(int N, const bart_dim_t ksp_dims[N], const bar
 struct linop_s* nufft_create2(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N],
 		const bart_dim_t traj_dims[N], const complex float* traj,
 		const bart_dim_t wgh_dims[N], const complex float* weights,
-		const bart_dim_t bas_dims[N], const complex float* basis, struct nufft_conf_s conf)
+		const bart_dim_t bas_dims[N], const complex float* basis,
+		const bart_dim_t fm_dims[N], const complex float* fieldmap,
+		const bart_dim_t tm_dims[N], const complex float* timemap, struct nufft_conf_s conf)
 {
+	/* `dft` is BART's explicit sum rather than its gridder, and the only
+	 * transform that takes a field map. */
+	if (conf.dft)
+		return bart_nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights,
+				bas_dims, basis, fm_dims, fieldmap, tm_dims, timemap, conf);
+
+	if ((NULL != fieldmap) || (NULL != timemap))
+		error("bartorch: a field map needs the explicit transform (--nufft-conf dft).\n");
+
 	struct linop_s* op = try_create(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, bas_dims, basis, conf);
 
 	if (NULL != op)
@@ -3011,7 +3022,7 @@ struct linop_s* nufft_create2(int N, const bart_dim_t ksp_dims[N], const bart_di
 
 	count(CNT_BART);
 
-	return bart_nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, bas_dims, basis, barts_conf(conf));
+	return bart_nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, bas_dims, basis, NULL, NULL, NULL, NULL, barts_conf(conf));
 }
 
 struct linop_s* nufft_create(int N, const bart_dim_t ksp_dims[N], const bart_dim_t cim_dims[N],
@@ -3021,7 +3032,7 @@ struct linop_s* nufft_create(int N, const bart_dim_t ksp_dims[N], const bart_dim
 	bart_dim_t wgh_dims[N];
 	md_select_dims(N, ~MD_BIT(0), wgh_dims, traj_dims);
 
-	return nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, NULL, NULL, conf);
+	return nufft_create2(N, ksp_dims, cim_dims, traj_dims, traj, wgh_dims, weights, NULL, NULL, NULL, NULL, NULL, NULL, conf);
 }
 
 /* The rest read BART's own operator internals, so they are only safe on one

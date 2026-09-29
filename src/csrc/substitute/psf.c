@@ -170,7 +170,7 @@ static complex float* psf_int(int N, const bart_dim_t img_dims[N], const bart_di
 	struct nufft_conf_s conf = psf_conf(periodic, lowmem, is_vptr(traj));
 
 	struct linop_s* op = nufft_create2(N, ksp_dims, img_dims2, trj_dims, traj,
-			wgh_dims, sqr_weights, sqr_bas_dims, sqr_basis, conf);
+			wgh_dims, sqr_weights, sqr_bas_dims, sqr_basis, NULL, NULL, NULL, NULL, conf);
 
 	op = linop_reshape_in_F(op, N, img_dims);
 
@@ -387,7 +387,7 @@ static complex float* psf_decomposed(bool to_host, bool real_out, const struct p
 	 * phase.  Setting the points is the costly step: it sorts every
 	 * sample. */
 	struct linop_s* op = nufft_create2(ND, ksp_dims2, one_dims, trj_dims3, traj,
-			NULL, NULL, NULL, NULL, conf);
+			NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, conf);
 
 	bart_stride_t kstrs[ND];
 	bart_stride_t tstrs[ND];

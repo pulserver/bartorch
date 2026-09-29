@@ -26,7 +26,7 @@ option(BARTORCH_CUDA "Build BART's CUDA kernels" OFF)
 set(BARTORCH_CUDA_ARCHITECTURES "75;80;86;89;90" CACHE STRING
     "Architectures to emit SASS for; PTX for the last one is added for newer cards")
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -171,7 +171,7 @@ if(BARTORCH_CUDA)
     enable_language(CUDA)
     find_package(CUDAToolkit REQUIRED)
 
-    list(APPEND BART_C_DEFS USE_CUDA CUDA_GET_CUDA_DEVICE_NUM)
+    list(APPEND BART_C_DEFS USE_CUDA USE_GPU CUDA_GET_CUDA_DEVICE_NUM)
 
     set(CMAKE_CUDA_STANDARD 17)
     set(CMAKE_CUDA_STANDARD_REQUIRED ON)
@@ -269,7 +269,7 @@ file(GLOB _tool_srcs CONFIGURE_DEPENDS "${BART_SRC}/*.c")
 list(APPEND BART_SOURCES ${_tool_srcs})
 
 if(BARTORCH_CUDA)
-    foreach(_dir calib motion noncart num wavelet)
+    foreach(_dir calib motion noncart num simu wavelet)
         file(GLOB _cu CONFIGURE_DEPENDS "${BART_SRC}/${_dir}/*.cu")
         list(APPEND BART_SOURCES ${_cu})
     endforeach()
