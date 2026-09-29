@@ -607,6 +607,20 @@ def test_a_chain_holds_the_two_sides_at_the_same_rank():
     )
 
 
+def test_a_chain_across_two_ranks_is_differentiated_by_the_chain_rule():
+    # The derivative of each side is held at that side's own rank, so the
+    # chain of derivatives meets across the same padding the chain did.
+    low = nlop.Exp((4,))._reshape_output(0, (1, 1, 4))
+    high = nlop.TorchOperator(lambda x: 2.0 * x, (1, 1, 4), (1, 1, 4))
+    x, dx = _rand(4), _rand(4)
+
+    derivative = _chain(low, high).linearize(x)
+
+    torch.testing.assert_close(
+        derivative(dx).reshape(4), 2.0 * torch.exp(x) * dx, rtol=1e-5, atol=1e-6
+    )
+
+
 def test_a_link_holds_them_at_the_same_rank_too():
     # The same shape on both sides, and two different ranks behind it.
     a = nlop.Exp((4,))._reshape_output(0, (1, 1, 4))

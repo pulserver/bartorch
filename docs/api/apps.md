@@ -19,3 +19,4 @@ runs an app in place of the BART command where one exists.
 | {obj}`~bartorch.apps.pics` | `pics` | Identical output on a Cartesian grid; agrees to floating-point round-off along a trajectory |
 | {obj}`~bartorch.apps.pocsense` | none | The POCSENSE projections swept by BART's `pocs` iteration |
 | {obj}`~bartorch.apps.mobafit` | `mobafit` | Same Gauss-Newton method over a TorchSim model; returns named parameter maps in physical units |
+| {obj}`~bartorch.apps.moba` | `moba` | Same Gauss-Newton method over a TorchSim model inside the encoding, with the coils known or estimated jointly under Sobolev weighting; returns named parameter maps in physical units, not held to the command's output |
