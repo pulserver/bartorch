@@ -20,7 +20,7 @@ class Unsupported(Exception):
 
     The command itself takes every argument it declares, so an argument the
     reader cannot turn into a Python value is a reason to run the command
-    rather than the app -- the two answer the same bits.
+    rather than the app.
     """
 
 
