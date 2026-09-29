@@ -66,7 +66,10 @@ physical units rather than BART's scaled coefficients.
 
 The `bartorch` command line reads a `bart` command line.  Where an app exists
 for the command and expresses every option given, the app runs; otherwise the
-command itself runs.  {func}`bartorch.cli.route` reports which.
+command itself runs.  {func}`bartorch.cli.route` reports which.  Both routes
+write the files the command writes; for `mobafit` and `moba` the app route
+converts the named maps into BART's coefficients and agrees with the command
+to the accuracy of the fit rather than bit for bit.
 
 ## Implementation layers
 

@@ -127,11 +127,23 @@ def test_an_option_bart_writes_out_by_hand_is_read_too():
 def test_nothing_is_dropped_without_saying_so():
     """Whatever the reader cannot make sense of is named, so that a construct
     BART starts using fails here instead of leaving an option missing."""
-    assert set(catalogue.UNREAD) == {"mobafit", "nlinv"}
-    # Two of mobafit's are inside `#if 0`, so BART does not compile them
-    # either; nlinv's picks its letter from the compatibility version.
-    assert len(catalogue.UNREAD["mobafit"]) == 2
+    assert set(catalogue.UNREAD) == {"nlinv"}
+    # nlinv's picks its letter from the compatibility version.
     assert len(catalogue.UNREAD["nlinv"]) == 1
+
+
+def test_an_option_under_if_0_is_not_the_commands():
+    """``mobafit`` keeps ``-F``, ``-B`` and ``-M`` as model selectors inside
+    ``#if 0``, which BART does not compile, and declares ``-T`` on the line
+    after its ``#endif``; ``-B`` and ``-M`` are the basis file and the pool
+    count it does compile."""
+    options = catalogue.COMMANDS["mobafit"].options
+    by_flag = {o.flag: o for o in options}
+    assert by_flag["-T"].kind == "SELECT"
+    assert by_flag["-T"].value == "TSE"
+    assert "-F" not in by_flag
+    assert [o.kind for o in options if o.flag == "-B"] == ["INFILE"]
+    assert [o.kind for o in options if o.flag == "-M"] == ["PINT"]
 
 
 # --- the shape a wrapper reads off it ---------------------------------------
