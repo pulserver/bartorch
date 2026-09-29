@@ -296,6 +296,162 @@ def test_the_fit_is_taken_from_where_it_is_started():
     assert float(one.median()) < float(other.median())
 
 
+# --- moba ------------------------------------------------------------------
+#
+# The same decay as above, now behind coils and an FFT: the echo images are
+# written out, the sensitivities are smooth analytic profiles, the k-space is
+# torch's own centred unitary FFT of their product, and each echo keeps its own
+# random half of the phase encodes.  What the fit answers for is the T2 the
+# images were made from.
+
+MOBA_SIZE, MOBA_COILS, MOBA_ECHOES = 16, 4, 6
+MOBA_ECHO_TIMES = [12.5 * (echo + 1) for echo in range(MOBA_ECHOES)]
+#: Fewer steps than the app's default, which is enough for a noiseless phantom
+#: and keeps each fit to a few seconds.
+MOBA_SETTINGS = {"iterations": 12, "cg_maxiter": 20}
+
+
+def _moba_phantom(size: int = MOBA_SIZE):
+    """Echo images of a disc of two T2 halves, smooth coils, and the support."""
+    y, x = torch.meshgrid(
+        torch.linspace(-1.0, 1.0, size), torch.linspace(-1.0, 1.0, size), indexing="ij"
+    )
+    support = x**2 + y**2 < 0.8
+    t2 = _two_halves(60.0, 110.0, size)
+    amplitude = torch.where(support, 1.0, 0.0) * torch.exp(0.5j * x)
+    te = torch.tensor(MOBA_ECHO_TIMES)[:, None, None]
+    images = (amplitude * torch.exp(-te / t2)).to(torch.complex64)
+    angles = torch.arange(MOBA_COILS) * (2 * torch.pi / MOBA_COILS)
+    coils = torch.stack(
+        [
+            torch.exp(-((x - 1.5 * torch.cos(a)) ** 2 + (y - 1.5 * torch.sin(a)) ** 2) / 18.0)
+            * torch.exp(1j * a)
+            for a in angles
+        ]
+    ).to(torch.complex64)
+    return images, coils, t2, support, amplitude
+
+
+def _moba_kspace(images, coils):
+    """``(echoes, coils, y, x)``: a random half of the lines per echo, and the centre."""
+    coil_images = images[:, None] * coils[None]
+    kspace = torch.fft.fftshift(
+        torch.fft.fft2(torch.fft.ifftshift(coil_images, dim=(-2, -1)), norm="ortho"),
+        dim=(-2, -1),
+    )
+    size = images.shape[-1]
+    generator = torch.Generator().manual_seed(0)
+    lines = torch.zeros(MOBA_ECHOES, 1, size, 1)
+    for echo in range(MOBA_ECHOES):
+        lines[echo, 0, torch.randperm(size, generator=generator)[: size // 2]] = 1.0
+        lines[echo, 0, size // 2 - 3 : size // 2 + 3] = 1.0
+    return kspace * lines
+
+
+def _relative(fitted, reference, support):
+    return (fitted - reference)[support].abs() / reference[support]
+
+
+def test_moba_fits_the_decay_behind_known_coils():
+    from bartorch import nlop
+
+    images, coils, t2, support, _ = _moba_phantom()
+    model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+
+    fitted = apps.moba(_moba_kspace(images, coils), model, coils, **MOBA_SETTINGS, T2=80.0)
+
+    error = _relative(fitted["T2"], t2, support)
+    assert float(error.median()) < 0.02
+    assert float(error.max()) < 0.08
+
+
+def test_moba_estimates_the_coils_with_the_decay():
+    """Without sensitivities the coils are a second unknown; the T2 is still the
+    one the images were made from, and the product of the fitted amplitude and
+    coils -- which the data does fix, unlike either factor -- is the one the
+    k-space was made from."""
+    from bartorch import nlop
+
+    images, coils, t2, support, amplitude = _moba_phantom()
+    model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+
+    fitted, estimated = apps.moba(
+        _moba_kspace(images, coils), model, return_sensitivities=True, **MOBA_SETTINGS, T2=80.0
+    )
+
+    error = _relative(fitted["T2"], t2, support)
+    assert float(error.median()) < 0.03
+    assert float(error.max()) < 0.08
+    assert estimated.shape == coils.shape
+    product = (fitted["amplitude"] * estimated)[:, support]
+    truth = (amplitude * coils)[:, support]
+    assert float((product - truth).norm() / truth.norm()) < 0.15
+
+
+def test_moba_does_not_depend_on_the_scale_of_the_data():
+    """The data is scaled before the solve and the amplitude after it, so a
+    k-space a thousand times larger fits the same T2 and a thousand times the
+    amplitude."""
+    from bartorch import nlop
+
+    images, coils, _, support, _ = _moba_phantom()
+    kspace = _moba_kspace(images, coils)
+    model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+
+    one = apps.moba(kspace, model, coils, **MOBA_SETTINGS, T2=80.0)
+    other = apps.moba(1000.0 * kspace, model, coils, **MOBA_SETTINGS, T2=80.0)
+
+    assert torch.allclose(other["T2"][support], one["T2"][support], rtol=1e-3)
+    assert torch.allclose(
+        other["amplitude"][support], 1000.0 * one["amplitude"][support], rtol=1e-3
+    )
+
+
+def test_moba_fits_the_decay_along_a_trajectory_of_its_own_per_echo():
+    """Radial spokes, a different set per echo, through the encoding the app
+    fits with; the known quantity is still the T2."""
+    from bartorch import nlop
+
+    size, spokes = 12, 8
+    images, coils, t2, support, _ = _moba_phantom(size)
+    traj = bt.traj(readout=2 * size, spokes=spokes * MOBA_ECHOES, radial=True, golden=True)
+    traj = traj.reshape(MOBA_ECHOES, spokes, *traj.shape[-2:])
+    encoding = linop.NoncartesianSense(coils, (MOBA_ECHOES, size, size), traj=traj)
+    # The encoding puts a contrast axis the trajectory indexes behind the
+    # coils; the app takes the contrasts first.
+    kspace = encoding(images).transpose(0, 1)
+
+    model = nlop.MultiEcho(MOBA_ECHO_TIMES, (size, size))
+    fitted = apps.moba(kspace, model, coils, traj=traj, **MOBA_SETTINGS, T2=80.0)
+
+    error = _relative(fitted["T2"], t2, support)
+    assert float(error.median()) < 0.02
+    assert float(error.max()) < 0.1
+
+
+@pytest.mark.parametrize(
+    "arguments, match",
+    [
+        (["sensitivities", "return_sensitivities"], "estimated sensitivities"),
+        (["traj"], "off the grid"),
+        (["inner"], "whole state"),
+    ],
+)
+def test_moba_refuses_what_it_cannot_estimate(arguments, match):
+    from bartorch import nlop, optim
+
+    images, coils, *_ = _moba_phantom()
+    model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+    given = {
+        "sensitivities": coils,
+        "return_sensitivities": True,
+        "traj": bt.traj(readout=MOBA_SIZE, spokes=4),
+        "inner": optim.CG(),
+    }
+    with pytest.raises(ValueError, match=match):
+        apps.moba(_moba_kspace(images, coils), model, **{name: given[name] for name in arguments})
+
+
 # --- pocsense --------------------------------------------------------------
 
 
