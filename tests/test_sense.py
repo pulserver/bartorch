@@ -937,7 +937,9 @@ def test_a_batch_on_the_sensitivities_off_a_grid_is_each_item_on_its_own():
 
     Every axis the trajectory does not index is a separate transform against
     one point set, which is what ``ntrans`` is: the batch costs one plan, not
-    one per item.  Each item has to answer what its own operator does.
+    one per item.  Each item has to answer what its own operator does, to
+    single-precision round-off: FINUFFT built with FMA rounds a transform
+    differently by where it falls in a batch.
     """
     items, n, coils = 2, 16, 4
     bank = _per_item_bank(items, n, coils)
@@ -949,7 +951,7 @@ def test_a_batch_on_the_sensitivities_off_a_grid_is_each_item_on_its_own():
     got = whole(x)
     for item in range(items):
         one = linop.NoncartesianSense(bank[item, 0], (n, n), traj=traj)
-        assert torch.equal(got[item], one(x[item, 0]))
+        torch.testing.assert_close(got[item], one(x[item, 0]), rtol=1e-5, atol=1e-6)
 
     y = torch.randn(*whole.oshape, dtype=torch.complex64)
     lhs = torch.vdot(whole(x).reshape(-1), y.reshape(-1))
