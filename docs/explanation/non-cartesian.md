@@ -52,8 +52,8 @@ chooses its kernel width.
 
 | Setting | Default | Set by |
 | --- | --- | --- |
-| Tolerance $\varepsilon$ | $10^{-3}$; $10^{-6}$ for `ncalib`, `nlinv` and `rtnlinv` | The kernel width: `width` of {class}`~bartorch.linop.NUFFT`, BART's `-w` option of the commands, converted to the tolerance that gives that width |
-| Oversampling $\sigma$ | 1.25; 2 for `ncalib`, `nlinv` and `rtnlinv` | `oversampling` of {class}`~bartorch.linop.NUFFT`, BART's `-o` option |
+| Tolerance $\varepsilon$ | $10^{-3}$; $10^{-6}$ for `ncalib` and `nlinv` | The kernel width: `width` of {class}`~bartorch.linop.NUFFT`, BART's `-w` option of the commands, converted to the tolerance that gives that width |
+| Oversampling $\sigma$ | 1.25; 2 for `ncalib` and `nlinv` | `oversampling` of {class}`~bartorch.linop.NUFFT`, BART's `-o` option |
 
 The relative error of a transform is of the order of $\varepsilon$; the test
 suite compares it with the explicit sum above.  The default trades accuracy

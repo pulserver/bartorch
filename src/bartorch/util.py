@@ -308,7 +308,7 @@ def unwrap(input: torch.Tensor, axis: int, *, bound: float = math.pi) -> torch.T
         Half the period.
     """
     dim = _bart_dim(axis, input.ndim)
-    return dispatch("unwrap", [input], None, _pos=[dim], b=float(bound)).reshape(input.shape)
+    return dispatch("unwrap", [input], None, _pos=[1 << dim], b=float(bound)).reshape(input.shape)
 
 
 @curated("casorati")

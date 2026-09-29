@@ -314,7 +314,7 @@ BART's gridder along with everything else in that file. So `compute_psf`,
 `compute_psf2` and `compute_psf2_decomposed` are renamed too and `src/csrc/substitute/psf.c`
 answers to them: the same squared weights and basis, the same doubled grid,
 shifts and decomposition, with the transform in the middle being whichever
-`nufft_create2` answers. `nlinv`, `moba`, `rtnlinv`, `noir/model2` and the
+`nufft_create2` answers. `nlinv`, `moba`, `noir/model2` and the
 `psf` tool call these directly.
 
 What that is worth is in the numbers. On the un-doubled grid of a 16x16
@@ -612,8 +612,8 @@ points that read an array element by element rather than through `md_` --
 taking a median of k-space -- are answered in `src/csrc/abi/host_reads.c` over a host
 copy of that one array, which is what BART already does for its own virtual
 pointers. What cannot be reached that way is a tool that allocates a temporary
-of its own on the host and mixes it with its input: `pocsense` takes its
-pattern from `md_alloc`, `nlinv` from `anon_cfl`, `ecalib` sets `bart_use_gpu`
+of its own on the host and mixes it with its input: `nlinv` takes its
+pattern from `anon_cfl`, `ecalib` sets `bart_use_gpu`
 from its own flag. `md_` operations take the host path unless every argument
 is on a device, and take it silently, so that is a segmentation fault rather
 than a slower answer.
@@ -893,8 +893,8 @@ declared it.
 
 An input file that is not there is the one thing the command line names itself.
 A BART command that fails while loading its arguments leaves the library unable
-to serve the next call in the same process -- `ecalib`, `nufft` and `pocsense`
-handed a name with no file behind it all spin the call after them, while `fft`
+to serve the next call in the same process -- `ecalib` and `nufft`
+handed a name with no file behind it both spin the call after them, while `fft`
 does not -- so a caller who runs `main` twice would hang rather than see the
 second answer.  `cli._missing` checks the names against the filesystem before
 BART is asked.
@@ -926,10 +926,10 @@ reads no residual, and `iter2_pocs` is handed an `xupdate_op` that `pocs`
 never calls.  What the sets are belongs to the projections, so `apps.pocsense`
 builds the application's three out of `linop.Sampling`, the range of a
 `linop.CartesianSense`, and a `priors` term conjugated by the transform
-between the samples and the coil images.  The three are bit-identical to
-`tools.pocsense` on a grid, in two dimensions and in three, on an even grid
-and on an odd one.  The odd grid is what decides how that projection is
-written: there the modulation is a phase rather than a sign, so the scaling
+between the samples and the coil images, and `tests/test_apps.py` holds a
+fully sampled phantom to be a fixed point of them and an answer to lie in the
+range of the coils.  The odd grid is what decides how the sparsity projection
+is written: there the modulation is a phase rather than a sign, so the scaling
 has to ride in the same array BART puts it in rather than in a second
 multiply, and the multiply itself has to be BART's `md_zmul2` and `md_zmulc2`
 -- a `linop.Diagonal` and its adjoint -- rather than torch's.  A complex
@@ -1101,13 +1101,13 @@ reconstruction is held to its data rather than to its transform. Two
 exceptions: a caller who names an upsampling gets it -- `nufft_conf_s` carries
 two as BART's own default, so zero is what says nobody asked, and BART gets
 its two back before it sees the conf -- and the tools that calibrate before a
-reconstruction is attempted (`nlinv`, `rtnlinv`, `ncalib`, in `_CALIBRATES`)
+reconstruction is attempted (`nlinv` and `ncalib`, in `_CALIBRATES`)
 run at FINUFFT's own tolerance on the textbook grid, which costs a few
 megabytes at the resolution they fit sensitivities at.
 
 Every BART entry point that builds a NUFFT is served: `nufft` forward,
-adjoint, inverse and Toeplitz, `pics` with and without a pattern, `sqpics`,
-`nlinv`, `rtnlinv`, `moba`, `ncalib` and `linop.NUFFT`, on the host
+adjoint, inverse and Toeplitz, `pics` with and without a pattern,
+`nlinv`, `moba`, `ncalib` and `linop.NUFFT`, on the host
 and on the card, with BART's own gridder built zero times. `nlinv` and the
 network models build theirs against dimensions alone and hand the trajectory
 over afterwards, which is why `nufft_update_traj` installs one rather than
@@ -1121,7 +1121,7 @@ index sets that are not axes (channels, parameter maps) are tuples too; no
 public argument takes a bitmask or a `-R` string. Hand-written wrappers
 convert their own; derived wrappers and what a curated one passes through by
 name follow `_call.TRANSLATED`, and `test_tools` fails on a dimension-like
-argument that is in neither. `pics`, `sqpics`, `wshfl` and `moba` take
+argument that is in neither. `pics`, `wshfl` and `moba` take
 `bartorch.priors` terms, serialized by `Regularizer._argument`. A flag's value can be an
 array rather than a number -- `pics(kspace, maps, t=traj)`, `-p` for a
 sampling pattern, `-B` for a basis -- and is registered and copied like any

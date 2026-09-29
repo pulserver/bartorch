@@ -1,12 +1,13 @@
-"""Commands whose output BART marks optional, and the two that write it anyway.
+"""Commands whose output BART marks optional, and the two that need it anyway.
 
-A derived wrapper asks for as many output arrays as BART requires, and nine
-commands require none.  For seven of them that is right: they print their
+A derived wrapper asks for as many output arrays as BART requires, and ten
+commands require none.  For eight of them that is right: they print their
 answer and write a file only when given a name, through ``anon_cfl`` or behind
-an ``if``.  Two create it unguarded -- ``mobafit.c:398`` and ``morphop.c:77``
--- and ``create_cfl`` hands the name to ``io_unlink_if_opened``, which calls
-``strcmp`` on it.  With no name that is a segmentation fault, which takes the
-process rather than raising.
+an ``if``.  ``morphop`` creates it unguarded (``morphop.c:77``), and
+``create_cfl`` hands the name to ``io_unlink_if_opened``, which calls
+``strcmp`` on it: with no name that is a segmentation fault, which takes the
+process rather than raising.  ``raga`` refuses an omitted name unless it is
+asked to print a search instead.
 """
 
 import pytest
@@ -68,7 +69,7 @@ def test_the_fit_recovers_a_decay_it_was_given():
 
 def test_a_command_that_prints_its_answer_still_prints_it():
     # `estdelay` prints the delays when it is given no output name and writes
-    # a quadratic fit when it is; passing one so that `mobafit` stops crashing
+    # a quadratic fit when it is; passing one so that `morphop` stops crashing
     # must not quietly turn the one into the other.
     traj = bt.traj(x=16, y=8, r=True)
     kspace = torch.randn(1, 8, 16, 1, dtype=torch.complex64)
@@ -78,7 +79,7 @@ def test_a_command_that_prints_its_answer_still_prints_it():
 
 
 @pytest.mark.parametrize(
-    "name", ["bench", "estdelay", "estshift", "ismrmrd", "measure", "roistat", "seq"]
+    "name", ["bench", "estdelay", "estshift", "ismrmrd", "measure", "roistat", "seq", "stl"]
 )
 def test_the_guarded_commands_are_left_alone(name):
     # Each of these writes through anon_cfl or behind an if, so BART is happy
