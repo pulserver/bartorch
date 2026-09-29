@@ -3,31 +3,35 @@ r"""
 Plug-and-play denoisers
 =======================
 
-A pretrained image denoiser used as the proximal step of BART's iterations, in
-place of a specified regularization term, for an undersampled Cartesian SENSE
-acquisition.
+This lesson regularizes an undersampled, noisy Cartesian SENSE reconstruction
+with a pretrained image denoiser in place of a specified penalty, and compares
+the result with total-variation regularization of the same data. The aim is to
+show how a denoiser enters a proximal iteration, what it improves on a
+hand-crafted penalty, and how its noise level plays the role of the
+regularization weight.
 
-A proximal iteration such as ADMM or FISTA applies the regularization term
-only through its proximal operator,
+A proximal iteration such as ADMM or FISTA uses the regularization term only
+through its proximal operator,
 
 .. math::
 
    \operatorname{prox}_{\gamma g}(v) = \arg\min_x \; \tfrac12 \|x - v\|_2^2 + \gamma\, g(x),
 
-which is the maximum a posteriori estimate of an image observed in white
-Gaussian noise under the prior :math:`\exp(-g)`. Plug-and-play regularization
-[#venkatakrishnan]_ [#ahmad]_ replaces this operator by an image denoiser
-:math:`D_\sigma`, without writing down :math:`g`. The denoiser's noise level
-:math:`\sigma` takes the role of the regularization weight, and the penalty
-parameter :math:`\rho` of ADMM sets how far each x-update may move from the
-denoised image towards data consistency.
+which is the maximum a posteriori estimate of an image :math:`x` observed as
+:math:`v` in white Gaussian noise, under the prior :math:`\exp(-g)`: the
+proximal operator is a denoiser. Plug-and-play regularization
+[#venkatakrishnan]_ [#ahmad]_ replaces it by any image denoiser
+:math:`D_\sigma`, without writing down :math:`g`. Each iteration alternates a
+step towards consistency with the measured k-space and a denoising step; the
+noise level :math:`\sigma` of the denoiser takes the role of the
+regularization weight.
 
-The denoiser here is DRUNet [#zhang]_ with the weights distributed by
-``deepinv``, trained for Gaussian denoising of natural grayscale images and not
-on MR images. :class:`bartorch.priors.ImplicitPrior` converts between the
-complex image of the reconstruction and the real planes the network takes; the
-iterations are :func:`bartorch.optim.admm` and :func:`bartorch.optim.fista`,
-unchanged.
+The denoiser is DRUNet [#zhang]_, a convolutional network with the weights
+distributed by ``deepinv``, trained for Gaussian denoising of natural
+grayscale photographs, not of MR images.
+:class:`bartorch.priors.ImplicitPrior` converts between the complex image of
+the reconstruction and the real planes the network takes; the iterations are
+:func:`bartorch.optim.admm` and :func:`bartorch.optim.fista`, unchanged.
 
 The phantom is the BrainWeb slice of
 :doc:`../03-regularization/01-regularized-reconstruction`; the cell that builds
@@ -38,42 +42,52 @@ it is hidden on this page and present in the downloadable script.
 - Wrap a pretrained denoiser as :class:`bartorch.priors.ImplicitPrior` and
   pass it to :func:`bartorch.optim.admm` and :func:`bartorch.optim.fista` in
   place of a :mod:`bartorch.priors` term.
-- Compare the result with total-variation regularization on the same data.
-- Vary the denoiser's noise level and relate it to the regularization weight.
+- Compare the result with total-variation regularization on the same data,
+  in the images, the error maps and an enlarged region.
+- Vary the denoiser's noise level and recognize under- and
+  over-regularization.
 
 It follows :doc:`../05-model-based/02-quantitative-models`. The next lesson,
 :doc:`02-modl-with-admm`, trains the denoiser through the iteration.
 
-The pretrained weights, about 125 MB, are downloaded on the first call.
+The pretrained weights, about 125 MB, are downloaded on the first call. The
+network runs once per iteration, which dominates the run time of this example
+on a CPU.
 """
 
 # %%
 
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
+from cmap import Colormap
+from matplotlib.colors import ListedColormap
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
+WIDTH = 8.0  # inches, the width of the documentation column
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
+# Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
+# colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
+LIPARI = Colormap("crameri:lipari").to_matplotlib()
+NAVIA = Colormap("crameri:navia").to_matplotlib()
+# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
+# mygbm, turned so that zero phase is yellow and +/-pi is blue.
+MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
+PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
+
+# Colormap, window and unit per parameter.  Both relaxation windows stop short
+# of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
+# in T1, 70 against 83 ms in T2 -- take up most of the scale and CSF saturates.
+STYLE = {
+    "T1": (LIPARI, (0.0, 1200.0), "$T_1$ [ms]"),
+    "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
+}
 
 
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -82,8 +96,55 @@ def show(axis, values, title=None, vmax=None, cmap="gray", vmin=0.0):
     values = values.detach().abs().cpu().numpy() if hasattr(values, "detach") else values
     handle = axis.imshow(values, cmap=cmap, vmin=vmin, vmax=vmax)
     if title is not None:
-        axis.set_title(title, fontsize=10)
+        axis.set_title(title)
     return handle
+
+
+def parameter(axis, values, name, title=None):
+    """One relaxation map in the colormap and window its parameter is read in."""
+    cmap, limits, _ = STYLE[name]
+    return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
+
+
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
+def domain(axis, values, title=None):
+    """A complex map the way a coil sensitivity is read: phase in colour,
+    magnitude in brightness."""
+    values = values.detach().cpu()
+    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
+    magnitude = values.abs().numpy()
+    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
+    axis.imshow(colours * magnitude[..., None])
+    if title is not None:
+        axis.set_title(title)
+
+
+def phase_bar(figure, axes):
+    """The colour-to-phase key for the panels beside it."""
+    bar = figure.colorbar(
+        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
+        ax=axes,
+        fraction=0.046,
+        ticks=[-np.pi, 0.0, np.pi],
+    )
+    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
+    bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -179,12 +240,15 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 # Acquisition
 # -----------
 #
-# A quarter of the phase encodes, drawn from a variable density around a fully
-# sampled region of 16 lines, with complex Gaussian noise of variance
-# :math:`10^{-3}` per sample of the unitary transform. The sensitivities are
-# the ones the data was simulated with, so that the comparison below concerns
-# the regularization alone; :doc:`../02-parallel-imaging/01-coil-calibration`
-# compares their estimation.
+# A quarter of the phase encodes (:math:`R = 4`), drawn from a variable
+# density around a fully sampled ACS region of 16 lines, with complex Gaussian
+# noise of variance :math:`10^{-3}` per sample of the unitary transform: the
+# acquisition of :doc:`../03-regularization/01-regularized-reconstruction`,
+# where both noise amplification and incoherent aliasing limit an
+# unregularized reconstruction. The sensitivities are the ones the data were
+# simulated with, so that the comparison below concerns the regularization
+# alone; :doc:`../02-parallel-imaging/01-coil-calibration` compares their
+# estimation.
 
 encodes = torch.arange(SIZE) - SIZE // 2
 centre = (encodes.abs() < CALIBRATION // 2).to(torch.float32)
@@ -221,14 +285,16 @@ total_variation = optim.admm(data, A, priors.TotalVariation((-1, -2), 0.01), max
 # each image to unit peak modulus, denoises its real and imaginary parts as
 # two grayscale planes, and scales the result back, so ``sigma`` is in units of
 # the image's peak. The network is evaluated without gradients, since nothing
-# is trained here.
+# is trained here. Each iteration costs one application of the network.
+
+ITERATIONS = 30
 
 denoiser = DRUNet(in_channels=1, out_channels=1, pretrained="download").eval()
 prior = priors.ImplicitPrior(denoiser, sigma=0.05, spatial=2)
 
 with torch.no_grad():
-    admm = optim.admm(data, A, prior, maxiter=40, rho=0.2)
-    fista = optim.fista(data, A, prior, maxiter=40)
+    admm = optim.admm(data, A, prior, maxiter=ITERATIONS, rho=0.2)
+    fista = optim.fista(data, A, prior, maxiter=ITERATIONS)
 
 reconstructions = {
     "zero-filled": A.H(data),
@@ -245,40 +311,74 @@ for name, estimate in reconstructions.items():
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(2, 5, height=1.1)
 peak = float(image.abs().max())
-show(axes[0, 0], image, "phantom", vmax=peak)
-axes[1, 0].axis("off")
-for column, (name, estimate) in enumerate(reconstructions.items(), start=1):
-    show(axes[0, column], scaled(estimate, image), name, vmax=peak)
-    show(axes[1, column], (scaled(estimate, image) - image.abs()).abs(), vmax=0.2 * peak)
-axes[1, 1].set_ylabel("|error|, x5")
+figure, axes = panels(4)
+show(axes[0, 0], image, "reference", vmax=peak)
+for axis, name in zip(axes[0, 1:], ("zero-filled", "total variation", "DRUNet, ADMM")):
+    show(axis, scaled(reconstructions[name], image), name, vmax=peak)
+figure.suptitle(f"R = {ACCELERATION}, noisy")
+plt.show()
+
+compared = ("total variation", "DRUNet, ADMM", "DRUNet, FISTA")
+figure, axes = panels(3, width=0.8 * WIDTH)
+errors(figure, axes[0], [reconstructions[name] for name in compared], image, 0.15)
+for axis, name in zip(axes[0], compared):
+    axis.set_title(name)
+figure.suptitle("error magnitude")
+plt.show()
+
+# Occipital cortex and the posterior horns of the lateral ventricles.
+zoom = (slice(70, 118), slice(40, 88))
+figure, axes = panels(4)
+show(axes[0, 0], image.abs()[zoom], "reference", vmax=peak)
+for axis, name in zip(axes[0, 1:], compared):
+    show(axis, scaled(reconstructions[name], image)[zoom], name, vmax=peak)
+figure.suptitle("enlarged")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# Both plug-and-play reconstructions remove the noise and the incoherent
-# aliasing that total variation leaves at this weight. They differ in the
-# step: FISTA applies the denoiser after a gradient step of fixed length on the
-# data term, ADMM after solving a quadratic problem that holds the image to
-# the data with weight :math:`\rho`. A fixed :math:`\sigma` makes neither
-# iteration the minimization of a known objective, so the number of iterations
-# and :math:`\rho` enter the result, and are parameters to be chosen like the
-# weight of a specified term.
+# The zero-filled image shows the incoherent aliasing of the random sampling
+# and the noise. Total variation removes most of both, but at the weight that
+# minimizes the error it leaves a blotchy texture across the brain and
+# flattens the gradual intensity variations into patches. The plug-and-play
+# reconstruction under ADMM removes the noise and the aliasing while keeping
+# the tissue boundaries, and its error map is darker inside the brain; in the
+# enlarged region the ventricles and the larger cortical folds are delineated,
+# although the finest sulci are lost. Under FISTA, at the same :math:`\sigma`,
+# the same denoiser produces a much smoother image, in which the cortical
+# folds have disappeared, and its error lies along every tissue boundary.
+#
+# The two iterations differ in the step before the denoiser: FISTA takes a
+# gradient step of fixed length on the data term, ADMM solves a quadratic
+# problem that holds the image to the data with weight :math:`\rho`. The
+# denoiser is therefore applied to different images, and its effective
+# strength differs between the two iterations at the same :math:`\sigma`. A
+# fixed :math:`\sigma` makes neither iteration the minimization of a known
+# objective, so the number of iterations and :math:`\rho` enter the result,
+# and are parameters to be chosen like the weight of a specified term. The
+# printed SSIM ranks the over-smoothed FISTA image above the ADMM image: a
+# single figure of merit does not replace looking at the images.
 #
 # The noise level
 # ---------------
 #
 # :math:`\sigma` is the strength of the prior. A denoiser asked for less noise
-# than the iterate contains leaves the residual noise and aliasing in place;
-# one asked for more removes image detail with them.
+# than the iterate contains leaves residual noise and aliasing in place; one
+# asked for more removes image detail with them.
 
-levels = (0.02, 0.05, 0.1)
+levels = (0.02, 0.05, 0.12)
 with torch.no_grad():
     sweep = {
-        sigma: optim.admm(
-            data, A, priors.ImplicitPrior(denoiser, sigma=sigma, spatial=2), maxiter=40, rho=0.2
+        sigma: admm
+        if sigma == 0.05
+        else optim.admm(
+            data,
+            A,
+            priors.ImplicitPrior(denoiser, sigma=sigma, spatial=2),
+            maxiter=ITERATIONS,
+            rho=0.2,
         )
         for sigma in levels
     }
@@ -291,13 +391,20 @@ for sigma, estimate in sweep.items():
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 3)
-for axis, (sigma, estimate) in zip(axes[0], sweep.items()):
-    show(axis, scaled(estimate, image), f"$\\sigma$ = {sigma}", vmax=peak)
+figure, axes = panels(3, width=0.8 * WIDTH)
+for axis, (sigma, estimate), label in zip(axes[0], sweep.items(), ("too small", "", "too large")):
+    title = f"$\\sigma$ = {sigma}" + (f" ({label})" if label else "")
+    show(axis, scaled(estimate, image)[zoom], title, vmax=peak)
+figure.suptitle("DRUNet under ADMM, enlarged")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
+#
+# At the smallest :math:`\sigma` the noise and the aliasing remain as a
+# mottled texture; at the largest the cortex is smoothed into uniform white
+# matter and small structures disappear; the printed errors have their
+# minimum in between.
 #
 # The denoiser was not trained on MR images, nor for the residual aliasing an
 # undersampled acquisition leaves, which is not white Gaussian noise. The next
