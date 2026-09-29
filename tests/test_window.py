@@ -234,3 +234,15 @@ def test_a_target_wider_than_the_samples_there_are_is_refused():
 def test_a_target_that_matches_is_returned_untouched():
     data = torch.ones(2, 64, dtype=torch.complex64)
     assert bartorch.remove_readout_oversampling(data, 64) is data
+
+
+def test_an_integer_kspace_is_apodized_in_single_precision():
+    counts = torch.ones(16, 16, dtype=torch.int32)
+    apodized = bartorch.apodize(counts)
+    assert apodized.dtype == torch.float32
+    torch.testing.assert_close(apodized, bartorch.fermi_window((16, 16)).to(torch.float32))
+
+
+def test_a_window_over_an_empty_axis_is_refused():
+    with pytest.raises(ValueError, match="at least one sample"):
+        bartorch.fermi_window((0, 8))

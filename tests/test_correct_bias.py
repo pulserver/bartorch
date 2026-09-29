@@ -65,3 +65,10 @@ def test_a_four_dimensional_image_is_refused():
 def test_a_non_positive_shrink_factor_is_refused():
     with pytest.raises(ValueError, match="shrink_factor must be positive"):
         bt.bias_field_correct(torch.ones(8, 8), shrink_factor=0)
+
+
+def test_a_shrink_factor_of_one_fits_on_the_full_grid(shaded):
+    truth, _, observed = shaded
+    corrected = bt.bias_field_correct(observed, shrink_factor=1, iterations=(20, 20))
+    values, shading = corrected[truth > 0], observed[truth > 0]
+    assert float(values.std() / values.mean()) < 0.5 * float(shading.std() / shading.mean())
