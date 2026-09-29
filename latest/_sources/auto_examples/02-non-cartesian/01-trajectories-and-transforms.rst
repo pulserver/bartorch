@@ -282,8 +282,8 @@ spread function on a doubled grid rather than a transform each way
 
  .. code-block:: none
 
-    A^H A as a convolution      0.8 ms
-    A^H A as two transforms     0.7 ms
+    A^H A as a convolution      1.6 ms
+    A^H A as two transforms     0.9 ms
     relative difference      2.7e-03
 
 
@@ -360,7 +360,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.968 seconds)
+   **Total running time of the script:** (0 minutes 1.039 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-non-cartesian_01-trajectories-and-transforms.py:

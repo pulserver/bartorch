@@ -505,7 +505,7 @@ that fork.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">master</span></code></p></td>
-<td><p>Codeberg’s <code class="docutils literal notranslate"><span class="pre">master</span></code>, fast-forwarded on each sync and never committed to</p></td>
+<td><p>Codeberg’s <code class="docutils literal notranslate"><span class="pre">master</span></code>, fast-forwarded weekly by the fork’s workflow and never committed to</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">downstream</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">master</span></code> plus the patch stack; the default branch, and the branch the submodule follows</p></td>
@@ -543,22 +543,22 @@ of BART’s translation units, as <code class="docutils literal notranslate"><sp
 </section>
 <section id="syncing-with-codeberg">
 <h2>Syncing with Codeberg<a class="headerlink" href="#syncing-with-codeberg" title="Link to this heading">#</a></h2>
-<p>The patch stack is rebased onto the new upstream, so that it remains a list of
-patches on top of an unmodified upstream rather than a history of merges:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>fetch<span class="w"> </span>upstream<span class="w"> </span>--tags
-git<span class="w"> </span>checkout<span class="w"> </span>master
-git<span class="w"> </span>merge<span class="w"> </span>--ff-only<span class="w"> </span>upstream/master
-git<span class="w"> </span>tag<span class="w"> </span>downstream-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span><span class="w"> </span>downstream
-git<span class="w"> </span>checkout<span class="w"> </span>downstream
-git<span class="w"> </span>rebase<span class="w"> </span>master
-git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>master<span class="w"> </span>--tags
-git<span class="w"> </span>push<span class="w"> </span>--force-with-lease<span class="w"> </span>origin<span class="w"> </span>downstream
-</pre></div>
-</div>
-<p>Every conflict in the rebase is resolved explicitly, and a patch that upstream
-has made redundant is dropped.  The tag keeps the previous stack, and with it
-every revision an earlier bartorch pinned, reachable after <code class="docutils literal notranslate"><span class="pre">downstream</span></code> is
-rewritten.  The submodule is then moved as <a class="reference internal" href="workflow.html"><span class="doc">Development workflow</span></a> describes.</p>
+<p>The fork’s <em>Upstream sync</em> workflow fast-forwards <code class="docutils literal notranslate"><span class="pre">master</span></code> to Codeberg’s
+<code class="docutils literal notranslate"><span class="pre">master</span></code> every week and carries over Codeberg’s new tags; it forces no ref and
+never touches <code class="docutils literal notranslate"><span class="pre">downstream</span></code>.  When <code class="docutils literal notranslate"><span class="pre">downstream</span></code> no longer contains <code class="docutils literal notranslate"><span class="pre">master</span></code>, it
+opens one issue in the fork, <em>Sync downstream with current Codeberg master</em>,
+and closes it once the patch stack has been rebased.</p>
+<p>The rebase is done by hand, onto <code class="docutils literal notranslate"><span class="pre">master</span></code>, so that the stack remains a list of
+patches on top of an unmodified upstream rather than a history of merges.  The
+procedure, and what the workflow checks, are in the fork’s
+<a class="reference external" href="https://github.com/pulserver/bart/blob/downstream/.github/sync/README.md"><code class="docutils literal notranslate"><span class="pre">.github/sync/README.md</span></code></a>.
+Every conflict in the rebase is resolved explicitly, a patch that upstream has
+made redundant is dropped, and a <code class="docutils literal notranslate"><span class="pre">downstream-YYYYMMDD</span></code> tag keeps the previous
+stack, and with it every revision an earlier bartorch pinned, reachable after
+<code class="docutils literal notranslate"><span class="pre">downstream</span></code> is rewritten.</p>
+<p>The submodule pins an exact <code class="docutils literal notranslate"><span class="pre">downstream</span></code> commit, so neither the workflow nor a
+rebase changes what bartorch builds; the submodule is then moved as
+<a class="reference internal" href="workflow.html"><span class="doc">Development workflow</span></a> describes.</p>
 </section>
 </section>
 

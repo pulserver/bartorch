@@ -247,7 +247,7 @@ written here is the application.
 
  .. code-block:: none
 
-    largest difference from nlinv: 1.1e-03
+    largest difference from nlinv: 8.3e-04
     NRMSE 0.078
 
 
@@ -293,7 +293,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.390 seconds)
+   **Total running time of the script:** (0 minutes 4.896 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-model-based_01-nonlinear-inversion.py:
