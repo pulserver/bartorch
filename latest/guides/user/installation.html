@@ -580,6 +580,15 @@ level the processor supports is used.  The environment variable
 built for.  A source build selects them with
 <code class="docutils literal notranslate"><span class="pre">-C</span> <span class="pre">cmake.define.BARTORCH_FINUFFT_SIMD=&quot;x86-64-v3&quot;</span></code>, or builds the baseline
 alone with an empty value.</p>
+<p>On x86-64 Linux each of those levels is also built on oneMKL’s FFT, and is
+used in place of DUCC0 when oneMKL is installed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"bartorch[mkl]"</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">bartorch.backend_sources()[&quot;finufft_fft&quot;]</span></code> names the FFT in use.  A source
+build carries these modules when oneMKL’s headers (<code class="docutils literal notranslate"><span class="pre">mkl-include</span></code>) are present,
+which the build requires on that platform;
+<code class="docutils literal notranslate"><span class="pre">-C</span> <span class="pre">cmake.define.BARTORCH_FINUFFT_MKL_MODULES=OFF</span></code> leaves them out.</p>
 <p>A checkout of the repository is built as described in the
 <a class="reference internal" href="../developer/installation.html"><span class="doc">developer guide</span></a>.</p>
 </section>
