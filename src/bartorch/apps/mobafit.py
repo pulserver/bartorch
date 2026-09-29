@@ -7,6 +7,7 @@ from typing import Any
 import torch
 
 from bartorch import nlop, optim
+from bartorch.apps.moba import _inside
 
 __all__ = ["mobafit"]
 
@@ -37,6 +38,7 @@ def mobafit(
     redu: float = 2.0,
     magnitude: bool = False,
     start: torch.Tensor | None = None,
+    reference: dict[str, Any] | None = None,
     **values: Any,
 ) -> dict[str, torch.Tensor]:
     """Fit a signal model to reconstructed contrast images, voxel by voxel.
@@ -83,6 +85,14 @@ def mobafit(
     start : torch.Tensor, default=None
         Maps to start from, of the model's input shape.  Built from
         ``**values`` when it is not given.
+    reference : dict of str, default=None
+        Maps each Gauss-Newton step is regularized towards, ``{name: value}``
+        in each property's own units as ``**values`` takes them; a name left
+        out takes the model's default.  A value outside the model's bounds is
+        clamped to them, so a limit such as a vanishing rate is approached from
+        inside.  Without it each step is regularized towards zero in the
+        model's variables, as the command's is: the middle of each bound and
+        no amplitude.
     **values
         Starting values per unknown, in that property's own units, as
         :meth:`~bartorch.nlop.SignalModel.initial` takes them.
@@ -105,6 +115,7 @@ def mobafit(
         forward = nlop.Abs(model.oshape) @ model
 
     x0 = model.initial(**values) if start is None else start
+    xref = None if reference is None else model.initial(**_inside(model, reference))
 
     solver = nlop.IRGNM(
         iterations=iterations,
@@ -117,7 +128,7 @@ def mobafit(
     data = images.reshape(forward.oshape)
     if magnitude:
         data = data.abs().to(data.dtype)
-    fitted = solver(data, forward, x0=x0)
+    fitted = solver(data, forward, x0=x0, xref=xref)
 
     # A voxel with no signal at all constrains nothing, and a Gauss-Newton
     # step on it walks wherever the bounds allow; the command skips such a

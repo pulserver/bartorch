@@ -312,6 +312,43 @@ def test_the_fit_is_taken_from_where_it_is_started():
     assert float(one.median()) < float(other.median())
 
 
+def test_mobafit_regularizes_towards_zero_in_the_models_variables_by_default():
+    """Zero in the model's variables is the middle of each bound and no
+    amplitude, so stating that as the reference changes nothing."""
+    from bartorch import nlop
+
+    t2 = _two_halves(60.0, 110.0)
+    images = torch.exp(-torch.tensor(ECHO_TIMES)[:, None, None] / t2).to(torch.complex64)
+    model = nlop.MultiEcho(ECHO_TIMES, (FIT_SIZE, FIT_SIZE))
+    low, high = model.model.bounds["T2"]
+
+    default = apps.mobafit(images, model, iterations=3, T2=80.0)
+    middle = {"T2": 0.5 * (low + high), "amplitude": 0.0}
+    stated = apps.mobafit(images, model, iterations=3, T2=80.0, reference=middle)
+
+    for name, value in default.items():
+        torch.testing.assert_close(stated[name], value)
+
+
+def test_a_heavily_weighted_reference_pulls_the_fitted_decay_towards_it():
+    """With a weight that does not decay, a reference of no decay at all -- an
+    R2 of zero, clamped inside the bound -- draws every voxel above the T2 a
+    reference of a fast decay draws it to."""
+    from bartorch import nlop
+
+    t2 = _two_halves(60.0, 110.0)
+    images = torch.exp(-torch.tensor(ECHO_TIMES)[:, None, None] / t2).to(torch.complex64)
+    model = nlop.MultiEcho(ECHO_TIMES, (FIT_SIZE, FIT_SIZE))
+    settings = {"alpha": 1e3, "alpha_min": 1e3, "redu": 1.0, "T2": 80.0}
+
+    slow = apps.mobafit(images, model, **settings, reference={"T2": float("inf"), "amplitude": 1.0})
+    fast = apps.mobafit(images, model, **settings, reference={"T2": 20.0, "amplitude": 1.0})
+
+    assert bool((slow["T2"] > fast["T2"]).all())
+    assert bool((slow["T2"] > t2).all())
+    assert bool((fast["T2"] < t2).all())
+
+
 # --- moba ------------------------------------------------------------------
 #
 # The same decay as above, now behind coils and an FFT: the echo images are
