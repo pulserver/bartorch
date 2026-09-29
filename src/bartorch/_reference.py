@@ -1,4 +1,10 @@
-"""Reconstructions."""
+"""BART's reconstruction commands, held privately as references.
+
+Each is answered publicly by an assembly -- :func:`bartorch.apps.pics`,
+:func:`bartorch.apps.mobafit`, :func:`bartorch.apps.moba`, or an encoding from
+:mod:`bartorch.linop` under a solver from :mod:`bartorch.optim` -- and the
+tests hold the assembly to the command run here.
+"""
 
 from __future__ import annotations
 
@@ -11,7 +17,7 @@ from bartorch._call import curated
 from bartorch._dispatch import dispatch
 from bartorch.priors.base import Regularizer, _as_terms, _command_line
 
-__all__ = ["nlinv", "pics"]
+__all__ = ["pics"]
 
 #: The solvers ``pics`` chooses between; BART writes each as a flag of its own.
 SOLVERS = {
@@ -64,7 +70,8 @@ def pics(
     kspace : torch.Tensor
         Under-sampled k-space, C order.
     sensitivities : torch.Tensor
-        Coil sensitivities, as :func:`ecalib` or :func:`caldir` produce them.
+        Coil sensitivities, as :func:`bartorch.tools.ecalib` or
+        :func:`bartorch.tools.caldir` produce them.
     regularizers : Regularizer or iterable of Regularizer, default=None
         :mod:`bartorch.priors` terms (``-R``).  Their axes index ``kspace``'s
         shape, negative ones counting from the last axis.  A setting ``pics``
@@ -176,92 +183,8 @@ def pics(
     return dispatch("pics", [kspace, sensitivities], None, **flags)
 
 
-@curated("nlinv")
-def nlinv(
-    kspace: torch.Tensor,
-    *,
-    maxiter: int | None = None,
-    maps: int | None = None,
-    traj: torch.Tensor | None = None,
-    pattern: torch.Tensor | None = None,
-    basis: torch.Tensor | None = None,
-    initial: torch.Tensor | None = None,
-    alpha: float | None = None,
-    real: bool = False,
-    normalize: bool = True,
-    return_sensitivities: bool = False,
-    **extra,
-):
-    """Nonlinear inversion: the image and the sensitivities together.
-
-    Parameters
-    ----------
-    kspace : torch.Tensor
-        Under-sampled k-space, C order.
-    maxiter : int, default=None
-        Gauss-Newton steps (``-i``).
-    maps : int, default=None
-        How many sets of sensitivities to estimate (``-m``).
-    traj : tensor, default=None
-        Non-Cartesian trajectory (``-t``).
-    pattern : tensor, default=None
-        Sampling pattern (``-p``).
-    basis : tensor, default=None
-        Subspace basis (``-B``).
-    initial : tensor, default=None
-        Warm start (``-I``).
-    alpha : float, default=None
-        The ``a`` of the Sobolev coil weighting ``(1 + a |k|^2)^(-b/2)``
-        (``-a``), not the first step's regularization weight -- that is
-        ``nlinv --alpha``, reachable through ``**extra``.
-    real : bool, default=False
-        Constrain the image to be real (``-c``).
-    normalize : bool, default=True
-        Divide the image by the root sum of squares of the sensitivities, as
-        ``nlinv`` does unless told not to.  BART spells this the
-        other way round, as ``-N`` for "do not normalize".
-    return_sensitivities : bool, default=False
-        Also return the sensitivities, which BART writes as a second array.
-    **extra
-        Further BART ``nlinv`` options, by name.  ``s``, the axes the
-        sensitivities are constant along, takes axes of ``kspace``.
-
-    Returns
-    -------
-    torch.Tensor or tuple of torch.Tensor
-        The image, and the sensitivities when asked for.
-    """
-    flags: dict = _call.translate("nlinv", dict(extra), [kspace])
-    if maxiter is not None:
-        flags["i"] = maxiter
-    if maps is not None:
-        flags["m"] = maps
-    for keyword, value in (("t", traj), ("p", pattern), ("B", basis), ("I", initial)):
-        if value is not None:
-            flags[keyword] = value
-    if alpha is not None:
-        flags["a"] = alpha
-    if real:
-        flags["c"] = True
-    if not normalize:
-        # BART's -N is "do not normalize", and its own default is to do it.
-        flags["N"] = True
-    return dispatch("nlinv", [kspace], None, _n_out=2 if return_sensitivities else 1, **flags)
-
-
-#: Commands in this section without a hand-written wrapper, built from the catalogue.
-_DERIVED = (
-    "grog",
-    "homodyne",
-    "itsense",
-    "lrmatrix",
-    "looklocker",
-    "moba",
-    "mobafit",
-    "sake",
-    "wave",
-    "wshfl",
-)
+#: Commands run through a wrapper built from the catalogue.
+_DERIVED = ("itsense", "looklocker", "moba", "mobafit", "wave", "wshfl")
 
 for _name in _DERIVED:
     globals()[_name] = _call.build(_name, __name__)

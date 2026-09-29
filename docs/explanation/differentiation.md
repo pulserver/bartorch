@@ -5,7 +5,7 @@
 
 - The backward pass of a linear operator is its adjoint, $A^H g$, and that of a nonlinear operator is $DF_x^H g$.
 - Conjugate gradients are differentiated implicitly, at constant memory; the proximal iterations and ADMM are unrolled, with memory linear in the iteration count.
-- BART's proximal operators have no backward pass: {class}`~bartorch.priors.ImplicitPrior` replaces one with a differentiable denoiser, and {func}`~bartorch.priors.frozen` holds one fixed.
+- BART's proximal operators have no backward pass: {class}`~bartorch.priors.ImplicitPrior` replaces one with a differentiable denoiser, and {meth}`Regularizer.detach() <bartorch.priors.Regularizer.detach>` holds one fixed.
 - {class}`~bartorch.learning.Unrolled` applies a fixed number of iteration blocks, differentiated end to end, per iteration, or with checkpointing; {class}`~bartorch.optim.FixedPoint` differentiates at a fixed point with constant memory.
 ```
 
@@ -70,7 +70,7 @@ term.  The following objects permit differentiation:
 | Object | Effect |
 | --- | --- |
 | {class}`~bartorch.priors.ImplicitPrior` | Replaces the proximal operator by a differentiable denoiser, as in plug-and-play reconstruction;[^pnp] the denoiser's parameters receive gradients |
-| {func}`~bartorch.priors.frozen` | Applies a BART term's proximal operator to a detached input: the term acts in the forward pass and is held fixed in the backward pass, for a solve in which another term is learned |
+| {meth}`Regularizer.detach() <bartorch.priors.Regularizer.detach>` | Applies a BART term's proximal operator to a detached input: the term acts in the forward pass and is held fixed in the backward pass, for a solve in which another term is learned |
 
 The residual norms that drive adaptive steps — an adaptive ADMM penalty, an
 adaptive primal-dual step size — are detached: they control the iteration and

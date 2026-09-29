@@ -14,8 +14,9 @@ import pytest
 import torch
 
 import bartorch
+import bartorch._reference as ref
 import bartorch.tools as bt
-import bartorch.tools.recon as recon
+import bartorch.tools.calib as calib
 from bartorch import _call, _coverage, priors
 from bartorch import _catalogue as catalogue
 from bartorch._dispatch import dispatch
@@ -71,13 +72,13 @@ def test_every_curated_wrapper_is_documented_and_exported_from_its_module():
 
 
 def test_a_curated_wrapper_says_it_is_one():
-    assert not bt.pics.is_derived
+    assert not bt.ecalib.is_derived
     assert not bartorch.fft.is_derived
     assert bt.noise.is_derived
 
 
 def test_no_tools_module_is_named_after_a_command():
-    """``bartorch.tools.recon`` would be the module and a ``recon`` command."""
+    """``bartorch.tools.sim`` would be the module and a ``sim`` command."""
     for path in (ROOT / "src" / "bartorch" / "tools").glob("*.py"):
         stem = path.stem
         if stem.startswith("_"):
@@ -132,7 +133,7 @@ def test_pics_can_choose_its_solver(solver):
     kspace = bt.phantom(24, coils=2, kspace=True)
     maps = bt.ecalib(kspace, maps=1)
     term = priors.Wavelet((-1, -2), 0.01)
-    image = bt.pics(kspace, maps, regularizers=term, solver=solver, maxiter=5)
+    image = ref.pics(kspace, maps, regularizers=term, solver=solver, maxiter=5)
     assert tuple(image.shape) == (24, 24)
 
 
@@ -140,7 +141,7 @@ def test_pics_refuses_a_solver_bart_does_not_have():
     kspace = bt.phantom(24, coils=2, kspace=True)
     maps = bt.ecalib(kspace, maps=1)
     with pytest.raises(ValueError, match="solver must be one of"):
-        bt.pics(kspace, maps, solver="newton")
+        ref.pics(kspace, maps, solver="newton")
 
 
 def test_an_axis_is_an_axis_and_not_a_bitmask():
@@ -189,6 +190,15 @@ def _reachable_arguments():
             for p in inspect.signature(w).parameters.values()
         ):
             yield from options(catalogue.COMMANDS[name])
+    # The private reconstruction commands the apps are tested against.
+    for attr in ref.__all__:
+        wrapper = getattr(ref, attr)
+        command = catalogue.COMMANDS[wrapper.bart_command]
+        if wrapper.is_derived:
+            for argument in command.arguments:
+                if argument.kind in _INTEGERS:
+                    yield command.name, argument.name, argument.name
+        yield from options(command)
 
 
 def test_every_argument_bart_takes_as_dimensions_takes_axes():
@@ -218,9 +228,10 @@ def test_a_derived_wrapper_takes_axes_where_bart_takes_a_bitmask():
 
 def test_what_a_curated_wrapper_passes_through_takes_axes(monkeypatch):
     seen = {}
-    monkeypatch.setattr(recon, "dispatch", lambda *args, **kwargs: seen.update(kwargs))
+    for module in (ref, calib):
+        monkeypatch.setattr(module, "dispatch", lambda *args, **kwargs: seen.update(kwargs))
     kspace = torch.zeros(2, 3, 8, 8, dtype=torch.complex64)
-    bt.pics(kspace, kspace, L=-3)
+    ref.pics(kspace, kspace, L=-3)
     assert seen["L"] == 4
     bt.nlinv(kspace, s=(0, -1))
     assert seen["s"] == 8 | 1
@@ -244,7 +255,7 @@ def test_pics_is_given_each_term_as_bart_would_be(term, flags):
     """The same bits as the command line the term stands for, shared
     settings included."""
     kspace, maps = _pics_data()
-    ours = bt.pics(kspace, maps, regularizers=term, maxiter=5)
+    ours = ref.pics(kspace, maps, regularizers=term, maxiter=5)
     theirs = dispatch("pics", [kspace, maps], None, i=5, **flags)
     assert torch.equal(ours, theirs)
 
@@ -252,18 +263,18 @@ def test_pics_is_given_each_term_as_bart_would_be(term, flags):
 def test_pics_takes_terms_and_not_strings():
     kspace, maps = _pics_data()
     with pytest.raises(TypeError, match="priors.Wavelet"):
-        bt.pics(kspace, maps, regularizers="W:3:0:0.01")
+        ref.pics(kspace, maps, regularizers="W:3:0:0.01")
     with pytest.raises(TypeError, match="regularizers"):
-        bt.pics(kspace, maps, R="W:3:0:0.01")
+        ref.pics(kspace, maps, R="W:3:0:0.01")
     with pytest.raises(TypeError, match="randshift"):
-        bt.pics(kspace, maps, n=True)
+        ref.pics(kspace, maps, n=True)
 
 
 def test_a_setting_pics_gives_once_has_to_agree_across_terms():
     kspace, maps = _pics_data()
     terms = [priors.Wavelet((-1, -2), 0.01), priors.Wavelet((-1, -2), 0.01, family="haar")]
     with pytest.raises(ValueError, match="family"):
-        bt.pics(kspace, maps, regularizers=terms)
+        ref.pics(kspace, maps, regularizers=terms)
 
 
 def test_pics_refuses_an_infimal_convolution_with_no_axis_of_each_kind():
@@ -272,7 +283,7 @@ def test_pics_refuses_an_infimal_convolution_with_no_axis_of_each_kind():
     same question first."""
     kspace, maps = _pics_data()
     with pytest.raises(ValueError, match="at least one of the image's last three axes"):
-        bt.pics(kspace, maps, regularizers=priors.InfimalConvolutionTV((-1, -2), 0.01))
+        ref.pics(kspace, maps, regularizers=priors.InfimalConvolutionTV((-1, -2), 0.01))
 
 
 # --- `signal -C` reads memory nothing wrote -----------------------------------
@@ -319,7 +330,7 @@ def test_the_guard_is_only_for_the_ir_mgre_sequence():
 def test_a_command_refuses_a_term_its_parser_does_not_know():
     kspace, maps = _pics_data()
     with pytest.raises(TypeError, match="moba does not take"):
-        bt.moba(kspace, maps, r=priors.TotalGeneralizedVariation((-1, -2), 0.01))
+        ref.moba(kspace, maps, r=priors.TotalGeneralizedVariation((-1, -2), 0.01))
 
 
 def test_a_derived_wrapper_is_shaped_like_the_command_line():

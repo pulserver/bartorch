@@ -6,7 +6,7 @@ Operators and solvers
 The same reconstruction written as an encoding operator and a solver rather
 than as a call to a BART application.
 
-:func:`bartorch.tools.pics` builds three objects and runs BART's iteration
+:func:`bartorch.apps.pics` builds three objects and runs BART's iteration
 with them: the encoding operator, the regularization terms, and the algorithm.
 :mod:`bartorch.linop` and :mod:`bartorch.optim` expose those three separately,
 for the reconstructions BART has no application for: an encoding with an extra
@@ -135,7 +135,7 @@ from brainweb_dl import get_mri
 
 import bartorch
 import bartorch.tools as bt
-from bartorch import linop, optim, priors
+from bartorch import apps, linop, optim, priors
 
 SIZE = 192
 COILS = 8
@@ -307,7 +307,7 @@ assembled = optim.FISTA(term, maxiter=100)(data, A)
 # merely close: they are the same iteration over the same operator, and return
 # the same bits.
 
-tool = bt.pics(kspace, maps, regularizers=term, solver="fista", maxiter=100)
+tool = apps.pics(kspace, maps, regularizers=term, solver="fista", maxiter=100)
 print(f"identical to pics: {torch.equal(assembled.squeeze(), tool.squeeze())}")
 
 # %%

@@ -1,7 +1,7 @@
-"""Operations on an image rather than on k-space: resampling, registration, measurement.
+"""Preprocessing, resampling, registration and measurement.
 
-Each is one of BART's array applications.  None is a reconstruction and none is
-part of an encoding: a reconstruction is surrounded by them.
+Each is one of BART's array applications.  None is part of an encoding: a
+reconstruction is surrounded by them.
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from collections.abc import Sequence
 import numpy as np
 import torch
 
-from bartorch import _grid
+from bartorch import _call, _grid
 from bartorch._call import curated
 from bartorch._dispatch import dispatch
 from bartorch._operator import axes_flags
@@ -525,3 +525,13 @@ def roi_stat(
     oshape = tuple(1 if (r > 1 and i > 1) else n for r, i, n in zip(rshape, ishape, shape))
     out = dispatch("roistat", [roi, input], None, b=bessel, **{flag: True}).reshape(oshape)
     return out if stat in ("sum", "mean") else out.real.contiguous()
+
+
+#: Commands in this section without a hand-written wrapper, built from the catalogue.
+_DERIVED = ("homodyne",)
+
+for _name in _DERIVED:
+    globals()[_name] = _call.build(_name, __name__)
+del _name
+
+__all__ = [*__all__, *_DERIVED]

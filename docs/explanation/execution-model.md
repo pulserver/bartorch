@@ -49,13 +49,14 @@ are required.
 
 ## Commands and apps
 
-{func}`bartorch.tools.pics` runs BART's `pics`.  {func}`bartorch.apps.pics`
-performs the same steps with this package's objects: the sampling pattern,
-the modulation into BART's uncentred convention and the data scaling in
-Python, then an encoding from {mod}`bartorch.linop` under a solver from
-{mod}`bartorch.optim`.  On a Cartesian grid the two return identical tensors;
-along a trajectory they agree to floating-point round-off, because FINUFFT
-accumulates over threads in an order that varies between runs.  An app is the
+{func}`bartorch.apps.pics` performs the steps of BART's `pics` with this
+package's objects: the sampling pattern, the modulation into BART's uncentred
+convention and the data scaling in Python, then an encoding from
+{mod}`bartorch.linop` under a solver from {mod}`bartorch.optim`.  On a
+Cartesian grid it returns the tensor the command returns; along a trajectory
+the two agree to floating-point round-off, because FINUFFT accumulates over
+threads in an order that varies between runs.  The command itself is not
+public; the test suite holds the app to it.  An app is the
 starting point for a variant of an application: its steps are Python that can
 be read and changed.  {func}`bartorch.apps.mobafit` does not reproduce its command: it fits a
 TorchSim signal model rather than BART's, and returns named maps in physical

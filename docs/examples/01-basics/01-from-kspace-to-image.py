@@ -139,7 +139,7 @@ from brainweb_dl import get_mri
 
 import bartorch
 import bartorch.tools as bt
-from bartorch import priors
+from bartorch import apps, priors
 
 # %%
 #
@@ -341,7 +341,7 @@ maps = bt.ecalib(compressed, maps=1, calib_size=CALIBRATION, crop=0.8)
 # Reconstruction
 # --------------
 #
-# :func:`bartorch.tools.pics` solves the regularized least-squares problem. A
+# :func:`bartorch.apps.pics` solves the regularized least-squares problem. A
 # Tikhonov weight alone gives the conjugate-gradient SENSE reconstruction
 # [#sense]_; an :math:`\ell_1` penalty on the wavelet coefficients is the
 # compressed-sensing reconstruction [#lustig]_ of the same data, solved by
@@ -352,8 +352,8 @@ maps = bt.ecalib(compressed, maps=1, calib_size=CALIBRATION, crop=0.8)
 channel_images = bartorch.ifft(compressed[:, 0], axes=(-2, -1), unitary=True)
 gridded = bartorch.rss(channel_images, axes=(0,))
 
-sense = bt.pics(compressed, maps, l2=0.001, maxiter=60)
-wavelet = bt.pics(
+sense = apps.pics(compressed, maps, l2=0.001, maxiter=60)
+wavelet = apps.pics(
     compressed,
     maps,
     regularizers=priors.Wavelet((-1, -2), 0.002),

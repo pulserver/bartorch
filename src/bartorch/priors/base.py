@@ -13,7 +13,7 @@ from bartorch._dispatch import BartError, _ensure_ready, _lock, _on_device
 from bartorch._lib import DIMS, library
 from bartorch._operator import as_operand, axes_flags
 
-__all__ = ["Regularizer", "frozen"]
+__all__ = ["Regularizer"]
 
 
 class Regularizer(abc.ABC):
@@ -146,7 +146,7 @@ class Regularizer(abc.ABC):
         backward pass is implemented for BART's proximal operators, and
         treating one as the identity would zero the gradient path through the
         regularizer.  Use :class:`~bartorch.priors.ImplicitPrior` for a
-        differentiable proximal step, or :func:`frozen` to hold this one fixed.
+        differentiable proximal step, or :meth:`detach` to hold this one fixed.
 
         Parameters
         ----------
@@ -190,7 +190,7 @@ class Regularizer(abc.ABC):
                 "`operator_p_fun_t` is (data, mu, dst, src), with nowhere to carry one, "
                 "so an iteration containing this term cannot be differentiated.  Use a "
                 "denoiser in place of the term -- `optim.admm(y, A, denoiser)` differentiates "
-                "end to end -- or `priors.frozen(term)` to hold this one fixed in the graph"
+                "end to end -- or `term.detach()` to hold this one fixed in the graph"
             )
 
         image_shape = tuple(x.shape) if image_shape is None else tuple(image_shape)
@@ -410,6 +410,23 @@ class Regularizer(abc.ABC):
             return f"{self.kind}:{x}:{j}:{self.count}"
         return f"{self.kind}:{x}:{j}:{self.weight!r}"
 
+    def detach(self) -> Regularizer:
+        """This term with its proximal step detached, for a differentiated solve.
+
+        No backward pass is implemented for BART's proximal operators, so
+        :meth:`prox` raises on a tensor that requires a gradient rather than
+        contributing an incorrect one.  The detached term thresholds exactly as
+        before, and the gradient obtained is the one the iteration has with
+        this term held fixed: the use is a solve in which a differentiable
+        denoiser occupies one term and a BART term another, and only the
+        denoiser is trained.
+
+        Examples
+        --------
+        >>> optim.admm(y, A, [denoiser, priors.Wavelet((-1, -2), 0.01).detach()])
+        """
+        return _Frozen(self)
+
     def __repr__(self) -> str:
         parts = [f"weight={self.weight}"] if self.weight else []
         if self.axes:
@@ -563,7 +580,7 @@ class _Frozen:
         return self.term.prox(x.detach(), gamma, image_shape=image_shape, item=item)
 
     def __repr__(self) -> str:
-        return f"frozen({self.term!r})"
+        return f"{self.term!r}.detach()"
 
 
 Regularizer.register(_Frozen)
@@ -573,7 +590,7 @@ class _Penalty(Regularizer):
     """One penalty of a set BART configured together, over the image and the unknowns behind it.
 
     Its proximal operator detaches first when every term the set came from was
-    :func:`frozen`.
+    detached.
     """
 
     kind = "penalty"
@@ -594,25 +611,3 @@ class _Penalty(Regularizer):
 
     def __repr__(self) -> str:
         return f"penalty over {next(iter(self._handles))}"
-
-
-def frozen(term: Regularizer) -> Regularizer:
-    """``term`` with its proximal step detached, for a differentiated solve.
-
-    No backward pass is implemented for BART's proximal operators, so
-    :meth:`Regularizer.prox` raises on a tensor that requires a gradient rather
-    than contributing an incorrect one: soft thresholding is not the identity,
-    and differentiating as though it were zeroes the whole gradient path
-    through the regularizer.
-
-    This wrapper detaches the proximal step's input instead.  The term
-    thresholds exactly as before, and the gradient obtained is the one the
-    iteration has with this term held fixed.  Its use is the mixed solve, where
-    a differentiable denoiser occupies one term and a BART term another, and
-    the gradient is required only for the denoiser.
-
-    Examples
-    --------
-    >>> optim.admm(y, A, [denoiser, priors.frozen(priors.Wavelet((-1, -2), 0.01))])
-    """
-    return _Frozen(term)

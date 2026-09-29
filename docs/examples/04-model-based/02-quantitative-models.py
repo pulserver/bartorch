@@ -359,8 +359,8 @@ plt.show()
 # The maps are drawn with the navia colormap [#fuderer]_.
 #
 # What this route also makes available is regularization of the maps rather
-# than of the images, since the maps are the solver's unknowns; BART's own
-# ``moba`` is :func:`bartorch.tools.moba`, and applies its penalties there.
+# than of the images, since the maps are the solver's unknowns.
+# :func:`bartorch.apps.moba` runs this pipeline in one call.
 
 # %%
 #

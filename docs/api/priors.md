@@ -27,22 +27,20 @@ proximal operators and the splitting that a nontrivial $G$ requires.
 | {obj}`~bartorch.priors.TotalGeneralizedVariation` | Second-order TGV | Extends the variable | ADMM, PRIDU |
 | {obj}`~bartorch.priors.InfimalConvolutionTV` | Infimal convolution of two TV terms | Extends the variable | ADMM, PRIDU |
 | {obj}`~bartorch.priors.InfimalConvolutionTGV` | Infimal convolution of two TGV terms | Extends the variable | ADMM, PRIDU |
-| {obj}`~bartorch.priors.WaveletNIHT` | Keep the $K$ largest wavelet coefficients | Wavelet transform | NIHT |
-| {obj}`~bartorch.priors.ImageNIHT` | Keep the $K$ largest image entries | $I$ | NIHT |
 
 $\lambda$ is the term's `weight`, relative to data divided by
 {func}`~bartorch.optim.data_scaling`; $\lVert\cdot\rVert_1$ of a complex array
 is the sum of the moduli, and a term's `joint_axes` group entries into an
 $\ell_2$ norm first.  Every term is also accepted by
-{func}`bartorch.tools.pics` and {func}`bartorch.apps.pics`.
+{func}`bartorch.apps.pics`.  {meth}`Regularizer.detach` holds a term fixed in
+a differentiated solve.
 
 ## Term classes
 
 | Object | Description |
 | --- | --- |
 | {obj}`~bartorch.priors.Regularizer` | Base class: the proximal operator and the transform of a BART term |
-| {obj}`~bartorch.priors.ImplicitPrior` | A denoiser in place of a proximal operator (plug-and-play), optionally through a transform |
-| {obj}`~bartorch.priors.frozen` | A term whose proximal step is excluded from differentiation |
+| {obj}`~bartorch.priors.ImplicitPrior` | A denoiser or a real-valued image network in place of a proximal operator (plug-and-play), optionally through a transform |
 
 ## Sparsity-promoting terms
 
@@ -73,13 +71,6 @@ $\ell_2$ norm first.  Every term is also accepted by
 | Object | Description |
 | --- | --- |
 | {obj}`~bartorch.priors.NonNegative` | Projection clamping the real and imaginary parts at zero |
-
-## Hard-thresholding terms
-
-| Object | Description |
-| --- | --- |
-| {obj}`~bartorch.priors.WaveletNIHT` | Retention of the largest wavelet coefficients |
-| {obj}`~bartorch.priors.ImageNIHT` | Retention of the largest image entries |
 
 ## Terms with auxiliary variables
 

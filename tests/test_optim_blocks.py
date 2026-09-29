@@ -143,8 +143,8 @@ def test_a_learned_step_is_close_to_but_not_the_libraries(problem):
     # worked out in single precision throughout rather than rounded where
     # BART rounds them.
     A, y = problem
-    frozen = optim.ISTBlock(priors.frozen(priors.L1(0.05)), step=0.7)
-    learned = optim.ISTBlock(priors.frozen(priors.L1(0.05)), step=0.7)
+    frozen = optim.ISTBlock(priors.L1(0.05).detach(), step=0.7)
+    learned = optim.ISTBlock(priors.L1(0.05).detach(), step=0.7)
     learned.step.requires_grad_()
     with torch.no_grad():
         torch.testing.assert_close(

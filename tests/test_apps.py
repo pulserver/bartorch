@@ -11,8 +11,10 @@ import pytest
 import torch
 
 import bartorch
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _dispatch, _finufft, apps, linop, priors
+from bartorch.priors.terms import ImageNIHT
 
 SIZE, COILS, ACCEL = 24, 4, 2
 
@@ -82,7 +84,7 @@ _CONFIGURATIONS = [
 )
 def test_the_app_is_the_tool_to_the_last_bit(arguments, _whole_coil_operator):
     kspace, maps = _cartesian()
-    tool = bt.pics(kspace, maps, maxiter=20, **arguments).squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, **arguments).squeeze()
     ours = apps.pics(kspace, maps, maxiter=20, **arguments).squeeze()
     assert torch.equal(ours, tool), f"maximum difference {float((ours - tool).abs().max()):.3e}"
 
@@ -99,7 +101,7 @@ def test_the_iteration_is_the_one_the_terms_choose():
     assert _chosen([_tv()]) == "admm"
     assert _chosen([_wavelet(), _tv()]) == "admm"
     assert _chosen([_tv(), _wavelet()]) == "admm"
-    assert _chosen([priors.ImageNIHT((-1, -2), 4)]) == "niht"
+    assert _chosen([ImageNIHT((-1, -2), 4)]) == "niht"
 
 
 def test_an_l2_term_is_the_weight_once(_whole_coil_operator):
@@ -120,7 +122,7 @@ def test_a_first_term_over_a_transform_is_not_thresholded_on_the_image(term, _wh
     kspace, maps = _cartesian()
     with pytest.raises(ValueError, match="solver='admm'"):
         apps.pics(kspace, maps, regularizers=term)
-    tool = bt.pics(kspace, maps, maxiter=20, regularizers=term, solver="admm").squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, regularizers=term, solver="admm").squeeze()
     ours = apps.pics(kspace, maps, maxiter=20, regularizers=term, solver="admm").squeeze()
     assert torch.equal(ours, tool)
 
@@ -144,9 +146,9 @@ def test_a_warm_start_reaches_the_iteration(solver, _whole_coil_operator):
     arguments = {} if solver == "cg" else {"regularizers": _wavelet(), "solver": solver}
     warm = 0.5 * apps.pics(kspace, maps, maxiter=5)
 
-    tool = bt.pics(kspace, maps, maxiter=20, W=warm, **arguments).squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, W=warm, **arguments).squeeze()
     ours = apps.pics(kspace, maps, maxiter=20, initial=warm, **arguments).squeeze()
-    cold = bt.pics(kspace, maps, maxiter=20, **arguments).squeeze()
+    cold = ref.pics(kspace, maps, maxiter=20, **arguments).squeeze()
 
     assert torch.equal(ours, tool)
     assert not torch.equal(tool, cold), "the warm start changed nothing, so this proves nothing"
@@ -161,7 +163,7 @@ def test_the_eigenvalue_step_is_the_tools():
     """
     kspace, maps = _cartesian()
     arguments = {"regularizers": _wavelet(), "solver": "fista"}
-    tool = bt.pics(kspace, maps, maxiter=20, eigen_step=True, **arguments).squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, eigen_step=True, **arguments).squeeze()
     ours = apps.pics(kspace, maps, maxiter=20, eigen_step=True, **arguments).squeeze()
     plain = apps.pics(kspace, maps, maxiter=20, **arguments).squeeze()
 
@@ -194,7 +196,7 @@ def test_off_the_grid_the_app_is_the_tool_to_round_off():
     """
     traj, maps, measured = _radial()
     term = _tv(0.001)
-    tool = bt.pics(
+    tool = ref.pics(
         measured[..., None], maps, traj=traj, regularizers=term, solver="admm", maxiter=10
     ).squeeze()
     ours = apps.pics(

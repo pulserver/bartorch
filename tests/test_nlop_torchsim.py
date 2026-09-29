@@ -13,6 +13,7 @@ import math
 import pytest
 import torch
 
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _call, linop, nlop, optim
 from bartorch.nlop.base import _chain
@@ -268,7 +269,7 @@ def _mobafit(enc, values, shape, coefficients, **flags):
     n = len(values)
     images = values.reshape(n, 1, 1, 1, 1, 1).expand(n, 1, 1, 1, *shape).contiguous()
     grid = enc.reshape(n, 1, 1, 1, 1, 1)
-    return bt.mobafit(grid, images, **flags).reshape(coefficients, *shape)
+    return ref.mobafit(grid, images, **flags).reshape(coefficients, *shape)
 
 
 def _irgnm(M, values, shape, **start):

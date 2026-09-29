@@ -227,10 +227,9 @@ it back.
 | $L$ | {func}`~bartorch.optim.maxeigen` |
 | Data scale | {func}`~bartorch.optim.data_scaling` |
 
-{func}`bartorch.tools.pics` performs these steps inside BART: it estimates the
-data scale, builds the encoding from the sensitivities and the sampling,
-builds the terms from its `regularizers` argument, and runs the chosen
-iteration.  {doc}`../auto_examples/01-basics/02-operators-and-solvers`
+{func}`bartorch.apps.pics` performs these steps: it estimates the data scale,
+builds the encoding from the sensitivities and the sampling, takes the terms
+from its `regularizers` argument, and runs the chosen iteration.  {doc}`../auto_examples/01-basics/02-operators-and-solvers`
 assembles the same reconstruction from an operator, a term and a solver and
 obtains the same result.  The estimators on this page assume a known, linear
 $A$; {doc}`nonlinear` treats forward operators that depend nonlinearly on the

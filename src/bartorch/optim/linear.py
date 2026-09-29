@@ -1228,6 +1228,6 @@ class NIHT(_Solver):
             "(iter/niht.c:85, :212) and the operator `lsqr2` hands it asserts that it "
             "is not (iter/lsqr.c:60), so every solve ends in an assertion.  Nothing here "
             "can work around it; it needs a BART fix.  "
-            "priors.WaveletNIHT and priors.ImageNIHT still reach tools.pics, which catches "
+            "WaveletNIHT and ImageNIHT terms still reach BART's pics command, which catches "
             "the assertion rather than ending the process"
         )

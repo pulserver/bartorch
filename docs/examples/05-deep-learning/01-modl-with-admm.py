@@ -281,16 +281,16 @@ valid_loader = DataLoader(
 # Network
 # -------
 #
-# Four objects:
+# Three objects:
 #
 # * ``deepinv``'s ``DnCNN`` [#dncnn]_, a residual convolutional denoiser of the family
 #   MoDL's own five-layer network belongs to. It is an ``nn.Module`` operating
 #   on real images.
-# * :class:`bartorch.learning.Denoiser`, which converts between that layout and
-#   a complex image: two channels for the real and imaginary parts, the batch
-#   axes folded, and each image scaled to unit peak modulus around the call.
-# * :class:`bartorch.priors.ImplicitPrior`, which presents the result as a
-#   regularization term.
+# * :class:`bartorch.priors.ImplicitPrior`, which presents the network as a
+#   regularization term. ``spatial=2, channels=2`` converts between the
+#   network's layout and a complex image: two channels for the real and
+#   imaginary parts, the batch axes folded, and each image scaled to unit peak
+#   modulus around the call.
 # * :class:`bartorch.learning.Unrolled`, which applies the ADMM step
 #   ``ITERATIONS`` times. A single block is shared by every iteration, the
 #   weight sharing MoDL specifies, and ``rho`` is made differentiable, MoDL's
@@ -305,8 +305,8 @@ from deepinv.models import DnCNN
 def modl():
     """Construct an unrolled network and return it with the block it shares."""
     network = DnCNN(in_channels=2, out_channels=2, depth=5, pretrained=None)
-    denoiser = learning.Denoiser(network, channels=2)
-    block = optim.ADMMBlock(priors.ImplicitPrior(denoiser), rho=0.05, alpha=1.0, cg_maxiter=10)
+    prior = priors.ImplicitPrior(network, spatial=2, channels=2)
+    block = optim.ADMMBlock(prior, rho=0.05, alpha=1.0, cg_maxiter=10)
     block.rho.requires_grad_()
     return learning.Unrolled(block, iterations=ITERATIONS), block
 

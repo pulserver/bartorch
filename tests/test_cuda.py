@@ -9,6 +9,7 @@ import pytest
 import torch
 
 import bartorch
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import linop
 
@@ -135,7 +136,7 @@ def test_every_tool_kept_on_the_card_answers_there_and_agrees_with_the_host():
             lambda d: bartorch.nufft(img.to(d), traj.to(d)),
             5 * bartorch._finufft.tolerance(),
         ),
-        "pics": (lambda d: bt.pics(ksp_rad.to(d), maps.to(d), t=traj.to(d)), 1e-1),
+        "pics": (lambda d: ref.pics(ksp_rad.to(d), maps.to(d), t=traj.to(d)), 1e-1),
         "estdims": (lambda d: bt.estdims(traj.to(d)), 0.0),
     }
     assert set(cases) == set(_ON_DEVICE), "every tool kept on the card needs a case here"

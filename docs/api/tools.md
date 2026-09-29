@@ -1,15 +1,15 @@
 # BART commands as functions
 
-`bartorch.tools` exposes BART's command-line applications as functions of
-tensors, one function per command, run in this process.  Array arguments and
-results are C-order tensors in BART's dimension order reversed, axis arguments
-are axis indices rather than BART bitmasks, and regularization is given as
-{mod}`bartorch.priors` terms rather than `-R` strings; results are not recorded
-by autograd.  Functions marked *wrapped* have a hand-written signature; the
-others are generated from BART's declaration of the command and take its
-options under their long names.  {doc}`../explanation/execution-model`
-compares these functions with the operators and solvers of the composable
-interface.
+`bartorch.tools` exposes BART's command-line applications that have no
+operator or pipeline counterpart here, one function per command, run in this
+process.  Array arguments and results are C-order tensors in BART's dimension
+order reversed, and axis arguments are axis indices rather than BART bitmasks;
+results are not recorded by autograd.  Functions marked *wrapped* have a
+hand-written signature; the others are generated from BART's declaration of the
+command and take its options under their long names.  Reconstructions are
+{mod}`bartorch.apps`, or an encoding from {mod}`bartorch.linop` under a solver
+from {mod}`bartorch.optim`; {doc}`../explanation/execution-model` compares the
+two routes.
 
 ```{eval-rst}
 .. currentmodule:: bartorch.tools
@@ -34,6 +34,7 @@ interface.
 | {obj}`~bartorch.tools.poisson` | Poisson-disc sampling pattern |
 | {obj}`~bartorch.tools.upat` | Regular undersampling pattern with a fully sampled centre |
 | {obj}`~bartorch.tools.raga` | Indices of a RAGA (rational approximation of the golden angle) radial ordering |
+| {obj}`~bartorch.tools.grog` | Radial data gridded onto a Cartesian grid by GROG |
 | {obj}`~bartorch.tools.psf` | Point spread function of a trajectory |
 | {obj}`~bartorch.tools.wavepsf` | Wave-CAIPI point spread function in hybrid space |
 | {obj}`~bartorch.tools.estdims` | Image dimensions implied by a non-Cartesian trajectory |
@@ -52,37 +53,21 @@ interface.
 | {obj}`~bartorch.tools.calmat` | Calibration matrix of the k-space centre |
 | {obj}`~bartorch.tools.ecaltwo` | Second stage of ESPIRiT calibration |
 | {obj}`~bartorch.tools.walsh` | Walsh coil combination, for use with {obj}`~bartorch.tools.ecaltwo` |
+| {obj}`~bartorch.tools.nlinv` | Image and sensitivities jointly by nonlinear inversion (wrapped) |
 | {obj}`~bartorch.tools.ncalib` | Sensitivities from non-Cartesian data by nonlinear inversion (ENLIVE) |
 | {obj}`~bartorch.tools.cc` | Coil compression matrix (SVD, geometric or ESPIRiT) |
 | {obj}`~bartorch.tools.ccapply` | Application of a coil compression matrix |
 | {obj}`~bartorch.tools.rovir` | Coil compression by region-optimized virtual coils (ROVir) |
 | {obj}`~bartorch.tools.whiten` | Noise prewhitening from a noise measurement |
 | {obj}`~bartorch.tools.estvar` | Noise variance of white Gaussian noise |
-| {obj}`~bartorch.tools.estscaling` | Data scaling estimated from the k-space centre |
 | {obj}`~bartorch.tools.phasepole` | Detection of phase poles in sensitivities |
-
-## Reconstruction
-
-| Object | Description |
-| --- | --- |
-| {obj}`~bartorch.tools.pics` | Parallel-imaging compressed-sensing reconstruction (wrapped) |
-| {obj}`~bartorch.tools.nlinv` | Nonlinear inversion: image and sensitivities jointly (wrapped) |
-| {obj}`~bartorch.tools.moba` | Model-based nonlinear reconstruction of parameter maps |
-| {obj}`~bartorch.tools.mobafit` | Voxel-wise fit of a signal model to contrast images |
-| {obj}`~bartorch.tools.looklocker` | $T_1$ from Look-Locker parameters $M_0$, $M_{ss}$ and $R_1^*$ |
-| {obj}`~bartorch.tools.itsense` | Iterative SENSE with $\ell_2$ regularization |
-| {obj}`~bartorch.tools.sake` | SAKE: low-rank matrix completion of k-space |
-| {obj}`~bartorch.tools.lrmatrix` | Multi-scale low-rank matrix completion |
-| {obj}`~bartorch.tools.homodyne` | Homodyne partial-Fourier reconstruction |
-| {obj}`~bartorch.tools.grog` | GROG calibration and gridding of radial data |
-| {obj}`~bartorch.tools.wave` | Wave-CAIPI reconstruction |
-| {obj}`~bartorch.tools.wshfl` | Wave-Shuffling reconstruction |
 
 ## Preprocessing, registration and metrics
 
 | Object | Description |
 | --- | --- |
 | {obj}`~bartorch.tools.fovshift` | Field-of-view shift of k-space by a linear phase (wrapped) |
+| {obj}`~bartorch.tools.homodyne` | Homodyne partial-Fourier reconstruction of asymmetrically sampled k-space |
 | {obj}`~bartorch.tools.affine_transform` | Resampling on an affinely mapped grid (wrapped) |
 | {obj}`~bartorch.tools.warp` | Resampling through a displacement field (wrapped) |
 | {obj}`~bartorch.tools.register_affine` | Affine registration by mutual information (wrapped) |
@@ -93,3 +78,10 @@ interface.
 | {obj}`~bartorch.tools.psnr` | Peak signal-to-noise ratio of the magnitudes (wrapped) |
 | {obj}`~bartorch.tools.ssim` | Structural similarity of the magnitudes (wrapped) |
 | {obj}`~bartorch.tools.roi_stat` | Statistic over a region of interest (wrapped) |
+
+## Low-rank completion
+
+| Object | Description |
+| --- | --- |
+| {obj}`~bartorch.tools.sake` | SAKE: low-rank matrix completion of k-space |
+| {obj}`~bartorch.tools.lrmatrix` | Multi-scale low-rank matrix completion |

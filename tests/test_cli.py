@@ -15,6 +15,7 @@ import bartorch.tools as bt
 from bartorch._dispatch import run_command
 from bartorch.cli import _argv, main, route
 from bartorch.io import readcfl, writecfl
+from bartorch.priors.terms import ImageNIHT
 
 SIZE, COILS, ACCEL = 24, 4, 2
 
@@ -148,7 +149,7 @@ def test_a_regularizer_string_is_the_term_it_names():
 
     assert isinstance(_argv.regularizer("Q:0.1", ndim=2), priors.L2)
     assert isinstance(_argv.regularizer("S", ndim=2), priors.NonNegative)
-    assert isinstance(_argv.regularizer("N:3:0:12", ndim=2), priors.ImageNIHT)
+    assert isinstance(_argv.regularizer("N:3:0:12", ndim=2), ImageNIHT)
 
 
 def test_a_bitmask_names_the_axes_the_image_has():

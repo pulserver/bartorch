@@ -242,19 +242,19 @@ def test_the_proximal_operator_refuses_a_gradient_rather_than_dropping_one():
 def test_a_frozen_term_thresholds_the_same_way_and_says_it_meant_to():
     term = priors.L1(0.1)
     x = _rand(*SHAPE)
-    torch.testing.assert_close(priors.frozen(term).prox(x, 0.5), term.prox(x, 0.5), rtol=0, atol=0)
+    torch.testing.assert_close(term.detach().prox(x, 0.5), term.prox(x, 0.5), rtol=0, atol=0)
 
     tracked = x.clone().requires_grad_(True)
-    made = priors.frozen(term).prox(tracked, 0.5)
+    made = term.detach().prox(tracked, 0.5)
     assert made.grad_fn is None
 
 
 def test_a_frozen_term_is_still_the_term_bart_was_given():
-    term = priors.frozen(priors.Wavelet(AXES, 0.01))
+    term = priors.Wavelet(AXES, 0.01).detach()
     assert isinstance(term, priors.Regularizer)
     assert "W" == term.kind
     assert term.prox_shape(SHAPE) == priors.Wavelet(AXES, 0.01).prox_shape(SHAPE)
-    assert "frozen(" in repr(term)
+    assert ".detach()" in repr(term)
 
 
 # --- a denoiser in a domain the image is not in -------------------------------

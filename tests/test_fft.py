@@ -15,6 +15,7 @@ import pytest
 import torch
 
 import bartorch
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _backend
 
@@ -92,9 +93,9 @@ def test_a_reconstruction_agrees_whichever_transform_serves_it():
     ksp = bartorch.nufft(image, traj)
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
-    with_mkl = bt.pics(ksp, maps, t=traj)
+    with_mkl = ref.pics(ksp, maps, t=traj)
     with _backend.built_in_fft():
-        built_in = bt.pics(ksp, maps, t=traj)
+        built_in = ref.pics(ksp, maps, t=traj)
 
     scale = float(built_in.abs().max())
     assert float((with_mkl - built_in).abs().max()) / scale < 1e-3
@@ -112,7 +113,7 @@ def test_every_plan_a_reconstruction_makes_goes_to_mkl():
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
     lib.bartorch_fft_reset_counters()
-    bt.pics(ksp, maps, t=traj)
+    ref.pics(ksp, maps, t=traj)
     bt.nlinv(ksp, t=traj, maxiter=3)
 
     by_mkl, by_built_in = lib.bartorch_fft_counter(0), lib.bartorch_fft_counter(1)

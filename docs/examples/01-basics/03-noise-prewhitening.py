@@ -140,6 +140,7 @@ from brainweb_dl import get_mri
 
 import bartorch
 import bartorch.tools as bt
+from bartorch import apps
 
 SIZE = 128
 COILS = 8
@@ -332,8 +333,8 @@ maps_whitened = bt.ecalib(bt.whiten(first, noise_scan), maps=1, calib_size=CALIB
 plain, prewhitened = [], []
 for _ in range(REPLICAS):
     data = acquire()
-    plain.append(bt.pics(data, maps_measured, l2=1e-3, maxiter=30))
-    prewhitened.append(bt.pics(bt.whiten(data, noise_scan), maps_whitened, l2=1e-3, maxiter=30))
+    plain.append(apps.pics(data, maps_measured, l2=1e-3, maxiter=30))
+    prewhitened.append(apps.pics(bt.whiten(data, noise_scan), maps_whitened, l2=1e-3, maxiter=30))
 
 plain, prewhitened = torch.stack(plain), torch.stack(prewhitened)
 

@@ -11,7 +11,7 @@ least squares, with the non-Cartesian SENSE operator
    A = W \\, \\mathrm{NUFFT} \\, S.
 
 The sensitivities are estimated from the radial data itself, and the same
-reconstruction is run twice: once through :func:`bartorch.tools.pics` and once
+reconstruction is run twice: once through :func:`bartorch.apps.pics` and once
 through the operator and a solver, the route an encoding BART has no
 application for would take.
 
@@ -141,7 +141,7 @@ from brainweb_dl import get_mri
 
 import bartorch
 import bartorch.tools as bt
-from bartorch import linop, optim, priors
+from bartorch import apps, linop, optim, priors
 
 SIZE = 192
 COILS = 8
@@ -291,7 +291,7 @@ gridded = bartorch.rss(channels[:, 0], axes=(0,))
 term = priors.TotalVariation(axes=(-1, -2), weight=0.001)
 
 start = time.perf_counter()
-reconstruction = bt.pics(
+reconstruction = apps.pics(
     measured[..., None], maps, traj=trajectory, regularizers=term, solver="admm", maxiter=50
 )
 print(f"pics: {time.perf_counter() - start:.2f} s")

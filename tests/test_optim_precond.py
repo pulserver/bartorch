@@ -11,12 +11,13 @@ linear solvers:
 * ``pics --precond``, which is not preconditioning at all: it adds a
   ``prox_weighted_leastsquares`` term with the inverse sampling pattern as
   weights and chains it through the model operator.  It is reachable through
-  :func:`bartorch.tools.pics`, where it belongs.
+  :func:`bartorch.ref.pics`, where it belongs.
 """
 
 import pytest
 import torch
 
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import linop, optim, priors
 
@@ -188,7 +189,7 @@ def test_the_tool_flag_is_a_regularizer_and_not_a_preconditioner():
     kspace = _rand(coils, 1, n, n)
     pattern = torch.ones(1, 1, n, n, dtype=torch.complex64)
     regularized = dict(regularizers=priors.Wavelet((-1, -2), 0.001), i=5, m=True)
-    plain = bt.pics(kspace, maps, **regularized)
-    flagged = bt.pics(kspace, maps, **regularized, p=pattern, precond=True)
+    plain = ref.pics(kspace, maps, **regularized)
+    flagged = ref.pics(kspace, maps, **regularized, p=pattern, precond=True)
     assert torch.isfinite(flagged).all()
     assert not torch.equal(plain, flagged)

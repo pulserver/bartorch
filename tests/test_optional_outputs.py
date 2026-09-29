@@ -13,6 +13,7 @@ asked to print a search instead.
 import pytest
 import torch
 
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch._call import _WRITES_ITS_OPTIONAL_OUTPUT, _outputs
 from bartorch._catalogue import COMMANDS
@@ -46,7 +47,7 @@ def test_the_fit_returns_its_coefficients_rather_than_taking_the_process():
     # Without the output name this segfaulted inside BART's io bookkeeping,
     # on our call and on BART's own test case alike.
     times, echoes = _echoes()
-    made = bt.mobafit(times, echoes, G=True, m=3)
+    made = ref.mobafit(times, echoes, G=True, m=3)
     assert isinstance(made, torch.Tensor)
     # The R2S model fits three coefficients per voxel.  The data here is noise
     # and an exponential fitted to noise may well run away, so what is checked
@@ -62,7 +63,7 @@ def test_the_fit_recovers_a_decay_it_was_given():
     images = (signal.reshape(echoes, 1, 1, 1, 1, 1) * torch.ones(1, 1, 1, 1, n, n)).to(
         torch.complex64
     )
-    made = bt.mobafit(times.reshape(echoes, 1, 1, 1, 1, 1), images, G=True, m=3)
+    made = ref.mobafit(times.reshape(echoes, 1, 1, 1, 1, 1), images, G=True, m=3)
     fitted = made.reshape(-1, n, n)
     torch.testing.assert_close(fitted[1].real, torch.full((n, n), r2s), rtol=1e-2, atol=1e-3)
 

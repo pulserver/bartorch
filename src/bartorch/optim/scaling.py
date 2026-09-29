@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import torch
 
+from bartorch import _call
 from bartorch._dispatch import _ensure_ready, _lock
 from bartorch._lib import library
 from bartorch._operator import as_operand
+
+_estscaling = _call.build("estscaling", __name__)
 
 __all__ = ["data_scaling"]
 
@@ -35,8 +38,8 @@ def data_scaling(
     A : LinearOperator, default=None
         The encoding.  With one, the estimate used for a non-Cartesian
         acquisition: the spread of ``|A^H y|`` from its order statistics.
-        Without one, the k-space-centre estimate of
-        :func:`bartorch.tools.estscaling`, used for a Cartesian acquisition.
+        Without one, the k-space-centre estimate BART's ``estscaling``
+        makes, used for a Cartesian acquisition.
     percentile : float, default=None
         Take this percentile of the sorted magnitudes instead of BART's
         rule.
@@ -68,10 +71,8 @@ def data_scaling(
     >>> scale = optim.data_scaling(y)
     >>> x = optim.FISTA(priors.Wavelet((-1, -2), 0.01))((y / scale).squeeze(1), A)
     """
-    import bartorch.tools as bt
-
     if A is None:
-        estimate = bt.estscaling(y, **({} if percentile is None else {"percentile": percentile}))
+        estimate = _estscaling(y, **({} if percentile is None else {"percentile": percentile}))
         return float(estimate.reshape(-1)[0].abs())
 
     adjoint = A.adjoint(y)
