@@ -57,7 +57,7 @@ def test_the_factorised_convolution_is_the_3d_convolution_by_the_kernels_product
     kernel = torch.einsum("omt,miyx->oityx", T, S)
     # The spatial bias is spread by the temporal kernel over the frames that exist.
     reference = F.conv3d(x, kernel, bias=None, padding=1)
-    edge = torch.einsum("omt,m->ot", T, bs)
+    edge = torch.einsum("omk,m->ok", T, bs)
     spread = bt.reshape(1, -1, 1, 1, 1) + torch.stack(
         [sum(edge[:, k] * float(0 <= t + k - 1 < 6) for k in range(3)) for t in range(6)], -1
     ).reshape(1, 4, 6, 1, 1)
