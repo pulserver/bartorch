@@ -889,12 +889,30 @@ an app answers and what each of their flags means to it.  Everything else runs
 as the command, in this process, through the same `bartorch_command` the tools
 use.
 
-The two answer the same bits, so which one ran is a question about speed:
-`tests/test_cli.py` holds eight command lines through the app route against the
-same eight through the command route with `numpy.array_equal`.  `cli.route` is
-what says which it was.  An argument the reader does not express sends the
-whole command line to BART rather than being ignored, because the command
-declared it.
+An app answers `pics`, `mobafit` and `moba`, and either route writes the
+files the command writes, in its layout and units.  `pics` is held to the
+bits: its app configures BART's own iteration over BART's own operators, and
+`tests/test_cli.py` holds six command lines through the app route against the
+same six through the command route with `numpy.array_equal`.  `mobafit` and
+`moba` are held to a tolerance, because their apps fit TorchSim's models in
+TorchSim's bounded parameterisation: the same minimum reached by a different
+path.  `cli/_apps.py` writes BART's closed forms in TorchSim's variables --
+`-T` `(M0, R2)` as a multi-echo decay, `-I` `(M0, R1, c)` and `-L`
+`(Mss, M0, R1s)` as an inversion recovery with its efficiency free -- and
+converts the named maps back into rates in 1/s from times in seconds, and
+`moba`'s amplitudes into the units of the data scaling the command applies.
+Measured on the test phantoms, `mobafit` agrees with the command to 1e-05 of
+each coefficient's peak and `moba -T -l2` to 5e-03 in R2, and both with the
+rates the data was made from.  `cli.route` is what says which route ran.
+
+What a route cannot express exactly goes to BART: an argument the reader does
+not express sends the whole command line there rather than being ignored,
+because the command declared it.  That includes `-i`, which counts
+Gauss-Newton steps over BART's own coefficients and would stop a bounded fit
+short; `moba`'s `-C`, which counts FISTA iterations rather than conjugate
+gradients; `moba`'s default `-l1`, a wavelet term on the maps the app does not
+carry; the gradient-echo, diffusion and simulation models; and anything off a
+grid.
 
 An input file that is not there is the one thing the command line names itself.
 A BART command that fails while loading its arguments leaves the library unable
@@ -945,8 +963,8 @@ x86 one does not.
 `apps.mobafit` is where that decision shows on the surface: it is `mobafit`'s
 method -- the Gauss-Newton loop over the same linearized least-squares problem
 -- over a model that is TorchSim's, so it answers in named maps in their own
-units rather than in a stack of BART's coefficients, and it is the one app not
-held to its command's bits.  Its default of twenty Gauss-Newton steps is what a
+units rather than in a stack of BART's coefficients, and it and `apps.moba`
+are the apps not held to their commands' bits.  Its default of twenty Gauss-Newton steps is what a
 bounded parameterisation needs: the command affords five because `--scale`
 brings its coefficients to order one, and five over a bounded variable answer
 430 ms for a decay of 60 and one of 110 alike.

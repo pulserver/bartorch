@@ -82,8 +82,18 @@ ARGUMENT_KINDS = ("INFILE OUTFILE INOUTFILE CFL INT LONG ULONG FLOAT STRING VEC3
 
 
 def strip_comments(text: str) -> str:
+    """The source as the compiler reads it, as far as an option table goes.
+
+    A block under ``#if 0`` is not compiled, so its options are not the
+    command's; the other directives are dropped and what they guard is kept,
+    since which of their arms is compiled depends on the build.
+    """
     text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
-    return re.sub(r"//[^\n]*", " ", text)
+    text = re.sub(r"//[^\n]*", " ", text)
+    disabled = r"^[ \t]*#[ \t]*if[ \t]+0\b.*?^[ \t]*#[ \t]*endif\b[^\n]*"
+    text = re.sub(disabled, " ", text, flags=re.S | re.M)
+    directive = r"^[ \t]*#[ \t]*(?:if|ifdef|ifndef|elif|else|endif)\b[^\n]*"
+    return re.sub(directive, " ", text, flags=re.M)
 
 
 #: What a C escape means in a one-line description: a break is a space.

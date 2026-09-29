@@ -4,8 +4,10 @@
 answers what it answers, so a script that calls ``bart`` runs unchanged against
 ``bartorch``.  Where :mod:`bartorch.apps` has the pipeline, the command line is
 read into a Python call and the app runs; everywhere else the command itself
-runs, in this process.  The two answer the same bits, so which one ran is a
-question about speed.
+runs, in this process.  Either route writes the files the command writes, in
+its layout and units; ``pics`` answers the command's bits, and ``mobafit`` and
+``moba`` answer to the tolerance of a fit, because their apps fit TorchSim's
+models rather than BART's.
 
 An argument the reader does not express is not an error: the whole command line
 goes to BART instead, which is what declared it.  An input file that is not
@@ -23,7 +25,6 @@ from bartorch import _call
 from bartorch._catalogue import BART_VERSION, COMMANDS
 from bartorch._dispatch import run_command
 from bartorch._options import HELP_FLAGS, describe, options_by_name
-from bartorch.apps.pics import image_shape
 from bartorch.cli._apps import ADAPTERS
 from bartorch.cli._argv import Unsupported, parse
 
@@ -56,15 +57,17 @@ def _listing() -> str:
 def route(name: str, argv: list[str]) -> tuple[str, dict | None]:
     """Whether this command line runs as an app or as the command.
 
-    The decision needs the arrays, because which axes a ``-R`` bitmask names
-    depends on the image's rank, so the inputs are read here and handed on.
+    The decision needs the arrays -- which axes a ``-R`` bitmask names depends
+    on the image's rank, and what ``mobafit`` and ``moba`` fit depends on the
+    times they are given -- so the inputs are read here and handed on.
 
     Returns
     -------
     where : {'app', 'command'}
     plan : dict or None
-        What the app is called with and where its answer goes, or ``None``
-        under ``'command'``.
+        ``{'call': Call, 'outputs': [path, ...]}``: what the app is called
+        with and the files its answer is written to, or ``None`` under
+        ``'command'``.
     """
     adapter = ADAPTERS.get(name)
     if adapter is None:
@@ -73,17 +76,15 @@ def route(name: str, argv: list[str]) -> tuple[str, dict | None]:
     command = COMMANDS[name]
     try:
         options, files = parse(name, argv)
-        if len(files) != len(command.arguments):
+        required = sum(argument.required for argument in command.arguments)
+        if not required <= len(files) <= len(command.arguments):
             raise Unsupported(f"{name} takes {len(command.arguments)} files, got {len(files)}")
 
-        inputs = [
-            read(path)
-            for path, argument in zip(files, command.arguments)
-            if argument.kind == "INFILE"
-        ]
-        outputs = [
-            path for path, argument in zip(files, command.arguments) if argument.kind == "OUTFILE"
-        ]
+        # BART fills its positional arguments in order, so the optional ones
+        # a command line leaves out are the trailing ones.
+        given = list(zip(files, command.arguments))
+        inputs = [read(path) for path, argument in given if argument.kind == "INFILE"]
+        outputs = [path for path, argument in given if argument.kind == "OUTFILE"]
         # An option that names a file is an array like any other argument, so
         # it is loaded before the reader sees it.
         for keyword, values in options.items():
@@ -91,13 +92,7 @@ def route(name: str, argv: list[str]) -> tuple[str, dict | None]:
             if option is not None and option.kind == "INFILE":
                 options[keyword] = [read(path) for path in values]
 
-        trajectory = options.get("t", [None])[-1]
-        shape = image_shape(inputs[0], inputs[1], trajectory)
-        return "app", {
-            "inputs": inputs,
-            "outputs": outputs,
-            "arguments": adapter(options, len(shape)),
-        }
+        return "app", {"call": adapter(options, inputs, len(outputs)), "outputs": outputs}
     except (Unsupported, OSError, ValueError):
         # An argument the reader cannot express, or a file it cannot read, is
         # the command's to answer: it declared them, and its message is the
@@ -162,8 +157,10 @@ def _run_app(name: str, plan: dict) -> int:
     from bartorch import apps
     from bartorch.io import writecfl
 
-    answer = getattr(apps, name)(*plan["inputs"], **plan["arguments"])
-    writecfl(plan["outputs"][0], answer.detach().cpu().numpy().T)
+    call = plan["call"]
+    answer = getattr(apps, name)(*call.arguments, **call.keywords)
+    for path, array in zip(plan["outputs"], call.written(answer)):
+        writecfl(path, array.detach().cpu().numpy().T)
     return 0
 
 

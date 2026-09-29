@@ -32,8 +32,10 @@ jobs:
             python-version: "3.14"
             cc: gcc-14
             # The wheel's build: DUCC0 in the library, and beside it FINUFFT
-            # modules on oneMKL, which the mkl extra puts in the process.
-            extras: "[mkl]"
+            # modules on oneMKL, which the mkl extra puts in the process.  The
+            # correction extras are here so that the job measuring coverage
+            # runs the resampling and susceptibility paths the others skip.
+            extras: "[mkl,correct,pyhysco]"
             # One job measures coverage for Codecov; the rest only test.
             coverage: true
           - os: macos-latest

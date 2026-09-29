@@ -292,7 +292,7 @@ term = priors.TotalVariation(axes=(-1, -2), weight=0.001)
 
 start = time.perf_counter()
 reconstruction = apps.pics(
-    measured[..., None], maps, traj=trajectory, regularizers=term, solver="admm", maxiter=50
+    measured, maps, traj=trajectory, regularizers=term, solver="admm", maxiter=50
 )
 print(f"pics: {time.perf_counter() - start:.2f} s")
 
