@@ -56,6 +56,7 @@ _SIMULATED = (
 
 #: Commands without a public wrapper, and why.
 PRIVATE: dict[str, str] = {
+    "window": "bartorch.hann_window, fermi_window and apodize cover it",
     "bart": "the dispatcher that runs the other commands",
     "ismrmrd": "needs libismrmrd, which this build does not compile",
     **dict.fromkeys(

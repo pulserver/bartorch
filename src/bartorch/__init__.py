@@ -16,6 +16,7 @@ from bartorch import (
     interop,
     interp,
     io,
+    kspace,
     learning,
     linop,
     nlop,
@@ -30,6 +31,7 @@ from bartorch._dispatch import BartError
 from bartorch._settings import *  # noqa: F401,F403
 from bartorch.fourier import *  # noqa: F401,F403
 from bartorch.interp import *  # noqa: F401,F403
+from bartorch.kspace import *  # noqa: F401,F403
 from bartorch.thresh import *  # noqa: F401,F403
 from bartorch.util import *  # noqa: F401,F403
 from bartorch.wavelet import *  # noqa: F401,F403
@@ -55,6 +57,7 @@ __all__ = [
     *_settings.__all__,
     *fourier.__all__,
     *interp.__all__,
+    *kspace.__all__,
     *thresh.__all__,
     *util.__all__,
     *wavelet.__all__,

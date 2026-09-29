@@ -84,8 +84,23 @@ deepinv = [
 mkl = [
     "mkl>=2024; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
+# SimpleITK resamples for bias field and gradient nonlinearity correction, and
+# registers navigator planes; it is imported by the functions that use it.
+correct = [
+    "SimpleITK>=2.3",
+]
+motion = [
+    "SimpleITK>=2.3",
+]
+# PyHySCO is GPL-3.0-only: installing it is the user's decision, it is never
+# distributed with bartorch, and `tools.correct_susceptibility` imports it only
+# when called.
+pyhysco = [
+    "PyHySCO",
+]
 dev = [
     "pytest>=7",
+    "SimpleITK>=2.3",
     # tests/test_docstrings.py reads the docstrings as the reference does.
     "numpydoc>=1.6",
     "ruff",
