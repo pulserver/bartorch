@@ -39,6 +39,9 @@ bartorch's own executor built from BART's operators.
 - BART's reconstructions (`pics`, `moba`, `mobafit`, POCSENSE) as pipelines of
   operators and solvers, and its calibration, sampling and simulation commands
   (`ecalib`, `nlinv`, `traj`, `phantom`, ...) as functions of tensors.
+- Corrections outside the reconstruction (EPI ghosting, bias field, gradient
+  nonlinearity, off-resonance and susceptibility distortion) and rigid motion
+  estimation from navigators.
 - The `bartorch` command line, which accepts the arguments of `bart`.
 - MRI encoding operators — Cartesian, non-Cartesian and wave-encoded SENSE,
   off-resonance correction — composed with `@` and `+` into single BART operators.
@@ -95,8 +98,10 @@ gives the references and what else a reproducible report records.
 
 ## License
 
-bartorch is MIT-licensed.  The embedded BART (BSD-3-Clause) and the vendored
-pocketfft (BSD-3-Clause) and BlocksRuntime (MIT or NCSA) keep their own licenses; see
+bartorch is MIT-licensed.  The embedded BART (BSD-3-Clause) and FINUFFT
+(Apache-2.0), the libraries FINUFFT's build compiles in with it, and the
+vendored pocketfft (BSD-3-Clause) and BlocksRuntime (MIT or NCSA) keep their
+own licenses; see
 [License and third-party notices](https://pulserver.github.io/bartorch/latest/misc/license.html).
 bartorch is an independent project, not affiliated with or endorsed by the BART
 developers, the PyTorch Foundation or The Linux Foundation.  The logo combines
