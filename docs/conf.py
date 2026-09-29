@@ -236,7 +236,10 @@ sphinx_gallery_conf = {
     "examples_dirs": ["examples"],
     "gallery_dirs": ["auto_examples"],
     # Searched against each script's path; nothing matches the second.
-    "filename_pattern": r".*\.py" if EXECUTE_EXAMPLES else r"(?!)",
+    # BARTORCH_DOCS_PATTERN narrows the run to the examples it matches.
+    "filename_pattern": os.environ.get("BARTORCH_DOCS_PATTERN", r".*\.py")
+    if EXECUTE_EXAMPLES
+    else r"(?!)",
     "nested_sections": True,
     "subsection_order": ExplicitOrder(GALLERY_SECTIONS),
     "within_subsection_order": "FileNameSortKey",
@@ -245,6 +248,10 @@ sphinx_gallery_conf = {
     # partner along with the rest of the in-file configuration comments, and
     # the pass below needs those markers to know what to keep off the page.
     "remove_config_comments": False,
+    # matplotlib's defaults, then the figure style of gallery_style.py, before
+    # every example; sphinx-gallery's own "matplotlib" reset would drop the
+    # style again.
+    "reset_modules": ("gallery_style.reset", "seaborn"),
 }
 
 
