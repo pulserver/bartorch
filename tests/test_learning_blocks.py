@@ -345,3 +345,76 @@ def test_calibrating_unit_normal_errors_gives_the_normal_quantile():
     factor = learning.calibrate(error, torch.ones_like(error), coverage=0.9)
     assert math.isclose(factor, norm.ppf(0.95), rel_tol=1e-2)
     assert math.isinf(learning.calibrate(error[:5], torch.ones(5), coverage=0.9))
+
+
+# --- what each piece refuses ----------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("build", "reason"),
+    [
+        (lambda: learning.UNet(2, spatial=1), "2 or 3"),
+        (lambda: learning.UNet(2, spatial=2, widths=()), "at least one level"),
+        (lambda: learning.UNet(2, spatial=2, widths=(8,))(torch.randn(1, 2, 8)), "is not that"),
+        (
+            lambda: learning.UNet(2, spatial=2, widths=(8,), noise=True)(
+                torch.randn(3, 2, 8, 8), sigma=torch.ones(2)
+            ),
+            "one per item",
+        ),
+        (
+            lambda: learning.UNet(2, spatial=2, widths=(8,), classes=2)(torch.randn(1, 2, 8, 8)),
+            "takes a label",
+        ),
+        (
+            lambda: learning.UNet(2, spatial=2, widths=(8,), steps=True)(
+                torch.randn(1, 2, 8, 8), step=0, label=0
+            ),
+            "not conditioned on a class",
+        ),
+        (
+            lambda: learning.UNet(2, spatial=2, widths=(8,))(torch.randn(1, 2, 8, 8), label=0),
+            "not conditioned on anything",
+        ),
+        (lambda: learning.ComplexNet(normalize="peak", net=3), "net\\(x\\)"),
+        (lambda: learning.ComplexNet(nn.Identity(), normalize="max"), "normalize is one of"),
+        (lambda: learning.ComplexNet(nn.Identity(), spatial=2)(torch.randn(4, 4)), "is not that"),
+        (
+            lambda: learning.ComplexNet(lambda v: v[:, :1], spatial=2)(torch.randn(1, 4, 4)),
+            "returns the channels",
+        ),
+        (lambda: learning.Patchwise(nn.Identity(), (4,)), "2 or 3 axes"),
+        (lambda: learning.Patchwise(nn.Identity(), (4, 4), batch=0), "at least one patch"),
+        (
+            lambda: learning.Patchwise(nn.Identity(), (4, 4), device="cpu")(torch.randn(4, 4)),
+            "patched axes",
+        ),
+        (lambda: learning.split(torch.ones(8, 8), 1.0), "strictly between"),
+        (lambda: learning.split(torch.ones(8, 8), density="radial"), "density is one of"),
+        (lambda: learning.split(torch.ones(8, 8), keep=(2,)), "an extent per axis"),
+        (lambda: learning.moments(lambda: torch.ones(2), samples=1), "at least two"),
+        (lambda: learning.calibrate(torch.ones(2), torch.ones(2), coverage=1.0), "strictly"),
+        (lambda: learning.calibrate(torch.ones(2), torch.ones(3)), "an error and a spread"),
+        (lambda: learning.Unrolled(nn.Identity(), 0), "at least one iteration"),
+    ],
+)
+def test_misuse_is_refused_with_its_reason(build, reason):
+    with pytest.raises((ValueError, TypeError), match=reason):
+        build()
+
+
+def test_a_patchwise_network_is_called_without_a_noise_level_when_given_none():
+    net = _Keep()
+    made = learning.Patchwise(net, (4, 4), device="cpu", shift=False)(torch.randn(1, 2, 8, 8))
+    assert made.shape == (1, 2, 8, 8)
+    assert net.sigma is None
+    assert "overlap=True" in repr(learning.Patchwise(net, (4, 4), device="cpu"))
+
+
+def test_dropout_randomises_training_and_not_evaluation():
+    torch.manual_seed(0)
+    net = _perturbed(learning.UNet(2, spatial=2, widths=(8, 16), dropout=0.5))
+    x = torch.randn(1, 2, 8, 8)
+    assert not torch.equal(net(x), net(x))
+    net.eval()
+    assert torch.equal(net(x), net(x))

@@ -69,6 +69,21 @@ def test_greedy_training_needs_a_detached_stack_and_a_block_whose_image_it_can_r
         stage._backward({"y": A(x), "A": A, "target": x})
 
 
+@pytest.mark.parametrize(
+    ("settings", "reason"),
+    [({"stage": "pretrain"}, "stage is one of"), ({"accumulate": 0}, "at least one item")],
+)
+def test_a_stage_is_refused_what_it_does_not_define(settings, reason):
+    with pytest.raises(ValueError, match=reason):
+        training.Reconstruction(_Gain(), **{"stage": "denoiser", **settings})
+
+
+def test_a_random_gain_refuses_an_odd_channel_count():
+    subject = torchio.Subject(image=torchio.ScalarImage(tensor=torch.randn(3, 4, 4, 4)))
+    with pytest.raises(ValueError, match="even number"):
+        training.RandomGain()(subject)
+
+
 def test_the_batch_stays_where_the_dataset_put_it():
     stage = training.Reconstruction(_Gain(), "denoiser")
     batch = [{"input": torch.ones(2)}]
@@ -125,7 +140,7 @@ def test_the_unrolled_stages_train_in_a_trainer():
     ):
         before = prior.denoiser.gain.detach().clone()
         trainer = _trainer(max_epochs=2)
-        trainer.fit(training.Reconstruction(model, stage, accumulate=2), loader, loader)
+        trainer.fit(training.Reconstruction(model, stage, accumulate=2, clip=1.0), loader, loader)
         assert "val_loss" in trainer.callback_metrics
         assert not torch.equal(before, prior.denoiser.gain.detach())
 
