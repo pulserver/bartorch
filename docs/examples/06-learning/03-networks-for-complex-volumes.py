@@ -176,7 +176,7 @@ weights = sum(p.numel() for p in net.parameters())
 print(f"{weights} weights, {4 * weights / 1e6:.2f} MB in single precision")
 
 with torch.no_grad():
-    print("untrained network returns its input:", torch.allclose(denoiser(noisy[None])[0], noisy))
+    print("untrained network returns its input:", torch.allclose(denoiser(noisy[None])[0], noisy, atol=1e-5))
 
 # %%
 #
@@ -190,13 +190,18 @@ with torch.no_grad():
 # :class:`~bartorch.learning.training.RandomGain`, a complex gain shared by the
 # contrasts, which varies the overall scale and phase. An intensity
 # transformation applied to the real and imaginary channels separately, such
-# as a gamma correction, would not.
+# as a gamma correction, would not. The phase is varied over a limited range:
+# a network trained over every global phase has to learn to commute with a
+# rotation of its real and imaginary channels, which takes more training than
+# this lesson runs.
 #
 # Each patch becomes a training pair when a new draw of noise is added to it,
 # so the network sees a different noise realization at every epoch.
 
 subject = tio.Subject(image=tio.ScalarImage(tensor=learning.as_real(train_volume).flatten(0, 1)))
-augment = tio.Compose([tio.RandomFlip(axes=(0, 1, 2)), training.RandomGain(log_scale=0.2)])
+augment = tio.Compose(
+    [tio.RandomFlip(axes=(0, 1, 2)), training.RandomGain(phase=0.3, log_scale=0.2)]
+)
 queue = tio.Queue(
     tio.SubjectsDataset([subject], transform=augment),
     max_length=64,
@@ -289,12 +294,17 @@ plt.show()
 
 # %%
 #
-# The departure of the fixed grid is concentrated on the planes between
-# patches; that of the averaged random grids is spread evenly and smaller.
-# Inside an iteration a single random grid per call is enough, since each
-# iteration applies the denoiser at a different offset. The second moment
+# The departure of the fixed grid lies on the planes between patches, the same
+# planes at every call. A shifted grid covers the volume with one more patch
+# along each axis and so has more boundaries, and each call departs further
+# from the whole-volume result; but the boundaries move from call to call, and
+# the average of eight calls spreads the departure across the volume instead
+# of concentrating it on planes. Neither changes the error against the
+# reference beyond the third digit. Inside an iteration, which applies the
+# denoiser once per step, a single shifted grid per call is enough: no plane
+# receives the boundary error at every step. The variance
 # :func:`~bartorch.learning.moments` returns is a map of how much the result
-# depends on where the patches fall, one of the uncertainty estimates of
+# depends on where the patches fall, one of the spreads of
 # :doc:`07-uncertainty`.
 
 # %%
