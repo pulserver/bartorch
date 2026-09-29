@@ -38,6 +38,18 @@ repeatedly. The network supplies the proximal step, through
 :class:`bartorch.priors.ImplicitPrior`; the penalty parameter :math:`\rho` is a
 parameter of the block and is trained with the network's weights.
 
+**Learning objectives**
+
+- Place a network in the proximal step of :class:`bartorch.optim.ADMMBlock`
+  through :class:`bartorch.priors.ImplicitPrior`.
+- Unroll the iteration with :class:`bartorch.learning.Unrolled` and train it
+  end to end with ``lightning``.
+- Reduce the memory of a deeper unrolled network by checkpointing or by
+  per-iteration training.
+
+It follows :doc:`01-plug-and-play`, which used a pretrained denoiser without
+training. This lesson ends the course; the standalone examples of
+:doc:`../07-tours/index` apply the package to individual problems.
 """
 
 # %%
@@ -111,7 +123,7 @@ _ = torch.manual_seed(0)
 #
 # Axial slices of one BrainWeb subject, each converted into a
 # :math:`T_1`-weighted spin-echo image as in
-# :doc:`../01-basics/01-from-kspace-to-image` and given a smooth phase, so that
+# :doc:`../01-basics/02-from-kspace-to-image` and given a smooth phase, so that
 # no step below depends on the image being real. The slices are split into
 # training and validation sets by position rather than at random: the first
 # twenty-four slices train and the last eight validate.

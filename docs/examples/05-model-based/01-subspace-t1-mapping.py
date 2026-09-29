@@ -1,7 +1,7 @@
 """
-=================================
+===============================
 Subspace-constrained T1 mapping
-=================================
+===============================
 
 An inversion-recovery FLASH acquisition of four hundred frames, one spoke each,
 reconstructed into the coefficients of a signal subspace and fitted for
@@ -24,8 +24,20 @@ The subspace is estimated from a simulated dictionary, which is also what the
 parameter fit matches against.
 
 The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/01-from-kspace-to-image`; the cell that does it is hidden on
+:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.
+
+**Learning objectives**
+
+- Simulate a signal dictionary and extract a low-dimensional subspace from
+  it.
+- Include a subspace basis in a non-Cartesian encoding.
+- Reconstruct coefficient maps under a locally low-rank penalty and estimate
+  :math:`T_1` from them by dictionary matching.
+
+It follows :doc:`../04-non-cartesian/03-dynamic-golden-angle`, whose frames
+are constrained here by a linear signal model. The next lesson,
+:doc:`02-quantitative-models`, uses a nonlinear one.
 """
 
 # %%
@@ -167,7 +179,7 @@ FLIP = 6.0  # degrees
 # ``(entries, frames)``.
 #
 # The same object serves the fit: handed to :func:`bartorch.nlop.Bloch` it is
-# a model operator, which is how :doc:`../04-model-based/02-quantitative-models`
+# a model operator, which is how :doc:`02-quantitative-models`
 # solves for the maps directly. Here only its forward evaluation is wanted.
 
 t1_values = torch.linspace(100.0, 4500.0, 200)  # ms
@@ -211,7 +223,7 @@ plt.show()
 
 # sphinx_gallery_start_ignore
 # The phantom, the relaxation maps behind it and the coil sensitivities, built
-# as :doc:`/auto_examples/01-basics/01-from-kspace-to-image` builds them.
+# as :doc:`/auto_examples/01-basics/02-from-kspace-to-image` builds them.
 SLICE = 90  # axial, through the lateral ventricles
 TISSUES = (1, 2, 3, 4, 5, 6, 8)  # everything the table gives relaxation times
 MARGIN = 0.25  # what the field of view leaves around the head
@@ -424,7 +436,7 @@ plt.show()
 # within the range of :math:`T_1` the dictionary covers.
 #
 # Estimating the parameters directly from k-space, without an intermediate
-# series or a subspace, is :doc:`../04-model-based/02-quantitative-models`.
+# series or a subspace, is :doc:`02-quantitative-models`.
 
 # %%
 #

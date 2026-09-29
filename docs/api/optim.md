@@ -90,5 +90,5 @@ penalty weights are `torch.nn.Parameter` objects, frozen until
 | --- | --- |
 | {obj}`~bartorch.optim.data_scaling` | BART's estimate of the data scale by which `pics` divides the data before it iterates |
 
-{doc}`../auto_examples/01-basics/02-operators-and-solvers` assembles a BART
+{doc}`../auto_examples/03-regularization/02-operators-and-solvers` assembles a BART
 reconstruction from an operator, a term and a solver.

@@ -1,35 +1,32 @@
 Examples
 ========
 
-Reconstruction workflows written with bartorch, grouped by what they build.
+A course in reconstruction with bartorch, in six sections read in order, and a
+set of standalone tours.
 
-**Basics** covers the data layout, BART's reconstruction through
-:mod:`bartorch.apps`, the same reconstruction assembled from an encoding
-operator and a solver, and noise prewhitening.
+Each lesson of the course states its aim and learning objectives, and builds
+on the lessons before it: **Basics** covers BART's arrays and commands and a
+Cartesian reconstruction; **Parallel imaging** the coil sensitivities and the
+channel noise; **Regularization** the penalty terms and the operators and
+solvers a reconstruction is assembled from; **Non-Cartesian imaging** the
+non-uniform transform, radial SENSE and dynamic imaging; **Model-based
+reconstruction** subspace and signal models in the encoding; and **Learned
+regularization** denoisers and unrolled networks in BART's iterations. The
+**Tours** show the corrections and motion tracking of :mod:`bartorch.tools`,
+each on its own.
 
-**Non-Cartesian imaging** covers trajectories, the non-uniform Fourier
-transform and its point spread function, and a radial SENSE reconstruction.
-
-**Applications** covers two problems whose encoding is more than sampling and
-coils: a dynamic series reconstructed from golden-angle radial data, and a
-subspace-constrained :math:`T_1` mapping experiment.
-
-**Model-based reconstruction** estimates the unknowns jointly with the coil
-sensitivities, or estimates parameter maps directly from k-space through a
-signal model.
-
-**Deep learning** replaces a specified regularizer with a learned one, by
-unrolling a BART iteration and training its proximal step through it.
-
-The concepts these examples use -- the encoding model, regularized
-least squares, non-uniform transforms, nonlinear inversion -- are introduced in
+The concepts the examples use -- the encoding model, regularized least
+squares, non-uniform transforms, nonlinear inversion -- are introduced in
 :doc:`../explanation/index`.
 
-Running them needs a built ``bartorch``, ``brainweb-dl``, which every example
-builds its phantom from, and ``matplotlib`` and ``cmap`` for the figures::
+Running them needs a built ``bartorch``, ``brainweb-dl``, which downloads the
+BrainWeb phantoms several examples build their images from, and
+``matplotlib`` and ``cmap`` for the figures::
 
     pip install bartorch brainweb-dl matplotlib cmap
 
-The deep-learning section additionally requires::
+The learned-regularization section additionally requires ``lightning``,
+``torchio``, ``monai`` and ``deepinv``, and downloads the DRUNet weights
+``deepinv`` distributes; the tours require ``SimpleITK``::
 
-    pip install lightning torchio monai deepinv
+    pip install lightning torchio monai deepinv SimpleITK

@@ -126,6 +126,21 @@ GALLERY_BACKREFERENCES = {
     "bartorch.tools.traj",
     "bartorch.tools.psf",
     "bartorch.tools.whiten",
+    "bartorch.tools.caldir",
+    "bartorch.apps.moba",
+    "bartorch.apps.mobafit",
+    "bartorch.estimate_density",
+    "bartorch.remove_readout_oversampling",
+    "bartorch.apodize",
+    "bartorch.tools.estimate_epi_phase",
+    "bartorch.tools.correct_lines",
+    "bartorch.tools.epi_ramp_operator",
+    "bartorch.tools.bias_field_correct",
+    "bartorch.tools.Gradunwarp",
+    "bartorch.tools.fit_transfer",
+    "bartorch.tools.deblur",
+    "bartorch.tools.reconstruct_navigator",
+    "bartorch.tools.NavigatorMotionTracker",
 }
 
 autosummary_context = {
@@ -201,10 +216,12 @@ copybutton_prompt_is_regexp = True
 #: The gallery's sections, in the order a reader meets them.
 GALLERY_SECTIONS = [
     "examples/01-basics",
-    "examples/02-non-cartesian",
-    "examples/03-applications",
-    "examples/04-model-based",
-    "examples/05-deep-learning",
+    "examples/02-parallel-imaging",
+    "examples/03-regularization",
+    "examples/04-non-cartesian",
+    "examples/05-model-based",
+    "examples/06-learning",
+    "examples/07-tours",
 ]
 
 #: Whether the examples are executed, which `./scripts/build_docs.sh --execute`

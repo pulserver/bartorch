@@ -94,5 +94,5 @@ through callbacks, one call into Python per application.  A subclass that
 defines `forward` and `adjoint` in Python is equivalent.
 
 Complete reconstructions with these operators are in
-{doc}`../auto_examples/01-basics/02-operators-and-solvers` and
-{doc}`../auto_examples/02-non-cartesian/02-radial-sense`.
+{doc}`../auto_examples/03-regularization/02-operators-and-solvers` and
+{doc}`../auto_examples/04-non-cartesian/02-radial-sense`.

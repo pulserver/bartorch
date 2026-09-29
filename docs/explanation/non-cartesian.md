@@ -118,7 +118,7 @@ coil and one multiplication; the alternative, a forward and an adjoint NUFFT,
 spreads and interpolates every sample of every coil.  `toeplitz=False` on an
 operator, or BART's `pics --no-toeplitz`, selects the two transforms instead.
 The two forms differ by an amount of the order of the transform's tolerance,
-as {doc}`../auto_examples/02-non-cartesian/01-trajectories-and-transforms`
+as {doc}`../auto_examples/04-non-cartesian/01-trajectories-and-transforms`
 measures.
 
 ## Backends and refusals
@@ -146,7 +146,7 @@ ordering, successive spokes are separated by $\pi$ times the reciprocal of
 the golden ratio, about $111.25°$, and any number of consecutive spokes covers
 k-space approximately uniformly.[^winkelmann]  A continuously acquired
 golden-angle series can therefore be divided into frames after the
-acquisition, as {doc}`../auto_examples/03-applications/01-dynamic-golden-angle`
+acquisition, as {doc}`../auto_examples/04-non-cartesian/03-dynamic-golden-angle`
 does.
 
 ## References

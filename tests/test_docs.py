@@ -135,14 +135,12 @@ def test_the_colab_notebook_is_the_gallery_notebook_after_a_setup_cell(tmp_path)
     """The downloadable notebook is left alone; the Colab copy installs first."""
     colab = _colab()
     notebook = {"cells": [{"cell_type": "code", "source": ["import bartorch"]}], "nbformat": 4}
-    source = tmp_path / "docs" / "auto_examples" / "05-deep-learning" / "01-modl.ipynb"
+    source = tmp_path / "docs" / "auto_examples" / "06-learning" / "01-modl.ipynb"
     source.parent.mkdir(parents=True)
     source.write_text(json.dumps(notebook))
 
     assert colab.write(tmp_path / "docs", tmp_path / "site", "v1.2.3") == 1
-    copy = json.loads(
-        (tmp_path / "site" / "_colab" / "05-deep-learning" / "01-modl.ipynb").read_text()
-    )
+    copy = json.loads((tmp_path / "site" / "_colab" / "06-learning" / "01-modl.ipynb").read_text())
     assert json.loads(source.read_text()) == notebook
     install = "".join(copy["cells"][1]["source"])
     assert install.startswith("%pip install")

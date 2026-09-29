@@ -29,5 +29,5 @@ through an unrolled iteration and the memory each backward strategy uses.
 | {obj}`~bartorch.learning.as_real` | Real and imaginary parts on a new leading axis |
 | {obj}`~bartorch.learning.as_complex` | Inverse of {obj}`~bartorch.learning.as_real` |
 
-{doc}`../auto_examples/05-deep-learning/01-modl-with-admm` trains an unrolled
+{doc}`../auto_examples/06-learning/02-modl-with-admm` trains an unrolled
 network built from these objects.

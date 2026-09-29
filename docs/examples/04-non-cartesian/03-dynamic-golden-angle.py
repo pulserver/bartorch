@@ -1,7 +1,7 @@
 """
-================================
+===============================
 Dynamic golden-angle radial MRI
-================================
+===============================
 
 A continuously acquired golden-angle radial scan reconstructed as a time
 series, with a temporal regularizer compensating for the undersampling of each
@@ -15,13 +15,24 @@ Thirteen spokes across a 128 matrix is fifteenfold undersampled, and no frame
 is invertible on its own; the series is recoverable because the frames are not
 independent, which a total variation penalty along time states.
 
-This is the encoding of :doc:`../02-non-cartesian/02-radial-sense` with one
+This is the encoding of :doc:`02-radial-sense` with one
 axis added: the image is ``(frames, y, x)``, the trajectory indexes frames as
 well as shots, and the sensitivities are shared across all of them.
 
 The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/01-from-kspace-to-image`; the cell that does it is hidden on
+:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.
+
+**Learning objectives**
+
+- Divide a continuous golden-angle acquisition into frames after the fact.
+- Build an encoding whose image and trajectory carry a frame axis.
+- Regularize along time with a total variation term over the frame axis, and
+  compare frame-by-frame gridding with the joint reconstruction.
+
+It follows :doc:`02-radial-sense`. The next section begins with
+:doc:`../05-model-based/01-subspace-t1-mapping`, which constrains the time
+axis by a signal model.
 """
 
 # %%
@@ -162,7 +173,7 @@ CLASSES = {"grey matter": ("GM", 0.8), "white matter": ("WM", 0.25)}
 
 # sphinx_gallery_start_ignore
 # The phantom, the relaxation maps behind it and the coil sensitivities, built
-# as :doc:`/auto_examples/01-basics/01-from-kspace-to-image` builds them.
+# as :doc:`/auto_examples/01-basics/02-from-kspace-to-image` builds them.
 SLICE = 90  # axial, through the lateral ventricles
 TISSUES = (1, 2, 3, 4, 5, 6, 8)  # everything the table gives relaxation times
 MARGIN = 0.25  # what the field of view leaves around the head

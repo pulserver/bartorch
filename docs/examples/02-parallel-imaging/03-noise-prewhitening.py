@@ -21,8 +21,18 @@ independent noise realizations added to one noise-free acquisition, and the
 standard deviation across repetitions is the noise of each voxel.
 
 The phantom and the coil sensitivities are built as in
-:doc:`01-from-kspace-to-image`; the cell that does it is hidden on this page
+:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on this page
 and present in the script this page can be downloaded as.
+
+**Learning objectives**
+
+- Estimate the channel noise covariance from a noise scan and whiten the data
+  with :func:`bartorch.tools.whiten`.
+- Measure a signal-to-noise ratio map by the pseudo-replica method.
+- Quantify the change in SNR that prewhitening gives a SENSE reconstruction.
+
+It follows :doc:`02-nonlinear-inversion`. The next section starts with
+:doc:`../03-regularization/01-regularized-reconstruction`.
 """
 
 # %%
@@ -147,7 +157,7 @@ COILS = 8
 
 # sphinx_gallery_start_ignore
 # The phantom, the relaxation maps behind it and the coil sensitivities, built
-# as :doc:`/auto_examples/01-basics/01-from-kspace-to-image` builds them.
+# as :doc:`/auto_examples/01-basics/02-from-kspace-to-image` builds them.
 SLICE = 90  # axial, through the lateral ventricles
 TISSUES = (1, 2, 3, 4, 5, 6, 8)  # everything the table gives relaxation times
 MARGIN = 0.25  # what the field of view leaves around the head

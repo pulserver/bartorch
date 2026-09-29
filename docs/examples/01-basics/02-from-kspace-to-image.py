@@ -22,6 +22,24 @@ model and :doc:`../../explanation/inverse-problems` the estimator.
 
 Shapes here are C order, so a Cartesian k-space is ``(coils, z, y, x)`` and an
 axis argument indexes that shape; see :doc:`../../guides/user/conventions`.
+
+The lesson runs the Cartesian pipeline once, from simulated k-space to a
+reconstructed image; the sections after it examine calibration,
+regularization and the operator form of each step in turn. It builds on the
+conventions of :doc:`01-tensors-and-commands`.
+
+**Learning objectives**
+
+- Simulate a multichannel Cartesian acquisition from a tissue segmentation.
+- Undersample the phase-encoding direction with a variable-density pattern
+  around a fully sampled calibration region.
+- Compress the channels with :func:`bartorch.tools.cc` and estimate their
+  sensitivities with :func:`bartorch.tools.ecalib`.
+- Reconstruct with :func:`bartorch.apps.pics`, with and without a sparsity
+  penalty, and quantify the result by NRMSE and SSIM.
+
+The next lesson, :doc:`../02-parallel-imaging/01-coil-calibration`, compares
+sensitivity estimators.
 """
 
 # %%
@@ -413,9 +431,10 @@ plt.show()
 # How much it removes depends on its weight, which is chosen here and not
 # estimated: a larger one removes more noise and more texture with it.
 #
-# The same reconstruction written as an encoding operator and a solver, rather
-# than as a call to a BART application, is the subject of
-# :doc:`02-operators-and-solvers`.
+# The sensitivities and the regularization weight were fixed here. The next
+# lesson, :doc:`../02-parallel-imaging/01-coil-calibration`, compares
+# sensitivity estimators, and
+# :doc:`../03-regularization/01-regularized-reconstruction` varies the weight.
 
 # %%
 #

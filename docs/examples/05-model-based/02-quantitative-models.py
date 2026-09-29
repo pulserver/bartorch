@@ -1,7 +1,7 @@
 """
-=====================================
+====================================
 Parameter maps straight from k-space
-=====================================
+====================================
 
 A multi-echo spin-echo acquisition fitted for :math:`T_2` in two ways: by
 reconstructing the echo images and fitting them afterwards, and by putting the
@@ -22,11 +22,24 @@ three maps rather than eight images, and every echo constrains all of them.
 
 The model here is :class:`bartorch.nlop.MultiEcho`, a TorchSim simulator as a
 BART nonlinear operator; the solver is the Gauss-Newton loop of
-:doc:`01-nonlinear-inversion`, over a different model.
+:doc:`../02-parallel-imaging/02-nonlinear-inversion`, over a different model.
 
 The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/01-from-kspace-to-image`; the cell that does it is hidden on
+:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.
+
+**Learning objectives**
+
+- Represent a relaxation model as a TorchSim-backed
+  :class:`bartorch.nlop.SignalModel`.
+- Fit it to reconstructed images, and directly to k-space by composing it
+  with the encoding, with :class:`bartorch.nlop.IRGNM`.
+- Run the same fits through :func:`bartorch.apps.mobafit` and
+  :func:`bartorch.apps.moba`.
+
+It follows :doc:`01-subspace-t1-mapping`. The next section,
+:doc:`../06-learning/01-plug-and-play`, replaces a specified regularizer with a
+learned denoiser.
 """
 
 # %%
@@ -145,9 +158,9 @@ from brainweb_dl import get_mri
 
 import bartorch
 import bartorch.tools as bt
-from bartorch import linop, nlop, optim
+from bartorch import apps, linop, nlop, optim
 
-SIZE = 96
+SIZE = 64
 COILS = 8
 ECHOES = 8
 ACCELERATION = 4
@@ -166,7 +179,7 @@ ECHO_TIMES = torch.tensor([12.5 * (echo + 1) for echo in range(ECHOES)])  # ms
 
 # sphinx_gallery_start_ignore
 # The phantom, the relaxation maps behind it and the coil sensitivities, built
-# as :doc:`/auto_examples/01-basics/01-from-kspace-to-image` builds them.
+# as :doc:`/auto_examples/01-basics/02-from-kspace-to-image` builds them.
 SLICE = 90  # axial, through the lateral ventricles
 TISSUES = (1, 2, 3, 4, 5, 6, 8)  # everything the table gives relaxation times
 MARGIN = 0.25  # what the field of view leaves around the head
@@ -244,7 +257,7 @@ contrasts = (amplitude[None] * torch.exp(-ECHO_TIMES[:, None, None] / t2[None]))
 # draw, so the sets of missing phase encodes differ between echoes. The echoes are a batch of
 # the encoding rather than an axis inside it: the sensitivities are shared, the
 # transform is the same, and only the pattern differs, so the operator is the
-# Cartesian SENSE encoding of :doc:`../01-basics/02-operators-and-solvers` with
+# Cartesian SENSE encoding of :doc:`../03-regularization/02-operators-and-solvers` with
 # the per-echo pattern applied to its samples.
 
 # sphinx_gallery_start_ignore
@@ -292,17 +305,18 @@ print(f"unknowns {M.names}: {M.ishapes[0]} -> {M.oshapes[0]}")
 # ----------
 #
 # The first reconstructs the echo images by conjugate gradients and fits the
-# model to them. The second composes the model with the encoding and fits the
-# k-space. Both are the same Gauss-Newton loop with the same number of steps,
-# and they differ only in the forward operator that maps the unknowns to the
-# data.
+# model to them voxel by voxel, which is what :func:`bartorch.apps.mobafit`
+# does given the images. The second composes the model with the encoding and
+# fits the k-space with :class:`bartorch.nlop.IRGNM`. Both are Gauss-Newton
+# loops of twenty steps and differ in the forward operator that maps the
+# unknowns to the data.
 
 STEPS = 20
 
 start_time = time.perf_counter()
 images = optim.CG(maxiter=40)(data, E)
-two_step = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)(images, M, x0=start)
-print(f"reconstruct, then fit:  {time.perf_counter() - start_time:5.1f} s")
+two_step = apps.mobafit(images, M, iterations=STEPS, T2=80.0)
+print(f"reconstruct, then fit:     {time.perf_counter() - start_time:5.1f} s")
 
 start_time = time.perf_counter()
 model_based = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)(data, E @ M, x0=start)
@@ -313,10 +327,22 @@ print(f"model inside the operator: {time.perf_counter() - start_time:5.1f} s")
 # ``E @ M`` composes a linear operator with a nonlinear one; the derivative of
 # the composition at a point is the encoding applied to the derivative of the
 # model, which is the derivative a Gauss-Newton step requires.
+#
+# :func:`bartorch.apps.moba` assembles the same composition from the k-space,
+# the model, the sensitivities and the sampling pattern, and returns the maps
+# in their own units. It scales the data by the rule of
+# :func:`bartorch.optim.data_scaling` and regularizes each step towards the
+# starting maps rather than towards zero, so its result is not identical to
+# the fit above.
+
+start_time = time.perf_counter()
+one_call = apps.moba(measured, M, sensitivities, pattern=lines, iterations=STEPS, T2=80.0)
+print(f"apps.moba:                 {time.perf_counter() - start_time:5.1f} s")
 
 estimates = {
-    name: M.split(fit)["T2"]
-    for name, fit in (("reconstruct, then fit", two_step), ("model-based", model_based))
+    "reconstruct, then fit": two_step["T2"],
+    "model-based": M.split(model_based)["T2"],
+    "apps.moba": one_call["T2"],
 }
 
 for name, estimate in estimates.items():
@@ -329,15 +355,16 @@ print(f"{'phantom':>22}  median {float(t2[support].median()):5.1f} ms")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 3)
+figure, axes = panels(1, 4)
 for axis, values, title in (
     (axes[0, 0], t2, "phantom"),
     (axes[0, 1], estimates["reconstruct, then fit"], "reconstruct, then fit"),
     (axes[0, 2], estimates["model-based"], "model-based"),
+    (axes[0, 3], estimates["apps.moba"], "apps.moba"),
 ):
     parameter(axis, torch.where(support, values, torch.zeros(())).detach(), "T2")
     axis.set_title(title, fontsize=10)
-scalebar(figure, axes[0, 2], name="T2")
+scalebar(figure, axes[0, 3], name="T2")
 
 figure, axes = panels(1, 4)
 for column, echo in enumerate((0, 2, 4, 7)):
@@ -352,15 +379,17 @@ plt.show()
 # The echo images carry the residual aliasing of each echo's sampling, and the
 # voxel-wise fit that follows cannot separate it from signal decay, so it
 # propagates into the two-step :math:`T_2` map. Fitting the k-space constrains
-# the three maps with all eight echoes at once; the model, the solver and the
-# number of steps are the same in both routes, and the printed errors compare
-# the two maps with the phantom. The explanation of the model-based approach is
-# :doc:`../../explanation/nonlinear`.
+# the three maps with all eight echoes at once, and both model-based fits
+# reach a lower error than the two-step fit. The explanation
+# of the model-based approach is :doc:`../../explanation/nonlinear`.
 # The maps are drawn with the navia colormap [#fuderer]_.
 #
-# What this route also makes available is regularization of the maps rather
-# than of the images, since the maps are the solver's unknowns.
-# :func:`bartorch.apps.moba` runs this pipeline in one call.
+# Since the maps are the solver's unknowns, a regularizer passed to the
+# linearized problem -- the ``inner`` solver of :func:`bartorch.apps.moba` --
+# penalizes the maps rather than the echo images. Without ``sensitivities``,
+# :func:`bartorch.apps.moba` estimates the coils jointly with the maps, as
+# :doc:`../02-parallel-imaging/02-nonlinear-inversion` estimates them jointly
+# with an image.
 
 # %%
 #

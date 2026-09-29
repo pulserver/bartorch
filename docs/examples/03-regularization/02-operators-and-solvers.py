@@ -1,31 +1,37 @@
 """
-====================
-Nonlinear inversion
-====================
+=====================
+Operators and solvers
+=====================
 
-Estimating the image and the coil sensitivities together, from undersampled
-data whose fully sampled central region is too small for a separate
-calibration.
+The same reconstruction written as an encoding operator and a solver rather
+than as a call to a BART application.
 
-ESPIRiT [#espirit]_ estimates the sensitivities from a fully sampled region at
-the centre of k-space, and a linear reconstruction then uses them as known.
-Where the acquisition provides no such region, the sensitivities are unknowns
-like the image,
-and the forward model
+:func:`bartorch.apps.pics` builds three objects and runs BART's iteration
+with them: the encoding operator, the regularization terms, and the algorithm.
+:mod:`bartorch.linop` and :mod:`bartorch.optim` expose those three separately,
+for the reconstructions BART has no application for: an encoding with an extra
+factor in it, a solver reached from an outer loop, an operator defined in
+Python.
 
-.. math::
+This example builds the encoding of :doc:`../01-basics/02-from-kspace-to-image`, checks it
+against the definition of an adjoint, solves with it, and compares the result
+with the application. The phantom, the coil sensitivities and the sampling are
+that example's; the cell that builds them is hidden on this page and present in
+the script this page can be downloaded as.
 
-   y_c = P F (S_c \\cdot x)
+**Learning objectives**
 
-is bilinear rather than linear: it is a product of two unknowns. Nonlinear
-inversion (``nlinv``) [#nlinv]_ solves it by iteratively regularized
-Gauss-Newton [#bakushinsky]_, and
-the smoothness of the sensitivities, which constrains the factorization,
-enters as a weighting inside the model rather than as a penalty beside it.
+- Build :class:`bartorch.linop.CartesianSense` and read the plan it was
+  lowered into.
+- Check an operator's adjoint with the dot-product test.
+- Prepare data as ``pics`` does and reproduce :func:`bartorch.apps.pics` bit
+  for bit with :class:`bartorch.optim.FISTA`.
+- Compose operators, include one defined in Python, and differentiate
+  through an application.
 
-The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/01-from-kspace-to-image`; the cell that does it is hidden on
-this page and present in the script this page can be downloaded as.
+It follows :doc:`01-regularized-reconstruction`. The next section,
+:doc:`../04-non-cartesian/01-trajectories-and-transforms`, uses these
+operators off the Cartesian grid.
 """
 
 # %%
@@ -143,16 +149,16 @@ from brainweb_dl import get_mri
 
 import bartorch
 import bartorch.tools as bt
-from bartorch import nlop
+from bartorch import apps, linop, optim, priors
 
-SIZE = 128
+SIZE = 192
 COILS = 8
 ACCELERATION = 3
-CALIBRATION = 6  # lines at the centre, far fewer than ESPIRiT needs
+CALIBRATION = 24
 
 # sphinx_gallery_start_ignore
 # The phantom, the relaxation maps behind it and the coil sensitivities, built
-# as :doc:`/auto_examples/01-basics/01-from-kspace-to-image` builds them.
+# as :doc:`/auto_examples/01-basics/02-from-kspace-to-image` builds them.
 SLICE = 90  # axial, through the lateral ventricles
 TISSUES = (1, 2, 3, 4, 5, 6, 8)  # everything the table gives relaxation times
 MARGIN = 0.25  # what the field of view leaves around the head
@@ -221,7 +227,7 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 # sphinx_gallery_end_ignore
 
 # sphinx_gallery_start_ignore
-# The acquisition of :doc:`/auto_examples/01-basics/01-from-kspace-to-image`:
+# The acquisition of :doc:`/auto_examples/01-basics/02-from-kspace-to-image`:
 # the k-space of the coil images, and a variable-density random set of phase
 # encodes with a fully sampled centre.
 kspace = bt.noise(bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True), n=1e-5, s=42)
@@ -238,34 +244,135 @@ lines = centre.clone()
 lines[drawn] = 1.0
 # sphinx_gallery_end_ignore
 
-pattern = lines.reshape(SIZE, 1).to(torch.complex64)
-measured = kspace[:, None] * pattern
-
-print(f"{float(lines.mean()):.0%} of the phase encodes, {CALIBRATION} of them at the centre")
+# sphinx_gallery_start_ignore
+kspace = kspace[:, None] * lines.reshape(SIZE, 1).to(torch.complex64)
+maps = bt.ecalib(kspace, maps=1, calib_size=CALIBRATION, crop=0.8)
+# sphinx_gallery_end_ignore
 
 # %%
 #
-# Six central lines locate the centre of k-space. With ESPIRiT's default
-# kernel of six points, a calibration region of six lines leaves a single
-# kernel position along the phase-encoding axis, too few rows for the
-# calibration matrix of :func:`bartorch.tools.ecalib`.
+# The encoding operator
+# ---------------------
 #
-# The application
+# :func:`bartorch.linop.CartesianSense` is :math:`A = P F S` as one operator.
+# It takes the sensitivities, the shape of the image it maps from, and the
+# sampling pattern; the shape of the k-space it maps to follows from those.
+# :func:`bartorch.tools.pattern` reads the pattern off the measured data, as
+# for a prospectively undersampled acquisition.
+#
+# ``modulated=True`` selects BART's uncentred sample convention, which its
+# applications iterate in; the default is the centred convention that
+# :func:`bartorch.fft` produces. The two differ by a modulation of the samples
+# and give the same image, so the choice matters only when the operator is
+# applied to data already in one of them, as it is below.
+
+pattern = bt.pattern(kspace)
+A = linop.CartesianSense(maps.squeeze(1), (SIZE, SIZE), pattern.squeeze(), modulated=True)
+
+print(f"{A.ishape} -> {A.oshape}")
+print(A.plan)
+print(f"fused: {A.plan.fused}")
+
+# %%
+#
+# ``A.plan`` reports the form the operator was lowered into: which transform,
+# what multiplies the image and the samples, and how the normal operator
+# :math:`A^H A` is applied. It is a property of the built operator rather than
+# a prediction, and ``plan.fused`` is false where the composition could not be
+# expressed as one encoding and fell back to a chain, which computes the same
+# numbers more slowly.
+#
+# Applying the adjoint is not the same as applying the transpose, and a
+# reconstruction built on the wrong one converges to the wrong image. The
+# definition :math:`\langle Ax, y\rangle = \langle x, A^H y\rangle` holds for
+# any pair of vectors, and holds for random vectors as readily as for real
+# data, so it is a usable check on an operator.
+
+generator = torch.Generator().manual_seed(0)
+probe = torch.randn(A.ishape, dtype=torch.complex64, generator=generator)
+samples = torch.randn(A.oshape, dtype=torch.complex64, generator=generator)
+
+forward = (A(probe).conj() * samples).sum()
+adjoint = (probe.conj() * A.H(samples)).sum()
+print(f"relative difference {abs(forward - adjoint) / abs(forward):.2e}")
+
+# %%
+#
+# Solving
+# -------
+#
+# A solver is called as ``solver(y, A)``. What it is given is not the array
+# the scanner wrote but what ``pics`` iterates on: the sampling pattern
+# applied, the modulation into the uncentred convention, and the data divided
+# by the scaling :func:`bartorch.optim.data_scaling` estimates from the adjoint
+# reconstruction, which is the step that makes a regularization weight
+# transferable from one dataset to the next.
+
+measured = bartorch.fftmod(kspace * pattern, axes=(-1, -2, -3), inverse=True)
+scale = optim.data_scaling(measured)
+data = (measured / scale).squeeze(1)
+
+term = priors.Wavelet(axes=(-1, -2), weight=0.002)
+assembled = optim.FISTA(term, maxiter=100)(data, A)
+
+# %%
+#
+# With the same preprocessing the assembled solve and the application are not
+# merely close: they are the same iteration over the same operator, and return
+# the same bits.
+
+tool = apps.pics(kspace, maps, regularizers=term, solver="fista", maxiter=100)
+print(f"identical to pics: {torch.equal(assembled.squeeze(), tool.squeeze())}")
+
+# %%
+#
+# Operator algebra
+# ----------------
+#
+# ``@`` composes, ``+`` adds, ``A.H`` is the adjoint and ``A.gram()`` the
+# normal operator :math:`A^H A`. A composition builds a single BART operator
+# rather than a Python chain, so a solver iterating on it does not return to
+# Python between applications. :func:`bartorch.optim.maxeigen` runs the power
+# iteration on an operator, which is how a gradient step size is chosen: the
+# Lipschitz constant of the least-squares gradient is the largest eigenvalue of
+# :math:`A^H A`.
+
+print(f"largest eigenvalue of A^H A: {optim.maxeigen(A.gram()):.3f}")
+
+# %%
+#
+# An operator defined in Python is composed with BART's through
+# :meth:`~bartorch.linop.LinearOperator.from_callbacks`, which BART applies as
+# a callback. Here it is a spatially varying phase, as an off-resonance or an
+# eddy-current phase would be, placed between the image and the encoding.
+
+field = torch.exp(1j * 0.4 * torch.pi * grid_x).to(torch.complex64)
+phase = linop.LinearOperator.from_callbacks(
+    (SIZE, SIZE), (SIZE, SIZE), lambda u: field * u, lambda u: field.conj() * u
+)
+composed = A @ phase
+print(f"{composed.ishape} -> {composed.oshape}, fused: {composed.plan.fused}")
+
+# %%
+#
+# Differentiation
 # ---------------
 #
-# :func:`bartorch.tools.nlinv` takes the k-space and returns the image and,
-# when asked, the sensitivities it estimated along the way. Its iteration count
-# is Gauss-Newton steps rather than linear iterations, and it is a
-# regularization parameter rather than a convergence threshold: the
-# regularization weight is halved after every step, so stopping early leaves a
-# smoother image and running longer eventually lets the noise in. Eight steps
-# is BART's default; twelve are used here.
+# Applying an operator to a tensor that requires a gradient records the
+# application for autograd. The gradient torch propagates back through
+# :math:`y = Ax` is :math:`A^H g` rather than :math:`A^T g`, the conjugate
+# Wirtinger convention torch uses for complex tensors.  For a real :math:`A`,
+# :math:`A^H = A^T`, so only a complex check distinguishes the two;
+# :doc:`../../explanation/differentiation` describes the backward passes of
+# the solvers.
 
-STEPS = 12
+variable = data.new_zeros(A.ishape).requires_grad_(True)
+residual = A(variable) - data
+(residual.abs() ** 2).sum().backward()
 
-reconstruction, estimated = bt.nlinv(measured, maxiter=STEPS, return_sensitivities=True)
-
-print(f"NRMSE {bt.nrmse(image.abs(), reconstruction.abs(), scaled=True):.3f}")
+expected = 2 * A.H(-data)
+difference = float((variable.grad - expected).abs().max() / expected.abs().max())
+print(f"relative difference from 2 A^H (Ax - y): {difference:.2e}")
 
 # %%
 
@@ -273,116 +380,18 @@ print(f"NRMSE {bt.nrmse(image.abs(), reconstruction.abs(), scaled=True):.3f}")
 figure, axes = panels(1, 3)
 peak = float(image.abs().max())
 show(axes[0, 0], image, "phantom", vmax=peak)
-show(axes[0, 1], reconstruction, "nlinv", vmax=None)
-show(axes[0, 2], bartorch.rss(estimated[:, 0], axes=(0,)), "root sum of squares of the maps")
-
-figure, axes = panels(2, 4)
-# Each map on its own scale: the estimate is determined only up to the scale
-# the image takes the reciprocal of.
-for column in range(4):
-    domain(axes[0, column], sensitivities[column], f"channel {column}")
-    domain(axes[1, column], estimated[column, 0])
-for row, label in enumerate(("simulated", "estimated")):
-    axes[row, 0].set_ylabel(label)
-    for axis in axes[row]:
-        axis.set_xticks([])
-        axis.set_yticks([])
-phase_bar(figure, axes)
+show(axes[0, 1], scaled(A.H(data), image), "adjoint reconstruction", vmax=peak)
+show(axes[0, 2], scaled(assembled, image), "FISTA, wavelet penalty", vmax=peak)
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The estimated sensitivities are smooth by construction rather than by
-# agreement with the data: the coil unknown is
-# not the sensitivity map but its k-space representation
-# :math:`\hat{s}`, and the map follows as
-# :math:`S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2} \hat{s}]`. A step in the
-# unknown is therefore a smooth change in the map by construction, and the
-# joint problem needs no separate penalty on the coils. The pair is determined
-# only up to a common factor: multiplying every map by a nonzero function
-# :math:`\gamma(r)` and dividing the image by it leaves the data unchanged
-# (:doc:`../../explanation/nonlinear`). The smoothness weighting restricts
-# :math:`\gamma` to smooth functions, which is why the two rows above are drawn
-# on their own scales and why a nonlinear inversion is reported after
-# normalizing by the root sum of squares of the maps. Outside the object
-# neither factor is determined at all -- their product is zero for any pair --
-# so what is drawn there follows from the initialization and the weighting.
+# The adjoint of the encoding is not its inverse: :math:`A^H y` is the coil
+# combination of the zero-filled k-space, and carries the aliasing of the
+# undersampling, which the solve removes.
 #
-# The model and the solver
-# ------------------------
-#
-# :class:`bartorch.nlop.NonlinearSense` is that forward model as a nonlinear
-# operator with two inputs, and :class:`bartorch.nlop.IRGNM` is the
-# Gauss-Newton loop over it. Each step linearizes the model at the current
-# point :math:`x_k` and solves
-#
-# .. math::
-#
-#    \min_x \, \| DF_{x_k} (x - x_k) - (y - F(x_k)) \|^2
-#    + \alpha_k \| x - x_{\mathrm{ref}} \|^2,
-#
-# with :math:`x_{\mathrm{ref}}` zero unless one is given and :math:`\alpha_k`
-# halved after every step, so the first steps are heavily regularized and the
-# later ones are not.
-
-model = nlop.NonlinearSense(
-    (COILS, 1, SIZE, SIZE), pattern=lines.reshape(1, SIZE, 1).to(torch.complex64)
-)
-print(f"inputs {model.ishapes} -> output {model.oshapes}")
-
-# %%
-#
-# ``nlinv`` scales the data by ``100 / ||y||`` before it starts, which fixes
-# the meaning of :math:`\alpha`, and takes its conjugate gradients to a hundred
-# iterations or a tolerance of a tenth. Given the same three settings the loop
-# written here is the application.
-
-data = model.prepare(measured * (100.0 / float(torch.linalg.vector_norm(measured))))
-fitted, coefficients = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)(data, model)
-
-maps = model.coils(coefficients)
-combined = fitted.squeeze() * bartorch.rss(maps[:, 0], axes=(0,))
-
-difference = float(
-    (fitted.squeeze() - bt.nlinv(measured, maxiter=STEPS, normalize=False)).abs().max()
-)
-print(f"largest difference from nlinv: {difference / float(fitted.abs().max()):.1e}")
-print(f"NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
-
-# %%
-#
-# The two agree to single-precision round-off rather than to the last bit,
-# because the scaling above is computed here and inside the application by
-# different expressions.
-#
-# What the operator layer adds is everything around the step. The linearized
-# problem can go to a solver from :mod:`bartorch.optim` instead of the
-# conjugate gradients inside the library (``inner=optim.CG()`` is the same
-# method written out, and a regularized solver makes the step a regularized
-# one), the loop can be unrolled as :class:`bartorch.nlop.IRGNMBlock`, and a
-# Gauss-Newton step is differentiable with respect to the data, the iterate,
-# the regularization centre and :math:`\alpha`
-# (:doc:`../../explanation/differentiation`).
-#
-# Reconstructing parameter maps rather than an image, by putting a signal model
-# in front of the same encoding, is :doc:`02-quantitative-models`.
-
-# %%
-#
-# References
-# ----------
-#
-# .. [#espirit] Uecker M, Lai P, Murphy MJ, Virtue P, Elad M, Pauly JM, Vasanawala SS,
-#    Lustig M. ESPIRiT -- an eigenvalue approach to autocalibrating parallel
-#    MRI: where SENSE meets GRAPPA. *Magn Reson Med* 71(3):990-1001 (2014).
-#    https://doi.org/10.1002/mrm.24751
-#
-# .. [#nlinv] Uecker M, Hohage T, Block KT, Frahm J. Image reconstruction by regularized
-#    nonlinear inversion -- joint estimation of coil sensitivities and image
-#    content. *Magn Reson Med* 60(3):674-682 (2008).
-#    https://doi.org/10.1002/mrm.21691
-#
-# .. [#bakushinsky] Bakushinsky AB, Kokurin MY. *Iterative Methods for Approximate Solution of
-#    Inverse Problems.* Springer (2004).
-#    https://doi.org/10.1007/978-1-4020-3122-9
+# The regularization terms are the subject of :mod:`bartorch.priors`, and the
+# iterations of :mod:`bartorch.optim`;
+# :doc:`../../explanation/inverse-problems` states which algorithm applies to
+# which problem.

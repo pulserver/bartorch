@@ -21,8 +21,20 @@ undersampling, noise and the estimated sensitivities, not that of a mismatch
 between the forward model and the measurement.
 
 The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/01-from-kspace-to-image`; the cell that does it is hidden on
+:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.
+
+**Learning objectives**
+
+- Simulate a multichannel radial acquisition with
+  :class:`bartorch.linop.NoncartesianSense`.
+- Estimate sensitivities from the radial data with
+  :func:`bartorch.tools.ncalib`.
+- Reconstruct with :func:`bartorch.apps.pics` and with the operator under
+  :class:`bartorch.optim.ADMM`, and compare the normal operator's two forms.
+
+It follows :doc:`01-trajectories-and-transforms`. The next lesson,
+:doc:`03-dynamic-golden-angle`, adds a time axis.
 """
 
 # %%
@@ -149,7 +161,7 @@ SPOKES = 64  # against pi/2 * SIZE = 302 for a trajectory that is not undersampl
 
 # sphinx_gallery_start_ignore
 # The phantom, the relaxation maps behind it and the coil sensitivities, built
-# as :doc:`/auto_examples/01-basics/01-from-kspace-to-image` builds them.
+# as :doc:`/auto_examples/01-basics/02-from-kspace-to-image` builds them.
 SLICE = 90  # axial, through the lateral ventricles
 TISSUES = (1, 2, 3, 4, 5, 6, 8)  # everything the table gives relaxation times
 MARGIN = 0.25  # what the field of view leaves around the head
