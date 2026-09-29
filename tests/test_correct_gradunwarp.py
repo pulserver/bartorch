@@ -291,6 +291,7 @@ def test_cartesian_dat_recurrence_matches_second_order_solid_harmonics() -> None
     )
 
 
+@needs_simpleitk
 def test_compiled_3d_jacobian_uses_all_three_physical_derivatives() -> None:
     alpha = np.zeros((3, 2, 2))
     beta = np.zeros_like(alpha)
