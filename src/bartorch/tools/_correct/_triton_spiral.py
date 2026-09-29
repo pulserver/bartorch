@@ -68,6 +68,9 @@ def _taps(rate: complex, length: int, device: torch.device, tolerance: float):
     while running < (1.0 - tolerance) * total and half < centre - 1:
         half += 1
         running = running + power[centre - half] + power[centre + half]
+    if running < (1.0 - tolerance) * total:
+        # No kernel narrower than the axis holds the energy asked for.
+        half = centre
     return kernel[centre - half : centre + half + 1].contiguous(), half
 
 
