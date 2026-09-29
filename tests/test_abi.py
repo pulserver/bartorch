@@ -121,3 +121,26 @@ def test_build_info_reports_the_platforms_data_model():
     info = dict(item.split("=", 1) for item in bartorch.build_info().split(","))
     assert int(info["long"]) == ctypes.sizeof(ctypes.c_long)
     assert info["long"] == ("4" if sys.platform == "win32" else "8")
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="a DLL exports only what it names")
+def test_the_library_exports_no_c_symbol_but_the_bartorch_abi():
+    """A C name BART leaves visible is one another library in the process can bind."""
+    import shutil
+    import subprocess
+
+    from bartorch._lib import library_path
+
+    nm = shutil.which("nm")
+    if nm is None:
+        pytest.skip("no nm to read the dynamic symbol table with")
+    flags = ["-gU"] if sys.platform == "darwin" else ["-D", "--defined-only"]
+    command = [nm, *flags, str(library_path())]
+    listed = subprocess.run(command, capture_output=True, text=True, check=True)
+    names = [line.split()[-1] for line in listed.stdout.splitlines() if line.strip()]
+    if sys.platform == "darwin":
+        names = [name[1:] for name in names if name.startswith("_")]
+    # Names with a leading underscore or dot are the toolchain's: C++ mangling,
+    # the linker's section markers, OpenMP's named critical sections.
+    stray = sorted(n for n in names if not n.startswith(("_", ".", "bartorch_")))
+    assert stray == []

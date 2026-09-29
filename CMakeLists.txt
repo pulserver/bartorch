@@ -467,6 +467,10 @@ target_compile_definitions(bartorch PRIVATE
     # functions linked into this library rather than imported from its DLL
     # (misc/dllspec.h); and no named pipes, which are a POSIX file type.
     $<$<BOOL:${WIN32}>:_FILE_OFFSET_BITS=64;BARTLIB_STATIC;NO_FIFO>
+    # Elsewhere misc/dllspec.h gives BARTLIB_API default visibility, which
+    # would put BART's seq_*, num_rand_init and debug_printf in the dynamic
+    # table beside the bartorch_* ABI; defining its guard leaves them hidden.
+    $<$<NOT:$<BOOL:${WIN32}>>:BART_MISC_DLLSPEC;BARTLIB_API=;BARTLIB_CALL=>
     BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},finufft_fft=${BARTORCH_FINUFFT_FFT_NAME},finufft_simd=${_finufft_simd_info},finufft_simd_mkl=${_finufft_mkl_info},long=${BARTORCH_SIZEOF_LONG}")
 
 target_compile_options(bartorch PRIVATE
