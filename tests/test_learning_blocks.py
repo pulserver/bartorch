@@ -91,7 +91,8 @@ def test_a_periodic_frame_axis_wraps_around():
         with torch.no_grad():
             conv.space.bias.zero_()
             conv.time.bias.zero_()
-        assert (float(conv(x)[:, :, -1].abs().amax()) > 0) is periodic
+        # Without wrapping the last frame holds only round-off of the zero padding.
+        assert (float(conv(x).detach()[:, :, -1].abs().amax()) > 1e-6) is periodic
 
 
 def test_the_conditioning_changes_the_output_and_is_held_to_what_was_declared():
