@@ -54,7 +54,8 @@ cmake --build build/local -j
 BARTORCH_LIBRARY=$PWD/build/local/libbartorch.so PYTHONPATH=src pytest tests/
 ```
 
-On macOS the library is `libbartorch.dylib`, and on Windows `libbartorch.dll`.  Keep builds with different
-compilers or CUDA settings in separate build directories.  CUDA tests skip
+On macOS the library is `libbartorch.dylib`, and on Windows
+`libbartorch.dll`.  Keep builds with different compilers or CUDA settings in
+separate build directories.  CUDA tests skip
 without a device; on a machine with one, `python scripts/check_device.py`
 checks the device path in dependency order.
