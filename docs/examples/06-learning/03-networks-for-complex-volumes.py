@@ -176,7 +176,10 @@ weights = sum(p.numel() for p in net.parameters())
 print(f"{weights} weights, {4 * weights / 1e6:.2f} MB in single precision")
 
 with torch.no_grad():
-    print("untrained network returns its input:", torch.allclose(denoiser(noisy[None])[0], noisy, atol=1e-5))
+    print(
+        "untrained network returns its input:",
+        torch.allclose(denoiser(noisy[None])[0], noisy, atol=1e-5),
+    )
 
 # %%
 #

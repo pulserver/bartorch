@@ -99,7 +99,7 @@ from bartorch.learning import training
 SIZE = 96
 COILS = 8
 ITERATIONS = 4
-EPOCHS = 8
+EPOCHS = 16
 
 _ = torch.manual_seed(0)
 
@@ -199,13 +199,13 @@ kspace = {
 #
 # The readout is fully sampled, so the unit of the split is the phase-encode
 # line: the pattern given to :func:`~bartorch.learning.split` is one entry per
-# line, which broadcasts over the coils and the readout. Forty per cent of the
+# line, which broadcasts over the coils and the readout. A quarter of the
 # acquired lines are held out, drawn with a Gaussian density across k-space,
 # and the eight central lines always stay in :math:`\Theta` so that every
 # reconstruction keeps the low frequencies.
 
 acquired = lines.float()[:, None]
-keep, held = learning.split(acquired, 0.4, keep=(8, 1), generator=torch.Generator().manual_seed(0))
+keep, held = learning.split(acquired, 0.25, keep=(8, 1), generator=torch.Generator().manual_seed(0))
 print(
     f"{int(acquired.sum())} acquired lines: {int(keep.sum())} to reconstruct from, "
     f"{int(held.sum())} held out"
@@ -267,7 +267,7 @@ for name, supervised in (("supervised", True), ("self-supervised", False)):
     )
     trainer.fit(
         training.Reconstruction(
-            models[name], "end-to-end", lr=1e-3, split_options={"keep": (8, 1)}
+            models[name], "end-to-end", lr=1e-3, fraction=0.25, split_options={"keep": (8, 1)}
         ),
         DataLoader(items("train", supervised), batch_size=4, shuffle=True, collate_fn=list),
         DataLoader(items("valid", supervised), batch_size=4, collate_fn=list),
@@ -300,7 +300,7 @@ for name, made in results.items():
 # %%
 #
 # The self-supervised network is trained on less information: each step sees
-# sixty per cent of the lines and is told nothing about the lines never
+# three quarters of the lines and is told nothing about the lines never
 # acquired, which is where the supervised network learns most. The gap between
 # the two on a given dataset is what a reference would have bought; the
 # self-supervised network needs nothing beyond the data a protocol already
