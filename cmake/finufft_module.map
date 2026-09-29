@@ -1,0 +1,8 @@
+/* What a FINUFFT module exports: its C API, and nothing it was linked with. */
+{
+    global:
+        finufft_*;
+        finufftf_*;
+    local:
+        *;
+};

@@ -9,8 +9,9 @@
  * own where the process has one.  A runtime without it allocates nothing the
  * call would release, so there it does nothing.
  *
- * Compiled on macOS and Windows with OpenMP only; on Linux the toolchain's
- * compiler and runtime come as a pair.
+ * Compiled on macOS and Windows with OpenMP only, into the library and into
+ * each FINUFFT module beside it; on Linux the toolchain's compiler and
+ * runtime come as a pair.
  */
 #include <stddef.h>
 #include <stdint.h>

@@ -21,7 +21,9 @@
 #   FINUFFT_ARCH_FLAGS     -march=x86-64 on x86-64 and nothing elsewhere, as
 #                          FINUFFT's own wheels are built: a wheel runs on any
 #                          CPU of its platform, where FINUFFT's default of
-#                          -march=native would not.
+#                          -march=native would not.  BARTORCH_FINUFFT_SIMD,
+#                          below, adds builds for newer x86-64 levels, chosen
+#                          between at run time.
 #   CMAKE_CUDA_ARCHITECTURES
 #                          BARTORCH_CUDA_ARCHITECTURES, as for BART's kernels.
 # ---------------------------------------------------------------------------
@@ -125,10 +127,141 @@ if(BARTORCH_CUDA)
     list(APPEND BARTORCH_FINUFFT_LIBS cufinufft)
 endif()
 
+# FINUFFT's CPU transform again for each x86-64 level BARTORCH_FINUFFT_SIMD
+# lists, each as a module beside the library, which src/csrc/substitute/finufft.c
+# opens when the processor runs that level: x86-64-v2 (SSE4.2), x86-64-v3 (AVX2,
+# FMA) and x86-64-v4 (AVX-512) by default.  The baseline stays compiled in, so
+# a processor that runs none of them, or a module that does not load, costs
+# nothing but the speed.  docs/design/finufft-embedding.md has the
+# measurements.
+#
+# A module is FINUFFT's own targets compiled again with the level's -march:
+# their sources, definitions, options and dependencies are read off the
+# targets FINUFFT defined above rather than listed here, so a bump of the pin
+# carries them.  Only the baseline's arch flag is replaced; a pin whose targets
+# no longer carry it stops the configure.
+if(FINUFFT_ARCH_FLAGS STREQUAL "-march=x86-64" AND NOT APPLE)
+    set(_simd_default "x86-64-v2;x86-64-v3;x86-64-v4")
+else()
+    set(_simd_default "")
+endif()
+set(BARTORCH_FINUFFT_SIMD "${_simd_default}" CACHE STRING
+    "x86-64 levels FINUFFT's CPU transform is also built for, chosen at run time: any of x86-64-v2, x86-64-v3, x86-64-v4")
+set(BARTORCH_FINUFFT_SIMD_LEVELS "")
+if(BARTORCH_FINUFFT_SIMD)
+    if(NOT FINUFFT_ARCH_FLAGS STREQUAL "-march=x86-64")
+        message(FATAL_ERROR "BARTORCH_FINUFFT_SIMD=${BARTORCH_FINUFFT_SIMD} needs FINUFFT_ARCH_FLAGS=-march=x86-64, the baseline it is chosen against")
+    endif()
+    include(CheckCSourceCompiles)
+    foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD)
+        if(NOT _level MATCHES "^x86-64-v[234]$")
+            message(FATAL_ERROR "BARTORCH_FINUFFT_SIMD: ${_level} is not one of x86-64-v2, x86-64-v3, x86-64-v4")
+        endif()
+        string(REPLACE "-" "_" _id "${_level}")
+        check_c_source_compiles(
+            "int main(void) { __builtin_cpu_init(); return __builtin_cpu_supports(\"${_level}\"); }"
+            BARTORCH_CPU_SUPPORTS_${_id})
+        if(NOT BARTORCH_CPU_SUPPORTS_${_id})
+            message(FATAL_ERROR "BARTORCH_FINUFFT_SIMD: the C compiler cannot test for ${_level} at run time")
+        endif()
+    endforeach()
+endif()
+
+function(_bartorch_finufft_clone src dst flags)
+    get_target_property(_dir ${src} SOURCE_DIR)
+    get_target_property(_sources ${src} SOURCES)
+    set(_files)
+    foreach(_s IN LISTS _sources)
+        if(_s MATCHES "^\\$<")
+            continue()
+        endif()
+        if(NOT IS_ABSOLUTE "${_s}")
+            set(_s "${_dir}/${_s}")
+        endif()
+        list(APPEND _files "${_s}")
+    endforeach()
+    add_library(${dst} OBJECT EXCLUDE_FROM_ALL ${_files})
+    set(_replaced FALSE)
+    foreach(_p COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FEATURES INCLUDE_DIRECTORIES
+            LINK_LIBRARIES INTERFACE_INCLUDE_DIRECTORIES CXX_STANDARD
+            CXX_VISIBILITY_PRESET VISIBILITY_INLINES_HIDDEN)
+        get_target_property(_v ${src} ${_p})
+        if(NOT _v)
+            continue()
+        endif()
+        if(_p STREQUAL "COMPILE_OPTIONS")
+            string(REGEX REPLACE "-march=x86-64([;>]|$)" "${flags}\\1" _new "${_v}")
+            if(NOT _new STREQUAL _v)
+                set(_replaced TRUE)
+            endif()
+            set(_v "${_new}")
+        endif()
+        if(_p STREQUAL "LINK_LIBRARIES" AND FINUFFT_USE_DUCC0)
+            string(REGEX REPLACE "(^|[:;])finufft_fftlibs([;>]|$)" "\\1${ARGV3}\\2" _v "${_v}")
+        endif()
+        set_property(TARGET ${dst} PROPERTY ${_p} "${_v}")
+    endforeach()
+    if(NOT _replaced)
+        message(FATAL_ERROR "FINUFFT's target ${src} no longer carries -march=x86-64; the SIMD builds cannot replace it")
+    endif()
+    set_target_properties(${dst} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endfunction()
+
+foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD)
+    string(REPLACE "-" "_" _id "${_level}")
+    set(_ducc)
+    if(FINUFFT_USE_DUCC0)
+        set(_ducc bartorch_ducc0_${_id})
+        _bartorch_finufft_clone(ducc0 ${_ducc} "-march=${_level}")
+    endif()
+    _bartorch_finufft_clone(finufft_f32 bartorch_finufft_f32_${_id} "-march=${_level}" ${_ducc})
+    _bartorch_finufft_clone(finufft bartorch_finufft_f64_${_id} "-march=${_level}" ${_ducc})
+    # The module's C API: FINUFFT's own export macros, as its shared build
+    # sets them.
+    foreach(_t bartorch_finufft_f32_${_id} bartorch_finufft_f64_${_id})
+        target_compile_definitions(${_t} PRIVATE FINUFFT_DLL $<$<BOOL:${WIN32}>:dll_EXPORTS>)
+    endforeach()
+
+    set(_module bartorch_finufft_${_id})
+    set(_objects bartorch_finufft_f32_${_id} bartorch_finufft_f64_${_id} ${_ducc})
+    list(TRANSFORM _objects REPLACE "(.+)" "$<TARGET_OBJECTS:\\1>")
+    add_library(${_module} MODULE ${_objects})
+    set_target_properties(${_module} PROPERTIES
+        PREFIX "lib" OUTPUT_NAME "bartorch_finufft_${_id}" LINKER_LANGUAGE CXX)
+    target_link_libraries(${_module} PRIVATE finufft_common Threads::Threads)
+    if(NOT FINUFFT_USE_DUCC0)
+        target_link_libraries(${_module} PRIVATE finufft_fftlibs)
+        if(TARGET bartorch_mkl_fftw)
+            set_property(TARGET ${_module} APPEND PROPERTY INSTALL_RPATH "${BARTORCH_MKL_LIBRARY_DIR}")
+        endif()
+    endif()
+    if(FINUFFT_USE_OPENMP)
+        target_link_libraries(${_module} PRIVATE OpenMP::OpenMP_CXX)
+        # The loops FINUFFT schedules dynamically end in __kmpc_dispatch_deinit,
+        # which torch's runtime may lack; the library answers it the same way.
+        if(WIN32 OR APPLE)
+            target_sources(${_module} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/csrc/substitute/openmp.c")
+        endif()
+    endif()
+    if(NOT WIN32)
+        target_link_libraries(${_module} PRIVATE m)
+    endif()
+    # The same runtime arrangement as the library itself, and on ELF nothing
+    # exported but FINUFFT's C API.
+    target_link_options(${_module} PRIVATE ${BART_LINK_OPTIONS})
+    if(NOT WIN32 AND NOT APPLE)
+        target_link_options(${_module} PRIVATE
+            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/cmake/finufft_module.map")
+    endif()
+    install(TARGETS ${_module} LIBRARY DESTINATION bartorch RUNTIME DESTINATION bartorch)
+    list(APPEND BARTORCH_FINUFFT_SIMD_LEVELS "${_level}")
+    list(APPEND BARTORCH_FINUFFT_MODULES ${_module})
+endforeach()
+
 file(STRINGS "${FINUFFT_ROOT}/CMakeLists.txt" _finufft_project REGEX "^project\\(FINUFFT VERSION")
 string(REGEX MATCH "VERSION ([0-9.]+)" _ "${_finufft_project}")
 set(BARTORCH_FINUFFT_VERSION "${CMAKE_MATCH_1}")
-message(STATUS "FINUFFT ${BARTORCH_FINUFFT_VERSION} from ${FINUFFT_ROOT}: cpu, openmp=${FINUFFT_USE_OPENMP}, cuda=${BARTORCH_CUDA}, fft=${BARTORCH_FINUFFT_FFT_NAME}, arch='${FINUFFT_ARCH_FLAGS}'")
+message(STATUS "FINUFFT ${BARTORCH_FINUFFT_VERSION} from ${FINUFFT_ROOT}: cpu, openmp=${FINUFFT_USE_OPENMP}, cuda=${BARTORCH_CUDA}, fft=${BARTORCH_FINUFFT_FFT_NAME}, arch='${FINUFFT_ARCH_FLAGS}', simd='${BARTORCH_FINUFFT_SIMD}'")
 
 # The notices of what FINUFFT compiles in with it, which the build fetched
 # rather than the checkout carrying.  scikit-build-core puts what is installed

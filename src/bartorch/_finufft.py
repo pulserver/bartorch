@@ -379,6 +379,46 @@ def threads() -> int:
     return int(library().bartorch_finufft_threads())
 
 
+def simd_built() -> tuple[str, ...]:
+    """The x86-64 levels FINUFFT's CPU transform is built for, the compiled-in baseline first.
+
+    ``("default",)`` where FINUFFT is built for the target's own baseline alone.
+    """
+    from bartorch._lib import library
+
+    return tuple(library().bartorch_finufft_simd_built().decode().split(","))
+
+
+def simd() -> str:
+    """The level host plans are made at.
+
+    The newest built level this processor runs, unless the ``BARTORCH_FINUFFT_SIMD``
+    environment variable, read when the level is first needed, or :func:`use_simd` names
+    another.
+    """
+    from bartorch._lib import library
+
+    return library().bartorch_finufft_simd().decode()
+
+
+def use_simd(level: str | None = None) -> None:
+    """Make host plans at ``level`` from now on, or at the newest available for None.
+
+    Plans already made keep the level they were made at.
+
+    Raises
+    ------
+    ValueError
+        ``level`` is not built, or this processor does not run it.
+    """
+    from bartorch._lib import library
+
+    if library().bartorch_finufft_set_simd(None if level is None else level.encode()) != 0:
+        raise ValueError(
+            f"FINUFFT at {level} is not available: built for {', '.join(simd_built())}"
+        )
+
+
 def fallback_allowed() -> bool:
     """Whether BART's own operator may answer what FINUFFT will not."""
     from bartorch._lib import library

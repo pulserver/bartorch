@@ -406,8 +406,21 @@ set_source_files_properties("${BART_SRC}/noncart/nufft.c" PROPERTIES
 # The SENSE operators keep their implementations under another name, so
 # src/csrc/ops/sense.c can walk the coils a slab at a time and still hand back BART's
 # own chain for an arrangement it cannot serve.
+if(FINUFFT_ARCH_FLAGS MATCHES "^-march=(.+)$")
+    set(_finufft_simd_base "${CMAKE_MATCH_1}")
+else()
+    set(_finufft_simd_base "default")
+endif()
+set(_finufft_defs "BARTORCH_FINUFFT_VERSION=\"${BARTORCH_FINUFFT_VERSION}\"" "BARTORCH_FINUFFT_SIMD_BASE=\"${_finufft_simd_base}\"")
+foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD_LEVELS)
+    string(REGEX REPLACE "^x86-64-" "BARTORCH_FINUFFT_SIMD_" _def "${_level}")
+    string(TOUPPER "${_def}" _def)
+    list(APPEND _finufft_defs "${_def}")
+endforeach()
 set_source_files_properties(src/csrc/substitute/finufft.c PROPERTIES
-    COMPILE_DEFINITIONS "BARTORCH_FINUFFT_VERSION=\"${BARTORCH_FINUFFT_VERSION}\"")
+    COMPILE_DEFINITIONS "${_finufft_defs}")
+string(REPLACE ";" "+" _finufft_simd_info "${_finufft_simd_base};${BARTORCH_FINUFFT_SIMD_LEVELS}")
+string(REGEX REPLACE "\\+$" "" _finufft_simd_info "${_finufft_simd_info}")
 
 set_source_files_properties("${BART_SRC}/sense/modelnc.c" PROPERTIES
     COMPILE_DEFINITIONS "sense_nc_init=bart_sense_nc_init")
@@ -446,7 +459,7 @@ target_compile_definitions(bartorch PRIVATE
     # functions linked into this library rather than imported from its DLL
     # (misc/dllspec.h); and no named pipes, which are a POSIX file type.
     $<$<BOOL:${WIN32}>:_FILE_OFFSET_BITS=64;BARTLIB_STATIC;NO_FIFO>
-    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},finufft_fft=${BARTORCH_FINUFFT_FFT_NAME},long=${BARTORCH_SIZEOF_LONG}")
+    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},finufft_fft=${BARTORCH_FINUFFT_FFT_NAME},finufft_simd=${_finufft_simd_info},long=${BARTORCH_SIZEOF_LONG}")
 
 target_compile_options(bartorch PRIVATE
     $<$<COMPILE_LANGUAGE:C>:${BART_C_OPTIONS}>
@@ -471,11 +484,14 @@ endif()
 
 target_link_options(bartorch PRIVATE ${BART_LINK_OPTIONS})
 
-target_link_libraries(bartorch PRIVATE Threads::Threads ${BART_EXTRA_LIBS})
+target_link_libraries(bartorch PRIVATE Threads::Threads ${BART_EXTRA_LIBS} ${CMAKE_DL_LIBS})
 
 target_link_libraries(bartorch PRIVATE m)
 
 target_link_libraries(bartorch PRIVATE ${BARTORCH_FINUFFT_LIBS})
+if(BARTORCH_FINUFFT_MODULES)
+    add_dependencies(bartorch ${BARTORCH_FINUFFT_MODULES})
+endif()
 
 # FINUFFT on oneMKL needs libmkl_rt where the build found it.
 if(TARGET bartorch_mkl_fftw)

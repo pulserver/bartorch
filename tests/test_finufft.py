@@ -1946,9 +1946,12 @@ def test_a_failed_install_is_reported_as_the_refusal_it_leads_to(monkeypatch, ca
     assert "FINUFFT disagrees with BART" in record.getMessage()
 
 
+def _build_info(key: str) -> str:
+    return dict(item.split("=", 1) for item in bartorch.build_info().split(","))[key]
+
+
 def _finufft_fft() -> str:
-    info = dict(item.split("=", 1) for item in bartorch.build_info().split(","))
-    return info["finufft_fft"]
+    return _build_info("finufft_fft")
 
 
 def test_build_info_names_the_fft_inside_finufft():
@@ -1971,3 +1974,105 @@ def test_finufft_on_onemkl_shares_one_mkl_with_barts_fft():
     assert len(loaded) == 1, loaded
     if bartorch.backend_sources()["fft"] == "mkl":
         assert loaded == {os.path.realpath(_backend._mkl_library())}
+
+
+@pytest.fixture
+def at_level():
+    """Plans made at a chosen level, and the level put back afterwards."""
+    before = _finufft.simd()
+    yield _finufft.use_simd
+    _finufft.use_simd(before)
+
+
+def _levels_this_processor_runs():
+    runs = []
+    for level in _finufft.simd_built():
+        with contextlib.suppress(ValueError):
+            _finufft.use_simd(level)
+            runs.append(level)
+    return runs
+
+
+def test_the_simd_levels_built_are_the_ones_build_info_names():
+    assert "+".join(_finufft.simd_built()) == _build_info("finufft_simd")
+    assert _finufft.simd() in _finufft.simd_built()
+
+
+def test_the_newest_level_the_processor_runs_is_the_default(at_level):
+    runs = _levels_this_processor_runs()
+    at_level(None)
+    assert _finufft.simd() == runs[-1]
+
+
+@requires_finufft
+def test_every_simd_level_matches_an_explicit_dft(at_level):
+    n = 32
+    traj = bt.traj(x=n, y=16, r=True)
+    img = bt.phantom([n, n]).reshape(1, n, n).to(torch.complex64)
+    ref = _dft(traj, img, n)
+    for level in _levels_this_processor_runs():
+        at_level(level)
+        got = linop.NUFFT(traj, (1, n, n), toeplitz=False)(img)
+        _within_tolerance(got.numpy().reshape(ref.shape), ref)
+
+
+def test_a_level_that_is_not_built_is_refused_and_changes_nothing(at_level):
+    before = _finufft.simd()
+    with pytest.raises(ValueError, match="not available"):
+        at_level("x86-64-v9")
+    assert _finufft.simd() == before
+
+
+@requires_finufft
+def test_a_plan_keeps_the_level_it_was_made_at(at_level):
+    runs = _levels_this_processor_runs()
+    if len(runs) < 2:
+        pytest.skip("this processor runs one level of FINUFFT")
+    n = 32
+    traj = bt.traj(x=n, y=16, r=True)
+    img = bt.phantom([n, n]).reshape(1, n, n).to(torch.complex64)
+    at_level(runs[-1])
+    A = linop.NUFFT(traj, (1, n, n), toeplitz=False)
+    first = A(img)
+    at_level(runs[0])
+    assert torch.equal(A(img), first)
+
+
+def _in_a_process(code: str, library: str, **env) -> str:
+    import subprocess
+    import sys
+
+    from bartorch._lib import library_path
+
+    environ = {k: v for k, v in os.environ.items() if k != "BARTORCH_FINUFFT_SIMD"}
+    environ.update(BARTORCH_LIBRARY=library or str(library_path()), **env)
+    src = os.path.dirname(os.path.dirname(bartorch.__file__))
+    environ["PYTHONPATH"] = os.pathsep.join(filter(None, [src, environ.get("PYTHONPATH")]))
+    done = subprocess.run([sys.executable, "-c", code], env=environ, capture_output=True, text=True)
+    assert done.returncode == 0, done.stderr
+    return done.stdout.strip()
+
+
+def test_the_environment_names_the_level_plans_start_at():
+    baseline = _finufft.simd_built()[0]
+    code = "from bartorch import _finufft; print(_finufft.simd())"
+    assert _in_a_process(code, "", BARTORCH_FINUFFT_SIMD=baseline) == baseline
+
+
+@requires_finufft
+def test_a_library_without_its_modules_transforms_at_the_baseline(tmp_path):
+    if len(_finufft.simd_built()) < 2:
+        pytest.skip("FINUFFT is built for one level")
+    import shutil
+
+    from bartorch._lib import library_path
+
+    alone = tmp_path / library_path().name
+    shutil.copy(library_path(), alone)
+    code = (
+        "import bartorch.tools as bt; from bartorch import _finufft, linop\n"
+        "t = bt.traj(x=32, y=16, r=True)\n"
+        "linop.NUFFT(t, (1, 32, 32), toeplitz=False)(bt.phantom([32, 32]).reshape(1, 32, 32))\n"
+        "print(_finufft.simd())"
+    )
+    assert _in_a_process(code, str(alone)) == _finufft.simd_built()[0]
