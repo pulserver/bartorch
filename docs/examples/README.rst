@@ -3,9 +3,9 @@ Examples
 
 Reconstruction workflows written with bartorch, grouped by what they build.
 
-**Basics** covers the data layout, BART's applications as functions, the same
-reconstruction assembled from an encoding operator and a solver, and noise
-prewhitening.
+**Basics** covers the data layout, BART's reconstruction through
+:mod:`bartorch.apps`, the same reconstruction assembled from an encoding
+operator and a solver, and noise prewhitening.
 
 **Non-Cartesian imaging** covers trajectories, the non-uniform Fourier
 transform and its point spread function, and a radial SENSE reconstruction.
