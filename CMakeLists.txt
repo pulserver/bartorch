@@ -411,9 +411,16 @@ if(FINUFFT_ARCH_FLAGS MATCHES "^-march=(.+)$")
 else()
     set(_finufft_simd_base "default")
 endif()
-set(_finufft_defs "BARTORCH_FINUFFT_VERSION=\"${BARTORCH_FINUFFT_VERSION}\"" "BARTORCH_FINUFFT_SIMD_BASE=\"${_finufft_simd_base}\"")
+set(_finufft_defs "BARTORCH_FINUFFT_VERSION=\"${BARTORCH_FINUFFT_VERSION}\""
+    "BARTORCH_FINUFFT_SIMD_BASE=\"${_finufft_simd_base}\""
+    "BARTORCH_FINUFFT_FFT_NAME=\"${BARTORCH_FINUFFT_FFT_NAME}\"")
 foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD_LEVELS)
     string(REGEX REPLACE "^x86-64-" "BARTORCH_FINUFFT_SIMD_" _def "${_level}")
+    string(TOUPPER "${_def}" _def)
+    list(APPEND _finufft_defs "${_def}")
+endforeach()
+foreach(_level IN LISTS BARTORCH_FINUFFT_MKL_LEVELS)
+    string(REGEX REPLACE "^x86-64-" "BARTORCH_FINUFFT_MKL_" _def "${_level}")
     string(TOUPPER "${_def}" _def)
     list(APPEND _finufft_defs "${_def}")
 endforeach()
@@ -421,6 +428,7 @@ set_source_files_properties(src/csrc/substitute/finufft.c PROPERTIES
     COMPILE_DEFINITIONS "${_finufft_defs}")
 string(REPLACE ";" "+" _finufft_simd_info "${_finufft_simd_base};${BARTORCH_FINUFFT_SIMD_LEVELS}")
 string(REGEX REPLACE "\\+$" "" _finufft_simd_info "${_finufft_simd_info}")
+string(REPLACE ";" "+" _finufft_mkl_info "${BARTORCH_FINUFFT_MKL_LEVELS}")
 
 set_source_files_properties("${BART_SRC}/sense/modelnc.c" PROPERTIES
     COMPILE_DEFINITIONS "sense_nc_init=bart_sense_nc_init")
@@ -459,7 +467,7 @@ target_compile_definitions(bartorch PRIVATE
     # functions linked into this library rather than imported from its DLL
     # (misc/dllspec.h); and no named pipes, which are a POSIX file type.
     $<$<BOOL:${WIN32}>:_FILE_OFFSET_BITS=64;BARTLIB_STATIC;NO_FIFO>
-    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},finufft_fft=${BARTORCH_FINUFFT_FFT_NAME},finufft_simd=${_finufft_simd_info},long=${BARTORCH_SIZEOF_LONG}")
+    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},finufft_fft=${BARTORCH_FINUFFT_FFT_NAME},finufft_simd=${_finufft_simd_info},finufft_simd_mkl=${_finufft_mkl_info},long=${BARTORCH_SIZEOF_LONG}")
 
 target_compile_options(bartorch PRIVATE
     $<$<COMPILE_LANGUAGE:C>:${BART_C_OPTIONS}>

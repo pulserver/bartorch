@@ -31,6 +31,9 @@ jobs:
           - os: ubuntu-latest
             python-version: "3.14"
             cc: gcc-14
+            # The wheel's build: DUCC0 in the library, and beside it FINUFFT
+            # modules on oneMKL, which the mkl extra puts in the process.
+            extras: "[mkl]"
             # One job measures coverage for Codecov; the rest only test.
             coverage: true
           - os: macos-latest
@@ -130,6 +133,13 @@ jobs:
       - name: Install oneMKL's headers and library for FINUFFT
         if: matrix.finufft-fft == 'MKL'
         run: pip install mkl mkl-devel
+
+      # The FFTW3 header the FINUFFT modules on oneMKL are compiled against,
+      # which the build system requires on x86-64 Linux and an install
+      # without build isolation has to bring itself.
+      - name: Install oneMKL's FFTW3 header (Linux)
+        if: runner.os == 'Linux' && matrix.finufft-fft != 'MKL'
+        run: pip install mkl-include
 
       - name: Build and install bartorch
         env:

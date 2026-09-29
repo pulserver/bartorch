@@ -330,6 +330,10 @@ SYMBOLS = (
     "bartorch_finufft_simd_built",
     "bartorch_finufft_simd",
     "bartorch_finufft_set_simd",
+    "bartorch_finufft_fft_built",
+    "bartorch_finufft_fft",
+    "bartorch_finufft_set_fft",
+    "bartorch_finufft_fftw_set",
     "bartorch_last_error",
     "bartorch_clear_error",
     "bartorch_nufft_decline_reason",
@@ -1212,6 +1216,14 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
     lib.bartorch_finufft_simd.argtypes = []
     lib.bartorch_finufft_set_simd.restype = ctypes.c_int
     lib.bartorch_finufft_set_simd.argtypes = [ctypes.c_char_p]
+    lib.bartorch_finufft_fft_built.restype = ctypes.c_char_p
+    lib.bartorch_finufft_fft_built.argtypes = []
+    lib.bartorch_finufft_fft.restype = ctypes.c_char_p
+    lib.bartorch_finufft_fft.argtypes = []
+    lib.bartorch_finufft_set_fft.restype = ctypes.c_int
+    lib.bartorch_finufft_set_fft.argtypes = [ctypes.c_char_p]
+    lib.bartorch_finufft_fftw_set.restype = ctypes.c_int
+    lib.bartorch_finufft_fftw_set.argtypes = [ctypes.c_char_p, ctypes.c_void_p]
     lib.bartorch_last_error.restype = ctypes.c_char_p
     lib.bartorch_last_error.argtypes = []
     lib.bartorch_clear_error.restype = None

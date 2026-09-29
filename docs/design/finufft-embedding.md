@@ -262,9 +262,10 @@ with `intel-openmp` and `tbb`), so a FINUFFT that calls it makes that wheel a
 dependency of every install, and a second MKL beside the one torch links on
 Linux.  On Windows the `mkl` extra is not offered and torch exports no MKL,
 so it would be a new runtime dependency with nothing to share; macOS has none.
-The CPU wheels therefore keep DUCC0, which adds nothing to load, and
-`BARTORCH_FINUFFT_FFT=MKL` is for a source build on x86-64 Linux where oneMKL
-is installed: the library then names `libmkl_rt` in `NEEDED` with the build's
+The library therefore keeps DUCC0, which adds nothing to load; the Linux
+wheel reaches oneMKL instead through modules that link none of it
+(*oneMKL at run time*, below).  `BARTORCH_FINUFFT_FFT=MKL` is for a source
+build on x86-64 Linux where oneMKL is installed: the library then names `libmkl_rt` in `NEEDED` with the build's
 MKL directory on its run path, and with the `mkl` extra the same `libmkl_rt`
 serves BART's DFTI table (`tests/test_finufft.py`).  cuFINUFFT and the CUDA
 paths are unchanged.
@@ -334,4 +335,37 @@ agree to 6e-07 forward and 1e-06 adjoint.
 
 What it costs: FINUFFT and DUCC0 compiled once more per level, and about 5 MB
 per level, stripped, in the wheel.
+
+### oneMKL at run time
+
+On x86-64 Linux each level is built a second time on FINUFFT's FFTW path,
+`libbartorch_finufft_x86_64_v3_mkl.so` beside `libbartorch_finufft_x86_64_v3.so`,
+compiled against oneMKL's `fftw3.h` from `mkl-include`, a build requirement of
+1.2 MB of headers.  It links no MKL library.  The sixteen FFTW3 functions
+FINUFFT calls are defined in the module by `src/csrc/substitute/fftw_bind.c`,
+which forwards each through a pointer set by `bartorch_fftw_bind`, and the
+module is opened only once the host has handed over all sixteen.  `_backend`
+does that at start-up from the `libmkl_rt` the `mkl` extra installs, the same
+library that serves BART's BLAS, LAPACK and DFTI table, so the process holds
+one oneMKL of whichever release is installed, with no soname fixed at build
+time.  Without the extra, or with a provider that lacks any of the sixteen,
+plans are made on DUCC0.
+
+The newest level the processor runs is used on oneMKL where the process has
+it, and on DUCC0 otherwise; `_finufft.use_fft("ducc0")` or `use_fft("mkl")`
+chooses, and `backend_sources()["finufft_fft"]` reports the choice.  The
+baseline has no oneMKL module.  oneMKL takes its threading layer from the OpenMP runtime already
+in the process, libgomp, so no `libiomp5` is loaded
+(`tests/test_finufft.py`).
+
+Best of ten, in ms, forward and adjoint through `linop.NUFFT` at the default
+tolerance and upsampling, four threads on the AVX-512 Xeon:
+
+| | x86-64 | v2 DUCC0 | v2 oneMKL | v3 DUCC0 | v3 oneMKL | v4 DUCC0 | v4 oneMKL |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 2D 256², 8 coils, 401 spokes | 43.8 | 42.0 | 34.8 | 32.5 | 23.3 | 30.9 | 22.3 |
+| 3D 96³, 10⁶ points | 88.5 | 82.6 | 75.1 | 77.2 | 64.6 | 73.0 | 67.5 |
+
+oneMKL takes 8 to 30 per cent off DUCC0 at the same level, and the two agree
+to 6e-07 of the peak.  Each module is about 4 MB stripped.
 

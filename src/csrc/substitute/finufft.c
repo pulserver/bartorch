@@ -12,6 +12,9 @@
  * plan is made by the newest level the processor runs, unless
  * BARTORCH_FINUFFT_SIMD or bartorch_finufft_set_simd names another, and
  * carries the entry points that made it, so a plan outlives a change of level.
+On x86-64 Linux each level is built a second time on FINUFFT's FFTW path,
+bound at run time to oneMKL's FFTW3 interface (fftw_bind.c), and that one is
+preferred once the host has handed oneMKL over.
  *
  * What is done with a plan belongs to nufft_finufft.c, which builds BART's
  * NUFFT operator out of a pair of them.
@@ -51,6 +54,7 @@ static pthread_mutex_t fi_lock = PTHREAD_MUTEX_INITIALIZER;
 struct fi_api {
 
 	const char* level;
+	const char* fft;
 	__typeof__(&finufftf_default_opts) default_opts;
 	__typeof__(&finufftf_makeplan) makeplan;
 	__typeof__(&finufftf_setpts) setpts;
@@ -61,6 +65,7 @@ struct fi_api {
 static const struct fi_api fi_builtin = {
 
 	.level = BARTORCH_FINUFFT_SIMD_BASE,
+	.fft = BARTORCH_FINUFFT_FFT_NAME,
 	.default_opts = finufftf_default_opts,
 	.makeplan = finufftf_makeplan,
 	.setpts = finufftf_setpts,
@@ -68,36 +73,86 @@ static const struct fi_api fi_builtin = {
 	.destroy = finufftf_destroy,
 };
 
-/* A module holds one build of FINUFFT for one instruction-set level, and is
- * loaded the first time that level is asked for.  Each is a library of its
- * own, opened without adding its names to the process, so its C++ runtime,
- * its DUCC0 and its template instances are its own and none can stand in for
- * the baseline's on a processor that cannot run them. */
+/* A module holds one build of FINUFFT for one instruction-set level and one
+ * FFT, and is loaded the first time it is asked for.  Each is a library of
+ * its own, opened without adding its names to the process, so its C++
+ * runtime, its FFT and its template instances are its own and none can stand
+ * in for the baseline's on a processor that cannot run them.  A module on
+ * oneMKL links no MKL library: it is handed the FFTW3 interface of the oneMKL
+ * the process has loaded (bartorch_finufft_fftw_set), and is not opened until
+ * all of it has been. */
 struct fi_module {
 
 	const char* level;
+	const char* fft;
 	int tried;
 	struct fi_api api;
 };
 
+#define FI_MODULE(level, fft) { level, fft, 0, { NULL } }
+
 static struct fi_module fi_modules[] = {
 #ifdef BARTORCH_FINUFFT_SIMD_V2
-	{ .level = "x86-64-v2" },
+	FI_MODULE("x86-64-v2", BARTORCH_FINUFFT_FFT_NAME),
+#endif
+#ifdef BARTORCH_FINUFFT_MKL_V2
+	FI_MODULE("x86-64-v2", "mkl"),
 #endif
 #ifdef BARTORCH_FINUFFT_SIMD_V3
-	{ .level = "x86-64-v3" },
+	FI_MODULE("x86-64-v3", BARTORCH_FINUFFT_FFT_NAME),
+#endif
+#ifdef BARTORCH_FINUFFT_MKL_V3
+	FI_MODULE("x86-64-v3", "mkl"),
 #endif
 #ifdef BARTORCH_FINUFFT_SIMD_V4
-	{ .level = "x86-64-v4" },
+	FI_MODULE("x86-64-v4", BARTORCH_FINUFFT_FFT_NAME),
 #endif
-	{ .level = NULL },
+#ifdef BARTORCH_FINUFFT_MKL_V4
+	FI_MODULE("x86-64-v4", "mkl"),
+#endif
+	{ NULL, NULL, 0, { NULL } },
 };
 
-/* The level plans are made at, and the one a caller or BARTORCH_FINUFFT_SIMD
- * asked for; NULL until the first plan decides it. */
+/* The FFTW3 entry points a module on oneMKL calls, as the host found them in
+ * the process. */
+static const char* const fi_fftw_names[] = {
+
+	"fftwf_plan_many_dft", "fftwf_execute_dft", "fftwf_destroy_plan", "fftwf_init_threads",
+	"fftwf_plan_with_nthreads", "fftwf_cleanup_threads", "fftwf_forget_wisdom", "fftwf_cleanup",
+	"fftw_plan_many_dft", "fftw_execute_dft", "fftw_destroy_plan", "fftw_init_threads",
+	"fftw_plan_with_nthreads", "fftw_cleanup_threads", "fftw_forget_wisdom", "fftw_cleanup",
+};
+
+#define FI_FFTW_COUNT ((int)(sizeof fi_fftw_names / sizeof fi_fftw_names[0]))
+
+static void* fi_fftw[FI_FFTW_COUNT];
+
+static int fi_fftw_complete(void)
+{
+	for (int i = 0; i < FI_FFTW_COUNT; i++)
+		if (NULL == fi_fftw[i])
+			return 0;
+
+	return 1;
+}
+
+static void* fi_fftw_lookup(const char* name)
+{
+	for (int i = 0; i < FI_FFTW_COUNT; i++)
+		if (0 == strcmp(name, fi_fftw_names[i]))
+			return fi_fftw[i];
+
+	return NULL;
+}
+
+/* The level and FFT plans are made with, and the ones asked for -- the level
+ * by a caller or BARTORCH_FINUFFT_SIMD, the FFT by a caller -- "" for the
+ * newest level and for oneMKL where the process has it; fi_current is NULL
+ * until the first plan decides it. */
 static const struct fi_api* fi_current;
 static char fi_requested[16];
-static int fi_requested_set;
+static char fi_requested_fft[16];
+static int fi_environment_read;
 
 /* Only the levels this build carries are tested for, so a compiler that
  * cannot name a level at run time fails the configure that asked for it
@@ -123,15 +178,24 @@ static int fi_cpu_runs(const char* level)
 	return 0;
 }
 
-/* The module sits beside this library, named after its level:
- * libbartorch_finufft_x86_64_v3.so for x86-64-v3. */
-static void* fi_open(const char* level)
+/* The module sits beside this library, named after its level, and after its
+ * FFT where that is not the library's own: libbartorch_finufft_x86_64_v3.so
+ * for x86-64-v3, libbartorch_finufft_x86_64_v3_mkl.so for it on oneMKL. */
+static void* fi_open(const char* level, const char* fft)
 {
 	char name[64] = "libbartorch_finufft_";
 	size_t n = strlen(name);
 
-	for (const char* c = level; *c && (n < sizeof name - 8); c++)
+	for (const char* c = level; *c && (n < sizeof name - 16); c++)
 		name[n++] = ('-' == *c) ? '_' : *c;
+
+	if (0 != strcmp(fft, fi_builtin.fft)) {
+
+		name[n++] = '_';
+
+		for (const char* c = fft; *c && (n < sizeof name - 8); c++)
+			name[n++] = *c;
+	}
 
 	name[n] = '\0';
 
@@ -195,74 +259,125 @@ static void* fi_symbol(void* lib, const char* name)
 #endif
 }
 
-/* A level this build carries and this processor runs, or NULL.  A module is
- * opened once; one that fails to open, or lacks an entry point, stays
- * unavailable for the life of the process. */
-static const struct fi_api* fi_level(const char* level)
+/* A module's entry points, or NULL.  A module is opened once; one that fails
+ * to open, lacks an entry point or refuses the FFT it is handed stays
+ * unavailable for the life of the process.  One on oneMKL is not tried at all
+ * until the process has handed oneMKL over. */
+static const struct fi_api* fi_module_api(struct fi_module* m)
 {
-	if (0 == strcmp(level, fi_builtin.level))
-		return &fi_builtin;
+	int on_mkl = (0 != strcmp(m->fft, fi_builtin.fft));
 
-	for (struct fi_module* m = fi_modules; NULL != m->level; m++) {
+	if (!m->tried && !(on_mkl && !fi_fftw_complete())) {
 
-		if (0 != strcmp(level, m->level))
-			continue;
+		m->tried = 1;
 
-		if (!m->tried) {
+		void* lib = fi_cpu_runs(m->level) ? fi_open(m->level, m->fft) : NULL;
 
-			m->tried = 1;
+		if (NULL == lib)
+			return NULL;
 
-			void* lib = fi_cpu_runs(m->level) ? fi_open(m->level) : NULL;
+		if (on_mkl) {
 
-			if (NULL == lib)
+			int (*bind)(void* (*)(const char*)) = (int (*)(void* (*)(const char*)))fi_symbol(lib, "bartorch_fftw_bind");
+
+			if ((NULL == bind) || (0 != bind(fi_fftw_lookup)))
 				return NULL;
-
-			m->api.default_opts = fi_symbol(lib, "finufftf_default_opts");
-			m->api.makeplan = fi_symbol(lib, "finufftf_makeplan");
-			m->api.setpts = fi_symbol(lib, "finufftf_setpts");
-			m->api.execute = fi_symbol(lib, "finufftf_execute");
-			m->api.destroy = fi_symbol(lib, "finufftf_destroy");
-
-			if (m->api.default_opts && m->api.makeplan && m->api.setpts && m->api.execute && m->api.destroy)
-				m->api.level = m->level;
 		}
 
-		return (NULL != m->api.level) ? &m->api : NULL;
+		m->api.default_opts = fi_symbol(lib, "finufftf_default_opts");
+		m->api.makeplan = fi_symbol(lib, "finufftf_makeplan");
+		m->api.setpts = fi_symbol(lib, "finufftf_setpts");
+		m->api.execute = fi_symbol(lib, "finufftf_execute");
+		m->api.destroy = fi_symbol(lib, "finufftf_destroy");
+
+		if (m->api.default_opts && m->api.makeplan && m->api.setpts && m->api.execute && m->api.destroy) {
+
+			m->api.level = m->level;
+			m->api.fft = m->fft;
+		}
 	}
+
+	return (NULL != m->api.level) ? &m->api : NULL;
+}
+
+/* The build of FINUFFT at `level` on `fft`, where this library carries it and
+ * this processor runs it, or NULL.  An empty `fft` is oneMKL where the process
+ * has handed it over, and the library's own FFT otherwise. */
+static const struct fi_api* fi_level(const char* level, const char* fft)
+{
+	if ('\0' == fft[0]) {
+
+		const struct fi_api* api = fi_level(level, "mkl");
+
+		return (NULL != api) ? api : fi_level(level, fi_builtin.fft);
+	}
+
+	if ((0 == strcmp(level, fi_builtin.level)) && (0 == strcmp(fft, fi_builtin.fft)))
+		return &fi_builtin;
+
+	for (struct fi_module* m = fi_modules; NULL != m->level; m++)
+		if ((0 == strcmp(level, m->level)) && (0 == strcmp(fft, m->fft)))
+			return fi_module_api(m);
 
 	return NULL;
 }
 
-/* The newest level that is available, unless one was asked for.  Called
- * under fi_lock. */
+/* What was asked for, or the newest level available on the preferred FFT.
+ * Called under fi_lock. */
 static const struct fi_api* fi_api(void)
 {
 	if (NULL != fi_current)
 		return fi_current;
 
-	if (!fi_requested_set) {
+	if (!fi_environment_read) {
 
-		const char* env = getenv("BARTORCH_FINUFFT_SIMD");
+		fi_environment_read = 1;
 
-		if ((NULL != env) && ('\0' != env[0]) && (strlen(env) < sizeof fi_requested)) {
+		const char* level = getenv("BARTORCH_FINUFFT_SIMD");
 
-			strcpy(fi_requested, env);
-			fi_requested_set = 1;
-		}
+		if ((NULL != level) && (strlen(level) < sizeof fi_requested))
+			strcpy(fi_requested, level);
 	}
 
-	if (fi_requested_set)
-		fi_current = fi_level(fi_requested);
+	if ('\0' != fi_requested[0])
+		fi_current = fi_level(fi_requested, fi_requested_fft);
 
 	int newest = (int)(sizeof fi_modules / sizeof fi_modules[0]) - 2;
 
 	for (int i = newest; (NULL == fi_current) && (i >= 0); i--)
-		fi_current = fi_level(fi_modules[i].level);
+		fi_current = fi_level(fi_modules[i].level, fi_requested_fft);
+
+	if (NULL == fi_current)
+		fi_current = fi_level(fi_builtin.level, fi_requested_fft);
 
 	if (NULL == fi_current)
 		fi_current = &fi_builtin;
 
 	return fi_current;
+}
+
+/* Hand over one of oneMKL's FFTW3 entry points, by name.  Fails for a name a
+ * module on oneMKL does not call.  Plans made from then on are made on
+ * oneMKL, once all of them are here, unless an FFT was asked for. */
+int bartorch_finufft_fftw_set(const char* name, void* address)
+{
+	int ret = -1;
+
+	pthread_mutex_lock(&fi_lock);
+
+	for (int i = 0; i < FI_FFTW_COUNT; i++) {
+
+		if (0 == strcmp(name, fi_fftw_names[i])) {
+
+			fi_fftw[i] = address;
+			fi_current = NULL;
+			ret = 0;
+		}
+	}
+
+	pthread_mutex_unlock(&fi_lock);
+
+	return ret;
 }
 
 /* The instruction-set levels FINUFFT's CPU transform is built for, the one
@@ -279,6 +394,9 @@ const char* bartorch_finufft_simd_built(void)
 
 		for (const struct fi_module* m = fi_modules; NULL != m->level; m++) {
 
+			if (0 != strcmp(m->fft, fi_builtin.fft))
+				continue;
+
 			strcat(levels, ",");
 			strcat(levels, m->level);
 		}
@@ -287,6 +405,33 @@ const char* bartorch_finufft_simd_built(void)
 	pthread_mutex_unlock(&fi_lock);
 
 	return levels;
+}
+
+/* The FFTs FINUFFT's CPU transform is built on, the library's own first,
+ * separated by commas. */
+const char* bartorch_finufft_fft_built(void)
+{
+	static char ffts[64];
+
+	pthread_mutex_lock(&fi_lock);
+
+	if ('\0' == ffts[0]) {
+
+		strcpy(ffts, fi_builtin.fft);
+
+		for (const struct fi_module* m = fi_modules; NULL != m->level; m++) {
+
+			if ((0 == strcmp(m->fft, fi_builtin.fft)) || (NULL != strstr(ffts, m->fft)))
+				continue;
+
+			strcat(ffts, ",");
+			strcat(ffts, m->fft);
+		}
+	}
+
+	pthread_mutex_unlock(&fi_lock);
+
+	return ffts;
 }
 
 /* The level plans on the host are made at from now on. */
@@ -299,39 +444,81 @@ const char* bartorch_finufft_simd(void)
 	return level;
 }
 
-/* Make plans at `level`, or at the newest available one for NULL or "".
- * Fails, and leaves the level as it was, for one this build does not carry or
- * this processor does not run.  Plans already made keep theirs. */
-int bartorch_finufft_set_simd(const char* level)
+/* The FFT plans on the host are made on from now on. */
+const char* bartorch_finufft_fft(void)
 {
-	int ret = 0;
+	pthread_mutex_lock(&fi_lock);
+	const char* fft = fi_api()->fft;
+	pthread_mutex_unlock(&fi_lock);
+
+	return fft;
+}
+
+/* Make plans at `level` on `fft`, where either may be NULL or "" for the
+ * default.  Fails, and changes nothing, for a combination this build does not
+ * carry, this processor does not run or the process has no FFT for.  Plans
+ * already made keep theirs. */
+static int fi_request(const char* level, const char* fft)
+{
+	level = (NULL == level) ? "" : level;
+	fft = (NULL == fft) ? "" : fft;
+
+	if ((strlen(level) >= sizeof fi_requested) || (strlen(fft) >= sizeof fi_requested_fft))
+		return -1;
 
 	pthread_mutex_lock(&fi_lock);
 
-	if ((NULL == level) || ('\0' == level[0])) {
+	fi_environment_read = 1;
 
-		fi_current = NULL;
-		fi_requested_set = 1;
-		fi_requested[0] = '\0';
-		fi_api();
+	char old_level[sizeof fi_requested];
+	char old_fft[sizeof fi_requested_fft];
 
-	} else {
+	strcpy(old_level, fi_requested);
+	strcpy(old_fft, fi_requested_fft);
 
-		const struct fi_api* api = fi_level(level);
+	const struct fi_api* old = fi_current;
 
-		if (NULL == api) {
+	strcpy(fi_requested, level);
+	strcpy(fi_requested_fft, fft);
+	fi_current = NULL;
 
-			ret = -1;
+	const struct fi_api* api = fi_api();
+	int ret = 0;
 
-		} else {
+	if ((('\0' != level[0]) && (0 != strcmp(level, api->level)))
+			|| (('\0' != fft[0]) && (0 != strcmp(fft, api->fft)))) {
 
-			fi_current = api;
-		}
+		strcpy(fi_requested, old_level);
+		strcpy(fi_requested_fft, old_fft);
+		fi_current = old;
+		ret = -1;
 	}
 
 	pthread_mutex_unlock(&fi_lock);
 
 	return ret;
+}
+
+int bartorch_finufft_set_simd(const char* level)
+{
+	pthread_mutex_lock(&fi_lock);
+	fi_api();
+	char fft[sizeof fi_requested_fft];
+	strcpy(fft, fi_requested_fft);
+	pthread_mutex_unlock(&fi_lock);
+
+	return fi_request(level, fft);
+}
+
+int bartorch_finufft_set_fft(const char* fft)
+{
+	pthread_mutex_lock(&fi_lock);
+	fi_api();
+	char level[sizeof fi_requested];
+	strcpy(level, fi_requested);
+	pthread_mutex_unlock(&fi_lock);
+
+	return fi_request(level, fft);
 }
 
 /* The version of FINUFFT compiled in, from the submodule's CMakeLists. */

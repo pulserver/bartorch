@@ -42,6 +42,7 @@ would otherwise have been linked against.
 | `src/csrc/ops/iter.c` | The solve `pics` runs -- `italgo_config`, `lsqr2` -- over an operator and terms the host assembled. |
 | `src/csrc/substitute/fft.cpp` | The FFTW guru interface BART plans with, executed by MKL where the process has it. |
 | `src/csrc/substitute/backend.[ch]`, `ref_blas.c`, `cblas_shim.c`, `lapacke_shim.c` | CBLAS and LAPACKE as BART calls them, forwarded to a table of Fortran-ABI routines with reference BLAS as the fallback. |
+| `src/csrc/substitute/fftw_bind.c` | The FFTW3 functions a FINUFFT module on oneMKL calls, forwarded to the ones the host hands over. |
 | `src/csrc/substitute/finufft.c`, `nufft_finufft.c` | FINUFFT's and cuFINUFFT's plans through their C API, and BART's NUFFT operator built out of a pair of their plans -- and the normal, which stores one of those in BART's operator through `noncart/nufft_priv.h` rather than letting it grid one. |
 | `src/csrc/substitute/openmp.c` | `__kmpc_dispatch_deinit` for an OpenMP runtime that lacks it, on macOS and Windows. |
 | `src/csrc/substitute/psf.c` | The three `compute_psf*` entry points, so that the adjoint transform a point spread function is comes from the substitution. |
@@ -59,7 +60,7 @@ would otherwise have been linked against.
 | `scripts/make_artwork.py` | Draws the logo, the mark and the explanation figures under `docs/_static/`. |
 | `scripts/check_device.py` | Everything a card can answer that a host cannot, in dependency order. |
 | `cmake/embed.cmake` | Writes a file's bytes into a C array, for the LTO-IR the CUDA build links. |
-| `cmake/finufft.cmake` | Builds `external/finufft` into the library, and again for each x86-64 level as a module beside it (`finufft_module.map` is what one exports), and writes the notices of what it compiles in. |
+| `cmake/finufft.cmake` | Builds `external/finufft` into the library, and again for each x86-64 level as a module beside it (`finufft_module.map` is what one exports) and on x86-64 Linux once more on oneMKL (`mkl_prefix.py` finds its header), and writes the notices of what it compiles in. |
 | `cmake/openmp.cmake` | The OpenMP runtime BART and FINUFFT are bound to: the toolchain's on Linux, torch's on macOS and Windows. |
 | `attic/prototype/` | An earlier pybind11 extension, kept for reference and not built. |
 
@@ -175,7 +176,12 @@ Their notices are written at configure time and installed into the wheel's
 `.dist-info/licenses/finufft-dependencies/`.
 
 FINUFFT's FFT is DUCC0's (`FINUFFT_USE_DUCC0`) in every wheel.  FFTW itself
-is GPL and is not built.  `BARTORCH_FINUFFT_FFT=MKL` is the one alternative: a
+is GPL and is not built.  On x86-64 Linux each SIMD module is built a
+second time on FINUFFT's FFTW path against oneMKL's `fftw3.h` (`mkl-include`,
+headers only), linking no MKL: `src/csrc/substitute/fftw_bind.c` forwards the
+sixteen FFTW3 functions through pointers `_backend` hands over from the
+`libmkl_rt` the `mkl` extra installs, and those modules are preferred once it
+has.  `BARTORCH_FINUFFT_FFT=MKL` is the other alternative: a
 source build on x86-64 Linux that links FINUFFT's own FFTW path against
 oneMKL's FFTW3 interface in `libmkl_rt`, the library the `mkl` extra puts in
 the process for BART's tables too.  It is not the default because that

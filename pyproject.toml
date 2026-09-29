@@ -1,5 +1,10 @@
 [build-system]
-requires = ["scikit-build-core>=0.11", "setuptools-scm>=8"]
+requires = [
+    "scikit-build-core>=0.11",
+    "setuptools-scm>=8",
+    # oneMKL's FFTW3 header, for the FINUFFT modules on oneMKL; no library.
+    "mkl-include; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
 build-backend = "scikit_build_core.build"
 
 [project]
