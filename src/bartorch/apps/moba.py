@@ -74,6 +74,29 @@ def _scale(model: nlop.SignalModel, images) -> float:
     return optim.data_scaling(made, A=linop.Identity(tuple(made.shape))) or 1.0
 
 
+#: How far inside its bound a reference value is clamped, as a fraction of the
+#: interval (or of the bound's magnitude, for a one-sided one).  A value on a
+#: bound has no image in the bounded parameterisation.
+_INSIDE = 1e-3
+
+
+def _inside(model: nlop.SignalModel, named: dict[str, Any]) -> dict[str, Any]:
+    """``named`` with each bounded property clamped strictly inside its bound."""
+    clamped = dict(named)
+    for name, value in named.items():
+        low, high = model.model.bounds.get(name, (None, None))
+        if low is None and high is None:
+            continue
+        width = high - low if low is not None and high is not None else None
+        value = torch.as_tensor(value, dtype=torch.float32)
+        if low is not None:
+            value = value.clamp(min=low + _INSIDE * (width or max(abs(low), 1.0)))
+        if high is not None:
+            value = value.clamp(max=high - _INSIDE * (width or max(abs(high), 1.0)))
+        clamped[name] = value
+    return clamped
+
+
 def _given(kspace, sensitivities, model, traj, pattern):
     """The linear encoding over known sensitivities, and the data in its layout."""
     voxels, contrasts = model.voxels, model.contrasts
@@ -124,6 +147,7 @@ def moba(
     redu: float = 2.0,
     sobolev: tuple[float, float] = _SOBOLEV,
     start: torch.Tensor | None = None,
+    reference: dict[str, Any] | None = None,
     scaling: float | None = None,
     return_sensitivities: bool = False,
     **values: Any,
@@ -189,6 +213,13 @@ def moba(
         Maps to start from, of the model's input shape, in the units the solve
         works in -- with the amplitude divided by ``scaling``.  Built from
         ``**values`` when it is not given.
+    reference : dict of str, default=None
+        Maps each Gauss-Newton step is regularized towards, ``{name: value}``
+        in each property's own units as ``**values`` takes them, with an
+        amplitude in the data's units; a name left out takes the model's
+        default.  The start when not given.  A value outside the model's bounds
+        is clamped to them, so a limit such as a vanishing rate is approached
+        from inside.
     scaling : float, default=None
         The factor the data is divided by for the solve; the fitted amplitude
         is multiplied by it again.  Estimated when not given, by the rule of
@@ -220,8 +251,8 @@ def moba(
 
     Notes
     -----
-    Each step is regularized towards the start -- the maps towards where they
-    started, the coil coefficients towards zero -- where the command
+    Each step is regularized towards ``reference`` -- by default the maps
+    towards where they started, the coil coefficients towards zero -- where the command
     regularizes towards zero.  Zero in TorchSim's parameterisation is the
     middle of each bound and no amplitude, not a plausible map, and the coils start
     at zero, as the command starts them: at that point the data has no
@@ -240,9 +271,15 @@ def moba(
 
     def fit(F, data, images, coefficients=None):
         scale = _scale(model, images) if scaling is None else float(scaling)
-        amplitude = values.get("amplitude")
-        given = values if amplitude is None else {**values, "amplitude": amplitude / scale}
-        x0 = model.initial(**given) if start is None else start
+
+        def packed(named):
+            amplitude = named.get("amplitude")
+            return model.initial(
+                **(named if amplitude is None else {**named, "amplitude": amplitude / scale})
+            )
+
+        x0 = packed(values) if start is None else start
+        xref = x0 if reference is None else packed(_inside(model, reference))
         solver = nlop.IRGNM(
             iterations=iterations,
             alpha=alpha,
@@ -252,10 +289,10 @@ def moba(
             inner=optim.CG(maxiter=cg_maxiter) if inner is None else inner,
         )
         if coefficients is None:
-            fitted = solver(data * (1.0 / scale), F, x0=x0, xref=x0)
+            fitted = solver(data * (1.0 / scale), F, x0=x0, xref=xref)
         else:
             fitted, coefficients = solver(
-                data * (1.0 / scale), F, x0=(x0, coefficients), xref=(x0, coefficients)
+                data * (1.0 / scale), F, x0=(x0, coefficients), xref=(xref, coefficients)
             )
         maps = model.split(fitted)
         if "amplitude" in maps:

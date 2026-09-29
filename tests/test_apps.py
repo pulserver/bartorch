@@ -436,6 +436,44 @@ def test_moba_estimating_the_coils_returns_the_maps_alone_unless_asked():
         assert torch.equal(alone[name], value)
 
 
+def test_moba_regularizes_towards_the_start_unless_given_a_reference():
+    from bartorch import nlop
+
+    images, coils, *_ = _moba_phantom()
+    kspace = _moba_kspace(images, coils)
+    model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+
+    default = apps.moba(kspace, model, coils, **MOBA_SETTINGS, T2=80.0)
+    stated = apps.moba(kspace, model, coils, **MOBA_SETTINGS, T2=80.0, reference={"T2": 80.0})
+
+    for name, value in default.items():
+        assert torch.equal(stated[name], value)
+
+
+@pytest.mark.parametrize("sensitivities", [True, False], ids=["given", "estimated"])
+def test_a_heavily_weighted_reference_pulls_the_decay_towards_it(sensitivities):
+    """With a weight that does not decay, the fit is drawn to the reference.
+
+    A reference of no decay at all -- an R2 of zero, a T2 past the upper bound,
+    clamped inside it -- draws every voxel above the T2 a reference of a fast
+    decay draws it to, and above the start.
+    """
+    from bartorch import nlop
+
+    images, coils, _, support, _ = _moba_phantom()
+    kspace = _moba_kspace(images, coils)
+    model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+    settings = {**MOBA_SETTINGS, "alpha": 1e3, "alpha_min": 1e3, "redu": 1.0, "T2": 80.0}
+    given = (coils,) if sensitivities else ()
+
+    slow = apps.moba(kspace, model, *given, **settings, reference={"T2": float("inf")})
+    fast = apps.moba(kspace, model, *given, **settings, reference={"T2": 20.0})
+
+    assert bool((slow["T2"][support] > fast["T2"][support]).all())
+    assert bool((slow["T2"][support] > 80.0).all())
+    assert bool((fast["T2"][support] < 80.0).all())
+
+
 def test_moba_refuses_kspace_that_is_not_the_encodings_samples():
     from bartorch import nlop
 
