@@ -1649,8 +1649,15 @@ COMMANDS: dict[str, Command] = {
             Argument('covariance matrix', 'OUTFILE', False),
         ),
         options=(
-            Option('B', '', 'SELECT', '', 'bSSFP', '&seq', 'BSSFP'),
-            Option('M', '', 'SELECT', '', 'MOLLI', '&seq', 'MOLLI'),
+            Option(
+                'T',
+                '',
+                'SELECT',
+                '',
+                'Multi-Echo Spin Echo: f(M0, R2) = M0 * exp(-t * R2)',
+                '&seq',
+                'TSE',
+            ),
             Option(
                 'I',
                 '',
@@ -3650,10 +3657,6 @@ COMMANDS: dict[str, Command] = {
 #: BART starts using shows up here and fails a test rather than
 #: leaving an option missing with nothing to say so.
 UNREAD: dict[str, tuple[str, ...]] = {
-    'mobafit': (
-        '#if 0 OPT_SELECT(\'F\', enum seq_type, &seq, FLASH, "FLASH")',
-        '#endif OPT_SELECT(\'T\', enum seq_type, &seq, TSE, "Multi-Echo',
-    ),
     'nlinv': (
         '{ rR[1], NULL, true, OPT_SPECIAL, opt_reg, conf.regs, "<T>:A',
     ),
