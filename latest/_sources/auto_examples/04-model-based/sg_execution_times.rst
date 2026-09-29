@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:24.130** total execution time for 2 files **from auto_examples/04-model-based**:
+**00:47.673** total execution time for 2 files **from auto_examples/04-model-based**:
 
 .. container::
 
@@ -33,8 +33,8 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_04-model-based_02-quantitative-models.py` (``02-quantitative-models.py``)
-     - 00:21.629
+     - 00:42.786
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-model-based_01-nonlinear-inversion.py` (``01-nonlinear-inversion.py``)
-     - 00:02.501
+     - 00:04.887
      - 0.0

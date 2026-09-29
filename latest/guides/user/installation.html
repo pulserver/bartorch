@@ -559,6 +559,18 @@ installed, otherwise the routines PyTorch links, and SciPy’s for the rest.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span><span class="nv">CXX</span><span class="o">=</span>clang++<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>bartorch<span class="w"> </span>--no-binary<span class="w"> </span>bartorch
 </pre></div>
 </div>
+<p>FINUFFT computes the FFT inside its CPU transform with DUCC0, which is
+compiled into the library and is what every wheel contains.  On x86-64 Linux,
+a source build with oneMKL installed (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mkl</span> <span class="pre">mkl-devel</span></code>) can use
+oneMKL’s FFT through its FFTW3 interface instead:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"bartorch[mkl]"</span><span class="w"> </span>--no-binary<span class="w"> </span>bartorch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-C<span class="w"> </span>cmake.define.BARTORCH_FINUFFT_FFT<span class="o">=</span>MKL
+</pre></div>
+</div>
+<p>The library then links the <code class="docutils literal notranslate"><span class="pre">libmkl_rt</span></code> found at build time, and the <code class="docutils literal notranslate"><span class="pre">mkl</span></code>
+extra makes the same library serve BART’s BLAS, LAPACK and FFT.
+<code class="docutils literal notranslate"><span class="pre">finufft_fft=</span></code> in <a class="reference internal" href="../../generated/bartorch.build_info.html#bartorch.build_info" title="bartorch.build_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.build_info()</span></code></a> names the FFT the library was
+built with.</p>
 <p>A checkout of the repository is built as described in the
 <a class="reference internal" href="../developer/installation.html"><span class="doc">developer guide</span></a>.</p>
 </section>
