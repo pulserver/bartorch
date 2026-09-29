@@ -5,7 +5,7 @@ Networks for complex volumes
 
 **Aim.** Train a 3D convolutional denoiser on patches of a complex,
 multi-contrast brain volume, apply it to a whole volume of another subject
-patch by patch, as it would run on a scanner card too small for the volume,
+patch by patch, as it would run on a scanner GPU too small for the volume,
 and check that the patch boundaries leave no visible seams.
 
 The networks of the previous lessons denoise a single complex 2D slice. The
@@ -285,8 +285,8 @@ trainer.fit(
 # sends it to the network's device a few patches at a time, runs the network
 # there in mixed precision, and assembles the result on the host. On a GPU
 # only the network and ``batch`` patches are resident, so a volume larger than
-# the card's memory -- a whole-brain fingerprinting series on a scanner's
-# 16 GB card -- is denoised by a network trained on patches of it. At
+# the GPU memory -- a whole-brain fingerprinting series on a scanner's
+# 16 GB GPU -- is denoised by a network trained on patches of it. At
 # inference the copies of one group of patches overlap the computation on the
 # previous one. Here, on the host, the whole volume is also small enough to be
 # denoised in one call, which is the reference the patchwise result is

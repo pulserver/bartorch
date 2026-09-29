@@ -26,7 +26,7 @@ noise of the last.
 
 Training the stack end to end stores the activations of every iteration for
 the backward pass; for a 3D volume, or a series of them, that exceeds a
-single card. Urman et al. [#urman]_ reach the end-to-end result in three
+single GPU. Urman et al. [#urman]_ reach the end-to-end result in three
 stages whose memory is bounded by one iteration:
 
 1. **Denoiser pretraining.** The network alone learns to map degraded images

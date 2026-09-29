@@ -17,7 +17,7 @@ iteration touches the regularizer $g$ only through its proximal operator, a
 map from an image to a less noisy one, and a learned reconstruction replaces
 that map with a network.  The encoding, the data consistency step and the
 iteration remain BART's.  This page states the ways the network is placed and
-trained, how a network is applied to data larger than a card, and what an
+trained, how a network is applied to data larger than GPU memory, and what an
 uncertainty estimate from it does and does not state.
 
 ## Where the network enters
@@ -71,7 +71,7 @@ GPU.  The network is trained on patches, and
 {class}`~bartorch.learning.Patchwise` applies it to the whole image a few
 patches at a time: the image stays on the host, each group of patches is
 copied to the device, passed through the network under mixed precision
-(bfloat16 where the card supports it, float16 where it does not, such as a
+(bfloat16 where the GPU supports it, float16 where it does not, such as a
 T4) and copied back.  At inference the copies of one group run on a second
 stream while the network computes on another, so the transfers are hidden
 behind the computation.  What the device holds is the network and two groups
