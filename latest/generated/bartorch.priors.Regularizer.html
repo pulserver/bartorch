@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -484,6 +486,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.transform"><code class="docutils literal notranslate"><span class="pre">Regularizer.transform()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.rewind"><code class="docutils literal notranslate"><span class="pre">Regularizer.rewind()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.transform_is_identity"><code class="docutils literal notranslate"><span class="pre">Regularizer.transform_is_identity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.detach"><code class="docutils literal notranslate"><span class="pre">Regularizer.detach()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -600,7 +603,7 @@ applies the same proximal operator the library would have.</p>
 backward pass is implemented for BART’s proximal operators, and
 treating one as the identity would zero the gradient path through the
 regularizer.  Use <a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> for a
-differentiable proximal step, or <a class="reference internal" href="bartorch.priors.frozen.html#bartorch.priors.frozen" title="bartorch.priors.frozen"><code class="xref py py-func docutils literal notranslate"><span class="pre">frozen()</span></code></a> to hold this one fixed.</p>
+differentiable proximal step, or <a class="reference internal" href="#bartorch.priors.Regularizer.detach" title="bartorch.priors.Regularizer.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">detach()</span></code></a> to hold this one fixed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -709,6 +712,23 @@ treating it as the primal proximal step rather than a dual one.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="bartorch.priors.Regularizer.detach">
+<span class="sig-name descname"><span class="pre">detach</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.detach" title="Link to this definition">#</a></dt>
+<dd><p>This term with its proximal step detached, for a differentiated solve.</p>
+<p>No backward pass is implemented for BART’s proximal operators, so
+<a class="reference internal" href="#bartorch.priors.Regularizer.prox" title="bartorch.priors.Regularizer.prox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox()</span></code></a> raises on a tensor that requires a gradient rather than
+contributing an incorrect one.  The detached term thresholds exactly as
+before, and the gradient obtained is the one the iteration has with
+this term held fixed: the use is a solve in which a differentiable
+denoiser occupies one term and a BART term another, and only the
+denoiser is trained.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optim</span><span class="o">.</span><span class="n">admm</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="p">[</span><span class="n">denoiser</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()])</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -754,6 +774,7 @@ treating it as the primal proximal step rather than a dual one.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.transform"><code class="docutils literal notranslate"><span class="pre">Regularizer.transform()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.rewind"><code class="docutils literal notranslate"><span class="pre">Regularizer.rewind()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.transform_is_identity"><code class="docutils literal notranslate"><span class="pre">Regularizer.transform_is_identity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.detach"><code class="docutils literal notranslate"><span class="pre">Regularizer.detach()</span></code></a></li>
 </ul>
 </li>
 </ul>

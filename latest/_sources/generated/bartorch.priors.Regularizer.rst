@@ -21,4 +21,6 @@
 
    .. automethod:: transform_is_identity
 
+   .. automethod:: detach
+
 

@@ -23,6 +23,9 @@ extras:
 ```bash
 python -m pip install 'bartorch[mkl]'        # Linux x86-64: MKL for BLAS, LAPACK and FFT
 python -m pip install 'bartorch[deepinv]'    # bartorch.interop.to_deepinv
+python -m pip install 'bartorch[correct]'    # SimpleITK, for bias field and gradient nonlinearity correction
+python -m pip install 'bartorch[motion]'     # SimpleITK, for navigator registration
+python -m pip install 'bartorch[pyhysco]'    # PyHySCO (GPL-3.0-only), for susceptibility correction
 ```
 
 The installation is checked by building a phantom:
@@ -50,10 +53,10 @@ Where no wheel exists, pip builds the source distribution, which needs:
 
 | Tool | Requirement |
 | --- | --- |
-| C and C++ compiler | clang, or GCC 14 or later; BART's nested functions are compiled as clang Blocks or as GCC heap trampolines, and older GCC is rejected at configuration |
+| C and C++ compiler | clang, or GCC 14 or later; BART's nested functions are compiled as clang Blocks or as GCC heap trampolines, and older GCC is rejected at configuration.  On Windows, clang from MSYS2's CLANG64 environment, as {doc}`../developer/prerequisites` describes |
 | CMake | 3.25 or later |
 | Git and network access | FINUFFT's build fetches the versions of xsimd, POET and DUCC0 it pins, and CCCL for a CUDA build; `CPM_SOURCE_CACHE` names a directory that keeps them for later builds |
-| OpenMP | Linux: the compiler's OpenMP runtime, for example `libomp-dev` with clang on Debian and Ubuntu.  macOS: the header from Homebrew's `libomp`; the library links against PyTorch's runtime.  Without it the build fails unless `-C cmake.define.BARTORCH_OPENMP=OFF` asks for a single-threaded library |
+| OpenMP | Linux: the compiler's OpenMP runtime, for example `libomp-dev` with clang on Debian and Ubuntu.  macOS: the header from Homebrew's `libomp`.  Windows: MSYS2's `llvm-openmp`, for the header.  On macOS and Windows the library links against PyTorch's runtime.  Without OpenMP the build fails unless `-C cmake.define.BARTORCH_OPENMP=OFF` asks for a single-threaded library |
 
 The compiler is selected with `CC` and `CXX`:
 
@@ -61,8 +64,8 @@ The compiler is selected with `CC` and `CXX`:
 CC=clang CXX=clang++ python -m pip install bartorch --no-binary bartorch
 ```
 
-FINUFFT computes the FFT inside its CPU transform with DUCC0, which is
-compiled into the library and is what every wheel contains.  On x86-64 Linux,
+FINUFFT computes the FFT inside its CPU transform with DUCC0, which every
+wheel has compiled into the library.  On x86-64 Linux,
 a source build with oneMKL installed (`pip install mkl mkl-devel`) can use
 oneMKL's FFT through its FFTW3 interface instead:
 
@@ -105,7 +108,8 @@ A checkout of the repository is built as described in the
 
 CUDA support requires a CUDA build of both PyTorch and bartorch;
 `torch.cuda.is_available()` and {func}`bartorch.cuda_available` report each.
-The PyPI wheel is the CPU build.  The CUDA build of each version, a Linux
+The PyPI wheels are CPU builds, and there is no CUDA build on macOS or
+Windows.  The CUDA build of each version, a Linux
 x86-64 wheel with the same file name, is attached to the
 [GitHub release](https://github.com/pulserver/bartorch/releases) of that
 version:

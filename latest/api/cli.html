@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -483,11 +485,22 @@ bartorch<span class="w"> </span>ecalib<span class="w"> </span>-m1<span class="w"
 bartorch<span class="w"> </span>--list
 </pre></div>
 </div>
-<p>A command for which <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.apps</span></code> has a pipeline is parsed into a call
-of that app; every other command runs as the BART command, in the same
-process, through the entry point <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> uses.  The options are
-read from BART’s own command declarations, and an option the app does not
-express sends the command line to the BART command.
+<p>A command for which <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.apps</span></code> has a pipeline – <code class="docutils literal notranslate"><span class="pre">pics</span></code>, <code class="docutils literal notranslate"><span class="pre">mobafit</span></code>
+and <code class="docutils literal notranslate"><span class="pre">moba</span></code> – is parsed into a call of that app; every other command runs as
+the BART command, in the same process, through the entry point
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> uses.  The options are read from BART’s own command
+declarations, and an option the app does not express sends the command line to
+the BART command.</p>
+<p>Either route writes the output files of the BART command, in its array layout
+and units.  A <code class="docutils literal notranslate"><span class="pre">pics</span></code> command line routed to the app writes the same values
+bit for bit.  <code class="docutils literal notranslate"><span class="pre">mobafit</span></code> and <code class="docutils literal notranslate"><span class="pre">moba</span></code> are routed for the models whose parameters
+the TorchSim model of the app represents exactly – <code class="docutils literal notranslate"><span class="pre">-T</span></code>, <code class="docutils literal notranslate"><span class="pre">-I</span></code> and <code class="docutils literal notranslate"><span class="pre">-L</span></code> for
+<code class="docutils literal notranslate"><span class="pre">mobafit</span></code>, and <code class="docutils literal notranslate"><span class="pre">-T</span></code> and <code class="docutils literal notranslate"><span class="pre">-L</span></code> with <code class="docutils literal notranslate"><span class="pre">-l2</span></code> on a Cartesian grid for <code class="docutils literal notranslate"><span class="pre">moba</span></code> – and
+the fitted maps are converted to BART’s coefficients: relaxation rates in 1/s
+for times in seconds, stacked along <code class="docutils literal notranslate"><span class="pre">COEFF_DIM</span></code>.  Their values agree with the
+BART command to the accuracy of the fit, since the two minimize the same
+objective in different parameterizations.  <code class="docutils literal notranslate"><span class="pre">-i</span></code>, which counts Gauss-Newton
+steps in BART’s parameterization, sends either command to BART.
 <code class="docutils literal notranslate"><span class="pre">bartorch</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code> prints BART’s help text for the command.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>

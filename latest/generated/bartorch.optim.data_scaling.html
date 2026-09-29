@@ -228,10 +228,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -502,8 +504,8 @@ operator takes, because the estimate is read off the k-space centre and
 a misplaced coil axis moves it.</p></li>
 <li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – The encoding.  With one, the estimate used for a non-Cartesian
 acquisition: the spread of <code class="docutils literal notranslate"><span class="pre">|A^H</span> <span class="pre">y|</span></code> from its order statistics.
-Without one, the k-space-centre estimate of
-<a class="reference internal" href="bartorch.tools.estscaling.html#bartorch.tools.estscaling" title="bartorch.tools.estscaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.estscaling()</span></code></a>, used for a Cartesian acquisition.</p></li>
+Without one, the k-space-centre estimate BART’s <code class="docutils literal notranslate"><span class="pre">estscaling</span></code>
+makes, used for a Cartesian acquisition.</p></li>
 <li><p><strong>percentile</strong> (<em>float</em><em>, </em><em>default=None</em>) – Take this percentile of the sorted magnitudes instead of BART’s
 rule.</p></li>
 <li><p><strong>compat</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Take the median, as BART’s older estimate did.  Only with <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
@@ -537,18 +539,24 @@ is conventionally left so rather than divided back.</p>
 
 <section id="examples-using-data-scaling">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">data_scaling</span></code><a class="headerlink" href="#examples-using-data-scaling" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The same reconstruction written as an encoding operator and a solver rather than as a call to a BART application."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/01-basics/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Three regularization terms applied to the same undersampled SENSE problem, and the dependence of the reconstruction error on the regularization weight."><img alt="" src="../_images/sphx_glr_01-regularized-reconstruction_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Regularized reconstruction</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The same reconstruction written as an encoding operator and a solver rather than as a call to a BART application."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p>
   <div class="sphx-glr-thumbnail-title">Operators and solvers</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="An undersampled golden-angle radial acquisition reconstructed by regularized least squares, with the non-Cartesian SENSE operator"><img alt="" src="../_images/sphx_glr_02-radial-sense_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/02-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p>
+<p><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p>
   <div class="sphx-glr-thumbnail-title">Radial SENSE reconstruction</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A continuously acquired golden-angle radial scan reconstructed as a time series, with a temporal regularizer compensating for the undersampling of each frame."><img alt="" src="../_images/sphx_glr_01-dynamic-golden-angle_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/03-applications/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A continuously acquired golden-angle radial scan reconstructed as a time series, with a temporal regularizer compensating for the undersampling of each frame."><img alt="" src="../_images/sphx_glr_03-dynamic-golden-angle_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p>
   <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="An inversion-recovery FLASH acquisition of four hundred frames, one spoke each, reconstructed into the coefficients of a signal subspace and fitted for T_1."><img alt="" src="../_images/sphx_glr_02-subspace-t1-mapping_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/03-applications/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An inversion-recovery FLASH acquisition of four hundred frames, one spoke each, reconstructed into the coefficients of a signal subspace and fitted for T_1."><img alt="" src="../_images/sphx_glr_01-subspace-t1-mapping_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p>
   <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A multi-echo spin-echo acquisition fitted for T_2 in two ways: by reconstructing the echo images and fitting them afterwards, and by putting the signal model inside the forward operator and fitting the k-space directly."><img alt="" src="../_images/sphx_glr_02-quantitative-models_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
 </div></div></section>
 </section>
 

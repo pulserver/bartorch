@@ -21,6 +21,11 @@ bartorch
    fftmod
    nufft
    nufft_adjoint
+   estimate_density
+   hann_window
+   fermi_window
+   apodize
+   remove_readout_oversampling
    fwt
    iwt
    soft_thresh
@@ -29,7 +34,6 @@ bartorch
    flip
    circshift
    conv
-   window
    median_filter
    moving_average
    normalize
@@ -149,7 +153,6 @@ bartorch.optim
    FISTA
    ADMM
    PRIDU
-   NIHT
    POCS
    Tikhonov
    maxeigen
@@ -159,7 +162,6 @@ bartorch.optim
    fista
    admm
    pridu
-   niht
    pocs
    ISTBlock
    FISTABlock
@@ -190,11 +192,8 @@ bartorch.priors
    TotalGeneralizedVariation
    InfimalConvolutionTV
    InfimalConvolutionTGV
-   WaveletNIHT
-   ImageNIHT
    Regularizer
    ImplicitPrior
-   frozen
    rof
    tgv
    nlmeans
@@ -208,7 +207,6 @@ bartorch.learning
    :toctree: generated
    :nosignatures:
 
-   Denoiser
    Unrolled
    as_real
    as_complex
@@ -225,6 +223,7 @@ bartorch.apps
    pics
    pocsense
    mobafit
+   moba
 
 bartorch.tools
 --------------
@@ -245,6 +244,7 @@ bartorch.tools
    poisson
    upat
    raga
+   grog
    psf
    wavepsf
    estdims
@@ -258,27 +258,16 @@ bartorch.tools
    calmat
    ecaltwo
    walsh
+   nlinv
    ncalib
    cc
    ccapply
    rovir
    whiten
    estvar
-   estscaling
    phasepole
-   pics
-   nlinv
-   moba
-   mobafit
-   looklocker
-   itsense
-   sake
-   lrmatrix
-   homodyne
-   grog
-   wave
-   wshfl
    fovshift
+   homodyne
    affine_transform
    warp
    register_affine
@@ -289,6 +278,27 @@ bartorch.tools
    psnr
    ssim
    roi_stat
+   sake
+   lrmatrix
+   epi_ramp_operator
+   estimate_epi_phase
+   correct_lines
+   bias_field_correct
+   GradientCoefficients
+   CoefficientAccessor
+   Gradunwarp
+   field_map_from_phase
+   ReadoutTiming
+   SpiralTransfer
+   fit_transfer
+   deblur
+   correct_susceptibility
+   SusceptibilityCorrection
+   reconstruct_navigator
+   RigidRegistration
+   RigidMotionEstimate
+   RigidMotionEKF
+   NavigatorMotionTracker
 
 bartorch.io
 -----------

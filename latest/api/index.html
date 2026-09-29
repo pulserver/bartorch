@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Array functions and settings" href="functions.html" />
-    <link rel="prev" title="MoDL, on BART’s ADMM" href="../auto_examples/05-deep-learning/01-modl-with-admm.html" />
+    <link rel="prev" title="Rigid head motion from navigators" href="../auto_examples/07-tours/06-navigator-motion.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -489,11 +491,11 @@ complete workflows in the <a class="reference internal" href="../examples/index.
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="functions.html"><span class="doc">Array functions and settings</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bartorch</span></code></p></td>
-<td><p>Fourier and wavelet transforms, thresholding, array functions, runtime settings</p></td>
+<td><p>Fourier and non-uniform Fourier transforms, density compensation, k-space windows, wavelet transforms, thresholding, array functions, runtime settings</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="tools.html"><span class="doc">BART commands as functions</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bartorch.tools</span></code></p></td>
-<td><p>BART’s commands as functions: simulation, sampling, calibration, reconstruction, registration and metrics</p></td>
+<td><p>BART’s commands as functions — simulation, sampling, calibration, preprocessing, registration, metrics and low-rank completion — and corrections and rigid motion estimation outside the reconstruction</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="linop.html"><span class="doc">Linear operators</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bartorch.linop</span></code></p></td>
@@ -509,7 +511,7 @@ complete workflows in the <a class="reference internal" href="../examples/index.
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="priors.html"><span class="doc">Regularization and denoising</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bartorch.priors</span></code></p></td>
-<td><p>Regularization terms, plug-and-play priors and denoisers</p></td>
+<td><p>Regularization terms, plug-and-play priors and BART’s denoisers</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="apps.html"><span class="doc">Reconstruction pipelines</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bartorch.apps</span></code></p></td>
@@ -517,7 +519,7 @@ complete workflows in the <a class="reference internal" href="../examples/index.
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="learning.html"><span class="doc">Learning</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bartorch.learning</span></code></p></td>
-<td><p>Adapters for neural networks and unrolled iterations</p></td>
+<td><p>Unrolled iterations and real/complex channel conversions</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="interop.html"><span class="doc">Interoperability</span></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bartorch.interop</span></code></p></td>
@@ -550,12 +552,12 @@ complete workflows in the <a class="reference internal" href="../examples/index.
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../auto_examples/05-deep-learning/01-modl-with-admm.html"
+       href="../auto_examples/07-tours/06-navigator-motion.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">MoDL, on BART’s ADMM</p>
+        <p class="prev-next-title">Rigid head motion from navigators</p>
       </div>
     </a>
     <a class="right-next"

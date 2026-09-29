@@ -231,10 +231,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -502,7 +504,7 @@
 <a class="reference external" href="https://pypistats.org/packages/bartorch"><img alt="Downloads" src="https://img.shields.io/pypi/dm/bartorch.svg" /></a>
 <a class="reference external" href="https://pypi.org/project/bartorch/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/bartorch.svg" /></a>
 <a class="reference external" href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-%E2%89%A5%202.2-ee4c2c?logo=pytorch&amp;logoColor=white" /></a>
-<a class="reference external" href="https://github.com/pulserver/bartorch/blob/main/.github/workflows/publish.yml"><img alt="Wheels" src="https://img.shields.io/badge/wheels-Linux%20x86--64%20%7C%20macOS%20arm64-2f6f9f" /></a>
+<a class="reference external" href="https://github.com/pulserver/bartorch/blob/main/.github/workflows/publish.yml"><img alt="Wheels" src="https://img.shields.io/badge/wheels-Linux%20x86--64%20%7C%20macOS%20arm64%20%7C%20Windows%20x86--64-2f6f9f" /></a>
 <a class="reference external" href="https://github.com/pulserver/bartorch/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-2f6f9f.svg" /></a>
 <a class="reference external" href="https://github.com/pulserver/bartorch"><img alt="Source" src="https://img.shields.io/badge/source-GitHub-181717?logo=github" /></a>
 <a class="reference external" href="https://github.com/pulserver/bartorch/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/pulserver/bartorch?style=flat&amp;logo=github&amp;color=2f6f9f" /></a>
@@ -512,9 +514,10 @@
 </p>
 <p>bartorch embeds BART, the Berkeley Advanced Reconstruction Toolbox, in the
 Python process and calls it on PyTorch tensors in host or CUDA device memory.
-BART’s commands are Python functions; its linear and nonlinear operators are
-composable Python objects; its iterative algorithms are solver classes and
-iteration blocks.  Applying an operator or a solver to a tensor that
+BART’s linear and nonlinear operators are composable Python objects, its
+iterative algorithms are solver classes and iteration blocks, its
+reconstructions are pipelines assembled from both, and its remaining commands
+are Python functions.  Applying an operator or a solver to a tensor that
 requires a gradient records it for PyTorch autograd.  The arithmetic is BART’s
 except where bartorch substitutes a component: FINUFFT and cuFINUFFT compute
 every non-uniform Fourier transform, the FFT and BLAS/LAPACK routines come from
@@ -523,8 +526,13 @@ bartorch’s own executor built from BART’s operators.</p>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>BART commands (<code class="docutils literal notranslate"><span class="pre">pics</span></code>, <code class="docutils literal notranslate"><span class="pre">ecalib</span></code>, <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>, <code class="docutils literal notranslate"><span class="pre">moba</span></code>, …) as functions of
-tensors, and the <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> command line, which accepts the arguments of <code class="docutils literal notranslate"><span class="pre">bart</span></code>.</p></li>
+<li><p>BART’s reconstructions (<code class="docutils literal notranslate"><span class="pre">pics</span></code>, <code class="docutils literal notranslate"><span class="pre">moba</span></code>, <code class="docutils literal notranslate"><span class="pre">mobafit</span></code>, POCSENSE) as pipelines of
+operators and solvers, and its calibration, sampling and simulation commands
+(<code class="docutils literal notranslate"><span class="pre">ecalib</span></code>, <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>, <code class="docutils literal notranslate"><span class="pre">traj</span></code>, <code class="docutils literal notranslate"><span class="pre">phantom</span></code>, …) as functions of tensors.</p></li>
+<li><p>Corrections outside the reconstruction (EPI ghosting, bias field, gradient
+nonlinearity, off-resonance and susceptibility distortion) and rigid motion
+estimation from navigators.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> command line, which accepts the arguments of <code class="docutils literal notranslate"><span class="pre">bart</span></code>.</p></li>
 <li><p>MRI encoding operators — Cartesian, non-Cartesian and wave-encoded SENSE,
 off-resonance correction — composed with <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> and <code class="docutils literal notranslate"><span class="pre">+</span></code> into single BART operators.</p></li>
 <li><p>BART’s regularization terms and its CG, IST, FISTA, ADMM and primal-dual
@@ -543,11 +551,11 @@ signal models from TorchSim.</p></li>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch.tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">priors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">apps</span><span class="p">,</span> <span class="n">priors</span>
 
 <span class="n">kspace</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">phantom</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">coils</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">kspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># (coils, z, y, x)</span>
 <span class="n">maps</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">ecalib</span><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">image</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">pics</span><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">regularizers</span><span class="o">=</span><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="mf">0.005</span><span class="p">),</span> <span class="n">solver</span><span class="o">=</span><span class="s2">"fista"</span><span class="p">)</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">pics</span><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">regularizers</span><span class="o">=</span><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="mf">0.005</span><span class="p">),</span> <span class="n">solver</span><span class="o">=</span><span class="s2">"fista"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The same reconstruction can be assembled from an encoding operator and a
@@ -575,8 +583,10 @@ gives the references and what else a reproducible report records.</p>
 </section>
 <section id="license">
 <h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
-<p>bartorch is MIT-licensed.  The embedded BART (BSD-3-Clause) and the vendored
-pocketfft (BSD-3-Clause) and BlocksRuntime (MIT or NCSA) keep their own licenses; see
+<p>bartorch is MIT-licensed.  The embedded BART (BSD-3-Clause) and FINUFFT
+(Apache-2.0), the libraries FINUFFT’s build compiles in with it, and the
+vendored pocketfft (BSD-3-Clause) and BlocksRuntime (MIT or NCSA) keep their
+own licenses; see
 <a class="reference internal" href="misc/license.html"><span class="std std-doc">License and third-party notices</span></a>.
 bartorch is an independent project, not affiliated with or endorsed by the BART
 developers, the PyTorch Foundation or The Linux Foundation.  The logo combines

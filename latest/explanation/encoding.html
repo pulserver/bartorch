@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -538,8 +540,10 @@ outside the object, the system is underdetermined or poorly conditioned and a
 regularized estimate is needed (<a class="reference internal" href="inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a>).</p>
 <p>The sensitivities are smooth functions of position, estimated from the data:
 <a class="reference internal" href="../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">ecalib()</span></code></a> by ESPIRiT from a fully sampled region of the
-k-space centre,<a class="footnote-reference brackets" href="#espirit" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="reference internal" href="../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">ncalib()</span></code></a> from non-Cartesian
-samples, and <a class="reference internal" href="nonlinear.html"><span class="doc">Nonlinear forward models</span></a> treats their estimation jointly with the image.</p>
+k-space centre,<a class="footnote-reference brackets" href="#espirit" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="reference internal" href="../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">nlinv()</span></code></a> by nonlinear inversion
+jointly with the image, on a Cartesian grid or along a trajectory, and
+<a class="reference internal" href="../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">ncalib()</span></code></a> from non-Cartesian samples; <a class="reference internal" href="nonlinear.html"><span class="doc">Nonlinear forward models</span></a>
+describes the joint estimation.</p>
 </section>
 <section id="the-encoding-form">
 <h2>The encoding form<a class="headerlink" href="#the-encoding-form" title="Link to this heading">#</a></h2>
@@ -631,6 +635,12 @@ built:</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fused</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> when the executor took the form and no sum of terms was left as a chain</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cartesian</span></code></p></td>
+<td><p>Trajectory axes found on the image grid and transformed by an FFT, the NUFFT then running over the others: <code class="docutils literal notranslate"><span class="pre">(&quot;z&quot;,)</span></code> for a stack of 2D trajectories</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
+<td><p>The number of items along encoding axes the image varies along, each with its own transform and normal kernel (below)</p></td>
 </tr>
 </tbody>
 </table>

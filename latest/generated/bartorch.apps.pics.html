@@ -228,10 +228,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -471,6 +473,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.pics"><code class="docutils literal notranslate"><span class="pre">pics()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-pics">Examples using <code class="docutils literal notranslate"><span class="pre">pics</span></code></a></li>
 </ul>
             </nav>
         </div>
@@ -488,7 +491,7 @@
 <dt class="sig sig-object py" id="bartorch.apps.pics">
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">pics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.pics" title="Link to this definition">#</a></dt>
 <dd><p>Parallel-imaging compressed-sensing reconstruction.</p>
-<p>The pipeline <a class="reference internal" href="bartorch.tools.pics.html#bartorch.tools.pics" title="bartorch.tools.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.pics()</span></code></a> runs, assembled here: the
+<p>The pipeline BART’s <code class="docutils literal notranslate"><span class="pre">pics</span></code> command runs, assembled here: the
 sampling pattern applied to the k-space, the modulation into the
 convention BART iterates in, the scaling estimated from what is left, and
 then an encoding from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code> under an iteration from
@@ -501,7 +504,7 @@ then an encoding from <code class="xref py py-mod docutils literal notranslate">
 <li><p><strong>sensitivities</strong> (<em>torch.Tensor</em>) – Coil sensitivities, as <a class="reference internal" href="bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">ecalib()</span></code></a> produces them.</p></li>
 <li><p><strong>regularizers</strong> (<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em> or </em><em>iterable</em><em> of </em><a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em>, </em><em>default=None</em>) – <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> terms.  Their axes index the image’s shape.</p></li>
 <li><p><strong>l2</strong> (<em>float</em><em>, </em><em>default=None</em>) – Plain Tikhonov weight.</p></li>
-<li><p><strong>solver</strong> (<em>{'cg'</em><em>, </em><em>'ist'</em><em>, </em><em>'fista'</em><em>, </em><em>'admm'</em><em>, </em><em>'pridu'</em><em>, </em><em>'niht'}</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">None</span></code> chooses from the terms, as the application does.  IST and
+<li><p><strong>solver</strong> (<em>{'cg'</em><em>, </em><em>'ist'</em><em>, </em><em>'fista'</em><em>, </em><em>'admm'</em><em>, </em><em>'pridu'}</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">None</span></code> chooses from the terms, as the application does.  IST and
 FISTA apply a term’s proximal operator to the image, so a first term
 over a transform – <a class="reference internal" href="bartorch.priors.FourierL1.html#bartorch.priors.FourierL1" title="bartorch.priors.FourierL1"><code class="xref py py-class docutils literal notranslate"><span class="pre">FourierL1</span></code></a>,
 <a class="reference internal" href="bartorch.priors.Laplace.html#bartorch.priors.Laplace" title="bartorch.priors.Laplace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Laplace</span></code></a> – for which the application
@@ -543,6 +546,27 @@ is what makes a regularization weight transferable.</p></li>
 </div>
 </dd></dl>
 
+<section id="examples-using-pics">
+<h2>Examples using <code class="docutils literal notranslate"><span class="pre">pics</span></code><a class="headerlink" href="#examples-using-pics" title="Link to this heading">#</a></h2>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Reconstruction of an undersampled Cartesian acquisition, from the measured k-space to a coil-combined image."><img alt="" src="../_images/sphx_glr_02-from-kspace-to-image_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a></p>
+  <div class="sphx-glr-thumbnail-title">From k-space to image</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Three estimates of the receive sensitivities of a coil array from the same undersampled Cartesian acquisition, and the SENSE reconstructions they lead to."><img alt="" src="../_images/sphx_glr_01-coil-calibration_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Coil sensitivity calibration</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The effect of channel-noise correlation on a SENSE reconstruction, and its removal by prewhitening with a noise measurement."><img alt="" src="../_images/sphx_glr_03-noise-prewhitening_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Three regularization terms applied to the same undersampled SENSE problem, and the dependence of the reconstruction error on the regularization weight."><img alt="" src="../_images/sphx_glr_01-regularized-reconstruction_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Regularized reconstruction</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The same reconstruction written as an encoding operator and a solver rather than as a call to a BART application."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Operators and solvers</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An undersampled golden-angle radial acquisition reconstructed by regularized least squares, with the non-Cartesian SENSE operator"><img alt="" src="../_images/sphx_glr_02-radial-sense_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Radial SENSE reconstruction</div>
+</div></div></section>
 </section>
 
 
@@ -575,6 +599,7 @@ is what makes a regularization weight transferable.</p></li>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.pics"><code class="docutils literal notranslate"><span class="pre">pics()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-pics">Examples using <code class="docutils literal notranslate"><span class="pre">pics</span></code></a></li>
 </ul>
   </nav></div>
 

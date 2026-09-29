@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -505,8 +507,10 @@
 </table>
 </div>
 <p>FINUFFT and cuFINUFFT are compiled into the library from <code class="docutils literal notranslate"><span class="pre">external/finufft</span></code>;
-no FINUFFT package is installed or used.  <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mkl</span> <span class="pre">deepinv</span></code> enables
-the tests that need MKL and the DeepInverse adapter.</p>
+no FINUFFT package is installed or used.  The <code class="docutils literal notranslate"><span class="pre">dev</span></code> extra installs SimpleITK
+for the correction and motion tests; <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mkl</span> <span class="pre">deepinv</span></code> enables the
+tests that need MKL and the DeepInverse adapter, and <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">PyHySCO</span></code>
+the susceptibility-correction tests.</p>
 <p>On Windows the compiler is clang from MSYS2’s CLANG64 environment, with the
 packages <code class="docutils literal notranslate"><span class="pre">mingw-w64-clang-x86_64-{clang,cmake,ninja,llvm-openmp,llvm-tools}</span></code>,
 <code class="docutils literal notranslate"><span class="pre">clang64/bin</span></code> on <code class="docutils literal notranslate"><span class="pre">PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">CMAKE_GENERATOR=Ninja</span></code>.  The build links against

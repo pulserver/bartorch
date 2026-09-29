@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -504,8 +506,8 @@ as plug-and-play regularization defines it, or <code class="docutils literal not
 <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is given.  Unlike a BART proximal operator this one is
 differentiable, so a solve containing it can be differentiated end to end.</p>
 <p>The denoiser receives a leading batch axis, of length one for a single
-image, and a complex image unchanged.  <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Parameter</span></code>, frozen until <code class="docutils literal notranslate"><span class="pre">requires_grad_()</span></code> is called.</p>
+image.  <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Parameter</span></code>, fixed until
+<code class="docutils literal notranslate"><span class="pre">requires_grad_()</span></code> is called.</p>
 <p><code class="docutils literal notranslate"><span class="pre">transform</span></code> is the linear operator <span class="math notranslate nohighlight">\(G\)</span> of a term <span class="math notranslate nohighlight">\(g(G x)\)</span>,
 as a regularizer built by BART also carries.  The denoiser is then applied
 on the codomain of <span class="math notranslate nohighlight">\(G\)</span> rather than to the image, and the
@@ -519,20 +521,40 @@ it <span class="math notranslate nohighlight">\(G\)</span> is the identity and t
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>denoiser</strong> (<em>callable</em>) – Called as <code class="docutils literal notranslate"><span class="pre">denoiser(x)</span></code>, or as <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma)</span></code> when a
-<code class="docutils literal notranslate"><span class="pre">sigma</span></code> is given, on <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">*shape)</span></code>, where <code class="docutils literal notranslate"><span class="pre">shape</span></code> is the
-image’s shape or, with a <code class="docutils literal notranslate"><span class="pre">transform</span></code>, the codomain of <span class="math notranslate nohighlight">\(G\)</span>.
-<a class="reference internal" href="bartorch.learning.Denoiser.html#bartorch.learning.Denoiser" title="bartorch.learning.Denoiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.Denoiser</span></code></a> adapts a network operating on real
-planes to this interface.</p></li>
+<code class="docutils literal notranslate"><span class="pre">sigma</span></code> is given.  Without <code class="docutils literal notranslate"><span class="pre">spatial</span></code> it receives the complex
+<code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">*shape)</span></code> tensor as it stands, where <code class="docutils literal notranslate"><span class="pre">shape</span></code> is the image’s
+shape or, with a <code class="docutils literal notranslate"><span class="pre">transform</span></code>, the codomain of <span class="math notranslate nohighlight">\(G\)</span>.  With
+<code class="docutils literal notranslate"><span class="pre">spatial</span></code> it is an image-restoration network on real
+<code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> planes of order unity – a <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">monai</span></code> or local <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code> – and the conversion is
+done here.</p></li>
 <li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>default=None</em>) – The noise level the denoiser is asked for, in the units its own
 convention states.</p></li>
 <li><p><strong>transform</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\(G\)</span>, mapping the image to the domain the denoiser is applied on.
 Only the iterations given a term’s transform use it; see
 <a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.transform_is_identity" title="bartorch.priors.Regularizer.transform_is_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bartorch.priors.Regularizer.transform_is_identity()</span></code></a>.</p></li>
+<li><p><strong>spatial</strong> (<em>{2</em><em>, </em><em>3}</em><em>, </em><em>default=None</em>) – Trailing axes the network operates on: 2 for a network trained on
+slices, 3 for one trained on volumes.  The axes in front of them are
+folded into the network’s batch axis.  <code class="docutils literal notranslate"><span class="pre">None</span></code> passes the complex
+tensor unconverted.</p></li>
+<li><p><strong>channels</strong> (<em>{1</em><em>, </em><em>2</em><em>, </em><em>3}</em><em>, </em><em>default=1</em>) – Input channels of the network: 1 for grayscale, 3 for RGB (a plane is
+repeated and the three outputs averaged), 2 for a network taking the
+real and imaginary planes jointly, as MoDL’s does.  Only with
+<code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
+<li><p><strong>parts</strong> (<em>{&quot;channels&quot;</em><em>, </em><em>&quot;separate&quot;</em><em>, </em><em>&quot;magnitude&quot;}</em><em>, </em><em>default=None</em>) – How the complex values become real planes: the real and imaginary
+parts as the network’s two channels, each part denoised on its own in
+one call over a doubled batch, or the modulus denoised with the phase
+kept.  Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;channels&quot;</span></code> for two channels and <code class="docutils literal notranslate"><span class="pre">&quot;separate&quot;</span></code>
+otherwise.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Scale each image to unit peak modulus around the call; <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is
+then in units of that peak.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optim</span><span class="o">.</span><span class="n">fista</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span><span class="p">(</span><span class="n">to_complex_denoiser</span><span class="p">(</span><span class="n">DRUNet</span><span class="p">()),</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">deepinv.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRUNet</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior</span> <span class="o">=</span> <span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span><span class="p">(</span><span class="n">DRUNet</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">fista</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span><span class="p">(</span><span class="n">denoiser</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">linop</span><span class="o">.</span><span class="n">MultiplySum</span><span class="p">(</span><span class="n">basis</span><span class="p">,</span> <span class="o">...</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -565,8 +587,11 @@ Only the iterations given a term’s transform use it; see
 
 <section id="examples-using-implicitprior">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">ImplicitPrior</span></code><a class="headerlink" href="#examples-using-implicitprior" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser in the proximal step of BART&#x27;s alternating-direction iteration, trained end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_01-modl-with-admm_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/05-deep-learning/01-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="A pretrained image denoiser used as the proximal step of BART&#x27;s iterations, in place of a specified regularization term, for an undersampled Cartesian SENSE acquisition."><img alt="" src="../_images/sphx_glr_01-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Plug-and-play denoisers</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser in the proximal step of BART&#x27;s alternating-direction iteration, trained end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
   <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
 </div></div></section>
 </section>

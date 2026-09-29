@@ -228,10 +228,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -471,6 +473,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.mobafit"><code class="docutils literal notranslate"><span class="pre">mobafit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-mobafit">Examples using <code class="docutils literal notranslate"><span class="pre">mobafit</span></code></a></li>
 </ul>
             </nav>
         </div>
@@ -488,7 +491,7 @@
 <dt class="sig sig-object py" id="bartorch.apps.mobafit">
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">mobafit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.mobafit" title="Link to this definition">#</a></dt>
 <dd><p>Fit a signal model to reconstructed contrast images, voxel by voxel.</p>
-<p>The pipeline <a class="reference internal" href="bartorch.tools.mobafit.html#bartorch.tools.mobafit" title="bartorch.tools.mobafit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.mobafit()</span></code></a> runs, assembled here: a
+<p>The pipeline BART’s <code class="docutils literal notranslate"><span class="pre">mobafit</span></code> command runs, assembled here: a
 forward model from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.nlop</span></code>, the Gauss-Newton loop of
 <a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a> over it, and the fitted variables read back
 into their own units.</p>
@@ -515,10 +518,17 @@ plain conjugate gradients, which is what the command solves with.</p></li>
 <li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Initial Tikhonov weight on the Gauss-Newton step.</p></li>
 <li><p><strong>alpha_min</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – What that weight decays towards.</p></li>
 <li><p><strong>redu</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – Factor the weight is divided by after each step.</p></li>
-<li><p><strong>magnitude</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Fit the magnitude of the model to the data rather than the signal
-itself, which is BART’s <code class="docutils literal notranslate"><span class="pre">-a</span></code>.</p></li>
+<li><p><strong>magnitude</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Fit the magnitude of the model to the magnitude of the data rather
+than the signal itself, which is BART’s <code class="docutils literal notranslate"><span class="pre">-a</span></code>.</p></li>
 <li><p><strong>start</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Maps to start from, of the model’s input shape.  Built from
 <code class="docutils literal notranslate"><span class="pre">**values</span></code> when it is not given.</p></li>
+<li><p><strong>reference</strong> (<em>dict</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – Maps each Gauss-Newton step is regularized towards, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">value}</span></code>
+in each property’s own units as <code class="docutils literal notranslate"><span class="pre">**values</span></code> takes them; a name left
+out takes the model’s default.  A value outside the model’s bounds is
+clamped to them, so a limit such as a vanishing rate is approached from
+inside.  Without it each step is regularized towards zero in the
+model’s variables, as the command’s is: the middle of each bound and
+no amplitude.</p></li>
 <li><p><strong>**values</strong> – Starting values per unknown, in that property’s own units, as
 <a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them.</p></li>
 </ul>
@@ -540,6 +550,12 @@ it started from, as the command leaves such a patch at zero.</p>
 </div>
 </dd></dl>
 
+<section id="examples-using-mobafit">
+<h2>Examples using <code class="docutils literal notranslate"><span class="pre">mobafit</span></code><a class="headerlink" href="#examples-using-mobafit" title="Link to this heading">#</a></h2>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="A multi-echo spin-echo acquisition fitted for T_2 in two ways: by reconstructing the echo images and fitting them afterwards, and by putting the signal model inside the forward operator and fitting the k-space directly."><img alt="" src="../_images/sphx_glr_02-quantitative-models_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
+</div></div></section>
 </section>
 
 
@@ -572,6 +588,7 @@ it started from, as the command leaves such a patch at zero.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.mobafit"><code class="docutils literal notranslate"><span class="pre">mobafit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-mobafit">Examples using <code class="docutils literal notranslate"><span class="pre">mobafit</span></code></a></li>
 </ul>
   </nav></div>
 

@@ -228,10 +228,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -522,18 +524,24 @@ step is split along, takes an axis of <code class="docutils literal notranslate"
 
 <section id="examples-using-ecalib">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">ecalib</span></code><a class="headerlink" href="#examples-using-ecalib" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Reconstruction of an undersampled Cartesian acquisition, from the measured k-space to a coil-combined image."><img alt="" src="../_images/sphx_glr_01-from-kspace-to-image_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/01-basics/01-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a></p>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Reconstruction of an undersampled Cartesian acquisition, from the measured k-space to a coil-combined image."><img alt="" src="../_images/sphx_glr_02-from-kspace-to-image_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a></p>
   <div class="sphx-glr-thumbnail-title">From k-space to image</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The same reconstruction written as an encoding operator and a solver rather than as a call to a BART application."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/01-basics/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Operators and solvers</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The effect of channel-noise correlation on a SENSE reconstruction, and its removal by prewhitening with a noise measurement."><img alt="" src="../_images/sphx_glr_03-noise-prewhitening_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/01-basics/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Estimating the image and the coil sensitivities together, from undersampled data whose fully sampled central region is too small for a separate calibration."><img alt="" src="../_images/sphx_glr_01-nonlinear-inversion_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/04-model-based/01-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Three estimates of the receive sensitivities of a coil array from the same undersampled Cartesian acquisition, and the SENSE reconstructions they lead to."><img alt="" src="../_images/sphx_glr_01-coil-calibration_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Coil sensitivity calibration</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Estimating the image and the coil sensitivities together, from undersampled data whose fully sampled central region is too small for a separate calibration."><img alt="" src="../_images/sphx_glr_02-nonlinear-inversion_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p>
   <div class="sphx-glr-thumbnail-title">Nonlinear inversion</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The effect of channel-noise correlation on a SENSE reconstruction, and its removal by prewhitening with a noise measurement."><img alt="" src="../_images/sphx_glr_03-noise-prewhitening_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Three regularization terms applied to the same undersampled SENSE problem, and the dependence of the reconstruction error on the regularization weight."><img alt="" src="../_images/sphx_glr_01-regularized-reconstruction_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Regularized reconstruction</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The same reconstruction written as an encoding operator and a solver rather than as a call to a BART application."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Operators and solvers</div>
 </div></div></section>
 </section>
 

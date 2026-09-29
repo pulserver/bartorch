@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -518,7 +520,8 @@ y_c = P F \left( S_c \cdot x \right).
 \]</div>
 <p>The operator is bilinear: linear in <span class="math notranslate nohighlight">\(x\)</span> for fixed <span class="math notranslate nohighlight">\(S\)</span>, linear in <span class="math notranslate nohighlight">\(S\)</span> for fixed
 <span class="math notranslate nohighlight">\(x\)</span>, and nonlinear in the pair.  This is <strong>nonlinear inversion</strong>, BART’s
-<code class="docutils literal notranslate"><span class="pre">nlinv</span></code>.<a class="footnote-reference brackets" href="#nlinv" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<code class="docutils literal notranslate"><span class="pre">nlinv</span></code>,<a class="footnote-reference brackets" href="#nlinv" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> which <a class="reference internal" href="../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.nlinv()</span></code></a> runs; its sensitivities
+are the calibration for a subsequent linear reconstruction.</p>
 <p><strong>Model-based parameter estimation.</strong>  A quantitative experiment acquires a
 series of contrasts whose dependence on tissue parameters <span class="math notranslate nohighlight">\(\theta\)</span> is given by
 a signal model <span class="math notranslate nohighlight">\(M\)</span> — a mono-exponential decay in <span class="math notranslate nohighlight">\(T_2\)</span>, an inversion recovery
@@ -528,7 +531,10 @@ in <span class="math notranslate nohighlight">\(T_1\)</span>, or a Bloch simulat
 y_{c,e} = P_e F \left( S_c \cdot M_e(\theta) \right),
 \]</div>
 <p>with <span class="math notranslate nohighlight">\(e\)</span> the contrast index.  The unknowns are the parameter maps.  This is
-<strong>model-based reconstruction</strong>, BART’s <code class="docutils literal notranslate"><span class="pre">moba</span></code>.<a class="footnote-reference brackets" href="#block" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#sumpf" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#wang" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
+<strong>model-based reconstruction</strong>, BART’s <code class="docutils literal notranslate"><span class="pre">moba</span></code>,<a class="footnote-reference brackets" href="#block" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#sumpf" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#wang" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> which
+<a class="reference internal" href="../generated/bartorch.apps.moba.html#bartorch.apps.moba" title="bartorch.apps.moba"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.moba()</span></code></a> performs over a TorchSim signal model;
+<a class="reference internal" href="../generated/bartorch.apps.mobafit.html#bartorch.apps.mobafit" title="bartorch.apps.mobafit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.mobafit()</span></code></a> fits the same models voxel by voxel to
+reconstructed images.</p>
 <p>A Gauss-Newton solver requires the value <span class="math notranslate nohighlight">\(F(x)\)</span>, the derivative <span class="math notranslate nohighlight">\(DF_x\)</span> at a
 point as a linear operator, and its adjoint <span class="math notranslate nohighlight">\(DF_x^H\)</span>.  A
 <a class="reference internal" href="../generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a> provides the three, and
@@ -634,8 +640,8 @@ partial volume of two tissues or an imperfect refocusing, becomes a bias in
 the maps.  A subspace reconstruction restricts the signal to a basis derived
 from a dictionary of simulated signals, keeps a linear forward model, and
 defers the nonlinear estimation of the parameters to a separate step.
-<a class="reference internal" href="../auto_examples/03-applications/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a> and
-<a class="reference internal" href="../auto_examples/04-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a> apply the
+<a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a> and
+<a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a> apply the
 second and third routes.</p>
 </section>
 <section id="signal-models-and-their-derivatives">

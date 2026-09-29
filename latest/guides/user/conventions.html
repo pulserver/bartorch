@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -526,20 +528,22 @@ included: <code class="docutils literal notranslate"><span class="pre">bartorch.
 or dimension number, and a set of indices that are not axes, such as coil
 channels or parameter maps, is also a tuple of indices.  Regularization is
 given as <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> terms rather than as <code class="docutils literal notranslate"><span class="pre">-R</span></code> strings:
-<code class="docutils literal notranslate"><span class="pre">pics(kspace,</span> <span class="pre">maps,</span> <span class="pre">regularizers=priors.Wavelet((-1,</span> <span class="pre">-2),</span> <span class="pre">0.005))</span></code>.  An axis
+<code class="docutils literal notranslate"><span class="pre">apps.pics(kspace,</span> <span class="pre">maps,</span> <span class="pre">regularizers=priors.Wavelet((-1,</span> <span class="pre">-2),</span> <span class="pre">0.005))</span></code>.  An axis
 argument whose array is not given to the call counts from the last axis and
 accepts negative indices only.</p>
 </section>
 <section id="commands">
 <h2>Commands<a class="headerlink" href="#commands" title="Link to this heading">#</a></h2>
-<p>The functions of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> and the <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> namespace assign
-axes as BART does, in reversed order.  BART’s coil dimension is its dimension 3 and sets of
+<p>The functions of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> and of the <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> namespace that
+run a BART command assign axes as BART does, in reversed order.  BART’s coil dimension is its dimension 3 and sets of
 sensitivity maps its dimension 4, so the corresponding singleton axes are kept
 in inputs and outputs; returned shapes are those BART produces, with trailing
 BART singletons (leading tensor axes) removed.  Array inputs are converted to
 contiguous <code class="docutils literal notranslate"><span class="pre">complex64</span></code>, and a command works on a copy of each input unless
 <a class="reference internal" href="../../generated/bartorch.set_copy_inputs.html#bartorch.set_copy_inputs" title="bartorch.set_copy_inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.set_copy_inputs()</span></code></a> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, because some BART commands
-write into their inputs.</p>
+write into their inputs.  The corrections and the motion estimation of
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> run no BART command; their shapes and units are stated
+in each object’s documentation.</p>
 </section>
 <section id="operators">
 <h2>Operators<a class="headerlink" href="#operators" title="Link to this heading">#</a></h2>
@@ -644,7 +648,8 @@ arrays in BART’s dimension order, so the axes are reversed at that boundary:</
 <h2>Differentiation<a class="headerlink" href="#differentiation" title="Link to this heading">#</a></h2>
 <p>Applying an operator, a nonlinear operator or a solver of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>
 to a tensor that requires a gradient records the operation for autograd; the
-functions of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> record nothing.
+BART commands of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> and of the <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> namespace record
+nothing.
 <a class="reference internal" href="../../explanation/differentiation.html"><span class="doc">Differentiation through reconstruction</span></a> describes the backward pass of each.</p>
 </section>
 </section>

@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -475,6 +477,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fourier-transforms">Fourier transforms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#k-space-windows-and-readout">K-space windows and readout</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wavelet-transforms">Wavelet transforms</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#thresholding">Thresholding</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#array-utilities">Array utilities</a></li>
@@ -497,10 +500,10 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="array-functions-and-settings">
 <h1>Array functions and settings<a class="headerlink" href="#array-functions-and-settings" title="Link to this heading">#</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> namespace holds array functions that call BART’s commands on
-tensors, and the process-wide settings of the embedded library.  Axis
-arguments are indices into a C-order shape; results are not recorded by
-autograd.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> namespace holds array functions on tensors, most of them
+calling BART’s commands, and the process-wide settings of the embedded
+library.  Axis arguments are indices into a C-order shape; results are not
+recorded by autograd.</p>
 <section id="fourier-transforms">
 <h2>Fourier transforms<a class="headerlink" href="#fourier-transforms" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -527,6 +530,34 @@ autograd.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.nufft_adjoint.html#bartorch.nufft_adjoint" title="bartorch.nufft_adjoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nufft_adjoint</span></code></a></p></td>
 <td><p>Adjoint non-uniform Fourier transform, from samples to an image</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.estimate_density.html#bartorch.estimate_density" title="bartorch.estimate_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_density</span></code></a></p></td>
+<td><p>Sampling density compensation weights of a trajectory (Pipe-Menon iteration)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="k-space-windows-and-readout">
+<h2>K-space windows and readout<a class="headerlink" href="#k-space-windows-and-readout" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Object</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.hann_window.html#bartorch.hann_window" title="bartorch.hann_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hann_window</span></code></a></p></td>
+<td><p>Radial or separable Hann window on a k-space grid</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.fermi_window.html#bartorch.fermi_window" title="bartorch.fermi_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fermi_window</span></code></a></p></td>
+<td><p>Radial or separable Fermi window on a k-space grid</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.apodize.html#bartorch.apodize" title="bartorch.apodize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apodize</span></code></a></p></td>
+<td><p>Multiplication of k-space by a Hann or Fermi window over its trailing axes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.remove_readout_oversampling.html#bartorch.remove_readout_oversampling" title="bartorch.remove_readout_oversampling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_readout_oversampling</span></code></a></p></td>
+<td><p>Cropping of the readout field of view in image space</p></td>
 </tr>
 </tbody>
 </table>
@@ -591,28 +622,25 @@ autograd.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.conv.html#bartorch.conv" title="bartorch.conv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conv</span></code></a></p></td>
 <td><p>Cyclic convolution with a kernel</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.window.html#bartorch.window" title="bartorch.window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window</span></code></a></p></td>
-<td><p>Hamming or Hann window along axes</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.median_filter.html#bartorch.median_filter" title="bartorch.median_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median_filter</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.median_filter.html#bartorch.median_filter" title="bartorch.median_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median_filter</span></code></a></p></td>
 <td><p>Moving median along one axis</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.moving_average.html#bartorch.moving_average" title="bartorch.moving_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moving_average</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.moving_average.html#bartorch.moving_average" title="bartorch.moving_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moving_average</span></code></a></p></td>
 <td><p>Moving average along one axis</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.normalize.html#bartorch.normalize" title="bartorch.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.normalize.html#bartorch.normalize" title="bartorch.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a></p></td>
 <td><p>Division by the <span class="math notranslate nohighlight">\(\ell_2\)</span> or <span class="math notranslate nohighlight">\(\ell_1\)</span> norm over axes</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.mip.html#bartorch.mip" title="bartorch.mip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mip</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.mip.html#bartorch.mip" title="bartorch.mip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mip</span></code></a></p></td>
 <td><p>Maximum or minimum intensity projection</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.unwrap.html#bartorch.unwrap" title="bartorch.unwrap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unwrap</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.unwrap.html#bartorch.unwrap" title="bartorch.unwrap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unwrap</span></code></a></p></td>
 <td><p>Unwrapping of the real part along one axis, for a given period</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.casorati.html#bartorch.casorati" title="bartorch.casorati"><code class="xref py py-obj docutils literal notranslate"><span class="pre">casorati</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.casorati.html#bartorch.casorati" title="bartorch.casorati"><code class="xref py py-obj docutils literal notranslate"><span class="pre">casorati</span></code></a></p></td>
 <td><p>Casorati matrix of overlapping blocks</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rss</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rss</span></code></a></p></td>
 <td><p>Root sum of squares over axes</p></td>
 </tr>
 </tbody>
@@ -789,6 +817,7 @@ autograd.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fourier-transforms">Fourier transforms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#k-space-windows-and-readout">K-space windows and readout</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wavelet-transforms">Wavelet transforms</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#thresholding">Thresholding</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#array-utilities">Array utilities</a></li>

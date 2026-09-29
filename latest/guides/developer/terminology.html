@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -644,21 +646,24 @@ derivations are in <a class="reference internal" href="../../explanation/index.h
 <td><p>A program of BART’s command line, such as <code class="docutils literal notranslate"><span class="pre">pics</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bartorch.tools</span></code> function</p></td>
-<td><p>A BART command called in-process on tensors.</p></td>
+<td><p>A BART command called in-process on tensors, or a correction or motion-estimation function with no BART command behind it.</p></td>
 </tr>
 <tr class="row-even"><td><p>App</p></td>
 <td><p>A <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.apps</span></code> pipeline re-expressing a BART command with operators and solvers.</p></td>
 </tr>
-<tr class="row-odd"><td><p>CLI</p></td>
+<tr class="row-odd"><td><p>Reference command</p></td>
+<td><p>A BART reconstruction command answered publicly by an app, kept private in <code class="docutils literal notranslate"><span class="pre">bartorch._reference</span></code> so that the test suite can hold the app to it.</p></td>
+</tr>
+<tr class="row-even"><td><p>CLI</p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> console command, which accepts <code class="docutils literal notranslate"><span class="pre">bart</span></code> command lines and runs an app or the command.</p></td>
 </tr>
-<tr class="row-even"><td><p>Substitution</p></td>
+<tr class="row-odd"><td><p>Substitution</p></td>
 <td><p>A component compiled in BART’s place: the FINUFFT and cuFINUFFT NUFFT, the point spread function, the FFT and BLAS/LAPACK routing.</p></td>
 </tr>
-<tr class="row-odd"><td><p>Backend</p></td>
+<tr class="row-even"><td><p>Backend</p></td>
 <td><p>The library that performs a computation for BART: FINUFFT, cuFINUFFT, MKL, the BLAS/LAPACK PyTorch links, SciPy’s, cuFFT, cuBLAS.</p></td>
 </tr>
-<tr class="row-even"><td><p>Decline, refusal</p></td>
+<tr class="row-odd"><td><p>Decline, refusal</p></td>
 <td><p>A configuration the substitution cannot serve, reported as an error with its reason rather than computed by another method.</p></td>
 </tr>
 </tbody>

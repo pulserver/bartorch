@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -498,7 +500,7 @@
 <ul class="simple">
 <li><p>The backward pass of a linear operator is its adjoint, <span class="math notranslate nohighlight">\(A^H g\)</span>, and that of a nonlinear operator is <span class="math notranslate nohighlight">\(DF_x^H g\)</span>.</p></li>
 <li><p>Conjugate gradients are differentiated implicitly, at constant memory; the proximal iterations and ADMM are unrolled, with memory linear in the iteration count.</p></li>
-<li><p>BART’s proximal operators have no backward pass: <a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> replaces one with a differentiable denoiser, and <a class="reference internal" href="../generated/bartorch.priors.frozen.html#bartorch.priors.frozen" title="bartorch.priors.frozen"><code class="xref py py-func docutils literal notranslate"><span class="pre">frozen()</span></code></a> holds one fixed.</p></li>
+<li><p>BART’s proximal operators have no backward pass: <a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> replaces one with a differentiable denoiser, and <a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.detach" title="bartorch.priors.Regularizer.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Regularizer.detach()</span></code></a> holds one fixed.</p></li>
 <li><p><a class="reference internal" href="../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a> applies a fixed number of iteration blocks, differentiated end to end, per iteration, or with checkpointing; <a class="reference internal" href="../generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedPoint</span></code></a> differentiates at a fixed point with constant memory.</p></li>
 </ul>
 </div>
@@ -601,9 +603,9 @@ term.  The following objects permit differentiation:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a></p></td>
-<td><p>Replaces the proximal operator by a differentiable denoiser, as in plug-and-play reconstruction;<a class="footnote-reference brackets" href="#pnp" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> the denoiser’s parameters receive gradients</p></td>
+<td><p>Replaces the proximal operator by a differentiable denoiser, as in plug-and-play reconstruction;<a class="footnote-reference brackets" href="#pnp" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> the denoiser’s parameters receive gradients.  With <code class="docutils literal notranslate"><span class="pre">spatial=</span></code>, a network on real <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> planes is applied to the complex image, with the conversion and the unit-peak scaling recorded by autograd</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.priors.frozen.html#bartorch.priors.frozen" title="bartorch.priors.frozen"><code class="xref py py-func docutils literal notranslate"><span class="pre">frozen()</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.detach" title="bartorch.priors.Regularizer.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Regularizer.detach()</span></code></a></p></td>
 <td><p>Applies a BART term’s proximal operator to a detached input: the term acts in the forward pass and is held fixed in the backward pass, for a solve in which another term is learned</p></td>
 </tr>
 </tbody>

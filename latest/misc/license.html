@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -533,9 +535,17 @@ SOFTWARE.
 <td><p><code class="docutils literal notranslate"><span class="pre">external/pocketfft/</span></code></p></td>
 <td><p>BSD-3-Clause, <code class="docutils literal notranslate"><span class="pre">external/pocketfft/LICENSE.md</span></code></p></td>
 </tr>
+<tr class="row-even"><td><p>FINUFFT and cuFINUFFT</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">external/finufft/</span></code> (Git submodule, <code class="docutils literal notranslate"><span class="pre">flatironinstitute/finufft</span></code>)</p></td>
+<td><p>Apache-2.0, <code class="docutils literal notranslate"><span class="pre">external/finufft/LICENSE</span></code> and <code class="docutils literal notranslate"><span class="pre">external/finufft/NOTICE</span></code>; cuFINUFFT in the CUDA build only</p></td>
+</tr>
+<tr class="row-odd"><td><p>xsimd, POET, DUCC0 and, in a CUDA build, CCCL</p></td>
+<td><p>Fetched by FINUFFT’s build</p></td>
+<td><p>Each under its own license; the notices are installed in the wheel’s <code class="docutils literal notranslate"><span class="pre">.dist-info/licenses/finufft-dependencies/</span></code>.  The DUCC0 sources compiled in are each BSD-3-Clause or GPL-2.0-or-later and are used under BSD-3-Clause</p></td>
+</tr>
 <tr class="row-even"><td><p>BlocksRuntime (LLVM compiler-rt)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">external/blocksruntime/</span></code></p></td>
-<td><p>University of Illinois/NCSA or MIT, at the user’s choice, <code class="docutils literal notranslate"><span class="pre">external/blocksruntime/LICENSE.TXT</span></code>; linked into Linux builds made with clang</p></td>
+<td><p>University of Illinois/NCSA or MIT, at the user’s choice, <code class="docutils literal notranslate"><span class="pre">external/blocksruntime/LICENSE.TXT</span></code>; linked into builds made with clang on Linux and Windows</p></td>
 </tr>
 </tbody>
 </table>
@@ -576,10 +586,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <section id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h2>
 <p>The following are installed as separate packages, each under its own license,
-and are not redistributed by bartorch: PyTorch, NumPy, SciPy, FINUFFT and
-cuFINUFFT (Apache-2.0), TorchSim, MRI-NUFFT, and the optional MKL and
-DeepInverse.  The CUDA wheel links the CUDA runtime, cuFFT and cuBLAS
-dynamically and does not contain them.</p>
+and are not redistributed by bartorch: PyTorch, NumPy, SciPy, TorchSim,
+MRI-NUFFT, and the optional MKL, DeepInverse, SimpleITK and PyHySCO.  PyHySCO
+is GPL-3.0-only; it is installed only on request (the <code class="docutils literal notranslate"><span class="pre">pyhysco</span></code> extra) and
+imported only when <a class="reference internal" href="../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.correct_susceptibility()</span></code></a> is called.
+The CUDA wheel links the CUDA runtime, cuFFT and cuBLAS dynamically and does
+not contain them.</p>
 </section>
 <section id="logo">
 <h2>Logo<a class="headerlink" href="#logo" title="Link to this heading">#</a></h2>

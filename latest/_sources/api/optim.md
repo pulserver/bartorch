@@ -21,7 +21,6 @@ axis of `y` beyond the codomain of `A` is a batch of independent problems.
 | {obj}`~bartorch.optim.FISTA` | As IST, with momentum | One term with $G = I$ | Unrolled |
 | {obj}`~bartorch.optim.ADMM` | $\min_x \tfrac12\lVert Ax-y\rVert^2 + \sum_j g_j(G_j x)$ | Any number of terms, any $G_j$ | Unrolled; each x-update implicit |
 | {obj}`~bartorch.optim.PRIDU` | As ADMM | Any number of terms, any $G_j$ | Unrolled |
-| {obj}`~bartorch.optim.NIHT` | Sparsity-constrained least squares | Hard-thresholding terms | Not runnable (BART assertion) |
 | {obj}`~bartorch.optim.POCS` | Feasibility: repeated projections | Projections and terms at unit weight | Unrolled |
 
 Terms are the objects of {mod}`bartorch.priors`; an
@@ -42,7 +41,6 @@ Terms are the objects of {mod}`bartorch.priors`; an
 | {obj}`~bartorch.optim.FISTA` | Fast iterative soft thresholding (accelerated proximal gradient) |
 | {obj}`~bartorch.optim.ADMM` | Alternating direction method of multipliers |
 | {obj}`~bartorch.optim.PRIDU` | Chambolle-Pock primal-dual iteration |
-| {obj}`~bartorch.optim.NIHT` | Normalized iterative hard thresholding; raises `NotImplementedError` |
 | {obj}`~bartorch.optim.maxeigen` | Power-iteration estimate of the largest eigenvalue of $A^H A$ |
 
 ## Projection methods
@@ -64,7 +62,6 @@ Each function constructs the corresponding solver and calls it:
 | {obj}`~bartorch.optim.fista` | {obj}`~bartorch.optim.FISTA` in one call |
 | {obj}`~bartorch.optim.admm` | {obj}`~bartorch.optim.ADMM` in one call |
 | {obj}`~bartorch.optim.pridu` | {obj}`~bartorch.optim.PRIDU` in one call |
-| {obj}`~bartorch.optim.niht` | {obj}`~bartorch.optim.NIHT` in one call |
 | {obj}`~bartorch.optim.pocs` | {obj}`~bartorch.optim.POCS` in one call, with the projections in place of an encoding |
 
 ## Iteration blocks
@@ -93,5 +90,5 @@ penalty weights are `torch.nn.Parameter` objects, frozen until
 | --- | --- |
 | {obj}`~bartorch.optim.data_scaling` | BART's estimate of the data scale by which `pics` divides the data before it iterates |
 
-{doc}`../auto_examples/01-basics/02-operators-and-solvers` assembles a BART
+{doc}`../auto_examples/03-regularization/02-operators-and-solvers` assembles a BART
 reconstruction from an operator, a term and a solver.

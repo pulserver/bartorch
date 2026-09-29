@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -537,12 +539,7 @@ axis of <code class="docutils literal notranslate"><span class="pre">y</span></c
 <td><p>Any number of terms, any <span class="math notranslate nohighlight">\(G_j\)</span></p></td>
 <td><p>Unrolled</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.optim.NIHT.html#bartorch.optim.NIHT" title="bartorch.optim.NIHT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NIHT</span></code></a></p></td>
-<td><p>Sparsity-constrained least squares</p></td>
-<td><p>Hard-thresholding terms</p></td>
-<td><p>Not runnable (BART assertion)</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POCS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POCS</span></code></a></p></td>
 <td><p>Feasibility: repeated projections</p></td>
 <td><p>Projections and terms at unit weight</p></td>
 <td><p>Unrolled</p></td>
@@ -592,10 +589,7 @@ axis of <code class="docutils literal notranslate"><span class="pre">y</span></c
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.optim.PRIDU.html#bartorch.optim.PRIDU" title="bartorch.optim.PRIDU"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIDU</span></code></a></p></td>
 <td><p>Chambolle-Pock primal-dual iteration</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.NIHT.html#bartorch.optim.NIHT" title="bartorch.optim.NIHT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NIHT</span></code></a></p></td>
-<td><p>Normalized iterative hard thresholding; raises <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.optim.maxeigen.html#bartorch.optim.maxeigen" title="bartorch.optim.maxeigen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxeigen</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.maxeigen.html#bartorch.optim.maxeigen" title="bartorch.optim.maxeigen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxeigen</span></code></a></p></td>
 <td><p>Power-iteration estimate of the largest eigenvalue of <span class="math notranslate nohighlight">\(A^H A\)</span></p></td>
 </tr>
 </tbody>
@@ -647,10 +641,7 @@ axis of <code class="docutils literal notranslate"><span class="pre">y</span></c
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.pridu.html#bartorch.optim.pridu" title="bartorch.optim.pridu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pridu</span></code></a></p></td>
 <td><p><a class="reference internal" href="../generated/bartorch.optim.PRIDU.html#bartorch.optim.PRIDU" title="bartorch.optim.PRIDU"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIDU</span></code></a> in one call</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.optim.niht.html#bartorch.optim.niht" title="bartorch.optim.niht"><code class="xref py py-obj docutils literal notranslate"><span class="pre">niht</span></code></a></p></td>
-<td><p><a class="reference internal" href="../generated/bartorch.optim.NIHT.html#bartorch.optim.NIHT" title="bartorch.optim.NIHT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NIHT</span></code></a> in one call</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.pocs.html#bartorch.optim.pocs" title="bartorch.optim.pocs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.optim.pocs.html#bartorch.optim.pocs" title="bartorch.optim.pocs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocs</span></code></a></p></td>
 <td><p><a class="reference internal" href="../generated/bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POCS</span></code></a> in one call, with the projections in place of an encoding</p></td>
 </tr>
 </tbody>
@@ -717,7 +708,7 @@ penalty weights are <code class="docutils literal notranslate"><span class="pre"
 </tbody>
 </table>
 </div>
-<p><a class="reference internal" href="../auto_examples/01-basics/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a> assembles a BART
+<p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a> assembles a BART
 reconstruction from an operator, a term and a solver.</p>
 </section>
 </section>

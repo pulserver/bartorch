@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -589,6 +591,9 @@ implementations needs a larger kernel width.  cuFINUFFT accepts <span class="mat
 </tbody>
 </table>
 </div>
+<p><a class="reference internal" href="../generated/bartorch.estimate_density.html#bartorch.estimate_density" title="bartorch.estimate_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.estimate_density()</span></code></a> computes weights <span class="math notranslate nohighlight">\(d_j\)</span> for a trajectory by
+the fixed-point iteration of Pipe and Menon,<a class="footnote-reference brackets" href="#pipe" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> with the convolutions
+evaluated by the non-uniform transforms of this page.</p>
 <p>Density weights passed to <a class="reference internal" href="../generated/bartorch.linop.NUFFT.html#bartorch.linop.NUFFT" title="bartorch.linop.NUFFT"><code class="xref py py-class docutils literal notranslate"><span class="pre">NUFFT</span></code></a> or
 <a class="reference internal" href="../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> become part of the operator,
 <span class="math notranslate nohighlight">\(A = W\,\mathrm{NUFFT}\,S\)</span>: the weights are applied on the forward pass and
@@ -609,7 +614,7 @@ h(m) = \frac{1}{N} \sum_j \lvert w_j \rvert^2 \exp\!\left(2\pi i \sum_d \frac{k_
 as a multiplication, in the Fourier domain of a grid doubled in each dimension,
 by the <strong>transfer function</strong> <span class="math notranslate nohighlight">\(\hat{h}\)</span>, the FFT of <span class="math notranslate nohighlight">\(h\)</span> on that grid: the image
 is zero-padded to the doubled grid, transformed, multiplied, transformed back
-and cropped.<a class="footnote-reference brackets" href="#fessler2005" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>  With a subspace basis <span class="math notranslate nohighlight">\(h\)</span> becomes a set of kernels
+and cropped.<a class="footnote-reference brackets" href="#fessler2005" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>  With a subspace basis <span class="math notranslate nohighlight">\(h\)</span> becomes a set of kernels
 over pairs of coefficients.  The full SENSE normal operator
 <span class="math notranslate nohighlight">\(\sum_c \overline{S_c}\, Q\, S_c\)</span> is not a convolution, because the
 sensitivities vary in space; <a class="reference internal" href="encoding.html"><span class="doc">The MRI encoding operator</span></a> describes how it is applied.</p>
@@ -647,7 +652,7 @@ coil and one multiplication; the alternative, a forward and an adjoint NUFFT,
 spreads and interpolates every sample of every coil.  <code class="docutils literal notranslate"><span class="pre">toeplitz=False</span></code> on an
 operator, or BART’s <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">--no-toeplitz</span></code>, selects the two transforms instead.
 The two forms differ by an amount of the order of the transform’s tolerance,
-as <a class="reference internal" href="../auto_examples/02-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a>
+as <a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a>
 measures.</p>
 </section>
 <section id="backends-and-refusals">
@@ -681,7 +686,7 @@ gridding implementation is not used, and no configuration falls back to it.</p>
 <tr class="row-odd"><td><p>Unsupported configuration</p></td>
 <td><p>None</p></td>
 <td><p>Either</p></td>
-<td><p><a class="reference internal" href="../generated/bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BartError</span></code></a> naming the reason: weights whose shape does not broadcast onto the k-space samples, an image that varies along an axis the trajectory indexes, a kernel width no tolerance produces, among others</p></td>
+<td><p><a class="reference internal" href="../generated/bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BartError</span></code></a> naming the reason: weights whose shape does not broadcast onto the k-space samples, an image that varies along an axis the trajectory indexes in a BART command, a kernel width no tolerance produces, among others</p></td>
 </tr>
 </tbody>
 </table>
@@ -697,9 +702,9 @@ trajectory with successive spokes separated by <span class="math notranslate noh
 uniformly for a frame of exactly <span class="math notranslate nohighlight">\(n_s\)</span> spokes.  With <strong>golden-angle</strong>
 ordering, successive spokes are separated by <span class="math notranslate nohighlight">\(\pi\)</span> times the reciprocal of
 the golden ratio, about <span class="math notranslate nohighlight">\(111.25°\)</span>, and any number of consecutive spokes covers
-k-space approximately uniformly.<a class="footnote-reference brackets" href="#winkelmann" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>  A continuously acquired
+k-space approximately uniformly.<a class="footnote-reference brackets" href="#winkelmann" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>  A continuously acquired
 golden-angle series can therefore be divided into frames after the
-acquisition, as <a class="reference internal" href="../auto_examples/03-applications/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a>
+acquisition, as <a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a>
 does.</p>
 </section>
 <section id="references">
@@ -724,7 +729,8 @@ does.</p>
 <p>Barnett AH, Magland J, af Klinteberg L. A parallel nonuniform fast Fourier transform library based on an “exponential of semicircle” kernel. <em>SIAM J Sci Comput</em> 41(5):C479–C504 (2019). <a class="reference external" href="https://doi.org/10.1137/18M120885X">doi:10.1137/18M120885X</a>.  For the CUDA library: Shih Y, Wright G, Andén J, Blaschke J, Barnett AH. cuFINUFFT: a load-balanced GPU library for general-purpose nonuniform FFTs. <em>IEEE IPDPSW</em> 688–697 (2021). <a class="reference external" href="https://doi.org/10.1109/IPDPSW52791.2021.00105">doi:10.1109/IPDPSW52791.2021.00105</a></p>
 </aside>
 <aside class="footnote brackets" id="pipe" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
 <p>Pipe JG, Menon P. Sampling density compensation in MRI: rationale and an iterative numerical solution. <em>Magn Reson Med</em> 41(1):179–186 (1999). <a class="reference external" href="https://doi.org/10.1002/(SICI)1522-2594(199901)41:1%3C179::AID-MRM25%3E3.0.CO;2-V">doi:10.1002/(SICI)1522-2594(199901)41:1&lt;179::AID-MRM25&gt;3.0.CO;2-V</a></p>
 </aside>
 <aside class="footnote brackets" id="pruessmann2001" role="doc-footnote">
@@ -732,11 +738,11 @@ does.</p>
 <p>Pruessmann KP, Weiger M, Börnert P, Boesiger P. Advances in sensitivity encoding with arbitrary k-space trajectories. <em>Magn Reson Med</em> 46(4):638–651 (2001). <a class="reference external" href="https://doi.org/10.1002/mrm.1241">doi:10.1002/mrm.1241</a></p>
 </aside>
 <aside class="footnote brackets" id="fessler2005" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">7</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">7</a><span class="fn-bracket">]</span></span>
 <p>Fessler JA, Lee S, Olafsson VT, Shi HR, Noll DC. Toeplitz-based iterative image reconstruction for MRI with correction for magnetic field inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393–3402 (2005). <a class="reference external" href="https://doi.org/10.1109/TSP.2005.853152">doi:10.1109/TSP.2005.853152</a></p>
 </aside>
 <aside class="footnote brackets" id="winkelmann" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">8</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">8</a><span class="fn-bracket">]</span></span>
 <p>Winkelmann S, Schaeffter T, Koehler T, Eggers H, Doessel O. An optimal radial profile order based on the Golden Ratio for time-resolved MRI. <em>IEEE Trans Med Imaging</em> 26(1):68–76 (2007). <a class="reference external" href="https://doi.org/10.1109/TMI.2006.885337">doi:10.1109/TMI.2006.885337</a></p>
 </aside>
 </aside>

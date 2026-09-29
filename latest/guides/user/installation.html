@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -512,6 +514,9 @@ FINUFFT installation and no compiler are needed.  Optional components are instal
 extras:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[mkl]'</span><span class="w">        </span><span class="c1"># Linux x86-64: MKL for BLAS, LAPACK and FFT</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[deepinv]'</span><span class="w">    </span><span class="c1"># bartorch.interop.to_deepinv</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[correct]'</span><span class="w">    </span><span class="c1"># SimpleITK, for bias field and gradient nonlinearity correction</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[motion]'</span><span class="w">     </span><span class="c1"># SimpleITK, for navigator registration</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[pyhysco]'</span><span class="w">    </span><span class="c1"># PyHySCO (GPL-3.0-only), for susceptibility correction</span>
 </pre></div>
 </div>
 <p>The installation is checked by building a phantom:</p>
@@ -541,7 +546,7 @@ installed, otherwise the routines PyTorch links, and SciPy’s for the rest.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>C and C++ compiler</p></td>
-<td><p>clang, or GCC 14 or later; BART’s nested functions are compiled as clang Blocks or as GCC heap trampolines, and older GCC is rejected at configuration</p></td>
+<td><p>clang, or GCC 14 or later; BART’s nested functions are compiled as clang Blocks or as GCC heap trampolines, and older GCC is rejected at configuration.  On Windows, clang from MSYS2’s CLANG64 environment, as <a class="reference internal" href="../developer/prerequisites.html"><span class="doc">Development prerequisites</span></a> describes</p></td>
 </tr>
 <tr class="row-odd"><td><p>CMake</p></td>
 <td><p>3.25 or later</p></td>
@@ -550,7 +555,7 @@ installed, otherwise the routines PyTorch links, and SciPy’s for the rest.</p>
 <td><p>FINUFFT’s build fetches the versions of xsimd, POET and DUCC0 it pins, and CCCL for a CUDA build; <code class="docutils literal notranslate"><span class="pre">CPM_SOURCE_CACHE</span></code> names a directory that keeps them for later builds</p></td>
 </tr>
 <tr class="row-odd"><td><p>OpenMP</p></td>
-<td><p>Linux: the compiler’s OpenMP runtime, for example <code class="docutils literal notranslate"><span class="pre">libomp-dev</span></code> with clang on Debian and Ubuntu.  macOS: the header from Homebrew’s <code class="docutils literal notranslate"><span class="pre">libomp</span></code>; the library links against PyTorch’s runtime.  Without it the build fails unless <code class="docutils literal notranslate"><span class="pre">-C</span> <span class="pre">cmake.define.BARTORCH_OPENMP=OFF</span></code> asks for a single-threaded library</p></td>
+<td><p>Linux: the compiler’s OpenMP runtime, for example <code class="docutils literal notranslate"><span class="pre">libomp-dev</span></code> with clang on Debian and Ubuntu.  macOS: the header from Homebrew’s <code class="docutils literal notranslate"><span class="pre">libomp</span></code>.  Windows: MSYS2’s <code class="docutils literal notranslate"><span class="pre">llvm-openmp</span></code>, for the header.  On macOS and Windows the library links against PyTorch’s runtime.  Without OpenMP the build fails unless <code class="docutils literal notranslate"><span class="pre">-C</span> <span class="pre">cmake.define.BARTORCH_OPENMP=OFF</span></code> asks for a single-threaded library</p></td>
 </tr>
 </tbody>
 </table>
@@ -559,8 +564,8 @@ installed, otherwise the routines PyTorch links, and SciPy’s for the rest.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span><span class="nv">CXX</span><span class="o">=</span>clang++<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>bartorch<span class="w"> </span>--no-binary<span class="w"> </span>bartorch
 </pre></div>
 </div>
-<p>FINUFFT computes the FFT inside its CPU transform with DUCC0, which is
-compiled into the library and is what every wheel contains.  On x86-64 Linux,
+<p>FINUFFT computes the FFT inside its CPU transform with DUCC0, which every
+wheel has compiled into the library.  On x86-64 Linux,
 a source build with oneMKL installed (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mkl</span> <span class="pre">mkl-devel</span></code>) can use
 oneMKL’s FFT through its FFTW3 interface instead:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"bartorch[mkl]"</span><span class="w"> </span>--no-binary<span class="w"> </span>bartorch<span class="w"> </span><span class="se">\</span>
@@ -596,7 +601,8 @@ which the build requires on that platform;
 <h2>CUDA<a class="headerlink" href="#cuda" title="Link to this heading">#</a></h2>
 <p>CUDA support requires a CUDA build of both PyTorch and bartorch;
 <code class="docutils literal notranslate"><span class="pre">torch.cuda.is_available()</span></code> and <a class="reference internal" href="../../generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.cuda_available()</span></code></a> report each.
-The PyPI wheel is the CPU build.  The CUDA build of each version, a Linux
+The PyPI wheels are CPU builds, and there is no CUDA build on macOS or
+Windows.  The CUDA build of each version, a Linux
 x86-64 wheel with the same file name, is attached to the
 <a class="reference external" href="https://github.com/pulserver/bartorch/releases">GitHub release</a> of that
 version:</p>

@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -525,9 +527,9 @@ y = A x + \varepsilon ,
 noise.  After prewhitening, the noise of MRI data is modelled as complex
 Gaussian with independent, identically distributed entries.  For fixed coil
 sensitivities <span class="math notranslate nohighlight">\(A\)</span> is linear, and it is applied without being formed as a
-matrix: for a <span class="math notranslate nohighlight">\(256^2\)</span> image and eight coils the matrix would have about
-<span class="math notranslate nohighlight">\(3.4\times 10^{10}\)</span> entries for eight fully sampled coils, while an
-application costs eight FFTs.</p>
+matrix: for a <span class="math notranslate nohighlight">\(256^2\)</span> image and eight fully sampled coils the matrix would
+have about <span class="math notranslate nohighlight">\(3.4\times 10^{10}\)</span> entries, while an application costs eight
+FFTs.</p>
 <p>The <strong>adjoint</strong> <span class="math notranslate nohighlight">\(A^H\)</span> is defined by
 <span class="math notranslate nohighlight">\(\langle Ax, y\rangle = \langle x, A^H y\rangle\)</span> for all <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span>; for a
 matrix it is the conjugate transpose.  The <strong>normal operator</strong> <span class="math notranslate nohighlight">\(A^H A\)</span> maps the
@@ -755,9 +757,9 @@ and an update of the scaled dual variables.  It accepts several terms and any
 <span class="math notranslate nohighlight">\(G_j\)</span>, at the cost of an inner solve per iteration and a penalty parameter
 <span class="math notranslate nohighlight">\(\rho\)</span>.</p>
 <p><strong>The primal-dual method</strong> alternates proximal steps on the primal and the
-dual variables and applies <span class="math notranslate nohighlight">\(G_j\)</span> and <span class="math notranslate nohighlight">\(G_j^H\)</span> directly, with no inner solve; it
-needs no inner solve; the iteration count to a given accuracy depends on the
-problem and on <span class="math notranslate nohighlight">\(\sigma\)</span> and <span class="math notranslate nohighlight">\(\tau\)</span>.</p>
+dual variables and applies <span class="math notranslate nohighlight">\(G_j\)</span> and <span class="math notranslate nohighlight">\(G_j^H\)</span> directly, with no inner solve;
+the iteration count to a given accuracy depends on the problem and on
+<span class="math notranslate nohighlight">\(\sigma\)</span> and <span class="math notranslate nohighlight">\(\tau\)</span>.</p>
 </section>
 <section id="data-scaling-and-the-regularization-weight">
 <h2>Data scaling and the regularization weight<a class="headerlink" href="#data-scaling-and-the-regularization-weight" title="Link to this heading">#</a></h2>
@@ -805,10 +807,9 @@ it back.</p>
 </tbody>
 </table>
 </div>
-<p><a class="reference internal" href="../generated/bartorch.tools.pics.html#bartorch.tools.pics" title="bartorch.tools.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.pics()</span></code></a> performs these steps inside BART: it estimates the
-data scale, builds the encoding from the sensitivities and the sampling,
-builds the terms from its <code class="docutils literal notranslate"><span class="pre">regularizers</span></code> argument, and runs the chosen
-iteration.  <a class="reference internal" href="../auto_examples/01-basics/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a>
+<p><a class="reference internal" href="../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> performs these steps: it estimates the data scale,
+builds the encoding from the sensitivities and the sampling, takes the terms
+from its <code class="docutils literal notranslate"><span class="pre">regularizers</span></code> argument, and runs the chosen iteration.  <a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a>
 assembles the same reconstruction from an operator, a term and a solver and
 obtains the same result.  The estimators on this page assume a known, linear
 <span class="math notranslate nohighlight">\(A\)</span>; <a class="reference internal" href="nonlinear.html"><span class="doc">Nonlinear forward models</span></a> treats forward operators that depend nonlinearly on the

@@ -232,10 +232,12 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -451,7 +453,9 @@
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -467,6 +471,15 @@
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#course">Course</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -479,45 +492,116 @@
   <section class="tex2jax_ignore mathjax_ignore" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <p>Reconstructions executed when the documentation is built, so every figure and
-printed number is produced by the code shown.  The examples use a BrainWeb
-segmentation (<code class="docutils literal notranslate"><span class="pre">brainweb-dl</span></code>) as the phantom.  Concepts are in
+printed number is produced by the code shown.  The course is read in order:
+each lesson states its aim and learning objectives and builds on the lessons
+before it.  The tours are standalone.  Concepts are in
 <a class="reference internal" href="../explanation/index.html"><span class="doc">Explanation</span></a>, interfaces in <a class="reference internal" href="../api/index.html"><span class="doc">API reference</span></a>.</p>
+<section id="course">
+<h2>Course<a class="headerlink" href="#course" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Section</p></th>
-<th class="head"><p>Examples</p></th>
+<th class="head"><p>Lesson</p></th>
 <th class="head"><p>Covers</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/01-basics/index.html"><span class="doc">Basics</span></a></p></td>
-<td><p>3</p></td>
-<td><p>Cartesian SENSE with ESPIRiT through a BART command; the same problem as an operator and a solver; noise prewhitening</p></td>
+<td><p><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html"><span class="doc">Tensors and commands</span></a></p></td>
+<td><p>Tensor shapes and BART’s dimensions, the analytical phantom, BART’s FFT against NumPy, the command line</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html"><span class="doc">Non-Cartesian imaging</span></a></p></td>
-<td><p>2</p></td>
-<td><p>Trajectories, the non-uniform Fourier transform and its normal operator; radial SENSE</p></td>
+<tr class="row-odd"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a></p></td>
+<td><p>Undersampled Cartesian k-space to an image: channel compression, ESPIRiT, <a class="reference internal" href="../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/03-applications/index.html"><span class="doc">Applications</span></a></p></td>
-<td><p>2</p></td>
-<td><p>Dynamic golden-angle radial MRI; subspace-constrained <span class="math notranslate nohighlight">\(T_1\)</span> mapping</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html"><span class="doc">Parallel imaging</span></a></p></td>
+<td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a></p></td>
+<td><p>Sensitivities by <code class="docutils literal notranslate"><span class="pre">caldir</span></code>, ESPIRiT and nonlinear inversion, and the SENSE reconstructions they give</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/04-model-based/index.html"><span class="doc">Model-based reconstruction</span></a></p></td>
-<td><p>2</p></td>
-<td><p>Nonlinear inversion; parameter maps estimated from k-space</p></td>
+<tr class="row-odd"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p></td>
+<td><p>Image and sensitivities estimated jointly by iteratively regularized Gauss-Newton</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/05-deep-learning/index.html"><span class="doc">Deep learning</span></a></p></td>
-<td><p>1</p></td>
-<td><p>An unrolled MoDL network on BART’s ADMM</p></td>
+<tr class="row-even"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p></td>
+<td><p>Correlated channel noise, prewhitening, and the pseudo-replica SNR</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/03-regularization/index.html"><span class="doc">Regularization</span></a></p></td>
+<td><p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a></p></td>
+<td><p>Tikhonov, wavelet and total-variation terms, and the choice of their weight</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p></td>
+<td><p>The same reconstruction as an encoding operator and a solver</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html"><span class="doc">Non-Cartesian imaging</span></a></p></td>
+<td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a></p></td>
+<td><p>Trajectories, the non-uniform transform, density compensation, the point spread function</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p></td>
+<td><p>Radial SENSE with sensitivities estimated from the radial data</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p></td>
+<td><p>A golden-angle acquisition reconstructed as a time series</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/05-model-based/index.html"><span class="doc">Model-based reconstruction</span></a></p></td>
+<td><p><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p></td>
+<td><p>Subspace-constrained inversion recovery and <span class="math notranslate nohighlight">\(T_1\)</span> mapping</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p></td>
+<td><p><span class="math notranslate nohighlight">\(T_2\)</span> maps from multi-echo k-space through a signal model</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/06-learning/index.html"><span class="doc">Learned regularization</span></a></p></td>
+<td><p><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a></p></td>
+<td><p>A pretrained denoiser as the proximal step of ADMM and FISTA</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p></td>
+<td><p>MoDL unrolled on BART’s ADMM and trained end to end</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>The scripts need <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">bartorch</span> <span class="pre">brainweb-dl</span> <span class="pre">matplotlib</span> <span class="pre">cmap</span></code>, and the
-deep-learning example also <code class="docutils literal notranslate"><span class="pre">lightning</span> <span class="pre">torchio</span> <span class="pre">monai</span> <span class="pre">deepinv</span></code>.  Each page can
-be downloaded as a script or a notebook.</p>
+</section>
+<section id="tours">
+<h2>Tours<a class="headerlink" href="#tours" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tour</p></th>
+<th class="head"><p>Covers</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html"><span class="doc">Readout oversampling and apodization</span></a></p></td>
+<td><p>Removal of readout oversampling; Hann and Fermi apodization</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html"><span class="doc">EPI Nyquist ghost and ramp sampling</span></a></p></td>
+<td><p>The EPI odd/even phase from a navigator; ramp-sampled readouts</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html"><span class="doc">Receive bias field</span></a></p></td>
+<td><p>N4 correction of the receive field of a surface array</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html"><span class="doc">Gradient nonlinearity</span></a></p></td>
+<td><p>Geometric distortion from a spherical-harmonic coil description</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html"><span class="doc">Off-resonance blurring in spirals</span></a></p></td>
+<td><p>Off-resonance deblurring of a spiral image</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html"><span class="doc">Rigid head motion from navigators</span></a></p></td>
+<td><p>Rigid head motion from three navigator planes, filtered across a scan</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The scripts need <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">bartorch</span> <span class="pre">brainweb-dl</span> <span class="pre">matplotlib</span> <span class="pre">cmap</span></code>; the
+learned-regularization section also <code class="docutils literal notranslate"><span class="pre">lightning</span> <span class="pre">torchio</span> <span class="pre">monai</span> <span class="pre">deepinv</span></code>, and the
+tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</span></code>.  Each page can be downloaded as a script or a notebook.</p>
 <div class="toctree-wrapper compound">
 </div>
+</section>
 </section>
 
 
@@ -555,6 +639,24 @@ be downloaded as a script or a notebook.</p>
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#course">Course</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

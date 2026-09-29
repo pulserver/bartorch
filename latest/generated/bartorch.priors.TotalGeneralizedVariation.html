@@ -230,10 +230,12 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-applications/index.html">Applications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-deep-learning/index.html">Deep learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -498,7 +500,7 @@ field <span class="math notranslate nohighlight">\(z\)</span>:</p>
            + \alpha_0 \| \mathcal{E} z \|_1\]</div>
 <p>with <span class="math notranslate nohighlight">\(\mathcal{E}\)</span> the symmetrized gradient and <code class="docutils literal notranslate"><span class="pre">alpha</span></code> giving
 <span class="math notranslate nohighlight">\((\alpha_1, \alpha_0)\)</span> (BART’s <code class="docutils literal notranslate"><span class="pre">tgv_reg</span></code>).</p>
-<p>Only <a class="reference internal" href="bartorch.tools.pics.html#bartorch.tools.pics" title="bartorch.tools.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.pics()</span></code></a>, <a class="reference internal" href="bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.ADMM</span></code></a> and
+<p>Only <a class="reference internal" href="bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a>, <a class="reference internal" href="bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.ADMM</span></code></a> and
 <a class="reference internal" href="bartorch.optim.PRIDU.html#bartorch.optim.PRIDU" title="bartorch.optim.PRIDU"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.PRIDU</span></code></a> accept this term; the auxiliary variables
 extend the optimization variable and BART counts that extension across the
 whole set of terms, so the term cannot be built in isolation.</p>

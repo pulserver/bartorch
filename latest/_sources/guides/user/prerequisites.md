@@ -26,8 +26,16 @@ Apple MPS devices are not supported; the device paths are CPU and CUDA.
 
 | Extra | Installs | Needed for |
 | --- | --- | --- |
-| `mkl` | Intel MKL (Linux x86-64) | MKL as the source of BLAS, LAPACK and FFT routines |
-| `deepinv` | DeepInverse | {func}`bartorch.interop.to_deepinv` |
+| `mkl` | Intel MKL (Linux x86-64) | MKL as the source of BLAS, LAPACK and FFT routines, and of FINUFFT's FFT |
+| `deepinv` | DeepInverse | {func}`bartorch.interop.to_deepinv`, and DeepInverse's denoisers for {class}`~bartorch.priors.ImplicitPrior` |
+| `correct` | SimpleITK | Bias field and gradient nonlinearity correction in {mod}`bartorch.tools` |
+| `motion` | SimpleITK | Rigid registration of navigator planes in {mod}`bartorch.tools` |
+| `pyhysco` | PyHySCO (GPL-3.0-only) | {func}`bartorch.tools.correct_susceptibility` |
+
+PyHySCO is not distributed with bartorch; it is imported only when
+{func}`~bartorch.tools.correct_susceptibility` is called.  The spiral
+deblurring of {func}`~bartorch.tools.deblur` uses Triton on a CUDA device when
+it is installed.
 
 The executed examples additionally need `brainweb-dl`, `matplotlib` and `cmap`,
 and the deep-learning example `lightning`, `torchio`, `monai` and `deepinv`.

@@ -29,6 +29,24 @@ never by editing the submodule checkout; `AGENTS.md` lists each replacement.
 A change that belongs in BART itself goes to the fork, as {doc}`bart-fork`
 describes.
 
+## The Python package
+
+| Path | Contents |
+| --- | --- |
+| `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py`, `kspace.py`, `_settings.py` | The array functions and runtime settings re-exported as `bartorch.*` |
+| `linop/`, `nlop/` | One class per operator; `linop/form.py` is the encoding form and the plan it reports, `linop/plan.py` the matching of a composition against it |
+| `optim/`, `priors/` | One class per BART iteration, and BART's regularization terms and denoisers |
+| `apps/` | BART's reconstructions assembled from operators and solvers |
+| `learning/`, `interop.py` | Unrolled iterations and channel conversions, and the DeepInverse adapter |
+| `tools/` | BART's remaining commands in five sections, and `correct.py` and `motion.py`, implemented in `tools/_correct/` and `tools/_motion/` |
+| `cli/` | The `bartorch` command line: `_argv.py` reads a `bart` command line, `_apps.py` routes it to an app |
+| `io.py` | CFL files |
+| `_abi.py`, `_lib.py`, `_marshal.py`, `_buffer.py` | The ctypes signatures, loading the library, the form of an ABI argument, and a tensor over one of BART's buffers |
+| `_dispatch.py`, `_operator.py`, `_grid.py` | Running a command on tensors, what every operator shares, and what the operations on a grid share |
+| `_backend.py`, `_finufft.py`, `_cuda.py` | The BLAS, LAPACK and FFT sources, and the controls of the NUFFT substitution and of the device |
+| `_catalogue.py`, `_options.py`, `_call.py`, `_coverage.py` | BART's command declarations, the name of each option, the wrappers built from them, and where each command is exposed or why it is not |
+| `_reference.py` | BART's reconstruction commands, private, against which the apps are tested |
+
 ## Documentation sources
 
 | Path | Contents |
