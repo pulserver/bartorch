@@ -58,7 +58,9 @@ _SIMULATED = (
 PRIVATE: dict[str, str] = {
     "bart": "the dispatcher that runs the other commands",
     "ismrmrd": "needs libismrmrd, which this build does not compile",
-    **dict.fromkeys(("tee", "multicfl", "tensorflow", "twixread", "toimg", "toraw"), _FILES),
+    **dict.fromkeys(
+        ("tee", "multicfl", "tensorflow", "twixread", "toimg", "toraw", "pulseq"), _FILES
+    ),
     **dict.fromkeys(("stl", "pol2mask", "morphop"), "mesh and mask geometry, not needed here"),
     **dict.fromkeys(
         ("cunet", "mnist", "nnet", "reconet", "nlinvnet", "sample", "onehotenc"), _NETWORK
@@ -99,11 +101,12 @@ PRIVATE: dict[str, str] = {
             "svd",
             "hist",
             "compress",
+            "sort",
         ),
         _TORCH,
     ),
     **dict.fromkeys(("bloch", "epg", "mobasig", "pulse", "seq", "sim", "signal"), _SIMULATED),
-    **dict.fromkeys(("fftrot", "gmm"), _LATER),
+    **dict.fromkeys(("fftrot", "gmm", "bet", "extractdc"), _LATER),
     "ictv": "fails for every input in this BART (ictv.c:97 reshapes the wrong side)",
     "version": "bartorch.bart_version() reports it",
     "bitmask": "converts bitmasks, which the Python API does not use",

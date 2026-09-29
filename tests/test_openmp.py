@@ -1,11 +1,9 @@
 """One OpenMP runtime in the process, whichever of torch and bartorch comes first.
 
-LLVM's runtime ends the process when a second copy of itself initialises, so
-on macOS and Windows the library is linked against the runtime torch carries
-(cmake/openmp.cmake).  Each case runs in a fresh interpreter, exercises
-torch's thread pool and FINUFFT's together, and reads the images the process
-has loaded.  On Linux the toolchain's runtime is used and GNU's tolerates a
-second copy, so there the transform is exercised and the count only reported.
+The library carries no runtime of its own: it is bound to the one torch
+carries (cmake/openmp.cmake), and a wheel vendors none.  Each case runs in a
+fresh interpreter, exercises torch's thread pool and FINUFFT's together, and
+reads the images the process has loaded.
 """
 
 import subprocess
@@ -99,11 +97,10 @@ def _runtimes(order: str) -> list[str]:
 def test_threaded_torch_and_threaded_finufft_share_one_openmp_runtime(order):
     runtimes = _runtimes(order)
     print(order, runtimes)
-    if sys.platform in ("darwin", "win32"):
-        assert len(runtimes) == 1, f"{len(runtimes)} OpenMP runtimes loaded: {runtimes}"
-        assert "torch" in runtimes[0].replace("\\", "/").lower(), (
-            f"the one runtime loaded is not torch's: {runtimes[0]}"
-        )
+    assert len(runtimes) == 1, f"{len(runtimes)} OpenMP runtimes loaded: {runtimes}"
+    assert "torch" in runtimes[0].replace("\\", "/").lower(), (
+        f"the one runtime loaded is not torch's: {runtimes[0]}"
+    )
 
 
 def test_loading_modifies_no_installed_file():

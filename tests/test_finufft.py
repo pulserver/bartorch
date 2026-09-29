@@ -2067,8 +2067,13 @@ def test_a_library_without_its_modules_transforms_at_the_baseline(tmp_path):
 
     from bartorch._lib import library_path
 
-    alone = tmp_path / library_path().name
+    # A repaired wheel finds its vendored libraries through $ORIGIN/../bartorch.libs.
+    home = library_path().parent
+    (tmp_path / home.name).mkdir()
+    alone = tmp_path / home.name / library_path().name
     shutil.copy(library_path(), alone)
+    for vendored in home.parent.glob("*.libs"):
+        (tmp_path / vendored.name).symlink_to(vendored, target_is_directory=True)
     code = (
         "import bartorch.tools as bt; from bartorch import _finufft, linop\n"
         "t = bt.traj(x=32, y=16, r=True)\n"

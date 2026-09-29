@@ -21,7 +21,7 @@ libbartorch (shared; exports the bartorch_* C ABI only)
 │   └── CUDA::cudart, CUDA::cufft ── dynamic, from the nvidia wheels torch brings
 └── OpenMP::OpenMP_C ────────────┤
                                  └── cmake/openmp.cmake
-                                     Linux    the toolchain's runtime (libgomp with GCC)
+                                     Linux    libgomp.so.1 = torch/lib/libgomp.so.1
                                      macOS    @rpath/libomp.dylib = torch/lib/libomp.dylib
                                      Windows  libiomp5md.dll, as torch loads it
 ```
@@ -110,9 +110,11 @@ runtime's own when the process has one.  torch 2.2 carries no libomp on macOS,
 so the macOS floor is 2.3.
 
 `tests/test_openmp.py` is the check: threaded torch and threaded FINUFFT in
-one process, both import orders, the loaded OpenMP images listed.  On Linux
-the one image found is torch's `libgomp.so.1`, which satisfies the library's
-`NEEDED` entry as well.
+one process, both import orders, the loaded OpenMP images listed, and one
+image found on every platform.  On Linux it is torch's `libgomp.so.1`, which
+satisfies the library's `NEEDED` entry; the wheel is repaired with
+`--exclude libgomp.so.1`, and torch's copy has carried that name from 2.7.1
+on, which is the Linux floor.
 
 ## FFT inside FINUFFT: DUCC0 and oneMKL
 

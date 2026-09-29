@@ -342,7 +342,7 @@ static int linop_nufft_worker(void* p)
 		md_copy_dims(a->N, wgh_dims, a->wgh_dims);
 
 	a->result = wrap_linop(nufft_create2(a->N, a->ksp_dims, a->cim_dims, a->traj_dims, a->traj,
-			wgh_dims, a->weights, a->bas_dims, a->basis, conf));
+			wgh_dims, a->weights, a->bas_dims, a->basis, NULL, NULL, NULL, NULL, conf));
 	return 0;
 }
 

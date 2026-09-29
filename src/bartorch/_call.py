@@ -89,9 +89,8 @@ class _Takes:
 
 
 #: BART's term letters by parser: ``pics``, ``wshfl`` and ``denoise`` share
-#: one; ``sqpics`` and ``moba`` each have their own.
+#: one; ``moba`` has its own.
 _PICS_KINDS = frozenset("W H N L T G C V P S Q F I R1 R2".split())
-_SQPICS_KINDS = frozenset("W L T I Q R1 R2".split())
 _MOBA_KINDS = frozenset("W T Q".split())
 
 #: Each argument of a public command that BART takes as dimensions or a
@@ -132,7 +131,6 @@ TRANSLATED: dict[tuple[str, str], _Takes] = {
     ("pics", "-L"): _Takes("axes", "Axes reconstructed one at a time (batch mode)."),
     ("pics", "--shared-img-dims"): _Takes("axes", "Axes the image is shared along."),
     ("pics", "--mpi"): _Takes("axes", "Axes distributed over MPI processes."),
-    ("sqpics", "-R"): _Takes("regularizers", "Regularization terms.", kinds=_SQPICS_KINDS),
     ("ssa", "-g"): _Takes("indices", "Grouping, as a set of indices."),
     ("wshfl", "-R"): _Takes("regularizers", "Regularization terms.", kinds=_PICS_KINDS),
 }
@@ -185,6 +183,7 @@ ANNOTATIONS = {
     "FLVEC2": "tuple[float, float]",
     "FLVEC3": "tuple[float, float, float]",
     "FLVEC4": "tuple[float, float, float, float]",
+    "FLVEC7": "tuple[float, float, float, float, float, float, float]",
     "FLVECN": "tuple[float, ...]",
     "DOVEC3": "tuple[float, float, float]",
     "DOVECN": "tuple[float, ...]",
@@ -280,16 +279,17 @@ def signature_for(name: str) -> inspect.Signature:
     return inspect.Signature(parameters, return_annotation="torch.Tensor | tuple | str | None")
 
 
-#: Commands whose only output BART marks optional and then creates anyway.
+#: Commands whose only output BART marks optional and then needs anyway.
 #
 # `create_cfl` hands the name to `io_unlink_if_opened`, which calls `strcmp`
 # on it, so an omitted name is a segmentation fault rather than a tool that
-# quietly writes nothing -- `mobafit.c:398` and `morphop.c:77` are both
-# unguarded.  Every other command with an optional output writes it through
-# `anon_cfl` or behind an `if`, prints its answer instead when no name is
-# given, and is left alone: passing one would silently turn the printed line
-# `estdelay` and `measure` return here into a tensor.
-_WRITES_ITS_OPTIONAL_OUTPUT = frozenset({"mobafit", "morphop"})
+# quietly writes nothing -- `morphop.c:77` is unguarded.  `raga` refuses an
+# omitted name (`raga.c:120`) unless `--search-tiny` asks it to print instead.
+# Every other command with an optional output writes it through `anon_cfl` or
+# behind an `if`, prints its answer instead when no name is given, and is left
+# alone: passing one would silently turn the printed line `estdelay` and
+# `measure` return here into a tensor.
+_WRITES_ITS_OPTIONAL_OUTPUT = frozenset({"morphop", "raga"})
 
 
 def _outputs(command: Command) -> int:
@@ -394,7 +394,9 @@ def _docstring(command: Command, parameters: list[inspect.Parameter]) -> str:
             continue
         lines.append(f"{keyword} : {parameter.annotation}{_default(parameter)}")
         rule = TRANSLATED.get((command.name, option.flag))
-        said = rule.help if rule is not None else option.help.strip() or f"BART's {option.flag}."
+        # `|M|` in BART's help would read as a reStructuredText substitution.
+        said = rule.help if rule is not None else option.help.strip().replace("|", r"\|")
+        said = said or f"BART's {option.flag}."
         lines.append(f"    {said}  (``{option.flag}``)")
     lines += ["**extra : Any", "    Further BART flags, passed through by name."]
 

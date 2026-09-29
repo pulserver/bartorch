@@ -77,30 +77,8 @@ def _pics(options: dict[str, list[Any]], ndim: int) -> dict[str, Any]:
     return made
 
 
-def _pocsense(options: dict[str, list[Any]], ndim: int) -> dict[str, Any]:
-    """``pocsense``'s flags as :func:`bartorch.apps.pocsense` takes them."""
-    made: dict[str, Any] = {}
-    if "i" in options:
-        made["maxiter"] = _only(options.pop("i"))
-    if "r" in options:
-        made["alpha"] = _only(options.pop("r"))
-    if "o" in options:
-        made["robust"] = _only(options.pop("o"))
-    if "l" in options:
-        kind = _only(options.pop("l"))
-        if kind not in (1, 2):
-            raise Unsupported(f"pocsense -l takes 1 or 2, got {kind}")
-        made["wavelet"] = kind == 1
-    if "g" in options:
-        options.pop("g")
-    if options:
-        raise Unsupported(f"pocsense {sorted(options)} is not something the app takes")
-    return made
-
-
 #: The commands an app answers, and the reader that fills its arguments.  A
 #: command absent from here is BART's own.
 ADAPTERS = {
     "pics": _pics,
-    "pocsense": _pocsense,
 }

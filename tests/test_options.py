@@ -34,7 +34,6 @@ def test_every_option_of_every_command_reaches_its_own_flag():
         ("pics", "ist_last", "--ist_last"),
         ("pics", "fista_pqr", "--fista_pqr"),
         ("moba", "scale_data", "--scale_data"),
-        ("seq", "slice_thickness", "--slice_thickness"),
         # And the ones it does spell with a hyphen, which must still work.
         ("pics", "no_toeplitz", "--no-toeplitz"),
         ("pics", "gpu_gridding", "--gpu-gridding"),

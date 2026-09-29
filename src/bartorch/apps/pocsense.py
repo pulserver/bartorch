@@ -1,4 +1,4 @@
-"""``pocsense`` as a pipeline: the three projections, and the sweep over them."""
+"""POCSENSE as a pipeline: the three projections, and the sweep over them."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from bartorch.tools import sampling
 
 __all__ = ["pocsense"]
 
-#: BART's own ``-i`` default (pocsense.c:66).
+#: The sweep count BART's POCSENSE application defaults to.
 _MAXITER = 50
 
 
@@ -101,7 +101,7 @@ def pocsense(
 ) -> torch.Tensor:
     """POCSENSE reconstruction: the measured samples, the coils, and sparsity.
 
-    The pipeline :func:`bartorch.tools.pocsense` runs, assembled here: the
+    The pipeline of BART's POCSENSE application, assembled here: the
     scaling the application estimates, the sampling pattern read off the
     k-space, the modulation into the convention BART iterates in, and then a
     sweep of three projections from :mod:`bartorch.linop` and
@@ -122,7 +122,7 @@ def pocsense(
         projections onto the data and onto the coils.
     wavelet : bool, default=False
         Threshold the wavelet coefficients of the coil images rather than
-        shrinking the samples towards zero, which is ``pocsense -l 1``.
+        shrinking the samples towards zero, which is the application's ``-l 1``.
     robust : float, default=None
         Soft-threshold the residual at a measured position by this much
         rather than discarding it, which is the application's ``-o``.

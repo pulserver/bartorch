@@ -155,12 +155,11 @@ def test_a_tool_that_is_not_kept_on_the_card_still_answers_on_it():
     """Crossing to the host is where a tool runs, not what the caller sees."""
     from bartorch._dispatch import _ON_DEVICE
 
-    assert "pocsense" not in _ON_DEVICE
+    assert "fftmod" not in _ON_DEVICE
     n, coils = 32, 2
-    img = bt.phantom([n, n], coils=coils)
-    ksp = bartorch.fft(img, axes=(-2, -1)).cuda()
-    maps = (torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5).cuda()
+    img = bt.phantom([n, n], coils=coils).cuda()
 
-    out = bt.pocsense(ksp, maps)
+    out = bartorch.fftmod(img, (-2, -1))
     assert out.device.type == "cuda"
-    torch.testing.assert_close(out.cpu(), bt.pocsense(ksp.cpu(), maps.cpu()), rtol=1e-4, atol=1e-5)
+    expected = bartorch.fftmod(img.cpu(), (-2, -1))
+    torch.testing.assert_close(out.cpu(), expected, rtol=1e-4, atol=1e-5)

@@ -298,7 +298,7 @@ _ON_DEVICE = frozenset({"estdims", "fft", "ifft", "nufft", "pics", "rss"})
 # that: `nlinv` and its relatives fit them from a low-resolution image that
 # everything after them is built on, and a grid twice over at FINUFFT's own
 # tolerance is a few megabytes there.  So they get it.
-_CALIBRATES = frozenset({"ncalib", "nlinv", "rtnlinv"})
+_CALIBRATES = frozenset({"ncalib", "nlinv"})
 
 _CAREFUL_TOLERANCE = 1e-6
 _CAREFUL_UPSAMPLING = 2.0

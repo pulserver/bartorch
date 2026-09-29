@@ -26,13 +26,14 @@ option(BARTORCH_CUDA "Build BART's CUDA kernels" OFF)
 set(BARTORCH_CUDA_ARCHITECTURES "75;80;86;89;90" CACHE STRING
     "Architectures to emit SASS for; PTX for the last one is added for newer cards")
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_CUDA_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -171,7 +172,7 @@ if(BARTORCH_CUDA)
     enable_language(CUDA)
     find_package(CUDAToolkit REQUIRED)
 
-    list(APPEND BART_C_DEFS USE_CUDA CUDA_GET_CUDA_DEVICE_NUM)
+    list(APPEND BART_C_DEFS USE_CUDA USE_GPU CUDA_GET_CUDA_DEVICE_NUM)
 
     set(CMAKE_CUDA_STANDARD 17)
     set(CMAKE_CUDA_STANDARD_REQUIRED ON)
@@ -269,7 +270,7 @@ file(GLOB _tool_srcs CONFIGURE_DEPENDS "${BART_SRC}/*.c")
 list(APPEND BART_SOURCES ${_tool_srcs})
 
 if(BARTORCH_CUDA)
-    foreach(_dir calib motion noncart num wavelet)
+    foreach(_dir calib motion noncart num simu wavelet)
         file(GLOB _cu CONFIGURE_DEPENDS "${BART_SRC}/${_dir}/*.cu")
         list(APPEND BART_SOURCES ${_cu})
     endforeach()
@@ -467,6 +468,10 @@ target_compile_definitions(bartorch PRIVATE
     # functions linked into this library rather than imported from its DLL
     # (misc/dllspec.h); and no named pipes, which are a POSIX file type.
     $<$<BOOL:${WIN32}>:_FILE_OFFSET_BITS=64;BARTLIB_STATIC;NO_FIFO>
+    # Elsewhere misc/dllspec.h gives BARTLIB_API default visibility, which
+    # would put BART's seq_*, num_rand_init and debug_printf in the dynamic
+    # table beside the bartorch_* ABI; defining its guard leaves them hidden.
+    $<$<NOT:$<BOOL:${WIN32}>>:BART_MISC_DLLSPEC;BARTLIB_API=;BARTLIB_CALL=>
     BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},finufft_fft=${BARTORCH_FINUFFT_FFT_NAME},finufft_simd=${_finufft_simd_info},finufft_simd_mkl=${_finufft_mkl_info},long=${BARTORCH_SIZEOF_LONG}")
 
 target_compile_options(bartorch PRIVATE
@@ -504,6 +509,13 @@ endif()
 # FINUFFT on oneMKL needs libmkl_rt where the build found it.
 if(TARGET bartorch_mkl_fftw)
     set_property(TARGET bartorch APPEND PROPERTY INSTALL_RPATH "${BARTORCH_MKL_LIBRARY_DIR}")
+endif()
+
+# Linux: libgomp.so.1 is torch's in a wheel, which carries none of its own;
+# torch is its sibling package.  The copy torch has loaded satisfies the name
+# first, so this is where it is found when torch has not been imported.
+if(NOT APPLE AND NOT WIN32 AND OpenMP_C_FOUND)
+    set_property(TARGET bartorch APPEND PROPERTY INSTALL_RPATH "$ORIGIN/../torch/lib")
 endif()
 
 # macOS: the OpenMP stub names @rpath/libomp.dylib, which is torch's.  In a

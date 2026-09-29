@@ -60,7 +60,7 @@ OPTION_MACROS: dict[str, dict[str, int]] = {
 TYPED_KINDS = (
     "INT UINT LONG ULONG ULLONG PINT FLOAT DOUBLE STRING "
     "INFILE OUTFILE INOUTFILE CFL "
-    "VEC2 VEC3 VECN FLVEC2 FLVEC3 FLVEC4 FLVECN DOVEC3 DOVECN"
+    "VEC2 VEC3 VECN FLVEC2 FLVEC3 FLVEC4 FLVEC7 FLVECN DOVEC3 DOVECN"
 ).split()
 
 #: The two that take a variable number of values and so have no metavar of
@@ -263,7 +263,7 @@ def read_command(name: str, source: Path) -> dict:
     """One BART tool, as its own source declares it."""
     code = strip_comments(source.read_text(errors="replace"))
 
-    helped = re.search(r"help_str\[\]\s*=\s*((?:\s*\"(?:[^\"\\]|\\.)*\")+)", code)
+    helped = re.search(r"help_str(?:\[\])?\s*=\s*((?:\s*\"(?:[^\"\\]|\\.)*\")+)", code)
     arguments = [
         read_argument(macro, args)
         for macro, args in macro_calls(

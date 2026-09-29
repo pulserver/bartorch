@@ -92,6 +92,9 @@ jobs:
           # dependency here.
           CIBW_ARCHS_LINUX: x86_64
           CIBW_ARCHS_WINDOWS: AMD64
+          # libgomp.so.1 is the one torch carries in torch/lib, so the wheel
+          # vendors none and the process has one OpenMP runtime.
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair --exclude libgomp.so.1 -w {dest_dir} {wheel}
           # The library imports the system's DLLs and the OpenMP runtime torch
           # carries, so there is nothing to vendor and no repair step.
           CIBW_ENVIRONMENT_WINDOWS: CC=clang CXX=clang++ CMAKE_GENERATOR=Ninja
@@ -125,7 +128,7 @@ jobs:
           grep -q 'licenses/external/finufft/LICENSE' contents.txt
           grep -q 'licenses/finufft-dependencies/DUCC0/LICENSE' contents.txt
           grep -q 'licenses/finufft-dependencies/xsimd/LICENSE' contents.txt
-          ! grep -Ei 'finufft/.*\.(so|dylib|dll)|libomp|libiomp' contents.txt
+          ! grep -Ei 'finufft/.*\.(so|dylib|dll)|libomp|libiomp|libgomp' contents.txt
           mkdir unpacked && python -m zipfile -e wheelhouse/*.whl unpacked
           case "${{ runner.os }}" in
             Linux)
@@ -230,8 +233,9 @@ jobs:
           python -m build --wheel --outdir dist/ \
             -C cmake.define.BARTORCH_CUDA=ON \
             -C "cmake.define.BARTORCH_MATHDX_DIR=$MATHDX_DIR"
-      # The CUDA runtimes are excluded rather than vendored: torch already
-      # brings them, and bundling them would add hundreds of megabytes.
+      # The CUDA runtimes and libgomp are excluded rather than vendored: torch
+      # already brings them, bundling the first would add hundreds of
+      # megabytes, and a second libgomp would be a second OpenMP runtime.
       - name: Repair to a manylinux tag
         run: |
           /opt/python/cp312-cp312/bin/python -m pip install auditwheel
@@ -239,14 +243,15 @@ jobs:
           /opt/python/cp312-cp312/bin/python -m auditwheel repair dist/*.whl \
             -w wheelhouse/ --plat manylinux_2_28_x86_64 \
             --exclude libcudart.so.12 --exclude libcufft.so.11 \
-            --exclude libcublas.so.12 --exclude libcublasLt.so.12
+            --exclude libcublas.so.12 --exclude libcublasLt.so.12 \
+            --exclude libgomp.so.1
       # cuFINUFFT is in the library, bound to the same cudart and cuFFT as
-      # BART's kernels, and nothing is vendored beside it but libgomp.
+      # BART's kernels, and nothing is vendored beside it.
       - name: Inspect the CUDA wheel
         run: |
           /opt/python/cp312-cp312/bin/python -m auditwheel show wheelhouse/*.whl
           /opt/python/cp312-cp312/bin/python -m zipfile -l wheelhouse/*.whl | tee contents.txt
-          ! grep -Ei 'libcudart|libcufft|libcublas|cufinufft.*\.so' contents.txt
+          ! grep -Ei 'libcudart|libcufft|libcublas|libgomp|cufinufft.*\.so' contents.txt
           grep -q 'licenses/finufft-dependencies/DUCC0/LICENSE' contents.txt
       # The wheel carries no interpreter, so it is loaded from the oldest and
       # the newest Python the package supports.

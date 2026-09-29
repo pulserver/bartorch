@@ -41,8 +41,6 @@ _LINES = [
     ["pics", "-r", "0.1", "-i", "20"],
     ["pics", "-l2", "-r", "0.05", "-i", "20"],
     ["pics", "-R", "W:3:0:0.01", "-i", "20"],
-    ["pocsense", "-i", "10"],
-    ["pocsense", "-i", "10", "-r", "0.01", "-l", "1"],
 ]
 
 
@@ -96,9 +94,9 @@ def test_an_unknown_command_is_refused(capsys):
 def test_help_comes_from_the_catalogue(capsys):
     """BART answers its own help by calling ``exit``, which in this process
     would end the interpreter."""
-    assert main(["pocsense", "--help"]) == 0
+    assert main(["pics", "--help"]) == 0
     printed = capsys.readouterr().out
-    assert "Perform POCSENSE reconstruction" in printed
+    assert "Parallel-imaging compressed-sensing reconstruction" in printed
     assert "max. number of iterations" in printed
 
 

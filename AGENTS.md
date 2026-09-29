@@ -222,18 +222,23 @@ as for BART's kernels.  cuFINUFFT at this pin does not compile for sm_90 with CU
 takes for that architecture arrives later), so a CUDA build that includes 90
 needs 12.1 or newer; the wheel is built with 12.8.
 
-**One OpenMP runtime, and it is torch's where that matters.**
+**One OpenMP runtime, and it is torch's.**
 `cmake/openmp.cmake` defines `OpenMP::OpenMP_C` and `OpenMP::OpenMP_CXX` for
 the whole build, BART linking the first and FINUFFT the second, and answers
 FINUFFT's own `find_package(OpenMP)` through `CMAKE_FIND_PACKAGE_REDIRECTS_DIR`
-so it cannot pick a runtime of its own.  On Linux it is the toolchain's
-runtime.  On Windows and macOS LLVM's runtime ends the process when a second
+so it cannot pick a runtime of its own.  On Linux the build links the
+toolchain's libgomp, whose `libgomp.so.1` is also the name of the copy torch
+carries in `torch/lib` from 2.7.1 on -- before that it had a hashed name,
+hence the Linux floor in `pyproject.toml` -- so the copy torch has loaded
+satisfies the library's `NEEDED` entry; the wheel is repaired with
+`--exclude libgomp.so.1` and carries none, and `$ORIGIN/../torch/lib` is on
+its runpath.  On Windows and macOS LLVM's runtime ends the process when a second
 copy initialises (`OMP: Error #15`), and torch has already loaded one, so the
 library is linked against a stub that names torch's and lists the entry
 points clang calls: an import library for `libiomp5md.dll` made from
 `src/csrc/compat/libiomp5md.def`, and a text stub for `@rpath/libomp.dylib`
 written from the same list, with `@loader_path/../torch/lib` on the rpath.
-`_lib._load` imports torch before it loads the library on both.  clang 19
+`_lib._load` imports torch before it loads the library on every platform.  clang 19
 and later end a dynamically scheduled loop with `__kmpc_dispatch_deinit`,
 which the libomp in torch 2.3 to 2.5 does not export, so
 `src/csrc/substitute/openmp.c` answers it inside the library and forwards to
@@ -242,7 +247,7 @@ macOS, hence the platform floor in `pyproject.toml`.  macOS needs
 `omp.h` to compile, which Homebrew's `libomp` provides; nothing links against
 that copy.  `tests/test_openmp.py` runs threaded torch and threaded FINUFFT in
 one process in either import order and reads the loaded images: one runtime
-on macOS and Windows, and it is torch's, with no installed file changed.
+on every platform, and it is torch's, with no installed file changed.
 `KMP_DUPLICATE_LIB_OK` is not used.
 
 **Underneath BART's own tools the seam is `nufft_create`, not the gridder.**
@@ -314,7 +319,7 @@ BART's gridder along with everything else in that file. So `compute_psf`,
 `compute_psf2` and `compute_psf2_decomposed` are renamed too and `src/csrc/substitute/psf.c`
 answers to them: the same squared weights and basis, the same doubled grid,
 shifts and decomposition, with the transform in the middle being whichever
-`nufft_create2` answers. `nlinv`, `moba`, `rtnlinv`, `noir/model2` and the
+`nufft_create2` answers. `nlinv`, `moba`, `noir/model2` and the
 `psf` tool call these directly.
 
 What that is worth is in the numbers. On the un-doubled grid of a 16x16
@@ -612,8 +617,8 @@ points that read an array element by element rather than through `md_` --
 taking a median of k-space -- are answered in `src/csrc/abi/host_reads.c` over a host
 copy of that one array, which is what BART already does for its own virtual
 pointers. What cannot be reached that way is a tool that allocates a temporary
-of its own on the host and mixes it with its input: `pocsense` takes its
-pattern from `md_alloc`, `nlinv` from `anon_cfl`, `ecalib` sets `bart_use_gpu`
+of its own on the host and mixes it with its input: `nlinv` takes its
+pattern from `anon_cfl`, `ecalib` sets `bart_use_gpu`
 from its own flag. `md_` operations take the host path unless every argument
 is on a device, and take it silently, so that is a segmentation fault rather
 than a slower answer.
@@ -893,8 +898,8 @@ declared it.
 
 An input file that is not there is the one thing the command line names itself.
 A BART command that fails while loading its arguments leaves the library unable
-to serve the next call in the same process -- `ecalib`, `nufft` and `pocsense`
-handed a name with no file behind it all spin the call after them, while `fft`
+to serve the next call in the same process -- `ecalib` and `nufft`
+handed a name with no file behind it both spin the call after them, while `fft`
 does not -- so a caller who runs `main` twice would hang rather than see the
 second answer.  `cli._missing` checks the names against the filesystem before
 BART is asked.
@@ -926,10 +931,10 @@ reads no residual, and `iter2_pocs` is handed an `xupdate_op` that `pocs`
 never calls.  What the sets are belongs to the projections, so `apps.pocsense`
 builds the application's three out of `linop.Sampling`, the range of a
 `linop.CartesianSense`, and a `priors` term conjugated by the transform
-between the samples and the coil images.  The three are bit-identical to
-`tools.pocsense` on a grid, in two dimensions and in three, on an even grid
-and on an odd one.  The odd grid is what decides how that projection is
-written: there the modulation is a phase rather than a sign, so the scaling
+between the samples and the coil images, and `tests/test_apps.py` holds a
+fully sampled phantom to be a fixed point of them and an answer to lie in the
+range of the coils.  The odd grid is what decides how the sparsity projection
+is written: there the modulation is a phase rather than a sign, so the scaling
 has to ride in the same array BART puts it in rather than in a second
 multiply, and the multiply itself has to be BART's `md_zmul2` and `md_zmulc2`
 -- a `linop.Diagonal` and its adjoint -- rather than torch's.  A complex
@@ -1101,13 +1106,13 @@ reconstruction is held to its data rather than to its transform. Two
 exceptions: a caller who names an upsampling gets it -- `nufft_conf_s` carries
 two as BART's own default, so zero is what says nobody asked, and BART gets
 its two back before it sees the conf -- and the tools that calibrate before a
-reconstruction is attempted (`nlinv`, `rtnlinv`, `ncalib`, in `_CALIBRATES`)
+reconstruction is attempted (`nlinv` and `ncalib`, in `_CALIBRATES`)
 run at FINUFFT's own tolerance on the textbook grid, which costs a few
 megabytes at the resolution they fit sensitivities at.
 
 Every BART entry point that builds a NUFFT is served: `nufft` forward,
-adjoint, inverse and Toeplitz, `pics` with and without a pattern, `sqpics`,
-`nlinv`, `rtnlinv`, `moba`, `ncalib` and `linop.NUFFT`, on the host
+adjoint, inverse and Toeplitz, `pics` with and without a pattern,
+`nlinv`, `moba`, `ncalib` and `linop.NUFFT`, on the host
 and on the card, with BART's own gridder built zero times. `nlinv` and the
 network models build theirs against dimensions alone and hand the trajectory
 over afterwards, which is why `nufft_update_traj` installs one rather than
@@ -1121,7 +1126,7 @@ index sets that are not axes (channels, parameter maps) are tuples too; no
 public argument takes a bitmask or a `-R` string. Hand-written wrappers
 convert their own; derived wrappers and what a curated one passes through by
 name follow `_call.TRANSLATED`, and `test_tools` fails on a dimension-like
-argument that is in neither. `pics`, `sqpics`, `wshfl` and `moba` take
+argument that is in neither. `pics`, `wshfl` and `moba` take
 `bartorch.priors` terms, serialized by `Regularizer._argument`. A flag's value can be an
 array rather than a number -- `pics(kspace, maps, t=traj)`, `-p` for a
 sampling pattern, `-B` for a basis -- and is registered and copied like any

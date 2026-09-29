@@ -67,13 +67,10 @@ interface.
 | --- | --- |
 | {obj}`~bartorch.tools.pics` | Parallel-imaging compressed-sensing reconstruction (wrapped) |
 | {obj}`~bartorch.tools.nlinv` | Nonlinear inversion: image and sensitivities jointly (wrapped) |
-| {obj}`~bartorch.tools.rtnlinv` | Real-time nonlinear inversion of a time series |
 | {obj}`~bartorch.tools.moba` | Model-based nonlinear reconstruction of parameter maps |
 | {obj}`~bartorch.tools.mobafit` | Voxel-wise fit of a signal model to contrast images |
 | {obj}`~bartorch.tools.looklocker` | $T_1$ from Look-Locker parameters $M_0$, $M_{ss}$ and $R_1^*$ |
 | {obj}`~bartorch.tools.itsense` | Iterative SENSE with $\ell_2$ regularization |
-| {obj}`~bartorch.tools.sqpics` | Parallel-imaging compressed-sensing reconstruction, BART's `sqpics` variant of `pics` |
-| {obj}`~bartorch.tools.pocsense` | POCSENSE reconstruction |
 | {obj}`~bartorch.tools.sake` | SAKE: low-rank matrix completion of k-space |
 | {obj}`~bartorch.tools.lrmatrix` | Multi-scale low-rank matrix completion |
 | {obj}`~bartorch.tools.homodyne` | Homodyne partial-Fourier reconstruction |

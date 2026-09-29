@@ -318,8 +318,8 @@ def test_the_guard_is_only_for_the_ir_mgre_sequence():
 
 def test_a_command_refuses_a_term_its_parser_does_not_know():
     kspace, maps = _pics_data()
-    with pytest.raises(TypeError, match="sqpics does not take"):
-        bt.sqpics(kspace, maps, R=priors.TotalGeneralizedVariation((-1, -2), 0.01))
+    with pytest.raises(TypeError, match="moba does not take"):
+        bt.moba(kspace, maps, r=priors.TotalGeneralizedVariation((-1, -2), 0.01))
 
 
 def test_a_derived_wrapper_is_shaped_like_the_command_line():

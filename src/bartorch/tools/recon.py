@@ -258,10 +258,7 @@ _DERIVED = (
     "looklocker",
     "moba",
     "mobafit",
-    "pocsense",
-    "rtnlinv",
     "sake",
-    "sqpics",
     "wave",
     "wshfl",
 )
