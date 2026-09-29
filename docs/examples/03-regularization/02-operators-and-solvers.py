@@ -3,21 +3,25 @@
 Operators and solvers
 =====================
 
-The same reconstruction written as an encoding operator and a solver rather
-than as a call to a BART application.
+This lesson rebuilds the reconstruction of the previous lessons from its
+parts -- the encoding operator, the regularization term and the iterative
+algorithm -- instead of calling a BART application, and shows that the
+result is identical.
 
 :func:`bartorch.apps.pics` builds three objects and runs BART's iteration
-with them: the encoding operator, the regularization terms, and the algorithm.
-:mod:`bartorch.linop` and :mod:`bartorch.optim` expose those three separately,
-for the reconstructions BART has no application for: an encoding with an extra
-factor in it, a solver reached from an outer loop, an operator defined in
-Python.
+with them: the SENSE encoding operator :math:`A = PFS`, the regularization
+terms, and the algorithm. Building them separately with :mod:`bartorch.linop`
+and :mod:`bartorch.optim` is what a reconstruction BART has no application for
+requires: an encoding with an additional factor, such as an off-resonance or
+motion-induced phase, a solver called from an outer loop, an operator defined
+in Python, or a gradient with respect to the data for training a network.
 
-This example builds the encoding of :doc:`../01-basics/02-from-kspace-to-image`, checks it
-against the definition of an adjoint, solves with it, and compares the result
-with the application. The phantom, the coil sensitivities and the sampling are
-that example's; the cell that builds them is hidden on this page and present in
-the script this page can be downloaded as.
+The example builds the Cartesian SENSE encoding of
+:doc:`../01-basics/02-from-kspace-to-image`, checks it against the definition
+of the adjoint, solves with it, and compares the result with the application.
+The phantom, the coil sensitivities and the sampling are that example's; the
+cell that builds them is hidden on this page and present in the script this
+page can be downloaded as.
 
 **Learning objectives**
 
@@ -41,6 +45,8 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
+WIDTH = 8.0  # inches, the width of the documentation column
+
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
@@ -58,28 +64,13 @@ STYLE = {
     "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
 }
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
-
-
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -98,10 +89,17 @@ def parameter(axis, values, name, title=None):
     return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
 
 
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
 def domain(axis, values, title=None):
     """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness, so an unsupported corner reads as background
-    rather than as a phase."""
+    magnitude in brightness."""
     values = values.detach().cpu()
     colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
     magnitude = values.abs().numpy()
@@ -109,15 +107,6 @@ def domain(axis, values, title=None):
     axis.imshow(colours * magnitude[..., None])
     if title is not None:
         axis.set_title(title)
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    bar = figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-    return bar
 
 
 def phase_bar(figure, axes):
@@ -130,6 +119,15 @@ def phase_bar(figure, axes):
     )
     bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
     bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -325,6 +323,31 @@ tool = apps.pics(kspace, maps, regularizers=term, solver="fista", maxiter=100)
 print(f"identical to pics: {torch.equal(assembled.squeeze(), tool.squeeze())}")
 
 # %%
+
+# sphinx_gallery_start_ignore
+peak = float(image.abs().max())
+figure, axes = panels(4)
+show(axes[0, 0], image, "reference", vmax=peak)
+show(axes[0, 1], scaled(A.H(data), image), "adjoint, $A^H y$", vmax=peak)
+show(axes[0, 2], scaled(assembled, image), "FISTA, wavelet", vmax=peak)
+handle = show(
+    axes[0, 3],
+    (scaled(assembled, image) - image.abs()).abs() / peak,
+    "|error|, FISTA",
+    cmap="magma",
+    vmax=0.1,
+)
+figure.colorbar(handle, ax=axes[0, 3], fraction=0.046, label="|error| / peak")
+plt.show()
+# sphinx_gallery_end_ignore
+
+# %%
+#
+# The adjoint of the encoding is not its inverse: :math:`A^H y` is the
+# sensitivity-weighted coil combination of the zero-filled k-space, and
+# carries the aliasing of the undersampling and the shading of
+# :math:`\sum_c |S_c|^2`, which the solve removes. The error of the solution,
+# at a tenth of the image peak, is concentrated at the tissue boundaries.
 #
 # Operator algebra
 # ----------------
@@ -375,21 +398,6 @@ difference = float((variable.grad - expected).abs().max() / expected.abs().max()
 print(f"relative difference from 2 A^H (Ax - y): {difference:.2e}")
 
 # %%
-
-# sphinx_gallery_start_ignore
-figure, axes = panels(1, 3)
-peak = float(image.abs().max())
-show(axes[0, 0], image, "phantom", vmax=peak)
-show(axes[0, 1], scaled(A.H(data), image), "adjoint reconstruction", vmax=peak)
-show(axes[0, 2], scaled(assembled, image), "FISTA, wavelet penalty", vmax=peak)
-plt.show()
-# sphinx_gallery_end_ignore
-
-# %%
-#
-# The adjoint of the encoding is not its inverse: :math:`A^H y` is the coil
-# combination of the zero-filled k-space, and carries the aliasing of the
-# undersampling, which the solve removes.
 #
 # The regularization terms are the subject of :mod:`bartorch.priors`, and the
 # iterations of :mod:`bartorch.optim`;
