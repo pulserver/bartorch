@@ -196,6 +196,24 @@ def test_patchwise_application_of_a_voxel_wise_network_is_the_whole_application(
     assert torch.allclose(net.mix.weight.grad.cpu(), whole.mix.weight.grad, rtol=1e-4, atol=1e-5)
 
 
+@pytest.mark.parametrize("overlap", [False, True])
+def test_patchwise_inference_from_the_host_is_the_whole_application(device, overlap):
+    """Without gradient, the overlapped copies of a card leave the result unchanged."""
+    torch.manual_seed(0)
+    net = _Pointwise()
+    whole = _Pointwise()
+    whole.load_state_dict(net.state_dict())
+    patchwise = learning.Patchwise(
+        net, patch=(4, 5, 3), device=device, dtype=None, batch=2, overlap=overlap
+    )
+    x = torch.randn(2, 4, 9, 11, 7)
+    sigma = torch.tensor([1.0, 2.0])
+    with torch.no_grad():
+        made = patchwise(x, sigma)
+        assert made.device == x.device
+        assert torch.allclose(made, whole(x, sigma), atol=1e-6)
+
+
 def test_the_network_is_put_back_on_its_device_if_moved():
     net = _Pointwise()
     patchwise = learning.Patchwise(net, patch=(4, 4, 4), device="cpu")

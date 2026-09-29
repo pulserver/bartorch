@@ -65,6 +65,10 @@ class Patchwise(nn.Module):
         Patches per call of the network.
     shift : bool, default=True
         Whether the patch grid is offset at random at every call.
+    overlap : bool, default=True
+        Whether, without gradient and with the image on the host and the
+        network on a card, the copies of one chunk of patches run while the
+        network computes on another, on a second stream.
 
     Examples
     --------
@@ -81,6 +85,7 @@ class Patchwise(nn.Module):
         dtype="auto",
         batch: int = 1,
         shift: bool = True,
+        overlap: bool = True,
     ):
         super().__init__()
         patch = tuple(int(p) for p in patch)
@@ -96,6 +101,7 @@ class Patchwise(nn.Module):
         self.dtype = _autocast_dtype(self.device, dtype)
         self.batch = int(batch)
         self.shift = bool(shift)
+        self.overlap = bool(overlap)
 
     def forward(self, x: torch.Tensor, sigma=None, **keywords) -> torch.Tensor:
         """Apply the network over every patch of ``x``, ``(n, channels, ..., *patch-axes)``.
@@ -125,6 +131,12 @@ class Patchwise(nn.Module):
 
         out = torch.zeros(padded.shape, dtype=torch.float32, device=x.device)
         moving = "cpu" == x.device.type and "cuda" == self.device.type
+        chunks = [corners[i : i + self.batch] for i in range(0, len(corners), self.batch)]
+        if moving and self.overlap and not torch.is_grad_enabled():
+            self._overlapped(padded, chunks, lead, n, sigma, keywords, out)
+            return out[
+                (slice(None),) * lead + tuple(slice(o, o + e) for o, e in zip(offset, extent))
+            ]
         for start in range(0, len(corners), self.batch):
             chunk = corners[start : start + self.batch]
             pieces = torch.cat([padded[self._window(c, lead)] for c in chunk])
@@ -136,6 +148,52 @@ class Patchwise(nn.Module):
             for i, c in enumerate(chunk):
                 out[self._window(c, lead)] = made[i]
         return out[(slice(None),) * lead + tuple(slice(o, o + e) for o, e in zip(offset, extent))]
+
+    def _overlapped(self, padded, chunks, lead: int, n: int, sigma, keywords, out) -> None:
+        """The patch loop with copies overlapping the network, for inference from the host.
+
+        Each chunk is copied up on a side stream while the previous one is in
+        the network, and copied down into pinned memory on the compute stream
+        without waiting for it; the host places a chunk once its copy has
+        landed.  The card holds two chunks of input and the outputs not yet
+        placed.
+        """
+        compute = torch.cuda.current_stream(self.device)
+        side = torch.cuda.Stream(self.device)
+
+        def upload(chunk):
+            host = torch.cat([padded[self._window(c, lead)] for c in chunk]).pin_memory()
+            with torch.cuda.stream(side):
+                pieces = host.to(self.device, non_blocking=True)
+                arrived = torch.cuda.Event()
+                arrived.record(side)
+            return chunk, pieces, arrived
+
+        def place(chunk, made):
+            made = made.reshape(len(chunk), n, *made.shape[1:])
+            for i, c in enumerate(chunk):
+                out[self._window(c, lead)] = made[i]
+
+        pending = []
+        following = upload(chunks[0])
+        for index in range(len(chunks)):
+            chunk, pieces, arrived = following
+            compute.wait_event(arrived)
+            pieces.record_stream(compute)
+            if index + 1 < len(chunks):
+                following = upload(chunks[index + 1])
+            made = self._run(pieces, len(chunk), n, sigma, keywords).float()
+            landed = torch.empty(made.shape, dtype=torch.float32, pin_memory=True)
+            landed.copy_(made, non_blocking=True)
+            done = torch.cuda.Event()
+            done.record(compute)
+            pending.append((chunk, landed, done))
+            while pending and pending[0][2].query():
+                chunk, landed, _ = pending.pop(0)
+                place(chunk, landed)
+        for chunk, landed, done in pending:
+            done.synchronize()
+            place(chunk, landed)
 
     def _window(self, corner, lead: int):
         return (slice(None),) * lead + tuple(slice(c, c + p) for c, p in zip(corner, self.patch))
@@ -164,5 +222,5 @@ class Patchwise(nn.Module):
     def extra_repr(self) -> str:
         return (
             f"patch={self.patch}, device={self.device}, dtype={self.dtype}, "
-            f"batch={self.batch}, shift={self.shift}"
+            f"batch={self.batch}, shift={self.shift}, overlap={self.overlap}"
         )

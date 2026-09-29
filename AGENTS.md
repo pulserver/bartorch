@@ -54,6 +54,7 @@ would otherwise have been linked against.
 | `scripts/lint.sh` | Ruff over `src/` and `tests/`, which is what the lint workflow runs; `--fix` writes. |
 | `scripts/benchmark_encodings.py` | The encoding timings `docs/design/composed-encodings.md` records, one case per process, each printing the plan it was lowered into beside its times. |
 | `scripts/benchmark_newton.py` | The Gauss-Newton timings `docs/design/nonlinear-fusion.md` records, with the encoding applied as its normal and as a pair. |
+| `scripts/benchmark_patchwise.py` | Time and peak card memory of a U-Net over a host-resident volume, whole and patch by patch, with serial and overlapped copies. |
 | `scripts/build_docs.sh` | Builds the reference the way the workflow does. |
 | `scripts/build_docs_pdf.sh` | Builds the documentation as one PDF, `bartorch-docs.pdf`. |
 | `scripts/publish_docs.py` | Places a built site into the `gh-pages` branch as one version -- `latest` for `main`, the tag for a release, copied to `stable` when it is the newest -- and rewrites the root redirect and the `versions.json` the version switcher reads. |
@@ -857,7 +858,7 @@ module importing `lightning` and `torchio`, which the `learning` extra
 installs.
 
 A network is where the host-resident rule of the operators is kept on the
-learned side: `Patchwise` moves patches to the card and back, and its network
+learned side: `Patchwise` moves patches to the card and back, at inference on a second stream so that the copies of one chunk run while the network computes on another, and its network
 back to its device if a trainer moved it, so the Lightning module leaves the
 batch where the dataset put it (`transfer_batch_to_device`).  Mixed precision
 is chosen per card, bfloat16 where it exists and float16 on a T4, which has
