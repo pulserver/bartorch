@@ -76,6 +76,16 @@ extra makes the same library serve BART's BLAS, LAPACK and FFT.
 `finufft_fft=` in {func}`bartorch.build_info` names the FFT the library was
 built with.
 
+On x86-64 Linux and Windows the library carries FINUFFT's CPU transform
+compiled for any x86-64 processor, and in modules beside it for the x86-64-v2
+(SSE4.2), x86-64-v3 (AVX2 and FMA) and x86-64-v4 (AVX-512) levels; the newest
+level the processor supports is used.  The environment variable
+`BARTORCH_FINUFFT_SIMD` names another level, `x86-64` for the baseline, and
+`finufft_simd=` in {func}`bartorch.build_info` lists the levels the library was
+built for.  A source build selects them with
+`-C cmake.define.BARTORCH_FINUFFT_SIMD="x86-64-v3"`, or builds the baseline
+alone with an empty value.
+
 A checkout of the repository is built as described in the
 {doc}`developer guide <../developer/installation>`.
 

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**04:49.451** total execution time for 1 file **from auto_examples/05-deep-learning**:
+**03:44.068** total execution time for 1 file **from auto_examples/05-deep-learning**:
 
 .. container::
 
@@ -33,5 +33,5 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_05-deep-learning_01-modl-with-admm.py` (``01-modl-with-admm.py``)
-     - 04:49.451
+     - 03:44.068
      - 0.0

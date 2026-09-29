@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**06:25.809** total execution time for 10 files **from all galleries**:
+**05:15.496** total execution time for 10 files **from all galleries**:
 
 .. container::
 
@@ -33,32 +33,32 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_05-deep-learning_01-modl-with-admm.py` (``examples/05-deep-learning/01-modl-with-admm.py``)
-     - 04:49.451
+     - 03:44.068
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-model-based_02-quantitative-models.py` (``examples/04-model-based/02-quantitative-models.py``)
-     - 00:42.786
+     - 00:41.529
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-applications_02-subspace-t1-mapping.py` (``examples/03-applications/02-subspace-t1-mapping.py``)
-     - 00:14.364
+     - 00:14.714
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-applications_01-dynamic-golden-angle.py` (``examples/03-applications/01-dynamic-golden-angle.py``)
-     - 00:09.955
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02-non-cartesian_02-radial-sense.py` (``examples/02-non-cartesian/02-radial-sense.py``)
-     - 00:08.491
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_01-basics_03-noise-prewhitening.py` (``examples/01-basics/03-noise-prewhitening.py``)
-     - 00:08.250
+     - 00:07.945
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-model-based_01-nonlinear-inversion.py` (``examples/04-model-based/01-nonlinear-inversion.py``)
-     - 00:04.887
+     - 00:06.832
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02-non-cartesian_02-radial-sense.py` (``examples/02-non-cartesian/02-radial-sense.py``)
+     - 00:06.801
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01-basics_03-noise-prewhitening.py` (``examples/01-basics/03-noise-prewhitening.py``)
+     - 00:06.645
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_02-operators-and-solvers.py` (``examples/01-basics/02-operators-and-solvers.py``)
-     - 00:03.462
+     - 00:02.937
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_01-from-kspace-to-image.py` (``examples/01-basics/01-from-kspace-to-image.py``)
-     - 00:03.108
+     - 00:02.882
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02-non-cartesian_01-trajectories-and-transforms.py` (``examples/02-non-cartesian/01-trajectories-and-transforms.py``)
-     - 00:01.055
+     - 00:01.141
      - 0.0
