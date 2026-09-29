@@ -501,6 +501,7 @@
 <li><p><strong>G</strong> (<em>bool</em><em>, </em><em>default=False</em>) – MGRE  (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p></li>
 <li><p><strong>D</strong> (<em>bool</em><em>, </em><em>default=False</em>) – diffusion  (<code class="docutils literal notranslate"><span class="pre">-D</span></code>)</p></li>
 <li><p><strong>S</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Simulation based fitting  (<code class="docutils literal notranslate"><span class="pre">-S</span></code>)</p></li>
+<li><p><strong>P</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Phase fitting f(p0, fB0) = |M| exp(i 2pi p0) * exp(i 2pi * fB0 * te)  (<code class="docutils literal notranslate"><span class="pre">-P</span></code>)</p></li>
 <li><p><strong>m</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – Select the MGRE model from enum { WF = 0, WFR2S, WF2R2S, R2S, PHASEDIFF } [default: WFR2S]  (<code class="docutils literal notranslate"><span class="pre">-m</span></code>)</p></li>
 <li><p><strong>a</strong> (<em>bool</em><em>, </em><em>default=False</em>) – fit magnitude of signal model to data  (<code class="docutils literal notranslate"><span class="pre">-a</span></code>)</p></li>
 <li><p><strong>i</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – Number of IRGNM steps  (<code class="docutils literal notranslate"><span class="pre">-i</span></code>)</p></li>
@@ -508,6 +509,7 @@
 <li><p><strong>g</strong> (<em>bool</em><em>, </em><em>default=False</em>) – use gpu  (<code class="docutils literal notranslate"><span class="pre">-g</span></code>)</p></li>
 <li><p><strong>B</strong> – temporal (or other) basis  (<code class="docutils literal notranslate"><span class="pre">-B</span></code>)</p></li>
 <li><p><strong>init</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em><em>, </em><em>default=None</em>) – Initial values of parameters in model-based reconstruction  (<code class="docutils literal notranslate"><span class="pre">--init</span></code>)</p></li>
+<li><p><strong>init_file</strong> (<em>torch.Tensor</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – Initial values of parameters in model-based reconstruction  (<code class="docutils literal notranslate"><span class="pre">--init-file</span></code>)</p></li>
 <li><p><strong>scale</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em><em>, </em><em>default=None</em>) – Scaling  (<code class="docutils literal notranslate"><span class="pre">--scale</span></code>)</p></li>
 <li><p><strong>levenberg_marquardt</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Use Levenberg-Marquardt instead of Gauss-Newton  (<code class="docutils literal notranslate"><span class="pre">--levenberg-marquardt</span></code>)</p></li>
 <li><p><strong>reg_against_init</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Use initial guess as regularization target with IRGN  (<code class="docutils literal notranslate"><span class="pre">--reg-against-init</span></code>)</p></li>
@@ -519,11 +521,14 @@
 <li><p><strong>max</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em><em>, </em><em>default=None</em>) – Max bound (map must be selected with “max-flag” or “max-mag-flag”)  (<code class="docutils literal notranslate"><span class="pre">--max</span></code>)</p></li>
 <li><p><strong>b1map</strong> (<em>torch.Tensor</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – Input B1 map as cfl file  (<code class="docutils literal notranslate"><span class="pre">--b1map</span></code>)</p></li>
 <li><p><strong>b0map</strong> (<em>torch.Tensor</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – Input B0 map as cfl file  (<code class="docutils literal notranslate"><span class="pre">--b0map</span></code>)</p></li>
+<li><p><strong>field_strength</strong> (<em>float</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – B0 field strength for fat spectrum [def: 3T]  (<code class="docutils literal notranslate"><span class="pre">--field-strength</span></code>)</p></li>
 <li><p><strong>seq</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – configure sequence parameters for simulation based fitting  (<code class="docutils literal notranslate"><span class="pre">--seq</span></code>)</p></li>
 <li><p><strong>sim</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – configure simulation parameters  (<code class="docutils literal notranslate"><span class="pre">--sim</span></code>)</p></li>
 <li><p><strong>other</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – configure other simulation parameters  (<code class="docutils literal notranslate"><span class="pre">--other</span></code>)</p></li>
 <li><p><strong>pool</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – configure pool parameters for BMC simulation  (<code class="docutils literal notranslate"><span class="pre">--pool</span></code>)</p></li>
 <li><p><strong>cest</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – configure parameters for CEST simulation  (<code class="docutils literal notranslate"><span class="pre">--cest</span></code>)</p></li>
+<li><p><strong>fat_spec_0</strong> (<em>bool</em><em>, </em><em>default=False</em>) – select fat spectrum from ISMRM fat-water tool  (<code class="docutils literal notranslate"><span class="pre">--fat_spec_0</span></code>)</p></li>
+<li><p><strong>fB0_init</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Take fB0 average of echos with equal dTE for initialization of fB0  (<code class="docutils literal notranslate"><span class="pre">--fB0-init</span></code>)</p></li>
 <li><p><strong>**extra</strong> (<em>Any</em>) – Further BART flags, passed through by name.</p></li>
 </ul>
 </dd>

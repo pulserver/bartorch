@@ -268,13 +268,10 @@ bartorch.tools
    phasepole
    pics
    nlinv
-   rtnlinv
    moba
    mobafit
    looklocker
    itsense
-   sqpics
-   pocsense
    sake
    lrmatrix
    homodyne

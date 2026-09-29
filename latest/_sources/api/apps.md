@@ -17,5 +17,5 @@ runs an app in place of the BART command where one exists.
 | Object | BART command | Relation to the command |
 | --- | --- | --- |
 | {obj}`~bartorch.apps.pics` | `pics` | Identical output on a Cartesian grid; agrees to floating-point round-off along a trajectory |
-| {obj}`~bartorch.apps.pocsense` | `pocsense` | Identical output |
+| {obj}`~bartorch.apps.pocsense` | none | The POCSENSE projections swept by BART's `pocs` iteration |
 | {obj}`~bartorch.apps.mobafit` | `mobafit` | Same Gauss-Newton method over a TorchSim model; returns named parameter maps in physical units |

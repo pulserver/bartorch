@@ -488,7 +488,7 @@
 <dt class="sig sig-object py" id="bartorch.apps.pocsense">
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">pocsense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.pocsense" title="Link to this definition">#</a></dt>
 <dd><p>POCSENSE reconstruction: the measured samples, the coils, and sparsity.</p>
-<p>The pipeline <a class="reference internal" href="bartorch.tools.pocsense.html#bartorch.tools.pocsense" title="bartorch.tools.pocsense"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.pocsense()</span></code></a> runs, assembled here: the
+<p>The pipeline of BART’s POCSENSE application, assembled here: the
 scaling the application estimates, the sampling pattern read off the
 k-space, the modulation into the convention BART iterates in, and then a
 sweep of three projections from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code> and
@@ -504,7 +504,7 @@ produces them.</p></li>
 entirely, as the application does, and the sweep is then the two
 projections onto the data and onto the coils.</p></li>
 <li><p><strong>wavelet</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Threshold the wavelet coefficients of the coil images rather than
-shrinking the samples towards zero, which is <code class="docutils literal notranslate"><span class="pre">pocsense</span> <span class="pre">-l</span> <span class="pre">1</span></code>.</p></li>
+shrinking the samples towards zero, which is the application’s <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">1</span></code>.</p></li>
 <li><p><strong>robust</strong> (<em>float</em><em>, </em><em>default=None</em>) – Soft-threshold the residual at a measured position by this much
 rather than discarding it, which is the application’s <code class="docutils literal notranslate"><span class="pre">-o</span></code>.</p></li>
 <li><p><strong>scaling</strong> (<em>float</em><em>, </em><em>default=None</em>) – The data scaling to divide by; estimated when it is not given, and

@@ -509,6 +509,8 @@
 <li><p><strong>c</strong> (<em>float</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – (c in 1 + a * Laplace^-b/2)  (<code class="docutils literal notranslate"><span class="pre">-c</span></code>)</p></li>
 <li><p><strong>w</strong> (<em>float</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – (inverse scaling of the data)  (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p></li>
 <li><p><strong>o</strong> (<em>bool</em><em>, </em><em>default=False</em>) – return oversampled coils  (<code class="docutils literal notranslate"><span class="pre">-o</span></code>)</p></li>
+<li><p><strong>sms</strong> (<em>bool</em><em>, </em><em>default=False</em>) – sms reconstruction (FFT in slice dimension)  (<code class="docutils literal notranslate"><span class="pre">--sms</span></code>)</p></li>
+<li><p><strong>sos</strong> (<em>bool</em><em>, </em><em>default=False</em>) – sos reconstruction (ucFFT and Sobolev regularization in slice dimension)  (<code class="docutils literal notranslate"><span class="pre">--sos</span></code>)</p></li>
 <li><p><strong>N</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Normalize coil sensitivities  (<code class="docutils literal notranslate"><span class="pre">-N</span></code>)</p></li>
 <li><p><strong>m</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – Number of ENLIVE maps to use in reconstruction  (<code class="docutils literal notranslate"><span class="pre">-m</span></code>)</p></li>
 <li><p><strong>dims</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>None</em><em>, </em><em>default=None</em>) – Explicitly specify sens dimensions  (<code class="docutils literal notranslate"><span class="pre">-x</span></code>)</p></li>
@@ -517,6 +519,7 @@
 <li><p><strong>shared_col_dims</strong> (<em>int</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em><em>, </em><em>default=None</em>) – Axes the coil sensitivities are shared along.  (<code class="docutils literal notranslate"><span class="pre">--shared-col-dims</span></code>)</p></li>
 <li><p><strong>scale_loop_dims</strong> (<em>int</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em><em>, </em><em>default=None</em>) – Scale the parameters as if ncalib were looped over these axes.  (<code class="docutils literal notranslate"><span class="pre">--scale-loop-dims</span></code>)</p></li>
 <li><p><strong>phase_pole</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – Use phase pole detection after d iterations (0 for every iteration)  (<code class="docutils literal notranslate"><span class="pre">--phase-pole</span></code>)</p></li>
+<li><p><strong>nufft_conf</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – configure nufft  (<code class="docutils literal notranslate"><span class="pre">--nufft-conf</span></code>)</p></li>
 <li><p><strong>**extra</strong> (<em>Any</em>) – Further BART flags, passed through by name.</p></li>
 </ul>
 </dd>

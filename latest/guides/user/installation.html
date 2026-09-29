@@ -497,7 +497,7 @@
 <p>Install the PyTorch build for the target device first, with the command the
 <a class="reference external" href="https://pytorch.org/get-started/locally/">PyTorch installation selector</a>
 gives for the CPU or for a CUDA version.  bartorch requires PyTorch 2.2 or
-later; installing bartorch into an environment without PyTorch installs the
+later (2.3 on macOS, 2.7.1 on Linux); installing bartorch into an environment without PyTorch installs the
 default build from PyPI.</p>
 </section>
 <section id="bartorch-installation">
@@ -649,12 +649,13 @@ and the configurations that are refused.</p>
 <section id="openmp-runtime">
 <span id="id2"></span><h2>OpenMP runtime<a class="headerlink" href="#openmp-runtime" title="Link to this heading">#</a></h2>
 <p>BART and FINUFFT are compiled with OpenMP and share one runtime with PyTorch.
-On macOS and Windows the library is linked against the runtime PyTorch
-contains (<code class="docutils literal notranslate"><span class="pre">torch/lib/libomp.dylib</span></code>, <code class="docutils literal notranslate"><span class="pre">torch/lib/libiomp5md.dll</span></code>) and contains
-none of its own: the LLVM runtime terminates the process when a second copy
+The library is linked against the runtime PyTorch contains
+(<code class="docutils literal notranslate"><span class="pre">torch/lib/libgomp.so.1</span></code>, <code class="docutils literal notranslate"><span class="pre">torch/lib/libomp.dylib</span></code>,
+<code class="docutils literal notranslate"><span class="pre">torch/lib/libiomp5md.dll</span></code>) and the wheels contain none of their own; on macOS
+and Windows the LLVM runtime terminates the process when a second copy
 initializes (<code class="docutils literal notranslate"><span class="pre">OMP:</span> <span class="pre">Error</span> <span class="pre">#15</span></code>).  No installed file is modified, and
-<code class="docutils literal notranslate"><span class="pre">KMP_DUPLICATE_LIB_OK</span></code> is not used.  On Linux the library uses the compiler’s
-runtime, <code class="docutils literal notranslate"><span class="pre">libgomp</span></code> for the GCC-built wheel.</p>
+<code class="docutils literal notranslate"><span class="pre">KMP_DUPLICATE_LIB_OK</span></code> is not used.  On Linux this needs PyTorch 2.7.1 or
+later, the first release whose copy is named <code class="docutils literal notranslate"><span class="pre">libgomp.so.1</span></code>.</p>
 </section>
 <section id="command-line-interface">
 <h2>Command-line interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">#</a></h2>
