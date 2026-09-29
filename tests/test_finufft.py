@@ -3,6 +3,7 @@ against an explicit discrete Fourier sum and against BART's own gridder.
 """
 
 import contextlib
+import gc
 import logging
 import os
 
@@ -1226,6 +1227,11 @@ def test_a_plan_lives_exactly_as_long_as_what_asked_for_it(in_tools):
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
     x = torch.randn(1, n, n, dtype=torch.complex64)
 
+    # A model with a derivative bundle is a reference cycle, and a finalizer
+    # releases what its handle kept only on the collection after its own, so
+    # what an earlier test left is collected until nothing more is.
+    while gc.collect():
+        pass
     assert _finufft.live_plans() == 0
 
     held = linop.NUFFT(traj, (1, n, n), toeplitz=False)
