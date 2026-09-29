@@ -394,7 +394,9 @@ def _docstring(command: Command, parameters: list[inspect.Parameter]) -> str:
             continue
         lines.append(f"{keyword} : {parameter.annotation}{_default(parameter)}")
         rule = TRANSLATED.get((command.name, option.flag))
-        said = rule.help if rule is not None else option.help.strip() or f"BART's {option.flag}."
+        # `|M|` in BART's help would read as a reStructuredText substitution.
+        said = rule.help if rule is not None else option.help.strip().replace("|", r"\|")
+        said = said or f"BART's {option.flag}."
         lines.append(f"    {said}  (``{option.flag}``)")
     lines += ["**extra : Any", "    Further BART flags, passed through by name."]
 
