@@ -74,7 +74,7 @@ class _Planes(nn.Module):
         self.parts = parts
         self.normalize = bool(normalize)
 
-    def forward(self, input: torch.Tensor, sigma=None) -> torch.Tensor:
+    def forward(self, input: torch.Tensor, sigma=None, **keywords) -> torch.Tensor:
         """Denoise ``input``, returning its own shape and dtype.
 
         Parameters
@@ -86,6 +86,8 @@ class _Planes(nn.Module):
         sigma : float or torch.Tensor, default=None
             Passed to the network as its second argument when supplied, and
             omitted from the call otherwise.
+        **keywords
+            Passed to the network as they are, such as ``step``.
         """
         if input.ndim < self.spatial:
             raise ValueError(
@@ -95,7 +97,7 @@ class _Planes(nn.Module):
         real = not input.is_complex()
         x = input.to(torch.complex64) if real else input
         scale = self._scale(x)
-        out = self._denoise(x / scale, sigma) * scale
+        out = self._denoise(x / scale, sigma, keywords) * scale
         return out.real.to(input.dtype) if real else out.to(input.dtype)
 
     def _scale(self, x: torch.Tensor) -> torch.Tensor:
@@ -106,30 +108,32 @@ class _Planes(nn.Module):
         peak = x.detach().abs().reshape(*x.shape[:lead], -1).amax(-1).clamp_min(_TINY)
         return peak.reshape(*x.shape[:lead], *(1,) * (x.ndim - lead))
 
-    def _denoise(self, x: torch.Tensor, sigma) -> torch.Tensor:
+    def _denoise(self, x: torch.Tensor, sigma, keywords) -> torch.Tensor:
         """Apply the network to the planes ``parts`` specifies and recombine the result."""
         spatial = tuple(x.shape[-self.spatial :])
 
         if "magnitude" == self.parts:
             modulus = x.abs()
             phase = x / modulus.clamp_min(_TINY).to(x.dtype)
-            made = self._net(modulus.reshape(-1, 1, *spatial), sigma, 1)
+            made = self._net(modulus.reshape(-1, 1, *spatial), sigma, 1, keywords)
             return made.reshape(x.shape).to(x.dtype) * phase
 
         if "separate" == self.parts:
             pair = torch.stack([x.real, x.imag]).reshape(-1, 1, *spatial)
-            made = self._net(pair, sigma, 1).reshape(2, -1)
+            made = self._net(pair, sigma, 1, keywords).reshape(2, -1)
             return torch.complex(made[0], made[1]).reshape(x.shape)
 
         planes = torch.stack([x.real, x.imag], -self.spatial - 1).reshape(-1, 2, *spatial)
-        made = self._net(planes, sigma, 2).movedim(1, 0).reshape(2, -1)
+        made = self._net(planes, sigma, 2, keywords).movedim(1, 0).reshape(2, -1)
         return torch.complex(made[0], made[1]).reshape(x.shape)
 
-    def _net(self, planes: torch.Tensor, sigma, wanted: int) -> torch.Tensor:
+    def _net(self, planes: torch.Tensor, sigma, wanted: int, keywords) -> torch.Tensor:
         """A single call, matching the network's channel count and checking its output."""
         if 3 == self.channels and 1 == planes.shape[1]:
             planes = planes.repeat(1, 3, *(1,) * self.spatial)
-        made = self.net(planes) if sigma is None else self.net(planes, sigma)
+        made = (
+            self.net(planes, **keywords) if sigma is None else self.net(planes, sigma, **keywords)
+        )
         if 3 == self.channels and 3 == made.shape[1]:
             made = made.mean(1, keepdim=True)
         if made.shape[1] != wanted or made.shape[2:] != planes.shape[2:]:
@@ -152,6 +156,16 @@ class ImplicitPrior(nn.Module):
     image.  ``sigma`` is a :class:`torch.nn.Parameter`, fixed until
     ``requires_grad_()`` is called.
 
+    A sequence of ``sigma`` is a schedule, one noise level per iteration and
+    the last repeated beyond its end: the annealed plug-and-play iteration,
+    which starts with a strong denoiser and weakens it as the data-consistent
+    estimate improves.  With ``step`` the denoiser is also given the iteration
+    index, as ``denoiser(x, sigma, step=k)`` or ``denoiser(x, step=k)``, which
+    is how a network shared by the iterations of an unrolled reconstruction
+    adapts to each (:class:`bartorch.learning.UNet` with ``steps=True``).
+    Either makes each iteration a different map, which
+    :class:`bartorch.optim.FixedPoint` refuses.
+
     ``transform`` is the linear operator :math:`G` of a term :math:`g(G x)`,
     as a regularizer built by BART also carries.  The denoiser is then applied
     on the codomain of :math:`G` rather than to the image, and the
@@ -173,9 +187,9 @@ class ImplicitPrior(nn.Module):
         ``(n, channels, *spatial)`` planes of order unity -- a ``deepinv``,
         ``monai`` or local :class:`torch.nn.Module` -- and the conversion is
         done here.
-    sigma : float, default=None
+    sigma : float or sequence of float, default=None
         The noise level the denoiser is asked for, in the units its own
-        convention states.
+        convention states; a sequence gives one per iteration.
     transform : LinearOperator, default=None
         :math:`G`, mapping the image to the domain the denoiser is applied on.
         Only the iterations given a term's transform use it; see
@@ -199,6 +213,8 @@ class ImplicitPrior(nn.Module):
     normalize : bool, default=True
         Scale each image to unit peak modulus around the call; ``sigma`` is
         then in units of that peak.  Only with ``spatial``.
+    step : bool, default=False
+        Pass the iteration index to the denoiser as ``step``.
 
     Examples
     --------
@@ -210,6 +226,8 @@ class ImplicitPrior(nn.Module):
 
     #: Takes a batch whole rather than item by item.
     _batches = True
+    #: Told the iteration index by the blocks.
+    _iterates = True
 
     def __init__(
         self,
@@ -221,6 +239,7 @@ class ImplicitPrior(nn.Module):
         channels: int = 1,
         parts: str | None = None,
         normalize: bool = True,
+        step: bool = False,
     ):
         super().__init__()
         if not callable(denoiser):
@@ -235,19 +254,36 @@ class ImplicitPrior(nn.Module):
             )
         self.denoiser = denoiser
         self.transform = transform
-        self.sigma = (
-            None if sigma is None else nn.Parameter(torch.tensor(float(sigma)), requires_grad=False)
-        )
+        if sigma is not None:
+            sigma = torch.as_tensor(sigma, dtype=torch.float32)
+            if sigma.ndim > 1 or 0 == sigma.numel():
+                raise ValueError("sigma is one noise level, or a sequence of one per iteration")
+            sigma = nn.Parameter(sigma.clone(), requires_grad=False)
+        self.sigma = sigma
+        self.step = bool(step)
 
-    def prox(self, x: torch.Tensor, gamma=1.0, *, image_shape=None) -> torch.Tensor:
+    @property
+    def stationary(self) -> bool:
+        """Whether every iteration applies the same denoiser: no schedule and no index."""
+        return not self.step and (self.sigma is None or 0 == self.sigma.ndim)
+
+    def prox(
+        self, x: torch.Tensor, gamma=1.0, *, image_shape=None, iteration: int = 0
+    ) -> torch.Tensor:
         shape = None if image_shape is None else self.prox_shape(image_shape)
         single = shape is None or x.ndim == len(shape)
         batch = x[None] if single else x
+        keywords = {"step": int(iteration)} if self.step else {}
         if self.sigma is None:
-            out = self.denoiser(batch)
+            out = self.denoiser(batch, **keywords)
         else:
-            sigma = self.sigma if self.sigma.requires_grad else float(self.sigma)
-            out = self.denoiser(batch, sigma)
+            sigma = (
+                self.sigma
+                if 0 == self.sigma.ndim
+                else self.sigma[min(int(iteration), self.sigma.numel() - 1)]
+            )
+            sigma = sigma if sigma.requires_grad else float(sigma)
+            out = self.denoiser(batch, sigma, **keywords)
         return out[0] if single else out
 
     def prox_shape(self, image_shape) -> tuple[int, ...]:

@@ -31,6 +31,7 @@ MODULES = {
         "tools",
     },
     "bartorch.learning": set(),
+    "bartorch.learning.training": set(),
     "bartorch.linop": set(),
     "bartorch.nlop": set(),
     "bartorch.optim": set(),
