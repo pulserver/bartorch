@@ -3,13 +3,19 @@
 Trajectories and transforms
 ===========================
 
-The non-Cartesian interfaces: the trajectories
-:func:`bartorch.tools.traj` generates, the non-uniform Fourier transform along
-one, the density compensation an adjoint reconstruction needs, and the point
-spread function the normal operator convolves with.
+This lesson introduces the building blocks of non-Cartesian reconstruction:
+radial, golden-angle and spiral trajectories, the non-uniform fast Fourier
+transform (NUFFT) that samples an image along them, the density compensation
+that an adjoint (gridding) reconstruction needs, and the point spread function
+(PSF) that describes the undersampling artefacts.
 
-Every non-Cartesian transform in bartorch is computed by FINUFFT [#finufft]_,
-which evaluates
+Non-Cartesian trajectories sample k-space along curves rather than on a grid.
+Radial and spiral readouts start at the k-space centre, which makes them
+robust to motion and flow and lets them oversample the low spatial
+frequencies; they are the basis of real-time, ultrashort-echo-time and
+free-breathing imaging. Their samples do not lie on the Cartesian grid, so
+the FFT is replaced by the NUFFT. Every non-Cartesian transform in bartorch is
+computed by FINUFFT [#finufft]_, which evaluates
 
 .. math::
 
@@ -18,7 +24,7 @@ which evaluates
 
 to a requested tolerance, with the sum over the :math:`N` voxels :math:`m`
 of an image of :math:`n_d` voxels along dimension :math:`d`, and
-:math:`k_j` in grid units.  The spreading kernel and the deapodization are
+:math:`k_j` in grid units. The spreading kernel and the deapodization are
 FINUFFT's, sized from the tolerance: :doc:`../../explanation/non-cartesian`
 states the conventions and the accuracy.
 
@@ -32,10 +38,11 @@ be downloaded as.
   :func:`bartorch.tools.traj`, and a spiral trajectory directly.
 - Apply :func:`bartorch.nufft` and :func:`bartorch.nufft_adjoint`, and check
   the transform against the sum that defines it.
-- Compute density compensation weights, analytically and with
-  :func:`bartorch.estimate_density`.
+- Explain why a gridding reconstruction needs density compensation, and
+  compute the weights analytically and with :func:`bartorch.estimate_density`.
 - Compare the normal operator as a convolution with the transform pair, and
-  compute a point spread function.
+  relate the PSF of an undersampled radial trajectory to its streak
+  artefacts.
 
 It follows :doc:`../03-regularization/02-operators-and-solvers`. The next
 lesson, :doc:`02-radial-sense`, reconstructs an undersampled radial
@@ -48,6 +55,8 @@ acquisition.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+
+WIDTH = 8.0  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -66,28 +75,13 @@ STYLE = {
     "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
 }
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
-
-
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -106,10 +100,17 @@ def parameter(axis, values, name, title=None):
     return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
 
 
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
 def domain(axis, values, title=None):
     """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness, so an unsupported corner reads as background
-    rather than as a phase."""
+    magnitude in brightness."""
     values = values.detach().cpu()
     colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
     magnitude = values.abs().numpy()
@@ -117,15 +118,6 @@ def domain(axis, values, title=None):
     axis.imshow(colours * magnitude[..., None])
     if title is not None:
         axis.set_title(title)
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    bar = figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-    return bar
 
 
 def phase_bar(figure, axes):
@@ -138,6 +130,15 @@ def phase_bar(figure, axes):
     )
     bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
     bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -255,14 +256,14 @@ print(f"{tuple(golden.shape)}: {SPOKES} shots of {SIZE} samples")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 2, figsize=(PAGE_WIDTH, PAGE_WIDTH / 2 + 0.4))
+figure, axes = plt.subplots(1, 2, figsize=(0.8 * WIDTH, 0.4 * WIDTH + 0.4))
 for axis, arms, title in (
     (axes[0], uniform, "uniform"),
     (axes[1], golden, "golden angle"),
 ):
     for spoke in range(0, 24):
         line = arms[spoke].real
-        axis.plot(line[:, 0], line[:, 1], lw=0.5, color="0.2")
+        axis.plot(line[:, 0], line[:, 1], lw=0.8, color=f"C{spoke % 10}")
     axis.set_aspect("equal")
     axis.set_title(f"{title}, first 24 spokes")
     axis.set_xlabel("$k_x$ [grid units]")
@@ -329,10 +330,12 @@ compensated = bartorch.nufft_adjoint(samples * weights, golden, image_shape=(SIZ
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 3)
-show(axes[0, 0], image, "image", vmax=float(image.abs().max()))
-show(axes[0, 1], plain / plain.abs().max(), "adjoint", vmax=1.0)
-show(axes[0, 2], compensated / compensated.abs().max(), "density compensated", vmax=1.0)
+peak = float(image.abs().max())
+figure, axes = panels(3)
+show(axes[0, 0], image, "reference", vmax=peak)
+show(axes[0, 1], scaled(plain, image), "adjoint, no compensation", vmax=peak)
+show(axes[0, 2], scaled(compensated, image), "density compensated", vmax=peak)
+figure.suptitle(f"gridding reconstruction, {SPOKES} golden-angle spokes")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -406,29 +409,36 @@ for name, adjoint in (("adjoint", spiral_plain), ("compensated", spiral_compensa
 # %%
 
 # sphinx_gallery_start_ignore
-figure = plt.figure(figsize=(PAGE_WIDTH, PAGE_WIDTH / 3 + 0.5))
-axes = figure.subplots(1, 3)
+figure, axes = plt.subplots(1, 2, figsize=(WIDTH, 0.42 * WIDTH), width_ratios=(1, 1.3))
 for arm in range(INTERLEAVES):
-    axes[0].plot(spiral[arm, :, 0], spiral[arm, :, 1], lw=0.4)
+    axes[0].plot(spiral[arm, :, 0], spiral[arm, :, 1], lw=0.6)
 axes[0].set_aspect("equal")
-axes[0].set_title("spiral, 16 interleaves")
+axes[0].set_title(f"spiral, {INTERLEAVES} interleaves")
 axes[0].set_xlabel("$k_x$ [grid units]")
 axes[0].set_ylabel("$k_y$ [grid units]")
-axes[1].plot(radius, spiral_density[0, :, 0].real, lw=0.8)
-axes[1].set_title("estimated weight, one interleaf")
+axes[1].plot(radius, spiral_density[0, :, 0].real, lw=1.2, label="Pipe-Menon estimate")
+axes[1].set_title("density compensation weight, one interleaf")
 axes[1].set_xlabel("$|k|$ [grid units]")
-show(axes[2], spiral_compensated / spiral_compensated.abs().max(), "compensated", vmax=1.0)
-axes[2].set_xticks([])
-axes[2].set_yticks([])
+axes[1].set_ylabel("weight [a.u.]")
+plt.show()
+
+figure, axes = panels(3)
+show(axes[0, 0], image, "reference", vmax=peak)
+show(axes[0, 1], scaled(spiral_plain, image), "spiral, no compensation", vmax=peak)
+show(axes[0, 2], scaled(spiral_compensated, image), "spiral, compensated", vmax=peak)
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The estimated weight of an Archimedean spiral grows with the radius, since
-# the interleaves are separated by a constant distance while the arc length
-# per sample grows; the compensated adjoint of the spiral has a lower error
-# than its uncompensated adjoint by the ratio printed above.
+# The estimated weight of an Archimedean spiral grows with the radius: the
+# interleaves are separated by a constant distance while the arc length
+# traversed per sample grows, so the samples are densest at the centre. At
+# the very edge the weight rises further, where the outermost turn has no
+# neighbour outside it. Without compensation the spiral adjoint is dominated
+# by the densely sampled low spatial frequencies and appears as a blurred,
+# low-contrast image; with the estimated weights the tissue contrast and the
+# edges are restored, which the NRMSE printed above quantifies.
 #
 # The normal operator
 # -------------------
@@ -471,7 +481,7 @@ undersampled = bt.psf(bt.traj(readout=SIZE, spokes=SPOKES // 8, radial=True, gol
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 2)
+figure, axes = panels(2, width=0.75 * WIDTH)
 for axis, values, title in (
     (axes[0, 0], fully_sampled, f"{SPOKES} spokes"),
     (axes[0, 1], undersampled, f"{SPOKES // 8} spokes"),
