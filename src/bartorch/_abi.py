@@ -327,6 +327,9 @@ SYMBOLS = (
     "bartorch_finufft_usable_on",
     "bartorch_finufft_usable",
     "bartorch_finufft_live_plans",
+    "bartorch_finufft_simd_built",
+    "bartorch_finufft_simd",
+    "bartorch_finufft_set_simd",
     "bartorch_last_error",
     "bartorch_clear_error",
     "bartorch_nufft_decline_reason",
@@ -1203,6 +1206,12 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
     lib.bartorch_finufft_usable.argtypes = []
     lib.bartorch_finufft_live_plans.restype = ctypes.c_int64
     lib.bartorch_finufft_live_plans.argtypes = []
+    lib.bartorch_finufft_simd_built.restype = ctypes.c_char_p
+    lib.bartorch_finufft_simd_built.argtypes = []
+    lib.bartorch_finufft_simd.restype = ctypes.c_char_p
+    lib.bartorch_finufft_simd.argtypes = []
+    lib.bartorch_finufft_set_simd.restype = ctypes.c_int
+    lib.bartorch_finufft_set_simd.argtypes = [ctypes.c_char_p]
     lib.bartorch_last_error.restype = ctypes.c_char_p
     lib.bartorch_last_error.argtypes = []
     lib.bartorch_clear_error.restype = None

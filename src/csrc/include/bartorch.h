@@ -892,6 +892,15 @@ BARTORCH_API int bartorch_finufft_usable(void);
 /* Plans made and not yet destroyed: zero once every operator, point spread
  * function and mask that asked for one has been freed. */
 BARTORCH_API int64_t bartorch_finufft_live_plans(void);
+/* The x86-64 instruction-set levels FINUFFT's CPU transform is built for,
+ * comma-separated, the baseline first; the level host plans are made at, the
+ * newest this processor runs unless BARTORCH_FINUFFT_SIMD or set_simd names
+ * another; and setting it, NULL for the newest.  A plan keeps the level it was
+ * made at.  set_simd returns -1, and changes nothing, for a level that is not
+ * built or that this processor does not run. */
+BARTORCH_API const char* bartorch_finufft_simd_built(void);
+BARTORCH_API const char* bartorch_finufft_simd(void);
+BARTORCH_API int bartorch_finufft_set_simd(const char* level);
 BARTORCH_API const char* bartorch_last_error(void);
 BARTORCH_API void bartorch_clear_error(void);
 BARTORCH_API int bartorch_nufft_decline_reason(void);

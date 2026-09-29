@@ -203,7 +203,8 @@ is level with DUCC0 and the 2D ones keep 0.75 to 0.85.  And the build's own
 instruction set costs more than the FFT library: FINUFFT at `-march=x86-64-v3`
 takes 0.6 to 0.85 of its `-march=x86-64` time with DUCC0, most of it in
 spreading, and oneMKL at v3 still takes 0.7 to 0.9 of DUCC0 at v3.  The wheel
-stays at `x86-64` for portability.
+keeps `x86-64` compiled in and chooses a v3 build at run time; see
+[Instruction-set levels](#instruction-set-levels).
 
 ### Numerics
 
@@ -267,3 +268,65 @@ is installed: the library then names `libmkl_rt` in `NEEDED` with the build's
 MKL directory on its run path, and with the `mkl` extra the same `libmkl_rt`
 serves BART's DFTI table (`tests/test_finufft.py`).  cuFINUFFT and the CUDA
 paths are unchanged.
+
+## Instruction-set levels
+
+FINUFFT has no dispatch of its own on the host: xsimd picks its vector width
+when FINUFFT is compiled, from `FINUFFT_ARCH_FLAGS`, and the whole transform --
+spreading, interpolation, deconvolution and DUCC0's FFT -- is compiled for that
+one level.  A wheel has to run on any x86-64 processor, so its baseline is
+`-march=x86-64`, SSE2.
+
+So the baseline is compiled into the library, and each level
+`BARTORCH_FINUFFT_SIMD` lists is compiled again as a module beside it:
+`libbartorch_finufft_x86_64_v3.so` on Linux, `.dll` on Windows.  macOS arm64
+has one level and builds none.  At the first plan the library tests the
+processor (`__builtin_cpu_supports`, which also checks that the operating
+system saves the vector state) and opens the newest module it runs;
+`BARTORCH_FINUFFT_SIMD` in the environment or `_finufft.use_simd` chooses
+another, and a plan keeps the entry points it was made with, so a change of
+level never meets a live plan.
+
+A module is a library of its own rather than a second copy of FINUFFT linked
+into this one, because two copies in one link share whatever the compiler
+emits as a weak or COMDAT definition -- FINUFFT's templates, xsimd's and
+DUCC0's inline functions, the standard library's -- and the linker keeps one of
+each, which may be the AVX2 one on a processor without AVX2.  A module is
+opened with `RTLD_LOCAL` (on Windows every DLL resolves its own imports), links
+its C++ runtime statically as the library does, and exports FINUFFT's C API
+and nothing else (`cmake/finufft_module.map`), so nothing it defines is seen by
+the library or by a `finufft` package loaded beside it.  It links the same
+OpenMP runtime as the library, which the process has already loaded.
+
+The module's targets are FINUFFT's own compiled again: `cmake/finufft.cmake`
+reads the sources, definitions, options and dependencies off the targets
+FINUFFT's CMake defined (`finufft`, `finufft_f32`, `ducc0`) and replaces
+`-march=x86-64` with the level's.  A pin whose targets stop carrying that flag
+stops the configure rather than building a module at the baseline.
+`finufft_common` holds the kernel's parameters, is compiled with no arch flag,
+and is linked into each module as it is.
+
+Best execution in ms, DUCC0, the transforms of the method above, four threads
+on the AVX-512 Xeon:
+
+| | N | transforms | σ | tolerance | x86-64 | x86-64-v3 | x86-64-v4 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 2D type 2 | 256 | 8 | 1.25 | 1e-3 | 19.4 | 13.4 | 12.0 |
+| 2D type 1 | 256 | 8 | 2 | 1e-3 | 20.7 | 14.4 | 16.6 |
+| 2D type 2 | 256 | 8 | 1.25 | 1e-6 | 24.5 | 12.9 | 13.2 |
+| 2D type 2 | 512 | 8 | 1.25 | 1e-3 | 81.9 | 48.9 | 46.3 |
+| 2D type 1 | 512 | 8 | 2 | 1e-3 | 88.8 | 67.9 | 62.6 |
+| 3D type 2 | 192 | 4 | 1.25 | 1e-3 | 764.8 | 577.6 | 617.4 |
+| 3D type 1 | 192 | 4 | 2 | 1e-3 | 1819.6 | 1633.2 | 1590.2 |
+| 3D type 1 | 192 | 4 | 1.25 | 1e-6 | 983.0 | 739.2 | 733.3 |
+
+v3 takes 0.53 to 0.76 of the baseline's time in 2D and 0.75 to 0.90 in 3D;
+v4 is within a few per cent of v3 either way, and slower at σ = 2 in 2D, so
+the default builds v3 alone.  The error against the explicit sum is the same
+at every level to three digits.  Through the library, a 256² eight-coil
+forward and adjoint of 403 spokes takes 46 ms at the baseline and 29 ms at v3,
+and the two agree to 6e-07 forward and 1e-06 adjoint.
+
+What it costs: a second compile of FINUFFT and DUCC0, and about 5 MB per level,
+stripped, in the wheel.
+
