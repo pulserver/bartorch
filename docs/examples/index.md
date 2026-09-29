@@ -34,16 +34,18 @@ before it.  The tours are standalone.  Concepts are in
 
 | Tour | Covers |
 | --- | --- |
-| {doc}`../auto_examples/07-tours/01-readout-oversampling-and-apodization` | Removal of readout oversampling; Hann and Fermi apodization |
-| {doc}`../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | The EPI odd/even phase from a navigator; ramp-sampled readouts |
-| {doc}`../auto_examples/07-tours/03-bias-field` | N4 correction of the receive field of a surface array |
-| {doc}`../auto_examples/07-tours/04-gradient-nonlinearity` | Geometric distortion from a spherical-harmonic coil description |
-| {doc}`../auto_examples/07-tours/05-spiral-deblurring` | Off-resonance deblurring of a spiral image |
-| {doc}`../auto_examples/07-tours/06-navigator-motion` | Rigid head motion from three navigator planes, filtered across a scan |
+| {doc}`../auto_examples/07-tours/01-readout-oversampling-and-apodization` | Removal of readout oversampling; Gibbs ringing and resolution with Fermi and Hann apodization |
+| {doc}`../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | Nyquist ghost correction from a three-line navigator; resampling of ramp-sampled readouts |
+| {doc}`../auto_examples/07-tours/03-bias-field` | N4 correction of the receive bias field of a head array |
+| {doc}`../auto_examples/07-tours/04-gradient-nonlinearity` | Geometric and intensity correction of gradient nonlinearity from spherical-harmonic coefficients |
+| {doc}`../auto_examples/07-tours/05-spiral-deblurring` | Spiral off-resonance deblurring by multifrequency interpolation and time-segmented reconstruction |
+| {doc}`../auto_examples/07-tours/06-navigator-motion` | Rigid head motion from three orthogonal navigator planes, filtered across a scan |
+| {doc}`../auto_examples/07-tours/07-epi-susceptibility-distortion` | EPI susceptibility distortion corrected from a reversed phase-encoding pair |
 
 The scripts need `pip install bartorch brainweb-dl matplotlib cmap`; the
 learned-regularization section also `lightning torchio monai deepinv`, and the
-tours `SimpleITK`.  Each page can be downloaded as a script or a notebook.
+tours `SimpleITK` and `PyHySCO`.  Each page can be downloaded as a script or a
+notebook.
 
 ```{toctree}
 :hidden:
