@@ -16,20 +16,22 @@ included: `bartorch.fft(x, axes=(-2, -1))`.  No argument takes a BART bitmask
 or dimension number, and a set of indices that are not axes, such as coil
 channels or parameter maps, is also a tuple of indices.  Regularization is
 given as {mod}`bartorch.priors` terms rather than as `-R` strings:
-`pics(kspace, maps, regularizers=priors.Wavelet((-1, -2), 0.005))`.  An axis
+`apps.pics(kspace, maps, regularizers=priors.Wavelet((-1, -2), 0.005))`.  An axis
 argument whose array is not given to the call counts from the last axis and
 accepts negative indices only.
 
 ## Commands
 
-The functions of {mod}`bartorch.tools` and the `bartorch` namespace assign
-axes as BART does, in reversed order.  BART's coil dimension is its dimension 3 and sets of
+The functions of {mod}`bartorch.tools` and of the `bartorch` namespace that
+run a BART command assign axes as BART does, in reversed order.  BART's coil dimension is its dimension 3 and sets of
 sensitivity maps its dimension 4, so the corresponding singleton axes are kept
 in inputs and outputs; returned shapes are those BART produces, with trailing
 BART singletons (leading tensor axes) removed.  Array inputs are converted to
 contiguous `complex64`, and a command works on a copy of each input unless
 {func}`bartorch.set_copy_inputs` is set to `False`, because some BART commands
-write into their inputs.
+write into their inputs.  The corrections and the motion estimation of
+{mod}`bartorch.tools` run no BART command; their shapes and units are stated
+in each object's documentation.
 
 ## Operators
 
@@ -96,5 +98,6 @@ writecfl("result", tensor.detach().cpu().numpy().T)
 
 Applying an operator, a nonlinear operator or a solver of {mod}`bartorch.optim`
 to a tensor that requires a gradient records the operation for autograd; the
-functions of {mod}`bartorch.tools` record nothing.
+BART commands of {mod}`bartorch.tools` and of the `bartorch` namespace record
+nothing.
 {doc}`../../explanation/differentiation` describes the backward pass of each.

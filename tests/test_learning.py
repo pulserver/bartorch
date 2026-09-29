@@ -1,7 +1,8 @@
 """The adapters a network needs: a real-valued denoiser over complex images, and a stack.
 
-:class:`~bartorch.learning.Denoiser` is held against the arithmetic written
-out in torch, which is what says the planes it builds carry what it claims.
+The planes :class:`~bartorch.priors.ImplicitPrior` hands a network given
+``spatial`` are held against the arithmetic written out in torch, which is
+what says they carry what they claim.
 :class:`~bartorch.learning.Unrolled` is held against the solver it is the loop
 of: frozen, the stack is BART's iteration to the bit, and neither
 ``checkpoint`` nor the choice of a shared block changes what a step computes.
@@ -12,6 +13,7 @@ import torch
 from torch import nn
 
 from bartorch import learning, linop, optim, priors
+from bartorch.priors.implicit import _Planes
 
 SHAPE = (1, 8, 8)
 
@@ -73,7 +75,7 @@ def test_as_complex_refuses_what_as_real_did_not_make():
 )
 def test_the_network_is_given_planes_of_its_own_rank_and_channel_count(parts, channels, planes):
     net = _Seen()
-    denoiser = learning.Denoiser(net, channels=channels, parts=parts, normalize=False)
+    denoiser = _Planes(net, channels=channels, parts=parts, normalize=False)
     x = _rand(3, 5, 8, 8)
 
     out = denoiser(x)
@@ -94,24 +96,24 @@ def test_the_planes_are_the_parts_the_mode_names():
     x = _rand(2, 8, 8)
 
     together = _Keep()
-    learning.Denoiser(together, channels=2, normalize=False)(x)
+    _Planes(together, channels=2, normalize=False)(x)
     assert torch.equal(together.planes[:, 0], x.real)
     assert torch.equal(together.planes[:, 1], x.imag)
 
     apart = _Keep()
-    learning.Denoiser(apart, channels=1, parts="separate", normalize=False)(x)
+    _Planes(apart, channels=1, parts="separate", normalize=False)(x)
     assert torch.equal(apart.planes[:2, 0], x.real)
     assert torch.equal(apart.planes[2:, 0], x.imag)
 
     modulus = _Keep()
-    learning.Denoiser(modulus, channels=1, parts="magnitude", normalize=False)(x)
+    _Planes(modulus, channels=1, parts="magnitude", normalize=False)(x)
     assert torch.equal(modulus.planes[:, 0], x.abs())
 
 
 @pytest.mark.parametrize("parts", ["channels", "separate", "magnitude"])
 def test_the_identity_network_leaves_the_image_alone(parts):
     channels = 2 if "channels" == parts else 1
-    denoiser = learning.Denoiser(_Seen(), channels=channels, parts=parts)
+    denoiser = _Planes(_Seen(), channels=channels, parts=parts)
     x = 17.0 * _rand(2, 3, 8, 8)
     assert torch.allclose(denoiser(x), x, atol=1e-5)
 
@@ -122,7 +124,7 @@ def test_the_phase_survives_a_magnitude_network():
             return 0.5 * v
 
     x = _rand(2, 8, 8)
-    out = learning.Denoiser(_Blur(), channels=1, parts="magnitude")(x)
+    out = _Planes(_Blur(), channels=1, parts="magnitude")(x)
     assert torch.allclose(out.angle(), x.angle(), atol=1e-4)
     assert torch.allclose(out.abs(), 0.5 * x.abs(), atol=1e-5)
 
@@ -134,7 +136,7 @@ def test_an_rgb_network_is_given_three_copies_and_answers_for_one():
             return v * torch.tensor([0.0, 3.0, 0.0]).reshape(1, 3, 1, 1)
 
     x = _rand(2, 8, 8)
-    out = learning.Denoiser(_Weighted(), channels=3, parts="separate")(x)
+    out = _Planes(_Weighted(), channels=3, parts="separate")(x)
     assert torch.allclose(out, x, atol=1e-5)
 
 
@@ -148,7 +150,7 @@ def test_each_item_of_the_leading_axis_is_scaled_by_its_own_peak():
     # The network answers one everywhere, so the modulus that comes back is
     # the scale each item was divided by, which is its own peak and not the
     # batch's.
-    out = learning.Denoiser(_Ones(), channels=1, parts="magnitude")(x)
+    out = _Planes(_Ones(), channels=1, parts="magnitude")(x)
 
     assert torch.allclose(out[0].abs(), x[0].abs().amax().expand(4, 4), atol=1e-4)
     assert torch.allclose(out[1].abs(), x[1].abs().amax().expand(4, 4), atol=1e-2)
@@ -163,8 +165,8 @@ def test_without_normalization_the_values_reach_the_network_as_they_are():
     x = 100.0 * _rand(1, 4, 4)
 
     scaled, plain = _Keep(), _Keep()
-    learning.Denoiser(scaled, channels=2)(x)
-    learning.Denoiser(plain, channels=2, normalize=False)(x)
+    _Planes(scaled, channels=2)(x)
+    _Planes(plain, channels=2, normalize=False)(x)
 
     assert scaled.peak <= 1.0 + 1e-6
     assert plain.peak == pytest.approx(float(torch.stack([x.real, x.imag]).abs().amax()))
@@ -172,24 +174,24 @@ def test_without_normalization_the_values_reach_the_network_as_they_are():
 
 def test_a_volume_network_takes_three_spatial_axes():
     net = _Seen()
-    learning.Denoiser(net, spatial=3, channels=2)(_rand(2, 3, 4, 5, 6))
+    _Planes(net, spatial=3, channels=2)(_rand(2, 3, 4, 5, 6))
     assert [((6, 2, 4, 5, 6), None)] == net.seen
 
 
 def test_one_image_with_no_batch_is_a_batch_of_one():
     net = _Seen()
-    learning.Denoiser(net, channels=2)(_rand(8, 8))
+    _Planes(net, channels=2)(_rand(8, 8))
     assert [((1, 2, 8, 8), None)] == net.seen
 
 
 def test_a_real_image_comes_back_real():
-    out = learning.Denoiser(_Seen(), channels=2)(torch.randn(2, 8, 8))
+    out = _Planes(_Seen(), channels=2)(torch.randn(2, 8, 8))
     assert not out.is_complex() and torch.float32 == out.dtype
 
 
 def test_the_noise_level_is_passed_through_only_when_it_is_given():
     net = _Seen()
-    denoiser = learning.Denoiser(net, channels=2)
+    denoiser = _Planes(net, channels=2)
     denoiser(_rand(1, 8, 8))
     denoiser(_rand(1, 8, 8), 0.05)
     assert [None, 0.05] == [sigma for _, sigma in net.seen]
@@ -198,7 +200,7 @@ def test_the_noise_level_is_passed_through_only_when_it_is_given():
 def test_the_gradient_reaches_the_image_and_the_networks_weights():
     net = _Seen()
     x = _rand(1, 8, 8).requires_grad_()
-    learning.Denoiser(net, channels=2)(x).abs().square().sum().backward()
+    _Planes(net, channels=2)(x).abs().square().sum().backward()
     assert x.grad is not None and net.gain.grad is not None and 0 != net.gain.grad
 
 
@@ -213,7 +215,17 @@ def test_the_gradient_reaches_the_image_and_the_networks_weights():
 )
 def test_a_layout_the_adapter_cannot_make_is_refused(kwargs, match):
     with pytest.raises(ValueError, match=match):
-        learning.Denoiser(_Seen(), **kwargs)
+        _Planes(_Seen(), **kwargs)
+
+
+def test_a_denoiser_that_cannot_be_called_is_refused():
+    with pytest.raises(TypeError, match="is not"):
+        _Planes(object())
+
+
+def test_an_image_with_fewer_axes_than_the_network_takes_is_refused():
+    with pytest.raises(ValueError, match="at least its 2 spatial axes"):
+        _Planes(_Seen(), channels=2)(_rand(8))
 
 
 def test_a_network_that_answers_the_wrong_shape_is_named():
@@ -222,13 +234,13 @@ def test_a_network_that_answers_the_wrong_shape_is_named():
             return v[..., :4, :4]
 
     with pytest.raises(ValueError, match="a denoiser returns"):
-        learning.Denoiser(_Crop(), channels=2)(_rand(1, 8, 8))
+        _Planes(_Crop(), channels=2)(_rand(1, 8, 8))
 
 
 def test_a_denoiser_stands_where_a_regularizer_does(problem):
     A, y = problem
     net = _Seen(0.9)
-    term = priors.ImplicitPrior(learning.Denoiser(net, channels=2))
+    term = priors.ImplicitPrior(net, spatial=2, channels=2)
     out = optim.fista(y, A, term, maxiter=3)
     assert tuple(out.shape) == SHAPE and 0 != len(net.seen)
 
@@ -309,3 +321,10 @@ def test_a_stack_needs_to_know_how_many_iterations():
         learning.Unrolled([_block(), _block()], 7)
     with pytest.raises(ValueError, match="computes nothing"):
         learning.Unrolled([])
+
+
+def test_a_network_layout_without_spatial_axes_is_refused():
+    """``channels``, ``parts`` and ``normalize`` describe the planes a network
+    takes, which only ``spatial`` asks for."""
+    with pytest.raises(ValueError, match="need spatial"):
+        priors.ImplicitPrior(_Seen(), channels=2)

@@ -10,6 +10,8 @@
 | [MRI-NUFFT](https://mind-inria.github.io/mri-nufft/) | Fits the time-segmentation coefficients of {func}`bartorch.linop.FieldCorrected` |
 | [TorchSim](https://github.com/FiRMLAB-Pisa/torchsim) | Signal simulation for the signal models of {mod}`bartorch.nlop` |
 | [DeepInverse](https://deepinv.github.io/) | Target of {func}`bartorch.interop.to_deepinv`, and a source of denoisers for {class}`~bartorch.priors.ImplicitPrior` |
+| [SimpleITK](https://simpleitk.org/) | Resampling for bias field and gradient nonlinearity correction, and registration of navigator planes, in {mod}`bartorch.tools` |
+| [PyHySCO](https://github.com/EmoryMLIP/PyHySCO) | Susceptibility distortion correction behind {func}`bartorch.tools.correct_susceptibility` |
 
 ## Other reconstruction frameworks
 

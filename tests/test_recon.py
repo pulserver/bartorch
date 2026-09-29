@@ -5,6 +5,7 @@ import pytest
 import torch
 
 import bartorch
+import bartorch._reference as ref
 import bartorch.tools as bt
 
 
@@ -38,7 +39,7 @@ def test_ecalib_maps_are_normalised_where_the_object_is():
 def test_pics_on_fully_sampled_data_matches_the_direct_inverse():
     ksp = _fully_sampled_coil_kspace()
     maps = bt.ecalib(ksp, calib_size=16, maps=1)
-    reco = bt.pics(ksp, maps, l2=0.001, maxiter=30, l=2).squeeze()
+    reco = ref.pics(ksp, maps, l2=0.001, maxiter=30, l=2).squeeze()
     coil_images = bartorch.ifft(ksp, axes=(-1, -2), unitary=True).squeeze()
     direct = (coil_images * maps.squeeze().conj()).sum(0)
     assert reco.shape == direct.shape

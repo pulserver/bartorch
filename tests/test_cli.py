@@ -1,8 +1,11 @@
 """``bartorch.cli`` against the command line it serves.
 
 A script that calls ``bart`` has to run against ``bartorch`` unchanged, so the
-question a test here answers is whether the two answer the same bits: the app
-route against the command route, over the same argv and the same files.
+question a test here answers is whether the app route writes what the command
+route writes, over the same argv and the same files: the same bits for
+``pics``, and for ``mobafit`` and ``moba``, whose apps fit TorchSim's models,
+the same files to a stated tolerance, both held to the rates the data was
+made from.
 """
 
 from __future__ import annotations
@@ -15,6 +18,7 @@ import bartorch.tools as bt
 from bartorch._dispatch import run_command
 from bartorch.cli import _argv, main, route
 from bartorch.io import readcfl, writecfl
+from bartorch.priors.terms import ImageNIHT
 
 SIZE, COILS, ACCEL = 24, 4, 2
 
@@ -64,6 +68,384 @@ def test_an_argument_the_reader_cannot_express_goes_to_the_command(_dataset):
 
     assert main(["pics", "-c", "-i", "10", "ksp", "maps", "out"]) == 0
     assert readcfl("out").shape == (SIZE, SIZE)
+
+
+# --- mobafit ---------------------------------------------------------------
+#
+# Series written out in closed form, in BART's layout: images `(x, y, 1, 1, 1,
+# contrasts)` and times in seconds along TE_DIM.  Each fit is held to the
+# command's coefficients and to the coefficients the series was made from.
+
+FIT = 12
+ECHO_TIMES = 0.0125 * (np.arange(8) + 1)
+INVERSION_TIMES = np.array([0.05, 0.15, 0.4, 0.9, 1.5, 2.5, 4.0])
+PHASE = np.exp(0.3j)
+
+
+def _halves(left: float, right: float, size: int = FIT) -> np.ndarray:
+    values = np.full((size, size), left)
+    values[size // 2 :] = right
+    return values
+
+
+def _series(times: np.ndarray, series: np.ndarray) -> None:
+    """``series`` of shape ``(x, y, contrasts)`` and its times, as ``t`` and ``y``."""
+    writecfl("t", times.astype(np.complex64).reshape((1,) * 5 + (-1,)))
+    writecfl("y", series.astype(np.complex64).reshape(FIT, FIT, 1, 1, 1, -1))
+
+
+T2 = _halves(0.06, 0.11)
+T1 = _halves(0.8, 1.4)
+M0, MSS = 2.0 * PHASE, 0.8 * PHASE
+
+#: flags, times, the series, and BART's coefficients for it.
+_FITS = {
+    "T": (
+        ["-T"],
+        ECHO_TIMES,
+        M0 * np.exp(-ECHO_TIMES / T2[..., None]),
+        [np.full(T2.shape, M0), 1 / T2],
+    ),
+    "I": (
+        ["-I", "--init", "1:1:1"],
+        INVERSION_TIMES,
+        M0 * (1 - 2 * np.exp(-INVERSION_TIMES / T1[..., None])),
+        [np.full(T1.shape, M0), 1 / T1, np.full(T1.shape, np.log(2))],
+    ),
+    "L": (
+        ["-L", "--init", "0.6:1:0.8"],
+        INVERSION_TIMES,
+        MSS - (MSS + M0 / 2) * np.exp(-INVERSION_TIMES / T1[..., None]),
+        [np.full(T1.shape, MSS), np.full(T1.shape, M0 / 2), 1 / T1],
+    ),
+}
+
+
+def _relative(ours: np.ndarray, reference: np.ndarray) -> float:
+    return float(np.abs(ours - reference).max() / np.abs(reference).max())
+
+
+@pytest.mark.parametrize("model", sorted(_FITS))
+def test_mobafit_writes_the_commands_coefficients_to_the_tolerance_of_a_fit(
+    model, tmp_path, monkeypatch
+):
+    """``(M0, R2)``, ``(M0, R1, c)`` and ``(Mss, M0, R1s)`` in 1/s along
+    COEFF_DIM, from a TorchSim fit in milliseconds.  Measured: within 1e-05 of
+    each coefficient's peak against the command and against the series' own."""
+    monkeypatch.chdir(tmp_path)
+    flags, times, series, truth = _FITS[model]
+    _series(times, series)
+    assert route("mobafit", [*flags, "t", "y", "x"])[0] == "app"
+
+    assert main(["mobafit", *flags, "t", "y", "app"]) == 0
+    code, _, failure = run_command(["mobafit", *flags, "t", "y", "cmd"])
+    assert code == 0, failure
+
+    ours, theirs = readcfl("app"), readcfl("cmd")
+    assert ours.shape == theirs.shape == (FIT, FIT, 1, 1, 1, 1, len(truth))
+    for coefficient, expected in enumerate(truth):
+        assert (
+            _relative(ours[..., coefficient].squeeze(), theirs[..., coefficient].squeeze()) < 1e-4
+        )
+        assert _relative(ours[..., coefficient].squeeze(), expected) < 1e-4
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        ["mobafit", "t", "y", "x"],
+        ["mobafit", "-G", "t", "y", "x"],
+        ["mobafit", "-T", "-i", "5", "t", "y", "x"],
+        ["mobafit", "-T", "--init", "1:0", "t", "y", "x"],
+        ["mobafit", "-T", "--scale", "1:10", "t", "y", "x"],
+        ["mobafit", "-T", "t", "y", "x", "covariance"],
+    ],
+    ids=["default MGRE", "-G", "-i", "R2 start of zero", "--scale", "covariance"],
+)
+def test_a_mobafit_the_app_cannot_express_goes_to_the_command(line, tmp_path, monkeypatch):
+    """The multi-echo gradient-echo models, BART's step count over its own
+    coefficients, a start the bounded model has no image of, a preconditioning,
+    and a covariance the app does not compute."""
+    monkeypatch.chdir(tmp_path)
+    flags, times, series, _ = _FITS["T"]
+    _series(times, series)
+    assert route(line[0], line[1:]) == ("command", None)
+
+
+def test_a_magnitude_mobafit_writes_the_commands_coefficients(tmp_path, monkeypatch):
+    """``-a`` fits the modulus of the model to the modulus of the data, so the
+    phased series answers ``|M0|`` and ``R2``.  The command needs a start off
+    zero, where the modulus has no gradient."""
+    monkeypatch.chdir(tmp_path)
+    _, times, series, (_, rate) = _FITS["T"]
+    _series(times, series)
+    line = ["mobafit", "-T", "-a", "--init", "1:10", "t", "y"]
+    where, plan = route(line[0], [*line[1:], "x"])
+    assert where == "app" and plan["call"].keywords["magnitude"] is True
+
+    assert main([*line, "app"]) == 0
+    code, _, failure = run_command([*line, "cmd"])
+    assert code == 0, failure
+
+    ours, theirs = readcfl("app"), readcfl("cmd")
+    for coefficient, expected in enumerate([np.full(T2.shape, abs(M0)), rate]):
+        assert _relative(np.abs(ours[..., coefficient].squeeze()), expected) < 1e-4
+        assert _relative(np.abs(theirs[..., coefficient].squeeze()), expected) < 1e-4
+
+
+def test_mobafits_conjugate_gradient_count_is_the_apps(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    _, times, series, _ = _FITS["T"]
+    _series(times, series)
+    where, plan = route("mobafit", ["-T", "--liniter", "7", "t", "y", "x"])
+    assert where == "app" and plan["call"].keywords["cg_maxiter"] == 7
+
+
+def _written(name: str, array: np.ndarray) -> str:
+    writecfl(name, array.astype(np.complex64))
+    return name
+
+
+@pytest.mark.parametrize(
+    ("flags", "times", "images"),
+    [
+        (["-L", "--init", "0:1:1"], None, None),
+        (["-I", "--init", "1:1:5"], None, None),
+        (["-T"], np.ones((1, 1, 1, 1, 1, 8, 2)), None),
+        (["-T"], (1 + 1j) * ECHO_TIMES.reshape((1,) * 5 + (-1,)), None),
+        (["-T"], None, np.ones((FIT, FIT, 1, 1, 1, 1, 8))),
+    ],
+    ids=[
+        "L start with no steady state",
+        "I start past the efficiency bounds",
+        "times along two axes",
+        "complex times",
+        "contrasts along COEFF_DIM",
+    ],
+)
+def test_a_mobafit_whose_files_the_app_cannot_read_goes_to_the_command(
+    flags, times, images, tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+    _, echo_times, series, _ = _FITS["T"]
+    _series(echo_times, series)
+    t = "t" if times is None else _written("t_other", times)
+    y = "y" if images is None else _written("y_other", images)
+    assert route("mobafit", [*flags, t, y, "x"]) == ("command", None)
+
+
+def test_an_array_with_more_dimensions_than_bart_has_is_unsupported():
+    from bartorch.cli._apps import _bart
+
+    with pytest.raises(_argv.Unsupported, match="more dimensions than BART has"):
+        _bart(torch.zeros((1,) * 17))
+
+
+def test_pics_writes_one_output():
+    from bartorch.cli._apps import ADAPTERS
+
+    with pytest.raises(_argv.Unsupported, match="one output"):
+        ADAPTERS["pics"]({}, [torch.ones(1, 8, 8), torch.ones(1, 8, 8)], 2)
+
+
+def test_a_mobafit_that_goes_to_the_command_answers_its_bits(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    _, times, series, _ = _FITS["T"]
+    _series(times, series)
+    line = ["mobafit", "-T", "-i", "5", "t", "y"]
+    assert main([*line, "ours"]) == 0
+    code, _, failure = run_command([*line, "theirs"])
+    assert code == 0, failure
+    assert np.array_equal(readcfl("ours"), readcfl("theirs"))
+
+
+# --- moba ------------------------------------------------------------------
+#
+# A disc of two relaxation halves behind four smooth coils, each contrast
+# keeping its own random half of the phase encodes and the centre, as BART's
+# k-space `(x, y, 1, coils, 1, contrasts)`: the coil images' centred unitary
+# FFT, written with numpy.  With the coils estimated, the amplitude and the
+# sensitivities share a scale the data does not fix, so what is compared is
+# their product.
+
+MOBA, MOBA_COILS = 16, 4
+MOBA_T2 = _halves(0.06, 0.11, MOBA)
+MOBA_T1 = _halves(0.8, 1.4, MOBA)
+
+
+def _disc_and_coils():
+    x, y = np.meshgrid(np.linspace(-1, 1, MOBA), np.linspace(-1, 1, MOBA), indexing="ij")
+    support = x**2 + y**2 < 0.8
+    amplitude = support * np.exp(0.5j * y)
+    angles = np.arange(MOBA_COILS) * 2 * np.pi / MOBA_COILS
+    coils = np.stack(
+        [
+            np.exp(-((x - 1.5 * np.cos(a)) ** 2 + (y - 1.5 * np.sin(a)) ** 2) / 18) * np.exp(1j * a)
+            for a in angles
+        ],
+        axis=-1,
+    )
+    return support, amplitude, coils
+
+
+def _moba_kspace(times: np.ndarray, images: np.ndarray, coils: np.ndarray) -> None:
+    """``images`` of shape ``(x, y, contrasts)``, as ``k`` and ``t``."""
+    coil_images = images[:, :, None, :] * coils[..., None]
+    kspace = np.fft.fftshift(
+        np.fft.fft2(np.fft.ifftshift(coil_images, axes=(0, 1)), axes=(0, 1), norm="ortho"),
+        axes=(0, 1),
+    )
+    generator = np.random.default_rng(0)
+    for contrast in range(len(times)):
+        lines = np.zeros(MOBA)
+        lines[generator.permutation(MOBA)[: MOBA // 2]] = 1
+        lines[MOBA // 2 - 3 : MOBA // 2 + 3] = 1
+        kspace[..., contrast] *= lines[None, :, None]
+    writecfl("k", kspace.astype(np.complex64).reshape(MOBA, MOBA, 1, MOBA_COILS, 1, -1))
+    writecfl("t", times.astype(np.complex64).reshape((1,) * 5 + (-1,)))
+
+
+def test_moba_writes_the_commands_maps_to_the_tolerance_of_a_fit(tmp_path, monkeypatch):
+    """``moba -T -l2``: ``(M0, R2)`` in the command's data scaling, and the
+    sensitivities.  Measured on this phantom: R2 5.4e-03 from the command's at
+    the median and 9.3e-03 at most, which is the command's own distance from
+    the truth, and 1.4e-05 and 6.6e-05 from the truth; the product of
+    amplitude and sensitivities 3.3e-03 from the command's."""
+    monkeypatch.chdir(tmp_path)
+    support, amplitude, coils = _disc_and_coils()
+    images = amplitude[..., None] * np.exp(-ECHO_TIMES[:6] / MOBA_T2[..., None])
+    _moba_kspace(ECHO_TIMES[:6], images, coils)
+    flags = ["-T", "-l2", "--scale_data=100", "--normalize_scaling"]
+    assert route("moba", [*flags, "k", "t", "x", "s"])[0] == "app"
+
+    assert main(["moba", *flags, "k", "t", "app", "app_sens"]) == 0
+    code, _, failure = run_command(["moba", *flags, "k", "t", "cmd", "cmd_sens"])
+    assert code == 0, failure
+
+    ours, theirs = readcfl("app"), readcfl("cmd")
+    assert ours.shape == theirs.shape == (MOBA, MOBA, 1, 1, 1, 1, 2)
+    assert readcfl("app_sens").shape == readcfl("cmd_sens").shape == (MOBA, MOBA, 1, MOBA_COILS)
+
+    rate = ours[..., 1].squeeze().real
+    command = theirs[..., 1].squeeze().real
+    against_command = np.abs(rate - command)[support] / command[support]
+    against_truth = np.abs(rate - 1 / MOBA_T2)[support] * MOBA_T2[support]
+    assert np.median(against_command) < 0.02 and against_command.max() < 0.03
+    assert np.median(against_truth) < 1e-3 and against_truth.max() < 5e-3
+
+    def product(maps, sensitivities):
+        return (maps[..., 0].squeeze()[..., None] * sensitivities.squeeze())[support]
+
+    ours_product = product(ours, readcfl("app_sens"))
+    theirs_product = product(theirs, readcfl("cmd_sens"))
+    assert np.linalg.norm(ours_product - theirs_product) < 0.01 * np.linalg.norm(theirs_product)
+
+
+def test_moba_look_locker_fits_the_recovery_it_was_made_from(tmp_path, monkeypatch):
+    """``moba -L -l2``: ``(Mss, M0, R1s)`` in the command's layout.  The command
+    itself does not converge on this phantom without the parameter scaling of
+    ``--other pscale``, which the app does not take, so the fit is held to
+    the recovery alone.  Measured: R1s 1.4e-03 from the truth at the median and
+    1.0e-02 at most, and M0 / Mss 1.2502 against 1.25."""
+    monkeypatch.chdir(tmp_path)
+    support, amplitude, coils = _disc_and_coils()
+    times = np.array([0.05, 0.2, 0.5, 1.0, 1.8, 3.0])
+    images = amplitude[..., None] * (0.8 - 1.8 * np.exp(-times / MOBA_T1[..., None]))
+    _moba_kspace(times, images, coils)
+    flags = ["-L", "-l2", "--scale_data=100", "--normalize_scaling"]
+    assert route("moba", [*flags, "k", "t", "x"])[0] == "app"
+
+    assert main(["moba", *flags, "k", "t", "app"]) == 0
+    code, _, failure = run_command(["moba", *flags, "k", "t", "cmd"])
+    assert code == 0, failure
+    ours = readcfl("app")
+    assert ours.shape == readcfl("cmd").shape == (MOBA, MOBA, 1, 1, 1, 1, 3)
+
+    rate = ours[..., 2].squeeze().real
+    error = np.abs(rate - 1 / MOBA_T1)[support] * MOBA_T1[support]
+    assert np.median(error) < 0.01 and error.max() < 0.05
+    ratio = (ours[..., 1] / ours[..., 0]).squeeze()[support]
+    assert abs(np.median(ratio.real) - 1.25) < 0.01
+
+
+@pytest.mark.parametrize(
+    "flags",
+    [["-T"], ["-T", "-l1"], ["-T", "-l2", "-i", "8"], ["-T", "-l2", "-C", "50"], ["-G", "-l2"]],
+    ids=["default l1", "-l1", "-i", "-C", "-G"],
+)
+def test_a_moba_the_app_cannot_express_goes_to_the_command(flags, tmp_path, monkeypatch):
+    """The wavelet term on the maps, BART's step counts over its own
+    coefficients and its inner iteration, and the gradient-echo models."""
+    monkeypatch.chdir(tmp_path)
+    support, amplitude, coils = _disc_and_coils()
+    images = amplitude[..., None] * np.exp(-ECHO_TIMES[:6] / MOBA_T2[..., None])
+    _moba_kspace(ECHO_TIMES[:6], images, coils)
+    assert route("moba", [*flags, "k", "t", "x"]) == ("command", None)
+
+
+def _moba_decay_with_coils():
+    support, amplitude, coils = _disc_and_coils()
+    images = amplitude[..., None] * np.exp(-ECHO_TIMES[:6] / MOBA_T2[..., None])
+    _moba_kspace(ECHO_TIMES[:6], images, coils)
+    writecfl("s", coils.astype(np.complex64).reshape(MOBA, MOBA, 1, MOBA_COILS))
+    return support
+
+
+@pytest.mark.parametrize(
+    "scaling", [[], ["--scale_data=100", "--normalize_scaling"]], ids=["unscaled", "normalized"]
+)
+def test_moba_given_the_coils_fits_the_maps_they_were_made_with(scaling, tmp_path, monkeypatch):
+    """``moba --sens``: the coils are the ones the k-space was made with, so the
+    fit is of the maps alone.  Held to the truth: the command itself does not
+    converge on this phantom with its coils given (its R2 comes back a quarter
+    of the truth unscaled and zero scaled)."""
+    monkeypatch.chdir(tmp_path)
+    support = _moba_decay_with_coils()
+    _, amplitude, _ = _disc_and_coils()
+    flags = ["-T", "-l2", "--sens", "s", *scaling]
+    where, plan = route("moba", [*flags, "k", "t", "x"])
+    assert where == "app" and len(plan["call"].arguments) == 3
+
+    assert main(["moba", *flags, "k", "t", "app"]) == 0
+
+    ours = readcfl("app")
+    assert ours.shape == (MOBA, MOBA, 1, 1, 1, 1, 2)
+    rate = ours[..., 1].squeeze().real
+    against_truth = np.abs(rate - 1 / MOBA_T2)[support] * MOBA_T2[support]
+    assert np.median(against_truth) < 1e-3 and against_truth.max() < 5e-3
+    if not scaling:
+        fitted = ours[..., 0].squeeze()[support]
+        assert np.abs(fitted - amplitude[support]).max() < 1e-3
+
+
+def test_mobas_regularization_schedule_and_sobolev_weight_reach_the_app(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    _moba_decay_with_coils()
+    flags = ["-T", "-l2", "-j", "0.01", "--reduction", "3", "--sobolev_a", "100"]
+    where, plan = route("moba", [*flags, "k", "t", "x"])
+    assert where == "app"
+    assert plan["call"].keywords["alpha_min"] == 0.01
+    assert plan["call"].keywords["redu"] == 3.0
+    assert plan["call"].keywords["sobolev"] == (100.0, 32.0)
+
+
+@pytest.mark.parametrize(
+    ("flags", "files"),
+    [
+        (["-T", "-l2", "--sens", "s"], ["k", "t", "x", "sens_out"]),
+        (["-T", "-l2", "--sens", "s_wrong"], ["k", "t", "x"]),
+        (["-T", "-l2"], ["k_more", "t", "x"]),
+    ],
+    ids=["coils given and asked for", "coils of another shape", "k-space beyond echoes"],
+)
+def test_a_moba_whose_files_the_app_cannot_take_goes_to_the_command(
+    flags, files, tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+    _moba_decay_with_coils()
+    writecfl("s_wrong", np.ones((MOBA, MOBA, 1, MOBA_COILS + 1), dtype=np.complex64))
+    writecfl("k_more", np.ones((MOBA, MOBA, 1, MOBA_COILS, 2, 6), dtype=np.complex64))
+    assert route("moba", [*flags, *files]) == ("command", None)
 
 
 def test_a_command_with_no_app_runs_as_itself(_dataset):
@@ -148,7 +530,7 @@ def test_a_regularizer_string_is_the_term_it_names():
 
     assert isinstance(_argv.regularizer("Q:0.1", ndim=2), priors.L2)
     assert isinstance(_argv.regularizer("S", ndim=2), priors.NonNegative)
-    assert isinstance(_argv.regularizer("N:3:0:12", ndim=2), priors.ImageNIHT)
+    assert isinstance(_argv.regularizer("N:3:0:12", ndim=2), ImageNIHT)
 
 
 def test_a_bitmask_names_the_axes_the_image_has():

@@ -84,8 +84,23 @@ deepinv = [
 mkl = [
     "mkl>=2024; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
+# SimpleITK resamples for bias field and gradient nonlinearity correction, and
+# registers navigator planes; it is imported by the functions that use it.
+correct = [
+    "SimpleITK>=2.3",
+]
+motion = [
+    "SimpleITK>=2.3",
+]
+# PyHySCO is GPL-3.0-only: installing it is the user's decision, it is never
+# distributed with bartorch, and `tools.correct_susceptibility` imports it only
+# when called.
+pyhysco = [
+    "PyHySCO",
+]
 dev = [
     "pytest>=7",
+    "SimpleITK>=2.3",
     # tests/test_docstrings.py reads the docstrings as the reference does.
     "numpydoc>=1.6",
     "ruff",
@@ -172,6 +187,7 @@ testpaths = ["tests"]
 # spells its own attribute `cudaDevAttrMaxSharedMemoryPerBlockOptin`.  `build`
 # and `docs/_build` are outputs a fresh checkout does not have and a local run
 # does.  `reson` is the journal abbreviation in a citation, as in
-# `Magn Reson Med`.
+# `Magn Reson Med`; `gool` and `unser` are authors' names in citations, and
+# `precessing` is what a spin does.
 skip = "./attic,./external,./.git,./build,./docs/_build,./docs/auto_examples,*.ipynb,pyproject.toml"
-ignore-words-list = "ist,te,reconet,pyramide,nd,optin,lamda,reson,coo"
+ignore-words-list = "ist,te,reconet,pyramide,nd,optin,lamda,reson,coo,gool,unser,precessing"

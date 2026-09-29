@@ -15,6 +15,131 @@ def _batched(apply, x: torch.Tensor, shape: tuple[int, ...]) -> torch.Tensor:
     return apply(x)
 
 
+#: Lower bound on a modulus, so that an all-zero image is not divided by zero.
+_TINY = 1e-12
+
+_PARTS = ("channels", "separate", "magnitude")
+
+
+class _Planes(nn.Module):
+    """A network on real ``(n, channels, *spatial)`` planes, applied to a complex image.
+
+    The last ``spatial`` axes are the network's image; the leading axis is a
+    batch, and the axes between are folded into the network's batch axis.  The
+    complex values are laid out as real planes according to ``parts``; a
+    single plane is repeated across three channels for an RGB network and the
+    three returned channels averaged; with ``normalize`` each item of the
+    leading axis is divided by its own peak modulus before the call and
+    multiplied by it afterwards.  The scale is detached, and ``sigma`` is
+    passed in the units of the scaled image.  A real input is treated as a
+    complex image with zero imaginary part, and the real part is returned.
+    """
+
+    def __init__(
+        self,
+        net,
+        *,
+        spatial: int = 2,
+        channels: int = 1,
+        parts: str | None = None,
+        normalize: bool = True,
+    ):
+        super().__init__()
+        if not callable(net):
+            raise TypeError(f"a denoiser is called as net(x) or net(x, sigma), and {net!r} is not")
+        spatial = int(spatial)
+        if spatial not in (2, 3):
+            raise ValueError(
+                f"a network takes planes or volumes, so spatial is 2 or 3, not {spatial}"
+            )
+        channels = int(channels)
+        if parts is None:
+            parts = "channels" if 2 == channels else "separate"
+        if parts not in _PARTS:
+            raise ValueError(f"parts is one of {_PARTS}, not {parts!r}")
+        if "channels" == parts and 2 != channels:
+            raise ValueError(
+                "parts='channels' hands the real and imaginary planes to the network's "
+                f"channels, so it takes two of them, not {channels}"
+            )
+        if "channels" != parts and channels not in (1, 3):
+            raise ValueError(
+                f"parts={parts!r} hands the network one plane, which a grayscale network takes "
+                f"as it is and an RGB one takes repeated; {channels} channels is neither"
+            )
+
+        self.net = net
+        self.spatial = spatial
+        self.channels = channels
+        self.parts = parts
+        self.normalize = bool(normalize)
+
+    def forward(self, input: torch.Tensor, sigma=None) -> torch.Tensor:
+        """Denoise ``input``, returning its own shape and dtype.
+
+        Parameters
+        ----------
+        input : torch.Tensor
+            Complex or real, of shape ``(batch, *rest, *spatial)``.  The
+            leading axis is the batch over which each scale is measured; a
+            tensor of exactly ``spatial`` axes is a single image.
+        sigma : float or torch.Tensor, default=None
+            Passed to the network as its second argument when supplied, and
+            omitted from the call otherwise.
+        """
+        if input.ndim < self.spatial:
+            raise ValueError(
+                f"an image for this denoiser carries at least its {self.spatial} spatial axes, "
+                f"and {tuple(input.shape)} has {input.ndim}"
+            )
+        real = not input.is_complex()
+        x = input.to(torch.complex64) if real else input
+        scale = self._scale(x)
+        out = self._denoise(x / scale, sigma) * scale
+        return out.real.to(input.dtype) if real else out.to(input.dtype)
+
+    def _scale(self, x: torch.Tensor) -> torch.Tensor:
+        """Peak modulus of each item of the leading axis, shaped to divide ``x``."""
+        if not self.normalize:
+            return torch.ones((), dtype=x.real.dtype, device=x.device)
+        lead = 1 if x.ndim > self.spatial else 0
+        peak = x.detach().abs().reshape(*x.shape[:lead], -1).amax(-1).clamp_min(_TINY)
+        return peak.reshape(*x.shape[:lead], *(1,) * (x.ndim - lead))
+
+    def _denoise(self, x: torch.Tensor, sigma) -> torch.Tensor:
+        """Apply the network to the planes ``parts`` specifies and recombine the result."""
+        spatial = tuple(x.shape[-self.spatial :])
+
+        if "magnitude" == self.parts:
+            modulus = x.abs()
+            phase = x / modulus.clamp_min(_TINY).to(x.dtype)
+            made = self._net(modulus.reshape(-1, 1, *spatial), sigma, 1)
+            return made.reshape(x.shape).to(x.dtype) * phase
+
+        if "separate" == self.parts:
+            pair = torch.stack([x.real, x.imag]).reshape(-1, 1, *spatial)
+            made = self._net(pair, sigma, 1).reshape(2, -1)
+            return torch.complex(made[0], made[1]).reshape(x.shape)
+
+        planes = torch.stack([x.real, x.imag], -self.spatial - 1).reshape(-1, 2, *spatial)
+        made = self._net(planes, sigma, 2).movedim(1, 0).reshape(2, -1)
+        return torch.complex(made[0], made[1]).reshape(x.shape)
+
+    def _net(self, planes: torch.Tensor, sigma, wanted: int) -> torch.Tensor:
+        """A single call, matching the network's channel count and checking its output."""
+        if 3 == self.channels and 1 == planes.shape[1]:
+            planes = planes.repeat(1, 3, *(1,) * self.spatial)
+        made = self.net(planes) if sigma is None else self.net(planes, sigma)
+        if 3 == self.channels and 3 == made.shape[1]:
+            made = made.mean(1, keepdim=True)
+        if made.shape[1] != wanted or made.shape[2:] != planes.shape[2:]:
+            raise ValueError(
+                f"the network answered {tuple(made.shape)} for {tuple(planes.shape)}; a denoiser "
+                f"returns {wanted} channel(s) on the shape it was given"
+            )
+        return made
+
+
 class ImplicitPrior(nn.Module):
     """A denoiser substituted for a :mod:`bartorch.priors` regularizer.
 
@@ -24,8 +149,8 @@ class ImplicitPrior(nn.Module):
     differentiable, so a solve containing it can be differentiated end to end.
 
     The denoiser receives a leading batch axis, of length one for a single
-    image, and a complex image unchanged.  ``sigma`` is a
-    :class:`torch.nn.Parameter`, frozen until ``requires_grad_()`` is called.
+    image.  ``sigma`` is a :class:`torch.nn.Parameter`, fixed until
+    ``requires_grad_()`` is called.
 
     ``transform`` is the linear operator :math:`G` of a term :math:`g(G x)`,
     as a regularizer built by BART also carries.  The denoiser is then applied
@@ -41,10 +166,13 @@ class ImplicitPrior(nn.Module):
     ----------
     denoiser : callable
         Called as ``denoiser(x)``, or as ``denoiser(x, sigma)`` when a
-        ``sigma`` is given, on ``(batch, *shape)``, where ``shape`` is the
-        image's shape or, with a ``transform``, the codomain of :math:`G`.
-        :class:`bartorch.learning.Denoiser` adapts a network operating on real
-        planes to this interface.
+        ``sigma`` is given.  Without ``spatial`` it receives the complex
+        ``(batch, *shape)`` tensor as it stands, where ``shape`` is the image's
+        shape or, with a ``transform``, the codomain of :math:`G`.  With
+        ``spatial`` it is an image-restoration network on real
+        ``(n, channels, *spatial)`` planes of order unity -- a ``deepinv``,
+        ``monai`` or local :class:`torch.nn.Module` -- and the conversion is
+        done here.
     sigma : float, default=None
         The noise level the denoiser is asked for, in the units its own
         convention states.
@@ -52,20 +180,59 @@ class ImplicitPrior(nn.Module):
         :math:`G`, mapping the image to the domain the denoiser is applied on.
         Only the iterations given a term's transform use it; see
         :meth:`bartorch.priors.Regularizer.transform_is_identity`.
+    spatial : {2, 3}, default=None
+        Trailing axes the network operates on: 2 for a network trained on
+        slices, 3 for one trained on volumes.  The axes in front of them are
+        folded into the network's batch axis.  ``None`` passes the complex
+        tensor unconverted.
+    channels : {1, 2, 3}, default=1
+        Input channels of the network: 1 for grayscale, 3 for RGB (a plane is
+        repeated and the three outputs averaged), 2 for a network taking the
+        real and imaginary planes jointly, as MoDL's does.  Only with
+        ``spatial``.
+    parts : {"channels", "separate", "magnitude"}, default=None
+        How the complex values become real planes: the real and imaginary
+        parts as the network's two channels, each part denoised on its own in
+        one call over a doubled batch, or the modulus denoised with the phase
+        kept.  Defaults to ``"channels"`` for two channels and ``"separate"``
+        otherwise.  Only with ``spatial``.
+    normalize : bool, default=True
+        Scale each image to unit peak modulus around the call; ``sigma`` is
+        then in units of that peak.  Only with ``spatial``.
 
     Examples
     --------
-    >>> optim.fista(y, A, priors.ImplicitPrior(to_complex_denoiser(DRUNet()), sigma=0.05))
+    >>> from deepinv.models import DRUNet
+    >>> prior = priors.ImplicitPrior(DRUNet(in_channels=1, out_channels=1), sigma=0.05, spatial=2)
+    >>> image = optim.fista(y, A, prior)
     >>> priors.ImplicitPrior(denoiser, transform=linop.MultiplySum(basis, ...))
     """
 
     #: Takes a batch whole rather than item by item.
     _batches = True
 
-    def __init__(self, denoiser, sigma: float | None = None, *, transform=None):
+    def __init__(
+        self,
+        denoiser,
+        sigma: float | None = None,
+        *,
+        transform=None,
+        spatial: int | None = None,
+        channels: int = 1,
+        parts: str | None = None,
+        normalize: bool = True,
+    ):
         super().__init__()
         if not callable(denoiser):
             raise TypeError(f"a denoiser is called as denoiser(x, sigma), and {denoiser!r} is not")
+        if spatial is not None:
+            denoiser = _Planes(
+                denoiser, spatial=spatial, channels=channels, parts=parts, normalize=normalize
+            )
+        elif (channels, parts, normalize) != (1, None, True):
+            raise ValueError(
+                "channels, parts and normalize describe a network's planes, so they need spatial"
+            )
         self.denoiser = denoiser
         self.transform = transform
         self.sigma = (

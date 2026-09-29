@@ -11,6 +11,7 @@ import torch
 
 import bartorch
 import bartorch._lib
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch._dispatch import build_argv, dispatch
 
@@ -133,7 +134,7 @@ def test_an_array_passed_as_a_flag_reaches_the_tool_and_is_left_untouched():
     kspace = bartorch.nufft(image, traj)
     maps = torch.ones(1, n, n, dtype=torch.complex64)
 
-    recon = bt.pics(kspace, maps, t=traj)
+    recon = ref.pics(kspace, maps, t=traj)
 
     assert recon.shape == (n, n)
     torch.testing.assert_close(traj, before)

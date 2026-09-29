@@ -22,7 +22,10 @@ REPOSITORY = "pulserver/bartorch"
 
 #: What every example installs beside bartorch, and what a section adds.
 PACKAGES = ["brainweb-dl", "matplotlib", "cmap"]
-SECTION_PACKAGES = {"05-deep-learning": ["lightning", "torchio", "monai", "deepinv"]}
+SECTION_PACKAGES = {
+    "06-learning": ["lightning", "torchio", "monai", "deepinv"],
+    "07-tours": ["SimpleITK"],
+}
 
 #: The gallery's output directory under the documentation sources.
 GALLERY = "auto_examples"

@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import torch
 
-from bartorch.optim.linear import ADMM, CG, FISTA, IST, NIHT, PRIDU
+from bartorch.optim.linear import ADMM, CG, FISTA, IST, PRIDU
 from bartorch.optim.pocs import POCS
 
-__all__ = ["admm", "cg", "fista", "ist", "niht", "pocs", "pridu"]
+__all__ = ["admm", "cg", "fista", "ist", "pocs", "pridu"]
 
 
 def ist(y: torch.Tensor, A, regularizers=None, *, x0=None, **settings):
@@ -134,41 +134,6 @@ def pridu(y: torch.Tensor, A, regularizers=None, *, x0=None, **settings):
         Complex64 solution of ``A.ishape``.
     """
     return PRIDU(regularizers, **settings)(y, A, x0)
-
-
-def niht(y: torch.Tensor, A, regularizers, *, x0=None, **settings):
-    r"""Solve a sparsity-constrained least-squares problem by normalized hard thresholding.
-
-    Minimizes :math:`\tfrac12 \| A x - y \|^2` subject to a bound on the number
-    of non-zero coefficients, taking
-    :class:`~bartorch.priors.WaveletNIHT` and
-    :class:`~bartorch.priors.ImageNIHT` terms and no others.
-
-    Not usable: the underlying iteration applies the normal operator in place
-    while the operator it is given asserts that its arguments are not aliased,
-    so every solve terminates in an assertion.  See
-    :meth:`bartorch.optim.NIHT.__call__`.
-
-    Parameters
-    ----------
-    y : tensor
-        Data of ``A.oshape``.
-    A : LinearOperator
-        The encoding operator.
-    regularizers : WaveletNIHT or ImageNIHT, or an iterable of them
-        The hard-thresholding terms.
-    x0 : tensor, default=None
-        Warm start of ``A.ishape``; without one the iteration starts at zero.
-    **settings
-        Settings of :class:`~bartorch.optim.NIHT`, among them ``maxiter``
-        (30).
-
-    Returns
-    -------
-    torch.Tensor
-        Complex64 solution of ``A.ishape``.
-    """
-    return NIHT(regularizers, **settings)(y, A, x0)
 
 
 def cg(y: torch.Tensor, A, lambda_: float = 0.0, *, x0=None, **settings):

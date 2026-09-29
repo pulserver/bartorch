@@ -46,7 +46,7 @@ would otherwise have been linked against.
 | `src/csrc/substitute/finufft.c`, `nufft_finufft.c` | FINUFFT's and cuFINUFFT's plans through their C API, and BART's NUFFT operator built out of a pair of their plans -- and the normal, which stores one of those in BART's operator through `noncart/nufft_priv.h` rather than letting it grid one. |
 | `src/csrc/substitute/openmp.c` | `__kmpc_dispatch_deinit` for an OpenMP runtime that lacks it, on macOS and Windows. |
 | `src/csrc/substitute/psf.c` | The three `compute_psf*` entry points, so that the adjoint transform a point spread function is comes from the substitution. |
-| `src/bartorch/` | The package.  Public: the functions in `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py` and `_settings.py`, re-exported flat as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (adapters between neural networks and this package's images and iterations); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications, in five sections); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not); inside `linop/`, `form.py` (the encoding form and the plan it reports) and `plan.py` (matching a composition against that form). |
+| `src/bartorch/` | The package.  Public: the functions in `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py`, `kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported flat as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (adapters between neural networks and this package's images and iterations); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `correct.py`, corrections of data and images outside the reconstruction, and `motion.py`, rigid motion from navigators, implemented in the private `tools/_correct/` and `tools/_motion/`); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `form.py` (the encoding form and the plan it reports) and `plan.py` (matching a composition against that form). |
 | `scripts/gen_abi.py` | Generates `_abi.py` from `src/csrc/include/bartorch.h`. Run after changing the header; `tests/test_abi.py` fails when the checked-in file is not what it writes. |
 | `scripts/gen_catalogue.py` | Generates `_catalogue.py` from the BART sources: every command, its arguments, and every option with both spellings. Run after a submodule bump. |
 | `scripts/run_tests.sh` | Builds whatever changed on the C side, then runs the suite against `src/`, without installing. |
@@ -845,13 +845,13 @@ datasets, augmentation and patch sampling to `torchio`, and networks, losses
 and metrics to `monai`, `deepinv` and `torchmetrics`. None of them represents
 this package's data -- complex images carrying frames, contrasts or subspace
 coefficients in front of their spatial axes, reconstructed by an iteration --
-so `learning/` holds the conversions between the two and nothing else.
-`Denoiser` converts between a network taking real `(n, channels, *spatial)`
-planes of order unity and an image here: the spatial axes are retained, the
-axes in front of them are folded into the network's batch axis, the complex
-values are laid out as real planes, a plane is replicated where the network
-takes three channels, and each image is scaled to unit peak modulus around the
-call. `Unrolled` applies one of `optim`'s blocks repeatedly, and `as_real` and
+so `learning/` and `priors.ImplicitPrior` hold the conversions between the two
+and nothing else.  `ImplicitPrior(net, spatial=...)` converts between a network
+taking real `(n, channels, *spatial)` planes of order unity and an image here:
+the spatial axes are retained, the axes in front of them are folded into the
+network's batch axis, the complex values are laid out as real planes, a plane
+is replicated where the network takes three channels, and each image is scaled
+to unit peak modulus around the call. `Unrolled` applies one of `optim`'s blocks repeatedly, and `as_real` and
 `as_complex` convert to and from the leading channel axis a
 `torchio.ScalarImage` and a convolution both require.
 
@@ -889,12 +889,30 @@ an app answers and what each of their flags means to it.  Everything else runs
 as the command, in this process, through the same `bartorch_command` the tools
 use.
 
-The two answer the same bits, so which one ran is a question about speed:
-`tests/test_cli.py` holds eight command lines through the app route against the
-same eight through the command route with `numpy.array_equal`.  `cli.route` is
-what says which it was.  An argument the reader does not express sends the
-whole command line to BART rather than being ignored, because the command
-declared it.
+An app answers `pics`, `mobafit` and `moba`, and either route writes the
+files the command writes, in its layout and units.  `pics` is held to the
+bits: its app configures BART's own iteration over BART's own operators, and
+`tests/test_cli.py` holds six command lines through the app route against the
+same six through the command route with `numpy.array_equal`.  `mobafit` and
+`moba` are held to a tolerance, because their apps fit TorchSim's models in
+TorchSim's bounded parameterisation: the same minimum reached by a different
+path.  `cli/_apps.py` writes BART's closed forms in TorchSim's variables --
+`-T` `(M0, R2)` as a multi-echo decay, `-I` `(M0, R1, c)` and `-L`
+`(Mss, M0, R1s)` as an inversion recovery with its efficiency free -- and
+converts the named maps back into rates in 1/s from times in seconds, and
+`moba`'s amplitudes into the units of the data scaling the command applies.
+Measured on the test phantoms, `mobafit` agrees with the command to 1e-05 of
+each coefficient's peak and `moba -T -l2` to 5e-03 in R2, and both with the
+rates the data was made from.  `cli.route` is what says which route ran.
+
+What a route cannot express exactly goes to BART: an argument the reader does
+not express sends the whole command line there rather than being ignored,
+because the command declared it.  That includes `-i`, which counts
+Gauss-Newton steps over BART's own coefficients and would stop a bounded fit
+short; `moba`'s `-C`, which counts FISTA iterations rather than conjugate
+gradients; `moba`'s default `-l1`, a wavelet term on the maps the app does not
+carry; the gradient-echo, diffusion and simulation models; and anything off a
+grid.
 
 An input file that is not there is the one thing the command line names itself.
 A BART command that fails while loading its arguments leaves the library unable
@@ -945,8 +963,8 @@ x86 one does not.
 `apps.mobafit` is where that decision shows on the surface: it is `mobafit`'s
 method -- the Gauss-Newton loop over the same linearized least-squares problem
 -- over a model that is TorchSim's, so it answers in named maps in their own
-units rather than in a stack of BART's coefficients, and it is the one app not
-held to its command's bits.  Its default of twenty Gauss-Newton steps is what a
+units rather than in a stack of BART's coefficients, and it and `apps.moba`
+are the apps not held to their commands' bits.  Its default of twenty Gauss-Newton steps is what a
 bounded parameterisation needs: the command affords five because `--scale`
 brings its coefficients to order one, and five over a bounded variable answer
 430 ms for a decay of 60 and one of 110 alike.
@@ -956,8 +974,8 @@ steps: the proximal steps, one block each in `optim/blocks.py`, and the
 Gauss-Newton step, `IRGNMBlock` in `nlop/irgnm.py`, whose operators -- the
 model, its adjoint derivative and `norm_inv`'s inverse -- are BART's.  Each is
 held to the library's bits (`tests/test_optim_iterators.py`,
-`tests/test_nlop_irgnm.py`) and looped by its solver.  Conjugate gradients and
-NIHT go to `bartorch_solve`, which configures BART's iteration exactly as
+`tests/test_nlop_irgnm.py`) and looped by its solver.  Conjugate gradients go
+to `bartorch_solve`, which configures BART's iteration exactly as
 `pics` does. A term fills
 the table `opt_reg_configure` reads -- which kind, over which axes, with what
 weight -- from an object rather than from a `-R` string, and holds the
@@ -971,7 +989,7 @@ Three of BART's terms cannot be built alone: TGV and the two infimal
 convolutions extend the optimisation variable, and what they add is counted
 across the whole set (`ropts->svars`, and the assertion at the end of
 `opt_reg_configure`).  `bartorch_solve` configures the set itself when one is
-present, so `tools.pics` takes them.  `optim.ADMMBlock` and `optim.PRIDUBlock`
+present, so `pics` takes them.  `optim.ADMMBlock` and `optim.PRIDUBlock`
 ask `bartorch_prox_set_create` for the same set and walk the image followed by
 the unknowns, with the encoding chained onto an extract of its front as
 `pics.c` chains it.
@@ -1126,7 +1144,7 @@ index sets that are not axes (channels, parameter maps) are tuples too; no
 public argument takes a bitmask or a `-R` string. Hand-written wrappers
 convert their own; derived wrappers and what a curated one passes through by
 name follow `_call.TRANSLATED`, and `test_tools` fails on a dimension-like
-argument that is in neither. `pics`, `wshfl` and `moba` take
+argument that is in neither. The reference commands `pics`, `wshfl` and `moba` in `_reference.py` take
 `bartorch.priors` terms, serialized by `Regularizer._argument`. A flag's value can be an
 array rather than a number -- `pics(kspace, maps, t=traj)`, `-p` for a
 sampling pattern, `-B` for a basis -- and is registered and copied like any

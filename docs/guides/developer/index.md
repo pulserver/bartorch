@@ -8,8 +8,8 @@ library and the operator layer in more detail.
 | --- | --- |
 | {doc}`prerequisites` | Git, Python, compilers, CMake, OpenMP and CUDA for a source build |
 | {doc}`installation` | Editable installation, and building and testing without installing |
-| {doc}`layout` | What each directory of the repository holds |
-| {doc}`workflow` | Branches, generated files, the BART submodule and the checks to run |
+| {doc}`layout` | What each directory of the repository and each module of the package holds |
+| {doc}`workflow` | Branches, generated files, the BART and FINUFFT submodules and the checks to run |
 | {doc}`bart-fork` | The downstream BART fork: its branches, what belongs in it, and syncing with Codeberg |
 | {doc}`pre-commit` | Local hooks, and bypassing them |
 | {doc}`style` | Python and C conventions |

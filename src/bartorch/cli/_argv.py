@@ -20,7 +20,7 @@ class Unsupported(Exception):
 
     The command itself takes every argument it declares, so an argument the
     reader cannot turn into a Python value is a reason to run the command
-    rather than the app -- the two answer the same bits.
+    rather than the app.
     """
 
 
@@ -195,7 +195,7 @@ def regularizer(text: str, ndim: int):
     Unsupported
         A letter this package does not offer, or a field that will not parse.
     """
-    from bartorch import priors
+    from bartorch.priors import terms
 
     letter, _, fields = text.partition(":")
     if letter not in _TERMS:
@@ -206,7 +206,7 @@ def regularizer(text: str, ndim: int):
         raise Unsupported(f"-R {letter} takes {len(layout)} fields, got {len(parts)}")
 
     made = dict(zip(layout, parts))
-    term = getattr(priors, name)
+    term = getattr(terms, name)
     try:
         if layout == "xjw":
             return term(axes(int(made["x"]), ndim), float(made["w"]), axes(int(made["j"]), ndim))

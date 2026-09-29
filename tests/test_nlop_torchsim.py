@@ -13,6 +13,7 @@ import math
 import pytest
 import torch
 
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _call, linop, nlop, optim
 from bartorch.nlop.base import _chain
@@ -136,6 +137,16 @@ def test_the_derivative_agrees_with_a_finite_difference():
 
 def test_the_adjoint_is_the_adjoint_of_the_derivative():
     M = nlop.MultiEcho((5.0, 15.0, 35.0, 70.0), (4, 4))
+    M.forward(M.initial(T2=60.0))
+    u = _rand(*M.ishape).real.to(torch.complex64)
+    v = _rand(*M.oshape)
+    assert _inner(M._derivative(u), v) == pytest.approx(_inner(u, M._adjoint(v)), rel=1e-3)
+
+
+def test_a_model_without_an_amplitude_has_an_adjoint_over_the_reals():
+    # Its images are real, so the adjoint reads the real part of a complex
+    # cotangent: <J u, v> taken over the reals is <u, J^H v>.
+    M = nlop.MultiEcho((5.0, 15.0, 35.0, 70.0), (4, 4), amplitude=False)
     M.forward(M.initial(T2=60.0))
     u = _rand(*M.ishape).real.to(torch.complex64)
     v = _rand(*M.oshape)
@@ -268,7 +279,7 @@ def _mobafit(enc, values, shape, coefficients, **flags):
     n = len(values)
     images = values.reshape(n, 1, 1, 1, 1, 1).expand(n, 1, 1, 1, *shape).contiguous()
     grid = enc.reshape(n, 1, 1, 1, 1, 1)
-    return bt.mobafit(grid, images, **flags).reshape(coefficients, *shape)
+    return ref.mobafit(grid, images, **flags).reshape(coefficients, *shape)
 
 
 def _irgnm(M, values, shape, **start):

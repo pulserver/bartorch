@@ -17,6 +17,7 @@ from bartorch._catalogue import COMMANDS
 __all__ = [
     "CURATED_MODULES",
     "PRIVATE",
+    "REFERENCE_MODULE",
     "TOOLS_MODULES",
     "curated_names",
     "curated_wrappers",
@@ -28,9 +29,12 @@ TOOLS_MODULES = (
     "bartorch.tools.simulate",
     "bartorch.tools.sampling",
     "bartorch.tools.calib",
-    "bartorch.tools.recon",
     "bartorch.tools.process",
+    "bartorch.tools.lowrank",
 )
+
+#: The private reconstruction commands an assembly is tested against.
+REFERENCE_MODULE = "bartorch._reference"
 
 #: Every module holding hand-written wrappers.
 CURATED_MODULES = (
@@ -49,6 +53,11 @@ _NETWORK = "trains or applies BART's own networks, whose weights are files"
 _TORCH = "an array operation torch provides"
 _DEMO = "a demonstration or a diagnostic"
 _LATER = "not wrapped yet"
+_ASSEMBLED = "bartorch.apps assembles it; bartorch._reference runs the command it is tested against"
+_ENCODING = (
+    "an encoding from bartorch.linop under a solver from bartorch.optim; "
+    "bartorch._reference runs the command"
+)
 _SIMULATED = (
     "a signal simulation, which torchsim does differentiably and bartorch.nlop drives; "
     "a curve from a command is a number, not a model a fit can be built on"
@@ -56,6 +65,7 @@ _SIMULATED = (
 
 #: Commands without a public wrapper, and why.
 PRIVATE: dict[str, str] = {
+    "window": "bartorch.hann_window, fermi_window and apodize cover it",
     "bart": "the dispatcher that runs the other commands",
     "ismrmrd": "needs libismrmrd, which this build does not compile",
     **dict.fromkeys(
@@ -108,6 +118,14 @@ PRIVATE: dict[str, str] = {
     **dict.fromkeys(("bloch", "epg", "mobasig", "pulse", "seq", "sim", "signal"), _SIMULATED),
     **dict.fromkeys(("fftrot", "gmm", "bet", "extractdc"), _LATER),
     "ictv": "fails for every input in this BART (ictv.c:97 reshapes the wrong side)",
+    **dict.fromkeys(("pics", "moba", "mobafit"), _ASSEMBLED),
+    "itsense": "bartorch.apps.pics with l2; bartorch._reference runs the command",
+    "looklocker": (
+        "T1 from Look-Locker maps in closed form; bartorch.apps.moba and "
+        "bartorch.apps.mobafit with nlop.InversionRecovery fit T1 directly"
+    ),
+    **dict.fromkeys(("wave", "wshfl"), _ENCODING),
+    "estscaling": "bartorch.optim.data_scaling runs it",
     "version": "bartorch.bart_version() reports it",
     "bitmask": "converts bitmasks, which the Python API does not use",
     "crop": "bartorch.resize covers it",

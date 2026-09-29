@@ -10,6 +10,7 @@ import pytest
 import torch
 
 from bartorch import linop, optim, priors
+from bartorch.priors.terms import WaveletNIHT
 
 SHAPE = (1, 8, 8)
 
@@ -200,13 +201,3 @@ def test_every_solver_has_a_function():
     classes -= {"Tikhonov", "FixedPoint"}
     functions = {n for n in optim.__all__ if n.islower()} - {"data_scaling", "maxeigen"}
     assert {c.lower() for c in classes} == functions
-
-
-def test_niht_is_refused_the_way_its_class_is():
-    """BART's own iteration cannot run against the operator `lsqr2` hands it;
-    see `tests/test_solve.py`."""
-    A = linop.FFT((8, 8), axes=(-1, -2))
-    y = A(_rand(8, 8))
-    term = priors.WaveletNIHT((-1, -2), count=12)
-    with pytest.raises(NotImplementedError, match="applies the normal operator in place"):
-        optim.niht(y, A, term, maxiter=6)

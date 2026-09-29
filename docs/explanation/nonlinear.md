@@ -27,7 +27,8 @@ $$
 
 The operator is bilinear: linear in $x$ for fixed $S$, linear in $S$ for fixed
 $x$, and nonlinear in the pair.  This is **nonlinear inversion**, BART's
-`nlinv`.[^nlinv]
+`nlinv`,[^nlinv] which {func}`bartorch.tools.nlinv` runs; its sensitivities
+are the calibration for a subsequent linear reconstruction.
 
 **Model-based parameter estimation.**  A quantitative experiment acquires a
 series of contrasts whose dependence on tissue parameters $\theta$ is given by
@@ -39,7 +40,10 @@ y_{c,e} = P_e F \left( S_c \cdot M_e(\theta) \right),
 $$
 
 with $e$ the contrast index.  The unknowns are the parameter maps.  This is
-**model-based reconstruction**, BART's `moba`.[^block][^sumpf][^wang]
+**model-based reconstruction**, BART's `moba`,[^block][^sumpf][^wang] which
+{func}`bartorch.apps.moba` performs over a TorchSim signal model;
+{func}`bartorch.apps.mobafit` fits the same models voxel by voxel to
+reconstructed images.
 
 A Gauss-Newton solver requires the value $F(x)$, the derivative $DF_x$ at a
 point as a linear operator, and its adjoint $DF_x^H$.  A
@@ -121,8 +125,8 @@ partial volume of two tissues or an imperfect refocusing, becomes a bias in
 the maps.  A subspace reconstruction restricts the signal to a basis derived
 from a dictionary of simulated signals, keeps a linear forward model, and
 defers the nonlinear estimation of the parameters to a separate step.
-{doc}`../auto_examples/03-applications/02-subspace-t1-mapping` and
-{doc}`../auto_examples/04-model-based/02-quantitative-models` apply the
+{doc}`../auto_examples/05-model-based/01-subspace-t1-mapping` and
+{doc}`../auto_examples/05-model-based/02-quantitative-models` apply the
 second and third routes.
 
 ## Signal models and their derivatives

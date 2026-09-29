@@ -9,7 +9,7 @@
 [![Downloads](https://img.shields.io/pypi/dm/bartorch.svg)](https://pypistats.org/packages/bartorch)
 [![Python](https://img.shields.io/pypi/pyversions/bartorch.svg)](https://pypi.org/project/bartorch/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-%E2%89%A5%202.2-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
-[![Wheels](https://img.shields.io/badge/wheels-Linux%20x86--64%20%7C%20macOS%20arm64-2f6f9f)](https://github.com/pulserver/bartorch/blob/main/.github/workflows/publish.yml)
+[![Wheels](https://img.shields.io/badge/wheels-Linux%20x86--64%20%7C%20macOS%20arm64%20%7C%20Windows%20x86--64-2f6f9f)](https://github.com/pulserver/bartorch/blob/main/.github/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2f6f9f.svg)](https://github.com/pulserver/bartorch/blob/main/LICENSE)
 [![Source](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/pulserver/bartorch)
 [![Stars](https://img.shields.io/github/stars/pulserver/bartorch?style=flat&logo=github&color=2f6f9f)](https://github.com/pulserver/bartorch/stargazers)
@@ -24,9 +24,10 @@
 
 bartorch embeds BART, the Berkeley Advanced Reconstruction Toolbox, in the
 Python process and calls it on PyTorch tensors in host or CUDA device memory.
-BART's commands are Python functions; its linear and nonlinear operators are
-composable Python objects; its iterative algorithms are solver classes and
-iteration blocks.  Applying an operator or a solver to a tensor that
+BART's linear and nonlinear operators are composable Python objects, its
+iterative algorithms are solver classes and iteration blocks, its
+reconstructions are pipelines assembled from both, and its remaining commands
+are Python functions.  Applying an operator or a solver to a tensor that
 requires a gradient records it for PyTorch autograd.  The arithmetic is BART's
 except where bartorch substitutes a component: FINUFFT and cuFINUFFT compute
 every non-uniform Fourier transform, the FFT and BLAS/LAPACK routines come from
@@ -35,8 +36,13 @@ bartorch's own executor built from BART's operators.
 
 ## Features
 
-- BART commands (`pics`, `ecalib`, `nlinv`, `moba`, ...) as functions of
-  tensors, and the `bartorch` command line, which accepts the arguments of `bart`.
+- BART's reconstructions (`pics`, `moba`, `mobafit`, POCSENSE) as pipelines of
+  operators and solvers, and its calibration, sampling and simulation commands
+  (`ecalib`, `nlinv`, `traj`, `phantom`, ...) as functions of tensors.
+- Corrections outside the reconstruction (EPI ghosting, bias field, gradient
+  nonlinearity, off-resonance and susceptibility distortion) and rigid motion
+  estimation from navigators.
+- The `bartorch` command line, which accepts the arguments of `bart`.
 - MRI encoding operators — Cartesian, non-Cartesian and wave-encoded SENSE,
   off-resonance correction — composed with `@` and `+` into single BART operators.
 - BART's regularization terms and its CG, IST, FISTA, ADMM and primal-dual
@@ -60,11 +66,11 @@ pip install bartorch
 
 ```python
 import bartorch.tools as bt
-from bartorch import priors
+from bartorch import apps, priors
 
 kspace = bt.phantom(128, coils=8, kspace=True)  # (coils, z, y, x)
 maps = bt.ecalib(kspace, maps=1)
-image = bt.pics(kspace, maps, regularizers=priors.Wavelet((-1, -2), 0.005), solver="fista")
+image = apps.pics(kspace, maps, regularizers=priors.Wavelet((-1, -2), 0.005), solver="fista")
 ```
 
 The same reconstruction can be assembled from an encoding operator and a
@@ -92,8 +98,10 @@ gives the references and what else a reproducible report records.
 
 ## License
 
-bartorch is MIT-licensed.  The embedded BART (BSD-3-Clause) and the vendored
-pocketfft (BSD-3-Clause) and BlocksRuntime (MIT or NCSA) keep their own licenses; see
+bartorch is MIT-licensed.  The embedded BART (BSD-3-Clause) and FINUFFT
+(Apache-2.0), the libraries FINUFFT's build compiles in with it, and the
+vendored pocketfft (BSD-3-Clause) and BlocksRuntime (MIT or NCSA) keep their
+own licenses; see
 [License and third-party notices](https://pulserver.github.io/bartorch/latest/misc/license.html).
 bartorch is an independent project, not affiliated with or endorsed by the BART
 developers, the PyTorch Foundation or The Linux Foundation.  The logo combines

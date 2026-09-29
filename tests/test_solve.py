@@ -14,9 +14,12 @@ import pytest
 import torch
 
 import bartorch
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _dispatch, linop, optim, priors
 from bartorch.linop import basic
+from bartorch.optim.linear import NIHT
+from bartorch.priors.terms import ImageNIHT, WaveletNIHT
 
 
 def _rand(*shape):
@@ -254,7 +257,7 @@ def test_a_term_that_adds_unknowns_goes_to_the_iterations_given_a_transform(term
 
 
 @pytest.mark.parametrize("term", _extending(), ids=repr)
-@pytest.mark.parametrize("solver", [optim.IST, optim.FISTA, optim.NIHT])
+@pytest.mark.parametrize("solver", [optim.IST, optim.FISTA, NIHT])
 def test_no_other_iteration_takes_a_term_that_adds_unknowns(term, solver):
     """``italgo_choose`` sends these to the alternating directions for the same
     reason: nothing else is given the transform that reaches the extra
@@ -303,7 +306,7 @@ def test_the_pairs_pics_takes_once_reach_the_solve(term, other, flag):
     Each term is made for the layout it is handed: the coefficient axis is
     ``_BART_COEFFS`` for the tool and ``_COEFFS`` for the operator."""
     kspace, maps, basis, A, y = _subspace_problem()
-    tool = bt.pics(
+    tool = ref.pics(
         kspace, maps, basis=basis, maxiter=20, regularizers=term(_BART_COEFFS), solver="admm"
     )
     assembled = optim.ADMM(term(_COEFFS), maxiter=20)(y, A)
@@ -353,7 +356,7 @@ def test_a_term_that_adds_unknowns_refuses_a_tracked_right_hand_side():
     term = priors.TotalGeneralizedVariation((-1, -2), 0.01)
     with pytest.raises(ValueError, match="no backward pass"):
         optim.ADMM(term, maxiter=4)(y, A)
-    made = optim.ADMM(priors.frozen(term), maxiter=4)(y, A)
+    made = optim.ADMM(term.detach(), maxiter=4)(y, A)
     made.abs().square().sum().backward()
     assert torch.isfinite(y.grad).all() and 0 < y.grad.abs().sum()
 
@@ -428,7 +431,7 @@ def test_a_term_that_adds_unknowns_takes_no_preconditioner():
         (priors.L1(0.02, joint_axes=-3), 3, "I:4:0.02"),
         (priors.L2(0.5), 2, "Q:0.5"),
         (priors.NonNegative(), 2, "S"),
-        (priors.WaveletNIHT(axes=(-1, -2), count=10), 2, "H:3:0:10"),
+        (WaveletNIHT(axes=(-1, -2), count=10), 2, "H:3:0:10"),
         (priors.TotalGeneralizedVariation((-1, -2), 0.01), 2, "G:3:0:0.01"),
     ],
     ids=lambda v: v if isinstance(v, str) else "",
@@ -462,19 +465,19 @@ def test_niht_cannot_run_because_bart_asserts_against_its_own_iteration():
     solve here does not, so the assertion would end the process."""
     A = _unitary()
     with pytest.raises(NotImplementedError, match="iter/niht.c"):
-        optim.NIHT(priors.ImageNIHT((-1, -2), count=8), maxiter=4)(_rand(8, 8), A)
+        NIHT(ImageNIHT((-1, -2), count=8), maxiter=4)(_rand(8, 8), A)
 
 
 def test_the_tool_reaches_the_same_assertion_and_survives_it():
     kspace = bt.phantom(16, coils=2, kspace=True)
     maps = bt.ecalib(kspace, maps=1)
     with pytest.raises(bartorch.BartError, match="lsqr.c"):
-        bt.pics(kspace, maps, regularizers=priors.WaveletNIHT((-1, -2), count=20), maxiter=5)
+        ref.pics(kspace, maps, regularizers=WaveletNIHT((-1, -2), count=20), maxiter=5)
 
 
 def test_niht_takes_only_hard_thresholding_terms():
     with pytest.raises(TypeError, match="NIHT"):
-        optim.NIHT(priors.Wavelet(axes=(-1, -2), weight=0.01))
+        NIHT(priors.Wavelet(axes=(-1, -2), weight=0.01))
 
 
 def test_something_that_is_not_a_term_is_refused():
@@ -658,7 +661,7 @@ def test_an_assembled_pics_is_the_tool_to_the_last_bit(theirs, ours, _whole_coil
     """Not close: the same bits.  A difference in the last place would mean
     some step was done twice, once by BART and once by this package."""
     kspace, maps, A, y, scale = _pics_problem()
-    tool = bt.pics(kspace, maps, maxiter=20, **theirs).squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, **theirs).squeeze()
     assembled = ours(scale)(y, A).squeeze()
     assert torch.equal(assembled, tool), (
         f"maximum difference {float((assembled - tool).abs().max()):.3e}"
@@ -729,7 +732,7 @@ def test_an_extending_term_over_a_subspace_is_the_tool_to_the_last_bit(term):
     is there as the baseline: it adds nothing, and if it drifted the assembly
     would be what drifted, not the enlarged variable."""
     kspace, maps, basis, A, y = _subspace_problem()
-    tool = bt.pics(
+    tool = ref.pics(
         kspace, maps, basis=basis, maxiter=20, regularizers=term(_BART_COEFFS), solver="admm"
     )
     assembled = optim.ADMM(term(_COEFFS), maxiter=20)(y, A)

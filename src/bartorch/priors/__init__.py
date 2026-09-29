@@ -9,14 +9,13 @@ transform in front of it, from that.
 from __future__ import annotations
 
 from bartorch.priors import denoise
-from bartorch.priors.base import Regularizer, frozen
+from bartorch.priors.base import Regularizer
 from bartorch.priors.denoise import *  # noqa: F401,F403
 from bartorch.priors.implicit import ImplicitPrior
 from bartorch.priors.terms import (
     L1,
     L2,
     FourierL1,
-    ImageNIHT,
     ImaginaryL1,
     ImaginaryL2,
     InfimalConvolutionTGV,
@@ -27,12 +26,10 @@ from bartorch.priors.terms import (
     TotalGeneralizedVariation,
     TotalVariation,
     Wavelet,
-    WaveletNIHT,
 )
 
 __all__ = [
     "FourierL1",
-    "ImageNIHT",
     "ImplicitPrior",
     "ImaginaryL1",
     "ImaginaryL2",
@@ -47,7 +44,5 @@ __all__ = [
     "TotalGeneralizedVariation",
     "TotalVariation",
     "Wavelet",
-    "WaveletNIHT",
-    "frozen",
     *denoise.__all__,
 ]

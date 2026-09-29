@@ -53,6 +53,14 @@ def _index(i: int, n: int, what: str) -> int:
     return at
 
 
+def _unpadded(shape: Shape) -> Shape:
+    """``shape`` without its leading singletons, which change no strides."""
+    shape = tuple(shape)
+    while shape and 1 == shape[0]:
+        shape = shape[1:]
+    return shape
+
+
 def _rank(op: NonlinearOperator, at: int, output: bool) -> int:
     """The rank BART holds one of ``op``'s arguments at.
 
@@ -657,7 +665,7 @@ class _Chain2(_Binary):
     def __init__(self, a, b, output: int, input: int):  # noqa: A002
         self.output = _index(output, len(a.oshapes), "output")
         self.input = _index(input, len(b.ishapes), "input")
-        if a.oshapes[self.output] != b.ishapes[self.input]:
+        if _unpadded(a.oshapes[self.output]) != _unpadded(b.ishapes[self.input]):
             raise ValueError(
                 f"output {self.output} is {a.oshapes[self.output]} and input {self.input} "
                 f"is {b.ishapes[self.input]}; a chain needs them to agree"

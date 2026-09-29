@@ -3,6 +3,7 @@ against an explicit discrete Fourier sum and against BART's own gridder.
 """
 
 import contextlib
+import gc
 import logging
 import os
 
@@ -11,6 +12,7 @@ import pytest
 import torch
 
 import bartorch
+import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _dispatch, _finufft, linop, optim
 from bartorch._dispatch import dispatch
@@ -266,12 +268,12 @@ def test_pics_reconstructs_the_same_image_either_way(in_tools):
     maps = torch.ones(1, n, n, dtype=torch.complex64)
 
     _finufft.reset_counters()
-    fast = bt.pics(kspace, maps, t=traj)
+    fast = ref.pics(kspace, maps, t=traj)
     _all_finufft()
 
     with _finufft.barts_own_gridder():
         _finufft.reset_counters()
-        reference = bt.pics(kspace, maps, t=traj)
+        reference = ref.pics(kspace, maps, t=traj)
         assert _finufft.operators_built() == (0, 1)
 
     assert (fast - reference).norm().item() / reference.norm().item() < 0.05
@@ -321,11 +323,11 @@ def test_the_two_normals_solve_the_same_problem(in_tools):
     maps = torch.ones(1, n, n, dtype=torch.complex64)
 
     _finufft.reset_counters()
-    fast = bt.pics(kspace, maps, t=traj)
+    fast = ref.pics(kspace, maps, t=traj)
     assert _finufft.normals_built() == (1, 0)
 
     _finufft.reset_counters()
-    pair = bt.pics(kspace, maps, t=traj, no_toeplitz=True)
+    pair = ref.pics(kspace, maps, t=traj, no_toeplitz=True)
     assert _finufft.normals_built() == (0, 1)
 
     assert (fast - pair).norm().item() / pair.norm().item() < 0.05
@@ -984,7 +986,7 @@ def test_nothing_builds_barts_own_nufft(in_tools):
     for name, run in (
         ("nufft", lambda: bartorch.nufft(img, traj)),
         ("nufft -i", lambda: dispatch("nufft", [traj, ksp], None, i=True, d=(n, n, 1))),
-        ("pics", lambda: bt.pics(ksp, maps, t=traj)),
+        ("pics", lambda: ref.pics(ksp, maps, t=traj)),
         ("nlinv", lambda: bt.nlinv(ksp, t=traj, maxiter=3)),
         ("operator", lambda: linop.NUFFT(traj, (1, n, n), toeplitz=True)),
     ):
@@ -1013,11 +1015,11 @@ def test_every_way_bart_stores_a_point_spread_function_is_served(in_tools, mode)
     ksp = bartorch.nufft(img, traj)
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
-    reference = bt.pics(ksp, maps, t=traj)
+    reference = ref.pics(ksp, maps, t=traj)
 
     _finufft.reset_counters()
     kwargs = {} if mode is None else {"nufft_conf": mode}
-    out = bt.pics(ksp, maps, t=traj, **kwargs)
+    out = ref.pics(ksp, maps, t=traj, **kwargs)
 
     assert _finufft.operators_built()[1] == 0, _finufft.decline_reason()
 
@@ -1053,10 +1055,10 @@ def test_an_upper_triangular_subspace_function_is_served(in_tools):
     k = torch.randn(frames, 1, coils, spokes, n, 1, dtype=torch.complex64)
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
-    whole = g.pics(k, maps, t=traj, B=basis, i=5)
+    whole = ref.pics(k, maps, t=traj, B=basis, i=5)
 
     _finufft.reset_counters()
-    half = g.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="upper-triag-psf")
+    half = ref.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="upper-triag-psf")
 
     assert _finufft.operators_built()[1] == 0, _finufft.decline_reason()
     torch.testing.assert_close(half, whole, rtol=1e-4, atol=1e-4)
@@ -1079,8 +1081,8 @@ def test_a_compressed_function_keeps_what_this_transform_put_there(in_tools):
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
     def cost():
-        plain = bt.pics(ksp, maps, t=traj)
-        compressed = bt.pics(ksp, maps, t=traj, nufft_conf="compress-psf")
+        plain = ref.pics(ksp, maps, t=traj)
+        compressed = ref.pics(ksp, maps, t=traj, nufft_conf="compress-psf")
         return float((compressed - plain).abs().max() / plain.abs().max())
 
     ours = cost()
@@ -1129,7 +1131,7 @@ def _percent_kept(caplog, ksp, maps, traj):
     with caplog.at_level(logging.DEBUG, logger="bartorch.bart"):
         bartorch.set_debug_level(4)
         try:
-            bt.pics(ksp, maps, t=traj, nufft_conf="compress-psf")
+            ref.pics(ksp, maps, t=traj, nufft_conf="compress-psf")
         finally:
             bartorch.set_debug_level(1)
     percent = [
@@ -1225,6 +1227,11 @@ def test_a_plan_lives_exactly_as_long_as_what_asked_for_it(in_tools):
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
     x = torch.randn(1, n, n, dtype=torch.complex64)
 
+    # A model with a derivative bundle is a reference cycle, and a finalizer
+    # releases what its handle kept only on the collection after its own, so
+    # what an earlier test left is collected until nothing more is.
+    while gc.collect():
+        pass
     assert _finufft.live_plans() == 0
 
     held = linop.NUFFT(traj, (1, n, n), toeplitz=False)
@@ -1243,8 +1250,8 @@ def test_a_plan_lives_exactly_as_long_as_what_asked_for_it(in_tools):
         lambda: bartorch.nufft(image, traj),
         lambda: bartorch.nufft_adjoint(ksp, traj),
         lambda: bt.psf(traj),
-        lambda: bt.pics(ksp, maps, t=traj),
-        lambda: bt.pics(ksp, maps, t=traj, no_toeplitz=True),
+        lambda: ref.pics(ksp, maps, t=traj),
+        lambda: ref.pics(ksp, maps, t=traj, no_toeplitz=True),
         lambda: bt.nlinv(ksp, t=traj, maxiter=3),
     ):
         run()
@@ -1268,7 +1275,7 @@ def test_a_device_plan_is_given_back_too(in_tools):
     linop.NUFFT(traj, (1, n, n), toeplitz=True).normal(x)
     assert _finufft.live_plans() == 0
 
-    bt.pics(ksp, maps, t=traj)
+    ref.pics(ksp, maps, t=traj)
     assert _finufft.live_plans() == 0
 
 
@@ -1326,8 +1333,10 @@ def test_a_function_with_no_imaginary_part_is_stored_without_one(in_tools):
 
     import bartorch.tools as g
 
-    automatic = g.pics(kspace, maps.reshape(1, coils, 1, n, n), t=traj, i=5)
-    asked_for = g.pics(kspace, maps.reshape(1, coils, 1, n, n), t=traj, i=5, nufft_conf="real-psf")
+    automatic = ref.pics(kspace, maps.reshape(1, coils, 1, n, n), t=traj, i=5)
+    asked_for = ref.pics(
+        kspace, maps.reshape(1, coils, 1, n, n), t=traj, i=5, nufft_conf="real-psf"
+    )
 
     # Asking for it sets the flag before the function is built and this
     # converts one that was built complex, so the two round differently; what
@@ -1360,8 +1369,8 @@ def test_a_subspace_function_over_symmetric_sampling_is_real_too(in_tools, basis
     k = torch.randn(frames, 1, coils, spokes, n, 1, dtype=torch.complex64)
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
-    automatic = g.pics(k, maps, t=traj, B=basis, i=5)
-    asked_for = g.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="real-psf")
+    automatic = ref.pics(k, maps, t=traj, B=basis, i=5)
+    asked_for = ref.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="real-psf")
 
     scale = float(asked_for.abs().max())
     assert float((automatic - asked_for).abs().max()) / scale < 1e-4
@@ -1386,8 +1395,8 @@ def test_sampling_that_is_not_symmetric_is_still_real(in_tools):
     k = torch.randn(frames, 1, coils, spokes, n, 1, dtype=torch.complex64)
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
-    automatic = g.pics(k, maps, t=traj, B=basis, i=5)
-    asked_for = g.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="real-psf")
+    automatic = ref.pics(k, maps, t=traj, B=basis, i=5)
+    asked_for = ref.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="real-psf")
 
     scale = float(asked_for.abs().max())
     assert float((automatic - asked_for).abs().max()) / scale < 1e-4
@@ -1413,8 +1422,8 @@ def test_a_basis_that_is_really_complex_keeps_the_function_complex(in_tools):
     k = torch.randn(frames, 1, coils, spokes, n, 1, dtype=torch.complex64)
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
-    kept = g.pics(k, maps, t=traj, B=basis, i=5)
-    thrown = g.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="real-psf")
+    kept = ref.pics(k, maps, t=traj, B=basis, i=5)
+    thrown = ref.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="real-psf")
 
     scale = float(kept.abs().max())
     assert float((kept - thrown).abs().max()) / scale > 1e-5, (
@@ -1447,7 +1456,7 @@ def test_a_basis_real_to_single_precision_keeps_the_function_real(in_tools):
         basis = torch.zeros(coeffs, frames, 1, 1, 1, 1, 1, dtype=torch.complex64)
         basis[..., 0, 0, 0, 0, 0] = values + 1j * imaginary
         before = _finufft.functions_real()
-        g.pics(k, maps, t=traj, B=basis, i=1)
+        ref.pics(k, maps, t=traj, B=basis, i=1)
         return _finufft.functions_real() > before
 
     assert stored_real(1e-11), "an imaginary part at single precision leaves the function real"
@@ -1469,8 +1478,8 @@ def test_a_subspace_function_is_stored_as_its_upper_triangle(in_tools):
     k = torch.randn(frames, 1, coils, spokes, n, 1, dtype=torch.complex64)
     maps = torch.ones(1, coils, 1, n, n, dtype=torch.complex64) / coils**0.5
 
-    automatic = g.pics(k, maps, t=traj, B=basis, i=5)
-    asked_for = g.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="upper-triag-psf")
+    automatic = ref.pics(k, maps, t=traj, B=basis, i=5)
+    asked_for = ref.pics(k, maps, t=traj, B=basis, i=5, nufft_conf="upper-triag-psf")
 
     torch.testing.assert_close(automatic, asked_for, rtol=1e-4, atol=1e-6)
 
@@ -1512,10 +1521,10 @@ def test_the_function_can_be_kept_off_the_card_and_brought_over_in_sets(in_tools
     was = lib.bartorch_nufft_stream_psf()
     try:
         lib.bartorch_nufft_set_stream_psf(0)
-        reference = g.pics(kspace, bank, t=traj, i=5, nufft_conf="decomposed-psf")
+        reference = ref.pics(kspace, bank, t=traj, i=5, nufft_conf="decomposed-psf")
 
         lib.bartorch_nufft_set_stream_psf(1)
-        streamed = g.pics(kspace, bank, t=traj, i=5, nufft_conf="decomposed-psf")
+        streamed = ref.pics(kspace, bank, t=traj, i=5, nufft_conf="decomposed-psf")
     finally:
         lib.bartorch_nufft_set_stream_psf(was)
 
@@ -1598,11 +1607,11 @@ def test_a_set_crossing_while_another_is_convolved_answers_the_same(in_tools):
 
     assert not _finufft.overlapping_psf(), "it is asked for, not assumed"
 
-    one_slot = g.pics(k, maps, t=traj, B=basis, i=5)
+    one_slot = ref.pics(k, maps, t=traj, B=basis, i=5)
 
     try:
         _finufft.overlap_psf(True)
-        overlapped = g.pics(k, maps, t=traj, B=basis, i=5)
+        overlapped = ref.pics(k, maps, t=traj, B=basis, i=5)
     finally:
         _finufft.overlap_psf(False)
 
@@ -1645,11 +1654,11 @@ def test_a_sensitivity_folded_into_the_transform_answers_the_same(in_tools):
     try:
         _dispatch.set_fold_maps(False)
         before = lib.bartorch_sense_counter(2)
-        beside = g.pics(k, maps, t=traj, B=basis, i=5)
+        beside = ref.pics(k, maps, t=traj, B=basis, i=5)
         assert lib.bartorch_sense_counter(2) == before
 
         _dispatch.set_fold_maps(True)
-        folded = g.pics(k, maps, t=traj, B=basis, i=5)
+        folded = ref.pics(k, maps, t=traj, B=basis, i=5)
         assert lib.bartorch_sense_counter(2) > before, "the normals were folded"
     finally:
         _dispatch.set_fold_maps(True)

@@ -1,21 +1,14 @@
 # Learning
 
-`bartorch.learning` converts between neural networks and the complex images
-and iterations of this package: an adapter that applies a real-valued image
-network to a complex image, a module that unrolls an iteration block into a
-network, and the real/complex channel conversions.  It imports no training
-library.  {doc}`../explanation/differentiation` describes how gradients pass
+`bartorch.learning` converts between neural networks and the iterations of
+this package: a module that unrolls an iteration block into a network, and the
+real/complex channel conversions.  A network used as a regularizer is a
+{obj}`~bartorch.priors.ImplicitPrior`.  It imports no training library.  {doc}`../explanation/differentiation` describes how gradients pass
 through an unrolled iteration and the memory each backward strategy uses.
 
 ```{eval-rst}
 .. currentmodule:: bartorch.learning
 ```
-
-## Networks as regularizers
-
-| Object | Description |
-| --- | --- |
-| {obj}`~bartorch.learning.Denoiser` | Adapter applying a network on real `(n, channels, *spatial)` planes to a complex image; accepted by {obj}`~bartorch.priors.ImplicitPrior` |
 
 ## Iterations as networks
 
@@ -36,5 +29,5 @@ through an unrolled iteration and the memory each backward strategy uses.
 | {obj}`~bartorch.learning.as_real` | Real and imaginary parts on a new leading axis |
 | {obj}`~bartorch.learning.as_complex` | Inverse of {obj}`~bartorch.learning.as_real` |
 
-{doc}`../auto_examples/05-deep-learning/01-modl-with-admm` trains an unrolled
+{doc}`../auto_examples/06-learning/02-modl-with-admm` trains an unrolled
 network built from these objects.

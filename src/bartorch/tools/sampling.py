@@ -75,6 +75,7 @@ _DERIVED = (
     "estdelay",
     "estdims",
     "grid",
+    "grog",
     "pattern",
     "poisson",
     "psf",

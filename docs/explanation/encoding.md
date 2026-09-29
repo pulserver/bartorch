@@ -50,8 +50,10 @@ regularized estimate is needed ({doc}`inverse-problems`).
 
 The sensitivities are smooth functions of position, estimated from the data:
 {func}`~bartorch.tools.ecalib` by ESPIRiT from a fully sampled region of the
-k-space centre,[^espirit] {func}`~bartorch.tools.ncalib` from non-Cartesian
-samples, and {doc}`nonlinear` treats their estimation jointly with the image.
+k-space centre,[^espirit] {func}`~bartorch.tools.nlinv` by nonlinear inversion
+jointly with the image, on a Cartesian grid or along a trajectory, and
+{func}`~bartorch.tools.ncalib` from non-Cartesian samples; {doc}`nonlinear`
+describes the joint estimation.
 
 ## The encoding form
 
@@ -116,6 +118,8 @@ built:
 | `coil_batch`, `streamed` | Coils per slab, and what is processed a slab at a time |
 | `executor` | `"slab"` where the executor took the form, `"chain"` where BART's chain of operators runs instead |
 | `fused` | `True` when the executor took the form and no sum of terms was left as a chain |
+| `cartesian` | Trajectory axes found on the image grid and transformed by an FFT, the NUFFT then running over the others: `("z",)` for a stack of 2D trajectories |
+| `items` | The number of items along encoding axes the image varies along, each with its own transform and normal kernel (below) |
 
 ## The normal operator
 

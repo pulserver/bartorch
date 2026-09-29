@@ -9,6 +9,7 @@ import torch
 import bartorch
 from bartorch import linop, optim
 from bartorch.linop import basic
+from bartorch.optim.linear import NIHT
 from bartorch.priors import Regularizer
 from bartorch.tools import sampling
 
@@ -31,7 +32,7 @@ _SOLVERS = {
     "fista": optim.FISTA,
     "admm": optim.ADMM,
     "pridu": optim.PRIDU,
-    "niht": optim.NIHT,
+    "niht": NIHT,
 }
 
 
@@ -98,7 +99,7 @@ def pics(
 ) -> torch.Tensor:
     """Parallel-imaging compressed-sensing reconstruction.
 
-    The pipeline :func:`bartorch.tools.pics` runs, assembled here: the
+    The pipeline BART's ``pics`` command runs, assembled here: the
     sampling pattern applied to the k-space, the modulation into the
     convention BART iterates in, the scaling estimated from what is left, and
     then an encoding from :mod:`bartorch.linop` under an iteration from
@@ -115,7 +116,7 @@ def pics(
         :mod:`bartorch.priors` terms.  Their axes index the image's shape.
     l2 : float, default=None
         Plain Tikhonov weight.
-    solver : {'cg', 'ist', 'fista', 'admm', 'pridu', 'niht'}, default=None
+    solver : {'cg', 'ist', 'fista', 'admm', 'pridu'}, default=None
         ``None`` chooses from the terms, as the application does.  IST and
         FISTA apply a term's proximal operator to the image, so a first term
         over a transform -- :class:`~bartorch.priors.FourierL1`,

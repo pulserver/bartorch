@@ -2,7 +2,7 @@
 
 Total generalized variation and the two infimal convolutions extend the
 optimization variable, which BART counts across the whole set of terms, so
-they cannot be built one at a time.  :func:`bartorch.tools.pics` takes them,
+they cannot be built one at a time.  :func:`bartorch.apps.pics` takes them,
 and so do :class:`bartorch.optim.ADMM` and :class:`bartorch.optim.PRIDU`,
 which are the iterations BART gives a term's transform to; the solve is then
 the library's own loop over the enlarged variable, so it does not unroll.
@@ -292,7 +292,7 @@ class TotalGeneralizedVariation(_Weighted):
     with :math:`\mathcal{E}` the symmetrized gradient and ``alpha`` giving
     :math:`(\alpha_1, \alpha_0)` (BART's ``tgv_reg``).
 
-    Only :func:`bartorch.tools.pics`, :class:`bartorch.optim.ADMM` and
+    Only :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
     :class:`bartorch.optim.PRIDU` accept this term; the auxiliary variables
     extend the optimization variable and BART counts that extension across the
     whole set of terms, so the term cannot be built in isolation.
@@ -331,7 +331,7 @@ class InfimalConvolutionTV(_Weighted):
 
     with ``gamma`` giving :math:`(\gamma_1, \gamma_2)` (BART's ``ictv_reg``).
 
-    Only :func:`bartorch.tools.pics`, :class:`bartorch.optim.ADMM` and
+    Only :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
     :class:`bartorch.optim.PRIDU` accept this term; the auxiliary variables
     extend the optimization variable and BART counts that extension across the
     whole set of terms, so the term cannot be built in isolation.
@@ -384,7 +384,7 @@ class InfimalConvolutionTGV(_Weighted):
     with ``alpha`` giving :math:`(\alpha_1, \alpha_0)` and ``gamma``
     :math:`(\gamma_1, \gamma_2)` (BART's ``ictgv_reg``).
 
-    Only :func:`bartorch.tools.pics`, :class:`bartorch.optim.ADMM` and
+    Only :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
     :class:`bartorch.optim.PRIDU` accept this term; the auxiliary variables
     extend the optimization variable and BART counts that extension across the
     whole set of terms, so the term cannot be built in isolation.
