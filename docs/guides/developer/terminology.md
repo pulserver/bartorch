@@ -56,8 +56,9 @@ derivations are in {doc}`../../explanation/index`; this page fixes the terms.
 | Term | Meaning |
 | --- | --- |
 | BART command, BART tool | A program of BART's command line, such as `pics`. |
-| `bartorch.tools` function | A BART command called in-process on tensors. |
+| `bartorch.tools` function | A BART command called in-process on tensors, or a correction or motion-estimation function with no BART command behind it. |
 | App | A {mod}`bartorch.apps` pipeline re-expressing a BART command with operators and solvers. |
+| Reference command | A BART reconstruction command answered publicly by an app, kept private in `bartorch._reference` so that the test suite can hold the app to it. |
 | CLI | The `bartorch` console command, which accepts `bart` command lines and runs an app or the command. |
 | Substitution | A component compiled in BART's place: the FINUFFT and cuFINUFFT NUFFT, the point spread function, the FFT and BLAS/LAPACK routing. |
 | Backend | The library that performs a computation for BART: FINUFFT, cuFINUFFT, MKL, the BLAS/LAPACK PyTorch links, SciPy's, cuFFT, cuBLAS. |

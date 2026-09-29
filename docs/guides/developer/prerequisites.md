@@ -10,8 +10,10 @@
 | CUDA (optional) | A CUDA toolkit with `nvcc` for `-DBARTORCH_CUDA=ON`, 12.1 or later for compute capability 9.0; a CUDA build of PyTorch does not include a compiler |
 
 FINUFFT and cuFINUFFT are compiled into the library from `external/finufft`;
-no FINUFFT package is installed or used.  `pip install mkl deepinv` enables
-the tests that need MKL and the DeepInverse adapter.
+no FINUFFT package is installed or used.  The `dev` extra installs SimpleITK
+for the correction and motion tests; `pip install mkl deepinv` enables the
+tests that need MKL and the DeepInverse adapter, and `pip install PyHySCO`
+the susceptibility-correction tests.
 
 On Windows the compiler is clang from MSYS2's CLANG64 environment, with the
 packages `mingw-w64-clang-x86_64-{clang,cmake,ninja,llvm-openmp,llvm-tools}`,
