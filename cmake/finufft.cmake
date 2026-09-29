@@ -237,6 +237,11 @@ foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD)
     endif()
     if(FINUFFT_USE_OPENMP)
         target_link_libraries(${_module} PRIVATE OpenMP::OpenMP_CXX)
+        # The loops FINUFFT schedules dynamically end in __kmpc_dispatch_deinit,
+        # which torch's runtime may lack; the library answers it the same way.
+        if(WIN32 OR APPLE)
+            target_sources(${_module} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/csrc/substitute/openmp.c")
+        endif()
     endif()
     if(NOT WIN32)
         target_link_libraries(${_module} PRIVATE m)
