@@ -75,5 +75,7 @@ def reconstruct_navigator(
     images = []
     for plane in range(planes):
         operator = NUFFT(traj[plane, None], (coils, *shape), toeplitz=False)
-        images.append(operator.H(values[plane, :, None].contiguous()).abs().square().sum(dim=0).sqrt())
+        images.append(
+            operator.H(values[plane, :, None].contiguous()).abs().square().sum(dim=0).sqrt()
+        )
     return torch.stack(images)
