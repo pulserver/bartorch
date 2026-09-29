@@ -1,7 +1,7 @@
 r"""
-===================================
+======================================
 Staged training of an unrolled network
-===================================
+======================================
 
 An unrolled proximal-gradient network with one denoiser shared by every
 iteration and told which iteration it is in, trained in three stages: the

@@ -1,7 +1,7 @@
 r"""
-==========================
+============================
 Training without a reference
-==========================
+============================
 
 The unrolled network of :doc:`04-staged-training`, trained from undersampled
 k-space alone by holding out part of the acquired samples and scoring the

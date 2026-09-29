@@ -69,8 +69,10 @@ card.  The network is trained on patches, and
 patches at a time: the image stays on the host, each group of patches is
 copied to the device, passed through the network under mixed precision
 (bfloat16 where the card supports it, float16 where it does not, such as a
-T4) and copied back.  What the device holds is the network and one group of
-patches.  A convolutional network sees zeros past a patch boundary, which
+T4) and copied back.  At inference the copies of one group run on a second
+stream while the network computes on another, so the transfers are hidden
+behind the computation.  What the device holds is the network and two groups
+of patches.  A convolutional network sees zeros past a patch boundary, which
 leaves seams at the boundaries of a fixed grid of patches; the grid is offset
 at random at every call, so successive iterations place the seams differently.
 

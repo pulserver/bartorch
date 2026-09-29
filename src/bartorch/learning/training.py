@@ -167,9 +167,11 @@ class Reconstruction(lightning.LightningModule):
         self._seen = 0
 
     def transfer_batch_to_device(self, batch, device, dataloader_idx):
+        """Leave the batch where the dataset put it."""
         return batch
 
     def configure_optimizers(self):
+        """Adam over the trainable parameters, reduced on a plateau of ``val_loss``."""
         optimizer = torch.optim.Adam(
             [p for p in self.parameters() if p.requires_grad],
             lr=self.lr,
@@ -181,6 +183,7 @@ class Reconstruction(lightning.LightningModule):
         return {"optimizer": optimizer, "lr_scheduler": {"scheduler": plateau}}
 
     def training_step(self, batch, batch_idx):
+        """Back-propagate each item of a list and step every ``accumulate`` items."""
         optimizer = self.optimizers()
         total = 0.0
         for item in batch:
@@ -194,11 +197,13 @@ class Reconstruction(lightning.LightningModule):
         self.log("train_loss", total / len(batch), batch_size=len(batch), prog_bar=True)
 
     def validation_step(self, batch, batch_idx):
+        """Log the mean loss of the items as ``val_loss``."""
         with torch.no_grad():
             total = sum(float(self._loss(item, validating=True)) for item in batch)
         self.log("val_loss", total / len(batch), batch_size=len(batch), prog_bar=True)
 
     def on_validation_epoch_end(self):
+        """Step the plateau scheduler on ``val_loss``."""
         if self.trainer.sanity_checking:
             return
         value = self.trainer.callback_metrics.get("val_loss")
