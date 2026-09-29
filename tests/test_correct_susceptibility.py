@@ -81,6 +81,25 @@ def test_correction_recovers_the_imposed_displacement() -> None:
 
 
 @needs_pyhysco
+def test_field_is_in_the_units_of_the_voxel_size() -> None:
+    up, down, shift = displaced_pair()
+    result = correct_susceptibility(up, down, voxel_size=(2.0, 1.0, 1.0), max_iter=8)
+    assert result.field_map.abs().max() == pytest.approx(2.0 * shift.max(), rel=0.4)
+
+
+@needs_pyhysco
+def test_corrected_pair_is_in_the_intensity_units_of_the_input() -> None:
+    """Both corrected images match the undisplaced phantom, not PyHySCO's [0, 256] range."""
+    up, down, _ = displaced_pair()
+    phantom, _, _ = displaced_pair(amplitude=0.0)
+    up, down, phantom = 7.0 * up + 3.0, 7.0 * down + 3.0, 7.0 * phantom + 3.0
+    result = correct_susceptibility(up, down, voxel_size=(1.0, 1.0, 1.0), max_iter=8)
+    for corrected, distorted in ((result.blip_up, up), (result.blip_down, down)):
+        assert corrected.mean() == pytest.approx(phantom.mean(), rel=0.02)
+        assert (corrected - phantom).abs().mean() < 0.5 * (distorted - phantom).abs().mean()
+
+
+@needs_pyhysco
 def test_correction_writes_nothing_to_disk(tmp_path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
     up, down, _ = displaced_pair(shape=(16, 24, 24))
