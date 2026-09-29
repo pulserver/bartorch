@@ -187,6 +187,7 @@ testpaths = ["tests"]
 # spells its own attribute `cudaDevAttrMaxSharedMemoryPerBlockOptin`.  `build`
 # and `docs/_build` are outputs a fresh checkout does not have and a local run
 # does.  `reson` is the journal abbreviation in a citation, as in
-# `Magn Reson Med`.
+# `Magn Reson Med`; `gool` and `unser` are authors' names in citations, and
+# `precessing` is what a spin does.
 skip = "./attic,./external,./.git,./build,./docs/_build,./docs/auto_examples,*.ipynb,pyproject.toml"
-ignore-words-list = "ist,te,reconet,pyramide,nd,optin,lamda,reson,coo"
+ignore-words-list = "ist,te,reconet,pyramide,nd,optin,lamda,reson,coo,gool,unser,precessing"
