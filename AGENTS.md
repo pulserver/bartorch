@@ -1126,7 +1126,7 @@ index sets that are not axes (channels, parameter maps) are tuples too; no
 public argument takes a bitmask or a `-R` string. Hand-written wrappers
 convert their own; derived wrappers and what a curated one passes through by
 name follow `_call.TRANSLATED`, and `test_tools` fails on a dimension-like
-argument that is in neither. `pics`, `wshfl` and `moba` take
+argument that is in neither. The reference commands `pics`, `wshfl` and `moba` in `_reference.py` take
 `bartorch.priors` terms, serialized by `Regularizer._argument`. A flag's value can be an
 array rather than a number -- `pics(kspace, maps, t=traj)`, `-p` for a
 sampling pattern, `-B` for a basis -- and is registered and copied like any

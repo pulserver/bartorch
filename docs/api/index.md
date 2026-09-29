@@ -7,7 +7,7 @@ complete workflows in the {doc}`examples <../examples/index>`.
 | Page | Module | Contents |
 | --- | --- | --- |
 | {doc}`functions` | `bartorch` | Fourier and wavelet transforms, thresholding, array functions, runtime settings |
-| {doc}`tools` | `bartorch.tools` | BART's commands as functions: simulation, sampling, calibration, reconstruction, registration and metrics |
+| {doc}`tools` | `bartorch.tools` | BART's commands as functions: simulation, sampling, calibration, preprocessing, registration, metrics and low-rank completion |
 | {doc}`linop` | `bartorch.linop` | Linear operators, operator algebra and MRI encoding operators |
 | {doc}`nlop` | `bartorch.nlop` | Nonlinear operators, MRI and signal models, Gauss-Newton methods |
 | {doc}`optim` | `bartorch.optim` | Iterative solvers, iteration blocks and data scaling |
