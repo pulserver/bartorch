@@ -3,7 +3,7 @@
 ```{admonition} TL;DR
 :class: tldr
 
-- bartorch drives one embedded BART through three layers: reconstruction pipelines ({mod}`bartorch.apps`), the objects the pipelines are assembled from — operators, regularization terms and solvers ({mod}`bartorch.linop`, {mod}`bartorch.nlop`, {mod}`bartorch.priors`, {mod}`bartorch.optim`) — and BART's remaining commands as functions of tensors ({mod}`bartorch.tools`).
+- bartorch drives one embedded BART through three layers: reconstruction pipelines ({mod}`bartorch.apps`), the objects the pipelines are assembled from — operators, regularization terms and solvers ({mod}`bartorch.linop`, {mod}`bartorch.nlop`, {mod}`bartorch.priors`, {mod}`bartorch.optim`) — and BART's remaining commands, with the corrections and motion estimation around a reconstruction, as functions of tensors ({mod}`bartorch.tools`).
 - An app runs a standard reconstruction in one call; the objects are needed for an encoding BART has no application for, a solver inside an outer loop, or gradients.
 - {func}`bartorch.apps.pics` returns the tensor BART's `pics` returns on a Cartesian grid and agrees with it to floating-point round-off along a trajectory; {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit TorchSim signal models and return named maps in physical units.
 - Operators pass tensors to BART without copying and commands copy their inputs by default; an error inside BART raises {class}`~bartorch.BartError`, and FINUFFT or cuFINUFFT computes every non-uniform Fourier transform.
@@ -15,8 +15,10 @@ POCSENSE — in one call.  The composable interface exposes the objects those
 pipelines are assembled from: the encoding operator, the regularization terms
 and the iterative algorithm.  The functions of {mod}`bartorch.tools` call the
 BART commands that have no counterpart among those objects — calibration,
-trajectories, simulation, registration — as functions of tensors.  All three
-call the same embedded BART through one C interface.
+trajectories, simulation, registration — as functions of tensors, and hold
+the corrections and the rigid motion estimation applied outside the
+reconstruction, which have no BART command.  All three call the same embedded
+BART through one C interface.
 
 ```{image} ../_static/architecture.svg
 :class: only-light
@@ -35,7 +37,7 @@ call the same embedded BART through one C interface.
 | Interface | Unit | Autograd | Runs as |
 | --- | --- | --- | --- |
 | {mod}`bartorch.apps` | One reconstruction | As its solver | Operators and solvers of the composable interface |
-| {mod}`bartorch.tools` | One BART command | No | The command, in this process |
+| {mod}`bartorch.tools` | One BART command, or one correction | Not for a BART command | The command, in this process; a correction in PyTorch, SimpleITK or PyHySCO |
 | `bartorch.fft`, `fwt`, `rss`, ... ({doc}`../api/functions`) | One array operation | No | A BART command |
 | `bartorch` command line ({mod}`bartorch.cli`) | A `bart` command line on CFL files | No | An app where one exists, otherwise the command |
 | {mod}`bartorch.linop`, {mod}`bartorch.nlop` | An operator and its adjoint or derivative | Yes | A BART operator, or Python callbacks |

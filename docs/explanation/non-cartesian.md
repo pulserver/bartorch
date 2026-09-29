@@ -70,6 +70,10 @@ implementations needs a larger kernel width.  cuFINUFFT accepts $\sigma = 2$ and
 | Density-compensated adjoint (gridding reconstruction) | $\mathrm{NUFFT}^H D y$, with $D$ a diagonal of weights $d_j \approx 1/\rho(k_j)$ | Approximately equalizes the sampling density $\rho$; for radial sampling $d_j \propto \lvert k_j \rvert$.  Unsampled regions of k-space remain missing, and undersampling appears as streaks |
 | Reconstruction | Solution of the least-squares or regularized problem with $A$ | Consistent with the measured samples; needs no density compensation, which can serve as a weighting of the data term instead[^pipe][^pruessmann2001] |
 
+{func}`bartorch.estimate_density` computes weights $d_j$ for a trajectory by
+the fixed-point iteration of Pipe and Menon,[^pipe] with the convolutions
+evaluated by the non-uniform transforms of this page.
+
 Density weights passed to {class}`~bartorch.linop.NUFFT` or
 {class}`~bartorch.linop.NoncartesianSense` become part of the operator,
 $A = W\,\mathrm{NUFFT}\,S$: the weights are applied on the forward pass and
@@ -127,7 +131,7 @@ gridding implementation is not used, and no configuration falls back to it.
 | Forward and adjoint transform, PSF | FINUFFT | CPU | Compiled into every build |
 | Forward and adjoint transform, PSF | cuFINUFFT | CUDA | Compiled into the CUDA build |
 | Multiplication by $\hat h$ | BART, with the FFT of the device: MKL or pocketfft on the host, cuFFT on a CUDA device | Either | — |
-| Unsupported configuration | None | Either | {class}`~bartorch.BartError` naming the reason: weights whose shape does not broadcast onto the k-space samples, an image that varies along an axis the trajectory indexes, a kernel width no tolerance produces, among others |
+| Unsupported configuration | None | Either | {class}`~bartorch.BartError` naming the reason: weights whose shape does not broadcast onto the k-space samples, an image that varies along an axis the trajectory indexes in a BART command, a kernel width no tolerance produces, among others |
 
 The backend of a transform is chosen by where its arguments are, not by where
 the trajectory is: an operator holds one pair of plans per memory space and

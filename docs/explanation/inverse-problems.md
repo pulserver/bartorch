@@ -31,9 +31,9 @@ with $A : \mathbb{C}^N \to \mathbb{C}^M$ the **forward operator** — in MRI the
 noise.  After prewhitening, the noise of MRI data is modelled as complex
 Gaussian with independent, identically distributed entries.  For fixed coil
 sensitivities $A$ is linear, and it is applied without being formed as a
-matrix: for a $256^2$ image and eight coils the matrix would have about
-$3.4\times 10^{10}$ entries for eight fully sampled coils, while an
-application costs eight FFTs.
+matrix: for a $256^2$ image and eight fully sampled coils the matrix would
+have about $3.4\times 10^{10}$ entries, while an application costs eight
+FFTs.
 
 The **adjoint** $A^H$ is defined by
 $\langle Ax, y\rangle = \langle x, A^H y\rangle$ for all $x$ and $y$; for a
@@ -198,9 +198,9 @@ $G_j$, at the cost of an inner solve per iteration and a penalty parameter
 $\rho$.
 
 **The primal-dual method** alternates proximal steps on the primal and the
-dual variables and applies $G_j$ and $G_j^H$ directly, with no inner solve; it
-needs no inner solve; the iteration count to a given accuracy depends on the
-problem and on $\sigma$ and $\tau$.
+dual variables and applies $G_j$ and $G_j^H$ directly, with no inner solve;
+the iteration count to a given accuracy depends on the problem and on
+$\sigma$ and $\tau$.
 
 ## Data scaling and the regularization weight
 

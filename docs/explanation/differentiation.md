@@ -69,7 +69,7 @@ term.  The following objects permit differentiation:
 
 | Object | Effect |
 | --- | --- |
-| {class}`~bartorch.priors.ImplicitPrior` | Replaces the proximal operator by a differentiable denoiser, as in plug-and-play reconstruction;[^pnp] the denoiser's parameters receive gradients |
+| {class}`~bartorch.priors.ImplicitPrior` | Replaces the proximal operator by a differentiable denoiser, as in plug-and-play reconstruction;[^pnp] the denoiser's parameters receive gradients.  With `spatial=`, a network on real `(n, channels, *spatial)` planes is applied to the complex image, with the conversion and the unit-peak scaling recorded by autograd |
 | {meth}`Regularizer.detach() <bartorch.priors.Regularizer.detach>` | Applies a BART term's proximal operator to a detached input: the term acts in the forward pass and is held fixed in the backward pass, for a solve in which another term is learned |
 
 The residual norms that drive adaptive steps — an adaptive ADMM penalty, an

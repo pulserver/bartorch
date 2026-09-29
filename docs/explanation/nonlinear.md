@@ -27,7 +27,8 @@ $$
 
 The operator is bilinear: linear in $x$ for fixed $S$, linear in $S$ for fixed
 $x$, and nonlinear in the pair.  This is **nonlinear inversion**, BART's
-`nlinv`.[^nlinv]
+`nlinv`,[^nlinv] which {func}`bartorch.tools.nlinv` runs; its sensitivities
+are the calibration for a subsequent linear reconstruction.
 
 **Model-based parameter estimation.**  A quantitative experiment acquires a
 series of contrasts whose dependence on tissue parameters $\theta$ is given by
@@ -39,7 +40,10 @@ y_{c,e} = P_e F \left( S_c \cdot M_e(\theta) \right),
 $$
 
 with $e$ the contrast index.  The unknowns are the parameter maps.  This is
-**model-based reconstruction**, BART's `moba`.[^block][^sumpf][^wang]
+**model-based reconstruction**, BART's `moba`,[^block][^sumpf][^wang] which
+{func}`bartorch.apps.moba` performs over a TorchSim signal model;
+{func}`bartorch.apps.mobafit` fits the same models voxel by voxel to
+reconstructed images.
 
 A Gauss-Newton solver requires the value $F(x)$, the derivative $DF_x$ at a
 point as a linear operator, and its adjoint $DF_x^H$.  A
