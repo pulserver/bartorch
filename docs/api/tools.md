@@ -3,7 +3,8 @@
 `bartorch.tools` exposes BART's command-line applications that have no
 operator or pipeline counterpart here, one function per command, run in this
 process.  Array arguments and results are C-order tensors in BART's dimension
-order reversed, and axis arguments are axis indices rather than BART bitmasks;
+order reversed ({doc}`../explanation/data-layout`), and axis arguments are
+axis indices rather than BART bitmasks;
 the results of a BART command are not recorded by autograd.  Functions marked *wrapped* have a
 hand-written signature; the others are generated from BART's declaration of the
 command and take its options under their long names.  Reconstructions are
