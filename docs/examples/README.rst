@@ -1,23 +1,9 @@
 Examples
 ========
 
-A course in reconstruction with bartorch, in six sections read in order, and a
-set of standalone tours.
-
-Each lesson of the course states its aim and learning objectives, and builds
-on the lessons before it: **Basics** covers BART's arrays and commands and a
-Cartesian reconstruction; **Parallel imaging** the coil sensitivities and the
-channel noise; **Regularization** the penalty terms and the operators and
-solvers a reconstruction is assembled from; **Non-Cartesian imaging** the
-non-uniform transform, radial SENSE and dynamic imaging; **Model-based
-reconstruction** subspace and signal models in the encoding; and **Learned
-regularization** denoisers and unrolled networks in BART's iterations. The
-**Tours** show the corrections and motion tracking of :mod:`bartorch.tools`,
-each on its own.
-
-The concepts the examples use -- the encoding model, regularized least
-squares, non-uniform transforms, nonlinear inversion -- are introduced in
-:doc:`../explanation/index`.
+Reconstructions executed when the documentation is built: a course in six
+sections read in order, and standalone tours of the corrections applied around
+a reconstruction.  :doc:`/examples/index` lists every lesson.
 
 Running them needs a built ``bartorch``, ``brainweb-dl``, which downloads the
 BrainWeb phantoms several examples build their images from, and

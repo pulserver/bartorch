@@ -56,7 +56,8 @@ extensions = [
 source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
 templates_path = ["_templates"]
 # The gallery's section headers are sphinx-gallery's input, rendered into
-# `auto_examples/`; `examples/index.md` beside them is a page of its own.
+# `auto_examples/`; `examples/index.md` beside them is a page of its own, which
+# includes each section header's paragraph.
 # The design notes are maintainers' records rather than documentation.
 exclude_patterns = [
     "_build",
@@ -159,9 +160,10 @@ html_theme_options = {
     "use_edit_page_button": True,
     "home_page_in_toc": True,
     # The sidebar carries the six sections and the pages directly under
-    # them.  Individual examples are reached from the section pages, and
-    # individual objects from the tables on the API pages, whose stubs are
-    # generated from `api_objects.rst` and so never enter this tree.
+    # them; under Examples those are the example pages themselves, which
+    # `examples/index.md` lists in its toctrees.  Individual objects are
+    # reached from the tables on the API pages, whose stubs are generated from
+    # `api_objects.rst` and so never enter this tree.
     "show_navbar_depth": 1,
     "max_navbar_depth": 2,
     "logo": {

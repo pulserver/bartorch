@@ -1,58 +1,174 @@
 # Examples
 
 Reconstructions executed when the documentation is built, so every figure and
-printed number is produced by the code shown.  The course is read in order:
-each lesson states its aim and learning objectives and builds on the lessons
-before it.  The tours are standalone.  Concepts are in
-{doc}`../explanation/index`, interfaces in {doc}`../api/index`.
+printed number on these pages is produced by the code shown.  The course is
+read in order: each lesson states its aim and builds on the lessons before it.
+The tours are standalone.  Every page can be downloaded as a Python script or
+a notebook, or opened in Colab.  The concepts are in
+{doc}`../explanation/index`, and the interfaces in {doc}`../api/index`.
 
-## Course
+The scripts need `pip install bartorch brainweb-dl matplotlib cmap`;
+`brainweb-dl` downloads the BrainWeb phantoms several examples build their
+images from.
 
-| Section | Lesson | Covers |
-| --- | --- | --- |
-| {doc}`Basics <../auto_examples/01-basics/index>` | {doc}`../auto_examples/01-basics/01-tensors-and-commands` | Tensor shapes and BART's dimensions, the analytical phantom, BART's FFT against NumPy, the command line |
-| | {doc}`../auto_examples/01-basics/02-from-kspace-to-image` | Undersampled Cartesian k-space to an image: channel compression, ESPIRiT, {func}`bartorch.apps.pics` |
-| {doc}`Parallel imaging <../auto_examples/02-parallel-imaging/index>` | {doc}`../auto_examples/02-parallel-imaging/01-coil-calibration` | Sensitivities by `caldir`, ESPIRiT and nonlinear inversion, and the SENSE reconstructions they give |
-| | {doc}`../auto_examples/02-parallel-imaging/02-nonlinear-inversion` | Image and sensitivities estimated jointly by iteratively regularized Gauss-Newton |
-| | {doc}`../auto_examples/02-parallel-imaging/03-noise-prewhitening` | Correlated channel noise, prewhitening, and the pseudo-replica SNR |
-| {doc}`Regularization <../auto_examples/03-regularization/index>` | {doc}`../auto_examples/03-regularization/01-regularized-reconstruction` | Tikhonov, wavelet and total-variation terms, and the choice of their weight |
-| | {doc}`../auto_examples/03-regularization/02-operators-and-solvers` | The same reconstruction as an encoding operator and a solver |
-| {doc}`Non-Cartesian imaging <../auto_examples/04-non-cartesian/index>` | {doc}`../auto_examples/04-non-cartesian/01-trajectories-and-transforms` | Trajectories, the non-uniform transform, density compensation, the point spread function |
-| | {doc}`../auto_examples/04-non-cartesian/02-radial-sense` | Radial SENSE with sensitivities estimated from the radial data |
-| | {doc}`../auto_examples/04-non-cartesian/03-dynamic-golden-angle` | A golden-angle acquisition reconstructed as a time series |
-| {doc}`Model-based reconstruction <../auto_examples/05-model-based/index>` | {doc}`../auto_examples/05-model-based/01-subspace-t1-mapping` | Subspace-constrained inversion recovery and $T_1$ mapping |
-| | {doc}`../auto_examples/05-model-based/02-quantitative-models` | $T_2$ maps from multi-echo k-space through a signal model |
-| {doc}`Learned regularization <../auto_examples/06-learning/index>` | {doc}`../auto_examples/06-learning/01-plug-and-play` | A pretrained denoiser as the proximal step of ADMM and FISTA |
-| | {doc}`../auto_examples/06-learning/02-modl-with-admm` | MoDL unrolled on BART's ADMM and trained end to end |
-| | {doc}`../auto_examples/06-learning/03-networks-for-complex-volumes` | A U-Net for complex multi-contrast volumes, trained on patches and applied patch by patch |
-| | {doc}`../auto_examples/06-learning/04-staged-training` | An unrolled network trained in stages: denoiser, per iteration, end to end |
-| | {doc}`../auto_examples/06-learning/05-self-supervised-training` | The same network trained from undersampled k-space alone |
-| | {doc}`../auto_examples/06-learning/06-annealed-plug-and-play` | A noise-conditioned denoiser in ADMM with an annealed noise level |
-| | {doc}`../auto_examples/06-learning/07-uncertainty` | Voxel-wise error bars from dropout and k-space subsets, calibrated to a coverage |
+## Basics
+
+```{eval-rst}
+.. include:: 01-basics/README.rst
+   :start-line: 3
+```
+
+| Lesson | Covers |
+| --- | --- |
+| {doc}`../auto_examples/01-basics/01-tensors-and-commands` | Tensor shapes and BART's dimensions, the analytical phantom, BART's FFT against NumPy, the command line |
+| {doc}`../auto_examples/01-basics/02-from-kspace-to-image` | Undersampled Cartesian k-space to an image: coil compression, ESPIRiT, {func}`bartorch.apps.pics` |
+
+```{toctree}
+:hidden:
+:caption: Basics
+
+../auto_examples/01-basics/01-tensors-and-commands
+../auto_examples/01-basics/02-from-kspace-to-image
+```
+
+## Parallel imaging
+
+```{eval-rst}
+.. include:: 02-parallel-imaging/README.rst
+   :start-line: 3
+```
+
+| Lesson | Covers |
+| --- | --- |
+| {doc}`../auto_examples/02-parallel-imaging/01-coil-calibration` | Coil sensitivity maps by direct division, ESPIRiT and nonlinear inversion, and the SENSE reconstructions they give |
+| {doc}`../auto_examples/02-parallel-imaging/02-nonlinear-inversion` | Image and coil sensitivities estimated jointly by iteratively regularized Gauss-Newton |
+| {doc}`../auto_examples/02-parallel-imaging/03-noise-prewhitening` | Correlated channel noise, prewhitening, and the SNR by the pseudo-replica method |
+
+```{toctree}
+:hidden:
+:caption: Parallel imaging
+
+../auto_examples/02-parallel-imaging/01-coil-calibration
+../auto_examples/02-parallel-imaging/02-nonlinear-inversion
+../auto_examples/02-parallel-imaging/03-noise-prewhitening
+```
+
+## Regularization
+
+```{eval-rst}
+.. include:: 03-regularization/README.rst
+   :start-line: 3
+```
+
+| Lesson | Covers |
+| --- | --- |
+| {doc}`../auto_examples/03-regularization/01-regularized-reconstruction` | Tikhonov, wavelet and total-variation penalties, and the choice of the regularization weight |
+| {doc}`../auto_examples/03-regularization/02-operators-and-solvers` | The same reconstruction as an encoding operator and an iterative solver |
+
+```{toctree}
+:hidden:
+:caption: Regularization
+
+../auto_examples/03-regularization/01-regularized-reconstruction
+../auto_examples/03-regularization/02-operators-and-solvers
+```
+
+## Non-Cartesian imaging
+
+```{eval-rst}
+.. include:: 04-non-cartesian/README.rst
+   :start-line: 3
+```
+
+| Lesson | Covers |
+| --- | --- |
+| {doc}`../auto_examples/04-non-cartesian/01-trajectories-and-transforms` | Trajectories, the NUFFT, density compensation, the point spread function |
+| {doc}`../auto_examples/04-non-cartesian/02-radial-sense` | Radial SENSE with coil sensitivities estimated from the radial data |
+| {doc}`../auto_examples/04-non-cartesian/03-dynamic-golden-angle` | A golden-angle radial acquisition reconstructed as a time series |
+
+```{toctree}
+:hidden:
+:caption: Non-Cartesian imaging
+
+../auto_examples/04-non-cartesian/01-trajectories-and-transforms
+../auto_examples/04-non-cartesian/02-radial-sense
+../auto_examples/04-non-cartesian/03-dynamic-golden-angle
+```
+
+## Model-based reconstruction
+
+```{eval-rst}
+.. include:: 05-model-based/README.rst
+   :start-line: 3
+```
+
+| Lesson | Covers |
+| --- | --- |
+| {doc}`../auto_examples/05-model-based/01-subspace-t1-mapping` | Subspace-constrained inversion recovery and $T_1$ mapping |
+| {doc}`../auto_examples/05-model-based/02-quantitative-models` | $T_2$ maps from multi-echo k-space through a signal model |
+
+```{toctree}
+:hidden:
+:caption: Model-based reconstruction
+
+../auto_examples/05-model-based/01-subspace-t1-mapping
+../auto_examples/05-model-based/02-quantitative-models
+```
+
+## Learned regularization
+
+```{eval-rst}
+.. include:: 06-learning/README.rst
+   :start-line: 3
+```
+
+| Lesson | Covers |
+| --- | --- |
+| {doc}`../auto_examples/06-learning/01-plug-and-play` | A pretrained denoiser as the proximal operator of ADMM and FISTA |
+| {doc}`../auto_examples/06-learning/02-modl-with-admm` | MoDL unrolled on BART's ADMM and trained end to end |
+| {doc}`../auto_examples/06-learning/03-networks-for-complex-volumes` | A U-Net for complex multi-contrast volumes, trained on patches and applied patch by patch |
+| {doc}`../auto_examples/06-learning/04-staged-training` | An unrolled network trained in stages: denoiser, per iteration, end to end |
+| {doc}`../auto_examples/06-learning/05-self-supervised-training` | The same network trained from undersampled k-space alone |
+| {doc}`../auto_examples/06-learning/06-annealed-plug-and-play` | A noise-conditioned denoiser in ADMM with an annealed noise level |
+| {doc}`../auto_examples/06-learning/07-uncertainty` | Voxel-wise error bars from dropout and k-space subsets, calibrated to a coverage |
+
+```{toctree}
+:hidden:
+:caption: Learned regularization
+
+../auto_examples/06-learning/01-plug-and-play
+../auto_examples/06-learning/02-modl-with-admm
+../auto_examples/06-learning/03-networks-for-complex-volumes
+../auto_examples/06-learning/04-staged-training
+../auto_examples/06-learning/05-self-supervised-training
+../auto_examples/06-learning/06-annealed-plug-and-play
+../auto_examples/06-learning/07-uncertainty
+```
 
 ## Tours
+
+```{eval-rst}
+.. include:: 07-tours/README.rst
+   :start-line: 3
+```
 
 | Tour | Covers |
 | --- | --- |
 | {doc}`../auto_examples/07-tours/01-readout-oversampling-and-apodization` | Removal of readout oversampling; Hann and Fermi apodization |
-| {doc}`../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | The EPI odd/even phase from a navigator; ramp-sampled readouts |
-| {doc}`../auto_examples/07-tours/03-bias-field` | N4 correction of the receive field of a surface array |
-| {doc}`../auto_examples/07-tours/04-gradient-nonlinearity` | Geometric distortion from a spherical-harmonic coil description |
+| {doc}`../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | EPI Nyquist-ghost correction from a navigator; regridding of ramp-sampled readouts |
+| {doc}`../auto_examples/07-tours/03-bias-field` | N4 correction of the receive bias field of a surface array |
+| {doc}`../auto_examples/07-tours/04-gradient-nonlinearity` | Geometric distortion from a spherical-harmonic gradient coil model |
 | {doc}`../auto_examples/07-tours/05-spiral-deblurring` | Off-resonance deblurring of a spiral image |
 | {doc}`../auto_examples/07-tours/06-navigator-motion` | Rigid head motion from three navigator planes, filtered across a scan |
 
-The scripts need `pip install bartorch brainweb-dl matplotlib cmap`; the
-learned-regularization section also `lightning torchio monai deepinv`, and the
-tours `SimpleITK`.  Each page can be downloaded as a script or a notebook.
-
 ```{toctree}
 :hidden:
+:caption: Tours
 
-../auto_examples/01-basics/index
-../auto_examples/02-parallel-imaging/index
-../auto_examples/03-regularization/index
-../auto_examples/04-non-cartesian/index
-../auto_examples/05-model-based/index
-../auto_examples/06-learning/index
-../auto_examples/07-tours/index
+../auto_examples/07-tours/01-readout-oversampling-and-apodization
+../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling
+../auto_examples/07-tours/03-bias-field
+../auto_examples/07-tours/04-gradient-nonlinearity
+../auto_examples/07-tours/05-spiral-deblurring
+../auto_examples/07-tours/06-navigator-motion
 ```
