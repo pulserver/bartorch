@@ -226,6 +226,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -475,6 +476,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.stationary"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.stationary</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.prox"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.prox()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.prox_shape"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.prox_shape()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.apply_transform"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.apply_transform()</span></code></a></li>
@@ -508,6 +510,15 @@ differentiable, so a solve containing it can be differentiated end to end.</p>
 <p>The denoiser receives a leading batch axis, of length one for a single
 image.  <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Parameter</span></code>, fixed until
 <code class="docutils literal notranslate"><span class="pre">requires_grad_()</span></code> is called.</p>
+<p>A sequence of <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is a schedule, one noise level per iteration and
+the last repeated beyond its end: the annealed plug-and-play iteration,
+which starts with a strong denoiser and weakens it as the data-consistent
+estimate improves.  With <code class="docutils literal notranslate"><span class="pre">step</span></code> the denoiser is also given the iteration
+index, as <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma,</span> <span class="pre">step=k)</span></code> or <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">step=k)</span></code>, which
+is how a network shared by the iterations of an unrolled reconstruction
+adapts to each (<a class="reference internal" href="bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.UNet</span></code></a> with <code class="docutils literal notranslate"><span class="pre">steps=True</span></code>).
+Either makes each iteration a different map, which
+<a class="reference internal" href="bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a> refuses.</p>
 <p><code class="docutils literal notranslate"><span class="pre">transform</span></code> is the linear operator <span class="math notranslate nohighlight">\(G\)</span> of a term <span class="math notranslate nohighlight">\(g(G x)\)</span>,
 as a regularizer built by BART also carries.  The denoiser is then applied
 on the codomain of <span class="math notranslate nohighlight">\(G\)</span> rather than to the image, and the
@@ -528,8 +539,8 @@ shape or, with a <code class="docutils literal notranslate"><span class="pre">tr
 <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> planes of order unity – a <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>,
 <code class="docutils literal notranslate"><span class="pre">monai</span></code> or local <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code> – and the conversion is
 done here.</p></li>
-<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>default=None</em>) – The noise level the denoiser is asked for, in the units its own
-convention states.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – The noise level the denoiser is asked for, in the units its own
+convention states; a sequence gives one per iteration.</p></li>
 <li><p><strong>transform</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\(G\)</span>, mapping the image to the domain the denoiser is applied on.
 Only the iterations given a term’s transform use it; see
 <a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.transform_is_identity" title="bartorch.priors.Regularizer.transform_is_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bartorch.priors.Regularizer.transform_is_identity()</span></code></a>.</p></li>
@@ -548,6 +559,7 @@ kept.  Defaults to <code class="docutils literal notranslate"><span class="pre">
 otherwise.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
 <li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Scale each image to unit peak modulus around the call; <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is
 then in units of that peak.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
+<li><p><strong>step</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Pass the iteration index to the denoiser as <code class="docutils literal notranslate"><span class="pre">step</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -558,6 +570,17 @@ then in units of that peak.  Only with <code class="docutils literal notranslate
 <span class="gp">&gt;&gt;&gt; </span><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span><span class="p">(</span><span class="n">denoiser</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">linop</span><span class="o">.</span><span class="n">MultiplySum</span><span class="p">(</span><span class="n">basis</span><span class="p">,</span> <span class="o">...</span><span class="p">))</span>
 </pre></div>
 </div>
+<dl class="py property">
+<dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior.stationary">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stationary</span></span><a class="headerlink" href="#bartorch.priors.ImplicitPrior.stationary" title="Link to this definition">#</a></dt>
+<dd><p>no schedule and no index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether every iteration applies the same denoiser</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior.prox">
 <span class="sig-name descname"><span class="pre">prox</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.ImplicitPrior.prox" title="Link to this definition">#</a></dt>
@@ -593,6 +616,18 @@ then in units of that peak.  Only with <code class="docutils literal notranslate
 </div><div class="sphx-glr-thumbcontainer" tooltip="An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser in the proximal step of BART&#x27;s alternating-direction iteration, trained end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
   <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An unrolled proximal-gradient network with one denoiser shared by every iteration and told which iteration it is in, trained in three stages: the denoiser alone, the iterations one at a time, and the whole stack."><img alt="" src="../_images/sphx_glr_04-staged-training_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The unrolled network of 04-staged-training, trained from undersampled k-space alone by holding out part of the acquired samples and scoring the reconstruction on them."><img alt="" src="../_images/sphx_glr_05-self-supervised-training_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Training without a reference</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A denoiser conditioned on the noise level, trained once on images and used in ADMM with a noise level that decreases over the iterations."><img alt="" src="../_images/sphx_glr_06-annealed-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A voxel-wise error bar for a learned reconstruction, from the spread of randomized reconstructions, calibrated on references to a stated coverage."><img alt="" src="../_images/sphx_glr_07-uncertainty_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
 </div></div></section>
 </section>
 
@@ -626,6 +661,7 @@ then in units of that peak.  Only with <code class="docutils literal notranslate
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.stationary"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.stationary</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.prox"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.prox()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.prox_shape"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.prox_shape()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.ImplicitPrior.apply_transform"><code class="docutils literal notranslate"><span class="pre">ImplicitPrior.apply_transform()</span></code></a></li>

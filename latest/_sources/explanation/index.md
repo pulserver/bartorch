@@ -14,6 +14,7 @@ complete workflows in the {doc}`examples <../examples/index>`.
 | {doc}`non-cartesian` | How is the Fourier transform computed off the Cartesian grid, and what is its normal operator? |
 | {doc}`nonlinear` | What changes when the forward operator is nonlinear in the unknowns? |
 | {doc}`differentiation` | How do gradients pass through operators, solvers and unrolled iterations? |
+| {doc}`learned-reconstruction` | Where does a network enter a reconstruction, and how is it trained and applied to large data? |
 
 ```{toctree}
 :hidden:
@@ -24,4 +25,5 @@ encoding
 non-cartesian
 nonlinear
 differentiation
+learned-reconstruction
 ```

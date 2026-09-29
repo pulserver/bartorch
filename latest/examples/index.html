@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Basics" href="../auto_examples/01-basics/index.html" />
-    <link rel="prev" title="Differentiation through reconstruction" href="../explanation/differentiation.html" />
+    <link rel="prev" title="Learned reconstruction" href="../explanation/learned-reconstruction.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -228,6 +228,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -562,6 +563,26 @@ before it.  The tours are standalone.  Concepts are in
 <td><p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p></td>
 <td><p>MoDL unrolled on BART’s ADMM and trained end to end</p></td>
 </tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a></p></td>
+<td><p>A U-Net for complex multi-contrast volumes, trained on patches and applied patch by patch</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p></td>
+<td><p>An unrolled network trained in stages: denoiser, per iteration, end to end</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p></td>
+<td><p>The same network trained from undersampled k-space alone</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p></td>
+<td><p>A noise-conditioned denoiser in ADMM with an annealed noise level</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p></td>
+<td><p>Voxel-wise error bars from dropout and k-space subsets, calibrated to a coverage</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -616,12 +637,12 @@ tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</sp
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../explanation/differentiation.html"
+       href="../explanation/learned-reconstruction.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Differentiation through reconstruction</p>
+        <p class="prev-next-title">Learned reconstruction</p>
       </div>
     </a>
     <a class="right-next"

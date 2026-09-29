@@ -1,0 +1,2074 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Networks for complex volumes &#8212; bartorch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=0739d252" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../_static/documentation_options.js?v=b1def801"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=a5fa425f"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/06-learning/03-networks-for-complex-volumes';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/auto_examples/06-learning/03-networks-for-complex-volumes.html" />
+    <link rel="icon" href="../../_static/bartorch-mark.svg"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Staged training of an unrolled network" href="04-staged-training.html" />
+    <link rel="prev" title="MoDL, on BART’s ADMM" href="02-modl-with-admm.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="latest" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/bartorch-mark.svg" class="logo__image only-light" alt="bartorch"/>
+    <img src="../../_static/bartorch-mark-dark.svg" class="logo__image only-dark pst-js-only" alt="bartorch"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Homepage
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/prerequisites.html">Development prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/workflow.html">Development workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/style.html">Coding style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/documentation.html">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/terminology.html">Terminology and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/pull-requests.html">Pull requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/code-of-conduct.html">Code of conduct</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Nonlinear forward models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
+<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Learned regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/functions.html">Array functions and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/tools.html">BART commands as functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/linop.html">Linear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/nlop.html">Nonlinear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/optim.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/priors.html">Regularization and denoising</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/apps.html">Reconstruction pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/learning.html">Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/interop.html">Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/io.html">File I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/cli.html">Command line</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../misc/index.html">Miscellaneous</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../misc/license.html">License and third-party notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../misc/related_projects.html">Related projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../misc/contributors.html">Contributors and citation</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/auto_examples/06-learning/03-networks-for-complex-volumes.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fauto_examples/06-learning/03-networks-for-complex-volumes.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/auto_examples/06-learning/03-networks-for-complex-volumes.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Networks for complex volumes</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-multi-contrast-complex-volume">A multi-contrast complex volume</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-network">The network</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#patches-and-augmentation">Patches and augmentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-the-network-patch-by-patch">Applying the network patch by patch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#size-of-the-network">Size of the network</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-06-learning-03-networks-for-complex-volumes-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="networks-for-complex-volumes">
+<span id="sphx-glr-auto-examples-06-learning-03-networks-for-complex-volumes-py"></span><h1>Networks for complex volumes<a class="headerlink" href="#networks-for-complex-volumes" title="Link to this heading">#</a></h1>
+<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/06-learning/03-networks-for-complex-volumes.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
+</a>
+<p>A convolutional denoiser for complex, multi-contrast volumes, trained on
+patches and applied to a whole volume patch by patch.</p>
+<p>The networks of the previous lessons denoise one complex slice. The data a
+learned reconstruction is most needed for are larger: a volume of several
+contrasts, of subspace coefficients, or of frames of a cine. Three things
+change. The contrasts are denoised jointly, as channels of one image, and
+differ in energy, so they are balanced before the network sees them. The
+volume does not fit a network’s activations on a card, so the network is
+trained on patches of it and applied to it patch by patch. And a network
+applied on a fixed grid of patches leaves seams at the patch boundaries,
+which a random offset of the grid averages out.</p>
+<p><strong>Learning objectives</strong></p>
+<ul class="simple">
+<li><p>Build a three-dimensional <a class="reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.UNet</span></code></a> for complex
+multi-contrast images with <a class="reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.ComplexNet</span></code></a>, and
+balance the contrasts by whitening.</p></li>
+<li><p>Train it on patches drawn by <code class="docutils literal notranslate"><span class="pre">torchio</span></code>, with augmentations that preserve
+the complex signal model.</p></li>
+<li><p>Apply it to a whole volume with <a class="reference internal" href="../../generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.Patchwise</span></code></a>, and
+average the seams out with <a class="reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.learning.moments()</span></code></a>.</p></li>
+<li><p>Compare the size of spatial and spatiotemporal networks.</p></li>
+</ul>
+<p>It follows <a class="reference internal" href="02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a>. The next lesson,
+<a class="reference internal" href="04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a>, trains an unrolled network in stages.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">lightning</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">torchio</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tio</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mri</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="nn">.</span><span class="nn">utils</span><span class="nn">.</span><span class="nn">data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span><span class="w">
+</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">learning</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">learning</span><span class="w"> </span><span class="kn">import</span> <span class="n">training</span><span class="w">
+</span><span class="w">
+</span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">64</span><span class="w">
+</span><span class="n">PATCH</span> <span class="o">=</span> <span class="mi">32</span><span class="w">
+</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.06</span><span class="w">
+</span><span class="w">
+</span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<section id="a-multi-contrast-complex-volume">
+<h2>A multi-contrast complex volume<a class="headerlink" href="#a-multi-contrast-complex-volume" title="Link to this heading">#</a></h2>
+<p>Three spin-echo contrasts of a BrainWeb subject – T1-, T2- and proton
+density-weighted – on a <span class="math notranslate nohighlight">\(64^3\)</span> grid, each with its own smooth phase,
+as a <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> complex tensor. Subject 0 is the training volume and
+subject 4 the test volume. Each contrast of a voxel is the sum over the
+tissues it contains of their spin-echo signals.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">train_volume</span> <span class="o">=</span> <span class="n">brain_volume</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span><span class="n">test_volume</span> <span class="o">=</span> <span class="n">brain_volume</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="w">
+</span><span class="n">noisy</span> <span class="o">=</span> <span class="n">test_volume</span> <span class="o">+</span> <span class="n">NOISE</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">test_volume</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">test volume </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">test_volume</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">test_volume</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../../_images/sphx_glr_03-networks-for-complex-volumes_001.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_001.png" alt="T1w, T2w, PDw, noisy" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading subject04_csf: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_bck: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_gry: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_wht: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_bck: 1.00kB [00:03, 264B/s]
+
+
+Downloading subject04_bck: 97.0kB [00:04, 34.7kB/s]
+
+
+Downloading subject04_csf: 1.00kB [00:04, 246B/s]
+
+
+Downloading subject04_bck: 193kB [00:04, 78.2kB/s]
+
+
+Downloading subject04_wht: 1.00kB [00:04, 243B/s]
+
+
+Downloading subject04_csf: 40.8kB [00:04, 13.7kB/s]
+
+
+Downloading subject04_bck: 289kB [00:04, 131kB/s]
+
+
+Downloading subject04_csf: 177kB [00:04, 75.8kB/s]
+
+
+Downloading subject04_wht: 88.8kB [00:04, 29.5kB/s]
+
+
+Downloading subject04_csf: 305kB [00:04, 150kB/s]
+
+
+Downloading subject04_wht: 305kB [00:04, 126kB/s]
+
+
+Downloading subject04_bck: 385kB [00:04, 189kB/s]
+
+
+Downloading subject04_csf: 433kB [00:04, 242kB/s]
+
+
+Downloading subject04_wht: 449kB [00:04, 203kB/s]
+
+
+Downloading subject04_bck: 481kB [00:04, 250kB/s]
+
+
+Downloading subject04_csf: 577kB [00:04, 363kB/s]
+
+
+Downloading subject04_wht: 657kB [00:04, 350kB/s]
+
+
+Downloading subject04_csf: 721kB [00:04, 496kB/s]
+
+
+Downloading subject04_wht: 825kB [00:04, 485kB/s]
+
+
+Downloading subject04_bck: 577kB [00:04, 301kB/s]
+
+
+Downloading subject04_csf: 881kB [00:04, 648kB/s]
+
+
+Downloading subject04_wht: 993kB [00:04, 634kB/s]
+
+
+Downloading subject04_gry: 1.00kB [00:04, 208B/s]
+
+
+Downloading subject04_csf: 0.98MB [00:05, 747kB/s]
+
+
+Downloading subject04_wht: 1.13MB [00:04, 784kB/s]
+
+
+Downloading subject04_bck: 673kB [00:05, 348kB/s]
+
+
+Downloading subject04_gry: 88.8kB [00:05, 25.4kB/s]
+
+
+Downloading subject04_wht: 1.28MB [00:05, 932kB/s]
+
+
+Downloading subject04_csf: 1.10MB [00:05, 809kB/s]
+
+
+Downloading subject04_bck: 727kB [00:05, 374kB/s]
+
+
+Downloading subject04_gry: 209kB [00:05, 71.7kB/s]
+
+
+Downloading subject04_csf: 1.21MB [00:05, 879kB/s]
+
+
+Downloading subject04_wht: 1.44MB [00:05, 1.02MB/s]
+
+
+Downloading subject04_bck: 780kB [00:05, 390kB/s]
+
+
+Downloading subject04_gry: 321kB [00:05, 127kB/s]
+
+
+Downloading subject04_wht: 1.58MB [00:05, 1.11MB/s]
+
+
+Downloading subject04_csf: 1.32MB [00:05, 907kB/s]
+
+
+Downloading subject04_gry: 496kB [00:05, 242kB/s]
+
+
+Downloading subject04_bck: 831kB [00:05, 397kB/s]
+
+
+Downloading subject04_wht: 1.72MB [00:05, 1.17MB/s]
+
+
+Downloading subject04_csf: 1.43MB [00:05, 920kB/s]
+
+
+Downloading subject04_gry: 673kB [00:05, 379kB/s]
+
+
+Downloading subject04_bck: 879kB [00:05, 411kB/s]
+
+
+Downloading subject04_wht: 1.89MB [00:05, 1.30MB/s]
+
+
+Downloading subject04_csf: 1.59MB [00:05, 1.11MB/s]
+
+
+Downloading subject04_gry: 833kB [00:05, 519kB/s]
+
+
+Downloading subject04_wht: 2.06MB [00:05, 1.42MB/s]
+
+
+Downloading subject04_csf: 1.74MB [00:05, 1.19MB/s]
+
+
+Downloading subject04_gry: 977kB [00:05, 644kB/s]
+
+
+Downloading subject04_bck: 945kB [00:05, 385kB/s]
+
+
+Downloading subject04_wht: 2.24MB [00:05, 1.52MB/s]
+
+
+Downloading subject04_csf: 1.91MB [00:05, 1.31MB/s]
+
+
+Downloading subject04_bck: 993kB [00:05, 407kB/s]
+
+
+Downloading subject04_gry: 1.11MB [00:05, 799kB/s]
+
+
+Downloading subject04_wht: 2.41MB [00:05, 1.59MB/s]
+
+
+Downloading subject04_csf: 2.06MB [00:05, 1.37MB/s]
+
+
+Downloading subject04_bck: 1.02MB [00:05, 425kB/s]
+
+
+Downloading subject04_gry: 1.25MB [00:05, 907kB/s]
+
+
+Downloading subject04_wht: 2.58MB [00:05, 1.65MB/s]
+
+
+Downloading subject04_csf: 2.22MB [00:06, 1.43MB/s]
+
+
+Downloading subject04_bck: 1.06MB [00:05, 435kB/s]
+
+
+Downloading subject04_gry: 1.39MB [00:05, 1.02MB/s]
+
+
+Downloading subject04_wht: 2.76MB [00:06, 1.71MB/s]
+
+
+Downloading subject04_csf: 2.36MB [00:06, 1.44MB/s]
+
+
+Downloading subject04_bck: 1.11MB [00:06, 440kB/s]
+
+
+Downloading subject04_gry: 1.55MB [00:06, 1.15MB/s]
+
+
+Downloading subject04_wht: 2.93MB [00:06, 1.73MB/s]
+
+
+Downloading subject04_csf: 2.52MB [00:06, 1.47MB/s]
+
+
+Downloading subject04_bck: 1.15MB [00:06, 439kB/s]
+
+
+Downloading subject04_gry: 1.69MB [00:06, 1.23MB/s]
+
+
+Downloading subject04_wht: 3.10MB [00:06, 1.69MB/s]
+
+
+Downloading subject04_csf: 2.66MB [00:06, 1.47MB/s]
+
+
+Downloading subject04_gry: 1.83MB [00:06, 1.27MB/s]
+
+
+Downloading subject04_wht: 3.33MB [00:06, 1.79MB/s]
+
+
+Downloading subject04_csf: 2.81MB [00:06, 1.51MB/s]
+
+
+
+
+
+Downloading subject04_gry: 2.11MB [00:06, 1.70MB/s]
+
+
+Downloading subject04_wht: 3.60MB [00:06, 2.07MB/s]
+
+
+Downloading subject04_csf: 3.00MB [00:06, 1.64MB/s]
+
+
+Downloading subject04_gry: 2.31MB [00:06, 1.76MB/s]
+
+
+Downloading subject04_wht: 3.80MB [00:06, 2.05MB/s]
+
+
+Downloading subject04_csf: 3.31MB [00:06, 2.09MB/s]
+
+
+Downloading subject04_gry: 2.49MB [00:06, 1.76MB/s]
+
+
+Downloading subject04_wht: 4.03MB [00:06, 2.12MB/s]
+
+
+Downloading subject04_csf: 3.52MB [00:06, 2.04MB/s]
+
+
+Downloading subject04_gry: 2.77MB [00:06, 2.04MB/s]
+
+
+Downloading subject04_wht: 4.24MB [00:06, 2.12MB/s]
+
+
+Downloading subject04_csf: 3.71MB [00:06, 1.87MB/s]
+
+
+Downloading subject04_gry: 2.97MB [00:06, 2.05MB/s]
+
+
+Downloading subject04_wht: 4.45MB [00:06, 2.16MB/s]
+
+
+Downloading subject04_csf: 3.89MB [00:07, 1.80MB/s]
+
+
+Downloading subject04_gry: 3.17MB [00:06, 1.84MB/s]
+
+
+Downloading subject04_wht: 4.70MB [00:06, 2.23MB/s]
+
+
+Downloading subject04_csf: 4.19MB [00:07, 2.15MB/s]
+
+
+Downloading subject04_wht: 4.92MB [00:07, 2.26MB/s]
+
+
+Downloading subject04_gry: 3.35MB [00:07, 1.75MB/s]
+
+
+Downloading subject04_csf: 4.44MB [00:07, 2.27MB/s]
+
+
+Downloading subject04_wht: 5.16MB [00:07, 2.31MB/s]
+
+
+Downloading subject04_fat: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_gry: 3.53MB [00:07, 1.63MB/s]
+
+
+Downloading subject04_wht: 5.40MB [00:07, 2.35MB/s]
+
+
+Downloading subject04_csf: 4.66MB [00:07, 1.96MB/s]
+
+
+Downloading subject04_gry: 3.72MB [00:07, 1.72MB/s]
+
+
+Downloading subject04_wht: 5.66MB [00:07, 2.43MB/s]
+
+
+Downloading subject04_csf: 4.86MB [00:07, 1.88MB/s]
+
+
+Downloading subject04_gry: 3.99MB [00:07, 1.99MB/s]
+
+
+Downloading subject04_wht: 5.90MB [00:07, 2.44MB/s]
+
+
+Downloading subject04_csf: 5.13MB [00:07, 2.12MB/s]
+
+
+Downloading subject04_gry: 4.18MB [00:07, 1.84MB/s]
+
+
+Downloading subject04_wht: 6.16MB [00:07, 2.51MB/s]
+
+
+Downloading subject04_csf: 5.34MB [00:07, 2.00MB/s]
+
+
+Downloading subject04_wht: 6.41MB [00:07, 2.53MB/s]
+
+
+Downloading subject04_gry: 4.36MB [00:07, 1.64MB/s]
+
+
+Downloading subject04_csf: 5.53MB [00:07, 1.85MB/s]
+
+
+Downloading subject04_wht: 6.66MB [00:07, 2.58MB/s]
+
+
+Downloading subject04_gry: 4.53MB [00:07, 1.57MB/s]
+
+
+Downloading subject04_csf: 5.72MB [00:07, 1.86MB/s]
+
+
+Downloading subject04_wht: 6.91MB [00:07, 2.56MB/s]
+
+
+Downloading subject04_gry: 4.68MB [00:07, 1.51MB/s]
+
+
+Downloading subject04_csf: 5.90MB [00:08, 1.75MB/s]
+
+
+Downloading subject04_wht: 7.16MB [00:08, 2.32MB/s]
+
+
+Downloading subject04_gry: 4.83MB [00:08, 1.46MB/s]
+
+
+Downloading subject04_csf: 6.07MB [00:08, 1.74MB/s]
+
+
+Downloading subject04_gry: 4.97MB [00:08, 1.44MB/s]
+
+
+Downloading subject04_wht: 7.38MB [00:08, 2.11MB/s]
+
+
+Downloading subject04_fat: 1.00kB [00:00, 1.03kB/s]
+
+
+Downloading subject04_csf: 6.24MB [00:08, 1.66MB/s]
+
+
+Downloading subject04_gry: 5.11MB [00:08, 1.39MB/s]
+
+
+Downloading subject04_wht: 7.59MB [00:08, 2.01MB/s]
+
+
+Downloading subject04_fat: 97.0kB [00:01, 120kB/s]
+
+
+Downloading subject04_csf: 6.40MB [00:08, 1.59MB/s]
+
+
+Downloading subject04_gry: 5.24MB [00:08, 1.35MB/s]
+
+
+Downloading subject04_wht: 7.79MB [00:08, 1.89MB/s]
+
+
+Downloading subject04_fat: 305kB [00:01, 409kB/s]
+
+
+Downloading subject04_csf: 6.55MB [00:08, 1.52MB/s]
+
+
+Downloading subject04_gry: 5.38MB [00:08, 1.35MB/s]
+
+
+Downloading subject04_wht: 7.97MB [00:08, 1.84MB/s]
+
+
+Downloading subject04_fat: 417kB [00:01, 533kB/s]
+
+
+Downloading subject04_csf: 6.70MB [00:08, 1.49MB/s]
+
+
+Downloading subject04_gry: 5.50MB [00:08, 1.34MB/s]
+
+
+Downloading subject04_wht: 8.16MB [00:08, 1.83MB/s]
+
+
+Downloading subject04_fat: 529kB [00:01, 644kB/s]
+
+
+Downloading subject04_csf: 6.84MB [00:08, 1.47MB/s]
+
+
+Downloading subject04_gry: 5.64MB [00:08, 1.36MB/s]
+
+
+Downloading subject04_wht: 8.33MB [00:08, 1.76MB/s]
+
+
+Downloading subject04_fat: 641kB [00:01, 728kB/s]
+
+
+Downloading subject04_csf: 6.98MB [00:08, 1.44MB/s]
+
+
+Downloading subject04_gry: 5.77MB [00:08, 1.20MB/s]
+
+
+Downloading subject04_wht: 8.50MB [00:08, 1.66MB/s]
+
+
+Downloading subject04_csf: 7.12MB [00:08, 1.35MB/s]
+
+
+Downloading subject04_fat: 745kB [00:01, 729kB/s]
+
+
+Downloading subject04_gry: 5.89MB [00:09, 1.11MB/s]
+
+
+Downloading subject04_wht: 8.66MB [00:09, 1.61MB/s]
+
+
+Downloading subject04_csf: 7.25MB [00:09, 1.33MB/s]
+
+
+Downloading subject04_fat: 838kB [00:01, 729kB/s]
+
+
+Downloading subject04_gry: 6.00MB [00:09, 1.11MB/s]
+
+
+Downloading subject04_wht: 8.82MB [00:09, 1.55MB/s]
+
+
+Downloading subject04_csf: 7.37MB [00:09, 1.28MB/s]
+
+
+Downloading subject04_fat: 925kB [00:01, 766kB/s]
+
+
+Downloading subject04_gry: 6.11MB [00:09, 1.09MB/s]
+
+
+Downloading subject04_wht: 9.01MB [00:09, 1.66MB/s]
+
+
+Downloading subject04_csf: 7.50MB [00:09, 1.27MB/s]
+
+
+Downloading subject04_fat: 0.99MB [00:02, 707kB/s]
+
+
+Downloading subject04_gry: 6.24MB [00:09, 1.13MB/s]
+
+
+Downloading subject04_wht: 9.19MB [00:09, 1.67MB/s]
+
+
+Downloading subject04_csf: 7.67MB [00:09, 1.38MB/s]
+
+
+Downloading subject04_gry: 6.38MB [00:09, 1.20MB/s]
+
+
+Downloading subject04_wht: 9.35MB [00:09, 1.67MB/s]
+
+
+Downloading subject04_fat: 1.06MB [00:02, 670kB/s]
+
+
+Downloading subject04_csf: 7.84MB [00:09, 1.46MB/s]
+
+
+Downloading subject04_wht: 9.51MB [00:09, 1.67MB/s]
+
+
+Downloading subject04_gry: 6.52MB [00:09, 1.22MB/s]
+
+
+Downloading subject04_csf: 8.00MB [00:09, 1.50MB/s]
+
+
+Downloading subject04_fat: 1.13MB [00:02, 630kB/s]
+
+
+Downloading subject04_wht: 9.67MB [00:09, 1.66MB/s]
+
+
+Downloading subject04_gry: 6.66MB [00:09, 1.24MB/s]
+
+
+Downloading subject04_csf: 8.16MB [00:09, 1.52MB/s]
+
+
+Downloading subject04_fat: 1.20MB [00:02, 591kB/s]
+
+
+Downloading subject04_wht: 9.83MB [00:09, 1.65MB/s]
+
+
+Downloading subject04_gry: 6.80MB [00:09, 1.28MB/s]
+
+
+Downloading subject04_csf: 8.33MB [00:09, 1.56MB/s]
+
+
+Downloading subject04_wht: 10.0MB [00:09, 1.69MB/s]
+
+
+Downloading subject04_fat: 1.30MB [00:02, 630kB/s]
+
+
+Downloading subject04_gry: 6.94MB [00:09, 1.30MB/s]
+
+
+Downloading subject04_csf: 8.49MB [00:09, 1.58MB/s]
+
+
+Downloading subject04_wht: 10.2MB [00:09, 1.71MB/s]
+
+
+Downloading subject04_gry: 7.08MB [00:09, 1.30MB/s]
+
+
+Downloading subject04_csf: 8.66MB [00:10, 1.57MB/s]
+
+
+Downloading subject04_fat: 1.38MB [00:02, 611kB/s]
+
+
+Downloading subject04_wht: 10.3MB [00:10, 1.71MB/s]
+
+
+Downloading subject04_gry: 7.20MB [00:10, 1.30MB/s]
+
+
+Downloading subject04_csf: 8.83MB [00:10, 1.63MB/s]
+
+
+Downloading subject04_fat: 1.45MB [00:02, 586kB/s]
+
+
+Downloading subject04_wht: 10.5MB [00:10, 1.75MB/s]
+
+
+Downloading subject04_gry: 7.33MB [00:10, 1.28MB/s]
+
+
+Downloading subject04_csf: 8.99MB [00:10, 1.48MB/s]
+
+
+Downloading subject04_fat: 1.51MB [00:03, 588kB/s]
+
+
+Downloading subject04_wht: 10.7MB [00:10, 1.74MB/s]
+
+
+Downloading subject04_gry: 7.45MB [00:10, 1.16MB/s]
+
+
+Downloading subject04_csf: 9.13MB [00:10, 1.46MB/s]
+
+
+Downloading subject04_gry: 7.56MB [00:10, 1.10MB/s]
+
+
+Downloading subject04_gry: 7.72MB [00:10, 1.24MB/s]
+
+
+
+
+
+Downloading subject04_gry: 7.99MB [00:10, 1.65MB/s]
+
+
+Downloading subject04_gry: 8.25MB [00:10, 1.87MB/s]
+
+
+
+
+
+Downloading subject04_gry: 8.61MB [00:10, 2.36MB/s]
+
+
+
+
+
+Downloading subject04_gry: 8.86MB [00:10, 2.41MB/s]
+
+
+Downloading subject04_gry: 9.14MB [00:11, 2.56MB/s]
+
+
+Downloading subject04_mus: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_gry: 9.41MB [00:11, 2.58MB/s]
+
+
+Downloading subject04_gry: 9.67MB [00:11, 2.60MB/s]
+
+
+Downloading subject04_gry: 9.95MB [00:11, 2.69MB/s]
+
+
+Downloading subject04_gry: 10.2MB [00:11, 2.52MB/s]
+
+
+Downloading subject04_m-s: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_mus: 1.00kB [00:00, 2.34kB/s]
+
+
+Downloading subject04_gry: 10.5MB [00:11, 2.34MB/s]
+
+
+Downloading subject04_skl: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_mus: 97.0kB [00:00, 226kB/s]
+
+
+Downloading subject04_gry: 10.7MB [00:11, 2.13MB/s]
+
+
+Downloading subject04_mus: 449kB [00:00, 981kB/s]
+
+
+Downloading subject04_mus: 881kB [00:00, 1.82MB/s]
+
+
+Downloading subject04_gry: 10.9MB [00:11, 1.70MB/s]
+
+
+Downloading subject04_mus: 1.11MB [00:00, 1.82MB/s]
+
+
+Downloading subject04_gry: 11.1MB [00:12, 1.58MB/s]
+
+
+Downloading subject04_mus: 1.33MB [00:01, 1.82MB/s]
+
+
+Downloading subject04_gry: 11.3MB [00:12, 1.75MB/s]
+
+
+Downloading subject04_mus: 1.55MB [00:01, 1.90MB/s]
+
+
+Downloading subject04_m-s: 1.00kB [00:00, 1.35kB/s]
+
+
+Downloading subject04_gry: 11.5MB [00:12, 1.65MB/s]
+
+
+Downloading subject04_mus: 1.78MB [00:01, 2.01MB/s]
+
+
+Downloading subject04_m-s: 97.0kB [00:00, 150kB/s]
+
+
+Downloading subject04_gry: 11.6MB [00:12, 1.53MB/s]
+
+
+Downloading subject04_mus: 2.00MB [00:01, 2.02MB/s]
+
+
+Downloading subject04_m-s: 369kB [00:01, 604kB/s]
+
+
+Downloading subject04_skl: 1.00kB [00:00, 1.11kB/s]
+
+
+Downloading subject04_gry: 11.8MB [00:12, 1.52MB/s]
+
+
+Downloading subject04_mus: 2.21MB [00:01, 2.00MB/s]
+
+
+Downloading subject04_m-s: 513kB [00:01, 776kB/s]
+
+
+Downloading subject04_skl: 96.0kB [00:01, 126kB/s]
+
+
+Downloading subject04_gry: 11.9MB [00:12, 1.46MB/s]
+
+
+Downloading subject04_mus: 2.41MB [00:01, 2.01MB/s]
+
+
+Downloading subject04_m-s: 657kB [00:01, 924kB/s]
+
+
+Downloading subject04_skl: 257kB [00:01, 362kB/s]
+
+
+Downloading subject04_gry: 12.1MB [00:12, 1.42MB/s]
+
+
+Downloading subject04_mus: 2.60MB [00:01, 1.98MB/s]
+
+
+Downloading subject04_m-s: 817kB [00:01, 1.07MB/s]
+
+
+Downloading subject04_gry: 12.2MB [00:12, 1.39MB/s]
+
+
+Downloading subject04_skl: 433kB [00:01, 581kB/s]
+
+
+Downloading subject04_mus: 2.80MB [00:01, 1.96MB/s]
+
+
+Downloading subject04_m-s: 961kB [00:01, 1.17MB/s]
+
+
+Downloading subject04_gry: 12.4MB [00:13, 1.37MB/s]
+
+
+Downloading subject04_mus: 2.99MB [00:01, 1.95MB/s]
+
+
+Downloading subject04_m-s: 1.08MB [00:01, 1.24MB/s]
+
+
+Downloading subject04_skl: 593kB [00:01, 730kB/s]
+
+
+Downloading subject04_gry: 12.5MB [00:13, 1.39MB/s]
+
+
+Downloading subject04_mus: 3.18MB [00:02, 1.93MB/s]
+
+
+Downloading subject04_skl: 704kB [00:01, 809kB/s]
+
+
+Downloading subject04_m-s: 1.22MB [00:01, 1.28MB/s]
+
+
+Downloading subject04_gry: 12.6MB [00:13, 1.40MB/s]
+
+
+Downloading subject04_mus: 3.36MB [00:02, 1.84MB/s]
+
+
+Downloading subject04_skl: 814kB [00:01, 876kB/s]
+
+
+Downloading subject04_m-s: 1.36MB [00:01, 1.33MB/s]
+
+
+Downloading subject04_gry: 12.8MB [00:13, 1.40MB/s]
+
+
+Downloading subject04_m-s: 1.50MB [00:01, 1.36MB/s]
+
+
+Downloading subject04_mus: 3.54MB [00:02, 1.79MB/s]
+
+
+Downloading subject04_skl: 945kB [00:01, 883kB/s]
+
+
+Downloading subject04_gry: 12.9MB [00:13, 1.41MB/s]
+
+
+Downloading subject04_m-s: 1.64MB [00:01, 1.37MB/s]
+
+
+Downloading subject04_mus: 3.71MB [00:02, 1.68MB/s]
+
+
+Downloading subject04_skl: 1.02MB [00:01, 880kB/s]
+
+
+Downloading subject04_gry: 13.1MB [00:13, 1.42MB/s]
+
+
+Downloading subject04_m-s: 1.80MB [00:02, 1.41MB/s]
+
+
+Downloading subject04_mus: 3.88MB [00:02, 1.57MB/s]
+
+
+Downloading subject04_gry: 13.2MB [00:13, 1.44MB/s]
+
+
+Downloading subject04_skl: 1.13MB [00:02, 884kB/s]
+
+
+Downloading subject04_m-s: 1.95MB [00:02, 1.46MB/s]
+
+
+Downloading subject04_mus: 4.03MB [00:02, 1.57MB/s]
+
+
+Downloading subject04_gry: 13.3MB [00:13, 1.44MB/s]
+
+
+Downloading subject04_skl: 1.22MB [00:02, 877kB/s]
+
+
+Downloading subject04_m-s: 2.11MB [00:02, 1.48MB/s]
+
+
+Downloading subject04_mus: 4.18MB [00:02, 1.53MB/s]
+
+
+Downloading subject04_gry: 13.5MB [00:13, 1.48MB/s]
+
+
+Downloading subject04_skl: 1.31MB [00:02, 877kB/s]
+
+
+Downloading subject04_m-s: 2.27MB [00:02, 1.51MB/s]
+
+
+Downloading subject04_mus: 4.33MB [00:02, 1.50MB/s]
+
+
+Downloading subject04_gry: 13.7MB [00:13, 1.50MB/s]
+
+
+Downloading subject04_skl: 1.42MB [00:02, 930kB/s]
+
+
+Downloading subject04_m-s: 2.42MB [00:02, 1.53MB/s]
+
+
+Downloading subject04_mus: 4.47MB [00:02, 1.51MB/s]
+
+
+Downloading subject04_gry: 13.8MB [00:14, 1.55MB/s]
+
+
+Downloading subject04_skl: 1.53MB [00:02, 955kB/s]
+
+
+Downloading subject04_m-s: 2.58MB [00:02, 1.52MB/s]
+
+
+Downloading subject04_mus: 4.63MB [00:03, 1.50MB/s]
+
+
+Downloading subject04_gry: 14.0MB [00:14, 1.59MB/s]
+
+
+Downloading subject04_skl: 1.67MB [00:02, 1.08MB/s]
+
+
+Downloading subject04_m-s: 2.73MB [00:02, 1.52MB/s]
+
+
+Downloading subject04_mus: 4.77MB [00:03, 1.50MB/s]
+
+
+Downloading subject04_skl: 1.78MB [00:02, 1.09MB/s]
+
+
+Downloading subject04_m-s: 2.87MB [00:02, 1.50MB/s]
+
+
+Downloading subject04_mus: 4.92MB [00:03, 1.49MB/s]
+
+
+Downloading subject04_skl: 1.89MB [00:02, 1.10MB/s]
+
+
+Downloading subject04_m-s: 3.02MB [00:02, 1.48MB/s]
+
+
+Downloading subject04_mus: 5.07MB [00:03, 1.49MB/s]
+
+
+Downloading subject04_skl: 2.00MB [00:02, 1.11MB/s]
+
+
+Downloading subject04_gry: 14.2MB [00:14, 924kB/s]
+
+
+Downloading subject04_m-s: 3.16MB [00:02, 1.45MB/s]
+
+
+Downloading subject04_mus: 5.22MB [00:03, 1.48MB/s]
+
+
+Downloading subject04_skl: 2.13MB [00:03, 1.12MB/s]
+
+
+Downloading subject04_m-s: 3.50MB [00:03, 2.06MB/s]
+
+
+Downloading subject04_mus: 5.38MB [00:03, 1.50MB/s]
+
+
+Downloading subject04_m-s: 3.74MB [00:03, 2.15MB/s]
+
+
+Downloading subject04_skl: 2.25MB [00:03, 1.14MB/s]
+
+
+Downloading subject04_mus: 5.64MB [00:03, 1.86MB/s]
+
+
+
+
+
+Downloading subject04_m-s: 3.94MB [00:03, 2.10MB/s]
+
+
+Downloading subject04_skl: 2.38MB [00:03, 1.16MB/s]
+
+
+Downloading subject04_mus: 5.84MB [00:03, 1.92MB/s]
+
+
+Downloading subject04_skl: 2.49MB [00:03, 1.15MB/s]
+
+
+Downloading subject04_m-s: 4.14MB [00:03, 1.95MB/s]
+
+
+Downloading subject04_mus: 6.05MB [00:03, 1.94MB/s]
+
+
+Downloading subject04_m-s: 4.38MB [00:03, 2.05MB/s]
+
+
+Downloading subject04_m-s: 4.58MB [00:03, 2.04MB/s]
+
+
+Downloading subject04_m-s: 4.83MB [00:03, 2.11MB/s]
+
+
+Downloading subject04_ves: 0.00B [00:00, ?B/s]
+
+
+
+
+
+Downloading subject04_m-s: 5.08MB [00:03, 2.25MB/s]
+
+
+
+
+
+Downloading subject04_m-s: 5.41MB [00:03, 2.57MB/s]
+
+
+Downloading subject04_m-s: 5.70MB [00:04, 2.67MB/s]
+
+
+Downloading subject04_m-s: 5.99MB [00:04, 2.73MB/s]
+
+
+Downloading subject04_ves: 1.00kB [00:00, 2.05kB/s]
+
+
+Downloading subject04_m-s: 6.27MB [00:04, 2.77MB/s]
+
+
+Downloading subject04_fat2: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_ves: 97.0kB [00:00, 210kB/s]
+
+
+Downloading subject04_m-s: 6.53MB [00:04, 2.65MB/s]
+
+
+Downloading subject04_dura: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_ves: 385kB [00:00, 843kB/s]
+
+
+Downloading subject04_m-s: 6.79MB [00:04, 2.28MB/s]
+
+
+Downloading subject04_ves: 577kB [00:00, 1.09MB/s]
+
+
+Downloading subject04_ves: 753kB [00:00, 1.27MB/s]
+
+
+Downloading subject04_ves: 961kB [00:01, 1.50MB/s]
+
+
+Downloading subject04_m-s: 7.01MB [00:04, 1.61MB/s]
+
+
+Downloading subject04_ves: 1.17MB [00:01, 1.75MB/s]
+
+
+Downloading subject04_ves: 1.39MB [00:01, 1.84MB/s]
+
+
+
+
+
+Downloading subject04_ves: 1.64MB [00:01, 2.03MB/s]
+
+
+Downloading subject04_dura: 1.00kB [00:00, 1.45kB/s]
+
+
+Downloading subject04_fat2: 1.00kB [00:00, 1.22kB/s]
+
+
+Downloading subject04_ves: 1.95MB [00:01, 2.36MB/s]
+
+
+Downloading subject04_dura: 17.0kB [00:00, 28.5kB/s]
+
+
+Downloading subject04_fat2: 97.0kB [00:00, 137kB/s]
+
+
+Downloading subject04_ves: 2.19MB [00:01, 2.22MB/s]
+
+
+Downloading subject04_dura: 113kB [00:00, 211kB/s]
+
+
+Downloading subject04_fat2: 385kB [00:01, 600kB/s]
+
+
+Downloading subject04_ves: 2.41MB [00:01, 2.01MB/s]
+
+
+Downloading subject04_dura: 209kB [00:01, 367kB/s]
+
+
+Downloading subject04_fat2: 625kB [00:01, 949kB/s]
+
+
+Downloading subject04_dura: 305kB [00:01, 501kB/s]
+
+
+Downloading subject04_mrw: 0.00B [00:00, ?B/s]
+
+
+Downloading subject04_fat2: 810kB [00:01, 1.07MB/s]
+
+
+Downloading subject04_ves: 2.62MB [00:01, 1.59MB/s]
+
+
+Downloading subject04_dura: 378kB [00:01, 523kB/s]
+
+
+Downloading subject04_fat2: 978kB [00:01, 1.17MB/s]
+
+
+Downloading subject04_ves: 2.79MB [00:02, 1.49MB/s]
+
+
+Downloading subject04_fat2: 1.11MB [00:01, 1.27MB/s]
+
+
+Downloading subject04_dura: 445kB [00:01, 464kB/s]
+
+
+Downloading subject04_fat2: 1.27MB [00:01, 1.34MB/s]
+
+
+Downloading subject04_dura: 502kB [00:01, 435kB/s]
+
+
+Downloading subject04_fat2: 1.42MB [00:01, 1.28MB/s]
+
+
+Downloading subject04_dura: 561kB [00:01, 439kB/s]
+
+
+Downloading subject04_fat2: 1.56MB [00:01, 1.26MB/s]
+
+
+
+
+
+Downloading subject04_dura: 673kB [00:01, 563kB/s]
+
+
+Downloading subject04_fat2: 1.70MB [00:02, 1.29MB/s]
+
+
+Downloading subject04_dura: 785kB [00:01, 667kB/s]
+
+
+Downloading subject04_fat2: 1.83MB [00:02, 1.25MB/s]
+
+
+Downloading subject04_mrw: 1.00kB [00:00, 1.23kB/s]
+
+
+Downloading subject04_dura: 929kB [00:02, 838kB/s]
+
+
+Downloading subject04_fat2: 1.95MB [00:02, 1.25MB/s]
+
+
+Downloading subject04_mrw: 65.0kB [00:00, 95.4kB/s]
+
+
+Downloading subject04_fat2: 2.13MB [00:02, 1.37MB/s]
+
+
+Downloading subject04_mrw: 209kB [00:01, 329kB/s]
+
+
+Downloading subject04_fat2: 2.27MB [00:02, 1.38MB/s]
+
+
+Downloading subject04_mrw: 417kB [00:01, 680kB/s]
+
+
+
+
+
+Downloading subject04_fat2: 2.44MB [00:02, 1.49MB/s]
+
+
+Downloading subject04_mrw: 593kB [00:01, 890kB/s]
+
+
+Downloading subject04_fat2: 2.64MB [00:02, 1.66MB/s]
+
+
+Downloading subject04_mrw: 817kB [00:01, 1.14MB/s]
+
+
+Downloading subject04_fat2: 2.84MB [00:02, 1.75MB/s]
+
+
+Downloading subject04_mrw: 0.99MB [00:01, 1.27MB/s]
+
+
+Downloading subject04_mrw: 1.18MB [00:01, 1.46MB/s]
+
+
+
+
+
+Downloading subject04_mrw: 1.38MB [00:01, 1.59MB/s]
+
+
+Downloading subject04_mrw: 1.56MB [00:01, 1.67MB/s]
+
+
+Downloading subject04_mrw: 1.74MB [00:01, 1.69MB/s]
+
+
+Downloading subject04_mrw: 1.91MB [00:02, 1.66MB/s]
+
+
+Downloading subject04_mrw: 2.08MB [00:02, 1.62MB/s]
+
+
+Downloading subject04_mrw: 2.24MB [00:02, 1.16MB/s]
+
+
+                                                   test volume (3, 64, 64, 64), torch.complex64
+</pre></div>
+</div>
+</section>
+<section id="the-network">
+<h2>The network<a class="headerlink" href="#the-network" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">UNet</span></code></a> is a residual U-Net whose last convolution
+starts at zero, so that the untrained network returns its input.
+<a class="reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComplexNet</span></code></a> lays the three complex contrasts out
+as its six real channels – the real parts, then the imaginary parts – and
+lays its output back out as complex contrasts. With
+<code class="docutils literal notranslate"><span class="pre">normalize=&quot;whiten&quot;</span></code> it subtracts each channel’s mean and multiplies by the
+inverse square root of the channels’ covariance before the call, and undoes
+both after it, so that the network sees uncorrelated channels of unit
+variance whatever the relative energy of the contrasts.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">net</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">learning</span><span class="o">.</span><span class="n">UNet</span></a><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">widths</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">denoiser</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">learning</span><span class="o">.</span><span class="n">ComplexNet</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">net</span></a><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">whiten</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">weights</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">(</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">net</span></a><span class="o">.</span><span class="n">parameters</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">weights</span><span class="si">}</span><span class="s2"> weights, </span><span class="si">{</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">weights</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB in single precision</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="s2">&quot;</span><span class="s2">untrained network returns its input:</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="n">torch</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">denoiser</span></a><span class="p">(</span><span class="n">noisy</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="n">noisy</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>136942 weights, 0.55 MB in single precision
+untrained network returns its input: True
+</pre></div>
+</div>
+</section>
+<section id="patches-and-augmentation">
+<h2>Patches and augmentation<a class="headerlink" href="#patches-and-augmentation" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">torchio</span></code> holds the training volume as a <code class="xref py py-class docutils literal notranslate"><span class="pre">torchio.ScalarImage</span></code> of
+real channels (<a class="reference internal" href="../../generated/bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><code class="xref py py-func docutils literal notranslate"><span class="pre">as_real()</span></code></a>) and draws patches from it
+through a <code class="xref py py-class docutils literal notranslate"><span class="pre">torchio.Queue</span></code>. The augmentations are the ones that map a
+complex image to another the acquisition could have produced: a flip, and
+<a class="reference internal" href="../../generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain" title="bartorch.learning.training.RandomGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomGain</span></code></a>, a complex gain shared by the
+contrasts, which varies the overall scale and phase. An intensity
+transformation applied to the real and imaginary channels separately, such
+as a gamma correction, would not. The phase is varied over a limited range:
+a network trained over every global phase has to learn to commute with a
+rotation of its real and imaginary channels, which takes more training than
+this lesson runs.</p>
+<p>Each patch becomes a training pair when a new draw of noise is added to it,
+so the network sees a different noise realization at every epoch.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">subject</span> <span class="o">=</span> <span class="n">tio</span><span class="o">.</span><span class="n">Subject</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">tio</span><span class="o">.</span><span class="n">ScalarImage</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><span class="n">learning</span><span class="o">.</span><span class="n">as_real</span></a><span class="p">(</span><span class="n">train_volume</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">augment</span> <span class="o">=</span> <span class="n">tio</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span><span class="w">
+</span>    <span class="p">[</span><span class="n">tio</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-learning-training sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain" title="bartorch.learning.training.RandomGain"><span class="n">training</span><span class="o">.</span><span class="n">RandomGain</span></a><span class="p">(</span><span class="n">phase</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">log_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="n">queue</span> <span class="o">=</span> <span class="n">tio</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="w">
+</span>    <span class="n">tio</span><span class="o">.</span><span class="n">SubjectsDataset</span><span class="p">(</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">augment</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="n">max_length</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span><span class="w">
+</span>    <span class="n">samples_per_volume</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="w">
+</span>    <span class="n">sampler</span><span class="o">=</span><span class="n">tio</span><span class="o">.</span><span class="n">UniformSampler</span><span class="p">(</span><span class="n">PATCH</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">pairs</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">made</span> <span class="o">=</span> <span class="p">[</span><span class="p">]</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">:</span><span class="w">
+</span>        <span class="n">clean</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.learning.as_complex.html#bartorch.learning.as_complex" title="bartorch.learning.as_complex"><span class="n">learning</span><span class="o">.</span><span class="n">as_complex</span></a><span class="p">(</span><span class="n">patch</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">image</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">[</span><span class="n">tio</span><span class="o">.</span><span class="n">DATA</span><span class="p">]</span><span class="o">.</span><span class="n">unflatten</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>        <span class="n">made</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="p">{</span><span class="s2">&quot;</span><span class="s2">input</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">clean</span> <span class="o">+</span> <span class="n">NOISE</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">clean</span><span class="p">)</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">target</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">clean</span><span class="p">}</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">made</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="n">validation</span> <span class="o">=</span> <span class="p">[</span><span class="p">{</span><span class="s2">&quot;</span><span class="s2">input</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">noisy</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">target</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">test_volume</span><span class="p">}</span><span class="p">]</span><span class="w">
+</span><span class="n">trainer</span> <span class="o">=</span> <span class="n">lightning</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="w">
+</span>    <span class="n">max_epochs</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="w">
+</span>    <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">cpu</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
+</span>    <span class="n">logger</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span>    <span class="n">enable_checkpointing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span>    <span class="n">enable_model_summary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span>    <span class="n">enable_progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-bartorch-learning-training sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction" title="bartorch.learning.training.Reconstruction"><span class="n">training</span><span class="o">.</span><span class="n">Reconstruction</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">denoiser</span></a><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">denoiser</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">2e-3</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="n">DataLoader</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">pairs</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="n">DataLoader</span><span class="p">(</span><span class="n">validation</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+</pre></div>
+</div>
+</section>
+<section id="applying-the-network-patch-by-patch">
+<h2>Applying the network patch by patch<a class="headerlink" href="#applying-the-network-patch-by-patch" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../../generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-class docutils literal notranslate"><span class="pre">Patchwise</span></code></a> applies the network to an image held
+on the host a few patches at a time, on the network’s device, under mixed
+precision there, and assembles the result on the host. On a card only the
+network and <code class="docutils literal notranslate"><span class="pre">batch</span></code> patches are resident, so a volume larger than the
+card’s memory is denoised by a network trained on patches of it. Here, on the
+host, the whole volume is also small enough to be denoised in one call,
+which is the reference the patchwise result is compared with.</p>
+<p>A U-Net is not translation invariant at a patch boundary: its receptive field
+extends past the patch, where it sees zeros rather than the neighbouring
+voxels. On a fixed grid of patches the errors fall along the same planes
+every time. With <code class="docutils literal notranslate"><span class="pre">shift=True</span></code>, the grid is offset at random at every call,
+and averaging a few calls with <a class="reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">moments()</span></code></a> spreads
+the boundary errors across the volume.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">whole_net</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">learning</span><span class="o">.</span><span class="n">ComplexNet</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">net</span></a><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">whiten</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">fixed</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">learning</span><span class="o">.</span><span class="n">ComplexNet</span></a><span class="p">(</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><span class="n">learning</span><span class="o">.</span><span class="n">Patchwise</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">net</span></a><span class="p">,</span> <span class="p">(</span><span class="n">PATCH</span><span class="p">,</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">whiten</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">shifted</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">learning</span><span class="o">.</span><span class="n">ComplexNet</span></a><span class="p">(</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><span class="n">learning</span><span class="o">.</span><span class="n">Patchwise</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">net</span></a><span class="p">,</span> <span class="p">(</span><span class="n">PATCH</span><span class="p">,</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">whiten</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">whole</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">whole_net</span></a><span class="p">(</span><span class="n">noisy</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span>    <span class="n">grid</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">fixed</span></a><span class="p">(</span><span class="n">noisy</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span>    <span class="n">averaged</span><span class="p">,</span> <span class="n">spread</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><span class="n">learning</span><span class="o">.</span><span class="n">moments</span></a><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">shifted</span></a><span class="p">(</span><span class="n">noisy</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="n">made</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">made</span> <span class="o">-</span> <span class="n">test_volume</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">test_volume</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">noisy                  relative error </span><span class="si">{</span><span class="n">error</span><span class="p">(</span><span class="n">noisy</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">made</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">whole volume</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">whole</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">fixed grid</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">8 random grids</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">averaged</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;22</span><span class="si">}</span><span class="s2"> relative error </span><span class="si">{</span><span class="n">error</span><span class="p">(</span><span class="n">made</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">departure from the whole volume </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">made</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">whole</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">whole</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../../_images/sphx_glr_03-networks-for-complex-volumes_002.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_002.png" alt="whole volume, fixed grid, fixed grid, departure, 8 random grids, departure" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>noisy                  relative error 0.1850
+whole volume           relative error 0.1589, departure from the whole volume 0.0000
+fixed grid             relative error 0.1632, departure from the whole volume 0.0859
+8 random grids         relative error 0.1517, departure from the whole volume 0.0748
+</pre></div>
+</div>
+<p>The departure of the fixed grid lies on the planes between patches, the same
+planes at every call. A shifted grid covers the volume with one more patch
+along each axis and so has more boundaries, and each call departs further
+from the whole-volume result; but the boundaries move from call to call, and
+the average of eight calls spreads the departure across the volume instead
+of concentrating it on planes. Neither changes the error against the
+reference beyond the third digit. Inside an iteration, which applies the
+denoiser once per step, a single shifted grid per call is enough: no plane
+receives the boundary error at every step. The variance
+<a class="reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">moments()</span></code></a> returns is a map of how much the result
+depends on where the patches fall, one of the spreads of
+<a class="reference internal" href="07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a>.</p>
+</section>
+<section id="size-of-the-network">
+<h2>Size of the network<a class="headerlink" href="#size-of-the-network" title="Link to this heading">#</a></h2>
+<p>The weights determine the storage footprint and, with the patch size, the
+memory of a call. The default widths of <a class="reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">UNet</span></code></a>,
+<code class="docutils literal notranslate"><span class="pre">(32,</span> <span class="pre">64,</span> <span class="pre">128,</span> <span class="pre">256)</span></code>, give a three-dimensional network of a few million
+weights. A series of frames – a cine, a functional run – is taken with
+<code class="docutils literal notranslate"><span class="pre">frames=True</span></code>: the network then convolves each frame spatially and the
+frames with a separate one-dimensional convolution, and never downsamples
+the frame axis; <code class="docutils literal notranslate"><span class="pre">periodic=True</span></code> pads it circularly, which suits a cardiac
+cycle. This factorization costs few weights beyond the spatial network.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">candidate</span></a> <span class="ow">in</span> <span class="p">(</span><span class="w">
+</span>    <span class="p">(</span><span class="s2">&quot;</span><span class="s2">3D, widths (8, 16, 32)</span><span class="s2">&quot;</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">net</span></a><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="p">(</span><span class="s2">&quot;</span><span class="s2">3D, default widths</span><span class="s2">&quot;</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">learning</span><span class="o">.</span><span class="n">UNet</span></a><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="p">(</span><span class="s2">&quot;</span><span class="s2">3D + frames, default widths</span><span class="s2">&quot;</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">learning</span><span class="o">.</span><span class="n">UNet</span></a><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">(</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">candidate</span></a><span class="o">.</span><span class="n">parameters</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;28</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> M weights, </span><span class="si">{</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">5.1f</span><span class="si">}</span><span class="s2"> MB in half precision</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">frames</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">cine</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">learning</span><span class="o">.</span><span class="n">UNet</span></a><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">widths</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">(n, channels, frames, z, y, x):</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">cine</span></a><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>3D, widths (8, 16, 32)        0.14 M weights,   0.3 MB in half precision
+3D, default widths            8.82 M weights,  17.6 MB in half precision
+3D + frames, default widths   9.48 M weights,  19.0 MB in half precision
+(n, channels, frames, z, y, x): (1, 6, 10, 16, 16, 16)
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 29.311 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-03-networks-for-complex-volumes-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c8c571e6093282b50040904de5551870/03-networks-for-complex-volumes.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-networks-for-complex-volumes.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/ef267ae61603090f3178a05f0fac8b6b/03-networks-for-complex-volumes.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">03-networks-for-complex-volumes.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/991a0f07b96796d99b1159d038302ce5/03-networks-for-complex-volumes.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">03-networks-for-complex-volumes.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="02-modl-with-admm.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">MoDL, on BART’s ADMM</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="04-staged-training.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Staged training of an unrolled network</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-multi-contrast-complex-volume">A multi-contrast complex volume</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-network">The network</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#patches-and-augmentation">Patches and augmentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-the-network-patch-by-patch">Applying the network patch by patch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#size-of-the-network">Size of the network</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By bartorch contributors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024–2026, bartorch contributors.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

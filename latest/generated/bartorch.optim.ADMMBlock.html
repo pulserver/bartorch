@@ -224,6 +224,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -502,7 +503,12 @@
 term’s split and dual.  The state’s <code class="docutils literal notranslate"><span class="pre">done</span></code> is Boyd’s residual test, and
 <code class="docutils literal notranslate"><span class="pre">invokes</span></code> counts inner iterations, the quantity BART’s <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> budgets.
 Each step takes its own <code class="docutils literal notranslate"><span class="pre">rho</span></code> unless <code class="docutils literal notranslate"><span class="pre">dynamic_rho</span></code> or <code class="docutils literal notranslate"><span class="pre">hogwild</span></code> moves
-it, in which case the state carries it.  With a term that introduces
+it, in which case the state carries it.  A sequence of <code class="docutils literal notranslate"><span class="pre">rho</span></code> is a
+schedule, one per step and the last repeated beyond its end, with the
+scaled duals rescaled by the ratio of consecutive values so that the
+unscaled ones carry over: the increasing penalty of annealed plug-and-play,
+<code class="docutils literal notranslate"><span class="pre">rho_k</span> <span class="pre">=</span> <span class="pre">lambda</span> <span class="pre">/</span> <span class="pre">sigma_k</span> <span class="pre">**</span> <span class="pre">2</span></code> against a denoiser’s schedule of
+<code class="docutils literal notranslate"><span class="pre">sigma</span></code>.  With a term that introduces
 auxiliary variables the state vector is the image followed by those
 variables, and <a class="reference internal" href="#bartorch.optim.ADMMBlock.output" title="bartorch.optim.ADMMBlock.output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code></a> returns the image alone.</p>
 <dl class="py method">
@@ -537,6 +543,9 @@ registered hooks while the latter silently ignores them.</p>
 <div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser in the proximal step of BART&#x27;s alternating-direction iteration, trained end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
   <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A denoiser conditioned on the noise level, trained once on images and used in ADMM with a noise level that decreases over the iterations."><img alt="" src="../_images/sphx_glr_06-annealed-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
 </div></div></section>
 </section>
 

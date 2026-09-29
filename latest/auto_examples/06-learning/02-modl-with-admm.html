@@ -67,7 +67,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Tours" href="../07-tours/index.html" />
+    <link rel="next" title="Networks for complex volumes" href="03-networks-for-complex-volumes.html" />
     <link rel="prev" title="Plug-and-play denoisers" href="01-plug-and-play.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -228,6 +228,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Nonlinear forward models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -540,8 +541,8 @@ end to end with <code class="docutils literal notranslate"><span class="pre">lig
 per-iteration training.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a>, which used a pretrained denoiser without
-training. This lesson ends the course; the standalone examples of
-<a class="reference internal" href="../07-tours/index.html"><span class="doc">Tours</span></a> apply the package to individual problems.</p>
+training. The next lesson, <a class="reference internal" href="03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a>, builds
+networks for complex multi-channel volumes.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
 </span><span class="w">
@@ -765,14 +766,10 @@ reconstruction that produced it.</p>
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">rho ended at </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><span class="n">block</span></a><span class="o">.</span><span class="n">rho</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>GPU available: False, used: False
-TPU available: False, using: 0 TPU cores
-💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-`Trainer.fit` stopped: `max_epochs=15` reached.
-Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:10 • 0:00:00 1.19it/s loss: 0.000 psnr:
+Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:10 • 0:00:00 1.14it/s loss: 0.000 psnr:
                                                                32.724 ssim:
                                                                0.889
 rho ended at 0.027
@@ -852,25 +849,12 @@ end-to-end one and each block is applied twice.</p></li>
 </ul>
 <p>Pretraining the denoiser in isolation, then greedy per-iteration training,
 then end-to-end fine-tuning with checkpointing, is the staged schedule
-reported for a fully three-dimensional unrolled reconstruction <a class="footnote-reference brackets" href="#urman" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">greedy</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><span class="n">greedy_block</span></a> <span class="o">=</span> <span class="n">modl</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">greedy</span></a><span class="o">.</span><span class="n">detach</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
-</span><span class="w">
-</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">greedy</span></a><span class="o">.</span><span class="n">parameters</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span><span class="w">
-</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">start</span> <span class="o">=</span> <span class="n">measure</span><span class="p">(</span><span class="n">train_images</span><span class="p">[</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span>    <span class="c1"># One loss per iteration, each propagating only into the step that produced it.</span><span class="w">
-</span>    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-method reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled.steps" title="bartorch.learning.Unrolled.steps"><span class="n">greedy</span><span class="o">.</span><span class="n">steps</span></a><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">start</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>        <span class="p">(</span><span class="n">image</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span>    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">greedy: rho </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><span class="n">greedy_block</span></a><span class="o">.</span><span class="n">rho</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>greedy: rho 0.047
-</pre></div>
-</div>
+reported for a fully three-dimensional unrolled reconstruction <a class="footnote-reference brackets" href="#urman" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>,
+and the subject of <a class="reference internal" href="04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a>. Greedy training does not apply
+to the ADMM step: its image is the x-update, which depends on the denoiser
+only through the previous iteration’s auxiliary variable, and a detached
+start removes that dependence. The staged lesson uses a proximal-gradient
+step, whose image is the denoiser’s output.</p>
 <p>The gradient of <code class="docutils literal notranslate"><span class="pre">rho</span></code> with checkpointing is compared below with the
 gradient recorded over the whole stack. <code class="docutils literal notranslate"><span class="pre">rho</span></code> enters every iteration and
 the conjugate-gradient solve of each x-update, so its gradient propagates
@@ -887,7 +871,7 @@ through all of them.</p>
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">rho</span><span class="s2">'</span><span class="s2">s gradient: </span><span class="si">{</span><span class="n">made</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> recorded, </span><span class="si">{</span><span class="n">made</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> recomputed</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rho's gradient: 0.000183318 recorded, 0.000183318 recomputed
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rho's gradient: 0.000277808 recorded, 0.000277808 recomputed
 </pre></div>
 </div>
 <p>A third alternative is not to unroll. <a class="reference internal" href="../../generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a>
@@ -932,7 +916,7 @@ Information Processing Systems</em> 32:688-699 (2019).
 <a class="reference external" href="https://arxiv.org/abs/1909.01377">https://arxiv.org/abs/1909.01377</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 59.887 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 7.341 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-02-modl-with-admm-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/42594de98a240394ccc806510fa4d388/02-modl-with-admm.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-modl-with-admm.ipynb</span></code></a></p>
@@ -969,11 +953,11 @@ Information Processing Systems</em> 32:688-699 (2019).
       </div>
     </a>
     <a class="right-next"
-       href="../07-tours/index.html"
+       href="03-networks-for-complex-volumes.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Tours</p>
+        <p class="prev-next-title">Networks for complex volumes</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

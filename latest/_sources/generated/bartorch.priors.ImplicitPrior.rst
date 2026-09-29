@@ -7,6 +7,8 @@
 .. autoclass:: ImplicitPrior
    :show-inheritance:
 
+   .. autoproperty:: stationary
+
    .. automethod:: prox
 
    .. automethod:: prox_shape

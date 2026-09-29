@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:10.650** total execution time for 3 files **from auto_examples/04-non-cartesian**:
+**00:11.067** total execution time for 3 files **from auto_examples/04-non-cartesian**:
 
 .. container::
 
@@ -33,11 +33,11 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_04-non-cartesian_03-dynamic-golden-angle.py` (``03-dynamic-golden-angle.py``)
-     - 00:04.943
+     - 00:05.202
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-non-cartesian_02-radial-sense.py` (``02-radial-sense.py``)
-     - 00:04.326
+     - 00:04.468
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py` (``01-trajectories-and-transforms.py``)
-     - 00:01.381
+     - 00:01.397
      - 0.0

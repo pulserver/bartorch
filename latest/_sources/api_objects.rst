@@ -207,9 +207,27 @@ bartorch.learning
    :toctree: generated
    :nosignatures:
 
+   UNet
+   ComplexNet
+   Patchwise
    Unrolled
+   split
+   moments
+   calibrate
    as_real
    as_complex
+
+bartorch.learning.training
+--------------------------
+
+.. currentmodule:: bartorch.learning.training
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   Reconstruction
+   RandomGain
 
 bartorch.apps
 -------------

@@ -225,6 +225,7 @@
 <li class="toctree-l2"><a class="reference internal" href="explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explanation/nonlinear.html">Nonlinear forward models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -485,17 +486,19 @@
 </li>
       <li><a href="generated/bartorch.tools.affine_transform.html#bartorch.tools.affine_transform">affine_transform() (in module bartorch.tools)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer.amplification">amplification (bartorch.tools.SpiralTransfer property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate.angles">angles (bartorch.tools.RigidMotionEstimate property)</a>
 </li>
       <li><a href="generated/bartorch.apodize.html#bartorch.apodize">apodize() (in module bartorch)</a>
 </li>
-      <li><a href="generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior.apply_transform">apply_transform() (bartorch.priors.ImplicitPrior method)</a>
+      <li><a href="generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain.apply_transform">apply_transform() (bartorch.learning.training.RandomGain method)</a>
 
       <ul>
+        <li><a href="generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior.apply_transform">(bartorch.priors.ImplicitPrior method)</a>
+</li>
         <li><a href="generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.apply_transform">(bartorch.priors.Regularizer method)</a>
 </li>
       </ul></li>
@@ -545,6 +548,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.caldir.html#bartorch.tools.caldir">caldir() (in module bartorch.tools)</a>
 </li>
+      <li><a href="generated/bartorch.learning.calibrate.html#bartorch.learning.calibrate">calibrate() (in module bartorch.learning)</a>
+</li>
       <li><a href="generated/bartorch.tools.calmat.html#bartorch.tools.calmat">calmat() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense">CartesianSense() (in module bartorch.linop)</a>
@@ -577,10 +582,10 @@
 </li>
       <li><a href="generated/bartorch.tools.CoefficientAccessor.html#bartorch.tools.CoefficientAccessor">CoefficientAccessor (class in bartorch.tools)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.Gradunwarp.html#bartorch.tools.Gradunwarp.coefficients">coefficients (bartorch.tools.Gradunwarp attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.cogram">cogram() (bartorch.linop.LinearOperator method)</a>
 </li>
       <li><a href="generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense.coils">coils (bartorch.nlop.NonlinearSense property)</a>
@@ -589,9 +594,13 @@
 </li>
       <li><a href="generated/bartorch.nlop.CoilSense.html#bartorch.nlop.CoilSense">CoilSense() (in module bartorch.nlop)</a>
 </li>
+      <li><a href="generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet">ComplexNet (class in bartorch.learning)</a>
+</li>
       <li><a href="generated/bartorch.linop.ComponentDiagonal.html#bartorch.linop.ComponentDiagonal">ComponentDiagonal (class in bartorch.linop)</a>
 </li>
       <li><a href="generated/bartorch.linop.concatenate.html#bartorch.linop.concatenate">concatenate() (in module bartorch.linop)</a>
+</li>
+      <li><a href="generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction.configure_optimizers">configure_optimizers() (bartorch.learning.training.Reconstruction method)</a>
 </li>
       <li><a href="generated/bartorch.linop.Conj.html#bartorch.linop.Conj">Conj (class in bartorch.linop)</a>
 </li>
@@ -661,10 +670,10 @@
 </li>
       <li><a href="generated/bartorch.tools.estdims.html#bartorch.tools.estdims">estdims() (in module bartorch.tools)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.RigidRegistration.html#bartorch.tools.RigidRegistration.estimate">estimate() (bartorch.tools.RigidRegistration method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.estimate_density.html#bartorch.estimate_density">estimate_density() (in module bartorch)</a>
 </li>
       <li><a href="generated/bartorch.tools.estimate_epi_phase.html#bartorch.tools.estimate_epi_phase">estimate_epi_phase() (in module bartorch.tools)</a>
@@ -674,6 +683,8 @@
       <li><a href="generated/bartorch.tools.estvar.html#bartorch.tools.estvar">estvar() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.nlop.Exp.html#bartorch.nlop.Exp">Exp (class in bartorch.nlop)</a>
+</li>
+      <li><a href="generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise.extra_repr">extra_repr() (bartorch.learning.Patchwise method)</a>
 </li>
       <li><a href="generated/bartorch.linop.Extract.html#bartorch.linop.Extract">Extract (class in bartorch.linop)</a>
 </li>
@@ -715,9 +726,15 @@
 </li>
       <li><a href="generated/bartorch.flip.html#bartorch.flip">flip() (in module bartorch)</a>
 </li>
-      <li><a href="generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled.forward">forward() (bartorch.learning.Unrolled method)</a>
+      <li><a href="generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet.forward">forward() (bartorch.learning.ComplexNet method)</a>
 
       <ul>
+        <li><a href="generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise.forward">(bartorch.learning.Patchwise method)</a>
+</li>
+        <li><a href="generated/bartorch.learning.UNet.html#bartorch.learning.UNet.forward">(bartorch.learning.UNet method)</a>
+</li>
+        <li><a href="generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled.forward">(bartorch.learning.Unrolled method)</a>
+</li>
         <li><a href="generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.forward">(bartorch.linop.LinearOperator method)</a>
 </li>
         <li><a href="generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock.forward">(bartorch.nlop.IRGNMBlock method)</a>
@@ -921,15 +938,17 @@
 </li>
       <li><a href="generated/bartorch.linop.Mean.html#bartorch.linop.Mean">Mean (class in bartorch.linop)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.median_filter.html#bartorch.median_filter">median_filter() (in module bartorch)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.mip.html#bartorch.mip">mip() (in module bartorch)</a>
 </li>
       <li><a href="generated/bartorch.apps.moba.html#bartorch.apps.moba">moba() (in module bartorch.apps)</a>
 </li>
       <li><a href="generated/bartorch.apps.mobafit.html#bartorch.apps.mobafit">mobafit() (in module bartorch.apps)</a>
+</li>
+      <li><a href="generated/bartorch.learning.moments.html#bartorch.learning.moments">moments() (in module bartorch.learning)</a>
 </li>
       <li><a href="generated/bartorch.moving_average.html#bartorch.moving_average">moving_average() (in module bartorch)</a>
 </li>
@@ -989,6 +1008,8 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction.on_validation_epoch_end">on_validation_epoch_end() (bartorch.learning.training.Reconstruction method)</a>
+</li>
       <li><a href="generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.opnorm">opnorm() (bartorch.linop.LinearOperator method)</a>
 </li>
       <li><a href="generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator.oshape">oshape (bartorch.nlop.NonlinearOperator property)</a>
@@ -1015,6 +1036,8 @@
 </li>
       <li><a href="generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator.partial">partial() (bartorch.nlop.NonlinearOperator method)</a>
 </li>
+      <li><a href="generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise">Patchwise (class in bartorch.learning)</a>
+</li>
       <li><a href="generated/bartorch.tools.pattern.html#bartorch.tools.pattern">pattern() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.linop.Permute.html#bartorch.linop.Permute">Permute (class in bartorch.linop)</a>
@@ -1039,10 +1062,10 @@
 </li>
       <li><a href="generated/bartorch.optim.POCSBlock.html#bartorch.optim.POCSBlock">POCSBlock (class in bartorch.optim)</a>
 </li>
-      <li><a href="generated/bartorch.apps.pocsense.html#bartorch.apps.pocsense">pocsense() (in module bartorch.apps)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/bartorch.apps.pocsense.html#bartorch.apps.pocsense">pocsense() (in module bartorch.apps)</a>
+</li>
       <li><a href="generated/bartorch.tools.poisson.html#bartorch.tools.poisson">poisson() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.pose">pose (bartorch.tools.NavigatorMotionTracker property)</a>
@@ -1087,6 +1110,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.raga.html#bartorch.tools.raga">raga() (in module bartorch.tools)</a>
 </li>
+      <li><a href="generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain">RandomGain (class in bartorch.learning.training)</a>
+</li>
       <li><a href="generated/bartorch.cli.read.html#bartorch.cli.read">read() (in module bartorch.cli)</a>
 </li>
       <li><a href="generated/bartorch.tools.CoefficientAccessor.html#bartorch.tools.CoefficientAccessor.read_coefficients">read_coefficients() (bartorch.tools.CoefficientAccessor method)</a>
@@ -1098,6 +1123,8 @@
       <li><a href="generated/bartorch.linop.Real.html#bartorch.linop.Real">Real (class in bartorch.linop)</a>
 </li>
       <li><a href="generated/bartorch.tools.reconstruct_navigator.html#bartorch.tools.reconstruct_navigator">reconstruct_navigator() (in module bartorch.tools)</a>
+</li>
+      <li><a href="generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction">Reconstruction (class in bartorch.learning.training)</a>
 </li>
       <li><a href="generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.reference">reference (bartorch.tools.NavigatorMotionTracker attribute)</a>
 </li>
@@ -1115,14 +1142,14 @@
 </li>
       <li><a href="generated/bartorch.tools.RigidRegistration.html#bartorch.tools.RigidRegistration.resample">resample() (bartorch.tools.RigidRegistration method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.reset">reset() (bartorch.tools.NavigatorMotionTracker method)</a>
 
       <ul>
         <li><a href="generated/bartorch.tools.RigidMotionEKF.html#bartorch.tools.RigidMotionEKF.reset">(bartorch.tools.RigidMotionEKF method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.linop.Reshape.html#bartorch.linop.Reshape">Reshape (class in bartorch.linop)</a>
 </li>
       <li><a href="generated/bartorch.linop.Resize.html#bartorch.linop.Resize">Resize (class in bartorch.linop)</a>
@@ -1190,7 +1217,11 @@
       <li><a href="generated/bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer">SpiralTransfer (class in bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.split">split() (bartorch.nlop.SignalModel method)</a>
+
+      <ul>
+        <li><a href="generated/bartorch.learning.split.html#bartorch.learning.split">(in module bartorch.learning)</a>
 </li>
+      </ul></li>
       <li><a href="generated/bartorch.nlop.Sqrt.html#bartorch.nlop.Sqrt">Sqrt (class in bartorch.nlop)</a>
 </li>
   </ul></td>
@@ -1216,6 +1247,8 @@
 </li>
       </ul></li>
       <li><a href="generated/bartorch.tools.RigidMotionEKF.html#bartorch.tools.RigidMotionEKF.state">state (bartorch.tools.RigidMotionEKF attribute)</a>
+</li>
+      <li><a href="generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior.stationary">stationary (bartorch.priors.ImplicitPrior property)</a>
 </li>
       <li><a href="generated/bartorch.tools.RigidMotionEKF.html#bartorch.tools.RigidMotionEKF.step">step() (bartorch.tools.RigidMotionEKF method)</a>
 </li>
@@ -1251,15 +1284,19 @@
 </li>
       <li><a href="generated/bartorch.priors.TotalGeneralizedVariation.html#bartorch.priors.TotalGeneralizedVariation">TotalGeneralizedVariation (class in bartorch.priors)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation">TotalVariation (class in bartorch.priors)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.track">track() (bartorch.tools.NavigatorMotionTracker method)</a>
+</li>
+      <li><a href="generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction.training_step">training_step() (bartorch.learning.training.Reconstruction method)</a>
 </li>
       <li><a href="generated/bartorch.tools.traj.html#bartorch.tools.traj">traj() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.tools.trajcor.html#bartorch.tools.trajcor">trajcor() (in module bartorch.tools)</a>
+</li>
+      <li><a href="generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction.transfer_batch_to_device">transfer_batch_to_device() (bartorch.learning.training.Reconstruction method)</a>
 </li>
       <li><a href="generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense.transform">transform (bartorch.nlop.NonlinearSense property)</a>
 </li>
@@ -1281,6 +1318,8 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/bartorch.learning.UNet.html#bartorch.learning.UNet">UNet (class in bartorch.learning)</a>
+</li>
       <li><a href="generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled">Unrolled (class in bartorch.learning)</a>
 </li>
       <li><a href="generated/bartorch.unwrap.html#bartorch.unwrap">unwrap() (in module bartorch)</a>
@@ -1298,6 +1337,10 @@
 
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction.validation_step">validation_step() (bartorch.learning.training.Reconstruction method)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.RigidMotionEKF.html#bartorch.tools.RigidMotionEKF.velocity">velocity (bartorch.tools.RigidMotionEKF property)</a>
 </li>

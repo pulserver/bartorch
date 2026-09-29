@@ -224,6 +224,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -592,6 +593,18 @@ per-iteration training.  <a class="reference internal" href="#bartorch.learning.
 <div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser in the proximal step of BART&#x27;s alternating-direction iteration, trained end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
   <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An unrolled proximal-gradient network with one denoiser shared by every iteration and told which iteration it is in, trained in three stages: the denoiser alone, the iterations one at a time, and the whole stack."><img alt="" src="../_images/sphx_glr_04-staged-training_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The unrolled network of 04-staged-training, trained from undersampled k-space alone by holding out part of the acquired samples and scoring the reconstruction on them."><img alt="" src="../_images/sphx_glr_05-self-supervised-training_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Training without a reference</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A denoiser conditioned on the noise level, trained once on images and used in ADMM with a noise level that decreases over the iterations."><img alt="" src="../_images/sphx_glr_06-annealed-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A voxel-wise error bar for a learned reconstruction, from the spread of randomized reconstructions, calibrated on references to a stated coverage."><img alt="" src="../_images/sphx_glr_07-uncertainty_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
 </div></div></section>
 </section>
 

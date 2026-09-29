@@ -230,8 +230,8 @@ unknowns to the data.
 
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
       warnings.warn(
-    reconstruct, then fit:       5.5 s
-    model inside the operator:  12.6 s
+    reconstruct, then fit:       5.2 s
+    model inside the operator:  13.6 s
 
 
 
@@ -279,7 +279,7 @@ the fit above.
 
  .. code-block:: none
 
-    apps.moba:                  13.4 s
+    apps.moba:                  15.4 s
      reconstruct, then fit  median  86.2 ms   relative error 0.482
                model-based  median  81.5 ms   relative error 0.007
                  apps.moba  median  81.3 ms   relative error 0.057
@@ -352,7 +352,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 32.323 seconds)
+   **Total running time of the script:** (0 minutes 34.885 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_02-quantitative-models.py:

@@ -226,6 +226,7 @@
 <li class="toctree-l2"><a class="reference internal" href="explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explanation/nonlinear.html">Nonlinear forward models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -480,6 +481,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-optim">bartorch.optim</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-priors">bartorch.priors</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-learning">bartorch.learning</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-learning-training">bartorch.learning.training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-apps">bartorch.apps</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-tools">bartorch.tools</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-io">bartorch.io</a></li>
@@ -970,14 +972,46 @@ the same objects in tables; this page generates the page of each.</p>
 <h2>bartorch.learning<a class="headerlink" href="#bartorch-learning" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Unrolled</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UNet</span></code></a></p></td>
+<td><p>Residual UNet on real <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> tensors, for denoising and restoration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComplexNet</span></code></a></p></td>
+<td><p>A network on real channels applied to complex images whose leading axes are channels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Patchwise</span></code></a></p></td>
+<td><p>A network applied to an image one patch at a time, on its own device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Unrolled</span></code></a></p></td>
 <td><p>Unrolled network formed by applying an iteration block <code class="docutils literal notranslate"><span class="pre">iterations</span></code> times.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a></p></td>
+<td><p>Partition the acquired samples into a set to reconstruct from and a set held out.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moments</span></code></a></p></td>
+<td><p>Mean and variance of a randomized reconstruction, voxel by voxel.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.calibrate.html#bartorch.learning.calibrate" title="bartorch.learning.calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibrate</span></code></a></p></td>
+<td><p>The factor making <code class="docutils literal notranslate"><span class="pre">|error|</span> <span class="pre">&lt;=</span> <span class="pre">factor</span> <span class="pre">*</span> <span class="pre">spread</span></code> hold with the given coverage.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_real</span></code></a></p></td>
 <td><p>Real and imaginary parts of <code class="docutils literal notranslate"><span class="pre">input</span></code> stacked along a new leading axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.as_complex.html#bartorch.learning.as_complex" title="bartorch.learning.as_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_complex</span></code></a></p></td>
 <td><p>Complex tensor formed from a leading axis of real and imaginary parts.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="bartorch-learning-training">
+<h2>bartorch.learning.training<a class="headerlink" href="#bartorch-learning-training" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction" title="bartorch.learning.training.Reconstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reconstruction</span></code></a></p></td>
+<td><p>A reconstruction network trained in one of the three stages of an unrolled network.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain" title="bartorch.learning.training.RandomGain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomGain</span></code></a></p></td>
+<td><p>Multiply every image of a subject by one random complex gain.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1285,6 +1319,7 @@ the same objects in tables; this page generates the page of each.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-optim">bartorch.optim</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-priors">bartorch.priors</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-learning">bartorch.learning</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-learning-training">bartorch.learning.training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-apps">bartorch.apps</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-tools">bartorch.tools</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-io">bartorch.io</a></li>

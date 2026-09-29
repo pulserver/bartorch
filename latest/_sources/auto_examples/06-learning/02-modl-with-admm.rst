@@ -67,8 +67,8 @@ parameter of the block and is trained with the network's weights.
   per-iteration training.
 
 It follows :doc:`01-plug-and-play`, which used a pretrained denoiser without
-training. This lesson ends the course; the standalone examples of
-:doc:`../07-tours/index` apply the package to individual problems.
+training. The next lesson, :doc:`03-networks-for-complex-volumes`, builds
+networks for complex multi-channel volumes.
 
 .. GENERATED FROM PYTHON SOURCE LINES 56-119
 
@@ -409,14 +409,10 @@ reconstruction that produced it.
 
  .. code-block:: none
 
-    GPU available: False, used: False
-    TPU available: False, using: 0 TPU cores
-    💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    `Trainer.fit` stopped: `max_epochs=15` reached.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:10 • 0:00:00 1.19it/s loss: 0.000 psnr:
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:10 • 0:00:00 1.14it/s loss: 0.000 psnr:
                                                                    32.724 ssim:     
                                                                    0.889            
     rho ended at 0.027
@@ -510,7 +506,7 @@ fixed reconstruction time.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 449-474
+.. GENERATED FROM PYTHON SOURCE LINES 449-479
 
 Differentiating a deeper stack
 ------------------------------
@@ -536,49 +532,21 @@ which changes the forward value
 
 Pretraining the denoiser in isolation, then greedy per-iteration training,
 then end-to-end fine-tuning with checkpointing, is the staged schedule
-reported for a fully three-dimensional unrolled reconstruction [#urman]_.
+reported for a fully three-dimensional unrolled reconstruction [#urman]_,
+and the subject of :doc:`04-staged-training`. Greedy training does not apply
+to the ADMM step: its image is the x-update, which depends on the denoiser
+only through the previous iteration's auxiliary variable, and a detached
+start removes that dependence. The staged lesson uses a proximal-gradient
+step, whose image is the denoiser's output.
 
-.. GENERATED FROM PYTHON SOURCE LINES 475-491
-
-.. code-block:: Python
-
-
-    greedy, greedy_block = modl()
-    greedy.detach = True
-
-    optimizer = torch.optim.Adam(greedy.parameters(), lr=1e-3)
-    x, y, start = measure(train_images[:2], torch.Generator().manual_seed(3))
-
-    for step in range(3):
-        optimizer.zero_grad()
-        # One loss per iteration, each propagating only into the step that produced it.
-        for image in greedy.steps(y, A, x0=start):
-            (image - x).abs().square().mean().backward()
-        optimizer.step()
-
-    print(f"greedy: rho {float(greedy_block.rho.detach()):.3f}")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    greedy: rho 0.047
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 492-496
+.. GENERATED FROM PYTHON SOURCE LINES 482-486
 
 The gradient of ``rho`` with checkpointing is compared below with the
 gradient recorded over the whole stack. ``rho`` enters every iteration and
 the conjugate-gradient solve of each x-update, so its gradient propagates
 through all of them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 497-510
+.. GENERATED FROM PYTHON SOURCE LINES 487-500
 
 .. code-block:: Python
 
@@ -603,12 +571,12 @@ through all of them.
 
  .. code-block:: none
 
-    rho's gradient: 0.000183318 recorded, 0.000183318 recomputed
+    rho's gradient: 0.000277808 recorded, 0.000277808 recomputed
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 511-516
+.. GENERATED FROM PYTHON SOURCE LINES 501-506
 
 A third alternative is not to unroll. :class:`bartorch.optim.FixedPoint`
 drives the block to its fixed point and differentiates there by solving the
@@ -616,7 +584,7 @@ adjoint fixed-point equation, so that its memory is that of a single step
 irrespective of the iteration count. This is a deep-equilibrium model [#deq]_, of
 which the stack above is the truncated form.
 
-.. GENERATED FROM PYTHON SOURCE LINES 519-543
+.. GENERATED FROM PYTHON SOURCE LINES 509-533
 
 References
 ----------
@@ -646,7 +614,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 59.887 seconds)
+   **Total running time of the script:** (3 minutes 7.341 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:
