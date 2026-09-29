@@ -24,6 +24,11 @@ before it.  The tours are standalone.  Concepts are in
 | | {doc}`../auto_examples/05-model-based/02-quantitative-models` | $T_2$ maps from multi-echo k-space through a signal model |
 | {doc}`Learned regularization <../auto_examples/06-learning/index>` | {doc}`../auto_examples/06-learning/01-plug-and-play` | A pretrained denoiser as the proximal step of ADMM and FISTA |
 | | {doc}`../auto_examples/06-learning/02-modl-with-admm` | MoDL unrolled on BART's ADMM and trained end to end |
+| | {doc}`../auto_examples/06-learning/03-networks-for-complex-volumes` | A U-Net for complex multi-contrast volumes, trained on patches and applied patch by patch |
+| | {doc}`../auto_examples/06-learning/04-staged-training` | An unrolled network trained in stages: denoiser, per iteration, end to end |
+| | {doc}`../auto_examples/06-learning/05-self-supervised-training` | The same network trained from undersampled k-space alone |
+| | {doc}`../auto_examples/06-learning/06-annealed-plug-and-play` | A noise-conditioned denoiser in ADMM with an annealed noise level |
+| | {doc}`../auto_examples/06-learning/07-uncertainty` | Voxel-wise error bars from dropout and k-space subsets, calibrated to a coverage |
 
 ## Tours
 

@@ -1,20 +1,36 @@
-"""Adapters between neural networks and this package's iterations.
+"""Neural networks for complex images, and their place in this package's iterations.
 
-:class:`Unrolled` applies one of :mod:`bartorch.optim`'s iteration blocks a
-fixed number of times, with the differentiation strategies a deep stack
-requires.  :func:`as_real` and :func:`as_complex` convert between complex
-tensors and the leading real channel axis of convolutional networks and
-``torchio`` images.  A network used as a regularizer is
-:class:`bartorch.priors.ImplicitPrior`.
+:class:`UNet` is a residual network for 2D and 3D images, factorised over a
+frame axis and conditioned on the iteration, the noise level or a class;
+:class:`ComplexNet` lays complex images out as its channels and
+:class:`Patchwise` runs it patch by patch on a device while the image stays on
+the host.  :class:`Unrolled` applies one of :mod:`bartorch.optim`'s iteration
+blocks a fixed number of times, and a network used as a regularizer is
+:class:`bartorch.priors.ImplicitPrior`.  :func:`split` partitions acquired
+samples for self-supervised training, and :func:`moments` and
+:func:`calibrate` give a voxel-wise uncertainty.
 
-Training loops, datasets, augmentation, networks, losses and metrics are
-``lightning``'s, ``torchio``'s, ``monai``'s, ``deepinv``'s and
-``torchmetrics``'s; this subpackage imports none of them.
+:mod:`bartorch.learning.training` holds the training stages, on ``lightning``
+and ``torchio``; nothing else here imports a training library.
 """
 
 from __future__ import annotations
 
-from bartorch.learning.channels import as_complex, as_real
+from bartorch.learning.channels import ComplexNet, as_complex, as_real
+from bartorch.learning.nets import UNet
+from bartorch.learning.patches import Patchwise
+from bartorch.learning.splitting import split
+from bartorch.learning.uncertainty import calibrate, moments
 from bartorch.learning.unrolled import Unrolled
 
-__all__ = ["Unrolled", "as_complex", "as_real"]
+__all__ = [
+    "ComplexNet",
+    "Patchwise",
+    "UNet",
+    "Unrolled",
+    "as_complex",
+    "as_real",
+    "calibrate",
+    "moments",
+    "split",
+]

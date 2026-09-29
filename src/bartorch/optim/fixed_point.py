@@ -19,10 +19,16 @@ def _stationary(block) -> None:
             "FISTA's momentum depends on the iteration count, so its step is a different map "
             "every time and has no fixed point; ISTBlock is the same step without it"
         )
-    if isinstance(block, ADMMBlock) and (block.dynamic_rho or block.hogwild):
+    if isinstance(block, ADMMBlock) and (block.dynamic_rho or block.hogwild or block.rho.ndim):
         raise ValueError("a rho that moves makes every step a different map, with no fixed point")
     if isinstance(block, PRIDUBlock) and (block.adaptive_step or block.hogwild):
         raise ValueError("steps that move make every step a different map, with no fixed point")
+    for term in block.modules():
+        if not getattr(term, "stationary", True):
+            raise ValueError(
+                f"{term!r} follows the iteration, with a schedule of sigma or the index, so every "
+                "step is a different map, with no fixed point"
+            )
 
 
 def _moving(state) -> list[str]:

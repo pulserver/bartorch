@@ -31,6 +31,7 @@ MODULES = {
         "tools",
     },
     "bartorch.learning": set(),
+    "bartorch.learning.training": set(),
     "bartorch.linop": set(),
     "bartorch.nlop": set(),
     "bartorch.optim": set(),
@@ -41,6 +42,16 @@ MODULES = {
     "bartorch.io": set(),
     "bartorch.interop": set(),
 }
+
+
+#: Modules importing an optional extra, and the packages that extra installs.
+OPTIONAL = {"bartorch.learning.training": ("lightning", "torchio")}
+
+
+def _public(module: str) -> set[str]:
+    for package in OPTIONAL.get(module, ()):
+        pytest.importorskip(package)
+    return set(import_module(module).__all__)
 
 
 def _api_objects():
@@ -58,14 +69,14 @@ def _listed() -> dict[str, set[str]]:
 
 @pytest.mark.parametrize("module", sorted(MODULES))
 def test_every_public_name_is_in_the_reference(module):
-    public = set(import_module(module).__all__) - MODULES[module]
+    public = _public(module) - MODULES[module]
     missing = public - _listed().get(module, set())
     assert not missing, f"{module}: not in docs/api: {sorted(missing)}"
 
 
 @pytest.mark.parametrize("module", sorted(MODULES))
 def test_the_reference_lists_nothing_that_is_not_public(module):
-    extra = _listed().get(module, set()) - set(import_module(module).__all__)
+    extra = _listed().get(module, set()) - _public(module)
     assert not extra, f"{module}: listed in docs/api but not public: {sorted(extra)}"
 
 

@@ -46,7 +46,7 @@ would otherwise have been linked against.
 | `src/csrc/substitute/finufft.c`, `nufft_finufft.c` | FINUFFT's and cuFINUFFT's plans through their C API, and BART's NUFFT operator built out of a pair of their plans -- and the normal, which stores one of those in BART's operator through `noncart/nufft_priv.h` rather than letting it grid one. |
 | `src/csrc/substitute/openmp.c` | `__kmpc_dispatch_deinit` for an OpenMP runtime that lacks it, on macOS and Windows. |
 | `src/csrc/substitute/psf.c` | The three `compute_psf*` entry points, so that the adjoint transform a point spread function is comes from the substitution. |
-| `src/bartorch/` | The package.  Public: the functions in `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py`, `kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported flat as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (adapters between neural networks and this package's images and iterations); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `correct.py`, corrections of data and images outside the reconstruction, and `motion.py`, rigid motion from navigators, implemented in the private `tools/_correct/` and `tools/_motion/`); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `form.py` (the encoding form and the plan it reports) and `plan.py` (matching a composition against that form). |
+| `src/bartorch/` | The package.  Public: the functions in `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py`, `kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported flat as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and in `training.py` the Lightning training stages); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `correct.py`, corrections of data and images outside the reconstruction, and `motion.py`, rigid motion from navigators, implemented in the private `tools/_correct/` and `tools/_motion/`); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `form.py` (the encoding form and the plan it reports) and `plan.py` (matching a composition against that form). |
 | `scripts/gen_abi.py` | Generates `_abi.py` from `src/csrc/include/bartorch.h`. Run after changing the header; `tests/test_abi.py` fails when the checked-in file is not what it writes. |
 | `scripts/gen_catalogue.py` | Generates `_catalogue.py` from the BART sources: every command, its arguments, and every option with both spellings. Run after a submodule bump. |
 | `scripts/run_tests.sh` | Builds whatever changed on the C side, then runs the suite against `src/`, without installing. |
@@ -54,6 +54,7 @@ would otherwise have been linked against.
 | `scripts/lint.sh` | Ruff over `src/` and `tests/`, which is what the lint workflow runs; `--fix` writes. |
 | `scripts/benchmark_encodings.py` | The encoding timings `docs/design/composed-encodings.md` records, one case per process, each printing the plan it was lowered into beside its times. |
 | `scripts/benchmark_newton.py` | The Gauss-Newton timings `docs/design/nonlinear-fusion.md` records, with the encoding applied as its normal and as a pair. |
+| `scripts/benchmark_patchwise.py` | Time and peak card memory of a U-Net over a host-resident volume, whole and patch by patch, with serial and overlapped copies. |
 | `scripts/build_docs.sh` | Builds the reference the way the workflow does. |
 | `scripts/build_docs_pdf.sh` | Builds the documentation as one PDF, `bartorch-docs.pdf`. |
 | `scripts/publish_docs.py` | Places a built site into the `gh-pages` branch as one version -- `latest` for `main`, the tag for a release, copied to `stable` when it is the newest -- and rewrites the root redirect and the `versions.json` the version switcher reads. |
@@ -837,16 +838,33 @@ an `nn.Module` called as `net(x)` or `net(x, sigma)` and is accepted by
 `priors.ImplicitPrior` directly; a supervised loss or a metric takes a
 reconstructed tensor and a reference and refers to no forward model; a loss
 that does evaluate one is written over the operator, which is already a
-callable with an adjoint. `bartorch.learning` holds the conversions between a
-network and this package, and imports neither deepinv nor anything else.
+callable with an adjoint. `bartorch.learning` imports no deepinv.
 
-**No training library is written here.** Loops belong to `lightning`,
-datasets, augmentation and patch sampling to `torchio`, and networks, losses
-and metrics to `monai`, `deepinv` and `torchmetrics`. None of them represents
-this package's data -- complex images carrying frames, contrasts or subspace
-coefficients in front of their spatial axes, reconstructed by an iteration --
-so `learning/` and `priors.ImplicitPrior` hold the conversions between the two
-and nothing else.  `ImplicitPrior(net, spatial=...)` converts between a network
+**No training loop is written here.** Loops, checkpoints, early stopping and
+mixed precision belong to `lightning`, datasets, augmentation and patch
+sampling to `torchio`, and losses and metrics to `monai`, `deepinv` and
+`torchmetrics`. None of them represents this package's data -- complex images
+carrying frames, contrasts or subspace coefficients in front of their spatial
+axes, reconstructed by an iteration from data on the host -- so `learning/`
+holds what sits between them: a network for that data (`UNet`, factorised
+over a frame axis, conditioned on the iteration, the noise level and a class),
+the complex-to-channel layout (`ComplexNet`), patchwise execution on a device
+of an image held on the host (`Patchwise`), the partition of the samples for
+self-supervised training (`split`), the spread of randomised reconstructions
+and its conformal calibration (`moments`, `calibrate`), and in
+`learning/training.py` a `LightningModule` for the three training stages and a
+`torchio` transform that respects complex values.  `training.py` is the only
+module importing `lightning` and `torchio`, which the `learning` extra
+installs.
+
+A network is where the host-resident rule of the operators is kept on the
+learned side: `Patchwise` moves patches to the card and back, at inference on a second stream so that the copies of one chunk run while the network computes on another, and its network
+back to its device if a trainer moved it, so the Lightning module leaves the
+batch where the dataset put it (`transfer_batch_to_device`).  Mixed precision
+is chosen per card, bfloat16 where it exists and float16 on a T4, which has
+none.
+
+`ImplicitPrior(net, spatial=...)` converts between a network
 taking real `(n, channels, *spatial)` planes of order unity and an image here:
 the spatial axes are retained, the axes in front of them are folded into the
 network's batch axis, the complex values are laid out as real planes, a plane
@@ -877,6 +895,15 @@ contrast-weighted images obtained from subspace coefficient maps, denoised by a
 network trained on weighted MRI. Half-quadratic splitting cannot express it,
 since it carries a single quadratic penalty and no dual variable, whereas ADMM
 admits a sum of terms each with its own `G`.
+
+**A step may depend on the iteration.**  `ImplicitPrior(sigma=[...])` is a
+schedule of noise levels and `ADMMBlock(rho=[...])` one of penalties, the last
+value repeated past the end; the blocks tell an `ImplicitPrior` the index
+through `_prox`, and with `step=True` it hands the index to the network, which
+is how one set of weights serves every iteration of an unrolled stack.  A
+change of `rho` rescales the scaled duals by the ratio of the old value to the
+new, so the unscaled ones carry over.  Either schedule makes each step a
+different map, and `optim.FixedPoint` refuses it.
 
 ## The command line
 

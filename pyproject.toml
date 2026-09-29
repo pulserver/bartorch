@@ -77,6 +77,12 @@ Issues = "https://github.com/pulserver/bartorch/issues"
 deepinv = [
     "deepinv>=0.2",
 ]
+# The training stages and augmentation of `bartorch.learning.training`; the
+# networks and the rest of `bartorch.learning` need neither.
+learning = [
+    "lightning>=2.2",
+    "torchio>=0.19",
+]
 # MKL covers every BLAS and LAPACK routine BART calls and is about twice as
 # fast as the alternatives on the work that leans on LAPACK.  There is no MKL
 # wheel for macOS, where SciPy's OpenBLAS and Accelerate serve instead; on

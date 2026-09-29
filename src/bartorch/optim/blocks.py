@@ -190,8 +190,14 @@ def _normal(A, x: torch.Tensor, cclambda: float, precond=None) -> torch.Tensor:
     return out if precond is None else _batched(precond, out, A.ishape)
 
 
-def _prox(term, w: torch.Tensor, gamma, image_shape) -> torch.Tensor:
-    """``term``'s proximal step; a batch item by item, each with its own generator."""
+def _prox(term, w: torch.Tensor, gamma, image_shape, k: int = 0) -> torch.Tensor:
+    """``term``'s proximal step at iteration ``k``, a batch item by item.
+
+    Each item draws from its own generator.  Only a term that follows the
+    iteration, an :class:`~bartorch.priors.ImplicitPrior`, is told ``k``.
+    """
+    if getattr(term, "_iterates", False):
+        return term.prox(w, gamma, image_shape=image_shape, iteration=k)
     if getattr(term, "_batches", False):
         return term.prox(w, gamma, image_shape=image_shape)
     if w.ndim == len(term.prox_shape(image_shape)) + 1:
@@ -355,13 +361,14 @@ class ISTBlock(nn.Module):
 
     def forward(self, state: State, A) -> State:
         tau = self._tau(state, state.k)
-        x = _prox(self.prior, state.x, tau, A.ishape)
+        x = _prox(self.prior, state.x, tau, A.ishape, state.k)
         x = x - tau * (_normal(A, x, self.cclambda, self.precond) - state.adjoint)
         return dataclasses.replace(state, x=x, k=state.k + 1)
 
     def output(self, state: State, A) -> torch.Tensor:
         """The image, thresholded once more, as ``italgo_config`` leaves ``last`` false."""
-        return _prox(self.prior, state.x, self._tau(state, max(state.k - 1, 0)), A.ishape)
+        last = max(state.k - 1, 0)
+        return _prox(self.prior, state.x, self._tau(state, last), A.ishape, last)
 
 
 class FISTABlock(ISTBlock):
@@ -402,7 +409,7 @@ class FISTABlock(ISTBlock):
 
     def forward(self, state: State, A) -> State:
         tau = self._tau(state, state.k)
-        z = _prox(self.prior, state.x, tau, A.ishape)
+        z = _prox(self.prior, state.x, tau, A.ishape, state.k)
 
         # Two axpys rather than the combination they add up to: `x + c x` and
         # `(1 + c) x` are not the same float32 number.
@@ -459,7 +466,12 @@ class ADMMBlock(nn.Module):
     term's split and dual.  The state's ``done`` is Boyd's residual test, and
     ``invokes`` counts inner iterations, the quantity BART's ``maxiter`` budgets.
     Each step takes its own ``rho`` unless ``dynamic_rho`` or ``hogwild`` moves
-    it, in which case the state carries it.  With a term that introduces
+    it, in which case the state carries it.  A sequence of ``rho`` is a
+    schedule, one per step and the last repeated beyond its end, with the
+    scaled duals rescaled by the ratio of consecutive values so that the
+    unscaled ones carry over: the increasing penalty of annealed plug-and-play,
+    ``rho_k = lambda / sigma_k ** 2`` against a denoiser's schedule of
+    ``sigma``.  With a term that introduces
     auxiliary variables the state vector is the image followed by those
     variables, and :meth:`output` returns the image alone.
     """
@@ -513,7 +525,15 @@ class ADMMBlock(nn.Module):
         if fast and dynamic_rho:
             raise ValueError("a dynamic rho needs the residuals, which fast mode does not compute")
 
-        self.rho = _setting(rho)
+        if isinstance(rho, (int, float)) or 0 == torch.as_tensor(rho).ndim:
+            self.rho = _setting(rho)
+        else:
+            schedule = torch.as_tensor(rho, dtype=torch.float64)
+            if 1 != schedule.ndim or 0 == schedule.numel():
+                raise ValueError("rho is one value, or a sequence of one per step")
+            if dynamic_rho or hogwild:
+                raise ValueError("rho follows its schedule or moves with the residuals, not both")
+            self.rho = nn.Parameter(schedule.clone(), requires_grad=False)
         self.alpha = _setting(alpha)
         self.cg_maxiter = int(cg_maxiter)
         self.cg_maxiter_first = None if cg_maxiter_first is None else int(cg_maxiter_first)
@@ -547,17 +567,27 @@ class ADMMBlock(nn.Module):
         )
         u = tuple(torch.zeros_like(zj) for zj in z)
         adjoint = _adjoint(walked, y, _preconditioner(self.precond, A.ishape))
-        return self.State(x, adjoint, z, u, _single(_value(self.rho)), space=space)
+        return self.State(x, adjoint, z, u, _single(self._rho(0)), space=space)
+
+    def _rho(self, k: int):
+        """The step's ``rho``: the setting, or its schedule's entry for step ``k``."""
+        if 0 == self.rho.ndim:
+            return _value(self.rho)
+        p = self.rho[min(k, self.rho.numel() - 1)]
+        return p.float() if p.requires_grad else float(p)
 
     def forward(self, state: State, A) -> State:
         terms, A = _walked(self.terms, state, A)
         biases = self.biases if state.space is None else [None] * len(terms)
         shape = A.ishape
         moves = self.dynamic_rho or self.hogwild
-        rho = state.rho if moves else _single(_value(self.rho))
+        rho = state.rho if moves else _single(self._rho(state.k))
         tau = state.tau
         alpha = _value(self.alpha)
         z, u = list(state.z), list(state.u)
+        if self.rho.ndim and state.k:
+            # The duals are scaled by 1 / rho: keep the unscaled ones across a change.
+            u = [(state.rho / rho) * uj for uj in u]
 
         rhs = torch.zeros_like(state.x)
         for j, term in enumerate(terms):
@@ -589,7 +619,7 @@ class ADMMBlock(nn.Module):
             if bias is not None:
                 w = w - bias
 
-            z[j] = _prox(term, w, 1.0 / rho, shape) if rho else w
+            z[j] = _prox(term, w, 1.0 / rho, shape, state.k) if rho else w
             u[j] = w - z[j]
 
             if not self.fast:
@@ -896,7 +926,7 @@ class PRIDUBlock(nn.Module):
         for j, term in enumerate(terms):
             # `axpy(u_old, 1. / sigma, u[j])`: the reciprocal once, as a float.
             over = _transform(term, avg, shape) + _single(1.0 / sigma) * duals[j]
-            thresholded = _prox(term, over, 1.0 / sigma, shape)
+            thresholded = _prox(term, over, 1.0 / sigma, shape, state.k)
             fresh_j = sigma * over - sigma * thresholded
             was = duals[j]
             duals[j] = lam * fresh_j + (1.0 - lam) * was
@@ -908,7 +938,7 @@ class PRIDUBlock(nn.Module):
         x = x - tau * adjoint_dual
         for j, term in enumerate(terms):
             x = x - tau * _transform(term, duals[j], shape, "adjoint")
-        stepped = x if primal is None else _prox(primal, x, tau, shape)
+        stepped = x if primal is None else _prox(primal, x, tau, shape, state.k)
         x = lam * stepped + (1.0 - lam) * previous_x
 
         # `res2` is measured against `tau` before the adaptation.
