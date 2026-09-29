@@ -3,64 +3,107 @@
 Receive bias field
 ==================
 
-The intensity shading that a surface receive array leaves in a
-root-sum-of-squares image, estimated and removed by N4 bias field correction.
+A root-sum-of-squares combination of the images of a receive array is the
+object weighted by the root sum of squares of the coil sensitivities. That
+weighting is smooth, multiplicative and largest near the elements, and it
+shades the image: the same tissue appears brighter near the array than far
+from it, which biases segmentation, intensity-based registration and any
+quantitative comparison across the field of view.
 
-The object is BART's brain phantom, whose tissue classes each have one
-intensity; the array is BART's analytical eight-element head coil. N4
-[#tustison]_ is SimpleITK's implementation, reached through
-:func:`bartorch.tools.bias_field_correct`.
+This example shades a T1-weighted head with the posterior elements of a head
+array, estimates the field with N4 [#tustison]_ through
+:func:`bartorch.tools.bias_field_correct`, and compares the corrected image and
+the estimated field with the object and the true field.
+
+**Learning objectives**
+
+* Relate the shading of a root-sum-of-squares image to the receive
+  sensitivities.
+* Estimate and remove the bias field with N4, and assess the result by the
+  uniformity of a tissue class and by the intensity histogram.
+* Choose the mask and the fitting grid of the estimate.
+* Recognise what N4 cannot recover: the scale of the field, and a smooth
+  intensity variation that belongs to the object.
 """
 
 # %%
 
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
+import numpy as np
+from brainweb_dl import get_mri
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 10,
-        "axes.titlesize": 10,
-        "figure.constrained_layout.use": True,
-    }
-)
+
+def brainweb_slice(size, fov_mm, slice_mm):
+    """A T1-weighted BrainWeb axial slice, and its brain, white- and grey-matter masks."""
+    t1 = get_mri(sub_id=0, contrast="T1")[slice_mm].astype(np.float32)
+    fuzzy = get_mri(sub_id=0, contrast="fuzzy")[slice_mm]
+    rows, cols = t1.shape
+    side = int(round(fov_mm))  # BrainWeb is at 1 mm
+    canvas = np.zeros((4, side, side), dtype=np.float32)
+    top, left = (side - rows) // 2, (side - cols) // 2
+    canvas[:, top : top + rows, left : left + cols] = [
+        t1 / t1.max(),
+        fuzzy[..., 1:4].sum(-1),
+        fuzzy[..., 3],
+        fuzzy[..., 2],
+    ]
+    canvas = np.flip(canvas, axis=1)  # anterior at the top
+    image, brain, white, grey = (ndimage.zoom(c, size / side, order=1) for c in canvas)
+    return image.clip(0), brain > 0.5, white > 0.9, grey > 0.9
+
+
+def show(axis, values, title, vmin=0.0, vmax=1.0, cmap="gray"):
+    handle = axis.imshow(values, cmap=cmap, vmin=vmin, vmax=vmax)
+    axis.set_title(title)
+    axis.set_axis_off()
+    return handle
+
+
 # sphinx_gallery_end_ignore
 import torch
+from scipy import ndimage
 
 import bartorch
 import bartorch.tools as bt
 
-SIZE = 128
+# %%
+#
+# Object
+# ------
+#
+# The object is an axial slice of the BrainWeb T1-weighted head [#brainweb]_
+# through the lateral ventricles, 128 x 128 over a 220 mm field of view. The
+# BrainWeb tissue model also gives the voxels that are at least 90 % white or
+# grey matter, over which the uniformity of each class is measured.
+
+SIZE, FOV_MM = 128, 220.0
+# sphinx_gallery_start_ignore
+image, brain, white, grey = (torch.as_tensor(a) for a in brainweb_slice(SIZE, FOV_MM, 90))
+# sphinx_gallery_end_ignore
 
 # %%
 #
 # The shaded image
 # ----------------
 #
-# The coil images are the object weighted by each element's sensitivity, plus
-# independent noise. Their root sum of squares is the object weighted by the
-# root sum of squares of the sensitivities, which is smooth, multiplicative and
-# largest near the elements.
+# The array is the posterior half of BART's analytical eight-element head
+# coil, four elements. Each coil image is the object weighted by one
+# element's sensitivity :math:`S_c`, with independent complex Gaussian noise;
+# their root sum of squares is the object weighted by the bias field
+# :math:`B = \sqrt{\sum_c |S_c|^2}`, and the noise adds a Rician floor in the
+# background.
 
-brain = bt.phantom(SIZE, geometry="brain").abs()
-brain = brain / brain.max()
-support = brain > 0
+sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=8)[[0, 1, 6, 7], 0]
+bias = bartorch.rss(sensitivities, axes=(0,)).abs()
+sensitivities = sensitivities / bias[brain].mean()
+bias = bias / bias[brain].mean()
 
-head_coil = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=8)[:, 0]
+coil_images = bt.noise(sensitivities * image, n=1e-4, s=3)
+shaded = bartorch.rss(coil_images, axes=(0,)).abs()
 
-
-def acquire(elements):
-    """Root sum of squares of noisy coil images, and the field it carries."""
-    elements = elements / bartorch.rss(elements, axes=(0,)).abs().max()
-    coil_images = bt.noise(elements * brain, n=1e-4, s=3)
-    return bartorch.rss(coil_images, axes=(0,)).abs(), bartorch.rss(elements, axes=(0,)).abs()
-
-
-observed, field = acquire(head_coil)
-inside = field[support]
-print(f"the field spans a factor {float(inside.max() / inside.min()):.1f} over the object")
+low, high = bias[brain].quantile(0.02), bias[brain].quantile(0.98)
+print(f"bias field over the brain: {float(low):.2f} to {float(high):.2f} (2nd to 98th percentile)")
 
 # %%
 #
@@ -68,111 +111,138 @@ print(f"the field spans a factor {float(inside.max() / inside.min()):.1f} over t
 # -------------
 #
 # N4 models the logarithm of the image as the logarithm of the object plus a
-# smooth field, represented by B-splines, and estimates the field by
-# iteratively sharpening the histogram of the log intensities. It needs no
-# model of the coil, only an object whose intensities form classes, and it is
-# blind to the origin of the shading: a genuine smooth intensity variation of
-# the object is removed as well.
+# smooth field, represented by cubic B-splines, and estimates the field by
+# alternately sharpening the histogram of the log intensities and fitting the
+# splines to what the sharpening removed, over a hierarchy of control-point
+# grids. It uses no model of the coil, only an object whose intensities form
+# classes.
 #
-# The measure of uniformity is the coefficient of variation over the
-# brightest tissue class, which is zero in the object.
+# The uniformity of a tissue class is its coefficient of variation, the
+# standard deviation over the mean, which the object has too through partial
+# volume at the class boundaries.
 
-corrected, estimated = bt.bias_field_correct(observed, return_field=True)
-
-brightest = brain > 0.99
-
-
-def variation(image):
-    return float(image[brightest].std() / image[brightest].mean())
+corrected, estimate = bt.bias_field_correct(shaded, return_field=True)
 
 
-print(
-    f"coefficient of variation: observed {variation(observed):.3f}, "
-    f"corrected {variation(corrected):.3f}"
-)
+def variation(values, region):
+    return float(values[region].std() / values[region].mean())
+
+
+for name, values in (("object", image), ("shaded", shaded), ("N4-corrected", corrected)):
+    contrast = values[white].mean() / values[grey].mean()
+    print(
+        f"{name:13s} coefficient of variation: white matter {variation(values, white):.3f}, "
+        f"grey matter {variation(values, grey):.3f}; white/grey {float(contrast):.2f}"
+    )
 
 # %%
 #
-# A multiplicative field is determined up to a constant, which the correction
-# leaves in the image, so the estimate is compared with the true field after
-# matching their means over the object.
+# A multiplicative field is determined up to a constant factor, which the
+# correction leaves in the image. The estimate is therefore compared with the
+# true field after scaling both to unit mean over the brain.
 
-scale = field[support].mean() / estimated[support].mean()
-residual = ((scale * estimated - field).abs() / field)[support]
-print(f"field recovered to {100 * float(residual.median()):.1f} % (median over the object)")
+estimate = estimate / estimate[brain].mean()
+ratio = (estimate / bias)[brain]
+within = float(((ratio - 1).abs() < 0.1).float().mean())
+print(
+    f"estimated / true field over the brain: median {float(ratio.median()):.3f}, "
+    f"within 10 % in {100 * within:.0f} % of the voxels"
+)
 
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 4, figsize=(8.0, 2.4))
-level = float(brain[brightest].mean() / corrected[brightest].mean())
-for axis, values, title in (
-    (axes[0], brain, "object"),
-    (axes[1], observed / observed[brightest].mean(), "root sum of squares"),
-    (axes[2], level * corrected, "N4-corrected"),
-):
-    axis.imshow(values, cmap="gray", vmin=0, vmax=1.3)
-    axis.set_title(title)
+COLUMN = 64
+filled = torch.as_tensor(ndimage.binary_fill_holes(brain.numpy()))
 nan = torch.tensor(float("nan"))
-handle = axes[3].imshow(torch.where(support, scale * estimated / field[support].mean(), nan))
-axes[3].set_title("estimated field")
-figure.colorbar(handle, ax=axes[3], fraction=0.046)
-for axis in axes:
-    axis.set_xticks([])
-    axis.set_yticks([])
+
+
+def normalised(values):
+    return values / values[white].mean()
+
+
+panels = ((image, "object"), (shaded, "shaded"), (corrected, "N4-corrected"))
+figure, axes = plt.subplots(1, 3, figsize=(9.0, 3.2))
+for axis, (values, title) in zip(axes, panels, strict=True):
+    show(axis, normalised(values), title, 0, 1.4)
+    axis.axvline(COLUMN, color="#3dbde8", linewidth=0.8, linestyle="--")
+plt.show()
+
+figure, axes = plt.subplots(1, 3, figsize=(10.4, 3.3))
+for axis, (values, title) in zip(
+    axes, ((bias, "true field"), (estimate, "N4 estimate")), strict=False
+):
+    handle = show(axis, torch.where(filled, values, nan), title, 0, 2, "magma")
+figure.colorbar(handle, ax=axes[:2], fraction=0.046, label="field / mean over brain")
+handle = show(
+    axes[2], torch.where(filled, estimate / bias, nan), "estimate / true", 0.8, 1.2, "RdBu_r"
+)
+figure.colorbar(handle, ax=axes[2], fraction=0.046)
+plt.show()
+
+figure, axes = plt.subplots(1, 2, figsize=(10.4, 3.2))
+rows = torch.arange(SIZE) * FOV_MM / SIZE
+for (values, title), style in zip(panels, ("-", "--", "-"), strict=True):
+    axes[0].plot(rows, normalised(values)[:, COLUMN], style, label=title, linewidth=1.2)
+axes[0].set_xlabel("anterior to posterior [mm]")
+axes[0].set_ylabel("signal / white-matter mean")
+axes[0].set_title("profile along the dashed line")
+axes[0].legend(frameon=False)
+bins = torch.linspace(0, 1.6, 81)
+for (values, title), style in zip(panels, ("-", "--", "-"), strict=True):
+    counts = torch.histc(normalised(values)[brain], bins=80, min=0, max=1.6)
+    axes[1].step(bins[:-1], counts, style, where="post", label=title, linewidth=1.2)
+axes[1].set_xlabel("signal / white-matter mean")
+axes[1].set_ylabel("voxels in the brain")
+axes[1].set_title("intensity histogram")
+axes[1].legend(frameon=False)
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
+# The field varies by a factor of four over the brain: in the shaded image
+# the occipital lobes are bright and the frontal lobes dark, and the
+# histogram of the brain has no separate grey- and white-matter peaks. After
+# correction the variation of the white matter falls by more than half and
+# the two peaks separate. The
+# estimated field is within 10 % of the true one over most of the brain; it
+# overestimates the field at the frontal pole, where the true field falls
+# steeply to a third of its mean and below, so the corrected frontal cortex
+# remains darker than the object. A residual of this kind is the reason a
+# corrected image is still compared across regions with care.
+#
 # The mask and the fitting grid
 # -----------------------------
 #
 # The field is fitted only over a mask, by default Otsu's threshold of the
-# image. The object's full support is the alternative compared here.
+# image, which under strong shading can exclude the darkest tissue. The
+# alternative compared here is a mask of the whole head.
 
-full = bt.bias_field_correct(observed, mask=support.to(torch.uint8))
-print(f"Otsu mask    {variation(corrected):.3f}")
-print(f"full support {variation(full):.3f}")
+head = ndimage.binary_fill_holes(shaded > 0.02 * shaded.max())
+with_head = bt.bias_field_correct(shaded, mask=torch.as_tensor(head, dtype=torch.uint8))
+print(f"Otsu mask: white-matter variation {variation(corrected, white):.3f}")
+print(f"head mask: white-matter variation {variation(with_head, white):.3f}")
 
 # %%
 #
 # The field is fitted on the image shrunk by ``shrink_factor`` and evaluated
-# on the full grid; a field that is smooth on the scale of the object needs
-# few grid points, and the cost of each N4 iteration falls with their number.
+# on the full grid. A field that is smooth on the scale of the head needs few
+# grid points, and the cost of each N4 iteration falls with their number.
 
 for shrink in (1, 2, 4, 8):
-    estimate = bt.bias_field_correct(observed, shrink_factor=shrink)
-    print(f"shrink_factor {shrink}: coefficient of variation {variation(estimate):.3f}")
+    trial = bt.bias_field_correct(shaded, shrink_factor=shrink)
+    print(f"shrink_factor {shrink}: white-matter variation {variation(trial, white):.3f}")
 
 # %%
 #
-# A stronger field
-# ----------------
-#
-# Three elements on one side of the head leave a field that varies by an
-# order of magnitude over the object, and the same correction recovers it
-# less closely.
-
-strong, strong_field = acquire(head_coil[:3])
-inside = strong_field[support]
-flattened, strong_estimate = bt.bias_field_correct(strong, return_field=True)
-scale = strong_field[support].mean() / strong_estimate[support].mean()
-residual = ((scale * strong_estimate - strong_field).abs() / strong_field)[support]
-print(f"the field spans a factor {float(inside.max() / inside.min()):.1f} over the object")
-print(
-    f"coefficient of variation: observed {variation(strong):.3f}, "
-    f"corrected {variation(flattened):.3f}"
-)
-print(f"field recovered to {100 * float(residual.median()):.1f} % (median over the object)")
-
-# %%
-#
-# The correction applies to a magnitude image after coil combination. In a
-# SENSE reconstruction the sensitivities are normalized so that their root sum
-# of squares is one, which removes the same shading within the
-# reconstruction; N4 is for images whose sensitivities are not available,
-# such as a root-sum-of-squares combination.
+# N4 removes any smooth intensity variation, whatever its origin: a receive
+# field, a transmit field in a gradient-echo image, or a genuine slow change
+# of the tissue signal. In a SENSE reconstruction the sensitivities are
+# normalized to unit root sum of squares, which removes the receive shading
+# within the reconstruction; N4 serves images for which the sensitivities are
+# not available, such as a root-sum-of-squares combination, and the transmit
+# field, which no receive calibration measures.
 #
 # References
 # ----------
@@ -180,3 +250,8 @@ print(f"field recovered to {100 * float(residual.median()):.1f} % (median over t
 # .. [#tustison] Tustison NJ, Avants BB, Cook PA, Zheng Y, Egan A, Yushkevich PA,
 #    Gee JC. N4ITK: improved N3 bias correction. *IEEE Trans Med Imaging*
 #    29(6):1310-1320 (2010). https://doi.org/10.1109/TMI.2010.2046908
+#
+# .. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ,
+#    Holmes CJ, Evans AC. Design and construction of a realistic digital brain
+#    phantom. *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+#    https://doi.org/10.1109/42.712135
