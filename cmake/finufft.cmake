@@ -129,12 +129,11 @@ endif()
 
 # FINUFFT's CPU transform again for each x86-64 level BARTORCH_FINUFFT_SIMD
 # lists, each as a module beside the library, which src/csrc/substitute/finufft.c
-# opens when the processor runs that level.  The baseline stays compiled in, so
+# opens when the processor runs that level: x86-64-v2 (SSE4.2), x86-64-v3 (AVX2,
+# FMA) and x86-64-v4 (AVX-512) by default.  The baseline stays compiled in, so
 # a processor that runs none of them, or a module that does not load, costs
-# nothing but the speed.  x86-64-v3 (AVX2, FMA) makes FINUFFT 15 to 45 per cent
-# faster than the baseline; x86-64-v4 (AVX-512) adds nothing measurable beside
-# it, which is why it is not in the default; docs/design/finufft-embedding.md
-# has the measurements.
+# nothing but the speed.  docs/design/finufft-embedding.md has the
+# measurements.
 #
 # A module is FINUFFT's own targets compiled again with the level's -march:
 # their sources, definitions, options and dependencies are read off the
@@ -142,7 +141,7 @@ endif()
 # carries them.  Only the baseline's arch flag is replaced; a pin whose targets
 # no longer carry it stops the configure.
 if(FINUFFT_ARCH_FLAGS STREQUAL "-march=x86-64" AND NOT APPLE)
-    set(_simd_default "x86-64-v3")
+    set(_simd_default "x86-64-v2;x86-64-v3;x86-64-v4")
 else()
     set(_simd_default "")
 endif()

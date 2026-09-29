@@ -203,7 +203,7 @@ is level with DUCC0 and the 2D ones keep 0.75 to 0.85.  And the build's own
 instruction set costs more than the FFT library: FINUFFT at `-march=x86-64-v3`
 takes 0.6 to 0.85 of its `-march=x86-64` time with DUCC0, most of it in
 spreading, and oneMKL at v3 still takes 0.7 to 0.9 of DUCC0 at v3.  The wheel
-keeps `x86-64` compiled in and chooses a v3 build at run time; see
+keeps `x86-64` compiled in and chooses a newer level at run time; see
 [Instruction-set levels](#instruction-set-levels).
 
 ### Numerics
@@ -278,8 +278,9 @@ one level.  A wheel has to run on any x86-64 processor, so its baseline is
 `-march=x86-64`, SSE2.
 
 So the baseline is compiled into the library, and each level
-`BARTORCH_FINUFFT_SIMD` lists is compiled again as a module beside it:
-`libbartorch_finufft_x86_64_v3.so` on Linux, `.dll` on Windows.  macOS arm64
+`BARTORCH_FINUFFT_SIMD` lists -- `x86-64-v2` (SSE4.2), `x86-64-v3` (AVX2 and
+FMA) and `x86-64-v4` (AVX-512) by default -- is compiled again as a module
+beside it: `libbartorch_finufft_x86_64_v3.so` on Linux, `.dll` on Windows.  macOS arm64
 has one level and builds none.  At the first plan the library tests the
 processor (`__builtin_cpu_supports`, which also checks that the operating
 system saves the vector state) and opens the newest module it runs;
@@ -307,26 +308,30 @@ stops the configure rather than building a module at the baseline.
 and is linked into each module as it is.
 
 Best execution in ms, DUCC0, the transforms of the method above, four threads
-on the AVX-512 Xeon:
+on the AVX-512 Xeon, all four builds in one interleaved run:
 
-| | N | transforms | σ | tolerance | x86-64 | x86-64-v3 | x86-64-v4 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 2D type 2 | 256 | 8 | 1.25 | 1e-3 | 19.4 | 13.4 | 12.0 |
-| 2D type 1 | 256 | 8 | 2 | 1e-3 | 20.7 | 14.4 | 16.6 |
-| 2D type 2 | 256 | 8 | 1.25 | 1e-6 | 24.5 | 12.9 | 13.2 |
-| 2D type 2 | 512 | 8 | 1.25 | 1e-3 | 81.9 | 48.9 | 46.3 |
-| 2D type 1 | 512 | 8 | 2 | 1e-3 | 88.8 | 67.9 | 62.6 |
-| 3D type 2 | 192 | 4 | 1.25 | 1e-3 | 764.8 | 577.6 | 617.4 |
-| 3D type 1 | 192 | 4 | 2 | 1e-3 | 1819.6 | 1633.2 | 1590.2 |
-| 3D type 1 | 192 | 4 | 1.25 | 1e-6 | 983.0 | 739.2 | 733.3 |
+| | N | transforms | σ | tolerance | x86-64 | v2 | v3 | v4 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2D type 2 | 256 | 8 | 1.25 | 1e-3 | 24.4 | 12.5 | 11.5 | 12.5 |
+| 2D type 1 | 256 | 8 | 2 | 1e-3 | 19.8 | 16.4 | 16.8 | 19.5 |
+| 2D type 2 | 256 | 8 | 1.25 | 1e-6 | 23.6 | 13.1 | 13.9 | 14.7 |
+| 2D type 2 | 512 | 8 | 1.25 | 1e-3 | 85.5 | 48.1 | 52.6 | 48.0 |
+| 2D type 1 | 512 | 8 | 2 | 1e-3 | 91.1 | 64.5 | 67.1 | 69.2 |
+| 3D type 2 | 192 | 4 | 1.25 | 1e-3 | 755.6 | 589.0 | 591.0 | 607.4 |
+| 3D type 1 | 192 | 4 | 2 | 1e-3 | 1796.7 | 1630.9 | 1592.2 | 1624.9 |
+| 3D type 1 | 192 | 4 | 1.25 | 1e-6 | 933.7 | 749.0 | 772.5 | 756.8 |
 
-v3 takes 0.53 to 0.76 of the baseline's time in 2D and 0.75 to 0.90 in 3D;
-v4 is within a few per cent of v3 either way, and slower at σ = 2 in 2D, so
-the default builds v3 alone.  The error against the explicit sum is the same
-at every level to three digits.  Through the library, a 256² eight-coil
-forward and adjoint of 403 spokes takes 46 ms at the baseline and 29 ms at v3,
-and the two agree to 6e-07 forward and 1e-06 adjoint.
+Most of the gain is already at v2: 0.51 to 0.83 of the baseline's time in 2D
+and 0.77 to 0.92 in 3D, which points to the SSE4.1 instructions xsimd
+reaches for in the kernel's evaluation rather than from the vector width.  On
+this processor v3 and v4 sit within the run-to-run scatter of v2, a few per
+cent either way; on one whose AVX2 or AVX-512 units are wider relative to its
+SSE ones they need not.  All three are built, so each processor runs the
+newest level it has.  The error against the explicit sum is the same at every
+level to three digits.  Through the library, a 256² eight-coil forward and
+adjoint of 403 spokes takes 46 ms at the baseline and 29 ms at v3, and the two
+agree to 6e-07 forward and 1e-06 adjoint.
 
-What it costs: a second compile of FINUFFT and DUCC0, and about 5 MB per level,
-stripped, in the wheel.
+What it costs: FINUFFT and DUCC0 compiled once more per level, and about 5 MB
+per level, stripped, in the wheel.
 

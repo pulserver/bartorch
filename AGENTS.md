@@ -195,17 +195,19 @@ digits; `docs/design/finufft-embedding.md` has the timings.
 `FINUFFT_ARCH_FLAGS` is `-march=x86-64` on x86-64 and empty elsewhere, as
 FINUFFT's own wheels are built.  That baseline is compiled into the library,
 and on x86-64 Linux and Windows FINUFFT's CPU transform is built once more for
-each level `BARTORCH_FINUFFT_SIMD` lists -- `x86-64-v3` by default -- as a
-module beside it, `libbartorch_finufft_x86_64_v3.so` or `.dll`.
+each level `BARTORCH_FINUFFT_SIMD` lists -- `x86-64-v2`, `x86-64-v3` and
+`x86-64-v4` by default -- as a module beside it,
+`libbartorch_finufft_x86_64_v3.so` or `.dll`.
 `src/csrc/substitute/finufft.c` opens the newest module the processor runs,
 without adding its names to the process, so its template instances, its DUCC0
 and its C++ runtime are its own and cannot stand in for the baseline's; a
 module that is missing or does not load leaves the baseline.  The modules are
 FINUFFT's own targets compiled again, their sources and flags read off the
 targets FINUFFT's CMake defines, with the arch flag replaced; a pin whose
-targets stop carrying it stops the configure.  `x86-64-v3` (AVX2 and FMA)
-makes the transform 25 to 45 per cent faster in 2D and 10 to 25 in 3D, and
-`x86-64-v4` adds nothing measurable beside it, so it is not built by default.
+targets stop carrying it stops the configure.  Most of the gain is already at
+`x86-64-v2`: the transform takes 0.5 to 0.8 of the baseline's time in 2D and
+0.8 to 0.9 in 3D, and v3 and v4 are within a few per cent of it on the one
+processor measured.
 `BARTORCH_FINUFFT_SIMD` in the environment, or `_finufft.use_simd`, picks a
 level, and a plan keeps the level it was made at.
 

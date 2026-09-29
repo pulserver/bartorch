@@ -116,7 +116,7 @@ jobs:
           CIBW_TEST_COMMAND: pip install torch --index-url https://download.pytorch.org/whl/cpu && pytest {project}/tests -q
       # What the wheel carries and what its library loads: the license
       # notices of everything compiled in, one library and on x86-64 its
-      # FINUFFT module for AVX2, and on each platform
+      # FINUFFT modules for x86-64-v2, v3 and v4, and on each platform
       # no OpenMP runtime or C++ runtime of its own besides what is stated.
       - name: Inspect the wheel
         shell: bash
@@ -131,12 +131,12 @@ jobs:
             Linux)
               pip install auditwheel && auditwheel show wheelhouse/*.whl
               readelf -d unpacked/bartorch/libbartorch.so | grep NEEDED
-              readelf -d unpacked/bartorch/libbartorch_finufft_x86_64_v3.so | grep NEEDED ;;
+              for m in unpacked/bartorch/libbartorch_finufft_x86_64_v{2,3,4}.so; do readelf -d "$m" | grep NEEDED; done ;;
             macOS)
               otool -L unpacked/bartorch/libbartorch.dylib | tee loads.txt
               ! grep -Ei 'homebrew|/usr/local/opt' loads.txt ;;
             Windows)
-              llvm-readobj --coff-imports unpacked/bartorch/libbartorch.dll unpacked/bartorch/libbartorch_finufft_x86_64_v3.dll | grep 'Name:' | sort -u | tee imports.txt
+              llvm-readobj --coff-imports unpacked/bartorch/libbartorch.dll unpacked/bartorch/libbartorch_finufft_x86_64_v{2,3,4}.dll | grep 'Name:' | sort -u | tee imports.txt
               ! grep -Ei 'libomp|libgomp|libc\+\+|libunwind|libwinpthread|msys' imports.txt ;;
           esac
       - uses: actions/upload-artifact@v4
