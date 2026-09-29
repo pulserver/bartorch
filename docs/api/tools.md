@@ -4,7 +4,7 @@
 operator or pipeline counterpart here, one function per command, run in this
 process.  Array arguments and results are C-order tensors in BART's dimension
 order reversed, and axis arguments are axis indices rather than BART bitmasks;
-results are not recorded by autograd.  Functions marked *wrapped* have a
+the results of a BART command are not recorded by autograd.  Functions marked *wrapped* have a
 hand-written signature; the others are generated from BART's declaration of the
 command and take its options under their long names.  Reconstructions are
 {mod}`bartorch.apps`, or an encoding from {mod}`bartorch.linop` under a solver
@@ -91,7 +91,8 @@ functions and classes with no BART command behind them.
 
 Corrections applied to data or images outside the reconstruction.  Bias field
 and gradient nonlinearity correction resample with SimpleITK
-(`pip install 'bartorch[correct]'`).  Susceptibility correction runs PyHySCO,
+(`pip install 'bartorch[correct]'`), and spiral deblurring uses Triton on a
+CUDA device when it is installed.  Susceptibility correction runs PyHySCO,
 which is GPL-3.0-only, is not distributed with bartorch and is imported only
 when {obj}`~bartorch.tools.correct_susceptibility` is called
 (`pip install 'bartorch[pyhysco]'`).

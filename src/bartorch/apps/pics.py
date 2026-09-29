@@ -99,7 +99,7 @@ def pics(
 ) -> torch.Tensor:
     """Parallel-imaging compressed-sensing reconstruction.
 
-    The pipeline :func:`bartorch.tools.pics` runs, assembled here: the
+    The pipeline BART's ``pics`` command runs, assembled here: the
     sampling pattern applied to the k-space, the modulation into the
     convention BART iterates in, the scaling estimated from what is left, and
     then an encoding from :mod:`bartorch.linop` under an iteration from

@@ -41,7 +41,7 @@ def mobafit(
 ) -> dict[str, torch.Tensor]:
     """Fit a signal model to reconstructed contrast images, voxel by voxel.
 
-    The pipeline :func:`bartorch.tools.mobafit` runs, assembled here: a
+    The pipeline BART's ``mobafit`` command runs, assembled here: a
     forward model from :mod:`bartorch.nlop`, the Gauss-Newton loop of
     :class:`bartorch.nlop.IRGNM` over it, and the fitted variables read back
     into their own units.

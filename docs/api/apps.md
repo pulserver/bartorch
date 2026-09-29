@@ -6,9 +6,11 @@ and Python arguments, performs the application's preprocessing — sampling
 pattern, modulation into BART's uncentred convention, data scaling — in Python,
 and then runs an encoding from {mod}`bartorch.linop` under a solver from
 {mod}`bartorch.optim` or {mod}`bartorch.nlop`.  The `bartorch` command line
-runs an app in place of the BART command where one exists.
-{doc}`../explanation/execution-model` compares apps with the corresponding
-{mod}`bartorch.tools` commands.
+runs an app in place of the BART command where one exists and expresses
+every option given.  The BART commands themselves are not public; the table
+states how each app relates to its command.
+{doc}`../explanation/execution-model` compares apps with the composable
+interface they are assembled from.
 
 ```{eval-rst}
 .. currentmodule:: bartorch.apps
