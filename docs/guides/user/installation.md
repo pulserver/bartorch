@@ -5,7 +5,7 @@
 Install the PyTorch build for the target device first, with the command the
 [PyTorch installation selector](https://pytorch.org/get-started/locally/)
 gives for the CPU or for a CUDA version.  bartorch requires PyTorch 2.2 or
-later; installing bartorch into an environment without PyTorch installs the
+later (2.3 on macOS, 2.7.1 on Linux); installing bartorch into an environment without PyTorch installs the
 default build from PyPI.
 
 ## bartorch installation
@@ -146,12 +146,13 @@ and the configurations that are refused.
 ## OpenMP runtime
 
 BART and FINUFFT are compiled with OpenMP and share one runtime with PyTorch.
-On macOS and Windows the library is linked against the runtime PyTorch
-contains (`torch/lib/libomp.dylib`, `torch/lib/libiomp5md.dll`) and contains
-none of its own: the LLVM runtime terminates the process when a second copy
+The library is linked against the runtime PyTorch contains
+(`torch/lib/libgomp.so.1`, `torch/lib/libomp.dylib`,
+`torch/lib/libiomp5md.dll`) and the wheels contain none of their own; on macOS
+and Windows the LLVM runtime terminates the process when a second copy
 initializes (`OMP: Error #15`).  No installed file is modified, and
-`KMP_DUPLICATE_LIB_OK` is not used.  On Linux the library uses the compiler's
-runtime, `libgomp` for the GCC-built wheel.
+`KMP_DUPLICATE_LIB_OK` is not used.  On Linux this needs PyTorch 2.7.1 or
+later, the first release whose copy is named `libgomp.so.1`.
 
 ## Command-line interface
 

@@ -6,7 +6,9 @@
 # of the library are bound to the same runtime.
 #
 # Linux: the toolchain's own runtime, found by CMake's FindOpenMP -- libgomp
-# under GCC, libomp under clang.
+# under GCC, libomp under clang.  libgomp.so.1 is also the name of the copy
+# torch carries, so the copy torch has loaded satisfies the library's NEEDED
+# entry; the wheel is repaired with --exclude libgomp.so.1 and carries none.
 #
 # Windows and macOS: the runtime torch carries and has already loaded.  LLVM's
 # runtime ends the process when a second copy of itself initialises (OMP: Error

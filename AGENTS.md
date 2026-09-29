@@ -222,18 +222,23 @@ as for BART's kernels.  cuFINUFFT at this pin does not compile for sm_90 with CU
 takes for that architecture arrives later), so a CUDA build that includes 90
 needs 12.1 or newer; the wheel is built with 12.8.
 
-**One OpenMP runtime, and it is torch's where that matters.**
+**One OpenMP runtime, and it is torch's.**
 `cmake/openmp.cmake` defines `OpenMP::OpenMP_C` and `OpenMP::OpenMP_CXX` for
 the whole build, BART linking the first and FINUFFT the second, and answers
 FINUFFT's own `find_package(OpenMP)` through `CMAKE_FIND_PACKAGE_REDIRECTS_DIR`
-so it cannot pick a runtime of its own.  On Linux it is the toolchain's
-runtime.  On Windows and macOS LLVM's runtime ends the process when a second
+so it cannot pick a runtime of its own.  On Linux the build links the
+toolchain's libgomp, whose `libgomp.so.1` is also the name of the copy torch
+carries in `torch/lib` from 2.7.1 on -- before that it had a hashed name,
+hence the Linux floor in `pyproject.toml` -- so the copy torch has loaded
+satisfies the library's `NEEDED` entry; the wheel is repaired with
+`--exclude libgomp.so.1` and carries none, and `$ORIGIN/../torch/lib` is on
+its runpath.  On Windows and macOS LLVM's runtime ends the process when a second
 copy initialises (`OMP: Error #15`), and torch has already loaded one, so the
 library is linked against a stub that names torch's and lists the entry
 points clang calls: an import library for `libiomp5md.dll` made from
 `src/csrc/compat/libiomp5md.def`, and a text stub for `@rpath/libomp.dylib`
 written from the same list, with `@loader_path/../torch/lib` on the rpath.
-`_lib._load` imports torch before it loads the library on both.  clang 19
+`_lib._load` imports torch before it loads the library on every platform.  clang 19
 and later end a dynamically scheduled loop with `__kmpc_dispatch_deinit`,
 which the libomp in torch 2.3 to 2.5 does not export, so
 `src/csrc/substitute/openmp.c` answers it inside the library and forwards to
@@ -242,7 +247,7 @@ macOS, hence the platform floor in `pyproject.toml`.  macOS needs
 `omp.h` to compile, which Homebrew's `libomp` provides; nothing links against
 that copy.  `tests/test_openmp.py` runs threaded torch and threaded FINUFFT in
 one process in either import order and reads the loaded images: one runtime
-on macOS and Windows, and it is torch's, with no installed file changed.
+on every platform, and it is torch's, with no installed file changed.
 `KMP_DUPLICATE_LIB_OK` is not used.
 
 **Underneath BART's own tools the seam is `nufft_create`, not the gridder.**

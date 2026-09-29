@@ -511,6 +511,13 @@ if(TARGET bartorch_mkl_fftw)
     set_property(TARGET bartorch APPEND PROPERTY INSTALL_RPATH "${BARTORCH_MKL_LIBRARY_DIR}")
 endif()
 
+# Linux: libgomp.so.1 is torch's in a wheel, which carries none of its own;
+# torch is its sibling package.  The copy torch has loaded satisfies the name
+# first, so this is where it is found when torch has not been imported.
+if(NOT APPLE AND NOT WIN32 AND OpenMP_C_FOUND)
+    set_property(TARGET bartorch APPEND PROPERTY INSTALL_RPATH "$ORIGIN/../torch/lib")
+endif()
+
 # macOS: the OpenMP stub names @rpath/libomp.dylib, which is torch's.  In a
 # wheel torch is the library's sibling package; an in-place build finds it
 # where the interpreter that configured the build has it.
