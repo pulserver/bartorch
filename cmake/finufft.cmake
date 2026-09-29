@@ -70,7 +70,7 @@ if(_finufft_fft STREQUAL "MKL")
     find_package(Python COMPONENTS Interpreter QUIET)
     set(_mkl_hints "$ENV{MKLROOT}")
     if(Python_Interpreter_FOUND)
-        execute_process(COMMAND "${Python_EXECUTABLE}" -c "import sys; print(sys.prefix)"
+        execute_process(COMMAND "${Python_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/mkl_prefix.py"
             OUTPUT_VARIABLE _prefix OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
         list(APPEND _mkl_hints "${_prefix}")
     endif()
@@ -167,7 +167,11 @@ if(BARTORCH_FINUFFT_SIMD)
     endforeach()
 endif()
 
-function(_bartorch_finufft_clone src dst flags)
+# A copy of FINUFFT's target `src` as the object library `dst`, compiled with
+# `flags` in place of the baseline's -march.  `fftlib` stands in for
+# finufft_fftlibs, FINUFFT's link to its FFT; `fft` is DUCC0 or FFTW, the path
+# FINUFFT's sources are compiled for.
+function(_bartorch_finufft_clone src dst flags fftlib fft)
     get_target_property(_dir ${src} SOURCE_DIR)
     get_target_property(_sources ${src} SOURCES)
     set(_files)
@@ -196,8 +200,11 @@ function(_bartorch_finufft_clone src dst flags)
             endif()
             set(_v "${_new}")
         endif()
+        if(_p STREQUAL "COMPILE_DEFINITIONS" AND fft STREQUAL "FFTW")
+            list(REMOVE_ITEM _v FINUFFT_USE_DUCC0)
+        endif()
         if(_p STREQUAL "LINK_LIBRARIES" AND FINUFFT_USE_DUCC0)
-            string(REGEX REPLACE "(^|[:;])finufft_fftlibs([;>]|$)" "\\1${ARGV3}\\2" _v "${_v}")
+            string(REGEX REPLACE "(^|[:;])finufft_fftlibs([;>]|$)" "\\1${fftlib}\\2" _v "${_v}")
         endif()
         set_property(TARGET ${dst} PROPERTY ${_p} "${_v}")
     endforeach()
@@ -207,19 +214,40 @@ function(_bartorch_finufft_clone src dst flags)
     set_target_properties(${dst} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endfunction()
 
-foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD)
-    string(REPLACE "-" "_" _id "${_level}")
-    set(_ducc)
-    if(FINUFFT_USE_DUCC0)
-        set(_ducc bartorch_ducc0_${_id})
-        _bartorch_finufft_clone(ducc0 ${_ducc} "-march=${_level}")
+# The module for one level: FINUFFT's own FFT when `fft` is empty, and
+# oneMKL's, bound at run time (src/csrc/substitute/fftw_bind.c), when it is
+# "mkl".
+function(_bartorch_finufft_module level fft)
+    string(REPLACE "-" "_" _id "${level}")
+    if(fft)
+        set(_id "${_id}_${fft}")
     endif()
-    _bartorch_finufft_clone(finufft_f32 bartorch_finufft_f32_${_id} "-march=${_level}" ${_ducc})
-    _bartorch_finufft_clone(finufft bartorch_finufft_f64_${_id} "-march=${_level}" ${_ducc})
-    # The module's C API: FINUFFT's own export macros, as its shared build
-    # sets them.
-    foreach(_t bartorch_finufft_f32_${_id} bartorch_finufft_f64_${_id})
+    set(_ducc)
+    if(fft STREQUAL "mkl")
+        set(_fftlib xsimd)
+        set(_path FFTW)
+    elseif(FINUFFT_USE_DUCC0)
+        set(_ducc bartorch_ducc0_${_id})
+        _bartorch_finufft_clone(ducc0 ${_ducc} "-march=${level}" "" DUCC0)
+        set(_fftlib ${_ducc})
+        set(_path DUCC0)
+    else()
+        set(_fftlib finufft_fftlibs)
+        set(_path FFTW)
+    endif()
+    foreach(_part f32 f64)
+        set(_src finufft)
+        if(_part STREQUAL "f32")
+            set(_src finufft_f32)
+        endif()
+        set(_t bartorch_finufft_${_part}_${_id})
+        _bartorch_finufft_clone(${_src} ${_t} "-march=${level}" ${_fftlib} ${_path})
+        # The module's C API: FINUFFT's own export macros, as its shared build
+        # sets them.
         target_compile_definitions(${_t} PRIVATE FINUFFT_DLL $<$<BOOL:${WIN32}>:dll_EXPORTS>)
+        if(fft STREQUAL "mkl")
+            target_include_directories(${_t} PRIVATE "${BARTORCH_MKL_FFTW_HEADERS}")
+        endif()
     endforeach()
 
     set(_module bartorch_finufft_${_id})
@@ -229,7 +257,10 @@ foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD)
     set_target_properties(${_module} PROPERTIES
         PREFIX "lib" OUTPUT_NAME "bartorch_finufft_${_id}" LINKER_LANGUAGE CXX)
     target_link_libraries(${_module} PRIVATE finufft_common Threads::Threads)
-    if(NOT FINUFFT_USE_DUCC0)
+    if(fft STREQUAL "mkl")
+        target_sources(${_module} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/csrc/substitute/fftw_bind.c")
+        target_include_directories(${_module} PRIVATE "${BARTORCH_MKL_FFTW_HEADERS}")
+    elseif(NOT FINUFFT_USE_DUCC0)
         target_link_libraries(${_module} PRIVATE finufft_fftlibs)
         if(TARGET bartorch_mkl_fftw)
             set_property(TARGET ${_module} APPEND PROPERTY INSTALL_RPATH "${BARTORCH_MKL_LIBRARY_DIR}")
@@ -254,14 +285,55 @@ foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD)
             "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/cmake/finufft_module.map")
     endif()
     install(TARGETS ${_module} LIBRARY DESTINATION bartorch RUNTIME DESTINATION bartorch)
+    set(BARTORCH_FINUFFT_MODULES ${BARTORCH_FINUFFT_MODULES} ${_module} PARENT_SCOPE)
+endfunction()
+
+# A second module per level whose FFT is oneMKL's, which the library loads in
+# place of the first when the process has oneMKL (the `mkl` extra): x86-64
+# Linux, where FINUFFT's own FFT is DUCC0.  Building one needs oneMKL's FFTW3
+# header, fftw3.h beside fftw3_mkl.h, which the `mkl-include` package carries
+# and the build system requires there; it links no MKL library, so a wheel
+# that carries it depends on none.
+set(_mkl_modules_default OFF)
+if(BARTORCH_FINUFFT_SIMD AND FINUFFT_USE_DUCC0 AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(_mkl_modules_default AUTO)
+endif()
+set(BARTORCH_FINUFFT_MKL_MODULES "${_mkl_modules_default}" CACHE STRING
+    "Also build each FINUFFT module on oneMKL's FFT, used where the process has oneMKL: AUTO, ON or OFF")
+set(BARTORCH_FINUFFT_MKL_LEVELS "")
+if(BARTORCH_FINUFFT_MKL_MODULES)
+    if(NOT FINUFFT_USE_DUCC0)
+        message(FATAL_ERROR "BARTORCH_FINUFFT_MKL_MODULES needs BARTORCH_FINUFFT_FFT=DUCC0: the library's FINUFFT is linked to oneMKL already")
+    endif()
+    find_package(Python COMPONENTS Interpreter QUIET)
+    set(_mkl_hints "$ENV{MKLROOT}")
+    if(Python_Interpreter_FOUND)
+        execute_process(COMMAND "${Python_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/mkl_prefix.py"
+            OUTPUT_VARIABLE _prefix OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+        list(APPEND _mkl_hints "${_prefix}")
+    endif()
+    find_path(BARTORCH_MKL_FFTW_HEADERS fftw3_mkl.h HINTS ${_mkl_hints} PATH_SUFFIXES include/fftw)
+    if(BARTORCH_MKL_FFTW_HEADERS AND EXISTS "${BARTORCH_MKL_FFTW_HEADERS}/fftw3.h")
+        set(BARTORCH_FINUFFT_MKL_LEVELS "${BARTORCH_FINUFFT_SIMD}")
+    elseif(BARTORCH_FINUFFT_MKL_MODULES STREQUAL "AUTO")
+        message(STATUS "FINUFFT on oneMKL: no oneMKL include/fftw/fftw3_mkl.h (mkl-include); not built")
+    else()
+        message(FATAL_ERROR "BARTORCH_FINUFFT_MKL_MODULES: no oneMKL include/fftw/fftw3_mkl.h found; install mkl-include or set MKLROOT")
+    endif()
+endif()
+
+foreach(_level IN LISTS BARTORCH_FINUFFT_SIMD)
+    _bartorch_finufft_module(${_level} "")
     list(APPEND BARTORCH_FINUFFT_SIMD_LEVELS "${_level}")
-    list(APPEND BARTORCH_FINUFFT_MODULES ${_module})
+endforeach()
+foreach(_level IN LISTS BARTORCH_FINUFFT_MKL_LEVELS)
+    _bartorch_finufft_module(${_level} mkl)
 endforeach()
 
 file(STRINGS "${FINUFFT_ROOT}/CMakeLists.txt" _finufft_project REGEX "^project\\(FINUFFT VERSION")
 string(REGEX MATCH "VERSION ([0-9.]+)" _ "${_finufft_project}")
 set(BARTORCH_FINUFFT_VERSION "${CMAKE_MATCH_1}")
-message(STATUS "FINUFFT ${BARTORCH_FINUFFT_VERSION} from ${FINUFFT_ROOT}: cpu, openmp=${FINUFFT_USE_OPENMP}, cuda=${BARTORCH_CUDA}, fft=${BARTORCH_FINUFFT_FFT_NAME}, arch='${FINUFFT_ARCH_FLAGS}', simd='${BARTORCH_FINUFFT_SIMD}'")
+message(STATUS "FINUFFT ${BARTORCH_FINUFFT_VERSION} from ${FINUFFT_ROOT}: cpu, openmp=${FINUFFT_USE_OPENMP}, cuda=${BARTORCH_CUDA}, fft=${BARTORCH_FINUFFT_FFT_NAME}, arch='${FINUFFT_ARCH_FLAGS}', simd='${BARTORCH_FINUFFT_SIMD}', simd on oneMKL='${BARTORCH_FINUFFT_MKL_LEVELS}'")
 
 # The notices of what FINUFFT compiles in with it, which the build fetched
 # rather than the checkout carrying.  scikit-build-core puts what is installed

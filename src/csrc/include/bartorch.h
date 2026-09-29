@@ -901,6 +901,16 @@ BARTORCH_API int64_t bartorch_finufft_live_plans(void);
 BARTORCH_API const char* bartorch_finufft_simd_built(void);
 BARTORCH_API const char* bartorch_finufft_simd(void);
 BARTORCH_API int bartorch_finufft_set_simd(const char* level);
+/* The FFT FINUFFT's CPU transform runs on: the ones built, the library's own
+ * first; the one plans are made on, oneMKL by default once the process has
+ * handed over its FFTW3 interface, one entry point at a time by name
+ * (fftw_set, -1 for a name it does not take); and setting it, NULL for the
+ * default.  set_fft returns -1, and changes nothing, for an FFT that is not
+ * built at the level in force or that the process has not handed over. */
+BARTORCH_API const char* bartorch_finufft_fft_built(void);
+BARTORCH_API const char* bartorch_finufft_fft(void);
+BARTORCH_API int bartorch_finufft_set_fft(const char* fft);
+BARTORCH_API int bartorch_finufft_fftw_set(const char* name, void* address);
 BARTORCH_API const char* bartorch_last_error(void);
 BARTORCH_API void bartorch_clear_error(void);
 BARTORCH_API int bartorch_nufft_decline_reason(void);

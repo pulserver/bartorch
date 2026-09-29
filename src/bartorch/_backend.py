@@ -5,6 +5,8 @@ torch links, Accelerate (macOS), and SciPy's ``cython_blas`` / ``cython_lapack``
 capsules.  ``BARTORCH_BLAS_LIBRARY`` puts one first: ``mkl``, ``torch``,
 ``scipy``, or a library path.  BART's FFT is executed by MKL's DFTI when a
 source has all of it, and by the transform compiled into the library otherwise.
+FINUFFT's FFT is oneMKL's where a source has its FFTW3 interface and the library
+carries a FINUFFT built on it.
 :func:`sources` reports what serves each routine.
 """
 
@@ -188,6 +190,7 @@ def install() -> dict[str, str]:
             chosen[name] = "reference" if fallback[name] else "missing"
 
     chosen["fft"] = _install_fft(providers)
+    chosen["finufft_fft"] = _install_finufft_fft(providers)
 
     _sources.clear()
     _sources.update(chosen)
@@ -224,6 +227,39 @@ def _install_fft(providers: list[_Provider]) -> str:
     return "built-in"
 
 
+#: The FFTW3 entry points a FINUFFT built on oneMKL calls
+#: (``src/csrc/substitute/fftw_bind.c``).  All or none, as for DFTI.
+_FFTW = tuple(
+    f"{prefix}_{name}"
+    for prefix in ("fftwf", "fftw")
+    for name in (
+        "plan_many_dft",
+        "execute_dft",
+        "destroy_plan",
+        "init_threads",
+        "plan_with_nthreads",
+        "cleanup_threads",
+        "forget_wisdom",
+        "cleanup",
+    )
+)
+
+
+def _install_finufft_fft(providers: list[_Provider]) -> str:
+    """Hand the library oneMKL's FFTW3 interface, if one of these sources has all of it.
+
+    Returns the FFT FINUFFT's plans are made on from then on.
+    """
+    lib = library()
+    for provider in providers:
+        found = {name: provider.lookup(name) for name in _FFTW}
+        if all(address is not None for address in found.values()):
+            for name, address in found.items():
+                lib.bartorch_finufft_fftw_set(name.encode(), address)
+            break
+    return lib.bartorch_finufft_fft().decode()
+
+
 @contextlib.contextmanager
 def built_in_fft():
     """Context in which BART's FFT is executed by the compiled-in transform instead of DFTI.
@@ -247,6 +283,6 @@ def sources() -> dict[str, str]:
     """What serves each routine after :func:`install`.
 
     One entry per BLAS and LAPACK routine, plus ``fft`` for the transform
-    behind BART's FFT.
+    behind BART's FFT and ``finufft_fft`` for the one behind FINUFFT's.
     """
     return dict(_sources)

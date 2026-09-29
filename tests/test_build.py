@@ -43,7 +43,7 @@ def test_the_library_is_newer_than_the_sources_it_was_built_from():
         pytest.skip("the C sources are not beside this checkout")
 
     library = library_path()
-    built = library.stat().st_mtime
+    built = sources.built(library)
     assert built >= changed, (
         f"{library} was built before {source.relative_to(ROOT)} was last changed "
         f"({built:.0f} < {changed:.0f}), so these tests are running against a stale "

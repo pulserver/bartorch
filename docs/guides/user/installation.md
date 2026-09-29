@@ -86,6 +86,18 @@ built for.  A source build selects them with
 `-C cmake.define.BARTORCH_FINUFFT_SIMD="x86-64-v3"`, or builds the baseline
 alone with an empty value.
 
+On x86-64 Linux each of those levels is also built on oneMKL's FFT, and is
+used in place of DUCC0 when oneMKL is installed:
+
+```bash
+python -m pip install "bartorch[mkl]"
+```
+
+`bartorch.backend_sources()["finufft_fft"]` names the FFT in use.  A source
+build carries these modules when oneMKL's headers (`mkl-include`) are present,
+which the build requires on that platform;
+`-C cmake.define.BARTORCH_FINUFFT_MKL_MODULES=OFF` leaves them out.
+
 A checkout of the repository is built as described in the
 {doc}`developer guide <../developer/installation>`.
 

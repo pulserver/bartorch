@@ -60,6 +60,16 @@ def newest(roots=SOURCES) -> tuple[Path | None, float]:
     return latest, when
 
 
+def built(library: Path) -> float:
+    """When the build that produced *library* last wrote any of its libraries.
+
+    The FINUFFT modules are linked beside it, and a source only a module is
+    compiled from (``fftw_bind.c``) relinks that module and not the library.
+    """
+    beside = library.parent.glob(f"libbartorch_finufft_*{library.suffix}")
+    return max(path.stat().st_mtime for path in [library, *beside])
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
@@ -76,10 +86,10 @@ def main() -> int:
         return 0 if args.newer_than else 1
 
     if args.newer_than:
-        built = Path(args.newer_than)
-        if not built.exists():
+        library = Path(args.newer_than)
+        if not library.exists():
             return 1
-        if built.stat().st_mtime >= when:
+        if built(library) >= when:
             return 0
         print(source.relative_to(ROOT))
         return 1

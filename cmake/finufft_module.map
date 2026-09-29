@@ -1,8 +1,10 @@
-/* What a FINUFFT module exports: its C API, and nothing it was linked with. */
+/* What a FINUFFT module exports: its C API, the entry point an FFT is handed
+ * over through, and nothing it was linked with. */
 {
     global:
         finufft_*;
         finufftf_*;
+        bartorch_fftw_bind;
     local:
         *;
 };

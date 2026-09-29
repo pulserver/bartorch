@@ -419,6 +419,48 @@ def use_simd(level: str | None = None) -> None:
         )
 
 
+def fft_built() -> tuple[str, ...]:
+    """The FFTs FINUFFT's CPU transform is built on, the compiled-in one first."""
+    from bartorch._lib import library
+
+    return tuple(library().bartorch_finufft_fft_built().decode().split(","))
+
+
+def fft() -> str:
+    """The FFT host plans are made on.
+
+    ``"mkl"`` where the library carries a FINUFFT built on oneMKL at the level in
+    force and the process has oneMKL (the ``mkl`` extra), unless :func:`use_fft`
+    names another; the compiled-in one otherwise.
+    """
+    from bartorch._dispatch import _ensure_ready
+    from bartorch._lib import library
+
+    _ensure_ready()
+    return library().bartorch_finufft_fft().decode()
+
+
+def use_fft(name: str | None = None) -> None:
+    """Make host plans on the FFT ``name`` from now on, or on the default for None.
+
+    Plans already made keep the FFT they were made on.
+
+    Raises
+    ------
+    ValueError
+        ``name`` is not built at the level in force, or the process has no oneMKL
+        for ``"mkl"``.
+    """
+    from bartorch._dispatch import _ensure_ready
+    from bartorch._lib import library
+
+    _ensure_ready()
+    if library().bartorch_finufft_set_fft(None if name is None else name.encode()) != 0:
+        raise ValueError(
+            f"FINUFFT on {name} is not available at {simd()}: built on {', '.join(fft_built())}"
+        )
+
+
 def fallback_allowed() -> bool:
     """Whether BART's own operator may answer what FINUFFT will not."""
     from bartorch._lib import library

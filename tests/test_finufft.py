@@ -2076,3 +2076,103 @@ def test_a_library_without_its_modules_transforms_at_the_baseline(tmp_path):
         "print(_finufft.simd())"
     )
     assert _in_a_process(code, str(alone)) == _finufft.simd_built()[0]
+
+
+@pytest.fixture
+def on_fft():
+    """Plans made on a chosen FFT, and the FFT put back afterwards."""
+    before = _finufft.fft()
+    yield _finufft.use_fft
+    _finufft.use_fft(before)
+
+
+def _ffts_this_process_has():
+    has = []
+    for fft in _finufft.fft_built():
+        with contextlib.suppress(ValueError):
+            _finufft.use_fft(fft)
+            has.append(fft)
+    _finufft.use_fft(None)
+    return has
+
+
+def _mkl_modules_built() -> bool:
+    return "mkl" in _finufft.fft_built() and _finufft_fft() != "mkl"
+
+
+def test_the_ffts_built_are_the_ones_build_info_names():
+    ffts = _finufft.fft_built()
+    assert ffts[0] == _finufft_fft()
+    assert ("mkl" in ffts[1:]) == bool(_build_info("finufft_simd_mkl"))
+
+
+def test_onemkl_is_the_default_fft_where_the_process_has_it(on_fft):
+    from bartorch import _backend
+
+    if not _mkl_modules_built():
+        pytest.skip("no FINUFFT module on oneMKL in this build")
+    on_fft(None)
+    expected = "mkl" if _backend._mkl_library() is not None else _finufft_fft()
+    assert _finufft.fft() == expected
+    assert bartorch.backend_sources()["finufft_fft"] == expected
+
+
+@requires_finufft
+def test_every_fft_at_every_level_matches_an_explicit_dft(at_level, on_fft):
+    n = 32
+    traj = bt.traj(x=n, y=16, r=True)
+    img = bt.phantom([n, n]).reshape(1, n, n).to(torch.complex64)
+    ref = _dft(traj, img, n)
+    for fft in _ffts_this_process_has():
+        for level in _levels_this_processor_runs():
+            at_level(level)
+            try:
+                on_fft(fft)
+            except ValueError:
+                continue
+            got = linop.NUFFT(traj, (1, n, n), toeplitz=False)(img)
+            _within_tolerance(got.numpy().reshape(ref.shape), ref)
+
+
+def test_an_fft_that_is_not_built_is_refused_and_changes_nothing(on_fft):
+    before = (_finufft.simd(), _finufft.fft())
+    with pytest.raises(ValueError, match="not available"):
+        on_fft("fftw")
+    assert (_finufft.simd(), _finufft.fft()) == before
+
+
+@requires_finufft
+def test_without_onemkl_in_the_process_plans_are_made_on_the_librarys_own_fft():
+    if not _mkl_modules_built():
+        pytest.skip("no FINUFFT module on oneMKL in this build")
+    code = (
+        "from bartorch import _backend; _backend._mkl_library = lambda: None\n"
+        "import bartorch.tools as bt; from bartorch import _finufft, linop\n"
+        "t = bt.traj(x=32, y=16, r=True)\n"
+        "linop.NUFFT(t, (1, 32, 32), toeplitz=False)(bt.phantom([32, 32]).reshape(1, 32, 32))\n"
+        "print(_finufft.fft())\n"
+        "try:\n"
+        "    _finufft.use_fft('mkl')\n"
+        "except ValueError:\n"
+        "    print('refused')"
+    )
+    assert _in_a_process(code, "").split() == [_finufft_fft(), "refused"]
+
+
+@requires_finufft
+@pytest.mark.skipif(not os.path.exists("/proc/self/maps"), reason="reads the loaded images")
+def test_finufft_on_onemkl_loads_no_mkl_or_openmp_runtime_of_its_own(on_fft):
+    """The module binds to the libmkl_rt BART's tables use, and to the process's one OpenMP."""
+    from bartorch import _backend
+
+    if not _mkl_modules_built() or _backend._mkl_library() is None:
+        pytest.skip("FINUFFT on oneMKL is not in this process")
+    on_fft("mkl")
+    n = 32
+    traj = bt.traj(x=n, y=16, r=True)
+    linop.NUFFT(traj, (1, n, n), toeplitz=False)(bt.phantom([n, n]).reshape(1, n, n))
+    with open("/proc/self/maps") as maps:
+        loaded = {os.path.realpath(line.split()[-1]) for line in maps if ".so" in line}
+    assert {p for p in loaded if "libmkl_rt" in p} == {os.path.realpath(_backend._mkl_library())}
+    assert not any("libiomp5" in p for p in loaded)
+    assert len({os.path.basename(p) for p in loaded if "libgomp" in p}) <= 1
