@@ -1944,3 +1944,30 @@ def test_a_failed_install_is_reported_as_the_refusal_it_leads_to(monkeypatch, ca
     assert "refused" in record.getMessage()
     assert "gridder" not in record.getMessage()
     assert "FINUFFT disagrees with BART" in record.getMessage()
+
+
+def _finufft_fft() -> str:
+    info = dict(item.split("=", 1) for item in bartorch.build_info().split(","))
+    return info["finufft_fft"]
+
+
+def test_build_info_names_the_fft_inside_finufft():
+    assert _finufft_fft() in ("ducc0", "mkl")
+
+
+@requires_finufft
+@pytest.mark.skipif(not os.path.exists("/proc/self/maps"), reason="reads the loaded images")
+def test_finufft_on_onemkl_shares_one_mkl_with_barts_fft():
+    """FINUFFT's FFT and BART's DFTI table are one libmkl_rt when the mkl extra serves."""
+    if _finufft_fft() != "mkl":
+        pytest.skip("FINUFFT's FFT is DUCC0's in this build")
+    from bartorch import _backend
+
+    n = 32
+    traj = bt.traj(x=n, y=16, r=True)
+    linop.NUFFT(traj, (1, n, n), toeplitz=False)(bt.phantom([n, n]).reshape(1, n, n))
+    with open("/proc/self/maps") as maps:
+        loaded = {os.path.realpath(line.split()[-1]) for line in maps if "libmkl_rt" in line}
+    assert len(loaded) == 1, loaded
+    if bartorch.backend_sources()["fft"] == "mkl":
+        assert loaded == {os.path.realpath(_backend._mkl_library())}

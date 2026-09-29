@@ -446,7 +446,7 @@ target_compile_definitions(bartorch PRIVATE
     # functions linked into this library rather than imported from its DLL
     # (misc/dllspec.h); and no named pipes, which are a POSIX file type.
     $<$<BOOL:${WIN32}>:_FILE_OFFSET_BITS=64;BARTLIB_STATIC;NO_FIFO>
-    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},long=${BARTORCH_SIZEOF_LONG}")
+    BARTORCH_BUILD_INFO="bart=${BART_VERSION},compiler=${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION},nested=${BARTORCH_NESTED},openmp=${OpenMP_C_FOUND},cuda=${BARTORCH_CUDA},finufft=${BARTORCH_FINUFFT_VERSION},finufft_fft=${BARTORCH_FINUFFT_FFT_NAME},long=${BARTORCH_SIZEOF_LONG}")
 
 target_compile_options(bartorch PRIVATE
     $<$<COMPILE_LANGUAGE:C>:${BART_C_OPTIONS}>
@@ -476,6 +476,11 @@ target_link_libraries(bartorch PRIVATE Threads::Threads ${BART_EXTRA_LIBS})
 target_link_libraries(bartorch PRIVATE m)
 
 target_link_libraries(bartorch PRIVATE ${BARTORCH_FINUFFT_LIBS})
+
+# FINUFFT on oneMKL needs libmkl_rt where the build found it.
+if(TARGET bartorch_mkl_fftw)
+    set_property(TARGET bartorch APPEND PROPERTY INSTALL_RPATH "${BARTORCH_MKL_LIBRARY_DIR}")
+endif()
 
 # macOS: the OpenMP stub names @rpath/libomp.dylib, which is torch's.  In a
 # wheel torch is the library's sibling package; an in-place build finds it

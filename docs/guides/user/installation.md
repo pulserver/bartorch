@@ -61,6 +61,21 @@ The compiler is selected with `CC` and `CXX`:
 CC=clang CXX=clang++ python -m pip install bartorch --no-binary bartorch
 ```
 
+FINUFFT computes the FFT inside its CPU transform with DUCC0, which is
+compiled into the library and is what every wheel contains.  On x86-64 Linux,
+a source build with oneMKL installed (`pip install mkl mkl-devel`) can use
+oneMKL's FFT through its FFTW3 interface instead:
+
+```bash
+python -m pip install "bartorch[mkl]" --no-binary bartorch \
+    -C cmake.define.BARTORCH_FINUFFT_FFT=MKL
+```
+
+The library then links the `libmkl_rt` found at build time, and the `mkl`
+extra makes the same library serve BART's BLAS, LAPACK and FFT.
+`finufft_fft=` in {func}`bartorch.build_info` names the FFT the library was
+built with.
+
 A checkout of the repository is built as described in the
 {doc}`developer guide <../developer/installation>`.
 
