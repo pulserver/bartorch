@@ -4,12 +4,12 @@ The concepts behind the interfaces, their notation, and the reasons for the
 choices visible in the API.  The pages assume linear algebra and numerical
 computing, not MRI reconstruction or convex optimization; terms from either are
 introduced where first used.  Exact interfaces are in {doc}`../api/index`, and
-complete workflows in the {doc}`examples <../examples/index>`.
+complete workflows in the {doc}`examples <../auto_examples/index>`.
 
 | Page | Question |
 | --- | --- |
 | {doc}`execution-model` | Which interface fits a task, and what runs underneath it? |
-| {doc}`data-layout` | How are arrays, axes, trajectories and Fourier transforms laid out, and why? |
+| {doc}`data-layout` | How are arrays, axes, trajectories and Fourier transforms laid out, why, and how is data from elsewhere converted into that layout? |
 | {doc}`inverse-problems` | What is estimated, from what, and by which algorithm? |
 | {doc}`encoding` | What does the MRI forward operator consist of, and how is it represented? |
 | {doc}`non-cartesian` | How is the Fourier transform computed off the Cartesian grid, and what is its normal operator? |

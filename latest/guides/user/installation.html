@@ -65,7 +65,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Preparing data" href="conventions.html" />
+    <link rel="next" title="Reporting issues" href="issues.html" />
     <link rel="prev" title="Prerequisites and supported platforms" href="prerequisites.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -199,7 +199,6 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="security.html">Security</a></li>
@@ -230,34 +229,55 @@
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -500,8 +520,6 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-installation">bartorch installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-builds">Source builds</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda">CUDA</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-backends">Non-Cartesian backends</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openmp-runtime">OpenMP runtime</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-interface">Command-line interface</a></li>
 </ul>
             </nav>
@@ -536,7 +554,7 @@ FINUFFT installation and no compiler are needed.  Optional components are instal
 extras:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[mkl]'</span><span class="w">        </span><span class="c1"># Linux x86-64: MKL for BLAS, LAPACK and FFT</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[deepinv]'</span><span class="w">    </span><span class="c1"># bartorch.interop.to_deepinv</span>
-python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[learning]'</span><span class="w">   </span><span class="c1"># Lightning and TorchIO, for bartorch.learning.training</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[learning]'</span><span class="w">   </span><span class="c1"># Lightning and TorchIO, for bartorch.learning.Reconstruction and RandomGain</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[correct]'</span><span class="w">    </span><span class="c1"># SimpleITK, for bias field and gradient nonlinearity correction</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[motion]'</span><span class="w">     </span><span class="c1"># SimpleITK, for navigator registration</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[pyhysco]'</span><span class="w">    </span><span class="c1"># PyHySCO (GPL-3.0-only), for susceptibility correction</span>
@@ -639,52 +657,6 @@ which a CUDA 12 build of PyTorch provides.  A source build with CUDA passes
 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>, version 12.1 or later for compute capability 9.0;
 <code class="docutils literal notranslate"><span class="pre">-C</span> <span class="pre">cmake.define.BARTORCH_CUDA_ARCHITECTURES=&quot;80;86&quot;</span></code> selects the compute
 capabilities for BART’s kernels and cuFINUFFT alike.</p>
-<p>Operators and commands run on the device that holds their tensor arguments.
-Operators work on device memory directly; some commands allocate host
-temporaries internally and are given host copies of their inputs, with their
-results returned on the device.</p>
-</section>
-<section id="non-cartesian-backends">
-<h2>Non-Cartesian backends<a class="headerlink" href="#non-cartesian-backends" title="Link to this heading">#</a></h2>
-<p>Every non-uniform Fourier transform, in the commands and in the operators, is
-computed by FINUFFT for tensors in host memory and by cuFINUFFT for tensors on
-a CUDA device.  BART’s own gridding implementation is not used.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Transform</p></th>
-<th class="head"><p>Backend</p></th>
-<th class="head"><p>Requirement</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Host tensors</p></td>
-<td><p>FINUFFT</p></td>
-<td><p>Compiled into every build</p></td>
-</tr>
-<tr class="row-odd"><td><p>CUDA tensors</p></td>
-<td><p>cuFINUFFT</p></td>
-<td><p>Compiled into the CUDA build</p></td>
-</tr>
-<tr class="row-even"><td><p>A configuration FINUFFT cannot serve</p></td>
-<td><p>None</p></td>
-<td><p>The transform raises <a class="reference internal" href="../../generated/bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BartError</span></code></a> with the reason</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><a class="reference internal" href="../../explanation/non-cartesian.html"><span class="doc">Non-Cartesian sampling</span></a> describes the transform, its tolerance
-and the configurations that are refused.</p>
-</section>
-<section id="openmp-runtime">
-<span id="id2"></span><h2>OpenMP runtime<a class="headerlink" href="#openmp-runtime" title="Link to this heading">#</a></h2>
-<p>BART and FINUFFT are compiled with OpenMP and share one runtime with PyTorch.
-The library is linked against the runtime PyTorch contains
-(<code class="docutils literal notranslate"><span class="pre">torch/lib/libgomp.so.1</span></code>, <code class="docutils literal notranslate"><span class="pre">torch/lib/libomp.dylib</span></code>,
-<code class="docutils literal notranslate"><span class="pre">torch/lib/libiomp5md.dll</span></code>) and the wheels contain none of their own; on macOS
-and Windows the LLVM runtime terminates the process when a second copy
-initializes (<code class="docutils literal notranslate"><span class="pre">OMP:</span> <span class="pre">Error</span> <span class="pre">#15</span></code>).  No installed file is modified, and
-<code class="docutils literal notranslate"><span class="pre">KMP_DUPLICATE_LIB_OK</span></code> is not used.  On Linux this needs PyTorch 2.7.1 or
-later, the first release whose copy is named <code class="docutils literal notranslate"><span class="pre">libgomp.so.1</span></code>.</p>
 </section>
 <section id="command-line-interface">
 <h2>Command-line interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">#</a></h2>
@@ -695,8 +667,8 @@ bartorch<span class="w"> </span>--list
 </pre></div>
 </div>
 <p>A script written for <code class="docutils literal notranslate"><span class="pre">bart</span></code> runs with the command name replaced, or with a
-<code class="docutils literal notranslate"><span class="pre">bart</span></code> symbolic link to <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> earlier on the <code class="docutils literal notranslate"><span class="pre">PATH</span></code>; <a class="reference internal" href="../../api/cli.html"><span class="doc">Command line</span></a>
-describes which commands run as <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.apps</span></code> pipelines.</p>
+<code class="docutils literal notranslate"><span class="pre">bart</span></code> symbolic link to <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> earlier on the <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.  Which commands run
+as <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.apps</span></code> pipelines is stated in <a class="reference internal" href="../../api/cli.html"><span class="doc">Command line</span></a>.</p>
 </section>
 </section>
 
@@ -721,11 +693,11 @@ describes which commands run as <code class="xref py py-mod docutils literal not
       </div>
     </a>
     <a class="right-next"
-       href="conventions.html"
+       href="issues.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Preparing data</p>
+        <p class="prev-next-title">Reporting issues</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -751,8 +723,6 @@ describes which commands run as <code class="xref py py-mod docutils literal not
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch-installation">bartorch installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-builds">Source builds</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda">CUDA</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-backends">Non-Cartesian backends</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openmp-runtime">OpenMP runtime</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-interface">Command-line interface</a></li>
 </ul>
   </nav></div>

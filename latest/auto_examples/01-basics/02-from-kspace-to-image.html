@@ -67,7 +67,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Coil sensitivity calibration" href="../02-parallel-imaging/01-coil-calibration.html" />
+    <link rel="next" title="Parallel imaging" href="../02-parallel-imaging/index.html" />
     <link rel="prev" title="Tensors and commands" href="01-tensors-and-commands.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -201,7 +201,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -232,34 +231,55 @@
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">From k-space to image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Basics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">From k-space to image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -546,7 +566,7 @@ SENSE forward model</p>
 states the model and <a class="reference internal" href="../../explanation/inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a> the estimator.</p>
 <p>Shapes are C order, so a Cartesian k-space is <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> with the
 readout along <code class="docutils literal notranslate"><span class="pre">x</span></code> and the phase encoding along <code class="docutils literal notranslate"><span class="pre">y</span></code>; see
-<a class="reference internal" href="../../guides/user/conventions.html"><span class="doc">Preparing data</span></a>.</p>
+<a class="reference internal" href="../../explanation/data-layout.html"><span class="doc">Data layout and conventions</span></a>.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
 <li><p>Simulate a multichannel Cartesian acquisition from a tissue segmentation.</p></li>
@@ -836,7 +856,7 @@ linear inverse problems. <em>SIAM J Imaging Sci</em> 2(1):183-202 (2009).
 <a class="reference external" href="https://doi.org/10.1137/080716542">https://doi.org/10.1137/080716542</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.512 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.240 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-basics-02-from-kspace-to-image-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/dc66295dee30ddba7503ef64f9d262a0/02-from-kspace-to-image.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-from-kspace-to-image.ipynb</span></code></a></p>
@@ -873,11 +893,11 @@ linear inverse problems. <em>SIAM J Imaging Sci</em> 2(1):183-202 (2009).
       </div>
     </a>
     <a class="right-next"
-       href="../02-parallel-imaging/01-coil-calibration.html"
+       href="../02-parallel-imaging/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Coil sensitivity calibration</p>
+        <p class="prev-next-title">Parallel imaging</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

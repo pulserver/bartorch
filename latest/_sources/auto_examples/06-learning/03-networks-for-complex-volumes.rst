@@ -52,7 +52,7 @@ which a random offset of the grid averages out.
 It follows :doc:`02-modl-with-admm`. The next lesson,
 :doc:`04-staged-training`, trains an unrolled network in stages.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-131
+.. GENERATED FROM PYTHON SOURCE LINES 38-130
 
 .. code-block:: Python
 
@@ -70,7 +70,6 @@ It follows :doc:`02-modl-with-admm`. The next lesson,
     from torch.utils.data import DataLoader
 
     from bartorch import learning
-    from bartorch.learning import training
 
     SIZE = 64
     PATCH = 32
@@ -85,7 +84,7 @@ It follows :doc:`02-modl-with-admm`. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-143
+.. GENERATED FROM PYTHON SOURCE LINES 131-142
 
 A multi-contrast complex volume
 -------------------------------
@@ -99,7 +98,7 @@ tissues it contains. Subject 0 is the training volume and subject 4 the test
 volume. Complex Gaussian noise of 6 per cent of each contrast's peak gives
 the test volume an SNR typical of a fast high-resolution scan.
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-197
+.. GENERATED FROM PYTHON SOURCE LINES 143-196
 
 .. code-block:: Python
 
@@ -128,7 +127,7 @@ the test volume an SNR typical of a fast high-resolution scan.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 198-210
+.. GENERATED FROM PYTHON SOURCE LINES 197-209
 
 The network
 -----------
@@ -143,7 +142,7 @@ inverse square root of the channels' covariance before the call, and undoes
 both after it, so that the network sees uncorrelated channels of unit
 variance whatever the relative energy of the contrasts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 211-223
+.. GENERATED FROM PYTHON SOURCE LINES 210-222
 
 .. code-block:: Python
 
@@ -173,7 +172,7 @@ variance whatever the relative energy of the contrasts.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 224-241
+.. GENERATED FROM PYTHON SOURCE LINES 223-240
 
 Patches and augmentation
 ------------------------
@@ -182,7 +181,7 @@ Patches and augmentation
 real channels (:func:`~bartorch.learning.as_real`) and draws :math:`32^3`
 patches from it through a :class:`torchio.Queue`. The augmentations are
 those that map one MR image to another the acquisition could have produced:
-a flip, and :class:`~bartorch.learning.training.RandomGain`, a receiver gain
+a flip, and :class:`~bartorch.learning.RandomGain`, a receiver gain
 and global phase shared by the contrasts. An intensity transform applied to
 the real and imaginary channels separately, such as a gamma correction,
 would produce a signal no acquisition can. The global phase is varied over a
@@ -193,14 +192,14 @@ than this lesson runs.
 Each patch becomes a training pair when a new draw of noise is added to it,
 so the network sees a different noise realization at every epoch.
 
-.. GENERATED FROM PYTHON SOURCE LINES 242-279
+.. GENERATED FROM PYTHON SOURCE LINES 241-278
 
 .. code-block:: Python
 
 
     subject = tio.Subject(image=tio.ScalarImage(tensor=learning.as_real(train_volume).flatten(0, 1)))
     augment = tio.Compose(
-        [tio.RandomFlip(axes=(0, 1, 2)), training.RandomGain(phase=0.3, log_scale=0.2)]
+        [tio.RandomFlip(axes=(0, 1, 2)), learning.RandomGain(phase=0.3, log_scale=0.2)]
     )
     queue = tio.Queue(
         tio.SubjectsDataset([subject], transform=augment),
@@ -229,7 +228,7 @@ so the network sees a different noise realization at every epoch.
         enable_progress_bar=False,
     )
     trainer.fit(
-        training.Reconstruction(denoiser, "denoiser", lr=2e-3),
+        learning.Reconstruction(denoiser, "denoiser", lr=2e-3),
         DataLoader(queue, batch_size=4, collate_fn=pairs),
         DataLoader(validation, batch_size=1, collate_fn=list),
     )
@@ -249,7 +248,7 @@ so the network sees a different noise realization at every epoch.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 280-300
+.. GENERATED FROM PYTHON SOURCE LINES 279-299
 
 Applying the network patch by patch
 -----------------------------------
@@ -272,7 +271,7 @@ every time. With ``shift=True``, the grid is offset at random at every call,
 and averaging a few calls with :func:`~bartorch.learning.moments` spreads
 the boundary errors across the volume.
 
-.. GENERATED FROM PYTHON SOURCE LINES 301-346
+.. GENERATED FROM PYTHON SOURCE LINES 300-345
 
 .. code-block:: Python
 
@@ -336,7 +335,7 @@ the boundary errors across the volume.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 347-364
+.. GENERATED FROM PYTHON SOURCE LINES 346-363
 
 The network, 0.14 million weights trained for a few minutes on patches of
 one head, removes a third or more of the noise of the other head's volume
@@ -356,7 +355,7 @@ The variance :func:`~bartorch.learning.moments` returns is a map of how much
 the result depends on where the patches fall, one of the spreads of
 :doc:`07-uncertainty`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 367-378
+.. GENERATED FROM PYTHON SOURCE LINES 366-377
 
 Size of the network
 -------------------
@@ -370,7 +369,7 @@ frames with a separate one-dimensional convolution, and never downsamples
 the frame axis; ``periodic=True`` pads it circularly, which suits a cardiac
 cycle. This factorization costs few weights beyond the spatial network.
 
-.. GENERATED FROM PYTHON SOURCE LINES 379-391
+.. GENERATED FROM PYTHON SOURCE LINES 378-390
 
 .. code-block:: Python
 
@@ -405,7 +404,7 @@ cycle. This factorization costs few weights beyond the spatial network.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (11 minutes 16.183 seconds)
+   **Total running time of the script:** (15 minutes 56.328 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_03-networks-for-complex-volumes.py:

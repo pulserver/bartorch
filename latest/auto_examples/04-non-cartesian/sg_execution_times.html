@@ -199,7 +199,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -230,34 +229,55 @@
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -500,7 +520,7 @@
                   
   <section id="computation-times">
 <span id="sphx-glr-auto-examples-04-non-cartesian-sg-execution-times"></span><h1>Computation times<a class="headerlink" href="#computation-times" title="Link to this heading">#</a></h1>
-<p><strong>00:10.617</strong> total execution time for 3 files <strong>from auto_examples/04-non-cartesian</strong>:</p>
+<p><strong>00:13.473</strong> total execution time for 3 files <strong>from auto_examples/04-non-cartesian</strong>:</p>
 <div class="docutils container">
 <style scoped>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
@@ -522,15 +542,15 @@ $(document).ready( function () {
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="03-dynamic-golden-angle.html#sphx-glr-auto-examples-04-non-cartesian-03-dynamic-golden-angle-py"><span class="std std-ref">Dynamic golden-angle radial MRI</span></a> (<code class="docutils literal notranslate"><span class="pre">03-dynamic-golden-angle.py</span></code>)</p></td>
-<td><p>00:05.452</p></td>
+<td><p>00:06.810</p></td>
 <td><p>0.0</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="02-radial-sense.html#sphx-glr-auto-examples-04-non-cartesian-02-radial-sense-py"><span class="std std-ref">Radial SENSE reconstruction</span></a> (<code class="docutils literal notranslate"><span class="pre">02-radial-sense.py</span></code>)</p></td>
-<td><p>00:04.134</p></td>
+<td><p>00:05.222</p></td>
 <td><p>0.0</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="01-trajectories-and-transforms.html#sphx-glr-auto-examples-04-non-cartesian-01-trajectories-and-transforms-py"><span class="std std-ref">Trajectories and transforms</span></a> (<code class="docutils literal notranslate"><span class="pre">01-trajectories-and-transforms.py</span></code>)</p></td>
-<td><p>00:01.032</p></td>
+<td><p>00:01.440</p></td>
 <td><p>0.0</p></td>
 </tr>
 </tbody>

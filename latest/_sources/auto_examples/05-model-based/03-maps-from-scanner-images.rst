@@ -252,7 +252,7 @@ start of a 250 ms decay.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 39.849 seconds)
+   **Total running time of the script:** (0 minutes 49.871 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_03-maps-from-scanner-images.py:

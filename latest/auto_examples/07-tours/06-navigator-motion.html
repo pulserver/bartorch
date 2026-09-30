@@ -201,7 +201,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -232,34 +231,55 @@
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03-bias-field.html">Receive bias field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Rigid head motion from navigators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Tours</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -657,7 +677,7 @@ least-squares solution over the three planes.</p>
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">shift    </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">translation</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="si">:</span><span class="s2">5.1f</span><span class="si">}</span><span class="s2"> mm </span><span class="si">{</span><span class="n">measured_translation</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>                 truth  measured
-rotation   S/I   1.15°     1.37°
+rotation   S/I   1.15°     1.47°
 rotation   A/P  -1.72°    -1.44°
 rotation   L/R   2.86°     2.51°
 shift      S/I   3.0 mm   3.37 mm
@@ -684,12 +704,12 @@ measured pose, what remains is the error of the pose.</p>
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">measured pose </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">after</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>   axial: NRMSE against the moved navigator, reference 0.335, measured pose 0.051
- coronal: NRMSE against the moved navigator, reference 0.332, measured pose 0.048
-sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.065
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>   axial: NRMSE against the moved navigator, reference 0.335, measured pose 0.052
+ coronal: NRMSE against the moved navigator, reference 0.332, measured pose 0.050
+sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.067
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_06-navigator-motion_002.png" srcset="../../_images/sphx_glr_06-navigator-motion_002.png" alt="axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.051, moved - measured pose NRMSE 0.048, moved - measured pose NRMSE 0.065" class = "sphx-glr-single-img"/><p>The residual error of the pose, a fraction of a degree and of a millimetre,
+<img src="../../_images/sphx_glr_06-navigator-motion_002.png" srcset="../../_images/sphx_glr_06-navigator-motion_002.png" alt="axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.052, moved - measured pose NRMSE 0.050, moved - measured pose NRMSE 0.067" class = "sphx-glr-single-img"/><p>The residual error of the pose, a fraction of a degree and of a millimetre,
 has two sources: the navigator’s 4 mm resolution, and the
 through-plane motion, which each plane sees as a change of the anatomy in it
 rather than as a rigid motion within it. It is a small fraction of the 4 mm
@@ -748,9 +768,9 @@ measured coordinate. The trace is filtered with three values of
 </span>        <span class="o">+</span> <span class="s2">&quot;</span><span class="s2">, </span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">NAMES</span><span class="p">,</span> <span class="n">error</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="p">]</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rms error: rotation S/I 0.47°, A/P 0.37°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
-process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
-process_noise 0.0001 rms error: rotation S/I 0.42°, A/P 0.23°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rms error: rotation S/I 0.46°, A/P 0.36°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
+process_noise 0.001  rms error: rotation S/I 0.43°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
+process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_06-navigator-motion_003.png" srcset="../../_images/sphx_glr_06-navigator-motion_003.png" alt="nod: rotation about L/R, drift: shift along S/I" class = "sphx-glr-single-img"/><p>A large <code class="docutils literal notranslate"><span class="pre">process_noise</span></code> leaves the filter at the measurements; a small one
@@ -786,7 +806,7 @@ Evans AC. Design and construction of a realistic digital brain phantom.
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.775 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.117 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-06-navigator-motion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0237a94056ab625458d97bb6b88710fb/06-navigator-motion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">06-navigator-motion.ipynb</span></code></a></p>

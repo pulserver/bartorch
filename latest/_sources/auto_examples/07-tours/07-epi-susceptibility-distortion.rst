@@ -377,7 +377,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.511 seconds)
+   **Total running time of the script:** (0 minutes 3.217 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_07-epi-susceptibility-distortion.py:

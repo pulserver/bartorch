@@ -50,7 +50,7 @@ network reconstructs from all of :math:`\Omega`.
 
 - Partition the acquired phase encodes with :func:`bartorch.learning.split`.
 - Train an unrolled network self-supervised with
-  :class:`bartorch.learning.training.Reconstruction`, by giving items the
+  :class:`bartorch.learning.Reconstruction`, by giving items the
   sampling pattern instead of a reference.
 - Compare with the same network trained against references, and with
   CG-SENSE.
@@ -59,7 +59,7 @@ It follows :doc:`04-staged-training`. The next lesson,
 :doc:`06-annealed-plug-and-play`, uses a denoiser trained once for any
 acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-142
+.. GENERATED FROM PYTHON SOURCE LINES 45-141
 
 .. code-block:: Python
 
@@ -79,7 +79,6 @@ acquisition.
     import bartorch
     import bartorch.tools as bt
     from bartorch import learning, linop, optim, priors
-    from bartorch.learning import training
 
     SIZE = 96
     COILS = 8
@@ -96,7 +95,7 @@ acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-149
+.. GENERATED FROM PYTHON SOURCE LINES 142-148
 
 Data
 ----
@@ -105,7 +104,7 @@ The slices, coils and fourfold undersampling of :doc:`04-staged-training`:
 subject 0 to train on and subject 4 to validate on. The references are kept
 only to score the results; the self-supervised network never sees them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-231
+.. GENERATED FROM PYTHON SOURCE LINES 149-230
 
 .. code-block:: Python
 
@@ -144,7 +143,7 @@ only to score the results; the self-supervised network never sees them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 232-242
+.. GENERATED FROM PYTHON SOURCE LINES 231-241
 
 The split
 ---------
@@ -157,7 +156,7 @@ the eight central lines always stay in :math:`\Theta`: a reconstruction
 without the centre of k-space would lose the image contrast, and the loss
 would be dominated by it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 243-267
+.. GENERATED FROM PYTHON SOURCE LINES 242-266
 
 .. code-block:: Python
 
@@ -188,7 +187,7 @@ would be dominated by it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-278
+.. GENERATED FROM PYTHON SOURCE LINES 267-277
 
 Two networks, one trained each way
 ----------------------------------
@@ -197,11 +196,11 @@ Both are the iteration-conditioned unrolled network of the previous lesson,
 trained end to end for the same number of epochs from the same
 initialization; only the items differ. A self-supervised item carries the
 acquired ``pattern`` in place of a ``target``, and
-:class:`~bartorch.learning.training.Reconstruction` then draws a split at
+:class:`~bartorch.learning.Reconstruction` then draws a split at
 every step. Its validation loss is the held-out loss on a split fixed for
 the whole run, and needs no reference either.
 
-.. GENERATED FROM PYTHON SOURCE LINES 279-319
+.. GENERATED FROM PYTHON SOURCE LINES 278-318
 
 .. code-block:: Python
 
@@ -238,7 +237,7 @@ the whole run, and needs no reference either.
             enable_progress_bar=False,
         )
         trainer.fit(
-            training.Reconstruction(
+            learning.Reconstruction(
                 models[name], "end-to-end", lr=1e-3, fraction=0.25, split_options={"keep": (8, 1)}
             ),
             DataLoader(items("train", supervised), batch_size=4, shuffle=True, collate_fn=list),
@@ -260,7 +259,7 @@ the whole run, and needs no reference either.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 320-325
+.. GENERATED FROM PYTHON SOURCE LINES 319-324
 
 Results
 -------
@@ -268,7 +267,7 @@ Results
 Both networks reconstruct from all acquired lines of the validation subject
 and are scored against its reference.
 
-.. GENERATED FROM PYTHON SOURCE LINES 326-343
+.. GENERATED FROM PYTHON SOURCE LINES 325-342
 
 .. code-block:: Python
 
@@ -297,14 +296,14 @@ and are scored against its reference.
 
  .. code-block:: none
 
-                  supervised   PSNR 30.01 dB   SSIM 0.950
+                  supervised   PSNR 30.16 dB   SSIM 0.950
              self-supervised   PSNR 28.59 dB   SSIM 0.726
      CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 344-356
+.. GENERATED FROM PYTHON SOURCE LINES 343-355
 
 The self-supervised network is trained on less information: each step
 reconstructs from three quarters of the acquired lines and is told nothing
@@ -319,13 +318,13 @@ network keeps more residual aliasing along the phase-encode direction
 (vertical), which its error map shows as horizontal striping: the lines never
 acquired are the ones it cannot score against.
 
-.. GENERATED FROM PYTHON SOURCE LINES 357-371
+.. GENERATED FROM PYTHON SOURCE LINES 356-370
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
-   :alt: reference, CG-SENSE, supervised, self-supervised, NRMSE 0.124, NRMSE 0.065, NRMSE 0.076
+   :alt: reference, CG-SENSE, supervised, self-supervised, NRMSE 0.124, NRMSE 0.064, NRMSE 0.076
    :srcset: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
    :class: sphx-glr-single-img
 
@@ -333,7 +332,7 @@ acquired are the ones it cannot score against.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 372-384
+.. GENERATED FROM PYTHON SOURCE LINES 371-383
 
 References
 ----------
@@ -351,7 +350,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 54.921 seconds)
+   **Total running time of the script:** (3 minutes 59.190 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_05-self-supervised-training.py:

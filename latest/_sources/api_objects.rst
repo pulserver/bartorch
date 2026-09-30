@@ -216,16 +216,6 @@ bartorch.learning
    calibrate
    as_real
    as_complex
-
-bartorch.learning.training
---------------------------
-
-.. currentmodule:: bartorch.learning.training
-
-.. autosummary::
-   :toctree: generated
-   :nosignatures:
-
    Reconstruction
    RandomGain
 

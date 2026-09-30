@@ -38,7 +38,7 @@ stages whose memory is bounded by one iteration:
    stack, with each iteration recomputed during the backward pass
    (gradient checkpointing) instead of stored.
 
-:class:`bartorch.learning.training.Reconstruction` runs each stage in
+:class:`bartorch.learning.Reconstruction` runs each stage in
 ``lightning``; ``torchio`` holds and augments the training images.
 
 **Learning objectives**
@@ -46,7 +46,7 @@ stages whose memory is bounded by one iteration:
 - Condition a :class:`bartorch.learning.UNet` on the iteration index and pass
   the index to it through :class:`bartorch.priors.ImplicitPrior`.
 - Train an unrolled :class:`bartorch.optim.ISTBlock` in the three stages of
-  :class:`bartorch.learning.training.Reconstruction`.
+  :class:`bartorch.learning.Reconstruction`.
 - Split a dataset by subject and augment it with transforms that preserve the
   complex MR signal.
 
@@ -144,7 +144,6 @@ from torch.utils.data import DataLoader
 import bartorch
 import bartorch.tools as bt
 from bartorch import learning, linop, optim, priors
-from bartorch.learning import training
 
 SIZE = 96
 COILS = 8
@@ -250,7 +249,7 @@ print(f"{int(lines.sum())} of {SIZE} phase encodes")
 #
 # Each ``torchio`` subject holds one reference image as two real channels.
 # The augmentations are those that turn one MR image into another the scanner
-# could have produced: :class:`~bartorch.learning.training.RandomGain` applies
+# could have produced: :class:`~bartorch.learning.RandomGain` applies
 # a random receiver gain and global phase (a complex scale within 20 per cent
 # in magnitude), and a flip and a small in-plane rotation vary the head's
 # orientation. k-space is simulated from the augmented reference in the
@@ -259,13 +258,13 @@ print(f"{int(lines.sum())} of {SIZE} phase encodes")
 # imaginary channels independently and would break that consistency.
 #
 # A batch is a list of dictionaries, the form
-# :class:`~bartorch.learning.training.Reconstruction` takes: the data, the
+# :class:`~bartorch.learning.Reconstruction` takes: the data, the
 # operator, the reference, and the adjoint reconstruction the iteration starts
 # from.
 
 augmentation = torchio.Compose(
     [
-        training.RandomGain(log_scale=0.2),
+        learning.RandomGain(log_scale=0.2),
         torchio.RandomFlip(axes=(0,), flip_probability=0.5),
         torchio.RandomAffine(scales=0, degrees=(0, 0, 0, 0, -8, 8), translation=0),
     ]
@@ -349,7 +348,7 @@ trainer = lightning.Trainer(
     enable_model_summary=False,
     enable_progress_bar=False,
 )
-stage = training.Reconstruction(learning.ComplexNet(network, spatial=2), "denoiser", lr=2e-3)
+stage = learning.Reconstruction(learning.ComplexNet(network, spatial=2), "denoiser", lr=2e-3)
 trainer.fit(
     stage,
     DataLoader(pairs, batch_size=8, shuffle=True, collate_fn=list),
@@ -392,7 +391,7 @@ trainer = lightning.Trainer(
     enable_model_summary=False,
     enable_progress_bar=False,
 )
-trainer.fit(training.Reconstruction(greedy, "greedy", lr=1e-3), train_loader, valid_loader)
+trainer.fit(learning.Reconstruction(greedy, "greedy", lr=1e-3), train_loader, valid_loader)
 scores["greedy"] = quality(greedy)
 
 # %%
@@ -415,7 +414,7 @@ trainer = lightning.Trainer(
     enable_model_summary=False,
     enable_progress_bar=False,
 )
-trainer.fit(training.Reconstruction(stack, "end-to-end", lr=3e-4), train_loader, valid_loader)
+trainer.fit(learning.Reconstruction(stack, "end-to-end", lr=3e-4), train_loader, valid_loader)
 scores["end to end"] = quality(stack)
 
 # %%

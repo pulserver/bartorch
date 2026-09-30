@@ -1,7 +1,7 @@
-﻿learning.training.Reconstruction
-================================
+﻿learning.Reconstruction
+=======================
 
-.. currentmodule:: bartorch.learning.training
+.. currentmodule:: bartorch.learning
 
 
 .. autoclass:: Reconstruction

@@ -29,7 +29,7 @@ states the model and :doc:`../../explanation/inverse-problems` the estimator.
 
 Shapes are C order, so a Cartesian k-space is ``(coils, z, y, x)`` with the
 readout along ``x`` and the phase encoding along ``y``; see
-:doc:`../../guides/user/conventions`.
+:doc:`/explanation/data-layout`.
 
 **Learning objectives**
 

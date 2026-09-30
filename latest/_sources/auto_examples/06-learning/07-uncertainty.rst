@@ -52,7 +52,7 @@ It follows :doc:`06-annealed-plug-and-play`. This lesson ends the course; the
 standalone examples of :doc:`../07-tours/index` apply the package to
 individual problems.
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-134
+.. GENERATED FROM PYTHON SOURCE LINES 37-133
 
 .. code-block:: Python
 
@@ -71,7 +71,6 @@ individual problems.
     import bartorch
     import bartorch.tools as bt
     from bartorch import learning, linop, optim, priors
-    from bartorch.learning import training
 
     SIZE = 96
     COILS = 8
@@ -89,7 +88,7 @@ individual problems.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-141
+.. GENERATED FROM PYTHON SOURCE LINES 134-140
 
 Data
 ----
@@ -98,7 +97,7 @@ The slices, coils and fourfold undersampling of :doc:`04-staged-training`,
 with sixteen slices of subject 4: the first eight to calibrate on, the last
 eight to check the calibration on.
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-220
+.. GENERATED FROM PYTHON SOURCE LINES 141-219
 
 .. code-block:: Python
 
@@ -134,7 +133,7 @@ eight to check the calibration on.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 221-229
+.. GENERATED FROM PYTHON SOURCE LINES 220-228
 
 A network with dropout
 ----------------------
@@ -145,7 +144,7 @@ against references. Dropout is a regularizer during training; left active
 at inference it makes each reconstruction one draw from a family of
 networks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 230-256
+.. GENERATED FROM PYTHON SOURCE LINES 229-255
 
 .. code-block:: Python
 
@@ -170,7 +169,7 @@ networks.
         enable_progress_bar=False,
     )
     trainer.fit(
-        training.Reconstruction(model, "end-to-end", lr=1e-3),
+        learning.Reconstruction(model, "end-to-end", lr=1e-3),
         DataLoader(items["train"], batch_size=4, shuffle=True, collate_fn=list),
         DataLoader(items["valid"], batch_size=4, collate_fn=list),
     )
@@ -190,7 +189,7 @@ networks.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-267
+.. GENERATED FROM PYTHON SOURCE LINES 256-266
 
 Two spreads
 -----------
@@ -203,7 +202,7 @@ reconstructs each time from a random eighty per cent of the acquired lines,
 drawn by :func:`~bartorch.learning.split`, which measures how much the image
 depends on individual samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-304
+.. GENERATED FROM PYTHON SOURCE LINES 267-303
 
 .. code-block:: Python
 
@@ -250,7 +249,7 @@ depends on individual samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 305-314
+.. GENERATED FROM PYTHON SOURCE LINES 304-313
 
 Calibration
 -----------
@@ -262,7 +261,7 @@ the fraction of voxels whose error falls within ``factor * spread`` is
 measured. Split conformal calibration guarantees that fraction on average
 over voxels and subjects drawn alike, not voxel by voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 315-332
+.. GENERATED FROM PYTHON SOURCE LINES 314-331
 
 .. code-block:: Python
 
@@ -297,7 +296,7 @@ over voxels and subjects drawn alike, not voxel by voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 333-351
+.. GENERATED FROM PYTHON SOURCE LINES 332-350
 
 The coverage on the test slices is close to the one asked for, for both
 spreads, although their factors differ: the calibration absorbs whatever
@@ -318,7 +317,7 @@ are weak, so the intervals are wider than the error over much of the white
 matter and narrower than it in parts of the cortex. The coverage is met on
 average over voxels, as the calibration guarantees, not voxel by voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 352-374
+.. GENERATED FROM PYTHON SOURCE LINES 351-373
 
 
 
@@ -332,7 +331,7 @@ average over voxels, as the calibration guarantees, not voxel by voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 375-385
+.. GENERATED FROM PYTHON SOURCE LINES 374-384
 
 References
 ----------
@@ -348,7 +347,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 11.700 seconds)
+   **Total running time of the script:** (1 minutes 35.337 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_07-uncertainty.py:

@@ -31,16 +31,20 @@ describes.
 
 ## The Python package
 
+Every public interface is flat: `bartorch` and each subpackage export their
+names from `__init__.py`, and every module beneath them is private, named
+with a leading underscore.  `tests/test_namespace.py` holds this.
+
 | Path | Contents |
 | --- | --- |
-| `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py`, `kspace.py`, `_settings.py` | The array functions and runtime settings re-exported as `bartorch.*` |
-| `linop/`, `nlop/` | One class per operator; `linop/form.py` is the encoding form and the plan it reports, `linop/plan.py` the matching of a composition against it |
+| `_fourier.py`, `_wavelet.py`, `_thresh.py`, `_util.py`, `_interp.py`, `_kspace.py`, `_settings.py` | The array functions and runtime settings re-exported as `bartorch.*` |
+| `linop/`, `nlop/` | One class per operator; `linop/_form.py` is the encoding form and the plan it reports, `linop/_plan.py` the matching of a composition against it |
 | `optim/`, `priors/` | One class per BART iteration, and BART's regularization terms and denoisers |
 | `apps/` | BART's reconstructions assembled from operators and solvers |
 | `learning/`, `interop.py` | Unrolled iterations and channel conversions, and the DeepInverse adapter |
-| `tools/` | BART's remaining commands in five sections, and `correct.py` and `motion.py`, implemented in `tools/_correct/` and `tools/_motion/` |
+| `tools/` | BART's remaining commands in five sections, and corrections and rigid motion in `tools/_correct/` and `tools/_motion/` |
 | `cli/` | The `bartorch` command line: `_argv.py` reads a `bart` command line, `_apps.py` routes it to an app |
-| `io.py` | CFL files |
+| `io/` | CFL files, ISMRMRD raw data, DICOM and NIfTI images (`io` extra) |
 | `_abi.py`, `_lib.py`, `_marshal.py`, `_buffer.py` | The ctypes signatures, loading the library, the form of an ABI argument, and a tensor over one of BART's buffers |
 | `_dispatch.py`, `_operator.py`, `_grid.py` | Running a command on tensors, what every operator shares, and what the operations on a grid share |
 | `_backend.py`, `_finufft.py`, `_cuda.py` | The BLAS, LAPACK and FFT sources, and the controls of the NUFFT substitution and of the device |
@@ -54,7 +58,7 @@ describes.
 | `docs/index.md` | Landing page: the README and the top-level toctree |
 | `docs/guides/user/`, `docs/guides/developer/` | User and developer guides |
 | `docs/explanation/` | Conceptual explanations |
-| `docs/examples/` | Example scripts, one directory per section, and the examples landing page |
+| `docs/examples/` | Example scripts, one directory per section with its header `README.rst`, and `README.rst`, the header of the Examples page |
 | `docs/api/` | API category pages; their tables list the objects |
 | `docs/api_objects.py` | Collects the objects from the API tables into `docs/api_objects.rst`, which generates one page per object under `docs/generated/` |
 | `docs/_templates/autosummary/` | Templates of the generated object pages |

@@ -48,7 +48,7 @@ states the model and :doc:`../../explanation/inverse-problems` the estimator.
 
 Shapes are C order, so a Cartesian k-space is ``(coils, z, y, x)`` with the
 readout along ``x`` and the phase encoding along ``y``; see
-:doc:`../../guides/user/conventions`.
+:doc:`/explanation/data-layout`.
 
 **Learning objectives**
 
@@ -556,7 +556,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.512 seconds)
+   **Total running time of the script:** (0 minutes 3.240 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_02-from-kspace-to-image.py:

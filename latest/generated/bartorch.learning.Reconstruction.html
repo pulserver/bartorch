@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>learning.training.Reconstruction &#8212; bartorch</title>
+    <title>learning.Reconstruction &#8212; bartorch</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.learning.training.Reconstruction';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.learning.Reconstruction';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
@@ -61,7 +61,7 @@
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/generated/bartorch.learning.training.Reconstruction.html" />
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/generated/bartorch.learning.Reconstruction.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -197,7 +197,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
@@ -228,34 +227,55 @@
 <li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -354,7 +374,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/generated/bartorch.learning.training.Reconstruction.rst" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/generated/bartorch.learning.Reconstruction.rst" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -371,7 +391,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fgenerated/bartorch.learning.training.Reconstruction.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fgenerated/bartorch.learning.Reconstruction.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -401,7 +421,7 @@
       
       
       
-      <li><a href="../_sources/generated/bartorch.learning.training.Reconstruction.rst" target="_blank"
+      <li><a href="../_sources/generated/bartorch.learning.Reconstruction.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -484,7 +504,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>learning.training.Reconstruction</h1>
+    <h1>learning.Reconstruction</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -494,12 +514,12 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction"><code class="docutils literal notranslate"><span class="pre">Reconstruction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.transfer_batch_to_device"><code class="docutils literal notranslate"><span class="pre">Reconstruction.transfer_batch_to_device()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.configure_optimizers"><code class="docutils literal notranslate"><span class="pre">Reconstruction.configure_optimizers()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.training_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.training_step()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.validation_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.validation_step()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.on_validation_epoch_end"><code class="docutils literal notranslate"><span class="pre">Reconstruction.on_validation_epoch_end()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction"><code class="docutils literal notranslate"><span class="pre">Reconstruction</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.transfer_batch_to_device"><code class="docutils literal notranslate"><span class="pre">Reconstruction.transfer_batch_to_device()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.configure_optimizers"><code class="docutils literal notranslate"><span class="pre">Reconstruction.configure_optimizers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.training_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.training_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.validation_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.validation_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.on_validation_epoch_end"><code class="docutils literal notranslate"><span class="pre">Reconstruction.on_validation_epoch_end()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -513,11 +533,11 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="learning-training-reconstruction">
-<h1>learning.training.Reconstruction<a class="headerlink" href="#learning-training-reconstruction" title="Link to this heading">#</a></h1>
+  <section id="learning-reconstruction">
+<h1>learning.Reconstruction<a class="headerlink" href="#learning-reconstruction" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="bartorch.learning.training.Reconstruction">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.learning.training.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><a class="headerlink" href="#bartorch.learning.training.Reconstruction" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bartorch.learning.Reconstruction">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.learning.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><a class="headerlink" href="#bartorch.learning.Reconstruction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">LightningModule</span></code></p>
 <p>A reconstruction network trained in one of the three stages of an unrolled network.</p>
 <p><code class="docutils literal notranslate"><span class="pre">&quot;denoiser&quot;</span></code> trains the network alone, on pairs of a degraded image and
@@ -573,8 +593,9 @@ modulus of the error by default.</p></li>
 stage.</p></li>
 <li><p><strong>lr</strong> (<em>float</em><em>, </em><em>default=1e-3</em>) – Adam’s learning rate.</p></li>
 <li><p><strong>weight_decay</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Adam’s weight decay.</p></li>
-<li><p><strong>factor</strong> (<em>float</em><em>, </em><em>int</em><em>, </em><em>default=0.5</em><em>, </em><em>10</em>) – Reduction of the learning rate on a plateau of <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p></li>
-<li><p><strong>patience</strong> (<em>float</em><em>, </em><em>int</em><em>, </em><em>default=0.5</em><em>, </em><em>10</em>) – Reduction of the learning rate on a plateau of <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p></li>
+<li><p><strong>factor</strong> (<em>float</em><em>, </em><em>default=0.5</em>) – Multiplier of the learning rate on a plateau of <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p></li>
+<li><p><strong>patience</strong> (<em>int</em><em>, </em><em>default=10</em>) – Epochs without improvement of <code class="docutils literal notranslate"><span class="pre">val_loss</span></code> before the learning rate
+is reduced.</p></li>
 <li><p><strong>accumulate</strong> (<em>int</em><em>, </em><em>default=1</em>) – Items whose gradients are summed before a step.</p></li>
 <li><p><strong>clip</strong> (<em>float</em><em>, </em><em>default=None</em>) – Maximum norm of the gradient.</p></li>
 <li><p><strong>fraction</strong> (<em>float</em><em>, </em><em>default=0.4</em>) – Share of the acquired samples held out, for self-supervised items.</p></li>
@@ -583,7 +604,7 @@ stage.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="n">learning</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">Reconstruction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"greedy"</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="n">learning</span><span class="o">.</span><span class="n">Reconstruction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"greedy"</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">trainer</span> <span class="o">=</span> <span class="n">lightning</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="n">max_epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="s2">"val_loss"</span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">),</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">))</span>
 </pre></div>
@@ -593,32 +614,32 @@ stage.</p></li>
 magnetic resonance fingerprinting reconstruction via staged pretraining
 and implicit gridding. arXiv:2601.17143, 2026.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bartorch.learning.training.Reconstruction.transfer_batch_to_device">
-<span class="sig-name descname"><span class="pre">transfer_batch_to_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.training.Reconstruction.transfer_batch_to_device" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bartorch.learning.Reconstruction.transfer_batch_to_device">
+<span class="sig-name descname"><span class="pre">transfer_batch_to_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Reconstruction.transfer_batch_to_device" title="Link to this definition">#</a></dt>
 <dd><p>Leave the batch where the dataset put it.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bartorch.learning.training.Reconstruction.configure_optimizers">
-<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.training.Reconstruction.configure_optimizers" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bartorch.learning.Reconstruction.configure_optimizers">
+<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Reconstruction.configure_optimizers" title="Link to this definition">#</a></dt>
 <dd><p>Adam over the trainable parameters, reduced on a plateau of <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bartorch.learning.training.Reconstruction.training_step">
-<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.training.Reconstruction.training_step" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bartorch.learning.Reconstruction.training_step">
+<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Reconstruction.training_step" title="Link to this definition">#</a></dt>
 <dd><p>Back-propagate each item of a list and step every <code class="docutils literal notranslate"><span class="pre">accumulate</span></code> items.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bartorch.learning.training.Reconstruction.validation_step">
-<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.training.Reconstruction.validation_step" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bartorch.learning.Reconstruction.validation_step">
+<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Reconstruction.validation_step" title="Link to this definition">#</a></dt>
 <dd><p>Log the mean loss of the items as <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bartorch.learning.training.Reconstruction.on_validation_epoch_end">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.training.Reconstruction.on_validation_epoch_end" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bartorch.learning.Reconstruction.on_validation_epoch_end">
+<span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Reconstruction.on_validation_epoch_end" title="Link to this definition">#</a></dt>
 <dd><p>Step the plateau scheduler on <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p>
 </dd></dl>
 
@@ -655,12 +676,12 @@ and implicit gridding. arXiv:2601.17143, 2026.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction"><code class="docutils literal notranslate"><span class="pre">Reconstruction</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.transfer_batch_to_device"><code class="docutils literal notranslate"><span class="pre">Reconstruction.transfer_batch_to_device()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.configure_optimizers"><code class="docutils literal notranslate"><span class="pre">Reconstruction.configure_optimizers()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.training_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.training_step()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.validation_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.validation_step()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.training.Reconstruction.on_validation_epoch_end"><code class="docutils literal notranslate"><span class="pre">Reconstruction.on_validation_epoch_end()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction"><code class="docutils literal notranslate"><span class="pre">Reconstruction</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.transfer_batch_to_device"><code class="docutils literal notranslate"><span class="pre">Reconstruction.transfer_batch_to_device()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.configure_optimizers"><code class="docutils literal notranslate"><span class="pre">Reconstruction.configure_optimizers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.training_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.training_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.validation_step"><code class="docutils literal notranslate"><span class="pre">Reconstruction.validation_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.learning.Reconstruction.on_validation_epoch_end"><code class="docutils literal notranslate"><span class="pre">Reconstruction.on_validation_epoch_end()</span></code></a></li>
 </ul>
 </li>
 </ul>

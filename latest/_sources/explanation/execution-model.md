@@ -93,6 +93,18 @@ work is ordered against PyTorch's current stream.  Some commands allocate host
 temporaries internally, and are given host copies of their inputs; their
 results are returned on the device.
 
+(openmp-runtime)=
+## The OpenMP runtime
+
+BART and FINUFFT are compiled with OpenMP and share one runtime with PyTorch.
+The library is linked against the runtime PyTorch contains
+(`torch/lib/libgomp.so.1`, `torch/lib/libomp.dylib`,
+`torch/lib/libiomp5md.dll`), and the wheels contain none of their own: on
+macOS and Windows the LLVM runtime terminates the process when a second copy
+initializes (`OMP: Error #15`).  No installed file is modified, and
+`KMP_DUPLICATE_LIB_OK` is not used.  On Linux this requires PyTorch 2.7.1 or
+later, the first release whose copy is named `libgomp.so.1`.
+
 ## Numerical correspondence with BART
 
 Outside the substitutions, bartorch runs BART's code.  A substitution changes

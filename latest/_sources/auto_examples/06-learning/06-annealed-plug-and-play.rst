@@ -44,7 +44,7 @@ balance between data consistency and denoising that :math:`\lambda` sets.
 
 - Train a denoiser conditioned on the noise level, ``noise=True`` in
   :class:`bartorch.learning.UNet`, with
-  :class:`bartorch.learning.training.Reconstruction`.
+  :class:`bartorch.learning.Reconstruction`.
 - Give :class:`bartorch.priors.ImplicitPrior` a schedule of noise levels and
   :class:`bartorch.optim.ADMMBlock` the matching schedule of penalties.
 - Compare an annealed schedule with a fixed noise level, iteration by
@@ -53,7 +53,7 @@ balance between data consistency and denoising that :math:`\lambda` sets.
 It follows :doc:`05-self-supervised-training`. The next lesson,
 :doc:`07-uncertainty`, attaches error bars to a learned reconstruction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-133
+.. GENERATED FROM PYTHON SOURCE LINES 38-132
 
 .. code-block:: Python
 
@@ -73,7 +73,6 @@ It follows :doc:`05-self-supervised-training`. The next lesson,
     import bartorch
     import bartorch.tools as bt
     from bartorch import learning, linop, optim, priors
-    from bartorch.learning import training
 
     SIZE = 96
     COILS = 8
@@ -88,7 +87,7 @@ It follows :doc:`05-self-supervised-training`. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-139
+.. GENERATED FROM PYTHON SOURCE LINES 133-138
 
 Data
 ----
@@ -96,7 +95,7 @@ Data
 The slices, coils and fourfold undersampling of :doc:`04-staged-training`:
 subject 0 to train the denoiser on, subject 4 to reconstruct.
 
-.. GENERATED FROM PYTHON SOURCE LINES 140-222
+.. GENERATED FROM PYTHON SOURCE LINES 139-221
 
 .. code-block:: Python
 
@@ -136,7 +135,7 @@ subject 0 to train the denoiser on, subject 4 to reconstruct.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 223-233
+.. GENERATED FROM PYTHON SOURCE LINES 222-232
 
 A denoiser for every noise level
 --------------------------------
@@ -149,7 +148,7 @@ cent of the image's peak for each pair
 (:class:`~bartorch.learning.ComplexNet` scales each image to unit peak). No
 coil sensitivities, sampling pattern or k-space enter the training.
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-281
+.. GENERATED FROM PYTHON SOURCE LINES 233-280
 
 .. code-block:: Python
 
@@ -178,7 +177,7 @@ coil sensitivities, sampling pattern or k-space enter the training.
         enable_progress_bar=False,
     )
     trainer.fit(
-        training.Reconstruction(denoiser, "denoiser", lr=2e-3),
+        learning.Reconstruction(denoiser, "denoiser", lr=2e-3),
         DataLoader(train_images, batch_size=4, shuffle=True, collate_fn=pairs),
         DataLoader(valid_images, batch_size=4, collate_fn=pairs),
     )
@@ -211,14 +210,14 @@ coil sensitivities, sampling pattern or k-space enter the training.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    sigma 0.01: noisy 41.46 dB, denoised 43.41 dB
-    sigma 0.05: noisy 27.17 dB, denoised 33.20 dB
-    sigma 0.10: noisy 21.06 dB, denoised 28.81 dB
+    sigma 0.01: noisy 41.46 dB, denoised 41.13 dB
+    sigma 0.05: noisy 27.17 dB, denoised 27.16 dB
+    sigma 0.10: noisy 21.06 dB, denoised 21.06 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 282-295
+.. GENERATED FROM PYTHON SOURCE LINES 281-294
 
 Schedules of noise level and penalty
 ------------------------------------
@@ -234,7 +233,7 @@ new, so that the unscaled one carries over. The two fixed schedules hold the
 noise level at either end of the annealed one, with the penalty given by the
 same :math:`\lambda`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 296-335
+.. GENERATED FROM PYTHON SOURCE LINES 295-334
 
 .. code-block:: Python
 
@@ -280,15 +279,15 @@ same :math:`\lambda`.
 
  .. code-block:: none
 
-       annealed, 0.1 to 0.01   PSNR 30.98 dB
-                 fixed, 0.03   PSNR 30.83 dB
-                 fixed, 0.01   PSNR 29.79 dB
+       annealed, 0.1 to 0.01   PSNR 27.01 dB
+                 fixed, 0.03   PSNR 27.14 dB
+                 fixed, 0.01   PSNR 27.48 dB
      CG SENSE, 20 iterations   PSNR 24.21 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 336-343
+.. GENERATED FROM PYTHON SOURCE LINES 335-342
 
 A large fixed noise level converges within a few iterations, to an image
 limited by the smoothing the denoiser applies at that level. A small one
@@ -298,13 +297,13 @@ The annealed schedule takes the large steps first and the small ones last,
 and ends slightly ahead of the better fixed level without that level having
 to be tuned for the acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 344-357
+.. GENERATED FROM PYTHON SOURCE LINES 343-356
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_002.png
-   :alt: reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.056
+   :alt: reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.090
    :srcset: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_002.png
    :class: sphx-glr-single-img
 
@@ -312,7 +311,7 @@ to be tuned for the acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 358-366
+.. GENERATED FROM PYTHON SOURCE LINES 357-365
 
 Another acquisition, the same denoiser
 --------------------------------------
@@ -323,7 +322,7 @@ acceleration eight coils no longer unfold the aliasing well: CG-SENSE is
 dominated by g-factor noise and residual aliasing, while the plug-and-play
 reconstruction keeps the anatomy.
 
-.. GENERATED FROM PYTHON SOURCE LINES 367-386
+.. GENERATED FROM PYTHON SOURCE LINES 366-385
 
 .. code-block:: Python
 
@@ -342,7 +341,7 @@ reconstruction keeps the anatomy.
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_003.png
-   :alt: reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.059
+   :alt: reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.139
    :srcset: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_003.png
    :class: sphx-glr-single-img
 
@@ -351,12 +350,12 @@ reconstruction keeps the anatomy.
 
  .. code-block:: none
 
-    sixfold: annealed plug-and-play 30.87 dB, CG SENSE 21.98 dB
+    sixfold: annealed plug-and-play 23.72 dB, CG SENSE 21.98 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 387-398
+.. GENERATED FROM PYTHON SOURCE LINES 386-397
 
 References
 ----------
@@ -373,7 +372,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 27.721 seconds)
+   **Total running time of the script:** (0 minutes 37.458 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_06-annealed-plug-and-play.py:

@@ -57,7 +57,7 @@ stages whose memory is bounded by one iteration:
    stack, with each iteration recomputed during the backward pass
    (gradient checkpointing) instead of stored.
 
-:class:`bartorch.learning.training.Reconstruction` runs each stage in
+:class:`bartorch.learning.Reconstruction` runs each stage in
 ``lightning``; ``torchio`` holds and augments the training images.
 
 **Learning objectives**
@@ -65,7 +65,7 @@ stages whose memory is bounded by one iteration:
 - Condition a :class:`bartorch.learning.UNet` on the iteration index and pass
   the index to it through :class:`bartorch.priors.ImplicitPrior`.
 - Train an unrolled :class:`bartorch.optim.ISTBlock` in the three stages of
-  :class:`bartorch.learning.training.Reconstruction`.
+  :class:`bartorch.learning.Reconstruction`.
 - Split a dataset by subject and augment it with transforms that preserve the
   complex MR signal.
 
@@ -73,7 +73,7 @@ It follows :doc:`03-networks-for-complex-volumes`. The next lesson,
 :doc:`05-self-supervised-training`, trains the same network without fully
 sampled references.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-156
+.. GENERATED FROM PYTHON SOURCE LINES 59-155
 
 .. code-block:: Python
 
@@ -94,7 +94,6 @@ sampled references.
     import bartorch
     import bartorch.tools as bt
     from bartorch import learning, linop, optim, priors
-    from bartorch.learning import training
 
     SIZE = 96
     COILS = 8
@@ -110,7 +109,7 @@ sampled references.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 157-173
+.. GENERATED FROM PYTHON SOURCE LINES 156-172
 
 Images and acquisition
 ----------------------
@@ -129,7 +128,7 @@ fully sampled centre of eight lines. Complex Gaussian noise of standard
 deviation 0.02 (relative to an image peak of one) is added to k-space, an
 SNR at which the unfolding of CG-SENSE amplifies the noise visibly.
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-246
+.. GENERATED FROM PYTHON SOURCE LINES 173-245
 
 .. code-block:: Python
 
@@ -166,14 +165,14 @@ SNR at which the unfolding of CG-SENSE amplifies the noise visibly.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 247-264
+.. GENERATED FROM PYTHON SOURCE LINES 246-263
 
 Dataset
 -------
 
 Each ``torchio`` subject holds one reference image as two real channels.
 The augmentations are those that turn one MR image into another the scanner
-could have produced: :class:`~bartorch.learning.training.RandomGain` applies
+could have produced: :class:`~bartorch.learning.RandomGain` applies
 a random receiver gain and global phase (a complex scale within 20 per cent
 in magnitude), and a flip and a small in-plane rotation vary the head's
 orientation. k-space is simulated from the augmented reference in the
@@ -182,18 +181,18 @@ intensity transforms such as a gamma correction act on the real and
 imaginary channels independently and would break that consistency.
 
 A batch is a list of dictionaries, the form
-:class:`~bartorch.learning.training.Reconstruction` takes: the data, the
+:class:`~bartorch.learning.Reconstruction` takes: the data, the
 operator, the reference, and the adjoint reconstruction the iteration starts
 from.
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-302
+.. GENERATED FROM PYTHON SOURCE LINES 264-301
 
 .. code-block:: Python
 
 
     augmentation = torchio.Compose(
         [
-            training.RandomGain(log_scale=0.2),
+            learning.RandomGain(log_scale=0.2),
             torchio.RandomFlip(axes=(0,), flip_probability=0.5),
             torchio.RandomAffine(scales=0, degrees=(0, 0, 0, 0, -8, 8), translation=0),
         ]
@@ -234,7 +233,7 @@ from.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 303-313
+.. GENERATED FROM PYTHON SOURCE LINES 302-312
 
 Network
 -------
@@ -247,7 +246,7 @@ and starts as the identity, so the untrained stack is plain gradient
 descent. :class:`~bartorch.priors.ImplicitPrior` with ``step=True`` passes
 each iteration's index to it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 314-323
+.. GENERATED FROM PYTHON SOURCE LINES 313-322
 
 .. code-block:: Python
 
@@ -273,7 +272,7 @@ each iteration's index to it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 324-333
+.. GENERATED FROM PYTHON SOURCE LINES 323-332
 
 Stage 1: the denoiser alone
 ---------------------------
@@ -285,7 +284,7 @@ which the unrolled network is expected to meet an image of that quality. The
 pairs are computed once; neither the unrolling nor the encoding enters this
 stage, which makes it the cheapest of the three.
 
-.. GENERATED FROM PYTHON SOURCE LINES 334-359
+.. GENERATED FROM PYTHON SOURCE LINES 333-358
 
 .. code-block:: Python
 
@@ -307,7 +306,7 @@ stage, which makes it the cheapest of the three.
         enable_model_summary=False,
         enable_progress_bar=False,
     )
-    stage = training.Reconstruction(learning.ComplexNet(network, spatial=2), "denoiser", lr=2e-3)
+    stage = learning.Reconstruction(learning.ComplexNet(network, spatial=2), "denoiser", lr=2e-3)
     trainer.fit(
         stage,
         DataLoader(pairs, batch_size=8, shuffle=True, collate_fn=list),
@@ -329,7 +328,7 @@ stage, which makes it the cheapest of the three.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 360-369
+.. GENERATED FROM PYTHON SOURCE LINES 359-368
 
 Stage 2: one iteration at a time
 --------------------------------
@@ -341,7 +340,7 @@ the stack, the last ten times the first, since the last image is the one
 delivered. The network now sees its own iterates, which the CG-SENSE images
 of stage 1 only approximated.
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-398
+.. GENERATED FROM PYTHON SOURCE LINES 369-397
 
 .. code-block:: Python
 
@@ -370,7 +369,7 @@ of stage 1 only approximated.
         enable_model_summary=False,
         enable_progress_bar=False,
     )
-    trainer.fit(training.Reconstruction(greedy, "greedy", lr=1e-3), train_loader, valid_loader)
+    trainer.fit(learning.Reconstruction(greedy, "greedy", lr=1e-3), train_loader, valid_loader)
     scores["greedy"] = quality(greedy)
 
 
@@ -380,7 +379,7 @@ of stage 1 only approximated.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 399-407
+.. GENERATED FROM PYTHON SOURCE LINES 398-406
 
 Stage 3: the whole stack
 ------------------------
@@ -391,7 +390,7 @@ to produce whatever intermediate image serves the last one best.
 each iteration's activations during the backward pass: the gradient is the
 exact end-to-end one, at the memory of those images plus one iteration.
 
-.. GENERATED FROM PYTHON SOURCE LINES 408-421
+.. GENERATED FROM PYTHON SOURCE LINES 407-420
 
 .. code-block:: Python
 
@@ -405,7 +404,7 @@ exact end-to-end one, at the memory of those images plus one iteration.
         enable_model_summary=False,
         enable_progress_bar=False,
     )
-    trainer.fit(training.Reconstruction(stack, "end-to-end", lr=3e-4), train_loader, valid_loader)
+    trainer.fit(learning.Reconstruction(stack, "end-to-end", lr=3e-4), train_loader, valid_loader)
     scores["end to end"] = quality(stack)
 
 
@@ -415,7 +414,7 @@ exact end-to-end one, at the memory of those images plus one iteration.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 422-429
+.. GENERATED FROM PYTHON SOURCE LINES 421-428
 
 Results
 -------
@@ -425,7 +424,7 @@ residual network starts as the identity. CG-SENSE with twenty iterations is
 the baseline without a learned prior. Scores are the mean PSNR and SSIM of
 the magnitude over the eight validation slices of subject 4.
 
-.. GENERATED FROM PYTHON SOURCE LINES 430-445
+.. GENERATED FROM PYTHON SOURCE LINES 429-444
 
 .. code-block:: Python
 
@@ -453,16 +452,16 @@ the magnitude over the eight validation slices of subject 4.
  .. code-block:: none
 
                    untrained   PSNR 26.45 dB   SSIM 0.654
-         denoiser pretrained   PSNR 28.67 dB   SSIM 0.941
-                      greedy   PSNR 27.90 dB   SSIM 0.822
-                  end to end   PSNR 29.03 dB   SSIM 0.877
+         denoiser pretrained   PSNR 26.32 dB   SSIM 0.913
+                      greedy   PSNR 28.16 dB   SSIM 0.795
+                  end to end   PSNR 29.06 dB   SSIM 0.839
      CG SENSE, 20 iterations   PSNR 24.30 dB   SSIM 0.558
-    learned step: 1.141
+    learned step: 1.139
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 446-458
+.. GENERATED FROM PYTHON SOURCE LINES 445-457
 
 Each stage starts from the weights the previous one left, and each raises
 the PSNR. The pretrained denoiser scores a high SSIM but a low PSNR: inside
@@ -477,13 +476,13 @@ faint aliasing along the phase-encode direction (vertical). The unrolled
 network removes both; its error concentrates at tissue boundaries, where it
 slightly smooths the cortex.
 
-.. GENERATED FROM PYTHON SOURCE LINES 459-471
+.. GENERATED FROM PYTHON SOURCE LINES 458-470
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_04-staged-training_001.png
-   :alt: reference, CG-SENSE, unrolled, staged, NRMSE 0.137, NRMSE 0.082
+   :alt: reference, CG-SENSE, unrolled, staged, NRMSE 0.137, NRMSE 0.081
    :srcset: /auto_examples/06-learning/images/sphx_glr_04-staged-training_001.png
    :class: sphx-glr-single-img
 
@@ -491,7 +490,7 @@ slightly smooths the cortex.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 472-478
+.. GENERATED FROM PYTHON SOURCE LINES 471-477
 
 Storing the weights
 -------------------
@@ -500,7 +499,7 @@ The weights are stored in half precision, which halves the file and loses
 nothing a float16 or bfloat16 inference would keep. ``load_state_dict``
 casts them back to the network's precision.
 
-.. GENERATED FROM PYTHON SOURCE LINES 479-495
+.. GENERATED FROM PYTHON SOURCE LINES 478-494
 
 .. code-block:: Python
 
@@ -528,12 +527,12 @@ casts them back to the network's precision.
 
  .. code-block:: none
 
-    restored: PSNR 29.03 dB
+    restored: PSNR 29.06 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 496-508
+.. GENERATED FROM PYTHON SOURCE LINES 495-507
 
 References
 ----------
@@ -551,7 +550,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 45.688 seconds)
+   **Total running time of the script:** (2 minutes 26.476 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_04-staged-training.py:

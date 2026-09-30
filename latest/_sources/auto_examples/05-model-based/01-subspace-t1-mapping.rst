@@ -490,7 +490,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 11.063 seconds)
+   **Total running time of the script:** (0 minutes 13.503 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-subspace-t1-mapping.py:

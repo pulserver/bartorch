@@ -120,7 +120,6 @@ from brainweb_dl import get_mri
 from torch.utils.data import DataLoader
 
 from bartorch import learning
-from bartorch.learning import training
 
 SIZE = 64
 PATCH = 32
@@ -229,7 +228,7 @@ with torch.no_grad():
 # real channels (:func:`~bartorch.learning.as_real`) and draws :math:`32^3`
 # patches from it through a :class:`torchio.Queue`. The augmentations are
 # those that map one MR image to another the acquisition could have produced:
-# a flip, and :class:`~bartorch.learning.training.RandomGain`, a receiver gain
+# a flip, and :class:`~bartorch.learning.RandomGain`, a receiver gain
 # and global phase shared by the contrasts. An intensity transform applied to
 # the real and imaginary channels separately, such as a gamma correction,
 # would produce a signal no acquisition can. The global phase is varied over a
@@ -242,7 +241,7 @@ with torch.no_grad():
 
 subject = tio.Subject(image=tio.ScalarImage(tensor=learning.as_real(train_volume).flatten(0, 1)))
 augment = tio.Compose(
-    [tio.RandomFlip(axes=(0, 1, 2)), training.RandomGain(phase=0.3, log_scale=0.2)]
+    [tio.RandomFlip(axes=(0, 1, 2)), learning.RandomGain(phase=0.3, log_scale=0.2)]
 )
 queue = tio.Queue(
     tio.SubjectsDataset([subject], transform=augment),
@@ -271,7 +270,7 @@ trainer = lightning.Trainer(
     enable_progress_bar=False,
 )
 trainer.fit(
-    training.Reconstruction(denoiser, "denoiser", lr=2e-3),
+    learning.Reconstruction(denoiser, "denoiser", lr=2e-3),
     DataLoader(queue, batch_size=4, collate_fn=pairs),
     DataLoader(validation, batch_size=1, collate_fn=list),
 )

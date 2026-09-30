@@ -201,7 +201,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -232,34 +231,55 @@
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Networks for complex volumes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07-uncertainty.html">Uncertainty estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Learned regularization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-uncertainty.html">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -563,7 +583,6 @@ average the seams out with <a class="reference internal" href="../../generated/b
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="nn">.</span><span class="nn">utils</span><span class="nn">.</span><span class="nn">data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span><span class="w">
 </span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">learning</span><span class="w">
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">learning</span><span class="w"> </span><span class="kn">import</span> <span class="n">training</span><span class="w">
 </span><span class="w">
 </span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">64</span><span class="w">
 </span><span class="n">PATCH</span> <span class="o">=</span> <span class="mi">32</span><span class="w">
@@ -623,7 +642,7 @@ untrained network returns its input: True
 real channels (<a class="reference internal" href="../../generated/bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><code class="xref py py-func docutils literal notranslate"><span class="pre">as_real()</span></code></a>) and draws <span class="math notranslate nohighlight">\(32^3\)</span>
 patches from it through a <code class="xref py py-class docutils literal notranslate"><span class="pre">torchio.Queue</span></code>. The augmentations are
 those that map one MR image to another the acquisition could have produced:
-a flip, and <a class="reference internal" href="../../generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain" title="bartorch.learning.training.RandomGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomGain</span></code></a>, a receiver gain
+a flip, and <a class="reference internal" href="../../generated/bartorch.learning.RandomGain.html#bartorch.learning.RandomGain" title="bartorch.learning.RandomGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomGain</span></code></a>, a receiver gain
 and global phase shared by the contrasts. An intensity transform applied to
 the real and imaginary channels separately, such as a gamma correction,
 would produce a signal no acquisition can. The global phase is varied over a
@@ -634,7 +653,7 @@ than this lesson runs.</p>
 so the network sees a different noise realization at every epoch.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">subject</span> <span class="o">=</span> <span class="n">tio</span><span class="o">.</span><span class="n">Subject</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">tio</span><span class="o">.</span><span class="n">ScalarImage</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><span class="n">learning</span><span class="o">.</span><span class="n">as_real</span></a><span class="p">(</span><span class="n">train_volume</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="n">augment</span> <span class="o">=</span> <span class="n">tio</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span><span class="w">
-</span>    <span class="p">[</span><span class="n">tio</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-learning-training sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain" title="bartorch.learning.training.RandomGain"><span class="n">training</span><span class="o">.</span><span class="n">RandomGain</span></a><span class="p">(</span><span class="n">phase</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">log_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span>    <span class="p">[</span><span class="n">tio</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.RandomGain.html#bartorch.learning.RandomGain" title="bartorch.learning.RandomGain"><span class="n">learning</span><span class="o">.</span><span class="n">RandomGain</span></a><span class="p">(</span><span class="n">phase</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">log_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="p">]</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="n">queue</span> <span class="o">=</span> <span class="n">tio</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="w">
 </span>    <span class="n">tio</span><span class="o">.</span><span class="n">SubjectsDataset</span><span class="p">(</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">augment</span><span class="p">)</span><span class="p">,</span><span class="w">
@@ -663,7 +682,7 @@ so the network sees a different noise realization at every epoch.</p>
 </span>    <span class="n">enable_progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="w">
-</span>    <a class="sphx-glr-backref-module-bartorch-learning-training sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction" title="bartorch.learning.training.Reconstruction"><span class="n">training</span><span class="o">.</span><span class="n">Reconstruction</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">denoiser</span></a><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">denoiser</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">2e-3</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.Reconstruction.html#bartorch.learning.Reconstruction" title="bartorch.learning.Reconstruction"><span class="n">learning</span><span class="o">.</span><span class="n">Reconstruction</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">denoiser</span></a><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">denoiser</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">2e-3</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span>    <span class="n">DataLoader</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">pairs</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span>    <span class="n">DataLoader</span><span class="p">(</span><span class="n">validation</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
@@ -772,7 +791,7 @@ cycle. This factorization costs few weights beyond the spatial network.</p>
 (n, channels, frames, z, y, x): (1, 6, 10, 16, 16, 16)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (11 minutes 16.183 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (15 minutes 56.328 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-03-networks-for-complex-volumes-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/c8c571e6093282b50040904de5551870/03-networks-for-complex-volumes.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-networks-for-complex-volumes.ipynb</span></code></a></p>

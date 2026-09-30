@@ -87,7 +87,7 @@ on. A tensor holding the same bytes in C order has the reversed shape, so no
 copy is needed between the two: a two-dimensional multichannel image is
 ``(coils, 1, y, x)``, with the singleton standing for BART's ``z``, and the
 readout direction is the last tensor axis.
-:doc:`../../guides/user/conventions` tabulates the layouts used throughout.
+:doc:`/explanation/data-layout` tabulates the layouts used throughout.
 
 :func:`bartorch.tools.phantom` is BART's ``phantom`` command. Without
 ``coils`` it returns the Shepp-Logan image; with ``coils`` it returns that
@@ -393,7 +393,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.638 seconds)
+   **Total running time of the script:** (0 minutes 0.877 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_01-tensors-and-commands.py:

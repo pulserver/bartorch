@@ -63,17 +63,14 @@ backward strategy uses.
 
 ## Training stages
 
-`bartorch.learning.training` imports `lightning` and `torchio`, which
-`pip install bartorch[learning]` installs.
-
-```{eval-rst}
-.. currentmodule:: bartorch.learning.training
-```
+These two need `lightning` and `torchio`, which
+`pip install bartorch[learning]` installs; they are imported the first time
+either name is asked for, so `import bartorch.learning` imports neither.
 
 | Object | Description |
 | --- | --- |
-| {obj}`~bartorch.learning.training.Reconstruction` | A `LightningModule` training a denoiser, an unrolled network greedily, or an unrolled network end to end, supervised or self-supervised, with the batch left on the host |
-| {obj}`~bartorch.learning.training.RandomGain` | A `torchio` transform multiplying every image of a subject by one random complex gain |
+| {obj}`~bartorch.learning.Reconstruction` | A `LightningModule` training a denoiser, an unrolled network greedily, or an unrolled network end to end, supervised or self-supervised, with the batch left on the host |
+| {obj}`~bartorch.learning.RandomGain` | A `torchio` transform multiplying every image of a subject by one random complex gain |
 
 The examples of {doc}`../auto_examples/06-learning/index` train networks built
 from these objects.
