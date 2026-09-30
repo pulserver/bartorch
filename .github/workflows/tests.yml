@@ -216,7 +216,14 @@ jobs:
       - name: One OpenMP runtime with torch and FINUFFT threaded together
         run: pytest tests/test_openmp.py -v -s
 
+      - name: Which earlier test hangs the next mobafit (temporary, Windows)
+        if: runner.os == 'Windows'
+        timeout-minutes: 45
+        continue-on-error: true
+        run: python scripts/bisect_hang.py
+
       - name: Run the test suite
+        if: runner.os != 'Windows'
         run: pytest tests/ -v ${{ matrix.coverage && '--cov --cov-report=xml' || '' }}
 
       # A rejected upload is a broken report, not a passing build: without
