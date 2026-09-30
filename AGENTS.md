@@ -45,6 +45,7 @@ would otherwise have been linked against.
 | `src/csrc/substitute/fftw_bind.c` | The FFTW3 functions a FINUFFT module on oneMKL calls, forwarded to the ones the host hands over. |
 | `src/csrc/substitute/finufft.c`, `nufft_finufft.c` | FINUFFT's and cuFINUFFT's plans through their C API, and BART's NUFFT operator built out of a pair of their plans -- and the normal, which stores one of those in BART's operator through `noncart/nufft_priv.h` rather than letting it grid one. |
 | `src/csrc/substitute/openmp.c` | `__kmpc_dispatch_deinit` for an OpenMP runtime that lacks it, on macOS and Windows. |
+| `src/csrc/substitute/critical.c` | OpenMP's critical-section entry points, forwarded to the runtime with a record per thread of the sections held, so that a section BART's error jumped out of is left when the catch returns. |
 | `src/csrc/substitute/psf.c` | The three `compute_psf*` entry points, so that the adjoint transform a point spread function is comes from the substitution. |
 | `src/bartorch/` | The package.  Every public interface is flat: `bartorch` and each subpackage export their names from `__init__.py`, and every module beneath them is private, named with a leading underscore.  Public: the functions in `_fourier.py`, `_wavelet.py`, `_thresh.py`, `_util.py`, `_interp.py`, `_kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and in `_training.py` the Lightning training stages, which `learning/__init__.py` imports the first time `Reconstruction` or `RandomGain` is asked for); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `_correct/`, corrections of data and images outside the reconstruction, and `_motion/`, rigid motion from navigators); `io/` (CFL files, ISMRMRD raw data, DICOM and NIfTI images, with the `io` extra); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `_form.py` (the encoding form and the plan it reports) and `_plan.py` (matching a composition against that form). |
 | `scripts/gen_abi.py` | Generates `_abi.py` from `src/csrc/include/bartorch.h`. Run after changing the header; `tests/test_abi.py` fails when the checked-in file is not what it writes. |
@@ -692,6 +693,23 @@ glibc's `assert` calls `abort()` and a wrong shape takes the interpreter down.
 nor the libraries, and the symbol is hidden so it binds inside this library
 alone.
 
+The catch is a long jump, and a jump out of an OpenMP critical section skips
+the call that leaves it.  BART parses options in one (`bart_getopt`, where an
+unknown option or regularization term is raised) and loads every file in
+another (`bart_file_access2`, where a missing input is); left held, either one
+makes the next command to enter it wait for ever.
+`src/csrc/substitute/critical.c` defines the runtime's entry and exit points
+(`__kmpc_critical` and `__kmpc_end_critical` for clang, the four
+`GOMP_critical_*` for GCC) hidden inside the library, forwards each to the
+runtime the library is bound to, and keeps per thread the sections entered and
+not yet left.  Both catch points -- `bartorch_command` and `guarded` in
+`ops.c` -- leave whatever is still held once the catch returns.  A thread
+entering a section it already holds leaves the stale one first, because BART's
+own cleanup after a failed command runs on that thread before control is back
+in the library.  Explicit `omp_lock_t`s are not tracked: BART destroys them
+with the objects that own them.  `tests/test_core.py` runs a failed command
+and then two good ones in a child process with a timeout.
+
 ## The operator layer
 
 `LinearOperator` is the one operator class: two shapes, a forward, an adjoint,
@@ -925,7 +943,9 @@ same six through the command route with `numpy.array_equal`.  `mobafit` and
 TorchSim's bounded parameterisation: the same minimum reached by a different
 path.  `cli/_apps.py` writes BART's closed forms in TorchSim's variables --
 `-T` `(M0, R2)` as a multi-echo decay, `-I` `(M0, R1, c)` and `-L`
-`(Mss, M0, R1s)` as an inversion recovery with its efficiency free -- and
+`(Mss, M0, R1s)` as an inversion recovery with its efficiency free, `-G`'s
+water and fat as a complex amplitude with a fat fraction and phase, `-D` as
+TorchSim's diffusion decay and `-M` as its Lorentzian lines -- and
 converts the named maps back into rates in 1/s from times in seconds, and
 `moba`'s amplitudes into the units of the data scaling the command applies.
 Measured on the test phantoms, `mobafit` agrees with the command to 1e-05 of
@@ -938,16 +958,16 @@ because the command declared it.  That includes `-i`, which counts
 Gauss-Newton steps over BART's own coefficients and would stop a bounded fit
 short; `moba`'s `-C`, which counts FISTA iterations rather than conjugate
 gradients; `moba`'s default `-l1`, a wavelet term on the maps the app does not
-carry; the gradient-echo, diffusion and simulation models; and anything off a
-grid.
+carry; `mobafit`'s separate water and fat decays (`-m 2`), whose two rates the
+bounded fit does not separate, its phase and simulation models, and `-M`
+without a start; `moba`'s gradient-echo and simulation models; and anything
+off a grid.
 
 An input file that is not there is the one thing the command line names itself.
-A BART command that fails while loading its arguments leaves the library unable
-to serve the next call in the same process -- `ecalib` and `nufft`
-handed a name with no file behind it both spin the call after them, while `fft`
-does not -- so a caller who runs `main` twice would hang rather than see the
-second answer.  `cli._missing` checks the names against the filesystem before
-BART is asked.
+An app reads its inputs in Python, where a missing one is an exception rather
+than an exit code, so `cli._missing` checks the names against the filesystem
+before either route runs, and a missing input is reported the same way
+whichever route would have served the command.
 
 Help is the catalogue's, because BART answers its own by calling `exit`, which
 in this process ends the interpreter.
@@ -1010,7 +1030,7 @@ proximal operator and the transform BART makes of it. The solver is handed
 those, not a description to rebuild from, so solving twice with a term builds
 nothing the second time. The letters are BART's own, and a test holds every
 one this package offers against `grecon/optreg.c`, because a term BART does
-not know is answered with `error()` and that leaves the library spinning.
+not know is answered with `error()`.
 
 Three of BART's terms cannot be built alone: TGV and the two infimal
 convolutions extend the optimisation variable, and what they add is counted

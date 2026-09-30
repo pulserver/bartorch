@@ -18,6 +18,7 @@
 
 #include "include/bartorch.h"
 #include "substitute/backend.h"
+#include "substitute/critical.h"
 
 /* The ABI spells BART's dimension, stride and flag types by their widths, so
  * a dimension vector crosses as it stands, without a copy. */
@@ -254,6 +255,8 @@ int bartorch_command(int argc, const char* const* argv, char* out, size_t outlen
 		out[0] = '\0';
 
 	int ret = bart_command(have_out ? (int)outlen : 0, have_out ? out : NULL, argc + 1, av);
+
+	bartorch_leave_held_criticals();
 
 	for (int i = 0; i < argc + 1; i++)
 		free(av[i]);

@@ -55,6 +55,7 @@
 
 #include "include/bartorch.h"
 #include "substitute/backend.h"
+#include "substitute/critical.h"
 
 struct bartorch_linop_s { const struct linop_s* op; };
 
@@ -88,8 +89,9 @@ static int guard_shim(int argc, char* argv[argc])
 /* Run fn under BART's error catcher; an error inside returns -1.
  *
  * The message is cleared first so that what the host reads afterwards belongs
- * to this call.  A nested call leaves the outer one's catcher and message in
- * place, which is what carries the reason out. */
+ * to this call, and the critical sections an error jumped out of are left once
+ * the catch returns.  A nested call leaves the outer one's catcher and message
+ * in place, which is what carries the reason out. */
 static int guarded(int (*fn)(void*), void* arg)
 {
 	if (error_jumper.initialized)
@@ -99,7 +101,11 @@ static int guarded(int (*fn)(void*), void* arg)
 
 	struct guard_call c = { fn, arg };
 	char* argv[1] = { (char*)&c };
-	return error_catcher(guard_shim, 1, argv);
+	int ret = error_catcher(guard_shim, 1, argv);
+
+	bartorch_leave_held_criticals();
+
+	return ret;
 }
 
 /* An operator as a handle the ABI can hand out.  Not static: `iter.c` wraps

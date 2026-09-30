@@ -4,6 +4,8 @@ that are not BART.
 
 import ctypes
 import os
+import subprocess
+import sys
 
 import numpy as np
 import pytest
@@ -95,6 +97,34 @@ def test_registry_is_empty_after_a_failure():
     with pytest.raises(bartorch.BartError):
         dispatch("fft", [x], None, _pos=["notanumber"])
     assert library().bartorch_unlink_all() == 0
+
+
+_FAILURES = {
+    "an unknown option": ["ones", "-q", "3", "2", "2", "2", "x"],
+    "an unknown regularization term": ["pics", "-R", "Z:7:0:0.01", "ksp", "maps", "x"],
+    "a missing input": ["fft", "-i", "6", "nosuchfile", "x"],
+}
+
+
+@pytest.mark.parametrize("failing", _FAILURES.values(), ids=_FAILURES.keys())
+def test_a_failed_command_leaves_the_next_one_free_to_run(failing, tmp_path):
+    """BART's error leaves a command by a long jump, and each of these is raised
+    inside an OpenMP critical section: the options are parsed in one and every
+    file is loaded in another.  A jump out of a section leaves it locked unless
+    the library leaves it.  The commands run in a child process, so that a
+    section left locked fails this test on its timeout rather than hanging the
+    suite."""
+    script = f"""
+import os
+from bartorch._dispatch import run_command
+os.chdir({str(tmp_path)!r})
+code, _, _ = run_command({failing!r})
+assert code != 0, "the command was meant to fail"
+for line in (["ones", "3", "2", "2", "2", "y"], ["fft", "-i", "6", "y", "z"]):
+    code, _, failure = run_command(line)
+    assert code == 0, failure
+"""
+    subprocess.run([sys.executable, "-c", script], timeout=120, check=True)
 
 
 def test_rss_matches_numpy():
