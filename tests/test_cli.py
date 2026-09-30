@@ -168,6 +168,24 @@ _FITS |= {
         _gradient_echo(WATER, _NONE, _NONE, _NONE, FB0),
         [WATER, FB0],
     ),
+    "G0 from a start": (
+        ["-G", "-m", "0", "--init", "1:0.3:0"],
+        GRADIENT_ECHO_TIMES,
+        _gradient_echo(WATER, FAT, _NONE, _NONE, FB0),
+        [WATER, FAT, FB0],
+    ),
+    "G1 from a start": (
+        ["-G", "--init", "1:0.3:30:0"],
+        GRADIENT_ECHO_TIMES,
+        _gradient_echo(WATER, FAT, R2S, R2S, FB0),
+        [WATER, FAT, R2S, FB0],
+    ),
+    "G3 from a start": (
+        ["-G", "-m", "3", "--init", "1:30:0"],
+        GRADIENT_ECHO_TIMES,
+        _gradient_echo(WATER, _NONE, R2S, R2S, FB0),
+        [WATER, R2S, FB0],
+    ),
 }
 
 #: Diffusion: the encoding is -b in s/mm^2, D in mm^2/s.
@@ -233,12 +251,26 @@ def test_mobafit_writes_the_commands_coefficients_to_the_tolerance_of_a_fit(
         ["mobafit", "-P", "t", "y", "x"],
         ["mobafit", "-G", "--fB0-init", "t", "y", "x"],
         ["mobafit", "-G", "-m", "2", "t", "y", "x"],
+        ["mobafit", "-G", "-m", "5", "t", "y", "x"],
+        ["mobafit", "-G", "--init", "1:0:30:0", "t", "y", "x"],
+        ["mobafit", "-M", "1", "t", "y", "x"],
         ["mobafit", "-T", "-i", "5", "t", "y", "x"],
         ["mobafit", "-T", "--init", "1:0", "t", "y", "x"],
         ["mobafit", "-T", "--scale", "1:10", "t", "y", "x"],
         ["mobafit", "-T", "t", "y", "x", "covariance"],
     ],
-    ids=["-P", "--fB0-init", "-m 2", "-i", "R2 start of zero", "--scale", "covariance"],
+    ids=[
+        "-P",
+        "--fB0-init",
+        "-m 2",
+        "-m 5",
+        "water and no fat",
+        "Z-spectrum with no start",
+        "-i",
+        "R2 start of zero",
+        "--scale",
+        "covariance",
+    ],
 )
 def test_a_mobafit_the_app_cannot_express_goes_to_the_command(line, tmp_path, monkeypatch):
     """The multi-echo gradient-echo models, BART's step count over its own

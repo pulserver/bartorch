@@ -413,13 +413,13 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     named = [flag for flag in ("T", "I", "L", "G", "D") if flag in options]
     mode = "M" if pools else _mode(options, "mobafit", ("T", "I", "L", "G", "D")) if named else "G"
     which = _only(options.pop("m", [1]))
-    if mode == "G" and which not in _WATER_FAT:
-        raise Unsupported(f"mobafit -m {which} is not a multi-echo model")
     if mode == "G" and which == 2:
         # Two decays that differ only by fat's share of the signal are nearly
         # one; the Gauss-Newton weight towards the middle of each bound walks
         # the pair off where the command's unbounded rates stay.
         raise Unsupported("mobafit -m 2 does not converge in the app's bounded variables")
+    if mode == "G" and which not in _WATER_FAT:
+        raise Unsupported(f"mobafit -m {which} is not a multi-echo model")
     field_strength = _only(options.pop("field_strength", [3.0]))
     spectrum = "middleton2009" if options.pop("fat_spec_0", False) else "hamilton2011"
     made: dict[str, Any] = {}
