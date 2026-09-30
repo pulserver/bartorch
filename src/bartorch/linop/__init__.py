@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from bartorch.linop import mri  # noqa: F401  (tests reach the fit helper)
-from bartorch.linop.base import LinearOperator
-from bartorch.linop.basic import (
+from bartorch.linop._base import LinearOperator
+from bartorch.linop._basic import (
     FFT,
     ComponentDiagonal,
     Conj,
@@ -13,11 +12,11 @@ from bartorch.linop.basic import (
     MultiplySum,
     Zero,
 )
-from bartorch.linop.combine import block, block_diag, concatenate, hstack, stack
-from bartorch.linop.mri import CartesianSense, FieldCorrected, WaveSense
-from bartorch.linop.nufft import NUFFT
-from bartorch.linop.sense import NoncartesianSense
-from bartorch.linop.shape import (
+from bartorch.linop._combine import block, block_diag, concatenate, hstack, stack
+from bartorch.linop._mri import CartesianSense, FieldCorrected, WaveSense
+from bartorch.linop._nufft import NUFFT
+from bartorch.linop._sense import NoncartesianSense
+from bartorch.linop._shape import (
     Extract,
     Flip,
     Hankel,
@@ -33,7 +32,7 @@ from bartorch.linop.shape import (
     Sum,
     Transpose,
 )
-from bartorch.linop.signal import Convolve, Gradient, Matrix
+from bartorch.linop._signal import Convolve, Gradient, Matrix
 
 __all__ = [
     "block",

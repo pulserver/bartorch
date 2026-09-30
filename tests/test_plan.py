@@ -16,8 +16,8 @@ import torch
 import bartorch
 from bartorch import _abi, _finufft, linop
 from bartorch._lib import library
-from bartorch.linop import plan as planner
-from bartorch.linop import sense
+from bartorch.linop import _plan as planner
+from bartorch.linop import _sense as sense
 
 COILS, Z, Y, X = 4, 3, 16, 12
 

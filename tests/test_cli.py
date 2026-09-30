@@ -18,7 +18,7 @@ import bartorch.tools as bt
 from bartorch._dispatch import run_command
 from bartorch.cli import _argv, main, route
 from bartorch.io import readcfl, writecfl
-from bartorch.priors.terms import ImageNIHT
+from bartorch.priors._terms import ImageNIHT
 
 SIZE, COILS, ACCEL = 24, 4, 2
 

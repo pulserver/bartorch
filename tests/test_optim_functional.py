@@ -10,7 +10,7 @@ import pytest
 import torch
 
 from bartorch import linop, optim, priors
-from bartorch.priors.terms import WaveletNIHT
+from bartorch.priors._terms import WaveletNIHT
 
 SHAPE = (1, 8, 8)
 

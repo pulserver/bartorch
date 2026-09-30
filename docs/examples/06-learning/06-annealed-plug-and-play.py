@@ -25,7 +25,7 @@ balance between data consistency and denoising that :math:`\lambda` sets.
 
 - Train a denoiser conditioned on the noise level, ``noise=True`` in
   :class:`bartorch.learning.UNet`, with
-  :class:`bartorch.learning.training.Reconstruction`.
+  :class:`bartorch.learning.Reconstruction`.
 - Give :class:`bartorch.priors.ImplicitPrior` a schedule of noise levels and
   :class:`bartorch.optim.ADMMBlock` the matching schedule of penalties.
 - Compare an annealed schedule with a fixed noise level, iteration by
@@ -122,7 +122,6 @@ from torch.utils.data import DataLoader
 import bartorch
 import bartorch.tools as bt
 from bartorch import learning, linop, optim, priors
-from bartorch.learning import training
 
 SIZE = 96
 COILS = 8
@@ -256,7 +255,7 @@ trainer = lightning.Trainer(
     enable_progress_bar=False,
 )
 trainer.fit(
-    training.Reconstruction(denoiser, "denoiser", lr=2e-3),
+    learning.Reconstruction(denoiser, "denoiser", lr=2e-3),
     DataLoader(train_images, batch_size=4, shuffle=True, collate_fn=pairs),
     DataLoader(valid_images, batch_size=4, collate_fn=pairs),
 )

@@ -13,7 +13,7 @@ import torch
 from torch import nn
 
 from bartorch import learning, linop, optim, priors
-from bartorch.priors.implicit import _Planes
+from bartorch.priors._implicit import _Planes
 
 SHAPE = (1, 8, 8)
 

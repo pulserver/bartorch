@@ -10,8 +10,8 @@ import pytest
 import torch
 
 import bartorch.tools as bt
-from bartorch.interp import interpolate
-from bartorch.tools.process import affine_transform, fovshift, warp
+from bartorch._interp import interpolate
+from bartorch.tools._process import affine_transform, fovshift, warp
 
 scipy_ndimage = pytest.importorskip("scipy.ndimage")
 

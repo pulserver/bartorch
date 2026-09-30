@@ -8,11 +8,11 @@ transform in front of it, from that.
 
 from __future__ import annotations
 
-from bartorch.priors import denoise
-from bartorch.priors.base import Regularizer
-from bartorch.priors.denoise import *  # noqa: F401,F403
-from bartorch.priors.implicit import ImplicitPrior
-from bartorch.priors.terms import (
+from bartorch.priors import _denoise
+from bartorch.priors._base import Regularizer
+from bartorch.priors._denoise import *  # noqa: F401,F403
+from bartorch.priors._implicit import ImplicitPrior
+from bartorch.priors._terms import (
     L1,
     L2,
     FourierL1,
@@ -44,5 +44,5 @@ __all__ = [
     "TotalGeneralizedVariation",
     "TotalVariation",
     "Wavelet",
-    *denoise.__all__,
+    *_denoise.__all__,
 ]

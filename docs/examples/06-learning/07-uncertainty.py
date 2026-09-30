@@ -120,7 +120,6 @@ from torch.utils.data import DataLoader
 import bartorch
 import bartorch.tools as bt
 from bartorch import learning, linop, optim, priors
-from bartorch.learning import training
 
 SIZE = 96
 COILS = 8
@@ -248,7 +247,7 @@ trainer = lightning.Trainer(
     enable_progress_bar=False,
 )
 trainer.fit(
-    training.Reconstruction(model, "end-to-end", lr=1e-3),
+    learning.Reconstruction(model, "end-to-end", lr=1e-3),
     DataLoader(items["train"], batch_size=4, shuffle=True, collate_fn=list),
     DataLoader(items["valid"], batch_size=4, collate_fn=list),
 )

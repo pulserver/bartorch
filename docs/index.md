@@ -9,7 +9,7 @@
 guides/user/index
 guides/developer/index
 explanation/index
-examples/index
+auto_examples/index
 api/index
 misc/index
 ```
