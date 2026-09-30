@@ -16,7 +16,7 @@ import torch
 import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _call, linop, nlop, optim
-from bartorch.nlop.base import _chain
+from bartorch.nlop._base import _chain
 
 #: `signal` is private -- a curve from a command is a number, not a model a fit
 #: can be built on -- and these tests pin TorchSim's physics against it, which

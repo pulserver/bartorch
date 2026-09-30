@@ -30,7 +30,6 @@ MODULES = (
     "bartorch.optim",
     "bartorch.priors",
     "bartorch.learning",
-    "bartorch.learning.training",
     "bartorch.apps",
     "bartorch.tools",
     "bartorch.io",

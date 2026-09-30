@@ -58,7 +58,7 @@ def _only(values: list[Any]) -> Any:
 def _pics(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     """``pics``'s flags as :func:`bartorch.apps.pics` takes them."""
     from bartorch import priors
-    from bartorch.apps.pics import image_shape
+    from bartorch.apps._pics import image_shape
 
     ndim = len(image_shape(inputs[0], inputs[1], options.get("t", [None])[-1]))
     made: dict[str, Any] = {}

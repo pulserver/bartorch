@@ -110,7 +110,7 @@ The rest of what needs declaring is not diagonal:
 hand (`model_net.c:269-287`, `:299-315`), and it is the product rule; nothing
 about it is particular to a coil model.
 
-Everything else in `nlop/basic.py` is already a composition in BART, and gets a
+Everything else in `nlop/_basic.py` is already a composition in BART, and gets a
 bundle by declaring itself as that composition -- the way `NonlinearSense` does
 -- rather than by carrying one of its own.  Each is one BART constructor here,
 so without the declaration the chain rule has nothing to walk into:

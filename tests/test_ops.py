@@ -9,7 +9,7 @@ import torch
 import bartorch
 import bartorch.tools as bt
 from bartorch import linop, nlop, optim
-from bartorch.linop import basic
+from bartorch.linop import _basic as basic
 
 
 def _rand(*shape):

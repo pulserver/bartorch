@@ -276,7 +276,7 @@ def test_it_wraps_any_encoding(maps):
 def test_precomputed_coefficients_skip_the_fit(one_dimensional):
     n, E, fmap, times = one_dimensional
     fitted = linop.FieldCorrected(E, fmap, times, segments=3)
-    b, c = linop.mri._fit_coefficients(E, fmap, times, None, 3, "svd")
+    b, c = linop._mri._fit_coefficients(E, fmap, times, None, 3, "svd")
     given = linop.FieldCorrected(E, coefficients=(b, c))
     x = _rand(*E.ishape)
     torch.testing.assert_close(given(x), fitted(x), rtol=1e-4, atol=1e-4)
@@ -605,7 +605,7 @@ def _ifftc(t, axes):
 
 
 def test_a_pattern_or_a_basis_builds_the_native_operator(maps, basis, frame_pattern):
-    from bartorch.linop.mri import _CartesianNative
+    from bartorch.linop._mri import _CartesianNative
 
     mask = (torch.rand(Y, 1) > 0.5).to(torch.complex64)
     assert isinstance(linop.CartesianSense(maps, (Y, X), pattern=mask), _CartesianNative)
@@ -1011,7 +1011,7 @@ TOOL = dict(a=3000, t=1e-5, g=0.8, s=17000.0, n=6)
 
 def test_the_wave_psf_along_y_is_barts_wavepsf():
     import bartorch.tools as bt
-    from bartorch.linop.mri import _wave_psf
+    from bartorch.linop._mri import _wave_psf
 
     wx, ny, dy = 64, 16, 0.1
     got = _wave_psf(wx, (ny,), resolution=dy, offset=0.0, **WAVE)
@@ -1021,7 +1021,7 @@ def test_the_wave_psf_along_y_is_barts_wavepsf():
 
 def test_the_wave_psf_in_3d_is_barts_cosine_wave_along_z_times_the_sine_along_y():
     import bartorch.tools as bt
-    from bartorch.linop.mri import _wave_psf
+    from bartorch.linop._mri import _wave_psf
 
     wx, nz, ny, dz, dy = 64, 8, 16, 0.2, 0.1
     got = _wave_psf(wx, (nz, ny), resolution=(dz, dy), offset=0.0, **WAVE)
@@ -1033,7 +1033,7 @@ def test_the_wave_psf_in_3d_is_barts_cosine_wave_along_z_times_the_sine_along_y(
 
 def test_an_offset_moves_the_wave_psf_along_its_axis():
     """An isocentre two voxels away is the same function two voxels along."""
-    from bartorch.linop.mri import _wave_psf
+    from bartorch.linop._mri import _wave_psf
 
     wx, ny, dy = 64, 16, 0.1
     base = _wave_psf(wx, (ny,), resolution=dy, offset=0.0, **WAVE)
@@ -1042,7 +1042,7 @@ def test_an_offset_moves_the_wave_psf_along_its_axis():
 
 
 def test_wave_sense_makes_its_psf_from_the_gradient_wave(wave_parts):
-    from bartorch.linop.mri import _wave_psf
+    from bartorch.linop._mri import _wave_psf
 
     maps, _, mask = wave_parts
     made = linop.WaveSense(maps, SHAPE, readout=WX, pattern=mask, resolution=(0.2, 0.1), **WAVE)
@@ -1085,7 +1085,7 @@ def segmented():
 def test_a_segmented_nufft_is_the_sum_of_its_segments(segmented):
     maps, traj, b, c, n = segmented
     from bartorch import _finufft
-    from bartorch.linop.base import _WithNormal
+    from bartorch.linop._base import _WithNormal
 
     E = linop.NoncartesianSense(maps, (n, n), traj=traj)
     A = linop.FieldCorrected(E, coefficients=(b, c))
@@ -1128,7 +1128,7 @@ def test_on_a_card_a_segmented_nufft_is_the_host_one(segmented):
         linop.NoncartesianSense(maps, (n, n), traj=traj), coefficients=(b, c)
     )
 
-    from bartorch.linop.base import _WithNormal
+    from bartorch.linop._base import _WithNormal
 
     assert isinstance(A, _WithNormal) and isinstance(host, _WithNormal)
 
@@ -1144,7 +1144,7 @@ def test_on_a_card_a_segmented_nufft_is_the_host_one(segmented):
 
 
 def test_a_scaled_wave_has_the_phase_scaled():
-    from bartorch.linop.mri import _wave_phase_per_cm
+    from bartorch.linop._mri import _wave_phase_per_cm
 
     nominal = _wave_phase_per_cm(64, 6, 0.8, 17000.0, 3.0, cosine=False)
     stronger = _wave_phase_per_cm(64, 6, 0.8, 17000.0, 3.0, cosine=False, scale=1.1)
@@ -1154,7 +1154,7 @@ def test_a_scaled_wave_has_the_phase_scaled():
 @pytest.mark.parametrize("cosine", [False, True])
 def test_a_wave_delayed_by_a_readout_sample_is_the_wave_a_sample_later(cosine):
     """The wave is periodic over the readout, so a delay of one sample is a turn of one."""
-    from bartorch.linop.mri import _wave_phase_per_cm
+    from bartorch.linop._mri import _wave_phase_per_cm
 
     readout, adc = 64, 3.0
     nominal = _wave_phase_per_cm(readout, 6, 0.8, 17000.0, adc, cosine=cosine)
@@ -1164,7 +1164,7 @@ def test_a_wave_delayed_by_a_readout_sample_is_the_wave_a_sample_later(cosine):
 
 def test_each_wave_takes_its_own_delay_and_scale():
     """z first, as the image axes are; a correction on one axis leaves the other."""
-    from bartorch.linop.mri import _wave_psf
+    from bartorch.linop._mri import _wave_psf
 
     wx, nz, ny = 64, 8, 16
     common = dict(resolution=(0.2, 0.1), offset=0.0, **WAVE)

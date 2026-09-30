@@ -28,7 +28,7 @@ Apple MPS devices are not supported; the device paths are CPU and CUDA.
 | --- | --- | --- |
 | `mkl` | Intel MKL (Linux x86-64) | MKL as the source of BLAS, LAPACK and FFT routines, and of FINUFFT's FFT |
 | `deepinv` | DeepInverse | {func}`bartorch.interop.to_deepinv`, and DeepInverse's denoisers for {class}`~bartorch.priors.ImplicitPrior` |
-| `learning` | Lightning, TorchIO | The training stages and the complex-valued augmentation of `bartorch.learning.training` ({doc}`../../api/learning`) |
+| `learning` | Lightning, TorchIO | The training stages and the complex-valued augmentation in `bartorch.learning` ({doc}`../../api/learning`) |
 | `correct` | SimpleITK | Bias field and gradient nonlinearity correction in {mod}`bartorch.tools` |
 | `motion` | SimpleITK | Rigid registration of navigator planes in {mod}`bartorch.tools` |
 | `pyhysco` | PyHySCO (GPL-3.0-only) | {func}`bartorch.tools.correct_susceptibility` |
@@ -40,4 +40,4 @@ it is installed.
 
 The examples additionally need `brainweb-dl`, `matplotlib` and `cmap`; the
 learned-regularization examples `lightning`, `torchio`, `monai` and `deepinv`,
-and the tours `SimpleITK` ({doc}`../../examples/index`).
+and the tours `SimpleITK` ({doc}`../../auto_examples/index`).

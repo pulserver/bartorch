@@ -7,9 +7,9 @@ a block to BART's schedule, called as ``solver(y, A, x0=None)``; the function
 
 from __future__ import annotations
 
-from bartorch.optim.blocks import ADMMBlock, FISTABlock, ISTBlock, PRIDUBlock
-from bartorch.optim.fixed_point import FixedPoint
-from bartorch.optim.functional import (
+from bartorch.optim._blocks import ADMMBlock, FISTABlock, ISTBlock, PRIDUBlock
+from bartorch.optim._fixed_point import FixedPoint
+from bartorch.optim._functional import (
     admm,
     cg,
     fista,
@@ -17,7 +17,7 @@ from bartorch.optim.functional import (
     pocs,
     pridu,
 )
-from bartorch.optim.linear import (
+from bartorch.optim._linear import (
     ADMM,
     CG,
     FISTA,
@@ -26,8 +26,8 @@ from bartorch.optim.linear import (
     Tikhonov,
     maxeigen,
 )
-from bartorch.optim.pocs import POCS, POCSBlock
-from bartorch.optim.scaling import data_scaling
+from bartorch.optim._pocs import POCS, POCSBlock
+from bartorch.optim._scaling import data_scaling
 
 __all__ = [
     "ADMM",

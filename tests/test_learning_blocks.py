@@ -17,7 +17,7 @@ from scipy.stats import norm
 from torch import nn
 
 from bartorch import learning, linop, optim, priors
-from bartorch.learning.nets import _Conv
+from bartorch.learning._nets import _Conv
 
 # --- the network --------------------------------------------------------------------
 

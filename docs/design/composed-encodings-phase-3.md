@@ -153,7 +153,7 @@ term: real where the bank is held as kernels and inflated per slab, small where
 it is maps.  Time a chained contraction against a fused one before spending the
 CUDA risk on it.
 
-Where to hook the Python side: `_slice_layout` (`mri.py`) already recognises
+Where to hook the Python side: `_slice_layout` (`_mri.py`) already recognises
 the selector-and-phase spelling and builds `Form.slice_phase`; a general
 per-set image factor would be the sibling of `_segment_layout`, with
 `_Segmentable._image_dims` gaining `_layout.MAPS` again.  Phase 2 deliberately
@@ -166,7 +166,7 @@ executor fused a wrong answer: relative error 1.2, not a small one.
 ## Things found the hard way
 
 - **The trajectory's dimension vector must not carry a batch.**
-  `_encoding_vector` in `sense.py` serves the k-space vector, the trajectory
+  `_encoding_vector` in `_sense.py` serves the k-space vector, the trajectory
   and the weights alike.  A batch on the trajectory says it varies across the
   batch, which makes it a sample axis the image also varies along, which is
   `DECLINE(16)`.  `test_the_trajectory_of_a_batch_is_shared_rather_than_one_per_item`

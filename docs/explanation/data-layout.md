@@ -6,7 +6,8 @@
 - A C-order tensor of shape `(a, b, c)` and a BART array of dimensions `[c, b, a]` occupy the same memory, so bartorch reverses the shape at the boundary and copies nothing: BART's readout dimension is the last tensor axis and its coil dimension the fourth from last.
 - BART's commands keep BART's positional dimensions; the MRI operators of {mod}`bartorch.linop` use a compact layout of batch axes, coils and encoding axes in front of the spatial axes.
 - Axis arguments are tensor axis indices, never BART bitmasks or dimension numbers.
-- Trajectories are in grid units, multiples of $1/\mathrm{FOV}$, so that a fully sampled readout of $N$ samples spans $-N/2$ to $N/2$.
+- Image geometry is a `(4, 4)` affine from voxel indices `(x, y, z)`, the last three tensor axes reversed, to RAS millimetres, as in NIfTI.
+- Trajectories are in grid units, multiples of $1/\mathrm{FOV}$, so that a fully sampled readout of $N$ samples spans $-N/2$ to $N/2$; a trajectory in cycles or radians per metre, in fractions of the sampling bandwidth or in radians is rescaled into them.
 - {func}`bartorch.fft` is centred and unnormalized in both directions unless asked otherwise; {class}`bartorch.linop.FFT` is centred and unitary; the NUFFT carries a $1/\sqrt{N}$ scaling and a negative exponent in its forward transform.
 ```
 
@@ -17,9 +18,9 @@ these is fixed by the physics, and each package chooses differently: BART
 stores arrays in column-major order with a fixed meaning for each dimension,
 PyTorch and NumPy index in row-major (C) order, and NUFFT libraries measure
 k-space in radians, in cycles per metre or in fractions of the sampling
-bandwidth.  This page states the conventions bartorch adopts and the reason for
-each.  {doc}`../guides/user/conventions` shows how to bring data acquired
-elsewhere into them.
+bandwidth.  This page states the conventions bartorch adopts, the reason for
+each, and the conversion of data exported from a scanner, simulated in another
+package or written by BART's command line into them.
 
 ## Array order and BART's dimensions
 
@@ -46,6 +47,16 @@ axis, the coils the fourth from last.
 A radial acquisition places the readout samples along BART's dimension 1 and
 the spokes along dimension 2, with dimension 0 of the samples a singleton that
 corresponds to the three trajectory components.
+
+An array stored in column-major order with BART's axis order, as MATLAB writes
+k-space of shape `(x, y, coils)`, is therefore a tensor after a transpose, with
+the singleton `z` restored for a BART command:
+
+```python
+import torch
+
+kspace = torch.from_numpy(ksp.T.copy()).to(torch.complex64)[:, None]  # (coils, 1, y, x)
+```
 
 ## Axis arguments
 
@@ -112,13 +123,42 @@ selects phase encodes for every coil, readout sample and batch item.
 A trajectory holds the k-space coordinates $k_x, k_y, k_z$ in **grid units**,
 multiples of $1/\mathrm{FOV}$ of the image being encoded.  In these units the
 Nyquist sampling interval is one, and a fully sampled readout of $N$ samples
-spans $-N/2$ to $N/2$.  A coordinate $k$ in cycles per metre is $k \cdot \mathrm{FOV}$ in
-grid units.
+spans $-N/2$ to $N/2$.  A trajectory in another convention is rescaled before
+it is passed on, with $N$ the matrix size along the axis:
 
-A trajectory given to a command has three components, and a $k_z$ that is zero
-throughout makes the transform two-dimensional; the operators of
-{mod}`bartorch.linop` also accept two components, $k_x, k_y$.
+| Trajectory given in | Grid units |
+| --- | --- |
+| Cycles per metre, $k$ | $k \cdot \mathrm{FOV}$, with $\mathrm{FOV}$ in metres |
+| Radians per metre, $k$ | $k \cdot \mathrm{FOV} / (2\pi)$ |
+| Fraction of the sampling bandwidth, $k \in [-0.5, 0.5)$ | $k \cdot N$ |
+| Radians, $k \in [-\pi, \pi)$, as in `torchkbnufft` | $k \cdot N / (2\pi)$ |
+
+The components are the last axis of the trajectory tensor.  A trajectory given
+to a command, `(spokes, samples, 3)`, has three components, and a $k_z$ that is
+zero throughout makes the transform two-dimensional; {class}`bartorch.linop.NUFFT`
+and {class}`bartorch.linop.NoncartesianSense` also accept two components,
+$k_x, k_y$.
 {func}`bartorch.tools.traj` generates trajectories in grid units.
+
+## Image geometry
+
+Where an image lies in the scanner is a `(4, 4)` affine matrix $A$ mapping a
+voxel index to a position, $(p, 1)^T = A\,(i_x, i_y, i_z, 1)^T$, with
+$i_x$, $i_y$, $i_z$ the last, second-to-last and third-to-last axes of the
+image tensor.  Positions are in millimetres in RAS coordinates, which increase
+towards the subject's right, anterior and superior; this is the convention of
+NIfTI and of `nibabel` and `torchio`.  The columns of $A$ are the steps
+between neighbouring voxels, so their norms are the voxel sizes, and its last
+column is the position of the first voxel.
+
+MRD and DICOM state positions in the patient coordinate system, LPS, which
+differs from RAS in the sign of the first two coordinates.  In MRD the readout
+direction is $x$, the phase-encoding direction $y$, and an acquisition's
+`position` is the centre of the field of view; in DICOM
+`ImageOrientationPatient` gives the directions of increasing column and row
+index and `ImagePositionPatient` the centre of the first pixel.  The readers
+and writers of {mod}`bartorch.io` convert between these and the affine, so an
+image read from DICOM and written to NIfTI keeps its position.
 
 ## Fourier transform conventions
 
@@ -142,7 +182,19 @@ BART's file format is a pair: a `.hdr` text header listing the dimensions and a
 `.cfl` file of `complex64` values in column-major order.
 {func}`bartorch.io.readcfl` and {func}`bartorch.io.writecfl` exchange NumPy
 arrays whose shape is BART's dimension vector, so the axes are reversed at that
-boundary; `array.T` converts between the two orders without moving data.
+boundary; `array.T` converts between the two orders without moving data:
+
+```python
+import numpy as np
+import torch
+from bartorch.io import readcfl, writecfl
+
+tensor = torch.from_numpy(np.ascontiguousarray(readcfl("kspace").T))  # kspace.hdr, kspace.cfl
+writecfl("result", tensor.detach().cpu().numpy().T)
+```
+
+The `bartorch` command line reads and writes CFL files itself, so a script
+written for BART's `bart` executable runs with the command name replaced.
 
 ## Differentiation
 

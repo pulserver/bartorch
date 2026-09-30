@@ -15,7 +15,6 @@ lightning = pytest.importorskip("lightning")
 torchio = pytest.importorskip("torchio")
 
 from bartorch import learning, linop, optim, priors  # noqa: E402
-from bartorch.learning import training  # noqa: E402
 
 SHAPE = (1, 16, 16)
 
@@ -44,7 +43,7 @@ def _trainer(**settings):
 
 def test_the_greedy_weights_grow_geometrically_to_ratio_and_sum_to_one():
     block = optim.ISTBlock(priors.ImplicitPrior(_Gain()))
-    stage = training.Reconstruction(
+    stage = learning.Reconstruction(
         learning.Unrolled(block, iterations=6, detach=True), "greedy", ratio=10.0
     )
     weights = stage._weights()
@@ -57,12 +56,12 @@ def test_the_greedy_weights_grow_geometrically_to_ratio_and_sum_to_one():
 def test_greedy_training_needs_a_detached_stack_and_a_block_whose_image_it_can_reach():
     prior = priors.ImplicitPrior(_Gain())
     with pytest.raises(ValueError, match="detach=True"):
-        training.Reconstruction(learning.Unrolled(optim.ISTBlock(prior), 3), "greedy")
+        learning.Reconstruction(learning.Unrolled(optim.ISTBlock(prior), 3), "greedy")
 
     A = linop.FFT(SHAPE, axes=(-1, -2))
     x = torch.randn(*SHAPE, dtype=torch.complex64)
     admm = learning.Unrolled(optim.ADMMBlock(prior, cg_maxiter=2), 3, detach=True)
-    stage = training.Reconstruction(admm, "greedy")
+    stage = learning.Reconstruction(admm, "greedy")
     with pytest.raises(ValueError, match="its own denoiser"):
         # manual_backward is Lightning's; outside a trainer the plain backward stands in.
         stage.manual_backward = lambda loss: loss.backward()
@@ -75,17 +74,17 @@ def test_greedy_training_needs_a_detached_stack_and_a_block_whose_image_it_can_r
 )
 def test_a_stage_is_refused_what_it_does_not_define(settings, reason):
     with pytest.raises(ValueError, match=reason):
-        training.Reconstruction(_Gain(), **{"stage": "denoiser", **settings})
+        learning.Reconstruction(_Gain(), **{"stage": "denoiser", **settings})
 
 
 def test_a_random_gain_refuses_an_odd_channel_count():
     subject = torchio.Subject(image=torchio.ScalarImage(tensor=torch.randn(3, 4, 4, 4)))
     with pytest.raises(ValueError, match="even number"):
-        training.RandomGain()(subject)
+        learning.RandomGain()(subject)
 
 
 def test_the_batch_stays_where_the_dataset_put_it():
-    stage = training.Reconstruction(_Gain(), "denoiser")
+    stage = learning.Reconstruction(_Gain(), "denoiser")
     batch = [{"input": torch.ones(2)}]
     assert stage.transfer_batch_to_device(batch, torch.device("meta"), 0) is batch
 
@@ -96,7 +95,7 @@ def test_the_denoiser_stage_fits_the_network_to_its_pairs():
     pairs = [{"input": x, "target": (0.5 - 0.5j) * x} for x in images]
     loader = torch.utils.data.DataLoader(pairs, batch_size=2, collate_fn=list)
     net = _Gain()
-    _trainer(max_epochs=60).fit(training.Reconstruction(net, "denoiser", lr=0.05), loader, loader)
+    _trainer(max_epochs=60).fit(learning.Reconstruction(net, "denoiser", lr=0.05), loader, loader)
     assert torch.allclose(net.gain.detach(), torch.tensor([0.5, -0.5]), atol=2e-2)
 
 
@@ -111,7 +110,7 @@ def test_the_self_supervised_loss_is_ssdus_on_the_held_out_samples():
         def forward(self, y, A, x0=None):
             return A.adjoint(y)
 
-    stage = training.Reconstruction(_Zero(), "end-to-end")
+    stage = learning.Reconstruction(_Zero(), "end-to-end")
     loss = stage._loss({"y": y, "A": A, "pattern": pattern}, validating=True)
 
     keep, held = learning.split(pattern, 0.4, generator=torch.Generator().manual_seed(0))
@@ -140,7 +139,7 @@ def test_the_unrolled_stages_train_in_a_trainer():
     ):
         before = prior.denoiser.gain.detach().clone()
         trainer = _trainer(max_epochs=2)
-        trainer.fit(training.Reconstruction(model, stage, accumulate=2, clip=1.0), loader, loader)
+        trainer.fit(learning.Reconstruction(model, stage, accumulate=2, clip=1.0), loader, loader)
         assert "val_loss" in trainer.callback_metrics
         assert not torch.equal(before, prior.denoiser.gain.detach())
 
@@ -153,7 +152,7 @@ def test_a_random_gain_multiplies_every_image_of_the_subject_by_the_same_complex
         a=torchio.ScalarImage(tensor=learning.as_real(a).reshape(6, 4, 5, 6)),
         b=torchio.ScalarImage(tensor=learning.as_real(b).reshape(6, 4, 5, 6)),
     )
-    made = training.RandomGain(log_scale=0.3)(subject)
+    made = learning.RandomGain(log_scale=0.3)(subject)
     ma = learning.as_complex(made["a"].data.reshape(2, 3, 4, 5, 6))
     mb = learning.as_complex(made["b"].data.reshape(2, 3, 4, 5, 6))
     gain = (ma / a).flatten()

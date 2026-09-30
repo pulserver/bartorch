@@ -15,7 +15,7 @@ import torch
 from bartorch import _call
 from bartorch._call import curated
 from bartorch._dispatch import dispatch
-from bartorch.priors.base import Regularizer, _as_terms, _command_line
+from bartorch.priors._base import Regularizer, _as_terms, _command_line
 
 __all__ = ["pics"]
 

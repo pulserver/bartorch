@@ -26,11 +26,11 @@ __all__ = [
 
 #: The :mod:`bartorch.tools` sections; each lists its derived commands in ``_DERIVED``.
 TOOLS_MODULES = (
-    "bartorch.tools.simulate",
-    "bartorch.tools.sampling",
-    "bartorch.tools.calib",
-    "bartorch.tools.process",
-    "bartorch.tools.lowrank",
+    "bartorch.tools._simulate",
+    "bartorch.tools._sampling",
+    "bartorch.tools._calib",
+    "bartorch.tools._process",
+    "bartorch.tools._lowrank",
 )
 
 #: The private reconstruction commands an assembly is tested against.
@@ -38,13 +38,13 @@ REFERENCE_MODULE = "bartorch._reference"
 
 #: Every module holding hand-written wrappers.
 CURATED_MODULES = (
-    "bartorch.fourier",
-    "bartorch.util",
-    "bartorch.wavelet",
-    "bartorch.thresh",
-    "bartorch.interp",
+    "bartorch._fourier",
+    "bartorch._util",
+    "bartorch._wavelet",
+    "bartorch._thresh",
+    "bartorch._interp",
     "bartorch.io",
-    "bartorch.priors.denoise",
+    "bartorch.priors._denoise",
     *TOOLS_MODULES,
 )
 

@@ -524,7 +524,7 @@ def test_the_largest_eigenvalue_is_the_operator_the_step_divides_by():
     """`pics -e`.  The operator is the encoding's normal with the quadratic
     weight on its diagonal, and -- for the primal-dual iteration alone -- the
     dual terms' transforms added to it."""
-    from bartorch.optim.linear import maxeigen
+    from bartorch.optim._linear import maxeigen
 
     n = 8
     assert maxeigen(linop.FFT((1, n, n), axes=(-1, -2))) == pytest.approx(1.0, rel=1e-5)
@@ -546,7 +546,7 @@ def test_the_estimate_is_a_random_draw_and_the_library_does_not_repeat_it():
     """Which is why the two paths are held close rather than to the bit when
     `eigen` is on: `estimate_maxeigenval` starts from a random vector, and
     BART's own answer changes from one solve to the next."""
-    from bartorch.optim.linear import maxeigen
+    from bartorch.optim._linear import maxeigen
 
     torch.manual_seed(0)
     n = 8

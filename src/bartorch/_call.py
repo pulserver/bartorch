@@ -72,7 +72,7 @@ class _Takes:
         array = inputs[self.input] if self.input is not None and self.input < len(inputs) else None
         ndim = array.ndim if isinstance(array, torch.Tensor) else None
         if self.what == "regularizers":
-            from bartorch.priors.base import _as_terms, _command_line
+            from bartorch.priors._base import _as_terms, _command_line
 
             arguments, shared = _command_line(_as_terms(value), ndim, command, self.kinds)
             if shared:

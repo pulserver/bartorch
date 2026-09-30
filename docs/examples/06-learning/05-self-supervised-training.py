@@ -31,7 +31,7 @@ network reconstructs from all of :math:`\Omega`.
 
 - Partition the acquired phase encodes with :func:`bartorch.learning.split`.
 - Train an unrolled network self-supervised with
-  :class:`bartorch.learning.training.Reconstruction`, by giving items the
+  :class:`bartorch.learning.Reconstruction`, by giving items the
   sampling pattern instead of a reference.
 - Compare with the same network trained against references, and with
   CG-SENSE.
@@ -129,7 +129,6 @@ from torch.utils.data import DataLoader
 import bartorch
 import bartorch.tools as bt
 from bartorch import learning, linop, optim, priors
-from bartorch.learning import training
 
 SIZE = 96
 COILS = 8
@@ -273,7 +272,7 @@ plt.show()
 # trained end to end for the same number of epochs from the same
 # initialization; only the items differ. A self-supervised item carries the
 # acquired ``pattern`` in place of a ``target``, and
-# :class:`~bartorch.learning.training.Reconstruction` then draws a split at
+# :class:`~bartorch.learning.Reconstruction` then draws a split at
 # every step. Its validation loss is the held-out loss on a split fixed for
 # the whole run, and needs no reference either.
 
@@ -309,7 +308,7 @@ for name, supervised in (("supervised", True), ("self-supervised", False)):
         enable_progress_bar=False,
     )
     trainer.fit(
-        training.Reconstruction(
+        learning.Reconstruction(
             models[name], "end-to-end", lr=1e-3, fraction=0.25, split_options={"keep": (8, 1)}
         ),
         DataLoader(items("train", supervised), batch_size=4, shuffle=True, collate_fn=list),

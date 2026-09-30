@@ -184,7 +184,7 @@ def test_the_rho_gradient_is_the_one_finite_differences_measure():
 
 
 def test_a_step_from_a_power_iteration_is_estimated_at_start(problem):
-    from bartorch.optim.linear import maxeigen
+    from bartorch.optim._linear import maxeigen
 
     torch.manual_seed(0)
     diag = torch.full(SHAPE, 0.1, dtype=torch.complex64)
@@ -249,8 +249,8 @@ class _Dense(linop.LinearOperator):
 
 
 def _linearized():
-    from bartorch.nlop.basic import Multiply
-    from bartorch.nlop.step import flattened
+    from bartorch.nlop._basic import Multiply
+    from bartorch.nlop._step import flattened
 
     return flattened(Multiply(_IMAGE, _COILS)._bundled)
 

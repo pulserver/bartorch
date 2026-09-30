@@ -13,9 +13,9 @@ arithmetic that agrees with it.
 
 from __future__ import annotations
 
-from bartorch.apps.moba import moba
-from bartorch.apps.mobafit import mobafit
-from bartorch.apps.pics import pics
-from bartorch.apps.pocsense import pocsense
+from bartorch.apps._moba import moba
+from bartorch.apps._mobafit import mobafit
+from bartorch.apps._pics import pics
+from bartorch.apps._pocsense import pocsense
 
 __all__ = ["moba", "mobafit", "pics", "pocsense"]

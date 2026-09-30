@@ -22,7 +22,7 @@ import torch
 
 import bartorch.tools as bt
 from bartorch import linop, nlop, optim
-from bartorch.nlop.base import _combine
+from bartorch.nlop._base import _combine
 
 N, COILS = 16, 2
 

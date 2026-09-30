@@ -42,7 +42,7 @@ MODULES = (
 #: Constructors that pass ``**kwargs`` on and document what they pass, by the
 #: callable whose signature holds those parameters' defaults.
 FORWARDED = {
-    "bartorch.linop.mri.CartesianSense": "bartorch.linop.mri._GridSense",
+    "bartorch.linop._mri.CartesianSense": "bartorch.linop._mri._GridSense",
 }
 
 #: Names a documented default may use beyond Python literals.
@@ -61,7 +61,11 @@ def _targets(module: str):
     """
     namespace = import_module(module)
     for name in namespace.__all__:
-        obj = getattr(namespace, name)
+        try:
+            obj = getattr(namespace, name)
+        except ModuleNotFoundError:
+            # A name an optional extra provides, such as learning's Lightning stages.
+            continue
         if inspect.ismodule(obj) or not callable(obj):
             continue
         yield f"{module}.{name}", obj
