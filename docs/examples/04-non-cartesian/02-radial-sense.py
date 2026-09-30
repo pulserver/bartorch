@@ -58,7 +58,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -290,10 +290,12 @@ print(E.plan)
 maps = bt.ncalib(measured[..., None], t=trajectory, N=True)
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(4, 2, width=0.85 * WIDTH)
-for column in range(4):
-    domain(axes[0, column], sensitivities[2 * column], f"coil {2 * column + 1}, simulated")
-    domain(axes[1, column], maps[2 * column, 0], "estimated")
+figure, axes = panels(3, 2)
+for column, coil in enumerate((0, 3, 6)):
+    domain(axes[0, column], sensitivities[coil], f"coil {coil + 1}")
+    domain(axes[1, column], maps[coil, 0])
+for axis, label in zip(axes[:, 0], ("simulated", "estimated")):
+    axis.text(-0.04, 0.5, label, transform=axis.transAxes, rotation=90, ha="right", va="center")
 phase_bar(figure, axes)
 plt.show()
 # sphinx_gallery_end_ignore
@@ -355,14 +357,14 @@ for name, estimate in results.items():
 
 # sphinx_gallery_start_ignore
 peak = float(image.abs().max())
-figure, axes = panels(4)
+figure, axes = panels(2, 2, width=0.8 * WIDTH)
 show(axes[0, 0], image, "reference", vmax=peak)
-for axis, (name, estimate) in zip(axes[0, 1:], results.items()):
+for axis, (name, estimate) in zip(axes.flat[1:], results.items()):
     show(axis, scaled(estimate, image), name, vmax=peak)
 figure.suptitle(f"{SPOKES} golden-angle spokes, 8 coils")
 plt.show()
 
-figure, axes = panels(3, width=0.8 * WIDTH)
+figure, axes = panels(3)
 errors(figure, axes[0], results.values(), image, 0.2)
 for axis, name in zip(axes[0], results):
     axis.set_title(name)
@@ -371,9 +373,9 @@ plt.show()
 
 # Posterior cortex and the occipital horns of the lateral ventricles.
 zoom = (slice(105, 170), slice(60, 130))
-figure, axes = panels(4)
+figure, axes = panels(2, 2, width=0.8 * WIDTH)
 show(axes[0, 0], image.abs()[zoom], "reference", vmax=peak)
-for axis, (name, estimate) in zip(axes[0, 1:], results.items()):
+for axis, (name, estimate) in zip(axes.flat[1:], results.items()):
     show(axis, scaled(estimate, image)[zoom], name, vmax=peak)
 figure.suptitle("enlarged")
 plt.show()

@@ -49,7 +49,7 @@ learned denoiser.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column
 # One perceptually uniform colormap per relaxation parameter (Fuderer et al.,
 # Magn Reson Med 2025), the one the previous lesson reads T2 in.
 NAVIA = Colormap("crameri:navia").to_matplotlib()
@@ -134,12 +134,12 @@ print("voxel size", " x ".join(f"{v:.1f}" for v in echoes.affine[:3, :3].norm(di
 
 # %%
 #
-# The images of four of the echoes, on one window: the cerebrospinal fluid in
+# The images of three of the echoes, on one window: the cerebrospinal fluid in
 # the ventricles, with the longest :math:`T_2`, keeps its signal across the
 # train while the scalp fat loses most of it.
 
 # sphinx_gallery_start_ignore
-shown = (0, 2, 4, 7)
+shown = (0, 3, 7)
 figure, axes = plt.subplots(1, len(shown), figsize=(WIDTH, WIDTH / len(shown) + 0.4))
 top = float(echoes.image.max())
 for axis, echo in zip(axes, shown):
@@ -206,20 +206,19 @@ print(f"largest affine difference {float((written.affine - echoes.affine).abs().
 # start of a 250 ms decay.
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 3, figsize=(WIDTH, WIDTH / 3 + 0.6))
+figure, axes = plt.subplots(1, 2, figsize=(0.85 * WIDTH, 0.85 * WIDTH / 2 + 0.4))
 truth = np.where(support, T2, 0.0)
-for axis, values, title in zip(
-    axes[:2], (truth, written.image[0, 0].numpy()), ("simulated", "fitted")
-):
+for axis, values, title in zip(axes, (truth, written.image[0, 0].numpy()), ("simulated", "fitted")):
     handle = axis.imshow(values, cmap=NAVIA, vmin=0.0, vmax=150.0)
     axis.set_title(title)
-figure.colorbar(handle, ax=axes[:2], fraction=0.046, label="$T_2$ [ms]")
-error = axes[2].imshow(
-    np.abs(written.image[0, 0].numpy() - truth), cmap="magma", vmin=0.0, vmax=20.0
-)
-axes[2].set_title("|fitted - simulated|")
-figure.colorbar(error, ax=axes[2], fraction=0.046, label="[ms]")
-for axis in axes:
     axis.set_axis_off()
+figure.colorbar(handle, ax=axes, fraction=0.046, label="$T_2$ [ms]")
+plt.show()
+
+figure, axis = plt.subplots(figsize=(0.55 * WIDTH, 0.5 * WIDTH))
+error = axis.imshow(np.abs(written.image[0, 0].numpy() - truth), cmap="magma", vmin=0.0, vmax=20.0)
+axis.set_title("|fitted - simulated|")
+axis.set_axis_off()
+figure.colorbar(error, ax=axis, fraction=0.046, label="$|\\Delta T_2|$ [ms]")
 plt.show()
 # sphinx_gallery_end_ignore

@@ -50,7 +50,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -70,10 +70,13 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+def panels(columns, rows=1, width=WIDTH, bars=0):
+    """A row (or grid) of frameless square image panels, leaving room for
+    ``bars`` colorbars in each row."""
+    side = (width - 0.9 * bars) / columns
+    figure, axes = plt.subplots(
+        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+    )
     for axis in axes.flat:
         axis.set_axis_off()
     return figure, axes
@@ -286,10 +289,10 @@ print(f"                         {off_diagonal(whitened):.3f} after whitening")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 2, figsize=(0.75 * WIDTH, 0.36 * WIDTH))
+figure, axes = plt.subplots(1, 2, figsize=(WIDTH, 3.9))
 for axis, values, title in (
-    (axes[0], measured, "noise covariance, measured"),
-    (axes[1], whitened, "after whitening"),
+    (axes[0], measured, "measured"),
+    (axes[1], whitened, "whitened"),
 ):
     handle = axis.imshow(
         (values.abs() / values.abs().max()).numpy(), cmap="magma", vmin=0.0, vmax=1.0
@@ -382,7 +385,7 @@ print(f"SNR ratio, prewhitened over as measured: {float(gain[white_matter].media
 support = (image.abs() > 0.05 * float(image.abs().max())).numpy()
 shared = float(snr_map(prewhitened)[white_matter].quantile(0.99))
 
-figure, axes = panels(2, width=0.75 * WIDTH)
+figure, axes = panels(2, bars=1)
 for axis, values, title in (
     (axes[0, 0], snr_map(plain), "SNR, as measured"),
     (axes[0, 1], snr_map(prewhitened), "SNR, prewhitened"),
@@ -394,15 +397,13 @@ for axis, values, title in (
 figure.colorbar(handle, ax=axes[0], fraction=0.046, label="SNR")
 plt.show()
 
-figure, axes = plt.subplots(
-    1, 2, figsize=(WIDTH, 0.42 * WIDTH), width_ratios=(1, 1.3), squeeze=False
-)
+figure, axes = plt.subplots(1, 2, figsize=(WIDTH, 3.6), width_ratios=(1, 1.1), squeeze=False)
 axes[0, 0].set_axis_off()
 ratio = axes[0, 0].imshow(
     np.where(support, gain.numpy(), np.nan), cmap="RdBu_r", vmin=0.5, vmax=1.5
 )
-axes[0, 0].set_title("SNR ratio, prewhitened / as measured")
-figure.colorbar(ratio, ax=axes[0, 0], fraction=0.046)
+axes[0, 0].set_title("SNR ratio")
+figure.colorbar(ratio, ax=axes[0, 0], fraction=0.046, label="prewhitened / as measured")
 bins = np.linspace(0.0, shared, 40)
 for replicas, label in ((plain, "as measured"), (prewhitened, "prewhitened")):
     axes[0, 1].hist(snr_map(replicas)[white_matter].numpy(), bins=bins, alpha=0.6, label=label)

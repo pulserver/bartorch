@@ -119,11 +119,12 @@ from bartorch import linop, optim
 # 220 mm field of view (1.7 mm in-plane). The field map is the :math:`B_0`
 # offset at 3 T produced by the susceptibility difference between air and
 # tissue, :math:`\Delta\chi = 9.4` ppm, computed in 3D with the dipole kernel
-# and less a second-order shim fitted over the brain, rounded to 1 Hz and
-# limited to :math:`\pm 150` Hz. The offsets are largest in the scalp; in the
-# brain they reach about :math:`-40` Hz in the lateral temporal lobes and
-# :math:`+40` Hz in the orbitofrontal cortex, a phase of about one cycle over
-# the readout below.
+# and less a second-order shim fitted over the brain, rounded to 1 Hz,
+# limited to :math:`\pm 150` Hz, and set to zero outside the head, where a
+# measured field map has no signal to be estimated from. The offsets are
+# largest in the scalp; in the brain they reach about :math:`-40` Hz in the
+# lateral temporal lobes and :math:`+40` Hz in the orbitofrontal cortex, a
+# phase of about one cycle over the readout below.
 
 SIZE, FOV_MM = 128, 220.0
 # sphinx_gallery_start_ignore
@@ -131,6 +132,7 @@ magnitude, field_map, head, brain = brainweb_head(SIZE, FOV_MM, slice_mm=52)
 image = torch.as_tensor(magnitude, dtype=torch.complex64)
 field_map = torch.as_tensor(field_map, dtype=torch.float32)
 head, brain = torch.as_tensor(head), torch.as_tensor(brain)
+field_map = torch.where(head, field_map, 0.0)
 # sphinx_gallery_end_ignore
 for name, region in (("head", head), ("brain", brain)):
     values = field_map[region]
@@ -270,14 +272,28 @@ model_reference = solve(on_resonance[None, ..., 0], E)
 # Results
 # -------
 #
-# Each image is compared with the reconstruction of the same kind on
-# resonance, as the normalized root-mean-square error (NRMSE) over the brain.
+# The spiral samples a disc of radius :math:`k_{max}`, and the truncation of
+# the object's spectrum at its edge leaves ringing around the scalp in every
+# reconstruction, on resonance too. The on-resonance reconstruction of each
+# kind is therefore the best achievable with this readout, and each image is
+# compared with the reconstruction of the same kind on resonance, as the
+# normalized root-mean-square error (NRMSE) over the brain. The on-resonance
+# reconstructions are compared with the object after a least-squares scaling.
 
 
 def nrmse(estimate, truth):
     return float((estimate - truth)[brain].norm() / truth[brain].norm())
 
 
+def scaled(estimate, truth):
+    magnitude = estimate.abs()
+    return magnitude * (magnitude * truth.abs())[brain].sum() / (magnitude**2)[brain].sum()
+
+
+ground_truth = (image * head).abs()
+for name, on_resonance_image in (("gridding", reference), ("CG", model_reference)):
+    error = nrmse(scaled(on_resonance_image, ground_truth), ground_truth)
+    print(f"{name + ', on resonance':23s} {error:.3f} against the object")
 print(f"gridding, uncorrected   {nrmse(blurred, reference):.3f}")
 print(f"gridding, MFI           {nrmse(deblurred, reference):.3f}")
 print(f"CG, uncorrected         {nrmse(model_uncorrected, model_reference):.3f}")
@@ -295,7 +311,7 @@ peak = float(reference.abs()[head].max())
 model_peak = float(model_reference.abs()[head].max())
 
 figure, axes = plt.subplots(1, 2, figsize=(7.2, 3.3))
-show(axes[0], reference.abs() / peak, "object, on-resonance gridding")
+show(axes[0], ground_truth / float(ground_truth.max()), "object")
 handle = show(
     axes[1],
     torch.where(head, field_map, torch.tensor(float("nan"))),
@@ -304,7 +320,7 @@ handle = show(
     120,
     "RdBu_r",
 )
-axes[1].contour(brain, levels=[0.5], colors="0.35", linewidths=0.6)
+axes[1].contour(brain, levels=[0.5], colors="0.35", linewidths=0.9)
 figure.colorbar(handle, ax=axes[1], fraction=0.046, label="off-resonance [Hz]")
 plt.show()
 
@@ -314,8 +330,8 @@ panels = (
     (deblurred, peak, f"MFI, {transfer.terms} frequencies"),
     (model_based, model_peak, f"CG, {A.plan.terms} segments"),
 )
-figure, axes = plt.subplots(1, 4, figsize=(10.4, 3.0))
-for axis, (values, scale, title) in zip(axes, panels, strict=True):
+figure, axes = plt.subplots(2, 2, figsize=(7.2, 7.6))
+for axis, (values, scale, title) in zip(axes.flat, panels, strict=True):
     show(axis, values.abs() / scale, title)
     for name, (rows, cols) in ZOOMS.items():
         axis.add_patch(
@@ -331,17 +347,16 @@ for axis, (values, scale, title) in zip(axes, panels, strict=True):
 plt.show()
 
 for name, region in ZOOMS.items():
-    figure, axes = plt.subplots(1, 4, figsize=(10.4, 3.0 if name == "orbitofrontal" else 4.2))
-    for axis, (values, scale, title) in zip(axes, panels, strict=True):
+    figure, axes = plt.subplots(2, 2, figsize=(7.4, 5.6) if name == "orbitofrontal" else (6.0, 8.4))
+    for axis, (values, scale, title) in zip(axes.flat, panels, strict=True):
         show(axis, values.abs()[region] / scale, title)
     figure.suptitle(f"{name} region", color=COLOURS[name])
     plt.show()
 
-figure, axes = plt.subplots(1, 3, figsize=(9.0, 3.0))
+figure, axes = plt.subplots(1, 2, figsize=(7.6, 3.6))
 for axis, (values, truth, scale, title) in zip(
     axes,
     (
-        (blurred, reference, peak, "uncorrected"),
         (deblurred, reference, peak, "MFI"),
         (model_based, model_reference, model_peak, "CG, time-segmented"),
     ),
@@ -349,15 +364,16 @@ for axis, (values, truth, scale, title) in zip(
 ):
     difference = torch.where(head, (values.abs() - truth.abs()) / scale, float("nan"))
     handle = show(axis, difference, f"{title} - reference", -0.1, 0.1, "RdBu_r")
-    axis.contour(brain, levels=[0.5], colors="0.35", linewidths=0.6)
-figure.colorbar(handle, ax=axes, fraction=0.03, label="difference / peak")
+    axis.contour(brain, levels=[0.5], colors="0.35", linewidths=0.9)
+figure.colorbar(handle, ax=axes, shrink=0.9, label="difference / peak")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# Uncorrected, the cortex of the temporal lobes and of the orbitofrontal
-# region is smeared over several voxels and the scalp is spread into a halo.
+# Uncorrected, the scalp, where the field is largest, is spread into a halo
+# that overlaps the frontal and temporal cortex, and the cortex of the
+# temporal lobes is smeared over a few voxels.
 # MFI restores the brain to the accuracy of exact conjugate-phase
 # reconstruction, one demodulation per distinct frequency of the field map.
 # Its residual is concentrated in the scalp, where the field changes by tens

@@ -54,8 +54,9 @@ compares sensitivity estimators.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+from scipy import ndimage
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -75,10 +76,13 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+def panels(columns, rows=1, width=WIDTH, bars=0):
+    """A row (or grid) of frameless square image panels, leaving room for
+    ``bars`` colorbars in each row."""
+    side = (width - 0.9 * bars) / columns
+    figure, axes = plt.subplots(
+        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+    )
     for axis in axes.flat:
         axis.set_axis_off()
     return figure, axes
@@ -105,18 +109,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-
-
-def domain(axis, values, title=None):
-    """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness."""
-    values = values.detach().cpu()
-    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
-    magnitude = values.abs().numpy()
-    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
-    axis.imshow(colours * magnitude[..., None])
-    if title is not None:
-        axis.set_title(title)
 
 
 def phase_bar(figure, axes):
@@ -270,31 +262,51 @@ kspace = bt.noise(kspace, n=1e-4, s=42)
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(3)
+figure, axes = panels(2, rows=2, bars=2)
 peak = float(image.abs().max())
-show(axes[0, 0], image, "$T_1$-weighted image", vmax=peak)
 head = proton_density > 0.05
-parameter(axes[0, 1], torch.where(head, T1, 0.0), "T1", "$T_1$ map")
-scalebar(figure, axes[0, 1], name="T1")
-parameter(axes[0, 2], torch.where(head, T2, 0.0), "T2", "$T_2$ map")
-scalebar(figure, axes[0, 2], name="T2")
+parameter(axes[0, 0], torch.where(head, T1, 0.0), "T1", "$T_1$")
+scalebar(figure, axes[0, 0], name="T1")
+parameter(axes[0, 1], torch.where(head, T2, 0.0), "T2", "$T_2$")
+scalebar(figure, axes[0, 1], name="T2")
+handle = show(axes[1, 0], proton_density, "proton density", vmax=1.0)
+scalebar(figure, axes[1, 0], handle, "relative")
+handle = show(axes[1, 1], image, "$T_1$-weighted image", vmax=peak)
+scalebar(figure, axes[1, 1], handle, "magnitude [a.u.]")
 plt.show()
 
-figure, axes = panels(4)
-for column in range(4):
-    domain(axes[0, column], sensitivities[2 * column], f"channel {2 * column}")
-phase_bar(figure, axes[0, 3])
-figure.suptitle("coil sensitivities: colour is phase, brightness is magnitude")
+# Three of the eight channels, magnitude above and phase below, with the
+# outline of the head drawn over each.
+outline = ndimage.binary_fill_holes(head.numpy()).astype(float)
+figure, axes = panels(3, rows=2, bars=1)
+for column, channel in enumerate((2, 4, 6)):
+    handle = show(
+        axes[0, column], sensitivities[channel], f"channel {channel}", vmax=1.0, cmap="viridis"
+    )
+    phase_handle = show(
+        axes[1, column],
+        sensitivities[channel].angle().numpy(),
+        cmap=PHASE,
+        vmin=-np.pi,
+        vmax=np.pi,
+    )
+    for row in range(2):
+        axes[row, column].contour(outline, levels=[0.5], colors="white", linewidths=0.8)
+scalebar(figure, axes[0, :], handle, "|sensitivity|")
+phase_bar(figure, axes[1, :])
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The relaxation maps are drawn with the perceptually uniform colormaps
-# recommended for relaxometry [#fuderer]_ -- lipari for :math:`T_1`, navia for
-# :math:`T_2` -- and with a window that stops short of cerebrospinal fluid.
-# Each sensitivity is bright near its coil element and falls off across the
-# head; its phase varies smoothly. These spatial variations are the extra
+# The first figure is the ground truth: the relaxation maps, drawn with the
+# perceptually uniform colormaps recommended for relaxometry [#fuderer]_ --
+# lipari for :math:`T_1`, navia for :math:`T_2` -- and with a window that stops
+# short of cerebrospinal fluid, the proton density, and the
+# :math:`T_1`-weighted image they give. The second shows three of the eight
+# sensitivities, magnitude above and phase below, with the outline of the head.
+# Each magnitude is highest near its coil element and falls off across the
+# head; the phase varies smoothly. These spatial variations are the extra
 # encoding that parallel imaging uses to separate aliased voxels.
 #
 # Sampling
@@ -332,7 +344,7 @@ print(f"{int(lines.sum())} of {SIZE} phase encodes acquired, R = {SIZE / lines.s
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(2, width=6.4)
+figure, axes = panels(2, bars=1)
 show(axes[0, 0], pattern.real.expand(SIZE, SIZE), "sampling pattern", vmax=1.0)
 axes[0, 0].annotate(
     "ACS",
@@ -438,40 +450,37 @@ for name, estimate in results.items():
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(4)
+figure, axes = panels(2, rows=2)
 show(axes[0, 0], image, "reference", vmax=peak)
-for axis, (name, estimate) in zip(axes[0, 1:], results.items()):
+for axis, (name, estimate) in zip(axes.flat[1:], results.items()):
     show(axis, scaled(estimate, image), name, vmax=peak)
-figure.suptitle(f"R = {SIZE / lines.sum():.1f}, {VIRTUAL} virtual channels")
 plt.show()
 
-figure, axes = panels(3, width=0.8 * WIDTH)
-errors(figure, axes[0], results.values(), image, 0.2)
+figure, axes = panels(3, bars=1)
+errors(figure, axes[0], results.values(), image, 0.1)
 for axis, name in zip(axes[0], results):
-    axis.set_title(name)
-figure.suptitle("error magnitude")
+    axis.set_title(f"{name} error")
 plt.show()
 
 # The posterior horn of the lateral ventricles and the cortex behind it.
 zoom = (slice(95, 165), slice(55, 125))
-figure, axes = panels(4)
-show(axes[0, 0], image.abs()[zoom], "reference", vmax=peak)
-for axis, (name, estimate) in zip(axes[0, 1:], results.items()):
+figure, axes = panels(2, rows=2)
+show(axes[0, 0], image.abs()[zoom], "reference, enlarged", vmax=peak)
+for axis, (name, estimate) in zip(axes.flat[1:], results.items()):
     show(axis, scaled(estimate, image)[zoom], name, vmax=peak)
-figure.suptitle("enlarged: posterior brain")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
 # The zero-filled image carries the aliasing of the missing phase encodes as
-# vertical ghosting of the whole head. SENSE removes the coherent aliasing, but
-# its error map shows noise amplified in the centre of the head, where the
-# coil sensitivities are least distinct, and incoherent residual artefacts of
-# the random sampling. The wavelet penalty suppresses both; in the enlarged
-# region the cortical folding and the ventricle boundaries are sharper and the
-# background of the brain is smooth. The NRMSE and SSIM printed above
-# quantify the same ordering.
+# blurring and ghosting along the vertical, phase-encoding direction. SENSE
+# removes the coherent aliasing, but its error map shows noise amplified in
+# the centre of the head, where the coil sensitivities are least distinct, and
+# incoherent residual artefacts of the random sampling. The wavelet penalty
+# suppresses both; in the enlarged region the cortical folding and the
+# ventricle boundaries are sharper and the background of the brain is smooth.
+# The NRMSE and SSIM printed above quantify the same ordering.
 #
 # How much the penalty removes depends on its weight, which is chosen here and
 # not estimated: a larger weight removes more noise and more fine texture with

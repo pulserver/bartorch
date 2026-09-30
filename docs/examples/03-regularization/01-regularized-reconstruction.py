@@ -50,7 +50,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -70,10 +70,13 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+def panels(columns, rows=1, width=WIDTH, bars=0):
+    """A row (or grid) of frameless square image panels, leaving room for
+    ``bars`` colorbars in each row."""
+    side = (width - 0.9 * bars) / columns
+    figure, axes = plt.subplots(
+        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+    )
     for axis in axes.flat:
         axis.set_axis_off()
     return figure, axes
@@ -156,7 +159,7 @@ from bartorch import apps, priors
 
 SIZE = 192
 COILS = 8
-ACCELERATION = 4
+ACCELERATION = 3
 CALIBRATION = 24
 
 # %%
@@ -241,15 +244,15 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 # Acquisition
 # -----------
 #
-# A quarter of the phase encodes (:math:`R = 4`), drawn at random from a
+# A third of the phase encodes (:math:`R = 3`), drawn at random from a
 # variable density around a fully sampled ACS region of 24 lines, as in
-# :doc:`../01-basics/02-from-kspace-to-image`. The noise is a hundred times
+# :doc:`../01-basics/02-from-kspace-to-image`. The noise is three times
 # stronger than in that lesson: complex Gaussian noise of variance
-# :math:`10^{-3}` per sample of the unitary transform of an image whose peak
-# is one. At this level noise amplification, and not only aliasing, determines
-# the error of an unregularized reconstruction.
+# :math:`3 \times 10^{-4}` per sample of the unitary transform of an image whose
+# peak is one. At this level noise amplification, and not only aliasing,
+# determines the error of an unregularized reconstruction.
 
-kspace = bt.noise(bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True), n=1e-3, s=42)
+kspace = bt.noise(bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True), n=3e-4, s=42)
 
 encodes = torch.arange(SIZE) - SIZE // 2
 centre = (encodes.abs() < CALIBRATION // 2).to(torch.float32)
@@ -287,7 +290,7 @@ maps = bt.ecalib(measured, maps=1, calib_size=CALIBRATION, crop=0.8)
 # a different overall scale.
 
 sweeps = {
-    "Tikhonov": [0.03, 0.1, 0.3, 1.0],
+    "Tikhonov": [0.01, 0.03, 0.1, 0.3],
     "wavelet": [0.003, 0.006, 0.012, 0.03],
     "total variation": [0.002, 0.006, 0.012, 0.04],
 }
@@ -295,12 +298,12 @@ sweeps = {
 
 def reconstruct(name, weight):
     if name == "Tikhonov":
-        return apps.pics(measured, maps, l2=weight, maxiter=30)
+        return apps.pics(measured, maps, l2=weight, maxiter=100)
     if name == "wavelet":
         term, solver = priors.Wavelet((-1, -2), weight), "fista"
     else:
         term, solver = priors.TotalVariation((-1, -2), weight), "admm"
-    return apps.pics(measured, maps, regularizers=term, solver=solver, maxiter=30)
+    return apps.pics(measured, maps, regularizers=term, solver=solver, maxiter=100)
 
 
 reconstructions = {
@@ -325,27 +328,24 @@ for name, weight in best.items():
 peak = float(image.abs().max())
 chosen = {name: reconstructions[name][weight] for name, weight in best.items()}
 
-figure, axes = panels(4)
+figure, axes = panels(2, rows=2)
 show(axes[0, 0], image, "reference", vmax=peak)
-for axis, (name, estimate) in zip(axes[0, 1:], chosen.items()):
+for axis, (name, estimate) in zip(axes.flat[1:], chosen.items()):
     show(axis, scaled(estimate, image), f"{name}, $\\lambda$ = {best[name]}", vmax=peak)
-figure.suptitle(f"R = {ACCELERATION}, noisy, each at its best weight")
 plt.show()
 
-figure, axes = panels(3, width=0.8 * WIDTH)
-errors(figure, axes[0], chosen.values(), image, 0.2)
+figure, axes = panels(3, bars=1)
+errors(figure, axes[0], chosen.values(), image, 0.1)
 for axis, name in zip(axes[0], chosen):
-    axis.set_title(name)
-figure.suptitle("error magnitude")
+    axis.set_title(f"{name} error")
 plt.show()
 
 # Occipital cortex, where the gyri are thinnest.
 zoom = (slice(110, 175), slice(60, 130))
-figure, axes = panels(4)
-show(axes[0, 0], image.abs()[zoom], "reference", vmax=peak)
-for axis, (name, estimate) in zip(axes[0, 1:], chosen.items()):
+figure, axes = panels(2, rows=2)
+show(axes[0, 0], image.abs()[zoom], "reference, enlarged", vmax=peak)
+for axis, (name, estimate) in zip(axes.flat[1:], chosen.items()):
     show(axis, scaled(estimate, image)[zoom], name, vmax=peak)
-figure.suptitle("enlarged: posterior cortex")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -373,7 +373,7 @@ plt.show()
 # reference, or fixed once for a protocol.
 
 # sphinx_gallery_start_ignore
-figure, axis = plt.subplots(figsize=(0.75 * WIDTH, 3.4))
+figure, axis = plt.subplots(figsize=(WIDTH, 4.0))
 for name, values in errors_by_weight.items():
     axis.semilogx(list(values), list(values.values()), "o-", label=name)
 axis.set_xlabel("regularization weight $\\lambda$")
@@ -388,8 +388,7 @@ for axis, weight, label in zip(
     axes[0], (weights[0], best["total variation"], weights[-1]), ("too small", "best", "too large")
 ):
     estimate = reconstructions["total variation"][weight]
-    show(axis, scaled(estimate, image)[zoom], f"TV, $\\lambda$ = {weight} ({label})", vmax=peak)
-figure.suptitle("total variation: under- and over-regularization, enlarged")
+    show(axis, scaled(estimate, image)[zoom], f"TV, $\\lambda$ = {weight}\n{label}", vmax=peak)
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -420,7 +419,7 @@ combined = apps.pics(
         priors.TotalVariation((-1, -2), best["total variation"] / 2),
     ],
     solver="admm",
-    maxiter=30,
+    maxiter=100,
 )
 print(f"wavelet + TV  NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 

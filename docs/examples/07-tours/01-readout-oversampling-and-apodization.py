@@ -108,29 +108,18 @@ print(f"crop against no oversampling: NRMSE {nrmse(image_of(cropped), image_of(r
 # %%
 
 # sphinx_gallery_start_ignore
-figure = plt.figure(figsize=(10.4, 6.0))
-top, bottom = figure.subfigures(2, 1, height_ratios=(1.0, 1.15))
-axis = top.subplots()
-show(axis, image_of(oversampled), "256 readout samples: field of view doubled along x", 0, 1.2)
-axis.add_patch(Rectangle((63.5, -0.5), 128, 128, fill=False, edgecolor=BOX, linewidth=1.2))
-axes = bottom.subplots(1, 4)
-show(axes[0], image_of(reference), "no oversampling", 0, 1.2)
-show(
-    axes[1],
-    image_of(cropped),
-    f"image-domain crop\nNRMSE {nrmse(image_of(cropped), image_of(reference)):.1e}",
-    0,
-    1.2,
-)
-handle = show(
-    axes[2],
-    image_of(cropped) - image_of(reference),
-    "crop - no oversampling\n(range ±0.02)",
-    -0.02,
-    0.02,
-    "RdBu_r",
-)
-show(axes[3], image_of(truncated), "k-space truncation\nhalf the resolution along x", 0, 1.2)
+figure, axis = plt.subplots(figsize=(7.8, 4.1))
+show(axis, image_of(oversampled), "256 readout samples", 0, 1.2)
+axis.add_patch(Rectangle((63.5, -0.5), 128, 128, fill=False, edgecolor=BOX, linewidth=1.5))
+plt.show()
+
+difference = image_of(cropped) - image_of(reference)
+figure, axes = plt.subplots(2, 2, figsize=(7.2, 7.0))
+show(axes[0, 0], image_of(reference), "no oversampling", 0, 1.2)
+show(axes[0, 1], image_of(cropped), "image-domain crop", 0, 1.2)
+handle = show(axes[1, 0], difference, "crop - no oversampling", -0.01, 0.01, "RdBu_r")
+figure.colorbar(handle, ax=axes[1, 0], shrink=0.8)
+show(axes[1, 1], image_of(truncated), "k-space truncation", 0, 1.2)
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -229,25 +218,22 @@ for name, window in windows.items():
 
 # sphinx_gallery_start_ignore
 ZOOM = (slice(36, 92), slice(4, 60))
-figure, axes = plt.subplots(1, 4, figsize=(10.4, 3.2))
-show(axes[0], image[ZOOM], "object", 0.0, 0.5)
-for axis, (name, estimate) in zip(axes[1:], reconstructions.items(), strict=True):
-    ringing, width = metrics[name]
-    show(axis, estimate[ZOOM], f"{name}\nringing {ringing:.4f}, FWHM {width:.2f} px", 0.0, 0.5)
-figure.suptitle("left edge of the skull, displayed from 0 to half the skull intensity")
+figure, axes = plt.subplots(2, 2, figsize=(7.0, 7.2))
+show(axes[0, 0], image[ZOOM], "object", 0.0, 0.5)
+for axis, (name, estimate) in zip(axes.flat[1:], reconstructions.items(), strict=True):
+    show(axis, estimate[ZOOM], f"{name}, FWHM {metrics[name][1]:.2f} px", 0.0, 0.5)
 plt.show()
 
 ROW = 64
-figure, axes = plt.subplots(1, 2, figsize=(10.4, 3.2))
+figure, axes = plt.subplots(1, 2, figsize=(7.8, 3.4))
 for name, window in windows.items():
     axes[0].semilogy(
         offset, psf(window).clamp_min(1e-4), color=COLOURS[name], linewidth=1.2, label=name
     )
 axes[0].set_xlim(-8, 8)
 axes[0].set_ylim(1e-4, 1.5)
-axes[0].set_xlabel("offset [pixels of the 64 matrix]")
-axes[0].set_title("point spread function, |PSF|")
-axes[0].legend(loc="upper right")
+axes[0].set_xlabel("offset [pixels, 64 matrix]")
+axes[0].set_title("|PSF|")
 axes[1].plot(image[ROW], color="#8a8a8a", linewidth=3.0, label="object")
 for name, estimate in reconstructions.items():
     axes[1].plot(estimate[ROW], color=COLOURS[name], linewidth=1.2, label=name)
@@ -255,14 +241,15 @@ axes[1].legend(loc="upper right")
 axes[1].set_xlim(0, 40)
 axes[1].set_ylim(-0.05, 1.2)
 axes[1].set_xlabel("pixel of the 128 grid")
-axes[1].set_title(f"profile across the skull, row {ROW}")
+axes[1].set_title(f"row {ROW}, across the skull")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# Without a window the ringing is visible as bands parallel to the skull
-# across the adjacent parenchyma. The Fermi window lowers the far side lobes
+# The zoomed panels show the left edge of the skull, displayed from zero to
+# half the skull intensity. Without a window the ringing is visible as bands
+# parallel to the skull across the adjacent parenchyma. The Fermi window lowers the far side lobes
 # by a factor of three and the ringing next to the skull by about a fifth, and
 # widens the point spread function by half a pixel; the Hann window removes
 # the ringing almost entirely and doubles the full width at half maximum,
@@ -297,14 +284,26 @@ for dimensions in (2, 3):
 # %%
 
 # sphinx_gallery_start_ignore
-radial = bartorch.fermi_window((128, 128), geometry="radial")
-product = bartorch.fermi_window((128, 128), geometry="separable")
-figure, axes = plt.subplots(1, 3, figsize=(10.4, 3.2))
+radial = bartorch.fermi_window((128, 128), width=TRANSITION, geometry="radial")
+product = bartorch.fermi_window((128, 128), width=TRANSITION, geometry="separable")
+figure, axes = plt.subplots(1, 2, figsize=(7.2, 3.4))
 show(axes[0], radial, "radial", cmap="viridis")
 handle = show(axes[1], product, "separable", cmap="viridis")
-figure.colorbar(handle, ax=axes[1], fraction=0.046)
-handle = show(axes[2], product - radial, "separable - radial", -0.5, 0.5, "RdBu_r")
-figure.colorbar(handle, ax=axes[2], fraction=0.046)
+figure.colorbar(handle, ax=axes, shrink=0.9)
+plt.show()
+
+diagonal = torch.arange(64, 128)
+radius = (diagonal - 64) / 64 * math.sqrt(2)
+figure, axis = plt.subplots(figsize=(6.4, 3.2))
+axis.plot(radius, radial[diagonal, diagonal], color=COLOURS["Fermi"], linewidth=1.4, label="radial")
+axis.plot(
+    radius, product[diagonal, diagonal], color=COLOURS["Hann"], linewidth=1.4, label="separable"
+)
+axis.axvline(1.0, color="#8a8a8a", linewidth=1.0, linestyle=":")
+axis.set_xlabel("radius along the diagonal / Nyquist radius")
+axis.set_ylabel("window")
+axis.set_title("window along the diagonal")
+axis.legend(loc="lower left")
 plt.show()
 # sphinx_gallery_end_ignore
 
