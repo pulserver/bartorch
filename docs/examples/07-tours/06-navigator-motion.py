@@ -146,10 +146,10 @@ reference = navigator(volume)
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 3, figsize=(7.0, 2.5))
+figure, axes = plt.subplots(1, 3, figsize=(7.8, 2.9))
 for axis, plane, title in zip(axes, reference, ("axial", "coronal", "sagittal"), strict=True):
     axis.imshow(plane, cmap="gray", origin="lower")
-    axis.set_title(f"{title}, {NAV}$^2$ at {SPACING_MM:.0f} mm")
+    axis.set_title(title)
     axis.set_xticks([])
     axis.set_yticks([])
 plt.show()
@@ -211,28 +211,18 @@ for plane, before, after, target in zip(
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(2, 3, figsize=(8.4, 5.6))
+figure, axes = plt.subplots(2, 3, figsize=(7.8, 5.0))
 for column, (plane, before, after, target) in enumerate(
     zip(("axial", "coronal", "sagittal"), reference, realigned, moved, strict=True)
 ):
     scale = float(target.abs().max())
-    show(
-        axes[0, column],
-        (target - before) / scale,
-        f"{plane}: moved - reference\nNRMSE {nrmse(before, target):.3f}",
-        -0.5,
-        0.5,
-        "RdBu_r",
+    show(axes[0, column], (target - before) / scale, plane, -0.5, 0.5, "RdBu_r")
+    handle = show(axes[1, column], (target - after) / scale, "", -0.5, 0.5, "RdBu_r")
+for row, label in enumerate(("moved - reference", "moved - measured")):
+    axes[row, 0].text(
+        -0.06, 0.5, label, rotation=90, ha="right", va="center", transform=axes[row, 0].transAxes
     )
-    handle = show(
-        axes[1, column],
-        (target - after) / scale,
-        f"moved - measured pose\nNRMSE {nrmse(after, target):.3f}",
-        -0.5,
-        0.5,
-        "RdBu_r",
-    )
-figure.colorbar(handle, ax=axes, fraction=0.03, label="difference / peak")
+figure.colorbar(handle, ax=axes, shrink=0.8, label="difference / peak")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -303,24 +293,20 @@ for noise, error in rms.items():
 
 # sphinx_gallery_start_ignore
 LABELS = {1e2: "process_noise 1e2", 1e-3: "1e-3", 1e-4: "1e-4"}
-figure, axes = plt.subplots(1, 2, figsize=(10.4, 4.0))
-for axis, index, scale, label, unit in (
-    (axes[0], 2, np.degrees(1.0), "nod: rotation about L/R", "°"),
-    (axes[1], 3, 1.0, "drift: shift along S/I", "mm"),
+figure, axes = plt.subplots(1, 2, figsize=(7.8, 3.8))
+for axis, index, scale, title, label in (
+    (axes[0], 2, np.degrees(1.0), "nod, about L/R", "rotation [°]"),
+    (axes[1], 3, 1.0, "drift, along S/I", "shift [mm]"),
 ):
     axis.plot(seconds, scale * truth[:, index], color=TRUTH, linewidth=3.0, label="head")
     for noise, style, colour in ((1e2, ".", MEASURED), (1e-3, "-", FAST), (1e-4, "-", SLOW)):
         axis.plot(
-            seconds,
-            scale * traces[noise][:, index],
-            style,
-            color=colour,
-            label=f"{LABELS[noise]}, rms {scale * rms[noise][index]:.2f} {unit}",
+            seconds, scale * traces[noise][:, index], style, color=colour, label=LABELS[noise]
         )
     axis.set_xlabel("time [s]")
-    axis.set_ylabel(f"{label.split(':')[1].split()[0]} [{unit}]")
-    axis.set_title(label)
-    axis.legend(loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=2)
+    axis.set_ylabel(label)
+    axis.set_title(title)
+figure.legend(*axes[0].get_legend_handles_labels(), loc="outside upper center", ncol=4)
 plt.show()
 # sphinx_gallery_end_ignore
 

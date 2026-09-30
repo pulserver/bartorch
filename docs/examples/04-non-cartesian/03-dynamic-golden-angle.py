@@ -48,7 +48,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -249,8 +249,8 @@ for label, weight in CLASSES.values():
 
 top = float(series.abs().max())
 peak_frame = int(bolus.argmax())
-chosen = (0, peak_frame - 2, peak_frame, FRAMES - 1)
-figure, axes = panels(4)
+chosen = (0, peak_frame, FRAMES - 1)
+figure, axes = panels(3)
 for axis, frame in zip(axes[0], chosen):
     show(axis, series[frame], f"frame {frame}", vmax=top)
 figure.suptitle("phantom: before, during and after the first pass")
@@ -323,14 +323,14 @@ for name, volume in (("gridding", gridded), ("temporal TV", temporal)):
 
 # sphinx_gallery_start_ignore
 results = {"gridding": gridded, "temporal TV": temporal}
-figure, axes = panels(3, width=0.85 * WIDTH)
+figure, axes = panels(3)
 show(axes[0, 0], series[peak_frame], "reference", vmax=top)
 for axis, (name, volume) in zip(axes[0, 1:], results.items()):
     show(axis, scaled(volume, series)[peak_frame], name, vmax=top)
-figure.suptitle(f"frame {peak_frame}, the peak of the first pass: {SPOKES} spokes")
+figure.suptitle(f"frame {peak_frame}, peak of the first pass, {SPOKES} spokes")
 plt.show()
 
-figure, axes = panels(2, width=0.6 * WIDTH)
+figure, axes = panels(2, width=0.85 * WIDTH)
 errors(
     figure, axes[0], [volume[peak_frame] for volume in results.values()], series[peak_frame], 0.3
 )
@@ -354,7 +354,7 @@ plt.show()
 
 # sphinx_gallery_start_ignore
 ROW = 58
-figure, axes = panels(3, width=0.85 * WIDTH)
+figure, axes = panels(3)
 for axis, (name, volume) in zip(
     axes[0],
     (("reference", series.abs()),) + tuple((n, scaled(v, series)) for n, v in results.items()),
@@ -402,11 +402,12 @@ for name, volume in curves.items():
     print(f"{name:>12}  curve NRMSE {float((enhancement - truth).norm() / truth.norm()):.3f}")
 
 # sphinx_gallery_start_ignore
-figure, axis = plt.subplots(figsize=(0.62 * WIDTH, 3.0))
+figure, axis = plt.subplots(figsize=(0.75 * WIDTH, 3.6))
 for (name, volume), style in zip(curves.items(), ("-", "o-", "s-")):
     axis.plot(range(FRAMES), volume[:, region].mean(-1).cpu().numpy(), style, ms=4, label=name)
 axis.set_xlabel("frame")
-axis.set_ylabel("mean signal, grey matter [a.u.]")
+axis.set_ylabel("mean signal [a.u.]")
+axis.set_title("grey matter")
 axis.legend()
 axis.grid(True, alpha=0.3)
 plt.show()

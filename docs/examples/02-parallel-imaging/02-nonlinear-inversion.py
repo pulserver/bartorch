@@ -48,8 +48,9 @@ of the receive channels.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+from scipy import ndimage
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -69,10 +70,13 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+def panels(columns, rows=1, width=WIDTH, bars=0):
+    """A row (or grid) of frameless square image panels, leaving room for
+    ``bars`` colorbars in each row."""
+    side = (width - 0.9 * bars) / columns
+    figure, axes = plt.subplots(
+        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+    )
     for axis in axes.flat:
         axis.set_axis_off()
     return figure, axes
@@ -99,18 +103,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-
-
-def domain(axis, values, title=None):
-    """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness."""
-    values = values.detach().cpu()
-    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
-    magnitude = values.abs().numpy()
-    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
-    axis.imshow(colours * magnitude[..., None])
-    if title is not None:
-        axis.set_title(title)
 
 
 def phase_bar(figure, axes):
@@ -281,30 +273,57 @@ print(f"NRMSE, nlinv       {bt.nrmse(image.abs(), reconstruction.abs(), scaled=T
 
 # sphinx_gallery_start_ignore
 peak = float(image.abs().max())
-figure, axes = panels(4)
+figure, axes = panels(2, rows=2, bars=1)
 show(axes[0, 0], image, "reference", vmax=peak)
 show(axes[0, 1], scaled(zero_filled, image), "zero-filled", vmax=peak)
-show(axes[0, 2], scaled(reconstruction, image), "nlinv", vmax=peak)
+show(axes[1, 0], scaled(reconstruction, image), "nlinv", vmax=peak)
 handle = show(
-    axes[0, 3],
+    axes[1, 1],
     (scaled(reconstruction, image) - image.abs()).abs() / peak,
     "|error|, nlinv",
     cmap="magma",
-    vmax=0.2,
+    vmax=0.1,
 )
-figure.colorbar(handle, ax=axes[0, 3], fraction=0.046, label="|error| / peak")
-figure.suptitle(f"R = {SIZE / lines.sum():.1f}, {CALIBRATION} central lines")
+figure.colorbar(handle, ax=axes[1, 1], fraction=0.046, label="|error| / peak")
+# A colorbar of the same width keeps the upper panels aligned with the lower.
+figure.colorbar(handle, ax=axes[0, 1], fraction=0.046).ax.set_visible(False)
 plt.show()
 
-# Each map on its own scale: the estimate is determined only up to the scale
-# the image takes the reciprocal of.
-for label, maps in (("simulated", sensitivities), ("estimated by nlinv", estimated[:, 0])):
-    figure, axes = panels(4)
-    for column in range(4):
-        domain(axes[0, column], maps[2 * column], f"channel {2 * column}")
-    phase_bar(figure, axes[0, 3])
-    figure.suptitle(f"sensitivities, {label}")
-    plt.show()
+# Three channels, simulated above and estimated below, inside the head.  The
+# estimate is divided by its root sum of squares and by the phase of channel
+# 0, which removes the common factor; the simulated maps are normalized that
+# way already, channel 0 of BART's coil model having zero phase.
+estimated_maps = estimated[:, 0] / bartorch.rss(estimated[:, 0], axes=(0,), keepdim=True)
+estimated_maps = estimated_maps * torch.exp(-1j * estimated_maps[0].angle())
+inside = torch.as_tensor(ndimage.binary_fill_holes((signal > 0.02).numpy()))
+pairs = (("simulated", sensitivities * inside), ("nlinv", estimated_maps * inside))
+channels = (2, 4, 6)
+figure, axes = panels(3, rows=2, bars=1)
+for row, (label, maps) in enumerate(pairs):
+    for column, channel in enumerate(channels):
+        handle = show(
+            axes[row, column],
+            maps[channel],
+            f"{label}, channel {channel}",
+            vmax=1.0,
+            cmap="viridis",
+        )
+figure.colorbar(handle, ax=axes, fraction=0.046, label="|sensitivity|")
+plt.show()
+
+figure, axes = panels(3, rows=2, bars=1)
+for row, (label, maps) in enumerate(pairs):
+    for column, channel in enumerate(channels):
+        show(
+            axes[row, column],
+            np.ma.masked_where(~inside.numpy(), maps[channel].angle().numpy()),
+            f"{label}, channel {channel}",
+            cmap=PHASE,
+            vmin=-np.pi,
+            vmax=np.pi,
+        )
+phase_bar(figure, axes)
+plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
@@ -324,12 +343,15 @@ for label, maps in (("simulated", sensitivities), ("estimated by nlinv", estimat
 # The pair is determined only up to a common factor: multiplying every map by
 # a nonzero function :math:`\gamma(r)` and dividing the image by it leaves the
 # data unchanged (:doc:`../../explanation/nonlinear`). The weighting restricts
-# :math:`\gamma` to smooth functions, so the estimated maps match the simulated
-# ones up to a smooth common magnitude and phase, which is why each is drawn
-# on its own scale and why an ``nlinv`` image is reported after multiplication
-# by the root sum of squares of the maps. Outside the object neither factor is
-# determined at all -- their product is zero for any pair -- so the maps there
-# follow from the initialization and the weighting.
+# :math:`\gamma` to smooth functions, so the estimated maps match the
+# simulated ones up to a smooth common magnitude and phase. The figures above
+# therefore show the estimated maps inside the head, divided by their root sum
+# of squares and with the phase of channel 0 subtracted, which removes that
+# factor; so normalized, they reproduce the simulated maps. An ``nlinv`` image
+# is reported after multiplication by the root sum of squares of the maps.
+# Outside the object neither factor is determined at all -- their product is
+# zero for any pair -- so the maps there follow from the initialization and
+# the weighting.
 #
 # The model and the solver
 # ------------------------

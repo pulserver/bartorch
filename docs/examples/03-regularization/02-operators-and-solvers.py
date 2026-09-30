@@ -45,7 +45,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -65,10 +65,13 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+def panels(columns, rows=1, width=WIDTH, bars=0):
+    """A row (or grid) of frameless square image panels, leaving room for
+    ``bars`` colorbars in each row."""
+    side = (width - 0.9 * bars) / columns
+    figure, axes = plt.subplots(
+        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+    )
     for axis in axes.flat:
         axis.set_axis_off()
     return figure, axes
@@ -321,23 +324,27 @@ assembled = optim.FISTA(term, maxiter=100)(data, A)
 
 tool = apps.pics(kspace, maps, regularizers=term, solver="fista", maxiter=100)
 print(f"identical to pics: {torch.equal(assembled.squeeze(), tool.squeeze())}")
+print(f"NRMSE, adjoint {bt.nrmse(image.abs(), A.H(data).abs(), scaled=True):.3f}")
+print(f"NRMSE, FISTA   {bt.nrmse(image.abs(), assembled.abs(), scaled=True):.3f}")
 
 # %%
 
 # sphinx_gallery_start_ignore
 peak = float(image.abs().max())
-figure, axes = panels(4)
+figure, axes = panels(2, rows=2, bars=1)
 show(axes[0, 0], image, "reference", vmax=peak)
 show(axes[0, 1], scaled(A.H(data), image), "adjoint, $A^H y$", vmax=peak)
-show(axes[0, 2], scaled(assembled, image), "FISTA, wavelet", vmax=peak)
+show(axes[1, 0], scaled(assembled, image), "FISTA, wavelet", vmax=peak)
 handle = show(
-    axes[0, 3],
+    axes[1, 1],
     (scaled(assembled, image) - image.abs()).abs() / peak,
     "|error|, FISTA",
     cmap="magma",
     vmax=0.1,
 )
-figure.colorbar(handle, ax=axes[0, 3], fraction=0.046, label="|error| / peak")
+figure.colorbar(handle, ax=axes[1, 1], fraction=0.046, label="|error| / peak")
+# A colorbar of the same width keeps the upper panels aligned with the lower.
+figure.colorbar(handle, ax=axes[0, 1], fraction=0.046).ax.set_visible(False)
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -346,8 +353,9 @@ plt.show()
 # The adjoint of the encoding is not its inverse: :math:`A^H y` is the
 # sensitivity-weighted coil combination of the zero-filled k-space, and
 # carries the aliasing of the undersampling and the shading of
-# :math:`\sum_c |S_c|^2`, which the solve removes. The error of the solution,
-# at a tenth of the image peak, is concentrated at the tissue boundaries.
+# :math:`\sum_c |S_c|^2`, which the solve removes, as the NRMSE printed above
+# shows. The error of the solution, at a tenth of the image peak, is
+# concentrated at the tissue boundaries.
 #
 # Operator algebra
 # ----------------

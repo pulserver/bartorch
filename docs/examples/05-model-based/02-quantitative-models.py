@@ -58,7 +58,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -279,7 +279,7 @@ for echo in range(ECHOES):
     lines[echo, 0, torch.randperm(SIZE, generator=generator)[: SIZE // ACCELERATION]] = 1.0
     lines[echo, 0, SIZE // 2 - 4 : SIZE // 2 + 4] = 1.0
 
-figure, axis = plt.subplots(figsize=(0.7 * WIDTH, 1.9))
+figure, axis = plt.subplots(figsize=(0.85 * WIDTH, 2.6))
 axis.imshow(
     lines[:, 0, :, 0].numpy(),
     cmap="gray",
@@ -291,7 +291,7 @@ axis.imshow(
 axis.set_xlabel("phase encode")
 axis.set_ylabel("echo")
 axis.set_yticks(range(1, ECHOES + 1))
-axis.set_title("sampled phase encodes (white) per echo")
+axis.set_title("sampled phase encodes (white)")
 for spine in axis.spines.values():
     spine.set_visible(False)
 plt.show()
@@ -355,24 +355,16 @@ print(f"model inside the operator: {time.perf_counter() - start_time:5.1f} s")
 # compared here with the fully sampled echo images of the phantom.
 
 # sphinx_gallery_start_ignore
-shown = (0, 2, 4, 7)
-figure, axes = panels(len(shown), 2, width=0.9 * WIDTH)
+shown = (0, 3, 7)
+figure, axes = panels(len(shown), 2)
 top = float(contrasts.abs().max())
 for column, echo in enumerate(shown):
     show(axes[0, column], contrasts[echo], f"TE = {float(ECHO_TIMES[echo]):.1f} ms", vmax=top)
     show(axes[1, column], scaled(images[echo], contrasts[echo]), vmax=top)
 for row, label in enumerate(("reference", "SENSE, R = 4")):
     axes[row, 0].text(
-        -0.06,
-        0.5,
-        label,
-        rotation=90,
-        va="center",
-        ha="right",
-        transform=axes[row, 0].transAxes,
-        color="#8a8a8a",
+        -0.04, 0.5, label, rotation=90, va="center", ha="right", transform=axes[row, 0].transAxes
     )
-figure.suptitle("echo images")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -395,7 +387,7 @@ one_call = apps.moba(measured, M, sensitivities, pattern=lines, iterations=STEPS
 print(f"apps.moba:                 {time.perf_counter() - start_time:5.1f} s")
 
 estimates = {
-    "reconstruct, then fit": two_step["T2"],
+    "two-step": two_step["T2"],
     "model-based": M.split(model_based)["T2"],
     "apps.moba": one_call["T2"],
 }
@@ -410,15 +402,14 @@ print(f"{'phantom':>22}  median {float(t2[support].median()):5.1f} ms")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(4)
+figure, axes = panels(2, 2, width=0.8 * WIDTH)
 parameter(axes[0, 0], torch.where(support, t2, torch.zeros(())), "T2", "reference")
-for axis, (name, values) in zip(axes[0, 1:], estimates.items()):
+for axis, (name, values) in zip(axes.flat[1:], estimates.items()):
     parameter(axis, torch.where(support, values, torch.zeros(())).detach(), "T2", name)
-scalebar(figure, axes[0], name="T2")
-figure.suptitle("$T_2$ maps")
+scalebar(figure, axes, name="T2")
 plt.show()
 
-figure, axes = panels(3, width=0.8 * WIDTH)
+figure, axes = panels(3)
 for axis, (name, values) in zip(axes[0], estimates.items()):
     difference = torch.where(support, (values.detach() - t2).abs(), torch.zeros(()))
     handle = show(axis, difference.numpy(), name, vmax=40.0, cmap="magma")

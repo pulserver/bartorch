@@ -158,38 +158,23 @@ for name, image in (("delay-free", ideal), ("flipped only", ghosted), ("correcte
 
 # sphinx_gallery_start_ignore
 peak = float(ideal.max())
-figure, axes = plt.subplots(1, 4, figsize=(10.4, 3.0))
-show(axes[0], ideal / peak, "delay-free", 0, 0.3)
-show(
-    axes[1],
-    ghosted / peak,
-    f"flipped only\nGSR {100 * ghost_to_signal(ghosted):.1f} %, NRMSE {nrmse(ghosted, ideal):.2f}",
-    0,
-    0.3,
-)
-show(
-    axes[2],
-    corrected / peak,
-    f"navigator-corrected\nGSR {100 * ghost_to_signal(corrected):.1f} %, "
-    f"NRMSE {nrmse(corrected, ideal):.0e}",
-    0,
-    0.3,
-)
-handle = show(axes[3], (ghosted - ideal) / peak, "flipped only - delay-free", -0.3, 0.3, "RdBu_r")
-figure.colorbar(handle, ax=axes[3], fraction=0.046)
-figure.suptitle("displayed from 0 to 30 % of the peak; phase encoding vertical")
+figure, axes = plt.subplots(1, 3, figsize=(7.8, 3.0))
+for axis, (values, title) in zip(
+    axes, ((ideal, "delay-free"), (ghosted, "flipped only"), (corrected, "corrected")), strict=True
+):
+    show(axis, values / peak, title, 0, 0.3)
 plt.show()
 
 readout = bartorch.fft(torch.stack(navigator), axes=(-1,), inverse=True, unitary=True)
 cross = (0.5 * (readout[0] + readout[2]) * readout[1].conj()).sum(0)
 keep = (cross.abs() > 0.1 * cross.abs().max()).numpy()
 fitted = (fit[0] + fit[1] * u.double()).numpy()
-figure, axes = plt.subplots(1, 2, figsize=(10.4, 3.0))
+figure, axes = plt.subplots(1, 2, figsize=(7.8, 3.4))
 axes[0].plot(u[keep], torch.angle(cross)[keep], ".", color="#8a8a8a", label="navigator")
 axes[0].plot(u, fitted, color=COLOURS["corrected"], label="first-order fit")
 axes[0].set_xlabel("readout coordinate u")
 axes[0].set_ylabel("odd/even phase [rad]")
-axes[0].set_title("navigator phase in hybrid space")
+axes[0].set_title("navigator phase")
 axes[0].legend()
 axes[1].semilogy(
     ideal[:, SIZE // 2] / peak + 1e-6, color="#8a8a8a", linewidth=3.0, label="delay-free"
@@ -200,20 +185,22 @@ axes[1].semilogy(
 axes[1].semilogy(
     corrected[:, SIZE // 2] / peak + 1e-6, "--", color=COLOURS["corrected"], label="corrected"
 )
-axes[1].set_ylim(1e-3, 8)
+axes[1].set_ylim(1e-3, 30)
 axes[1].set_xlabel("phase-encoding index")
 axes[1].set_title("central column")
-axes[1].legend(loc="upper center", ncol=3)
+axes[1].legend(loc="upper center", ncol=2)
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# Without the phase correction the ghost appears at the top and bottom of the
-# field of view and overlaps the object where it wraps. With the first-order
-# fit the ghost-to-signal ratio returns to that of the delay-free image, whose
-# signal outside the object is the truncation ringing of the phantom, since
-# the simulated phase error is exactly first order. On measured data, higher
+# The images are displayed from zero to 30 % of the peak, with the
+# phase-encoding direction vertical. Without the phase correction the ghost
+# appears at the top and bottom of the field of view and overlaps the object
+# where it wraps. With the first-order fit the ghost-to-signal ratio returns
+# to that of the delay-free image, whose signal outside the object is the
+# truncation ringing of the phantom, since the simulated phase error is
+# exactly first order. On measured data, higher
 # orders of the phase, and phase errors that differ between lines of the same
 # polarity, leave a residual ghost.
 #
@@ -281,35 +268,38 @@ for name, estimate in (("band-limited resampling", resampled), ("linear interpol
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 3, figsize=(10.4, 3.0))
-axes[0].plot(time, gradient, color="#8a8a8a", label="$G_x / G_{max}$")
-axes[0].plot(time, 2 * sampled_at, color=COLOURS["corrected"], label="$k_x / k_{max}$, sampled")
-axes[0].plot(time, 2 * uniform_at, "--", color=COLOURS["ghosted"], label="$k_x / k_{max}$, uniform")
-axes[0].set_xlabel("time in the ADC window")
-axes[0].set_title("trapezoidal readout gradient")
-axes[0].legend(loc="lower right")
+figure, axis = plt.subplots(figsize=(7.2, 3.2))
+axis.plot(time, gradient, color="#8a8a8a", label="$G_x / G_{max}$")
+axis.plot(time, 2 * sampled_at, color=COLOURS["corrected"], label="$k_x / k_{max}$, sampled")
+axis.plot(time, 2 * uniform_at, "--", color=COLOURS["ghosted"], label="$k_x / k_{max}$, uniform")
+axis.set_xlabel("time in the ADC window")
+axis.set_title("trapezoidal readout gradient")
+axis.legend(loc="center left", bbox_to_anchor=(1.0, 0.5))
+plt.show()
+
+figure, axes = plt.subplots(1, 2, figsize=(7.8, 3.4))
 position = torch.arange(SAMPLES) - SAMPLES // 2
 reference = image_profile(truth)
-axes[1].plot(position, reference, color="#8a8a8a", linewidth=3.0, label="uniform")
-axes[1].plot(position, image_profile(resampled), color=COLOURS["corrected"], label="resampled")
-axes[1].plot(position, image_profile(linear), "--", color=COLOURS["linear"], label="linear")
-axes[1].set_xlim(-50, 50)
-axes[1].set_xlabel("pixel")
-axes[1].set_title("image profile")
-axes[1].legend(loc="upper left")
+axes[0].plot(position, reference, color="#8a8a8a", linewidth=3.0, label="uniform")
+axes[0].plot(position, image_profile(resampled), color=COLOURS["corrected"], label="resampled")
+axes[0].plot(position, image_profile(linear), "--", color=COLOURS["linear"], label="linear")
+axes[0].set_xlim(-50, 50)
+axes[0].set_xlabel("pixel")
+axes[0].set_title("image profile")
+axes[0].legend(loc="upper left")
 for estimate, name, style in ((resampled, "resampled", "-"), (linear, "linear", "--")):
-    axes[2].semilogy(
+    axes[1].semilogy(
         position,
         (image_profile(estimate) - reference).abs() / reference.max() + 1e-9,
         style,
         color=COLOURS[name if name == "linear" else "corrected"],
-        label=f"{name}, NRMSE {nrmse(image_profile(estimate), reference):.0e}",
+        label=name,
     )
-axes[2].set_xlim(-80, 80)
-axes[2].set_ylim(1e-8, 1)
-axes[2].set_xlabel("pixel")
-axes[2].set_title("|error| / peak")
-axes[2].legend(loc="upper left")
+axes[1].set_xlim(-80, 80)
+axes[1].set_ylim(1e-8, 10)
+axes[1].set_xlabel("pixel")
+axes[1].set_title("|error| / peak")
+axes[1].legend(loc="upper left", ncol=2)
 plt.show()
 # sphinx_gallery_end_ignore
 
