@@ -70,7 +70,7 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A convolutional denoiser for complex, multi-contrast volumes, trained on patches and applied to a whole volume patch by patch.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train a 3D convolutional denoiser on patches of a complex, multi-contrast brain volume, apply it to a whole volume of another subject patch by patch, as it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no visible seams.">
 
 .. only:: html
 
@@ -87,7 +87,7 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="An unrolled proximal-gradient network with one denoiser shared by every iteration and told which iteration it is in, trained in three stages: the denoiser alone, the iterations one at a time, and the whole stack.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration.">
 
 .. only:: html
 
@@ -104,7 +104,7 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The unrolled network of 04-staged-training, trained from undersampled k-space alone by holding out part of the acquired samples and scoring the reconstruction on them.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 04-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains.">
 
 .. only:: html
 
@@ -121,7 +121,7 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A denoiser conditioned on the noise level, trained once on images and used in ADMM with a noise level that decreases over the iterations.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down.">
 
 .. only:: html
 
@@ -138,7 +138,7 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A voxel-wise error bar for a learned reconstruction, from the spread of randomized reconstructions, calibrated on references to a stated coverage.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain.">
 
 .. only:: html
 

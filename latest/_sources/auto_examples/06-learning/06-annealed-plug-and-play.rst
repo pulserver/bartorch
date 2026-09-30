@@ -22,20 +22,23 @@
 Annealed plug-and-play
 ===========================
 
-A denoiser conditioned on the noise level, trained once on images and used in
-ADMM with a noise level that decreases over the iterations.
+**Aim.** Train one denoiser on images alone, without any encoding, and use it
+as the regularizer of an ADMM reconstruction at any undersampling, with the
+denoising strength decreasing over the iterations; show that it holds up at
+an acceleration where CG-SENSE breaks down.
 
-A plug-and-play reconstruction [#pnp]_ uses a denoiser as the proximal step of
-an iteration, and the denoiser is trained on images alone, so one network
-serves every acquisition whose images resemble its training images. The
-proximal step of :math:`\lambda\phi` with penalty :math:`\rho` is a Gaussian
-denoiser of variance :math:`\sigma^2 = \lambda/\rho`. Early iterations start
-from an image corrupted by undersampling artefacts, far from the solution, and
-late iterations from a nearly consistent one; a noise level decreasing from
-one to the other [#dpir]_ removes the artefacts first and retains detail at
-the end. The penalty follows as :math:`\rho_k = \lambda/\sigma_k^2`, so that
-the denoiser's noise level and the weight of the data remain in the ratio the
-regularization weight :math:`\lambda` sets.
+A plug-and-play reconstruction [#pnp]_ replaces the proximal step of an
+iterative algorithm by a denoiser. The denoiser is trained on images, not on
+k-space, so one network serves every protocol whose images resemble its
+training images: a change of acceleration, sampling pattern or coil array
+needs no retraining. The proximal step of a regularizer :math:`\lambda\phi`
+with ADMM penalty :math:`\rho` is a Gaussian denoiser of noise variance
+:math:`\sigma^2 = \lambda/\rho`. The first iterates carry the strong
+incoherent aliasing of the undersampling and the last are nearly consistent
+with the data, so a noise level that decreases from one to the other
+[#dpir]_ removes the aliasing first and preserves fine anatomy at the end. The
+penalty follows as :math:`\rho_k = \lambda/\sigma_k^2`, which keeps the
+balance between data consistency and denoising that :math:`\lambda` sets.
 
 **Learning objectives**
 
@@ -45,12 +48,12 @@ regularization weight :math:`\lambda` sets.
 - Give :class:`bartorch.priors.ImplicitPrior` a schedule of noise levels and
   :class:`bartorch.optim.ADMMBlock` the matching schedule of penalties.
 - Compare an annealed schedule with a fixed noise level, iteration by
-  iteration, and apply the same denoiser to another undersampling.
+  iteration, and apply the same denoiser at a higher acceleration.
 
 It follows :doc:`05-self-supervised-training`. The next lesson,
 :doc:`07-uncertainty`, attaches error bars to a learned reconstruction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-97
+.. GENERATED FROM PYTHON SOURCE LINES 38-133
 
 .. code-block:: Python
 
@@ -85,7 +88,7 @@ It follows :doc:`05-self-supervised-training`. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-103
+.. GENERATED FROM PYTHON SOURCE LINES 134-139
 
 Data
 ----
@@ -93,7 +96,7 @@ Data
 The slices, coils and fourfold undersampling of :doc:`04-staged-training`:
 subject 0 to train the denoiser on, subject 4 to reconstruct.
 
-.. GENERATED FROM PYTHON SOURCE LINES 104-186
+.. GENERATED FROM PYTHON SOURCE LINES 140-222
 
 .. code-block:: Python
 
@@ -103,7 +106,7 @@ subject 0 to train the denoiser on, subject 4 to reconstruct.
 
     sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
     sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=True)
-    NOISE = 0.005
+    NOISE = 0.02
 
 
     def acquisition(acceleration, seed):
@@ -133,19 +136,20 @@ subject 0 to train the denoiser on, subject 4 to reconstruct.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 187-196
+.. GENERATED FROM PYTHON SOURCE LINES 223-233
 
 A denoiser for every noise level
 --------------------------------
 
 With ``noise=True`` the U-Net takes the noise level as an input and
-modulates its features with it, so one network denoises across a range of
-levels. It is trained on pairs of a slice and the slice with white Gaussian
-noise added, at a level drawn log-uniformly for each pair, in units of the
-slice's peak (:class:`~bartorch.learning.ComplexNet` scales each image to
-unit peak). No encoding enters the training.
+modulates its features with it, so one network covers a range of SNRs. It is
+trained on pairs of a slice and the same slice with complex white Gaussian
+noise, at a standard deviation drawn log-uniformly between 0.5 and 20 per
+cent of the image's peak for each pair
+(:class:`~bartorch.learning.ComplexNet` scales each image to unit peak). No
+coil sensitivities, sampling pattern or k-space enter the training.
 
-.. GENERATED FROM PYTHON SOURCE LINES 197-244
+.. GENERATED FROM PYTHON SOURCE LINES 234-281
 
 .. code-block:: Python
 
@@ -207,14 +211,14 @@ unit peak). No encoding enters the training.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    sigma 0.01: noisy 41.46 dB, denoised 41.45 dB
-    sigma 0.05: noisy 27.17 dB, denoised 27.17 dB
-    sigma 0.10: noisy 21.06 dB, denoised 21.06 dB
+    sigma 0.01: noisy 41.46 dB, denoised 43.41 dB
+    sigma 0.05: noisy 27.17 dB, denoised 33.20 dB
+    sigma 0.10: noisy 21.06 dB, denoised 28.81 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 245-258
+.. GENERATED FROM PYTHON SOURCE LINES 282-295
 
 Schedules of noise level and penalty
 ------------------------------------
@@ -230,7 +234,7 @@ new, so that the unscaled one carries over. The two fixed schedules hold the
 noise level at either end of the annealed one, with the penalty given by the
 same :math:`\lambda`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 259-298
+.. GENERATED FROM PYTHON SOURCE LINES 296-335
 
 .. code-block:: Python
 
@@ -276,31 +280,31 @@ same :math:`\lambda`.
 
  .. code-block:: none
 
-       annealed, 0.1 to 0.01   PSNR 29.59 dB
-                 fixed, 0.03   PSNR 29.53 dB
-                 fixed, 0.01   PSNR 28.56 dB
-     CG SENSE, 20 iterations   PSNR 29.66 dB
+       annealed, 0.1 to 0.01   PSNR 30.98 dB
+                 fixed, 0.03   PSNR 30.83 dB
+                 fixed, 0.01   PSNR 29.79 dB
+     CG SENSE, 20 iterations   PSNR 24.21 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 299-306
+.. GENERATED FROM PYTHON SOURCE LINES 336-343
 
-A large fixed noise level converges within a few iterations to a
-reconstruction limited by the smoothing the denoiser applies at that level;
-a small one retains detail, but its large penalty makes each step move
-little from the previous one, and twelve iterations do not reach its fixed
-point. The annealed schedule takes the large steps first and the small ones
-last, and ends slightly ahead of the better fixed level without that level
-having to be chosen for the acquisition.
+A large fixed noise level converges within a few iterations, to an image
+limited by the smoothing the denoiser applies at that level. A small one
+preserves detail, but its large penalty makes each ADMM step move little
+from the previous one, and twelve iterations do not reach its fixed point.
+The annealed schedule takes the large steps first and the small ones last,
+and ends slightly ahead of the better fixed level without that level having
+to be tuned for the acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 307-319
+.. GENERATED FROM PYTHON SOURCE LINES 344-357
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_002.png
-   :alt: reference, annealed, fixed, CG SENSE
+   :alt: reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.056
    :srcset: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_002.png
    :class: sphx-glr-single-img
 
@@ -308,15 +312,18 @@ having to be chosen for the acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 320-325
+.. GENERATED FROM PYTHON SOURCE LINES 358-366
 
 Another acquisition, the same denoiser
 --------------------------------------
 
-The denoiser was trained without an encoding, so it applies unchanged to a
-sixfold undersampling it has never been used with.
+The denoiser was trained without an encoding, so it applies unchanged to
+:math:`R = 6`, a sampling pattern it has never been used with. At this
+acceleration eight coils no longer unfold the aliasing well: CG-SENSE is
+dominated by g-factor noise and residual aliasing, while the plug-and-play
+reconstruction keeps the anatomy.
 
-.. GENERATED FROM PYTHON SOURCE LINES 326-336
+.. GENERATED FROM PYTHON SOURCE LINES 367-386
 
 .. code-block:: Python
 
@@ -334,16 +341,22 @@ sixfold undersampling it has never been used with.
 
 
 
+.. image-sg:: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_003.png
+   :alt: reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.059
+   :srcset: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_003.png
+   :class: sphx-glr-single-img
+
+
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
-    sixfold: annealed plug-and-play 25.02 dB, CG SENSE 25.16 dB
+    sixfold: annealed plug-and-play 30.87 dB, CG SENSE 21.98 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 337-348
+.. GENERATED FROM PYTHON SOURCE LINES 387-398
 
 References
 ----------
@@ -360,7 +373,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 28.116 seconds)
+   **Total running time of the script:** (0 minutes 27.612 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_06-annealed-plug-and-play.py:

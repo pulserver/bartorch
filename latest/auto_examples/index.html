@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=0739d252" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1bd537d6" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -632,19 +632,19 @@ attaches calibrated error bars to a learned reconstruction.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser in the proximal step of BART&#x27;s alternating-direction iteration, trained end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
 <p><a class="reference internal" href="06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
   <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A convolutional denoiser for complex, multi-contrast volumes, trained on patches and applied to a whole volume patch by patch."><img alt="" src="../_images/sphx_glr_03-networks-for-complex-volumes_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train a 3D convolutional denoiser on patches of a complex, multi-contrast brain volume, apply it to a whole volume of another subject patch by patch, as it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no visible seams."><img alt="" src="../_images/sphx_glr_03-networks-for-complex-volumes_thumb.png" />
 <p><a class="reference internal" href="06-learning/03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Networks for complex volumes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="An unrolled proximal-gradient network with one denoiser shared by every iteration and told which iteration it is in, trained in three stages: the denoiser alone, the iterations one at a time, and the whole stack."><img alt="" src="../_images/sphx_glr_04-staged-training_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration."><img alt="" src="../_images/sphx_glr_04-staged-training_thumb.png" />
 <p><a class="reference internal" href="06-learning/04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p>
   <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The unrolled network of 04-staged-training, trained from undersampled k-space alone by holding out part of the acquired samples and scoring the reconstruction on them."><img alt="" src="../_images/sphx_glr_05-self-supervised-training_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 04-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains."><img alt="" src="../_images/sphx_glr_05-self-supervised-training_thumb.png" />
 <p><a class="reference internal" href="06-learning/05-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p>
   <div class="sphx-glr-thumbnail-title">Training without a reference</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A denoiser conditioned on the noise level, trained once on images and used in ADMM with a noise level that decreases over the iterations."><img alt="" src="../_images/sphx_glr_06-annealed-plug-and-play_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_06-annealed-plug-and-play_thumb.png" />
 <p><a class="reference internal" href="06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
   <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A voxel-wise error bar for a learned reconstruction, from the spread of randomized reconstructions, calibrated on references to a stated coverage."><img alt="" src="../_images/sphx_glr_07-uncertainty_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain."><img alt="" src="../_images/sphx_glr_07-uncertainty_thumb.png" />
 <p><a class="reference internal" href="06-learning/07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p>
   <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
 </div></div></section>

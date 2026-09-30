@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=0739d252" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1bd537d6" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -513,7 +513,7 @@ iteration touches the regularizer <span class="math notranslate nohighlight">\(g
 map from an image to a less noisy one, and a learned reconstruction replaces
 that map with a network.  The encoding, the data consistency step and the
 iteration remain BART’s.  This page states the ways the network is placed and
-trained, how a network is applied to data larger than a card, and what an
+trained, how a network is applied to data larger than GPU memory, and what an
 uncertainty estimate from it does and does not state.</p>
 <section id="where-the-network-enters">
 <h2>Where the network enters<a class="headerlink" href="#where-the-network-enters" title="Link to this heading">#</a></h2>
@@ -545,10 +545,12 @@ uncertainty estimate from it does and does not state.</p>
 </table>
 </div>
 <p>A plug-and-play denoiser is independent of the acquisition, so one network
-serves every protocol whose images resemble its training images; it is not
-adapted to the artefacts a given undersampling produces.  An unrolled network
-is trained on those artefacts and needs few iterations, which is what bounds
-the runtime on a scanner, and is tied to the encoding it was trained with.
+serves every protocol whose images resemble its training images, whatever the
+acceleration, sampling pattern or coil array; it is not adapted to the
+aliasing and g-factor noise a given undersampling produces.  An unrolled
+network is trained on exactly those artefacts and needs few iterations, which
+is what bounds the reconstruction time on the scanner, and is tied to the
+encoding it was trained with.
 <a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> places a network in the proximal
 step of any block of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>, <a class="reference internal" href="../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a>
 repeats a block a fixed number of times, and
@@ -577,12 +579,13 @@ channels and scales them to unit variance before the call and reverts both
 after it.  A time series is taken with a frame axis
 (<code class="docutils literal notranslate"><span class="pre">frames=True</span></code>), convolved separately from the spatial axes and never
 downsampled.</p>
-<p>A volume, or a series of volumes, rarely fits a network’s activations on a
-card.  The network is trained on patches, and
+<p>A 3D volume, or a series of them such as a cine or a fingerprinting
+acquisition, rarely fits a network’s activations in the memory of a scanner’s
+GPU.  The network is trained on patches, and
 <a class="reference internal" href="../generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-class docutils literal notranslate"><span class="pre">Patchwise</span></code></a> applies it to the whole image a few
 patches at a time: the image stays on the host, each group of patches is
 copied to the device, passed through the network under mixed precision
-(bfloat16 where the card supports it, float16 where it does not, such as a
+(bfloat16 where the GPU supports it, float16 where it does not, such as a
 T4) and copied back.  At inference the copies of one group run on a second
 stream while the network computes on another, so the transfers are hidden
 behind the computation.  What the device holds is the network and two groups
@@ -610,8 +613,10 @@ image of an ADMM step, its x-update.
 <a class="reference internal" href="../generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction" title="bartorch.learning.training.Reconstruction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reconstruction</span></code></a> runs each stage as a
 Lightning module; the items stay where the dataset put them, and a network
 inside decides where it runs.</p>
-<p>References are rarely available for the data a learned reconstruction is most
-needed for.  Self-supervision via data undersampling splits the acquired
+<p>Fully sampled references are rarely available for the data a learned
+reconstruction is most needed for: a dynamic or high-dimensional acquisition
+is undersampled because full sampling does not fit a breath-hold or a
+reasonable scan time.  Self-supervision via data undersampling splits the acquired
 samples <span class="math notranslate nohighlight">\(\Omega\)</span> into disjoint sets <span class="math notranslate nohighlight">\(\Theta\)</span> and <span class="math notranslate nohighlight">\(\Lambda\)</span>, reconstructs from
 <span class="math notranslate nohighlight">\(\Theta\)</span>, and scores the reconstruction’s k-space on <span class="math notranslate nohighlight">\(\Lambda\)</span>.<a class="footnote-reference brackets" href="#ssdu" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>  A new split is drawn at every step
 (<a class="reference internal" href="../generated/bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a>), and the reconstruction at inference uses
@@ -619,8 +624,10 @@ all of <span class="math notranslate nohighlight">\(\Omega\)</span>.</p>
 </section>
 <section id="uncertainty">
 <h2>Uncertainty<a class="headerlink" href="#uncertainty" title="Link to this heading">#</a></h2>
-<p>A spread is obtained by repeating a randomized reconstruction and taking the
-voxel-wise variance (<a class="reference internal" href="../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">moments()</span></code></a>): with dropout active
+<p>Where the undersampling leaves the image underdetermined, a network fills in
+what its training data suggest, and a hallucinated structure is not
+distinguishable from anatomy in the image alone.  A spread is obtained by
+repeating a randomized reconstruction and taking the voxel-wise variance (<a class="reference internal" href="../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">moments()</span></code></a>): with dropout active
 in the network, from random subsets of the acquired samples, or with a random
 patch grid.  Each spread measures one source of variability and none is the
 reconstruction error or a posterior distribution.  Split conformal calibration

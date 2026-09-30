@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=0739d252" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -500,26 +500,29 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-06-learning-07-uncertainty-py"></span><h1>Uncertainty estimation<a class="headerlink" href="#uncertainty-estimation" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/06-learning/07-uncertainty.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>A voxel-wise error bar for a learned reconstruction, from the spread of
-randomized reconstructions, calibrated on references to a stated coverage.</p>
-<p>A learned reconstruction returns an image with no indication of where it may
-be wrong. Where the acquisition leaves the image underdetermined, the network
+<p><strong>Aim.</strong> Attach a voxel-wise error bar to a learned reconstruction of
+undersampled data, calibrated so that it contains the true error in a stated
+fraction of voxels, and see where in the head the reconstruction is least
+certain.</p>
+<p>A learned reconstruction returns an image without saying where it may be
+wrong. Where the undersampling leaves the image underdetermined, the network
 fills in what its training data suggest, and a hallucinated structure looks
-like any other. A spread is obtained by randomizing the reconstruction and
-repeating it: leaving dropout active in the network (Monte Carlo dropout
-<a class="footnote-reference brackets" href="#gal" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>), reconstructing from random subsets of the acquired samples, or
-shifting a patch grid. Each measures one source of variability, and none is
-the error. Split conformal calibration <a class="footnote-reference brackets" href="#angelopoulos" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> relates the spread to
-the error on held-out subjects with references: it finds the factor by which
-the spread has to be multiplied for the interval to contain the error at a
-chosen rate, a guarantee that holds whatever the spread measures.</p>
+like real anatomy. An uncertainty map is obtained by randomizing the
+reconstruction and repeating it: leaving dropout active in the network (Monte
+Carlo dropout <a class="footnote-reference brackets" href="#gal" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>), reconstructing from random subsets of the acquired
+phase encodes, or shifting a patch grid. Each spread measures one source of
+variability, and none is the error itself. Split conformal calibration
+<a class="footnote-reference brackets" href="#angelopoulos" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> relates the spread to the error on held-out slices with
+fully sampled references: it finds the factor by which the spread must be
+multiplied for the interval to contain the error at a chosen rate, a
+guarantee that holds whatever the spread measures.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
-<li><p>Obtain a spread from Monte Carlo dropout and from k-space splits with
+<li><p>Obtain a spread from Monte Carlo dropout and from k-space subsets with
 <a class="reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.learning.moments()</span></code></a>.</p></li>
 <li><p>Calibrate it to a coverage with <a class="reference internal" href="../../generated/bartorch.learning.calibrate.html#bartorch.learning.calibrate" title="bartorch.learning.calibrate"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.learning.calibrate()</span></code></a>, and
 check the coverage on other slices.</p></li>
-<li><p>Compare the spread with the error made.</p></li>
+<li><p>Compare the calibrated interval with the error made.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a>. This lesson ends the course; the
 standalone examples of <a class="reference internal" href="../07-tours/index.html"><span class="doc">Tours</span></a> apply the package to
@@ -543,6 +546,7 @@ individual problems.</p>
 </span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">96</span><span class="w">
 </span><span class="n">COILS</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
 </span><span class="n">ITERATIONS</span> <span class="o">=</span> <span class="mi">4</span><span class="w">
+</span><span class="n">ACCELERATION</span> <span class="o">=</span> <span class="mi">4</span><span class="w">
 </span><span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
 </span><span class="n">DROPOUT</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
 </span><span class="w">
@@ -561,12 +565,12 @@ eight to check the calibration on.</p>
 </span><span class="w">
 </span><span class="n">density</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">SIZE</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span><span class="p">)</span> <span class="o">*</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span><span class="w">
 </span><span class="n">lines</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">density</span> <span class="o">/</span> <span class="n">density</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="w">
-</span>    <span class="n">SIZE</span> <span class="o">/</span> <span class="mi">4</span><span class="w">
+</span>    <span class="n">SIZE</span> <span class="o">/</span> <span class="n">ACCELERATION</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="n">lines</span><span class="p">[</span><span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">4</span> <span class="p">:</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
 </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">A</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">CartesianSense</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span><span class="w">
-</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.005</span><span class="w">
+</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.02</span><span class="w">
 </span><span class="w">
 </span><span class="n">generator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">
 </span><span class="n">kspace</span> <span class="o">=</span> <span class="p">{</span><span class="w">
@@ -685,22 +689,28 @@ over voxels and subjects drawn alike, not voxel by voxel.</p>
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2"> (asked </span><span class="si">{</span><span class="n">COVERAGE</span><span class="si">}</span><span class="s2">), correlation of error and spread </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">correlation</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>        dropout: factor   8.33, coverage 0.917 (asked 0.9), correlation of error and spread 0.29
-k-space subsets: factor   3.14, coverage 0.904 (asked 0.9), correlation of error and spread 0.22
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>        dropout: factor   8.58, coverage 0.906 (asked 0.9), correlation of error and spread 0.26
+k-space subsets: factor   3.82, coverage 0.897 (asked 0.9), correlation of error and spread 0.23
 </pre></div>
 </div>
 <p>The coverage on the test slices is close to the one asked for, for both
 spreads, although their factors differ: the calibration absorbs whatever
 scale the spread has. What differs between them is how well the spread
 follows the error voxel by voxel, which the correlation measures and the
-maps below show: a spread that is large where the error is large gives
+maps below show. A spread that is large where the error is large gives
 narrow intervals where the reconstruction is reliable and wide ones where it
-is not, while a spread unrelated to the error gives intervals of the right
-average width in the wrong places. Both correlations are weak here, so
-the intervals are wider than the error over much of the head and narrower
-where the error concentrates; the coverage is met on average, as the
-calibration guarantees, and not voxel by voxel.</p>
-<img src="../../_images/sphx_glr_07-uncertainty_001.png" srcset="../../_images/sphx_glr_07-uncertainty_001.png" alt="mean, dropout, error, interval, dropout, interval, k-space subsets" class = "sphx-glr-single-img"/></section>
+is not; a spread unrelated to the error gives intervals of the right average
+width in the wrong places.</p>
+<p>The two spreads measure different things, and the maps show it. The
+dropout interval is diffuse over the brain and follows neither its anatomy
+nor the error. The k-space-subset interval is largest at the scalp and in
+horizontal bands, the pattern of aliasing along the phase-encode direction
+(vertical): removing lines moves the aliasing, and that is the variability
+it records. The error itself is concentrated in the cortex. Both correlations
+are weak, so the intervals are wider than the error over much of the white
+matter and narrower than it in parts of the cortex. The coverage is met on
+average over voxels, as the calibration guarantees, not voxel by voxel.</p>
+<img src="../../_images/sphx_glr_07-uncertainty_001.png" srcset="../../_images/sphx_glr_07-uncertainty_001.png" alt="reconstruction (dropout mean), |error|, 90% interval, dropout, 90% interval, k-space subsets" class = "sphx-glr-single-img"/></section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <aside class="footnote-list brackets">
@@ -717,7 +727,7 @@ introduction. <em>Found Trends Mach Learn</em> 16(4):494-591 (2023).
 <a class="reference external" href="https://doi.org/10.1561/2200000101">https://doi.org/10.1561/2200000101</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 15.608 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 11.700 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-07-uncertainty-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/ae5ff163d45fe42ba534a91e1ecb0d8e/07-uncertainty.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">07-uncertainty.ipynb</span></code></a></p>

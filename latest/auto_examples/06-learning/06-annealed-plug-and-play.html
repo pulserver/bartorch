@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=0739d252" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -502,19 +502,22 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-06-learning-06-annealed-plug-and-play-py"></span><h1>Annealed plug-and-play<a class="headerlink" href="#annealed-plug-and-play" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/06-learning/06-annealed-plug-and-play.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>A denoiser conditioned on the noise level, trained once on images and used in
-ADMM with a noise level that decreases over the iterations.</p>
-<p>A plug-and-play reconstruction <a class="footnote-reference brackets" href="#pnp" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> uses a denoiser as the proximal step of
-an iteration, and the denoiser is trained on images alone, so one network
-serves every acquisition whose images resemble its training images. The
-proximal step of <span class="math notranslate nohighlight">\(\lambda\phi\)</span> with penalty <span class="math notranslate nohighlight">\(\rho\)</span> is a Gaussian
-denoiser of variance <span class="math notranslate nohighlight">\(\sigma^2 = \lambda/\rho\)</span>. Early iterations start
-from an image corrupted by undersampling artefacts, far from the solution, and
-late iterations from a nearly consistent one; a noise level decreasing from
-one to the other <a class="footnote-reference brackets" href="#dpir" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> removes the artefacts first and retains detail at
-the end. The penalty follows as <span class="math notranslate nohighlight">\(\rho_k = \lambda/\sigma_k^2\)</span>, so that
-the denoiser’s noise level and the weight of the data remain in the ratio the
-regularization weight <span class="math notranslate nohighlight">\(\lambda\)</span> sets.</p>
+<p><strong>Aim.</strong> Train one denoiser on images alone, without any encoding, and use it
+as the regularizer of an ADMM reconstruction at any undersampling, with the
+denoising strength decreasing over the iterations; show that it holds up at
+an acceleration where CG-SENSE breaks down.</p>
+<p>A plug-and-play reconstruction <a class="footnote-reference brackets" href="#pnp" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> replaces the proximal step of an
+iterative algorithm by a denoiser. The denoiser is trained on images, not on
+k-space, so one network serves every protocol whose images resemble its
+training images: a change of acceleration, sampling pattern or coil array
+needs no retraining. The proximal step of a regularizer <span class="math notranslate nohighlight">\(\lambda\phi\)</span>
+with ADMM penalty <span class="math notranslate nohighlight">\(\rho\)</span> is a Gaussian denoiser of noise variance
+<span class="math notranslate nohighlight">\(\sigma^2 = \lambda/\rho\)</span>. The first iterates carry the strong
+incoherent aliasing of the undersampling and the last are nearly consistent
+with the data, so a noise level that decreases from one to the other
+<a class="footnote-reference brackets" href="#dpir" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> removes the aliasing first and preserves fine anatomy at the end. The
+penalty follows as <span class="math notranslate nohighlight">\(\rho_k = \lambda/\sigma_k^2\)</span>, which keeps the
+balance between data consistency and denoising that <span class="math notranslate nohighlight">\(\lambda\)</span> sets.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
 <li><p>Train a denoiser conditioned on the noise level, <code class="docutils literal notranslate"><span class="pre">noise=True</span></code> in
@@ -523,7 +526,7 @@ regularization weight <span class="math notranslate nohighlight">\(\lambda\)</sp
 <li><p>Give <a class="reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.priors.ImplicitPrior</span></code></a> a schedule of noise levels and
 <a class="reference internal" href="../../generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.ADMMBlock</span></code></a> the matching schedule of penalties.</p></li>
 <li><p>Compare an annealed schedule with a fixed noise level, iteration by
-iteration, and apply the same denoiser to another undersampling.</p></li>
+iteration, and apply the same denoiser at a higher acceleration.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="05-self-supervised-training.html"><span class="doc">Training without a reference</span></a>. The next lesson,
 <a class="reference internal" href="07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a>, attaches error bars to a learned reconstruction.</p>
@@ -559,7 +562,7 @@ subject 0 to train the denoiser on, subject 4 to reconstruct.</p>
 </span><span class="w">
 </span><span class="n">sensitivities</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><span class="n">bt</span><span class="o">.</span><span class="n">coils</span></a><span class="p">(</span><span class="n">t</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><span class="n">bt</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">D</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">COILS</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
 </span><span class="n">sensitivities</span> <span class="o">=</span> <span class="n">sensitivities</span> <span class="o">/</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.005</span><span class="w">
+</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.02</span><span class="w">
 </span><span class="w">
 </span><span class="w">
 </span><span class="k">def</span><span class="w"> </span><span class="nf">acquisition</span><span class="p">(</span><span class="n">acceleration</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span><span class="p">:</span><span class="w">
@@ -586,11 +589,12 @@ subject 0 to train the denoiser on, subject 4 to reconstruct.</p>
 <section id="a-denoiser-for-every-noise-level">
 <h2>A denoiser for every noise level<a class="headerlink" href="#a-denoiser-for-every-noise-level" title="Link to this heading">#</a></h2>
 <p>With <code class="docutils literal notranslate"><span class="pre">noise=True</span></code> the U-Net takes the noise level as an input and
-modulates its features with it, so one network denoises across a range of
-levels. It is trained on pairs of a slice and the slice with white Gaussian
-noise added, at a level drawn log-uniformly for each pair, in units of the
-slice’s peak (<a class="reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComplexNet</span></code></a> scales each image to
-unit peak). No encoding enters the training.</p>
+modulates its features with it, so one network covers a range of SNRs. It is
+trained on pairs of a slice and the same slice with complex white Gaussian
+noise, at a standard deviation drawn log-uniformly between 0.5 and 20 per
+cent of the image’s peak for each pair
+(<a class="reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComplexNet</span></code></a> scales each image to unit peak). No
+coil sensitivities, sampling pattern or k-space enter the training.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">LOW</span><span class="p">,</span> <span class="n">HIGH</span> <span class="o">=</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.2</span><span class="w">
 </span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">network</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">learning</span><span class="o">.</span><span class="n">UNet</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">widths</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
@@ -640,9 +644,9 @@ unit peak). No encoding enters the training.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-sigma 0.01: noisy 41.46 dB, denoised 41.45 dB
-sigma 0.05: noisy 27.17 dB, denoised 27.17 dB
-sigma 0.10: noisy 21.06 dB, denoised 21.06 dB
+sigma 0.01: noisy 41.46 dB, denoised 43.41 dB
+sigma 0.05: noisy 27.17 dB, denoised 33.20 dB
+sigma 0.10: noisy 21.06 dB, denoised 28.81 dB
 </pre></div>
 </div>
 </section>
@@ -685,24 +689,27 @@ same <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
 </span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">images</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;24</span><span class="si">}</span><span class="s2">   PSNR </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" alt="06 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 29.59 dB
-            fixed, 0.03   PSNR 29.53 dB
-            fixed, 0.01   PSNR 28.56 dB
-CG SENSE, 20 iterations   PSNR 29.66 dB
+<img src="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" alt="06 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 30.98 dB
+            fixed, 0.03   PSNR 30.83 dB
+            fixed, 0.01   PSNR 29.79 dB
+CG SENSE, 20 iterations   PSNR 24.21 dB
 </pre></div>
 </div>
-<p>A large fixed noise level converges within a few iterations to a
-reconstruction limited by the smoothing the denoiser applies at that level;
-a small one retains detail, but its large penalty makes each step move
-little from the previous one, and twelve iterations do not reach its fixed
-point. The annealed schedule takes the large steps first and the small ones
-last, and ends slightly ahead of the better fixed level without that level
-having to be chosen for the acquisition.</p>
-<img src="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" alt="reference, annealed, fixed, CG SENSE" class = "sphx-glr-single-img"/></section>
+<p>A large fixed noise level converges within a few iterations, to an image
+limited by the smoothing the denoiser applies at that level. A small one
+preserves detail, but its large penalty makes each ADMM step move little
+from the previous one, and twelve iterations do not reach its fixed point.
+The annealed schedule takes the large steps first and the small ones last,
+and ends slightly ahead of the better fixed level without that level having
+to be tuned for the acquisition.</p>
+<img src="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" alt="reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.056" class = "sphx-glr-single-img"/></section>
 <section id="another-acquisition-the-same-denoiser">
 <h2>Another acquisition, the same denoiser<a class="headerlink" href="#another-acquisition-the-same-denoiser" title="Link to this heading">#</a></h2>
-<p>The denoiser was trained without an encoding, so it applies unchanged to a
-sixfold undersampling it has never been used with.</p>
+<p>The denoiser was trained without an encoding, so it applies unchanged to
+<span class="math notranslate nohighlight">\(R = 6\)</span>, a sampling pattern it has never been used with. At this
+acceleration eight coils no longer unfold the aliasing well: CG-SENSE is
+dominated by g-factor noise and residual aliasing, while the plug-and-play
+reconstruction keeps the anatomy.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">A6</span> <span class="o">=</span> <span class="n">acquisition</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">
 </span><span class="n">kspace6</span> <span class="o">=</span> <span class="n">measure</span><span class="p">(</span><span class="n">A6</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
@@ -712,7 +719,7 @@ sixfold undersampling it has never been used with.</p>
 </span>    <span class="n">cg</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">[</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.cg.html#bartorch.optim.cg" title="bartorch.optim.cg"><span class="n">optim</span><span class="o">.</span><span class="n">cg</span></a><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A6</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">kspace6</span><span class="p">]</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">sixfold: annealed plug-and-play </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">annealed</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB, CG SENSE </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">cg</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sixfold: annealed plug-and-play 25.02 dB, CG SENSE 25.16 dB
+<img src="../../_images/sphx_glr_06-annealed-plug-and-play_003.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_003.png" alt="reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.059" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sixfold: annealed plug-and-play 30.87 dB, CG SENSE 21.98 dB
 </pre></div>
 </div>
 </section>
@@ -733,7 +740,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 28.116 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 27.612 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-06-annealed-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/f85ca2cb046983232a70360ddf416bbb/06-annealed-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">06-annealed-plug-and-play.ipynb</span></code></a></p>

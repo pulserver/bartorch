@@ -22,34 +22,37 @@
 Uncertainty estimation
 =======================
 
-A voxel-wise error bar for a learned reconstruction, from the spread of
-randomized reconstructions, calibrated on references to a stated coverage.
+**Aim.** Attach a voxel-wise error bar to a learned reconstruction of
+undersampled data, calibrated so that it contains the true error in a stated
+fraction of voxels, and see where in the head the reconstruction is least
+certain.
 
-A learned reconstruction returns an image with no indication of where it may
-be wrong. Where the acquisition leaves the image underdetermined, the network
+A learned reconstruction returns an image without saying where it may be
+wrong. Where the undersampling leaves the image underdetermined, the network
 fills in what its training data suggest, and a hallucinated structure looks
-like any other. A spread is obtained by randomizing the reconstruction and
-repeating it: leaving dropout active in the network (Monte Carlo dropout
-[#gal]_), reconstructing from random subsets of the acquired samples, or
-shifting a patch grid. Each measures one source of variability, and none is
-the error. Split conformal calibration [#angelopoulos]_ relates the spread to
-the error on held-out subjects with references: it finds the factor by which
-the spread has to be multiplied for the interval to contain the error at a
-chosen rate, a guarantee that holds whatever the spread measures.
+like real anatomy. An uncertainty map is obtained by randomizing the
+reconstruction and repeating it: leaving dropout active in the network (Monte
+Carlo dropout [#gal]_), reconstructing from random subsets of the acquired
+phase encodes, or shifting a patch grid. Each spread measures one source of
+variability, and none is the error itself. Split conformal calibration
+[#angelopoulos]_ relates the spread to the error on held-out slices with
+fully sampled references: it finds the factor by which the spread must be
+multiplied for the interval to contain the error at a chosen rate, a
+guarantee that holds whatever the spread measures.
 
 **Learning objectives**
 
-- Obtain a spread from Monte Carlo dropout and from k-space splits with
+- Obtain a spread from Monte Carlo dropout and from k-space subsets with
   :func:`bartorch.learning.moments`.
 - Calibrate it to a coverage with :func:`bartorch.learning.calibrate`, and
   check the coverage on other slices.
-- Compare the spread with the error made.
+- Compare the calibrated interval with the error made.
 
 It follows :doc:`06-annealed-plug-and-play`. This lesson ends the course; the
 standalone examples of :doc:`../07-tours/index` apply the package to
 individual problems.
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-97
+.. GENERATED FROM PYTHON SOURCE LINES 37-134
 
 .. code-block:: Python
 
@@ -73,6 +76,7 @@ individual problems.
     SIZE = 96
     COILS = 8
     ITERATIONS = 4
+    ACCELERATION = 4
     EPOCHS = 8
     DROPOUT = 0.1
 
@@ -85,7 +89,7 @@ individual problems.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-104
+.. GENERATED FROM PYTHON SOURCE LINES 135-141
 
 Data
 ----
@@ -94,7 +98,7 @@ The slices, coils and fourfold undersampling of :doc:`04-staged-training`,
 with sixteen slices of subject 4: the first eight to calibrate on, the last
 eight to check the calibration on.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-183
+.. GENERATED FROM PYTHON SOURCE LINES 142-220
 
 .. code-block:: Python
 
@@ -107,12 +111,12 @@ eight to check the calibration on.
 
     density = torch.exp(-0.5 * ((torch.arange(SIZE) - SIZE / 2) / (SIZE / 6)) ** 2)
     lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(1)) < density / density.sum() * (
-        SIZE / 4
+        SIZE / ACCELERATION
     )
     lines[SIZE // 2 - 4 : SIZE // 2 + 4] = True
     pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
     A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
-    NOISE = 0.005
+    NOISE = 0.02
 
     generator = torch.Generator().manual_seed(3)
     kspace = {
@@ -130,7 +134,7 @@ eight to check the calibration on.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 184-192
+.. GENERATED FROM PYTHON SOURCE LINES 221-229
 
 A network with dropout
 ----------------------
@@ -141,7 +145,7 @@ against references. Dropout is a regularizer during training; left active
 at inference it makes each reconstruction one draw from a family of
 networks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-219
+.. GENERATED FROM PYTHON SOURCE LINES 230-256
 
 .. code-block:: Python
 
@@ -186,7 +190,7 @@ networks.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 220-230
+.. GENERATED FROM PYTHON SOURCE LINES 257-267
 
 Two spreads
 -----------
@@ -199,7 +203,7 @@ reconstructs each time from a random eighty per cent of the acquired lines,
 drawn by :func:`~bartorch.learning.split`, which measures how much the image
 depends on individual samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-267
+.. GENERATED FROM PYTHON SOURCE LINES 268-304
 
 .. code-block:: Python
 
@@ -246,7 +250,7 @@ depends on individual samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-277
+.. GENERATED FROM PYTHON SOURCE LINES 305-314
 
 Calibration
 -----------
@@ -258,7 +262,7 @@ the fraction of voxels whose error falls within ``factor * spread`` is
 measured. Split conformal calibration guarantees that fraction on average
 over voxels and subjects drawn alike, not voxel by voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 278-295
+.. GENERATED FROM PYTHON SOURCE LINES 315-332
 
 .. code-block:: Python
 
@@ -287,33 +291,40 @@ over voxels and subjects drawn alike, not voxel by voxel.
 
  .. code-block:: none
 
-             dropout: factor   8.33, coverage 0.917 (asked 0.9), correlation of error and spread 0.29
-     k-space subsets: factor   3.14, coverage 0.904 (asked 0.9), correlation of error and spread 0.22
+             dropout: factor   8.58, coverage 0.906 (asked 0.9), correlation of error and spread 0.26
+     k-space subsets: factor   3.82, coverage 0.897 (asked 0.9), correlation of error and spread 0.23
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 296-307
+.. GENERATED FROM PYTHON SOURCE LINES 333-351
 
 The coverage on the test slices is close to the one asked for, for both
 spreads, although their factors differ: the calibration absorbs whatever
 scale the spread has. What differs between them is how well the spread
 follows the error voxel by voxel, which the correlation measures and the
-maps below show: a spread that is large where the error is large gives
+maps below show. A spread that is large where the error is large gives
 narrow intervals where the reconstruction is reliable and wide ones where it
-is not, while a spread unrelated to the error gives intervals of the right
-average width in the wrong places. Both correlations are weak here, so
-the intervals are wider than the error over much of the head and narrower
-where the error concentrates; the coverage is met on average, as the
-calibration guarantees, and not voxel by voxel.
+is not; a spread unrelated to the error gives intervals of the right average
+width in the wrong places.
 
-.. GENERATED FROM PYTHON SOURCE LINES 308-328
+The two spreads measure different things, and the maps show it. The
+dropout interval is diffuse over the brain and follows neither its anatomy
+nor the error. The k-space-subset interval is largest at the scalp and in
+horizontal bands, the pattern of aliasing along the phase-encode direction
+(vertical): removing lines moves the aliasing, and that is the variability
+it records. The error itself is concentrated in the cortex. Both correlations
+are weak, so the intervals are wider than the error over much of the white
+matter and narrower than it in parts of the cortex. The coverage is met on
+average over voxels, as the calibration guarantees, not voxel by voxel.
+
+.. GENERATED FROM PYTHON SOURCE LINES 352-374
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_07-uncertainty_001.png
-   :alt: mean, dropout, error, interval, dropout, interval, k-space subsets
+   :alt: reconstruction (dropout mean), |error|, 90% interval, dropout, 90% interval, k-space subsets
    :srcset: /auto_examples/06-learning/images/sphx_glr_07-uncertainty_001.png
    :class: sphx-glr-single-img
 
@@ -321,7 +332,7 @@ calibration guarantees, and not voxel by voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 329-339
+.. GENERATED FROM PYTHON SOURCE LINES 375-385
 
 References
 ----------
@@ -337,7 +348,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 15.608 seconds)
+   **Total running time of the script:** (1 minutes 11.700 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_07-uncertainty.py:

@@ -177,7 +177,7 @@ and, given the fit, removes the phase.
  .. code-block:: none
 
         flipped only: difference from the delay-free image 3.0e-01
-     phase-corrected: difference from the delay-free image 1.3e-07
+     phase-corrected: difference from the delay-free image 1.1e-07
 
 
 
@@ -324,7 +324,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.021 seconds)
+   **Total running time of the script:** (0 minutes 1.914 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py:

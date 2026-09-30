@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=0739d252" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -506,42 +506,46 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-06-learning-04-staged-training-py"></span><h1>Staged training of an unrolled network<a class="headerlink" href="#staged-training-of-an-unrolled-network" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/06-learning/04-staged-training.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>An unrolled proximal-gradient network with one denoiser shared by every
-iteration and told which iteration it is in, trained in three stages: the
-denoiser alone, the iterations one at a time, and the whole stack.</p>
-<p>The iteration is BART’s iterative soft thresholding with the threshold
-replaced by a network <span class="math notranslate nohighlight">\(D_\theta\)</span>,</p>
+<p><strong>Aim.</strong> Train an unrolled reconstruction network for fourfold undersampled,
+eight-channel Cartesian brain data within the memory of one iteration, and
+show that it removes the residual aliasing and the g-factor noise that
+CG-SENSE leaves at this acceleration.</p>
+<p>An unrolled network alternates data consistency with a learned regularizer
+for a fixed number of iterations. Here the iteration is BART’s iterative soft
+thresholding with the thresholding replaced by a convolutional network
+<span class="math notranslate nohighlight">\(D_\theta\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[x^{k+1} = D_\theta\!\left(x^{k} - \tau\, A^H (A x^{k} - y),\; k\right),\]</div>
-<p>a gradient step on the data term followed by the denoiser. One set of weights
-serves every iteration, and the index <span class="math notranslate nohighlight">\(k\)</span> enters the network by
-feature-wise modulation (FiLM), so the network can remove the strong aliasing
-of the first iterations and the residual noise of the last with the same
-weights. The step <span class="math notranslate nohighlight">\(\tau\)</span> is learned with them.</p>
-<p>Training such a stack end to end stores every iteration’s activations, which
-for a three-dimensional volume exceeds a single card. The staged schedule of
-Urman et al. <a class="footnote-reference brackets" href="#urman" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> reaches the end-to-end optimum with a bounded memory:</p>
+<p>where <span class="math notranslate nohighlight">\(A\)</span> is the SENSE encoding (coil sensitivities, Fourier transform,
+sampling mask) and <span class="math notranslate nohighlight">\(\tau\)</span> a learned step size. One set of network
+weights serves every iteration. The iteration index <span class="math notranslate nohighlight">\(k\)</span> enters the
+network by feature-wise modulation (FiLM), so that the same weights remove
+the strong incoherent aliasing of the first iterates and the fine residual
+noise of the last.</p>
+<p>Training the stack end to end stores the activations of every iteration for
+the backward pass; for a 3D volume, or a series of them, that exceeds a
+single GPU. Urman et al. <a class="footnote-reference brackets" href="#urman" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> reach the end-to-end result in three
+stages whose memory is bounded by one iteration:</p>
 <ol class="arabic simple">
-<li><p><strong>Denoiser pretraining.</strong> The network is trained alone on degraded images
-paired with references, each assigned the iteration index its degradation
-corresponds to.</p></li>
-<li><p><strong>Greedy training.</strong> The stack is trained with a loss on each iteration’s
-image, back-propagated before the next iteration runs, so memory holds one
-iteration <a class="footnote-reference brackets" href="#gleam" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p></li>
-<li><p><strong>End-to-end fine-tuning.</strong> The loss is taken on the last image only,
-through the whole stack, with each iteration recomputed during the
-backward pass rather than stored.</p></li>
+<li><p><strong>Denoiser pretraining.</strong> The network alone learns to map degraded images
+to the fully sampled reference, each image tagged with the iteration index
+at which the unrolled iteration will meet that level of degradation.</p></li>
+<li><p><strong>Greedy training.</strong> Each iteration’s loss is back-propagated before the
+next iteration runs <a class="footnote-reference brackets" href="#gleam" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p></li>
+<li><p><strong>End-to-end fine-tuning.</strong> One loss on the final image, through the whole
+stack, with each iteration recomputed during the backward pass
+(gradient checkpointing) instead of stored.</p></li>
 </ol>
 <p><a class="reference internal" href="../../generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction" title="bartorch.learning.training.Reconstruction"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.training.Reconstruction</span></code></a> runs each stage in
-<code class="docutils literal notranslate"><span class="pre">lightning</span></code>; <code class="docutils literal notranslate"><span class="pre">torchio</span></code> holds and augments the images.</p>
+<code class="docutils literal notranslate"><span class="pre">lightning</span></code>; <code class="docutils literal notranslate"><span class="pre">torchio</span></code> holds and augments the training images.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
-<li><p>Condition a <a class="reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.UNet</span></code></a> on the iteration index and hand
+<li><p>Condition a <a class="reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.UNet</span></code></a> on the iteration index and pass
 the index to it through <a class="reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.priors.ImplicitPrior</span></code></a>.</p></li>
 <li><p>Train an unrolled <a class="reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.ISTBlock</span></code></a> in the three stages of
 <a class="reference internal" href="../../generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction" title="bartorch.learning.training.Reconstruction"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.training.Reconstruction</span></code></a>.</p></li>
-<li><p>Split a dataset by subject and augment it with transforms that respect
-complex values.</p></li>
+<li><p>Split a dataset by subject and augment it with transforms that preserve the
+complex MR signal.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a>. The next lesson,
 <a class="reference internal" href="05-self-supervised-training.html"><span class="doc">Training without a reference</span></a>, trains the same network without fully
@@ -567,19 +571,24 @@ sampled references.</p>
 </span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">96</span><span class="w">
 </span><span class="n">COILS</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
 </span><span class="n">ITERATIONS</span> <span class="o">=</span> <span class="mi">4</span><span class="w">
+</span><span class="n">ACCELERATION</span> <span class="o">=</span> <span class="mi">4</span><span class="w">
 </span><span class="w">
 </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <section id="images-and-acquisition">
 <h2>Images and acquisition<a class="headerlink" href="#images-and-acquisition" title="Link to this heading">#</a></h2>
-<p>Axial slices of two BrainWeb subjects, converted into <span class="math notranslate nohighlight">\(T_1\)</span>-weighted
-spin-echo images with a smooth phase as in <a class="reference internal" href="02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a>. The
-split is by subject: the slices of subject 4 are never trained on, so the
-validation measures what a network trained on one head does on another.
-Splitting slices or patches of the same heads at random would put
-neighbouring slices of one head on both sides.</p>
-<p>The encoding is eight-channel Cartesian SENSE with a fourfold
-variable-density undersampling of the phase encodes.</p>
+<p>Axial slices of two BrainWeb subjects, simulated as <span class="math notranslate nohighlight">\(T_1\)</span>-weighted
+spin-echo images (TR 600 ms, TE 12 ms) with a smooth background phase, as in
+<a class="reference internal" href="02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a>. Training and validation are split by subject: no
+slice of subject 4 is trained on, so the validation scores measure how a
+network trained on one head generalizes to another. A random split of slices
+would place neighbouring, nearly identical slices of the same head on both
+sides and overstate the result.</p>
+<p>The acquisition is an eight-channel receive array with Cartesian
+variable-density undersampling of the phase encodes at <span class="math notranslate nohighlight">\(R = 4\)</span>, with a
+fully sampled centre of eight lines. Complex Gaussian noise of standard
+deviation 0.02 (relative to an image peak of one) is added to k-space, an
+SNR at which the unfolding of CG-SENSE amplifies the noise visibly.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">train_images</span> <span class="o">=</span> <span class="n">brain_slices</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span><span class="w">
 </span><span class="n">valid_images</span> <span class="o">=</span> <span class="n">brain_slices</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="w">
 </span><span class="w">
@@ -588,12 +597,12 @@ variable-density undersampling of the phase encodes.</p>
 </span><span class="w">
 </span><span class="n">density</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">SIZE</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span><span class="p">)</span> <span class="o">*</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span><span class="w">
 </span><span class="n">lines</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">density</span> <span class="o">/</span> <span class="n">density</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="w">
-</span>    <span class="n">SIZE</span> <span class="o">/</span> <span class="mi">4</span><span class="w">
+</span>    <span class="n">SIZE</span> <span class="o">/</span> <span class="n">ACCELERATION</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="n">lines</span><span class="p">[</span><span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">4</span> <span class="p">:</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
 </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">A</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">CartesianSense</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span><span class="w">
-</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.005</span><span class="w">
+</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.02</span><span class="w">
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_images</span><span class="p">)</span><span class="si">}</span><span class="s2"> slices of subject 0 to train on, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_images</span><span class="p">)</span><span class="si">}</span><span class="s2"> of subject 4</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">SIZE</span><span class="si">}</span><span class="s2"> phase encodes</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
@@ -606,12 +615,14 @@ variable-density undersampling of the phase encodes.</p>
 <section id="dataset">
 <h2>Dataset<a class="headerlink" href="#dataset" title="Link to this heading">#</a></h2>
 <p>Each <code class="docutils literal notranslate"><span class="pre">torchio</span></code> subject holds one reference image as two real channels.
-<a class="reference internal" href="../../generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain" title="bartorch.learning.training.RandomGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomGain</span></code></a> multiplies it by a random
-complex number – a global phase and a scale within 20 per cent – and a flip
-and a small rotation vary the anatomy’s orientation. The k-space is simulated
-from the augmented reference in the collate function, so the measured data
-stay consistent with it. <code class="docutils literal notranslate"><span class="pre">torchio</span></code>’s other intensity transforms act on each
-channel alone and would not.</p>
+The augmentations are those that turn one MR image into another the scanner
+could have produced: <a class="reference internal" href="../../generated/bartorch.learning.training.RandomGain.html#bartorch.learning.training.RandomGain" title="bartorch.learning.training.RandomGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomGain</span></code></a> applies
+a random receiver gain and global phase (a complex scale within 20 per cent
+in magnitude), and a flip and a small in-plane rotation vary the head’s
+orientation. k-space is simulated from the augmented reference in the
+collate function, so the measured data stay consistent with it. <code class="docutils literal notranslate"><span class="pre">torchio</span></code>’s
+intensity transforms such as a gamma correction act on the real and
+imaginary channels independently and would break that consistency.</p>
 <p>A batch is a list of dictionaries, the form
 <a class="reference internal" href="../../generated/bartorch.learning.training.Reconstruction.html#bartorch.learning.training.Reconstruction" title="bartorch.learning.training.Reconstruction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reconstruction</span></code></a> takes: the data, the
 operator, the reference, and the adjoint reconstruction the iteration starts
@@ -676,11 +687,12 @@ each iteration’s index to it.</p>
 </section>
 <section id="stage-1-the-denoiser-alone">
 <h2>Stage 1: the denoiser alone<a class="headerlink" href="#stage-1-the-denoiser-alone" title="Link to this heading">#</a></h2>
-<p>The degraded inputs are reconstructions of increasing quality – the adjoint,
-and conjugate-gradient SENSE after 2, 5 and 20 iterations – paired with the
-reference and with the index at which the unrolled iteration is expected to
-meet an image of that quality. The pairs are made once; no unrolling and no
-encoding operator enters this stage, which is what makes it the cheap one.</p>
+<p>The inputs are reconstructions of increasing quality – the zero-filled
+coil combination <span class="math notranslate nohighlight">\(A^H y\)</span>, and CG-SENSE after 2, 5 and 20 iterations –
+each paired with the fully sampled reference and with the iteration index at
+which the unrolled network is expected to meet an image of that quality. The
+pairs are computed once; neither the unrolling nor the encoding enters this
+stage, which makes it the cheapest of the three.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">STAGES</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>  <span class="c1"># CG iterations -&gt; iteration index</span><span class="w">
 </span><span class="w">
 </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span><span class="p">]</span><span class="w">
@@ -714,10 +726,11 @@ encoding operator enters this stage, which is what makes it the cheap one.</p>
 <section id="stage-2-one-iteration-at-a-time">
 <h2>Stage 2: one iteration at a time<a class="headerlink" href="#stage-2-one-iteration-at-a-time" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">detach=True</span></code> starts every iteration from a detached state, and the greedy
-stage back-propagates each iteration’s loss before the next iteration runs.
-The losses grow geometrically along the stack, the last ten times the first,
-since the last image is the one delivered. The images the network now sees
-are its own iterates, which pretraining could only approximate.</p>
+stage back-propagates each iteration’s loss before the next iteration runs,
+so memory holds one iteration. The losses are weighted geometrically along
+the stack, the last ten times the first, since the last image is the one
+delivered. The network now sees its own iterates, which the CG-SENSE images
+of stage 1 only approximated.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">psnr</span> <span class="o">=</span> <span class="n">PSNRMetric</span><span class="p">(</span><span class="n">max_val</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="w">
 </span><span class="n">ssim</span> <span class="o">=</span> <span class="n">SSIMMetric</span><span class="p">(</span><span class="n">spatial_dims</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">data_range</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="w">
 </span><span class="w">
@@ -748,11 +761,11 @@ are its own iterates, which pretraining could only approximate.</p>
 </section>
 <section id="stage-3-the-whole-stack">
 <h2>Stage 3: the whole stack<a class="headerlink" href="#stage-3-the-whole-stack" title="Link to this heading">#</a></h2>
-<p>The loss is now on the last image alone, so the earlier iterations are free
-to produce whatever serves it best rather than their own best image.
-<code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code> keeps the states between iterations and recomputes the
-inside of each during the backward pass; the gradient is the end-to-end one
-at the memory of the states plus one iteration.</p>
+<p>The loss is now on the final image alone, so the earlier iterations are free
+to produce whatever intermediate image serves the last one best.
+<code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code> stores only the image between iterations and recomputes
+each iteration’s activations during the backward pass: the gradient is the
+exact end-to-end one, at the memory of those images plus one iteration.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">stack</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">learning</span><span class="o">.</span><span class="n">Unrolled</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">block</span></a><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">trainer</span> <span class="o">=</span> <span class="n">lightning</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="w">
 </span>    <span class="n">max_epochs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="w">
@@ -768,9 +781,10 @@ at the memory of the states plus one iteration.</p>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h2>
-<p>The untrained stack is four gradient steps from the adjoint, since the
-residual network starts as the identity. Conjugate-gradient SENSE at twenty
-iterations is the reference without a prior.</p>
+<p>The untrained stack is four gradient steps from <span class="math notranslate nohighlight">\(A^H y\)</span>, since the
+residual network starts as the identity. CG-SENSE with twenty iterations is
+the baseline without a learned prior. Scores are the mean PSNR and SSIM of
+the magnitude over the eight validation slices of subject 4.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">untrained</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">learning</span><span class="o">.</span><span class="n">Unrolled</span></a><span class="p">(</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">optim</span><span class="o">.</span><span class="n">ISTBlock</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span></a><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="p">)</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="w">
 </span><span class="p">)</span><span class="w">
@@ -785,22 +799,26 @@ iterations is the reference without a prior.</p>
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;24</span><span class="si">}</span><span class="s2">   PSNR </span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB   SSIM </span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">learned step: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">block</span></a><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>               untrained   PSNR 26.83 dB   SSIM 0.788
-     denoiser pretrained   PSNR 25.78 dB   SSIM 0.924
-                  greedy   PSNR 28.25 dB   SSIM 0.796
-              end to end   PSNR 29.86 dB   SSIM 0.891
- CG SENSE, 20 iterations   PSNR 29.68 dB   SSIM 0.764
-learned step: 1.173
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>               untrained   PSNR 26.45 dB   SSIM 0.654
+     denoiser pretrained   PSNR 28.67 dB   SSIM 0.941
+                  greedy   PSNR 27.90 dB   SSIM 0.822
+              end to end   PSNR 29.03 dB   SSIM 0.877
+ CG SENSE, 20 iterations   PSNR 24.30 dB   SSIM 0.558
+learned step: 1.141
 </pre></div>
 </div>
-<p>The pretrained denoiser can score below the untrained stack: inside the
-iteration it meets its own iterates rather than the conjugate-gradient images
-it was trained on, and the greedy stage is what closes that gap. Each stage
-starts from the weights the previous one left. On a single
-training subject and a few epochs per stage the numbers show the order of
-the stages rather than what any of them reaches on a real dataset, where the
-published schedule spent days on each.</p>
-<img src="../../_images/sphx_glr_04-staged-training_001.png" srcset="../../_images/sphx_glr_04-staged-training_001.png" alt="a validation slice of subject 4, reference, adjoint, CG SENSE, unrolled, staged" class = "sphx-glr-single-img"/></section>
+<p>Each stage starts from the weights the previous one left, and each raises
+the PSNR. The pretrained denoiser scores a high SSIM but a low PSNR: inside
+the iteration it meets its own iterates rather than the CG-SENSE images it
+was trained on, and the greedy stage adapts it to them. With one training subject and a few
+epochs per stage, the numbers show the ordering of the stages, not what each
+reaches on a real dataset.</p>
+<p>In the images below, CG-SENSE at <span class="math notranslate nohighlight">\(R = 4\)</span> keeps a grainy, spatially
+varying noise – the g-factor amplification of the coil unfolding – and
+faint aliasing along the phase-encode direction (vertical). The unrolled
+network removes both; its error concentrates at tissue boundaries, where it
+slightly smooths the cortex.</p>
+<img src="../../_images/sphx_glr_04-staged-training_001.png" srcset="../../_images/sphx_glr_04-staged-training_001.png" alt="reference, CG-SENSE, unrolled, staged, NRMSE 0.137, NRMSE 0.082" class = "sphx-glr-single-img"/></section>
 <section id="storing-the-weights">
 <h2>Storing the weights<a class="headerlink" href="#storing-the-weights" title="Link to this heading">#</a></h2>
 <p>The weights are stored in half precision, which halves the file and loses
@@ -821,7 +839,7 @@ casts them back to the network’s precision.</p>
 </span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">restored</span></a><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">compact</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">restored: PSNR </span><span class="si">{</span><span class="n">quality</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">restored</span></a><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>restored: PSNR 29.86 dB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>restored: PSNR 29.03 dB
 </pre></div>
 </div>
 </section>
@@ -843,7 +861,7 @@ reconstruction. <em>MICCAI</em> 2021, LNCS 12906:461-470.
 <a class="reference external" href="https://doi.org/10.1007/978-3-030-87231-1_45">https://doi.org/10.1007/978-3-030-87231-1_45</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 44.448 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 45.057 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-04-staged-training-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/36c9dd0485a7810bbc308e2af6c91c00/04-staged-training.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">04-staged-training.ipynb</span></code></a></p>

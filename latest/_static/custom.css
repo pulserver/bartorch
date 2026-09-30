@@ -47,3 +47,12 @@ img.colab-badge {
     display: none;
   }
 }
+
+/* Gallery figures are drawn on a transparent canvas in a grey that reads on
+   either background (docs/gallery_style.py), so the dark theme shows them as
+   they are rather than on a white card, dimmed. */
+html[data-theme="dark"] .bd-content img.sphx-glr-single-img,
+html[data-theme="dark"] .bd-content img.sphx-glr-multi-img {
+  background-color: transparent;
+  filter: none;
+}

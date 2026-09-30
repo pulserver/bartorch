@@ -98,23 +98,23 @@ in millimetres.
 
     Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.71kB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.34kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 97.0kB [00:00, 357kB/s] 
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 265kB [00:00, 995kB/s]  
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 457kB [00:00, 1.37MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.20MB [00:00, 3.97MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.30MB [00:00, 3.45MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.72MB [00:00, 7.78MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.29MB [00:00, 7.94MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.65MB [00:00, 8.39MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.67MB [00:00, 9.76MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.54MB [00:00, 8.69MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.67MB [00:00, 9.56MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.44MB [00:00, 8.80MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.63MB [00:01, 9.11MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.32MB [00:00, 8.58MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.53MB [00:01, 8.22MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.17MB [00:01, 8.15MB/s]
 
                                                                     
 
@@ -239,7 +239,7 @@ least-squares solution over the three planes.
 
  .. code-block:: none
 
-    rotation vector, rad   truth [ 0.02 -0.03  0.05]  measured [ 0.0246 -0.0252  0.0439]
+    rotation vector, rad   truth [ 0.02 -0.03  0.05]  measured [ 0.0249 -0.0252  0.0439]
     translation, mm        truth [ 3. -2.  4.]  measured [ 3.37 -2.66  3.65]
 
 
@@ -316,9 +316,9 @@ measured coordinate. The trace is filtered with three values of
 
  .. code-block:: none
 
-    process_noise 100    rotation rms error [0.0076 0.0064 0.007 ] rad   translation rms error [0.19 0.42 0.19] mm
-    process_noise 0.001  rotation rms error [0.0078 0.0051 0.0063] rad   translation rms error [0.16 0.41 0.15] mm
-    process_noise 0.0001 rotation rms error [0.0075 0.0041 0.0105] rad   translation rms error [0.15 0.42 0.13] mm
+    process_noise 100    rotation rms error [0.0082 0.0064 0.007 ] rad   translation rms error [0.19 0.42 0.19] mm
+    process_noise 0.001  rotation rms error [0.0074 0.0051 0.0063] rad   translation rms error [0.16 0.41 0.15] mm
+    process_noise 0.0001 rotation rms error [0.0071 0.0041 0.0105] rad   translation rms error [0.15 0.42 0.13] mm
 
 
 
@@ -368,7 +368,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.525 seconds)
+   **Total running time of the script:** (0 minutes 6.475 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_06-navigator-motion.py:

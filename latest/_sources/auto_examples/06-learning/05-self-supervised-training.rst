@@ -22,42 +22,44 @@
 Training without a reference
 ============================
 
-The unrolled network of :doc:`04-staged-training`, trained from undersampled
-k-space alone by holding out part of the acquired samples and scoring the
-reconstruction on them.
+**Aim.** Train the unrolled network of :doc:`04-staged-training` from
+undersampled k-space alone, with no fully sampled reference, and measure how
+much of the supervised network's image quality it retains.
 
-A time series of volumes -- a cine, a functional run, a fingerprinting
-acquisition -- is rarely acquired fully sampled, because the undersampling is
-what makes it possible to acquire at all. Self-supervised learning via data
-undersampling (SSDU) [#ssdu]_ does without the reference. The acquired
-samples :math:`\Omega` are split into two disjoint sets, :math:`\Theta` and
-:math:`\Lambda`; the network reconstructs from :math:`\Theta`, and the loss
-compares the reconstruction's k-space with the measured data on
-:math:`\Lambda`,
+Dynamic and high-dimensional acquisitions -- a cine, a functional run, a
+fingerprinting series -- are rarely acquired fully sampled: undersampling is
+what makes them feasible within a breath-hold or a scan time. There is then no
+reference image to train against. Self-supervised learning via data
+undersampling (SSDU) [#ssdu]_ trains against the measured k-space itself. The
+acquired phase encodes :math:`\Omega` are split into two disjoint sets,
+:math:`\Theta` and :math:`\Lambda`; the network reconstructs from
+:math:`\Theta`, and the loss compares the k-space of its reconstruction with
+the measured data on the held-out set :math:`\Lambda`,
 
 .. math::
 
    \mathcal{L} = \frac{\|y_\Lambda - A_\Lambda f_\theta(y_\Theta)\|_2}{\|y_\Lambda\|_2}
    + \frac{\|y_\Lambda - A_\Lambda f_\theta(y_\Theta)\|_1}{\|y_\Lambda\|_1},
 
-where :math:`A_\Lambda` is the encoding restricted to :math:`\Lambda`. A new
-split is drawn at every step, so over the training every acquired sample is
-both reconstructed from and held out [#multimask]_. At inference the network
-reconstructs from all of :math:`\Omega`.
+where :math:`A_\Lambda` is the SENSE encoding restricted to :math:`\Lambda`.
+A new split is drawn at every step, so over the training every acquired line
+is both reconstructed from and held out [#multimask]_. At inference the
+network reconstructs from all of :math:`\Omega`.
 
 **Learning objectives**
 
-- Partition acquired phase encodes with :func:`bartorch.learning.split`.
+- Partition the acquired phase encodes with :func:`bartorch.learning.split`.
 - Train an unrolled network self-supervised with
-  :class:`bartorch.learning.training.Reconstruction`, by giving items a
+  :class:`bartorch.learning.training.Reconstruction`, by giving items the
   sampling pattern instead of a reference.
-- Compare with the same network trained against references.
+- Compare with the same network trained against references, and with
+  CG-SENSE.
 
 It follows :doc:`04-staged-training`. The next lesson,
 :doc:`06-annealed-plug-and-play`, uses a denoiser trained once for any
 acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-106
+.. GENERATED FROM PYTHON SOURCE LINES 45-142
 
 .. code-block:: Python
 
@@ -82,6 +84,7 @@ acquisition.
     SIZE = 96
     COILS = 8
     ITERATIONS = 4
+    ACCELERATION = 4
     EPOCHS = 16
 
     _ = torch.manual_seed(0)
@@ -93,7 +96,7 @@ acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 107-113
+.. GENERATED FROM PYTHON SOURCE LINES 143-149
 
 Data
 ----
@@ -102,7 +105,7 @@ The slices, coils and fourfold undersampling of :doc:`04-staged-training`:
 subject 0 to train on and subject 4 to validate on. The references are kept
 only to score the results; the self-supervised network never sees them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-195
+.. GENERATED FROM PYTHON SOURCE LINES 150-231
 
 .. code-block:: Python
 
@@ -115,12 +118,12 @@ only to score the results; the self-supervised network never sees them.
 
     density = torch.exp(-0.5 * ((torch.arange(SIZE) - SIZE / 2) / (SIZE / 6)) ** 2)
     lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(1)) < density / density.sum() * (
-        SIZE / 4
+        SIZE / ACCELERATION
     )
     lines[SIZE // 2 - 4 : SIZE // 2 + 4] = True
     pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
     A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
-    NOISE = 0.005
+    NOISE = 0.02
 
     generator = torch.Generator().manual_seed(3)
     kspace = {
@@ -141,19 +144,20 @@ only to score the results; the self-supervised network never sees them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 196-205
+.. GENERATED FROM PYTHON SOURCE LINES 232-242
 
 The split
 ---------
 
 The readout is fully sampled, so the unit of the split is the phase-encode
-line: the pattern given to :func:`~bartorch.learning.split` is one entry per
-line, which broadcasts over the coils and the readout. A quarter of the
-acquired lines are held out, drawn with a Gaussian density across k-space,
-and the eight central lines always stay in :math:`\Theta` so that every
-reconstruction keeps the low frequencies.
+line: the pattern given to :func:`~bartorch.learning.split` has one entry per
+line and broadcasts over the coils and the readout. A quarter of the acquired
+lines are held out, drawn with a Gaussian density across :math:`k_y`, and
+the eight central lines always stay in :math:`\Theta`: a reconstruction
+without the centre of k-space would lose the image contrast, and the loss
+would be dominated by it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 206-224
+.. GENERATED FROM PYTHON SOURCE LINES 243-267
 
 .. code-block:: Python
 
@@ -184,7 +188,7 @@ reconstruction keeps the low frequencies.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 225-235
+.. GENERATED FROM PYTHON SOURCE LINES 268-278
 
 Two networks, one trained each way
 ----------------------------------
@@ -197,7 +201,7 @@ acquired ``pattern`` in place of a ``target``, and
 every step. Its validation loss is the held-out loss on a split fixed for
 the whole run, and needs no reference either.
 
-.. GENERATED FROM PYTHON SOURCE LINES 236-276
+.. GENERATED FROM PYTHON SOURCE LINES 279-319
 
 .. code-block:: Python
 
@@ -256,7 +260,7 @@ the whole run, and needs no reference either.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 277-282
+.. GENERATED FROM PYTHON SOURCE LINES 320-325
 
 Results
 -------
@@ -264,7 +268,7 @@ Results
 Both networks reconstruct from all acquired lines of the validation subject
 and are scored against its reference.
 
-.. GENERATED FROM PYTHON SOURCE LINES 283-300
+.. GENERATED FROM PYTHON SOURCE LINES 326-343
 
 .. code-block:: Python
 
@@ -293,29 +297,35 @@ and are scored against its reference.
 
  .. code-block:: none
 
-                  supervised   PSNR 30.83 dB   SSIM 0.956
-             self-supervised   PSNR 30.00 dB   SSIM 0.773
-     CG SENSE, 20 iterations   PSNR 29.68 dB   SSIM 0.762
+                  supervised   PSNR 30.01 dB   SSIM 0.950
+             self-supervised   PSNR 28.59 dB   SSIM 0.726
+     CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 301-307
+.. GENERATED FROM PYTHON SOURCE LINES 344-356
 
-The self-supervised network is trained on less information: each step sees
-three quarters of the lines and is told nothing about the lines never
-acquired, which is where the supervised network learns most. The gap between
-the two on a given dataset is what a reference would have bought; the
-self-supervised network needs nothing beyond the data a protocol already
-acquires.
+The self-supervised network is trained on less information: each step
+reconstructs from three quarters of the acquired lines and is told nothing
+about the lines never acquired, which is where the supervised network learns
+most. The gap between the two is what a fully sampled reference would have
+bought; the self-supervised network needs nothing beyond the data the
+protocol already acquires.
 
-.. GENERATED FROM PYTHON SOURCE LINES 308-318
+In the images below, both networks suppress the noise that the CG-SENSE
+unfolding amplifies across the whole field of view. The self-supervised
+network keeps more residual aliasing along the phase-encode direction
+(vertical), which its error map shows as horizontal striping: the lines never
+acquired are the ones it cannot score against.
+
+.. GENERATED FROM PYTHON SOURCE LINES 357-371
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
-   :alt: reference, supervised, self-supervised, CG SENSE
+   :alt: reference, CG-SENSE, supervised, self-supervised, NRMSE 0.124, NRMSE 0.065, NRMSE 0.076
    :srcset: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
    :class: sphx-glr-single-img
 
@@ -323,7 +333,7 @@ acquires.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 319-331
+.. GENERATED FROM PYTHON SOURCE LINES 372-384
 
 References
 ----------
@@ -341,7 +351,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 2.142 seconds)
+   **Total running time of the script:** (2 minutes 56.213 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_05-self-supervised-training.py:

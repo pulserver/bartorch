@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=0739d252" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -545,31 +545,31 @@ in millimetres.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.71kB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.34kB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 97.0kB [00:00, 357kB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 265kB [00:00, 995kB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 457kB [00:00, 1.37MB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.20MB [00:00, 3.97MB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.30MB [00:00, 3.45MB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.72MB [00:00, 7.78MB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.29MB [00:00, 7.94MB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.65MB [00:00, 8.39MB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.67MB [00:00, 9.76MB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.54MB [00:00, 8.69MB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.67MB [00:00, 9.56MB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.44MB [00:00, 8.80MB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.63MB [00:01, 9.11MB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.32MB [00:00, 8.58MB/s]
 
 
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.53MB [00:01, 8.22MB/s]
+Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.17MB [00:01, 8.15MB/s]
 </pre></div>
 </div>
 </section>
@@ -645,7 +645,7 @@ least-squares solution over the three planes.</p>
 </span>    <span class="s2">&quot;</span><span class="s2">translation, mm        truth</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">translation</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2"> measured</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate.translation" title="bartorch.tools.RigidMotionEstimate.translation"><span class="n">pose</span><span class="o">.</span><span class="n">translation</span></a><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rotation vector, rad   truth [ 0.02 -0.03  0.05]  measured [ 0.0246 -0.0252  0.0439]
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rotation vector, rad   truth [ 0.02 -0.03  0.05]  measured [ 0.0249 -0.0252  0.0439]
 translation, mm        truth [ 3. -2.  4.]  measured [ 3.37 -2.66  3.65]
 </pre></div>
 </div>
@@ -703,9 +703,9 @@ measured coordinate. The trace is filtered with three values of
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">   translation rms error </span><span class="si">{</span><span class="n">rms</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rotation rms error [0.0076 0.0064 0.007 ] rad   translation rms error [0.19 0.42 0.19] mm
-process_noise 0.001  rotation rms error [0.0078 0.0051 0.0063] rad   translation rms error [0.16 0.41 0.15] mm
-process_noise 0.0001 rotation rms error [0.0075 0.0041 0.0105] rad   translation rms error [0.15 0.42 0.13] mm
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rotation rms error [0.0082 0.0064 0.007 ] rad   translation rms error [0.19 0.42 0.19] mm
+process_noise 0.001  rotation rms error [0.0074 0.0051 0.0063] rad   translation rms error [0.16 0.41 0.15] mm
+process_noise 0.0001 rotation rms error [0.0071 0.0041 0.0105] rad   translation rms error [0.15 0.42 0.13] mm
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_06-navigator-motion_002.png" srcset="../../_images/sphx_glr_06-navigator-motion_002.png" alt="rotation about axis 2, mrad, translation along axis 0, mm" class = "sphx-glr-single-img"/><p>A large <code class="docutils literal notranslate"><span class="pre">process_noise</span></code> leaves the filter at the measurements; a small one
@@ -741,7 +741,7 @@ Evans AC. Design and construction of a realistic digital brain phantom.
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.525 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.475 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-06-navigator-motion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0237a94056ab625458d97bb6b88710fb/06-navigator-motion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">06-navigator-motion.ipynb</span></code></a></p>
