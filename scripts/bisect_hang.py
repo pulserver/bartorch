@@ -26,22 +26,29 @@ CHILD = (
     "import faulthandler, sys, pytest\n"
     "f = open('stacks.txt', 'w')\n"
     "faulthandler.dump_traceback_later(300, file=f)\n"
-    "sys.exit(pytest.main(['-v', '-p', 'no:cacheprovider', '-p', 'no:faulthandler', *sys.argv[1:]]))\n"
+    "sys.path.insert(0, 'scripts')\n"
+    "sys.exit(pytest.main(['-v', '-p', 'no:cacheprovider', '-p', 'no:faulthandler', '-p', '_memplugin', *sys.argv[1:]]))\n"
 )
 
 for case in CASES:
     start = time.time()
+    child = subprocess.Popen([sys.executable, "-c", CHILD, *case], stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT, text=True)
     try:
-        done = subprocess.run(
-            [sys.executable, "-c", CHILD, *case],
-            capture_output=True, text=True, timeout=420,
-        )
-        verdict, out = f"exit {done.returncode}", done.stdout + done.stderr
-    except subprocess.TimeoutExpired as hung:
+        out, _ = child.communicate(timeout=420)
+        verdict = f"exit {child.returncode}"
+    except subprocess.TimeoutExpired:
         verdict = "HUNG"
-        out = (hung.stdout or b"").decode(errors="replace") if isinstance(hung.stdout, bytes) else (hung.stdout or "")
-        out += (hung.stderr or b"").decode(errors="replace") if isinstance(hung.stderr, bytes) else (hung.stderr or "")
+        spy = subprocess.run(["py-spy", "dump", "--native", "--locals", "--pid", str(child.pid)],
+                             capture_output=True, text=True)
+        print("--- py-spy ---\n" + spy.stdout + spy.stderr, flush=True)
+        child.kill()
+        out, _ = child.communicate()
     print(f"=== {verdict} after {time.time() - start:.0f} s: {case}", flush=True)
+    try:
+        print(open("mem.txt").read(), flush=True)
+    except OSError:
+        pass
     if verdict != "exit 0":
         print("\n".join(out.splitlines()[-120:]), flush=True)
         try:
