@@ -11,7 +11,7 @@ __all__ = ["correct_lines", "epi_ramp_operator", "estimate_epi_phase"]
 
 def _hybrid(rows: torch.Tensor, *, inverse: bool = True) -> torch.Tensor:
     """Centred unitary transform along the readout, the last axis."""
-    from bartorch.fourier import fft
+    from bartorch._fourier import fft
 
     rows = torch.as_tensor(rows)
     return fft(rows, -1, inverse=inverse, unitary=True).reshape(rows.shape)
@@ -129,7 +129,7 @@ def estimate_epi_phase(
     ValueError
         If fewer than three lines are given, or the order is negative.
     """
-    from bartorch.util import unwrap
+    from bartorch._util import unwrap
 
     if len(navigator_lines) < 3:
         raise ValueError(

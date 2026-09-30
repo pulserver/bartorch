@@ -15,7 +15,7 @@ import torch
 
 import bartorch
 from bartorch import linop, nlop, optim
-from bartorch.linop import basic
+from bartorch.linop import _basic as basic
 
 
 def _rand(*shape):
@@ -533,7 +533,7 @@ def test_nothing_here_yet_has_barts_closed_form_pseudo_inverse():
 
 
 def test_an_operator_can_carry_the_normal_it_is_given():
-    from bartorch.linop.base import _WithNormal
+    from bartorch.linop._base import _WithNormal
 
     n = 16
     torch.manual_seed(0)
@@ -551,7 +551,7 @@ def test_an_operator_can_carry_the_normal_it_is_given():
 
 
 def test_a_normal_that_is_not_one_is_refused():
-    from bartorch.linop.base import _WithNormal
+    from bartorch.linop._base import _WithNormal
 
     F = linop.FFT((1, 8, 8), axes=(-2, -1))
     with pytest.raises(ValueError, match="maps the domain to itself"):
@@ -560,7 +560,7 @@ def test_a_normal_that_is_not_one_is_refused():
 
 def test_an_operator_carrying_a_normal_still_composes():
     """It is a BART operator, so a chain of it is one operator too."""
-    from bartorch.linop.base import _WithNormal
+    from bartorch.linop._base import _WithNormal
 
     n = 8
     torch.manual_seed(0)

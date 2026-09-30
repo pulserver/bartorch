@@ -7,8 +7,8 @@ import pytest
 import torch
 
 import bartorch
-from bartorch.thresh import hard_thresh, soft_thresh
-from bartorch.wavelet import fwt, iwt
+from bartorch._thresh import hard_thresh, soft_thresh
+from bartorch._wavelet import fwt, iwt
 
 pywt = pytest.importorskip("pywt")
 

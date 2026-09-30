@@ -9,32 +9,32 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError, version
 
 from bartorch import (
+    _fourier,
+    _interp,
+    _kspace,
     _settings,
+    _thresh,
+    _util,
+    _wavelet,
     apps,
     cli,
-    fourier,
     interop,
-    interp,
     io,
-    kspace,
     learning,
     linop,
     nlop,
     optim,
     priors,
-    thresh,
     tools,
-    util,
-    wavelet,
 )
 from bartorch._dispatch import BartError
+from bartorch._fourier import *  # noqa: F401,F403
+from bartorch._interp import *  # noqa: F401,F403
+from bartorch._kspace import *  # noqa: F401,F403
 from bartorch._settings import *  # noqa: F401,F403
-from bartorch.fourier import *  # noqa: F401,F403
-from bartorch.interp import *  # noqa: F401,F403
-from bartorch.kspace import *  # noqa: F401,F403
-from bartorch.thresh import *  # noqa: F401,F403
-from bartorch.util import *  # noqa: F401,F403
-from bartorch.wavelet import *  # noqa: F401,F403
+from bartorch._thresh import *  # noqa: F401,F403
+from bartorch._util import *  # noqa: F401,F403
+from bartorch._wavelet import *  # noqa: F401,F403
 
 try:
     __version__ = version("bartorch")
@@ -55,10 +55,10 @@ __all__ = [
     "priors",
     "tools",
     *_settings.__all__,
-    *fourier.__all__,
-    *interp.__all__,
-    *kspace.__all__,
-    *thresh.__all__,
-    *util.__all__,
-    *wavelet.__all__,
+    *_fourier.__all__,
+    *_interp.__all__,
+    *_kspace.__all__,
+    *_thresh.__all__,
+    *_util.__all__,
+    *_wavelet.__all__,
 ]

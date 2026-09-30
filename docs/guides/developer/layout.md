@@ -31,14 +31,18 @@ describes.
 
 ## The Python package
 
+Every public interface is flat: `bartorch` and each subpackage export their
+names from `__init__.py`, and every module beneath them is private, named
+with a leading underscore.  `tests/test_namespace.py` holds this.
+
 | Path | Contents |
 | --- | --- |
-| `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py`, `kspace.py`, `_settings.py` | The array functions and runtime settings re-exported as `bartorch.*` |
-| `linop/`, `nlop/` | One class per operator; `linop/form.py` is the encoding form and the plan it reports, `linop/plan.py` the matching of a composition against it |
+| `_fourier.py`, `_wavelet.py`, `_thresh.py`, `_util.py`, `_interp.py`, `_kspace.py`, `_settings.py` | The array functions and runtime settings re-exported as `bartorch.*` |
+| `linop/`, `nlop/` | One class per operator; `linop/_form.py` is the encoding form and the plan it reports, `linop/_plan.py` the matching of a composition against it |
 | `optim/`, `priors/` | One class per BART iteration, and BART's regularization terms and denoisers |
 | `apps/` | BART's reconstructions assembled from operators and solvers |
 | `learning/`, `interop.py` | Unrolled iterations and channel conversions, and the DeepInverse adapter |
-| `tools/` | BART's remaining commands in five sections, and `correct.py` and `motion.py`, implemented in `tools/_correct/` and `tools/_motion/` |
+| `tools/` | BART's remaining commands in five sections, and corrections and rigid motion in `tools/_correct/` and `tools/_motion/` |
 | `cli/` | The `bartorch` command line: `_argv.py` reads a `bart` command line, `_apps.py` routes it to an app |
 | `io.py` | CFL files |
 | `_abi.py`, `_lib.py`, `_marshal.py`, `_buffer.py` | The ctypes signatures, loading the library, the form of an ABI argument, and a tensor over one of BART's buffers |

@@ -212,7 +212,7 @@ def tupled(made):
 
 def composed(generator):
     """One composition per node of the algebra, each with a bundle."""
-    from bartorch.nlop.base import _chain, _combine
+    from bartorch.nlop._base import _chain, _combine
 
     exp, log = nlop.Exp(SHAPE), nlop.Log(SHAPE)
     return {
@@ -280,7 +280,7 @@ def test_a_composed_bundle_satisfies_the_adjoint_identity(name, generator):
 
 
 def test_the_chain_rule_is_torchs_own_over_the_written_out_composition(generator):
-    from bartorch.nlop.base import _chain
+    from bartorch.nlop._base import _chain
 
     op = _chain(nlop.Exp(SHAPE), nlop.Multiply(SHAPE, SHAPE), output=0, input=1)
     fn = lambda a, x: a * torch.exp(x)  # noqa: E731
@@ -306,7 +306,7 @@ def test_a_composed_bundle_does_not_move_with_a_forward_elsewhere(generator):
 
 def test_a_link_has_no_bundle():
     """A tie is a feedback edge, and its rule needs the whole graph rather than the node."""
-    from bartorch.nlop.base import _combine
+    from bartorch.nlop._base import _combine
 
     # BART applies a combination back to front, so `Log` produces before `Exp`
     # consumes and the tie is the one the algebra allows.

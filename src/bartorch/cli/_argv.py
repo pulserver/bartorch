@@ -195,7 +195,7 @@ def regularizer(text: str, ndim: int):
     Unsupported
         A letter this package does not offer, or a field that will not parse.
     """
-    from bartorch.priors import terms
+    from bartorch.priors import _terms as terms
 
     letter, _, fields = text.partition(":")
     if letter not in _TERMS:

@@ -77,8 +77,9 @@ Issues = "https://github.com/pulserver/bartorch/issues"
 deepinv = [
     "deepinv>=0.2",
 ]
-# The training stages and augmentation of `bartorch.learning.training`; the
-# networks and the rest of `bartorch.learning` need neither.
+# The training stages and augmentation, `bartorch.learning.Reconstruction` and
+# `bartorch.learning.RandomGain`; the networks and the rest of
+# `bartorch.learning` need neither.
 learning = [
     "lightning>=2.2",
     "torchio>=0.19",

@@ -17,9 +17,9 @@ import bartorch
 import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _dispatch, linop, optim, priors
-from bartorch.linop import basic
-from bartorch.optim.linear import NIHT
-from bartorch.priors.terms import ImageNIHT, WaveletNIHT
+from bartorch.linop import _basic as basic
+from bartorch.optim._linear import NIHT
+from bartorch.priors._terms import ImageNIHT, WaveletNIHT
 
 
 def _rand(*shape):
@@ -890,7 +890,7 @@ def test_stacking_does_not_cost_the_encoding_its_own_normal():
     first route, or a Toeplitz encoding would quietly stop being one inside a
     regularized solve.
     """
-    from bartorch.optim.linear import _stacked
+    from bartorch.optim._linear import _stacked
 
     n, coils = 16, 4
     torch.manual_seed(0)
@@ -916,7 +916,7 @@ def test_the_stacked_data_is_the_terms_laid_end_to_end(_small_encoding):
     import math
 
     A, y = _small_encoding
-    from bartorch.optim.linear import _stacked
+    from bartorch.optim._linear import _stacked
 
     G = linop.FFT(A.ishape, axes=(-2, -1))
     bias = _rand(*G.oshape)

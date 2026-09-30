@@ -96,7 +96,7 @@ during the backward pass.  Staged training bounds the memory:[^urman]
 Per-iteration training requires the block's image to pass through that
 iteration's denoiser, which holds for a proximal-gradient step and not for the
 image of an ADMM step, its x-update.
-{class}`~bartorch.learning.training.Reconstruction` runs each stage as a
+{class}`~bartorch.learning.Reconstruction` runs each stage as a
 Lightning module; the items stay where the dataset put them, and a network
 inside decides where it runs.
 

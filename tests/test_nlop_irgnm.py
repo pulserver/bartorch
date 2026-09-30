@@ -13,7 +13,7 @@ import pytest
 import torch
 
 from bartorch import linop, nlop, optim, priors
-from bartorch.nlop.base import _chain
+from bartorch.nlop._base import _chain
 
 
 def _rand(*shape):

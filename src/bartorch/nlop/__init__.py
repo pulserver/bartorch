@@ -8,8 +8,8 @@ the derivative at a point.
 
 from __future__ import annotations
 
-from bartorch.nlop.base import NonlinearOperator
-from bartorch.nlop.basic import (
+from bartorch.nlop._base import NonlinearOperator
+from bartorch.nlop._basic import (
     Abs,
     Add,
     Constant,
@@ -26,15 +26,15 @@ from bartorch.nlop.basic import (
     SumOfSquares,
     Weighted,
 )
-from bartorch.nlop.callback import TorchOperator
-from bartorch.nlop.irgnm import IRGNM, IRGNMBlock, irgnm
-from bartorch.nlop.mri import (
+from bartorch.nlop._callback import TorchOperator
+from bartorch.nlop._irgnm import IRGNM, IRGNMBlock, irgnm
+from bartorch.nlop._mri import (
     CartesianSense,
     CoilSense,
     NoncartesianSense,
     NonlinearSense,
 )
-from bartorch.nlop.simulation import (
+from bartorch.nlop._simulation import (
     Bloch,
     InversionRecovery,
     MultiEcho,
