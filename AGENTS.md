@@ -1262,10 +1262,10 @@ is:
 
 | Section | Directory | What is in it |
 | --- | --- | --- |
-| User guide | `docs/guides/user/` | Prerequisites, installation, preparing data, issues, security |
+| User guide | `docs/guides/user/` | Prerequisites, installation, reporting issues, questions, security; nothing conceptual |
 | Developer guide | `docs/guides/developer/` | Building, layout, workflow, style, terminology, documentation, pull requests |
-| Explanation | `docs/explanation/` | The concepts: execution model, data layout, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation |
-| Examples | `docs/examples/` | The gallery: executable scripts rendered by sphinx-gallery |
+| Explanation | `docs/explanation/` | The concepts: execution model, data layout and the conversion of data into it, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation, learned reconstruction |
+| Examples | `docs/examples/` | The gallery: executable scripts rendered by sphinx-gallery into `docs/auto_examples/` |
 | API reference | `docs/api/` | One page per public module, listing its objects in tables |
 | Misc | `docs/misc/` | License, related projects, citation |
 
@@ -1282,12 +1282,15 @@ documented default to the signature.
 An example is a Python script under `docs/examples/<section>/`, named
 `NN-title.py`, whose module docstring becomes the page and whose numeric prefix
 orders it within its section. A section is a directory with a `README.rst`
-holding its heading and a paragraph; `docs/conf.py` lists the sections in the
-order a reader meets them, and `docs/examples/index.md` is the landing page:
-it includes each section's paragraph under a heading of its own, tabulates the
-section's examples, and lists the example pages in its hidden toctrees, so the
-sidebar reaches every example directly from *Examples*.  The section pages
-sphinx-gallery writes stay under its orphan root and out of the sidebar. Code that is not about this library -- figure
+holding its heading and a paragraph stating its aim and what it needs beyond
+the common packages; `docs/conf.py` lists the sections in the order a reader
+meets them.  `docs/examples/README.rst` is the header of the gallery's root,
+which sphinx-gallery writes to `auto_examples/index.rst` and which is the
+*Examples* page: its table links each section's page, and below it every
+section's paragraph and thumbnails follow.  Each section page is
+sphinx-gallery's own, with the section's paragraph and thumbnails and a toctree
+of its examples, so the sidebar reads Examples, section, example
+(`max_navbar_depth` 3).  `tests/test_docs.py` holds the table to the sections. Code that is not about this library -- figure
 layout, colormaps, the phantom's arithmetic -- goes between
 `# sphinx_gallery_start_ignore` and `# sphinx_gallery_end_ignore`, which keeps
 it off the page and in the downloadable script and notebook. Anything a reader

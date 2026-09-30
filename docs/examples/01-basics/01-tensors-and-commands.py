@@ -75,7 +75,7 @@ COILS = 8
 # copy is needed between the two: a two-dimensional multichannel image is
 # ``(coils, 1, y, x)``, with the singleton standing for BART's ``z``, and the
 # readout direction is the last tensor axis.
-# :doc:`../../guides/user/conventions` tabulates the layouts used throughout.
+# :doc:`/explanation/data-layout` tabulates the layouts used throughout.
 #
 # :func:`bartorch.tools.phantom` is BART's ``phantom`` command. Without
 # ``coils`` it returns the Shepp-Logan image; with ``coils`` it returns that

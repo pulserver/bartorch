@@ -127,38 +127,6 @@ which a CUDA 12 build of PyTorch provides.  A source build with CUDA passes
 `-C cmake.define.BARTORCH_CUDA_ARCHITECTURES="80;86"` selects the compute
 capabilities for BART's kernels and cuFINUFFT alike.
 
-Operators and commands run on the device that holds their tensor arguments.
-Operators work on device memory directly; some commands allocate host
-temporaries internally and are given host copies of their inputs, with their
-results returned on the device.
-
-## Non-Cartesian backends
-
-Every non-uniform Fourier transform, in the commands and in the operators, is
-computed by FINUFFT for tensors in host memory and by cuFINUFFT for tensors on
-a CUDA device.  BART's own gridding implementation is not used.
-
-| Transform | Backend | Requirement |
-| --- | --- | --- |
-| Host tensors | FINUFFT | Compiled into every build |
-| CUDA tensors | cuFINUFFT | Compiled into the CUDA build |
-| A configuration FINUFFT cannot serve | None | The transform raises {class}`~bartorch.BartError` with the reason |
-
-{doc}`../../explanation/non-cartesian` describes the transform, its tolerance
-and the configurations that are refused.
-
-(openmp-runtime)=
-## OpenMP runtime
-
-BART and FINUFFT are compiled with OpenMP and share one runtime with PyTorch.
-The library is linked against the runtime PyTorch contains
-(`torch/lib/libgomp.so.1`, `torch/lib/libomp.dylib`,
-`torch/lib/libiomp5md.dll`) and the wheels contain none of their own; on macOS
-and Windows the LLVM runtime terminates the process when a second copy
-initializes (`OMP: Error #15`).  No installed file is modified, and
-`KMP_DUPLICATE_LIB_OK` is not used.  On Linux this needs PyTorch 2.7.1 or
-later, the first release whose copy is named `libgomp.so.1`.
-
 ## Command-line interface
 
 Installation provides the `bartorch` command, which accepts the command lines
@@ -170,5 +138,5 @@ bartorch --list
 ```
 
 A script written for `bart` runs with the command name replaced, or with a
-`bart` symbolic link to `bartorch` earlier on the `PATH`; {doc}`../../api/cli`
-describes which commands run as {mod}`bartorch.apps` pipelines.
+`bart` symbolic link to `bartorch` earlier on the `PATH`.  Which commands run
+as {mod}`bartorch.apps` pipelines is stated in {doc}`../../api/cli`.

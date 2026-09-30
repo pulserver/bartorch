@@ -131,7 +131,7 @@ reconstruction is reliable depends on how well the spread follows the error.
   unrolled iterations.
 - {doc}`../api/learning`: the networks, iterations, splitting, uncertainty and
   training stages.
-- {doc}`../examples/index`: the learned-reconstruction lessons.
+- {doc}`../auto_examples/06-learning/index`: the learned-reconstruction lessons.
 
 ## References
 

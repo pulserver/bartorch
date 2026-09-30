@@ -5,6 +5,7 @@ role; ``docs/api_objects.py`` collects those tables into the page the
 per-object stubs are generated from.
 """
 
+import ast
 import importlib.util
 import json
 from importlib import import_module
@@ -158,3 +159,46 @@ def test_the_colab_notebook_is_the_gallery_notebook_after_a_setup_cell(tmp_path)
     assert "bartorch==1.2.3" in install and "deepinv" in install
     assert copy["cells"][2:] == notebook["cells"]
     assert "bartorch " in colab.setup_cells("01-basics", "latest")[1]["source"][0] + " "
+
+
+def _toctree(page: Path) -> list[str]:
+    """The entries of the toctrees of a Markdown page."""
+    entries, inside = [], False
+    for line in page.read_text(encoding="utf-8").splitlines():
+        if line.startswith("```{toctree}"):
+            inside = True
+        elif inside and line.startswith("```"):
+            inside = False
+        elif inside and line.strip() and not line.startswith(":"):
+            entries.append(line.strip())
+    return entries
+
+
+def test_the_user_guide_holds_installation_and_support_pages_only():
+    """Concepts and conventions are explanation pages, not user-guide pages."""
+    user = DOCS / "guides" / "user"
+    pages = ["prerequisites", "installation", "issues", "discussions", "security"]
+    assert _toctree(user / "index.md") == pages
+    assert sorted(p.stem for p in user.glob("*.md")) == sorted([*pages, "index"])
+
+
+def _gallery_sections() -> list[str]:
+    """``GALLERY_SECTIONS`` of ``docs/conf.py``, read without executing it."""
+    tree = ast.parse((DOCS / "conf.py").read_text(encoding="utf-8"))
+    for node in tree.body:
+        target = getattr(node, "targets", [None])[0]
+        if isinstance(node, ast.Assign) and getattr(target, "id", "") == "GALLERY_SECTIONS":
+            return [Path(s).name for s in ast.literal_eval(node.value)]
+    raise AssertionError("docs/conf.py defines no GALLERY_SECTIONS")
+
+
+def test_the_examples_page_is_the_gallery_root_and_links_every_section():
+    """Examples > section > example: the sidebar enters the gallery at its root."""
+    sections = _gallery_sections()
+    on_disk = sorted(p.parent.name for p in (DOCS / "examples").glob("*/README.rst"))
+    assert sorted(sections) == on_disk
+    assert "auto_examples/index" in _toctree(DOCS / "index.md")
+    assert not (DOCS / "examples" / "index.md").exists()
+    root = (DOCS / "examples" / "README.rst").read_text(encoding="utf-8")
+    linked = [line.split("`")[1] for line in root.splitlines() if ":doc:`0" in line]
+    assert linked == [f"{section}/index" for section in sections]

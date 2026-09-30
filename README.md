@@ -87,10 +87,10 @@ describes which interface fits which task.
 
 <https://pulserver.github.io/bartorch/> has the
 [user guide](https://pulserver.github.io/bartorch/latest/guides/user/index.html)
-(installation, supported platforms, preparing data), the
+(supported platforms, installation, reporting issues), the
 [developer guide](https://pulserver.github.io/bartorch/latest/guides/developer/index.html),
 conceptual [explanations](https://pulserver.github.io/bartorch/latest/explanation/index.html),
-executed [examples](https://pulserver.github.io/bartorch/latest/examples/index.html)
+executed [examples](https://pulserver.github.io/bartorch/latest/auto_examples/index.html)
 and the [API reference](https://pulserver.github.io/bartorch/latest/api/index.html),
 with a version switcher between the development version and the releases.
 

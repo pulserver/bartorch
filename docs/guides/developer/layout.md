@@ -54,7 +54,7 @@ describes.
 | `docs/index.md` | Landing page: the README and the top-level toctree |
 | `docs/guides/user/`, `docs/guides/developer/` | User and developer guides |
 | `docs/explanation/` | Conceptual explanations |
-| `docs/examples/` | Example scripts, one directory per section, and the examples landing page |
+| `docs/examples/` | Example scripts, one directory per section with its header `README.rst`, and `README.rst`, the header of the Examples page |
 | `docs/api/` | API category pages; their tables list the objects |
 | `docs/api_objects.py` | Collects the objects from the API tables into `docs/api_objects.rst`, which generates one page per object under `docs/generated/` |
 | `docs/_templates/autosummary/` | Templates of the generated object pages |

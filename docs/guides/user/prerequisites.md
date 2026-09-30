@@ -40,4 +40,4 @@ it is installed.
 
 The examples additionally need `brainweb-dl`, `matplotlib` and `cmap`; the
 learned-regularization examples `lightning`, `torchio`, `monai` and `deepinv`,
-and the tours `SimpleITK` ({doc}`../../examples/index`).
+and the tours `SimpleITK` ({doc}`../../auto_examples/index`).

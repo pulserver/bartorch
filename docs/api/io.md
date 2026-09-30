@@ -3,8 +3,8 @@
 `bartorch.io` reads and writes BART's CFL format: a `.hdr` text header with
 the dimensions and a `.cfl` file of complex64 values in Fortran order.  Arrays
 are NumPy arrays in BART's dimension order, the reverse of a C-order tensor
-shape, so `array.T` converts between the two; {doc}`../guides/user/conventions`
-shows the round trip and {doc}`../explanation/data-layout` the conventions.
+shape, so `array.T` converts between the two; {doc}`../explanation/data-layout`
+states the conventions and shows the round trip.
 
 ```{eval-rst}
 .. currentmodule:: bartorch.io

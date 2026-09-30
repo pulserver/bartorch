@@ -55,9 +55,9 @@ extensions = [
 ]
 source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
 templates_path = ["_templates"]
-# The gallery's section headers are sphinx-gallery's input, rendered into
-# `auto_examples/`; `examples/index.md` beside them is a page of its own, which
-# includes each section header's paragraph.
+# The gallery's headers are sphinx-gallery's input, rendered into
+# `auto_examples/`: the root header into the Examples page, each section's into
+# that section's page and, beside its thumbnails, into the Examples page.
 # The design notes are maintainers' records rather than documentation.
 exclude_patterns = [
     "_build",
@@ -160,12 +160,12 @@ html_theme_options = {
     "use_edit_page_button": True,
     "home_page_in_toc": True,
     # The sidebar carries the six sections and the pages directly under
-    # them; under Examples those are the example pages themselves, which
-    # `examples/index.md` lists in its toctrees.  Individual objects are
-    # reached from the tables on the API pages, whose stubs are generated from
+    # them, and under Examples one level more: the gallery's sections, each
+    # holding its example pages.  Individual objects are reached from the
+    # tables on the API pages, whose stubs are generated from
     # `api_objects.rst` and so never enter this tree.
     "show_navbar_depth": 1,
-    "max_navbar_depth": 2,
+    "max_navbar_depth": 3,
     "logo": {
         "image_light": "_static/bartorch-mark.svg",
         "image_dark": "_static/bartorch-mark-dark.svg",
@@ -352,6 +352,12 @@ _PICTURE = re.compile(
 )
 
 
+def _source_of_page(match: re.Match) -> str:
+    """The source a published page is built from: Markdown, or the gallery's reStructuredText."""
+    page = match.group(1)
+    return f"{page}.rst" if page.startswith(f"{colab.GALLERY}/") else f"{page}.md"
+
+
 def _readme_for_docs(text: str) -> str:
     """The README with its figures and links resolved within this build.
 
@@ -360,7 +366,7 @@ def _readme_for_docs(text: str) -> str:
     light and dark switch does not reach a media query.
     """
     text = _RAW_STATIC.sub("_static/", text)
-    text = _SITE_PAGE.sub(r"\1.md", text)
+    text = _SITE_PAGE.sub(_source_of_page, text)
     return _PICTURE.sub(
         r'<img class="only-light" \g<attributes>src="\g<light>"\g<rest>>'
         r'<img class="only-dark" \g<attributes>src="\g<dark>"\g<rest>>',
