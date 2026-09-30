@@ -46,7 +46,7 @@ would otherwise have been linked against.
 | `src/csrc/substitute/finufft.c`, `nufft_finufft.c` | FINUFFT's and cuFINUFFT's plans through their C API, and BART's NUFFT operator built out of a pair of their plans -- and the normal, which stores one of those in BART's operator through `noncart/nufft_priv.h` rather than letting it grid one. |
 | `src/csrc/substitute/openmp.c` | `__kmpc_dispatch_deinit` for an OpenMP runtime that lacks it, on macOS and Windows. |
 | `src/csrc/substitute/psf.c` | The three `compute_psf*` entry points, so that the adjoint transform a point spread function is comes from the substitution. |
-| `src/bartorch/` | The package.  Public: the functions in `fourier.py`, `wavelet.py`, `thresh.py`, `util.py`, `interp.py`, `kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported flat as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and in `training.py` the Lightning training stages); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `correct.py`, corrections of data and images outside the reconstruction, and `motion.py`, rigid motion from navigators, implemented in the private `tools/_correct/` and `tools/_motion/`); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `form.py` (the encoding form and the plan it reports) and `plan.py` (matching a composition against that form). |
+| `src/bartorch/` | The package.  Every public interface is flat: `bartorch` and each subpackage export their names from `__init__.py`, and every module beneath them is private, named with a leading underscore.  Public: the functions in `_fourier.py`, `_wavelet.py`, `_thresh.py`, `_util.py`, `_interp.py`, `_kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and in `_training.py` the Lightning training stages, which `learning/__init__.py` imports the first time `Reconstruction` or `RandomGain` is asked for); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `_correct/`, corrections of data and images outside the reconstruction, and `_motion/`, rigid motion from navigators); `io.py` (CFL files); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `_form.py` (the encoding form and the plan it reports) and `_plan.py` (matching a composition against that form). |
 | `scripts/gen_abi.py` | Generates `_abi.py` from `src/csrc/include/bartorch.h`. Run after changing the header; `tests/test_abi.py` fails when the checked-in file is not what it writes. |
 | `scripts/gen_catalogue.py` | Generates `_catalogue.py` from the BART sources: every command, its arguments, and every option with both spellings. Run after a submodule bump. |
 | `scripts/run_tests.sh` | Builds whatever changed on the C side, then runs the suite against `src/`, without installing. |
@@ -734,7 +734,7 @@ contraction's spatial weights; `T` is the transform, one of an FFT on the
 image's grid, a NUFFT over a trajectory, and a wave; `O` is the k-space
 element-wise factor -- a pattern, a table of sampled phase encodes, a subspace
 basis, density weights, a contraction's sample weights; and `sum_a` is the
-contraction.  `linop/form.py` is that expression as the library takes it, and
+contraction.  `linop/_form.py` is that expression as the library takes it, and
 `struct bartorch_encoding` is the same record in C.
 
 There is one executor, and it is parameterised by the form rather than written
@@ -747,7 +747,7 @@ one `switch`.
 
 **Composing in Python builds a description.**  Matching and lowering happen
 once, when the operator is built, and each application is then one call into
-the library.  `linop/plan.py` holds both halves: `describe` reads a composition
+the library.  `linop/_plan.py` holds both halves: `describe` reads a composition
 of diagonals around an encoding back into chains and sums of them, `lower`
 folds the factors into the encoding's form, and `materialise` builds BART's
 plain sum of chains where they do not fit.
@@ -852,8 +852,8 @@ the complex-to-channel layout (`ComplexNet`), patchwise execution on a device
 of an image held on the host (`Patchwise`), the partition of the samples for
 self-supervised training (`split`), the spread of randomised reconstructions
 and its conformal calibration (`moments`, `calibrate`), and in
-`learning/training.py` a `LightningModule` for the three training stages and a
-`torchio` transform that respects complex values.  `training.py` is the only
+`learning/_training.py` a `LightningModule` for the three training stages and a
+`torchio` transform that respects complex values.  `_training.py` is the only
 module importing `lightning` and `torchio`, which the `learning` extra
 installs.
 
@@ -997,8 +997,8 @@ brings its coefficients to order one, and five over a bounded variable answer
 430 ms for a decay of 60 and one of 110 alike.
 
 So `priors/` computes nothing, and the iterations write out only their
-steps: the proximal steps, one block each in `optim/blocks.py`, and the
-Gauss-Newton step, `IRGNMBlock` in `nlop/irgnm.py`, whose operators -- the
+steps: the proximal steps, one block each in `optim/_blocks.py`, and the
+Gauss-Newton step, `IRGNMBlock` in `nlop/_irgnm.py`, whose operators -- the
 model, its adjoint derivative and `norm_inv`'s inverse -- are BART's.  Each is
 held to the library's bits (`tests/test_optim_iterators.py`,
 `tests/test_nlop_irgnm.py`) and looped by its solver.  Conjugate gradients go
@@ -1022,7 +1022,7 @@ the unknowns, with the encoding chained onto an extract of its front as
 `pics.c` chains it.
 
 **Two habits of BART's arithmetic** decide whether a loop written out in
-`optim/blocks.py` answers with the library's bits, and both are easy to
+`optim/_blocks.py` answers with the library's bits, and both are easy to
 undo by accident.  Every scalar is a C `float` unless the library declares a
 `double`, and a scalar worked out in a double and rounded once at the end is a
 different number.  And a vector is scaled by a coefficient rather than divided

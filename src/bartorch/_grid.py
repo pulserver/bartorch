@@ -1,6 +1,6 @@
 """What the operations on a grid share: axis checks, and BART's motion layout.
 
-:mod:`bartorch.interp` and :mod:`bartorch.tools.process` both resample on a
+:mod:`bartorch._interp` and :mod:`bartorch.tools._process` both resample on a
 grid and both reach BART's ``interpolate`` through the same conventions, so the
 conventions live here rather than in either of them.
 """

@@ -16,7 +16,7 @@ import bartorch.tools as bt
 from bartorch import _dispatch, _layout, linop, optim
 from bartorch._dispatch import BartError
 from bartorch._lib import library
-from bartorch.linop import sense
+from bartorch.linop import _sense as sense
 
 
 @pytest.fixture

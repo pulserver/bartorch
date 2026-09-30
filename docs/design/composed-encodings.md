@@ -153,8 +153,8 @@ One C slab executor runs every matched form. It is today's pieces parameterised 
 | grid transform: pattern and basis kernel, sampled tables, wave front, uncentred convention | `src/csrc/ops/grid.c`, `grid.cuh` |
 | NUFFT substitution, Toeplitz point-spread function, cosets, streaming, basis along samples | `src/csrc/substitute/nufft_finufft.c`, `psf.c` |
 | callbacks and device kernels | `src/csrc/ops/fft_callbacks.cu`, `fft_callbacks_lto.cu`, `kernels.cu` |
-| Python encodings | `src/bartorch/linop/mri.py` (`_CartesianNative`, `_CartesianSampled`, `_WaveNative`, `_Segmentable`, `_SegmentedSense`, `FieldCorrected`), `src/bartorch/linop/sense.py` (`NoncartesianSense`, `Coils`) |
-| composition nodes | `src/bartorch/linop/base.py` (`_Compose`, `_Add`, `_WithNormal`) |
+| Python encodings | `src/bartorch/linop/_mri.py` (`_CartesianNative`, `_CartesianSampled`, `_WaveNative`, `_Segmentable`, `_SegmentedSense`, `FieldCorrected`), `src/bartorch/linop/_sense.py` (`NoncartesianSense`, `Coils`) |
+| composition nodes | `src/bartorch/linop/_base.py` (`_Compose`, `_Add`, `_WithNormal`) |
 
 ## Phases
 

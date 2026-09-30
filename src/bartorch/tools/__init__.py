@@ -13,16 +13,24 @@ of the command and take its options under their long names.
 
 from __future__ import annotations
 
-from bartorch.tools import calib, correct, lowrank, motion, process, sampling, simulate
-from bartorch.tools.calib import *  # noqa: F401,F403
-from bartorch.tools.correct import *  # noqa: F401,F403
-from bartorch.tools.lowrank import *  # noqa: F401,F403
-from bartorch.tools.motion import *  # noqa: F401,F403
-from bartorch.tools.process import *  # noqa: F401,F403
-from bartorch.tools.sampling import *  # noqa: F401,F403
-from bartorch.tools.simulate import *  # noqa: F401,F403
+from bartorch.tools import (
+    _calib,
+    _correct,
+    _lowrank,
+    _motion,
+    _process,
+    _sampling,
+    _simulate,
+)
+from bartorch.tools._calib import *  # noqa: F401,F403
+from bartorch.tools._correct import *  # noqa: F401,F403
+from bartorch.tools._lowrank import *  # noqa: F401,F403
+from bartorch.tools._motion import *  # noqa: F401,F403
+from bartorch.tools._process import *  # noqa: F401,F403
+from bartorch.tools._sampling import *  # noqa: F401,F403
+from bartorch.tools._simulate import *  # noqa: F401,F403
 
 __all__ = sorted(
-    {*simulate.__all__, *sampling.__all__, *calib.__all__, *process.__all__, *lowrank.__all__}
-    | {*correct.__all__, *motion.__all__}
+    {*_simulate.__all__, *_sampling.__all__, *_calib.__all__, *_process.__all__}
+    | {*_lowrank.__all__, *_correct.__all__, *_motion.__all__}
 )

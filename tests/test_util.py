@@ -1,4 +1,4 @@
-"""The array utilities in :mod:`bartorch.util`, each held against numpy or scipy."""
+"""The array utilities in :mod:`bartorch._util`, each held against numpy or scipy."""
 
 import math
 
@@ -9,7 +9,7 @@ import torch
 from numpy.lib.stride_tricks import sliding_window_view
 
 import bartorch
-from bartorch import util
+from bartorch import _util as util
 
 RNG = np.random.default_rng(0)
 

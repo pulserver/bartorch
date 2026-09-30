@@ -11,8 +11,8 @@ import pytest
 import torch
 
 from bartorch import linop, nlop
-from bartorch.nlop.basic import Multiply
-from bartorch.nlop.step import Linearized
+from bartorch.nlop._basic import Multiply
+from bartorch.nlop._step import Linearized
 
 #: A bilinear model small enough to write its Jacobian out as a matrix.
 IMAGE, COILS = (1, 4), (3, 4)
@@ -337,7 +337,7 @@ def test_an_application_leaves_the_derivative_available_after_a_shared_solve(off
 def test_barts_noir_model_arrives_lowered_off_the_grid_and_not_on_it():
     """``noir2_join``'s own choice, read back through the composition it writes."""
     import bartorch.tools as bt
-    from bartorch.nlop.plan import describe
+    from bartorch.nlop._plan import describe
 
     assert not describe(nlop.CartesianSense((4, 16, 16))).lowered
     assert describe(nlop.NoncartesianSense(bt.traj(x=16, y=21), (4, 16, 16))).lowered
@@ -356,7 +356,7 @@ def test_the_planner_lowers_the_model_bart_left_paired():
 
 def _sampled(pattern, shape):
     """A coil model whose encoding carries ``pattern``, and its sampling operator."""
-    from bartorch.linop.basic import Sampling
+    from bartorch.linop._basic import Sampling
 
     sampling = Sampling(pattern, shape)
     return sampling, nlop.CoilSense(sampling @ linop.FFT(shape, axes=(-1, -2)))

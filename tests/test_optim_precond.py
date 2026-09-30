@@ -118,7 +118,7 @@ def test_conjugate_gradients_takes_one_too():
 
 
 def test_the_estimate_is_over_the_preconditioned_normal():
-    from bartorch.optim.linear import maxeigen
+    from bartorch.optim._linear import maxeigen
 
     shape = (1, 8, 8)
     A = linop.FFT(shape, axes=(-1, -2))

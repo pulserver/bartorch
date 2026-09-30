@@ -18,7 +18,7 @@ import torch
 import bartorch
 import bartorch.tools as bt
 from bartorch import linop, nlop
-from bartorch.nlop.base import _chain
+from bartorch.nlop._base import _chain
 
 requires_cuda = pytest.mark.skipif(
     not bartorch._cuda.available(), reason="no CUDA device, or the library was built without CUDA"
@@ -170,7 +170,7 @@ def test_the_fused_plan_is_taken_on_the_card_too(off_grid):
 
 
 def _start(model):
-    from bartorch.nlop.step import Linearized
+    from bartorch.nlop._step import Linearized
 
     return _rand(*Linearized(model).state_shape) * 0.2 + 1.0
 
@@ -226,7 +226,7 @@ def test_the_two_domains_agree_on_the_card_as_they_do_on_the_host():
 @requires_cuda
 def test_a_diagonal_set_on_the_card_is_what_the_operator_applies():
     """``multiplace`` moves the values to wherever the operator lives."""
-    from bartorch.linop.basic import Sampling
+    from bartorch.linop._basic import Sampling
 
     torch.manual_seed(0)
     shape = (2, 8, 8)
@@ -246,7 +246,7 @@ def test_a_diagonal_set_on_the_card_is_what_the_operator_applies():
 
 @requires_cuda
 def test_a_step_on_the_card_answers_for_a_pattern_set_after_the_model_was_prepared():
-    from bartorch.linop.basic import Sampling
+    from bartorch.linop._basic import Sampling
 
     torch.manual_seed(0)
     coils, n = 4, 16

@@ -14,7 +14,7 @@ import bartorch
 import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import _dispatch, _finufft, apps, linop, priors
-from bartorch.priors.terms import ImageNIHT
+from bartorch.priors._terms import ImageNIHT
 
 SIZE, COILS, ACCEL = 24, 4, 2
 
@@ -93,7 +93,7 @@ def test_the_iteration_is_the_one_the_terms_choose():
     """``italgo_choose`` (grecon/italgo.c), written out: an l2 penalty on the
     image leaves the choice where it was, the total variations take ADMM, and
     anything else takes FISTA first and ADMM after."""
-    from bartorch.apps.pics import _chosen
+    from bartorch.apps._pics import _chosen
 
     assert _chosen([]) == "cg"
     assert _chosen([priors.L2(0.01)]) == "cg"

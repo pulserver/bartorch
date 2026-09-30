@@ -47,7 +47,7 @@ def reconstruct_navigator(
     ValueError
         If the trajectory does not match the samples, or leaves the grid.
     """
-    from bartorch.fourier import _check_trajectory
+    from bartorch._fourier import _check_trajectory
     from bartorch.linop import NUFFT
 
     kspace = torch.as_tensor(kspace)

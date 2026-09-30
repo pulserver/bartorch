@@ -31,7 +31,6 @@ MODULES = {
         "tools",
     },
     "bartorch.learning": set(),
-    "bartorch.learning.training": set(),
     "bartorch.linop": set(),
     "bartorch.nlop": set(),
     "bartorch.optim": set(),
@@ -44,13 +43,7 @@ MODULES = {
 }
 
 
-#: Modules importing an optional extra, and the packages that extra installs.
-OPTIONAL = {"bartorch.learning.training": ("lightning", "torchio")}
-
-
 def _public(module: str) -> set[str]:
-    for package in OPTIONAL.get(module, ()):
-        pytest.importorskip(package)
     return set(import_module(module).__all__)
 
 

@@ -16,7 +16,7 @@ import torch
 import bartorch
 import bartorch._reference as ref
 import bartorch.tools as bt
-import bartorch.tools.calib as calib
+import bartorch.tools._calib as calib
 from bartorch import _call, _coverage, priors
 from bartorch import _catalogue as catalogue
 from bartorch._dispatch import dispatch
@@ -75,15 +75,6 @@ def test_a_curated_wrapper_says_it_is_one():
     assert not bt.ecalib.is_derived
     assert not bartorch.fft.is_derived
     assert bt.noise.is_derived
-
-
-def test_no_tools_module_is_named_after_a_command():
-    """``bartorch.tools.sim`` would be the module and a ``sim`` command."""
-    for path in (ROOT / "src" / "bartorch" / "tools").glob("*.py"):
-        stem = path.stem
-        if stem.startswith("_"):
-            continue
-        assert stem not in catalogue.COMMANDS, f"{stem}.py collides with the {stem} command"
 
 
 # --- the guard that keeps a typo from ending the session --------------------

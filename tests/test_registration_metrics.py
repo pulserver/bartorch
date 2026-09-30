@@ -12,7 +12,7 @@ import pytest
 import torch
 import torch.nn.functional as F
 
-from bartorch.tools.process import (
+from bartorch.tools._process import (
     affine_transform,
     estimate_shift,
     mse,

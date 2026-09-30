@@ -324,7 +324,8 @@ def _compact_signature(_app, what, _name, _obj, _options, _signature, return_ann
 def _public_bases(_app, _name, _obj, _options, bases):
     """Name a private base class by the nearest public class it is built on.
 
-    A private class has no page to link to, and ``object`` says nothing.
+    A private class has no page to link to, and ``object`` says nothing.  A
+    base of this package's is named by its flat path, where its page is.
     """
     kept = []
     for base in bases:
@@ -332,8 +333,13 @@ def _public_bases(_app, _name, _obj, _options, bases):
             base = next(
                 (klass for klass in base.__mro__ if not klass.__name__.startswith("_")), object
             )
-        if base is not object:
-            kept.append(base)
+        if base is object:
+            continue
+        if isinstance(base, type) and base.__module__.startswith("bartorch"):
+            # Named by the namespace it is documented under, not by the
+            # private module that defines it.
+            base = f":class:`~{api_objects._documented_module(base)}.{base.__name__}`"
+        kept.append(base)
     bases[:] = kept
 
 

@@ -1,0 +1,389 @@
+"""Elementary linear operators, each one BART constructor."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+
+import torch
+
+from bartorch import _marshal
+from bartorch._dispatch import BartError
+from bartorch._lib import DIMS, library
+from bartorch._operator import (
+    Built,
+    Shape,
+    as_operand,
+    axes_flags,
+    broadcast_flags,
+    callback,
+    dims,
+)
+from bartorch.linop._base import LinearOperator
+
+__all__ = [
+    "ComponentDiagonal",
+    "Conj",
+    "Diagonal",
+    "FFT",
+    "Identity",
+    "MultiplySum",
+    "Zero",
+]
+
+
+class FFT(LinearOperator):
+    """BART's unitary Fourier transform along ``axes``, centred by default.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        The shape it transforms, C order.
+    axes : int or tuple of int
+        Which axes to transform, as indices into ``shape``; negative indices
+        count from the end.
+    inverse : bool, default=False
+        Transform the other way.
+    centred : bool, default=True
+        Put the zero frequency in the middle, which is BART's ``fftc``.
+
+    Examples
+    --------
+    >>> F = FFT((8, 16), axes=(-1, -2))
+    >>> F(x).shape
+    torch.Size([8, 16])
+    """
+
+    # The shape a constructor was given stays private: an operator answers for
+    # its domain and codomain through ishape and oshape.
+
+    def __init__(self, shape: Shape, axes, inverse: bool = False, centred: bool = True, **kwargs):
+        # ``centered`` is accepted as a spelling of ``centred``.
+        if "centered" in kwargs:
+            centred = kwargs.pop("centered")
+        if kwargs:
+            raise TypeError(f"unexpected arguments {sorted(kwargs)}")
+        self._shape = tuple(shape)
+        self.axes = axes
+        self.inverse = bool(inverse)
+        self.centred = bool(centred)
+        super().__init__()
+
+    def _create(self) -> Built:
+        flags = axes_flags(self.axes, len(self._shape))
+        ptr = self._under_lock(
+            library().bartorch_linop_fft,
+            DIMS,
+            dims(self._shape),
+            flags,
+            int(self.inverse),
+            int(self.centred),
+        )
+        return Built(ptr, self._shape, self._shape)
+
+
+class _SettableDiagonal(LinearOperator):
+    """A BART ``cdiag`` whose values can be rewritten after it was built.
+
+    ``linop_gdiag_set_diag`` writes into the operator that exists and drops its
+    cached normal, so every composition and gram standing on this one answers
+    for the new values from the next application.  The values are copied, so
+    the tensor passed to :meth:`set` need not outlive the call.
+    """
+
+    #: The attribute holding the values, named for what the subclass calls them.
+    _values: str
+
+    def set(self, values: torch.Tensor) -> None:
+        """Replace the values, in place, keeping the operator's identity.
+
+        ``values`` has the shape the operator was built with.  A solve or a
+        step assembled over this operator is unaffected structurally and needs
+        no rebuild; only what it computes changes.
+        """
+        current = getattr(self, self._values)
+        made = as_operand(values, tuple(current.shape), self._values)
+        if "_h" not in self.__dict__:
+            # Not built yet, so there is nothing to write into: the constructor
+            # will read this when it is.
+            setattr(self, self._values, made)
+            return
+        failed = self._under_lock(
+            library().bartorch_linop_set_diagonal,
+            self._h.ptr,
+            DIMS,
+            dims(tuple(current.shape)),
+            made.data_ptr(),
+            device=made.device,
+        )
+        if failed:
+            raise BartError("BART would not write the diagonal; see the log for its message")
+        setattr(self, self._values, made)
+
+
+class Diagonal(_SettableDiagonal):
+    """Pointwise multiplication by ``diag``, broadcast over the axes where it is one.
+
+    BART's ``cdiag``.
+
+    Parameters
+    ----------
+    diag : tensor
+        The diagonal.  Every axis is either the operator's size along that
+        axis or one, and the ones are broadcast.
+    shape : tuple of int
+        The shape the operator works on, C order.
+    """
+
+    _values = "diag"
+
+    def __init__(self, diag: torch.Tensor, shape: Shape):
+        self._shape = tuple(shape)
+        self.diag = as_operand(diag, tuple(diag.shape), "diag")
+        super().__init__()
+
+    def _create(self) -> Built:
+        flags = broadcast_flags(tuple(self.diag.shape), self._shape)
+        ptr = self._under_lock(
+            library().bartorch_linop_cdiag,
+            DIMS,
+            dims(self._shape),
+            flags,
+            self.diag.data_ptr(),
+            device=self.diag.device,
+        )
+        return Built(ptr, self._shape, self._shape, keep=(self.diag,))
+
+
+class ComponentDiagonal(LinearOperator):
+    """A diagonal on the real part and another on the imaginary part.
+
+    BART's ``linop_rdiag``, which is ``md_zrmul``: the real part of the input
+    is scaled by the real part of ``diag`` and the imaginary part by the
+    imaginary part, each on its own.  It is the operator for treating a
+    complex array as two real channels, not the real-valued diagonal its BART
+    name suggests: that is :class:`Diagonal` given a real diagonal, adjoint
+    included, since conjugating a real number does nothing.
+
+    So ``ComponentDiagonal(w)`` with a real ``w`` scales the real part by
+    ``w`` and annihilates the imaginary part; scaling both takes
+    ``w + 1j * w``, or :class:`Diagonal`.
+
+    Scaling two components separately is linear over the reals and not over
+    the complex numbers, as :class:`Conj` and
+    :class:`~bartorch.linop.Real` are: it is self-adjoint for a real inner
+    product and does not pass a complex dot test on its own.
+
+    Parameters
+    ----------
+    diag : tensor
+        Its real part scales real parts and its imaginary part scales
+        imaginary parts.  Every axis is either the operator's size along that
+        axis or one, and the ones are broadcast.
+    shape : tuple of int
+        The shape the operator works on, C order.
+    """
+
+    def __init__(self, diag: torch.Tensor, shape: Shape):
+        self._shape = tuple(shape)
+        self.diag = as_operand(diag, tuple(diag.shape), "diag")
+        super().__init__()
+
+    def _create(self) -> Built:
+        flags = broadcast_flags(tuple(self.diag.shape), self._shape)
+        ptr = self._under_lock(
+            library().bartorch_linop_rdiag,
+            DIMS,
+            dims(self._shape),
+            flags,
+            self.diag.data_ptr(),
+            device=self.diag.device,
+        )
+        return Built(ptr, self._shape, self._shape, keep=(self.diag,))
+
+
+class Sampling(_SettableDiagonal):
+    """Multiplication by a sampling pattern, broadcast over the axes where it is one.
+
+    Parameters
+    ----------
+    pattern : tensor
+        Binary sampling mask, one at acquired positions and zero elsewhere.
+    shape : tuple of int
+        The k-space shape, C order.
+    """
+
+    _values = "pattern"
+
+    def __init__(self, pattern: torch.Tensor, shape: Shape):
+        self._shape = tuple(shape)
+        self.pattern = as_operand(pattern, tuple(pattern.shape), "pattern")
+        super().__init__()
+
+    def _create(self) -> Built:
+        ptr = self._under_lock(
+            library().bartorch_linop_sampling,
+            dims(self._shape),
+            dims(tuple(self.pattern.shape)),
+            self.pattern.data_ptr(),
+            device=self.pattern.device,
+        )
+        return Built(ptr, self._shape, self._shape, keep=(self.pattern,))
+
+
+class MultiplySum(LinearOperator):
+    """Multiply by a tensor and sum over the axes absent from the codomain.
+
+    BART's ``fmac``.  This is the coil model: with sensitivities of shape
+    ``(coils, y, x)``, ``ishape (1, y, x)`` and ``oshape (coils, y, x)`` it
+    maps an image to coil images, and its adjoint combines coil images with
+    the conjugate sensitivities.
+
+    Parameters
+    ----------
+    tensor : tensor
+        What to multiply by.
+    ishape, oshape : tuple of int
+        Domain and codomain, C order.  An axis the domain has and the codomain
+        does not is summed over.
+    """
+
+    def __init__(self, tensor: torch.Tensor, ishape: Shape, oshape: Shape):
+        self.tensor = as_operand(tensor, tuple(tensor.shape), "tensor")
+        # ``Operator._build`` sets these again from what _create returns; a
+        # concrete operator may name them itself so that _create can read them.
+        self.ishape, self.oshape = tuple(ishape), tuple(oshape)
+        super().__init__()
+
+    def _create(self) -> Built:
+        ptr = self._under_lock(
+            library().bartorch_linop_fmac,
+            DIMS,
+            dims(self.oshape),
+            dims(self.ishape),
+            dims(tuple(self.tensor.shape)),
+            self.tensor.data_ptr(),
+            device=self.tensor.device,
+        )
+        return Built(ptr, self.ishape, self.oshape, keep=(self.tensor,))
+
+
+class Identity(LinearOperator):
+    """The identity on ``shape``, BART's ``linop_identity``.
+
+    It is the empty product: ``A ** 0`` returns one, and it is the term
+    to add when an operator needs a multiple of the identity beside it, as in
+    ``A + 0.1 * Identity(A.ishape)``.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        The shape it maps to itself, C order.
+    """
+
+    def __init__(self, shape: Shape):
+        self._shape = tuple(shape)
+        super().__init__()
+
+    def _create(self) -> Built:
+        ptr = self._under_lock(library().bartorch_linop_identity, DIMS, dims(self._shape))
+        return Built(ptr, self._shape, self._shape)
+
+
+class Zero(LinearOperator):
+    """The operator that sends everything to zero, BART's ``linop_null``.
+
+    Parameters
+    ----------
+    oshape : tuple of int
+        Codomain, C order.
+    ishape : tuple of int, default=None
+        Domain, C order; the same as ``oshape`` when left out.
+    """
+
+    def __init__(self, oshape: Shape, ishape: Shape | None = None):
+        self.oshape = tuple(oshape)
+        self.ishape = tuple(oshape if ishape is None else ishape)
+        super().__init__()
+
+    def _create(self) -> Built:
+        ptr = self._under_lock(
+            library().bartorch_linop_null, DIMS, dims(self.oshape), DIMS, dims(self.ishape)
+        )
+        return Built(ptr, self.ishape, self.oshape)
+
+
+class Conj(LinearOperator):
+    """Complex conjugation, BART's ``linop_zconj``.
+
+    Conjugation is not linear over the complex numbers, being conjugate
+    linear, so this is the operator BART offers under that name.  ``A.conj()``
+    and ``A.T`` are built from it rather than from a rule of their own.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        The shape it maps to itself, C order.
+    """
+
+    def __init__(self, shape: Shape):
+        self._shape = tuple(shape)
+        super().__init__()
+
+    def _create(self) -> Built:
+        ptr = self._under_lock(library().bartorch_linop_zconj, DIMS, dims(self._shape))
+        return Built(ptr, self._shape, self._shape)
+
+
+class _Callback(LinearOperator):
+    """A linear operator from Python functions, applied through BART; see
+    :meth:`LinearOperator.from_callbacks`.
+
+    Each function receives a view of BART's buffer, without a copy, and returns a
+    tensor; every application crosses into Python.
+
+    Parameters
+    ----------
+    oshape, ishape : tuple of int
+        Codomain and domain shapes, C order.
+    forward, adjoint : callable
+        Maps from ``ishape`` to ``oshape`` and back.
+    normal : callable, optional
+        ``adjoint(forward(x))`` in one function, where a cheaper form exists;
+        without one BART composes the two.
+    """
+
+    def __init__(
+        self,
+        oshape: Shape,
+        ishape: Shape,
+        forward: Callable[[torch.Tensor], torch.Tensor],
+        adjoint: Callable[[torch.Tensor], torch.Tensor],
+        normal: Callable[[torch.Tensor], torch.Tensor] | None = None,
+    ):
+        self.oshape, self.ishape = tuple(oshape), tuple(ishape)
+        self.forward_fn, self.adjoint_fn, self.normal_fn = forward, adjoint, normal
+        super().__init__()
+
+    def _create(self) -> Built:
+        ishape, oshape = self.ishape, self.oshape
+        fwd = callback(self.forward_fn, ishape, oshape, "forward")
+        adj = callback(self.adjoint_fn, oshape, ishape, "adjoint")
+        nrm = (
+            callback(self.normal_fn, ishape, ishape, "normal")
+            if self.normal_fn is not None
+            else _marshal.null_apply()
+        )
+        ptr = self._under_lock(
+            library().bartorch_linop_callback,
+            DIMS,
+            dims(oshape),
+            DIMS,
+            dims(ishape),
+            fwd,
+            adj,
+            nrm,
+            None,
+            _marshal.null_release(),
+        )
+        keep = (fwd, adj, nrm, self.forward_fn, self.adjoint_fn, self.normal_fn)
+        return Built(ptr, ishape, oshape, keep=keep)

@@ -42,7 +42,7 @@ MODULES = (
 #: Constructors that pass ``**kwargs`` on and document what they pass, by the
 #: callable whose signature holds those parameters' defaults.
 FORWARDED = {
-    "bartorch.linop.mri.CartesianSense": "bartorch.linop.mri._GridSense",
+    "bartorch.linop._mri.CartesianSense": "bartorch.linop._mri._GridSense",
 }
 
 #: Names a documented default may use beyond Python literals.
