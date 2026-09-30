@@ -575,17 +575,16 @@ def test_one_process_writes_the_headers_of_many_files(tmp_path, monkeypatch):
     assert readcfl("x63").shape == (2, 2, 2)
 
 
-def test_an_input_that_is_not_there_is_named_before_bart_is_asked(_dataset, capsys):
-    """BART would report it, and would be the one to ask -- except that a
-    command which fails while loading its arguments leaves the library unable
-    to serve the next call in the same process."""
+def test_an_input_that_is_not_there_is_named_before_either_route_runs(_dataset, capsys):
+    """The first line would reach the app, which reads its inputs in Python,
+    and the second BART, which reports a missing input itself; both are named
+    the same way."""
     assert main(["pics", "nosuchfile", "maps", "out"]) == 1
     assert "no such input: nosuchfile" in capsys.readouterr().err
 
     assert main(["pics", "-t", "nosuchtraj", "ksp", "maps", "out"]) == 1
     assert "no such input: nosuchtraj" in capsys.readouterr().err
 
-    # And the library still answers, which is the whole point.
     assert main(["fft", "-i", "6", "ksp", "img"]) == 0
 
 

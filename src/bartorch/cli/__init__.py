@@ -11,9 +11,8 @@ models rather than BART's.
 
 An argument the reader does not express is not an error: the whole command line
 goes to BART instead, which is what declared it.  An input file that is not
-there is the one thing named here rather than by BART, because a command that
-fails while loading its arguments leaves the library unable to serve the next
-call in the same process.
+there is the one thing named here rather than by BART, so that it is reported
+the same way whichever route would have served the command.
 """
 
 from __future__ import annotations
@@ -108,11 +107,8 @@ _SUFFIXES = ("", ".cfl", ".hdr", ".ra", ".coo")
 def _missing(name: str, argv: list[str]) -> list[str]:
     """The input files this command line names and the filesystem does not have.
 
-    BART reports a missing input itself, and would be the one to ask -- except
-    that a command which fails while loading its arguments leaves the library
-    unable to serve the next call in the same process.  A caller who runs
-    `main` twice would then hang rather than see the second answer, so the
-    names are checked before BART is asked.
+    Checked before either route runs: an app reads its inputs in Python, where
+    a missing one is an exception rather than an exit code.
     """
     command = COMMANDS[name]
     try:

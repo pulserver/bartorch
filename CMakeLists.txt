@@ -300,6 +300,7 @@ set(BARTORCH_SOURCES
     src/csrc/substitute/backend.c
     src/csrc/substitute/ref_blas.c
     src/csrc/substitute/cblas_shim.c
+    src/csrc/substitute/critical.c
     src/csrc/substitute/lapacke_shim.c
     src/csrc/substitute/fft.cpp
     src/csrc/substitute/finufft.c
