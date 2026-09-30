@@ -218,7 +218,7 @@ jobs:
 
       - name: Which earlier test hangs the next mobafit (temporary, Windows)
         if: runner.os == 'Windows'
-        timeout-minutes: 45
+        timeout-minutes: 55
         continue-on-error: true
         run: python scripts/bisect_hang.py
 

@@ -10,12 +10,22 @@ MAG = "tests/test_cli.py::test_a_magnitude_mobafit_writes_the_commands_coefficie
 MODELS = ["D", "G0", "G0 from a start", "G1", "G1 from a start", "G3", "G3 from a start",
           "G4", "I", "L", "M", "T"]
 
-CASES = [[MAG]] + [[f"{FIT}[{m}]", MAG] for m in MODELS] + [[ROUTE, MAG], [FIT, MAG]]
+PREFIX = ["tests/test_abi.py", "tests/test_apps.py", "tests/test_build.py",
+          "tests/test_catalogue.py", "tests/test_cfl.py"]
+CLI = "tests/test_cli.py"
+CASES = [
+    [*PREFIX, CLI],
+    ["tests/test_apps.py", CLI],
+    ["tests/test_abi.py", "tests/test_catalogue.py", "tests/test_cfl.py", CLI],
+    ["tests/test_apps.py", FIT, MAG],
+    ["tests/test_apps.py", MAG],
+    [CLI],
+]
 
 CHILD = (
     "import faulthandler, sys, pytest\n"
     "f = open('stacks.txt', 'w')\n"
-    "faulthandler.dump_traceback_later(120, file=f)\n"
+    "faulthandler.dump_traceback_later(300, file=f)\n"
     "sys.exit(pytest.main(['-v', '-p', 'no:cacheprovider', '-p', 'no:faulthandler', *sys.argv[1:]]))\n"
 )
 
@@ -24,7 +34,7 @@ for case in CASES:
     try:
         done = subprocess.run(
             [sys.executable, "-c", CHILD, *case],
-            capture_output=True, text=True, timeout=180,
+            capture_output=True, text=True, timeout=420,
         )
         verdict, out = f"exit {done.returncode}", done.stdout + done.stderr
     except subprocess.TimeoutExpired as hung:
