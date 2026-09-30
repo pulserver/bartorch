@@ -61,7 +61,11 @@ def _targets(module: str):
     """
     namespace = import_module(module)
     for name in namespace.__all__:
-        obj = getattr(namespace, name)
+        try:
+            obj = getattr(namespace, name)
+        except ModuleNotFoundError:
+            # A name an optional extra provides, such as learning's Lightning stages.
+            continue
         if inspect.ismodule(obj) or not callable(obj):
             continue
         yield f"{module}.{name}", obj
