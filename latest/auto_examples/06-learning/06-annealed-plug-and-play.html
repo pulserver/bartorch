@@ -684,9 +684,9 @@ coil sensitivities, sampling pattern or k-space enter the training.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-sigma 0.01: noisy 41.46 dB, denoised 41.13 dB
-sigma 0.05: noisy 27.17 dB, denoised 27.16 dB
-sigma 0.10: noisy 21.06 dB, denoised 21.06 dB
+sigma 0.01: noisy 41.46 dB, denoised 42.77 dB
+sigma 0.05: noisy 27.17 dB, denoised 32.80 dB
+sigma 0.10: noisy 21.06 dB, denoised 28.53 dB
 </pre></div>
 </div>
 </section>
@@ -729,9 +729,9 @@ same <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
 </span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">images</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;24</span><span class="si">}</span><span class="s2">   PSNR </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" alt="06 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 27.01 dB
-            fixed, 0.03   PSNR 27.14 dB
-            fixed, 0.01   PSNR 27.48 dB
+<img src="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" alt="06 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 30.80 dB
+            fixed, 0.03   PSNR 30.67 dB
+            fixed, 0.01   PSNR 30.06 dB
 CG SENSE, 20 iterations   PSNR 24.21 dB
 </pre></div>
 </div>
@@ -742,7 +742,7 @@ from the previous one, and twelve iterations do not reach its fixed point.
 The annealed schedule takes the large steps first and the small ones last,
 and ends slightly ahead of the better fixed level without that level having
 to be tuned for the acquisition.</p>
-<img src="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" alt="reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.090" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_002.png" alt="reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.058" class = "sphx-glr-single-img"/></section>
 <section id="another-acquisition-the-same-denoiser">
 <h2>Another acquisition, the same denoiser<a class="headerlink" href="#another-acquisition-the-same-denoiser" title="Link to this heading">#</a></h2>
 <p>The denoiser was trained without an encoding, so it applies unchanged to
@@ -759,7 +759,7 @@ reconstruction keeps the anatomy.</p>
 </span>    <span class="n">cg</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">[</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.cg.html#bartorch.optim.cg" title="bartorch.optim.cg"><span class="n">optim</span><span class="o">.</span><span class="n">cg</span></a><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A6</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">kspace6</span><span class="p">]</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">sixfold: annealed plug-and-play </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">annealed</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB, CG SENSE </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">cg</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_06-annealed-plug-and-play_003.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_003.png" alt="reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.139" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sixfold: annealed plug-and-play 23.72 dB, CG SENSE 21.98 dB
+<img src="../../_images/sphx_glr_06-annealed-plug-and-play_003.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_003.png" alt="reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.062" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sixfold: annealed plug-and-play 30.57 dB, CG SENSE 21.98 dB
 </pre></div>
 </div>
 </section>
@@ -780,7 +780,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 37.458 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 16.686 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-06-annealed-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/f85ca2cb046983232a70360ddf416bbb/06-annealed-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">06-annealed-plug-and-play.ipynb</span></code></a></p>

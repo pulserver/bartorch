@@ -215,7 +215,7 @@ is trained here. Each iteration costs one application of the network.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<03:54, 556kB/s]      1%|          | 1.50M/125M [00:00<00:22, 5.74MB/s]      8%|▊         | 10.0M/125M [00:00<00:03, 34.0MB/s]     28%|██▊       | 35.1M/125M [00:00<00:00, 109MB/s]      38%|███▊      | 47.6M/125M [00:00<00:00, 92.7MB/s]     47%|████▋     | 58.1M/125M [00:00<00:00, 81.0MB/s]     54%|█████▍    | 67.1M/125M [00:01<00:00, 67.8MB/s]     62%|██████▏   | 77.1M/125M [00:01<00:00, 75.5MB/s]     69%|██████▊   | 85.4M/125M [00:01<00:00, 74.2MB/s]     75%|███████▌  | 93.8M/125M [00:01<00:00, 77.4MB/s]     82%|████████▏ | 102M/125M [00:01<00:00, 70.7MB/s]      88%|████████▊ | 109M/125M [00:01<00:00, 71.1MB/s]     93%|█████████▎| 116M/125M [00:01<00:00, 68.8MB/s]    100%|█████████▉| 124M/125M [00:01<00:00, 72.7MB/s]    100%|██████████| 125M/125M [00:01<00:00, 68.7MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<05:42, 380kB/s]      1%|          | 640k/125M [00:00<01:15, 1.72MB/s]      1%|▏         | 1.75M/125M [00:00<00:28, 4.55MB/s]      4%|▍         | 4.88M/125M [00:00<00:10, 12.5MB/s]     11%|█         | 13.2M/125M [00:00<00:03, 34.1MB/s]     23%|██▎       | 28.2M/125M [00:00<00:01, 69.9MB/s]     44%|████▎     | 54.4M/125M [00:00<00:00, 129MB/s]      55%|█████▍    | 68.1M/125M [00:01<00:00, 88.5MB/s]     65%|██████▍   | 80.4M/125M [00:01<00:00, 97.1MB/s]     74%|███████▎  | 91.8M/125M [00:01<00:00, 90.1MB/s]     84%|████████▎ | 104M/125M [00:01<00:00, 98.8MB/s]      93%|█████████▎| 116M/125M [00:01<00:00, 106MB/s]     100%|██████████| 125M/125M [00:01<00:00, 73.1MB/s]
          zero-filled  NRMSE 0.199  SSIM 0.482
      total variation  NRMSE 0.161  SSIM 0.754
         DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -376,7 +376,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 50.398 seconds)
+   **Total running time of the script:** (0 minutes 21.523 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:
