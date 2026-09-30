@@ -48,7 +48,7 @@ dependencies = [
     #
     # It asks for numpy, scipy and torch, all of which are here already, and
     # nothing else.
-    "torchsim>=0.0.5",
+    "torchsim>=0.0.7",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
