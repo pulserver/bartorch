@@ -987,7 +987,10 @@ private, because what a command returns is a curve and what a fit needs is a
 model -- a forward it can differentiate, with bounds and a starting state --
 which is what `nlop`'s `SignalModel` is over a TorchSim simulator.  The
 commands stay reachable through `_call.build` so a test can pin TorchSim's
-physics against BART's closed forms, which `tests/test_nlop_torchsim.py` does.
+physics against BART's: its closed forms in `tests/test_signal_models.py` and
+`tests/test_nlop_torchsim.py`, and its Bloch simulation -- FLASH, balanced
+SSFP, each after an inversion, and CEST, over up to five pools -- in
+`tests/test_sim_torchsim.py`.
 
 `optim.POCS` is the other iteration that is not a least-squares solve: one
 sweep of a list of projections, applied in turn and in place, which is the
