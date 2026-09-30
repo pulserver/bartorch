@@ -3,28 +3,31 @@ r"""
 Uncertainty estimation
 =======================
 
-A voxel-wise error bar for a learned reconstruction, from the spread of
-randomized reconstructions, calibrated on references to a stated coverage.
+**Aim.** Attach a voxel-wise error bar to a learned reconstruction of
+undersampled data, calibrated so that it contains the true error in a stated
+fraction of voxels, and see where in the head the reconstruction is least
+certain.
 
-A learned reconstruction returns an image with no indication of where it may
-be wrong. Where the acquisition leaves the image underdetermined, the network
+A learned reconstruction returns an image without saying where it may be
+wrong. Where the undersampling leaves the image underdetermined, the network
 fills in what its training data suggest, and a hallucinated structure looks
-like any other. A spread is obtained by randomizing the reconstruction and
-repeating it: leaving dropout active in the network (Monte Carlo dropout
-[#gal]_), reconstructing from random subsets of the acquired samples, or
-shifting a patch grid. Each measures one source of variability, and none is
-the error. Split conformal calibration [#angelopoulos]_ relates the spread to
-the error on held-out subjects with references: it finds the factor by which
-the spread has to be multiplied for the interval to contain the error at a
-chosen rate, a guarantee that holds whatever the spread measures.
+like real anatomy. An uncertainty map is obtained by randomizing the
+reconstruction and repeating it: leaving dropout active in the network (Monte
+Carlo dropout [#gal]_), reconstructing from random subsets of the acquired
+phase encodes, or shifting a patch grid. Each spread measures one source of
+variability, and none is the error itself. Split conformal calibration
+[#angelopoulos]_ relates the spread to the error on held-out slices with
+fully sampled references: it finds the factor by which the spread must be
+multiplied for the interval to contain the error at a chosen rate, a
+guarantee that holds whatever the spread measures.
 
 **Learning objectives**
 
-- Obtain a spread from Monte Carlo dropout and from k-space splits with
+- Obtain a spread from Monte Carlo dropout and from k-space subsets with
   :func:`bartorch.learning.moments`.
 - Calibrate it to a coverage with :func:`bartorch.learning.calibrate`, and
   check the coverage on other slices.
-- Compare the spread with the error made.
+- Compare the calibrated interval with the error made.
 
 It follows :doc:`06-annealed-plug-and-play`. This lesson ends the course; the
 standalone examples of :doc:`../07-tours/index` apply the package to
@@ -34,29 +37,19 @@ individual problems.
 
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
-
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
+from matplotlib.patches import Rectangle
 
 PAGE_WIDTH = 8.0  # inches, the width of the documentation column
 
 
-def panels(rows, columns, height=1.0):
+def panels(rows, columns):
     """A grid of square image panels filling the documentation column."""
     side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side))
     for axis in axes.ravel():
         axis.set_xticks([])
         axis.set_yticks([])
+        axis.set_frame_on(False)
     return figure, axes
 
 
@@ -67,6 +60,49 @@ def show(axis, values, title=None, vmax=None, cmap="gray"):
     if title is not None:
         axis.set_title(title)
     return handle
+
+
+def nrmse(made, truth):
+    return float((made.abs() - truth.abs()).norm() / truth.abs().norm())
+
+
+def compare(truth, results, crop, gain=3.0):
+    """The reference and each result, whole, magnified on ``crop``, and their errors.
+
+    Row one holds whole images, row two the region ``crop`` magnified, row
+    three the magnitude error multiplied by ``gain`` on the scale of the
+    reference, with the NRMSE of each result.
+    """
+    columns = 1 + len(results)
+    figure, axes = panels(3, columns)
+    top = float(truth.abs().max())
+    rows, cols = crop
+    show(axes[0, 0], truth, "reference", vmax=top)
+    axes[0, 0].add_patch(
+        Rectangle(
+            (cols.start, rows.start),
+            cols.stop - cols.start,
+            rows.stop - rows.start,
+            fill=False,
+            edgecolor="#e8a33d",
+            linewidth=1.2,
+        )
+    )
+    show(axes[1, 0], truth[crop], vmax=top)
+    axes[2, 0].text(
+        0.5, 0.5, f"error\n× {gain:g}", ha="center", va="center", transform=axes[2, 0].transAxes
+    )
+    for column, (name, made) in enumerate(results.items(), start=1):
+        show(axes[0, column], made, name, vmax=top)
+        show(axes[1, column], made[crop], vmax=top)
+        show(
+            axes[2, column],
+            gain * (made.abs() - truth.abs()),
+            f"NRMSE {nrmse(made, truth):.3f}",
+            vmax=top,
+            cmap="magma",
+        )
+    return figure
 
 
 # sphinx_gallery_end_ignore
@@ -89,6 +125,7 @@ from bartorch.learning import training
 SIZE = 96
 COILS = 8
 ITERATIONS = 4
+ACCELERATION = 4
 EPOCHS = 8
 DROPOUT = 0.1
 
@@ -164,12 +201,12 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 
 density = torch.exp(-0.5 * ((torch.arange(SIZE) - SIZE / 2) / (SIZE / 6)) ** 2)
 lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(1)) < density / density.sum() * (
-    SIZE / 4
+    SIZE / ACCELERATION
 )
 lines[SIZE // 2 - 4 : SIZE // 2 + 4] = True
 pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
 A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
-NOISE = 0.005
+NOISE = 0.02
 
 generator = torch.Generator().manual_seed(3)
 kspace = {
@@ -298,30 +335,39 @@ for name, (mean, deviation) in spreads.items():
 # spreads, although their factors differ: the calibration absorbs whatever
 # scale the spread has. What differs between them is how well the spread
 # follows the error voxel by voxel, which the correlation measures and the
-# maps below show: a spread that is large where the error is large gives
+# maps below show. A spread that is large where the error is large gives
 # narrow intervals where the reconstruction is reliable and wide ones where it
-# is not, while a spread unrelated to the error gives intervals of the right
-# average width in the wrong places. Both correlations are weak here, so
-# the intervals are wider than the error over much of the head and narrower
-# where the error concentrates; the coverage is met on average, as the
-# calibration guarantees, and not voxel by voxel.
+# is not; a spread unrelated to the error gives intervals of the right average
+# width in the wrong places.
+#
+# The two spreads measure different things, and the maps show it. The
+# dropout interval is diffuse over the brain and follows neither its anatomy
+# nor the error. The k-space-subset interval is largest at the scalp and in
+# horizontal bands, the pattern of aliasing along the phase-encode direction
+# (vertical): removing lines moves the aliasing, and that is the variability
+# it records. The error itself is concentrated in the cortex. Both correlations
+# are weak, so the intervals are wider than the error over much of the white
+# matter and narrower than it in parts of the cortex. The coverage is met on
+# average over voxels, as the calibration guarantees, not voxel by voxel.
 
 # sphinx_gallery_start_ignore
 row = 12
-figure, axes = panels(1, 4)
+figure, axes = panels(2, 2)
 top = float(truth[row].abs().max())
-show(axes[0, 0], spreads["dropout"][0][row], "mean, dropout", vmax=top)
+show(axes[0, 0], spreads["dropout"][0][row], "reconstruction (dropout mean)", vmax=top)
 error = (spreads["dropout"][0][row] - truth[row]).abs()
 scale = float(error.max())
-show(axes[0, 1], error, "error", vmax=scale, cmap="magma")
-for column, name in enumerate(spreads, start=2):
+show(axes[0, 1], error, "|error|", vmax=scale, cmap="magma")
+for column, name in enumerate(spreads):
     mean, deviation = spreads[name]
     factor = learning.calibrate(
         (mean - truth).abs()[calibration][head[calibration]],
         deviation[calibration][head[calibration]],
         COVERAGE,
     )
-    show(axes[0, column], factor * deviation[row], f"interval, {name}", vmax=scale, cmap="magma")
+    show(
+        axes[1, column], factor * deviation[row], f"90% interval, {name}", vmax=scale, cmap="magma"
+    )
 plt.show()
 # sphinx_gallery_end_ignore
 
