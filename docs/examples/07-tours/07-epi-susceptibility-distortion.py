@@ -60,7 +60,7 @@ for name in FILES:
         path = CACHE / (name + suffix)
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
-            urlretrieve(SOURCE + name + suffix, path.with_suffix(".part"))
+            urlretrieve(SOURCE + name + suffix, path.with_suffix(".part"))  # nosec B310: SOURCE is a fixed https URL
             path.with_suffix(".part").rename(path)
 # sphinx_gallery_end_ignore
 import json
