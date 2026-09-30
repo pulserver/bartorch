@@ -26,11 +26,22 @@ NAMESPACES = (
 SUBPACKAGES = sorted(info.name for info in pkgutil.iter_modules(bartorch.__path__) if info.ispkg)
 
 
+def _python_modules(path):
+    """The Python modules and packages under ``path``.
+
+    An installed wheel places the compiled library and its FINUFFT modules in
+    the package directory, where ``pkgutil`` lists them as extension modules;
+    they are shared libraries loaded by path, not modules.
+    """
+    for info in pkgutil.iter_modules(path):
+        spec = info.module_finder.find_spec(info.name)
+        if info.ispkg or (spec is not None and spec.origin.endswith(".py")):
+            yield info
+
+
 def test_bartorch_exposes_no_public_module_but_its_namespaces():
     public = {
-        info.name
-        for info in pkgutil.iter_modules(bartorch.__path__)
-        if not info.name.startswith("_")
+        info.name for info in _python_modules(bartorch.__path__) if not info.name.startswith("_")
     }
     assert public == set(NAMESPACES)
 
@@ -39,9 +50,7 @@ def test_bartorch_exposes_no_public_module_but_its_namespaces():
 def test_no_subpackage_of_bartorch_exposes_a_public_submodule(name):
     package = import_module(f"bartorch.{name}")
     public = [
-        info.name
-        for info in pkgutil.iter_modules(package.__path__)
-        if not info.name.startswith("_")
+        info.name for info in _python_modules(package.__path__) if not info.name.startswith("_")
     ]
     assert not public, f"bartorch.{name}: public submodules {public}"
 
