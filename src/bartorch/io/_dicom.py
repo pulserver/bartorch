@@ -172,25 +172,39 @@ def read_dicom(path: str | Sequence[str], *, series: Any = None) -> Images:
                 getattr(ds, "RescaleIntercept", 0) or 0
             )
 
-    row_spacing, column_spacing = (float(v) for v in first.PixelSpacing)
-    steps = np.zeros((3, 3))
-    steps[:, 0] = along_row * column_spacing
-    steps[:, 1] = along_column * row_spacing
-    start = np.asarray(grid[(contrasts[0], locations[0])].ImagePositionPatient, float)
-    if len(locations) > 1:
-        end = np.asarray(grid[(contrasts[0], locations[-1])].ImagePositionPatient, float)
-        steps[:, 2] = (end - start) / (len(locations) - 1)
-    else:
-        thickness = _number(getattr(first, "SpacingBetweenSlices", None))
-        if math.isnan(thickness):
-            thickness = _number(getattr(first, "SliceThickness", None))
-        steps[:, 2] = normal * (1.0 if math.isnan(thickness) else thickness)
-
+    first_slice = grid[(contrasts[0], locations[0])]
+    last_slice = grid[(contrasts[0], locations[-1])]
+    affine = _series_affine(first_slice, last_slice, len(locations))
     timings = {
         name: torch.tensor([key[n] for key in contrasts], dtype=torch.float64)
         for n, name in enumerate(_TIMINGS)
     }
-    return Images(torch.from_numpy(image), lps_affine(steps, start), timings, first)
+    return Images(torch.from_numpy(image), affine, timings, first)
+
+
+def _series_affine(first: Any, last: Any, slices: int) -> torch.Tensor:
+    """Affine of a stack of ``slices`` images from its first and its last.
+
+    One slice takes ``SpacingBetweenSlices``, or ``SliceThickness``, along the
+    normal as its step.
+    """
+    orientation = np.asarray(first.ImageOrientationPatient, float)
+    along_row, along_column = orientation[:3], orientation[3:]
+    row_spacing, column_spacing = (float(v) for v in first.PixelSpacing)
+    steps = np.zeros((3, 3))
+    steps[:, 0] = along_row * column_spacing
+    steps[:, 1] = along_column * row_spacing
+    start = np.asarray(first.ImagePositionPatient, float)
+    if slices > 1:
+        end = np.asarray(last.ImagePositionPatient, float)
+        steps[:, 2] = (end - start) / (slices - 1)
+    else:
+        thickness = _number(getattr(first, "SpacingBetweenSlices", None))
+        if math.isnan(thickness):
+            thickness = _number(getattr(first, "SliceThickness", None))
+        normal = np.cross(along_row, along_column)
+        steps[:, 2] = normal * (1.0 if math.isnan(thickness) else thickness)
+    return lps_affine(steps, start)
 
 
 def to_dicom(image: Any, affine: Any, *, header: Any = None, **fields: Any) -> list[Any]:

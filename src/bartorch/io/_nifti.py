@@ -56,9 +56,6 @@ def read_nifti(path: str | Sequence[str]) -> Images:
         loaded = nibabel.load(file)
         data = np.asanyarray(loaded.dataobj)
         data = data.astype(np.complex64 if np.iscomplexobj(data) else np.float32)
-        slope, intercept = loaded.header.get_slope_inter()
-        if slope is not None and not np.iscomplexobj(data):
-            data = data * np.float32(slope) + np.float32(intercept or 0.0)
         data = data.reshape(*data.shape[:3], -1) if data.ndim > 3 else data[..., None]
         if affine is None:
             affine, header = loaded.affine, loaded.header

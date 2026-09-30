@@ -130,84 +130,20 @@ def read_mrd(
         raise ValueError(
             f"trajectory_units must be one of {_TRAJECTORY_UNITS}, got {trajectory_units!r}"
         )
-    h5py = require("h5py")
-    xsd = require("ismrmrd.xsd")
-
-    with h5py.File(path, "r") as file:
-        if group not in file or "xml" not in file[group]:
-            raise ValueError(f"{path} has no ISMRMRD header in group {group!r}")
-        document = file[group]["xml"][0]
-        records = file[group]["data"][:] if "data" in file[group] else None
-    if isinstance(document, bytes):
-        document = document.decode()
-    header = xsd.CreateFromDocument(document)
+    header, records = _load(path, group)
     space = _space(header, encoding)
-    if records is None or len(records) == 0:
-        raise ValueError(f"{path} holds no readouts")
-
     head = records["head"]
     flags = head["flags"].astype(np.uint64)
-    noise_rows = np.flatnonzero(_is_set(flags, _NOISE))
-    placed = ~_is_set(flags, _NOISE)
-    for bit in _SKIPPED:
-        placed &= ~_is_set(flags, bit)
-    placed &= head["encoding_space_ref"] == encoding
-    rows = np.flatnonzero(placed)
+    rows = np.flatnonzero(_placed(flags, head["encoding_space_ref"], encoding))
     if rows.size == 0:
         raise ValueError(f"{path} holds no imaging readouts in encoding space {encoding}")
 
-    channels = int(head["active_channels"][rows].max())
-    readout = max(space["readout"], int(head["number_of_samples"][rows].max()))
-    extents = space["extents"]
-    loops = tuple(name for name, extent in extents if name in LOOP_COUNTERS)
-    placement = [(name, extent) for name, extent in extents if name not in LOOP_COUNTERS]
-    placement = [
-        (name, extent) for name, extent in placement if extent > 1 or name == "phase_encode"
-    ]
-    axes = (*loops, "coil", *(name for name, _ in placement), "readout")
-    loop_shape = tuple(extent for name, extent in extents if name in LOOP_COUNTERS)
-    inner_shape = tuple(extent for _, extent in placement)
-    grid = (*loop_shape, *inner_shape)
-
-    kspace = np.zeros((*loop_shape, channels, *inner_shape, readout), np.complex64)
-    mask = np.zeros((*grid, readout), bool)
-    reference = np.zeros_like(mask)
-    trajectory = None
-
-    idx = head["idx"]
-    ordered = [(name, extent) for name, extent in extents if name in LOOP_COUNTERS] + placement
-    names = [name for name, _ in ordered]
-    counters = {name: idx[_COUNTER_FIELD.get(name, name)][rows].astype(np.int64) for name in names}
-    for name, extent in ordered:
-        values = counters[name]
-        if values.size and (values.min() < 0 or values.max() >= extent):
-            field = _COUNTER_FIELD.get(name, name)
-            raise ValueError(
-                f"a readout has {field}={int(values.max())}, past the {extent} {name} "
-                f"positions encoding space {encoding} states"
-            )
-
+    layout = _layout(space, head[rows])
+    counters = _counters(layout, head["idx"][rows], encoding)
     calibration = np.zeros(rows.size, bool)
     for bit in _CALIBRATION:
         calibration |= _is_set(flags[rows], bit)
-
-    for n, row in enumerate(rows):
-        samples = int(head["number_of_samples"][row])
-        coils = int(head["active_channels"][row])
-        data = records["data"][row].view(np.complex64).reshape(coils, samples)
-        where = tuple(int(counters[name][n]) for name in names)
-        outer, inner = where[: len(loops)], where[len(loops) :]
-        span = slice(readout - samples, readout)
-        kspace[(*outer, slice(0, coils), *inner, span)] = data
-        mask[(*where, span)] = True
-        if calibration[n]:
-            reference[(*where, span)] = True
-        dimensions = int(head["trajectory_dimensions"][row])
-        if dimensions:
-            if trajectory is None:
-                trajectory = np.zeros((*grid, readout, 3), np.float32)
-            points = records["traj"][row].reshape(samples, dimensions)[:, :3]
-            trajectory[(*where, span, slice(0, points.shape[1]))] = points
+    kspace, mask, reference, trajectory = _place(layout, records[rows], counters, calibration)
 
     if trajectory is not None and trajectory_units in ("1/m", "fraction"):
         scale = space["fov_m"] if trajectory_units == "1/m" else space["matrix"]
@@ -217,30 +153,122 @@ def read_mrd(
             )
         trajectory *= np.asarray(scale, np.float32)
 
-    noise = None
-    if noise_rows.size:
-        noise = np.concatenate(
-            [
-                records["data"][row]
-                .view(np.complex64)
-                .reshape(int(head["active_channels"][row]), int(head["number_of_samples"][row]))
-                for row in noise_rows
-            ],
-            axis=1,
-        )
-
     readouts = _readouts(head[rows])
     return MrdRaw(
         kspace=torch.from_numpy(kspace),
         mask=torch.from_numpy(mask),
         reference=torch.from_numpy(reference),
         trajectory=None if trajectory is None else torch.from_numpy(trajectory),
-        noise=None if noise is None else torch.from_numpy(noise),
-        axes=axes,
+        noise=_noise(records[np.flatnonzero(_is_set(flags, _NOISE))]),
+        axes=layout["axes"],
         affine=mrd_affine(space, readouts),
         header=header,
         readouts=readouts,
     )
+
+
+def _load(path: str, group: str) -> tuple[Any, np.ndarray]:
+    """The parsed header and the readout records of one group of an ISMRMRD file."""
+    h5py = require("h5py")
+    xsd = require("ismrmrd.xsd")
+    with h5py.File(path, "r") as file:
+        if group not in file or "xml" not in file[group]:
+            raise ValueError(f"{path} has no ISMRMRD header in group {group!r}")
+        document = file[group]["xml"][0]
+        records = file[group]["data"][:] if "data" in file[group] else None
+    if records is None or len(records) == 0:
+        raise ValueError(f"{path} holds no readouts")
+    if isinstance(document, bytes):
+        document = document.decode()
+    return xsd.CreateFromDocument(document), records
+
+
+def _placed(flags: np.ndarray, spaces: np.ndarray, encoding: int) -> np.ndarray:
+    """Readouts of ``encoding`` that are imaging or calibration data."""
+    placed = spaces == encoding
+    for bit in (_NOISE, *_SKIPPED):
+        placed &= ~_is_set(flags, bit)
+    return placed
+
+
+def _layout(space: dict[str, Any], head: np.ndarray) -> dict[str, Any]:
+    """Axes of the k-space the readouts are placed into, and the extent of each.
+
+    The loop counters come first, then the channels, then the partitions when
+    there is more than one and the phase encodes, then the readout, sized by
+    the longest readout.
+    """
+    loops = [(name, extent) for name, extent in space["extents"] if name in LOOP_COUNTERS]
+    inner = [
+        (name, extent)
+        for name, extent in space["extents"]
+        if name not in LOOP_COUNTERS and (extent > 1 or name == "phase_encode")
+    ]
+    return {
+        "loops": loops,
+        "inner": inner,
+        "channels": int(head["active_channels"].max()),
+        "readout": max(space["readout"], int(head["number_of_samples"].max())),
+        "axes": (*(n for n, _ in loops), "coil", *(n for n, _ in inner), "readout"),
+    }
+
+
+def _counters(layout: dict[str, Any], idx: np.ndarray, encoding: int) -> np.ndarray:
+    """``(readouts, axes)`` position of each readout along the loop and placement axes."""
+    columns = []
+    for name, extent in (*layout["loops"], *layout["inner"]):
+        field = _COUNTER_FIELD.get(name, name)
+        values = idx[field].astype(np.int64)
+        if values.size and (values.min() < 0 or values.max() >= extent):
+            raise ValueError(
+                f"a readout has {field}={int(values.max())}, past the {extent} {name} "
+                f"positions encoding space {encoding} states"
+            )
+        columns.append(values)
+    return np.stack(columns, axis=1) if columns else np.zeros((idx.size, 0), np.int64)
+
+
+def _place(
+    layout: dict[str, Any], records: np.ndarray, where: np.ndarray, calibration: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray | None]:
+    """Place each readout's samples, right-aligned, and its trajectory, if it carries one."""
+    outer = tuple(extent for _, extent in layout["loops"])
+    inner = tuple(extent for _, extent in layout["inner"])
+    readout = layout["readout"]
+    kspace = np.zeros((*outer, layout["channels"], *inner, readout), np.complex64)
+    mask = np.zeros((*outer, *inner, readout), bool)
+    reference = np.zeros_like(mask)
+    trajectory = None
+    loops = len(outer)
+    for record, position, calibrating in zip(records, where, calibration):
+        head = record["head"]
+        samples, coils = int(head["number_of_samples"]), int(head["active_channels"])
+        position = tuple(int(v) for v in position)
+        span = slice(readout - samples, readout)
+        data = record["data"].view(np.complex64).reshape(coils, samples)
+        kspace[(*position[:loops], slice(0, coils), *position[loops:], span)] = data
+        mask[(*position, span)] = True
+        reference[(*position, span)] = calibrating
+        dimensions = int(head["trajectory_dimensions"])
+        if dimensions:
+            if trajectory is None:
+                trajectory = np.zeros((*mask.shape, 3), np.float32)
+            points = record["traj"].reshape(samples, dimensions)[:, :3]
+            trajectory[(*position, span, slice(0, points.shape[1]))] = points
+    return kspace, mask, reference, trajectory
+
+
+def _noise(records: np.ndarray) -> torch.Tensor | None:
+    """Noise readouts side by side, ``(coils, samples)``."""
+    if records.size == 0:
+        return None
+    blocks = [
+        record["data"]
+        .view(np.complex64)
+        .reshape(int(record["head"]["active_channels"]), int(record["head"]["number_of_samples"]))
+        for record in records
+    ]
+    return torch.from_numpy(np.concatenate(blocks, axis=1))
 
 
 #: The MRD counter each placement axis is read from.

@@ -288,3 +288,138 @@ def test_dicom_and_nifti_agree_on_where_a_voxel_is(tmp_path):
     dicom = io.read_dicom(tmp_path / "series")
     nifti = io.read_nifti(io.write_nifti(tmp_path / "v.nii", image, affine))
     np.testing.assert_allclose(dicom.affine.numpy(), nifti.affine.numpy(), atol=1e-5)
+
+
+def test_study_date_time_and_patient_position_convert_to_dicom_values():
+    from xsdata.models.datatype import XmlDate, XmlTime
+
+    header = _header()
+    header.studyInformation = ismrmrd.xsd.studyInformationType(
+        studyDate=XmlDate(2026, 9, 30), studyTime=XmlTime(8, 30, 5)
+    )
+    header.measurementInformation = ismrmrd.xsd.measurementInformationType(
+        patientPosition=ismrmrd.xsd.patientPositionType("HFS"), seriesDescription="t2"
+    )
+    first = io.to_dicom(torch.ones(4, 4), torch.eye(4), header=header)[0]
+    assert (first.StudyDate, first.StudyTime) == ("20260930", "083005")
+    assert first.PatientPosition == "HFS"
+    assert first.SeriesDescription == "t2"
+
+
+def test_on_a_ge_system_the_measurement_id_is_the_series_number():
+    header = _header()
+    header.acquisitionSystemInformation.systemVendor = "GE MEDICAL SYSTEMS"
+    header.measurementInformation = ismrmrd.xsd.measurementInformationType(
+        measurementID="12", patientPosition=ismrmrd.xsd.patientPositionType("HFS")
+    )
+    first = io.to_dicom(torch.ones(4, 4), torch.eye(4), header=header)[0]
+    assert first.SeriesNumber == 12
+    assert first[0x0043, 0x102F].value == 0
+    header.measurementInformation.measurementID = "scan12"
+    with pytest.raises(ValueError, match="measurementID"):
+        io.to_dicom(torch.ones(4, 4), torch.eye(4), header=header)
+
+
+def test_a_single_plane_is_one_image_and_other_shapes_are_refused():
+    assert len(io.to_dicom(torch.ones(4, 4), torch.eye(4))) == 1
+    with pytest.raises(ValueError, match="an image is"):
+        io.to_dicom(torch.ones(4), torch.eye(4))
+    with pytest.raises(ValueError, match="an affine is"):
+        io.to_dicom(torch.ones(4, 4), torch.eye(3))
+
+
+def test_integer_and_constant_images_are_stored_without_loss(tmp_path):
+    counts = torch.arange(20, dtype=torch.int64).reshape(4, 5)
+    first = io.to_dicom(counts, torch.eye(4))[0]
+    assert "RescaleSlope" not in first
+    assert first.BitsAllocated == 32
+    io.write_dicom(tmp_path / "flat", torch.full((1, 4, 5), 3.5), torch.eye(4))
+    np.testing.assert_allclose(io.read_dicom(tmp_path / "flat").image.numpy(), 3.5)
+
+
+def test_a_single_slice_takes_its_thickness_as_the_slice_step(tmp_path):
+    affine = torch.diag(torch.tensor([1.0, 1.0, 5.0, 1.0], dtype=torch.float64))
+    files = io.write_dicom(tmp_path / "one", torch.ones(4, 5), affine)
+    (tmp_path / "one" / "notes.txt").write_text("not DICOM")
+    back = io.read_dicom([str(f) for f in files])
+    np.testing.assert_allclose(back.affine.numpy(), affine.numpy(), atol=1e-6)
+    assert io.read_dicom(tmp_path / "one").image.shape == (1, 1, 4, 5)
+
+
+def test_unreadable_series_are_refused_with_the_reason(tmp_path):
+    with pytest.raises(ValueError, match="no DICOM images"):
+        io.read_dicom(tmp_path)
+    affine = _oblique_affine()
+    io.write_dicom(tmp_path / "a", _volume(), affine, SeriesNumber=1)
+    with pytest.raises(ValueError, match="no series matches"):
+        io.read_dicom(tmp_path / "a", series=9)
+    io.write_dicom(tmp_path / "b", _volume(), affine, SeriesNumber=2)
+    with pytest.raises(ValueError, match="share a contrast"):
+        io.read_dicom(tmp_path, series=[1, 2])
+    io.write_dicom(tmp_path / "c", _volume()[:2], affine, SeriesNumber=3, EchoTime=5.0)
+    with pytest.raises(ValueError, match="cover different slices"):
+        io.read_dicom(tmp_path, series=[1, 3])
+
+
+def test_mrd_files_without_what_a_read_needs_are_refused(tmp_path):
+    path = _write(tmp_path / "x.h5", _header(), [_acquisition(np.ones((2, 16)))])
+    with pytest.raises(ValueError, match="no ISMRMRD header"):
+        io.read_mrd(path, group="other")
+    with pytest.raises(ValueError, match="encoding spaces"):
+        io.read_mrd(path, encoding=1)
+    with pytest.raises(ValueError, match="trajectory_units"):
+        io.read_mrd(path, trajectory_units="rad")
+    noise_only = _write(
+        tmp_path / "n.h5", _header(), [_acquisition(np.ones((2, 16)), flags=(NOISE,))]
+    )
+    with pytest.raises(ValueError, match="no imaging readouts"):
+        io.read_mrd(noise_only)
+    empty = _write(tmp_path / "e.h5", _header(), [])
+    with pytest.raises(ValueError, match="holds no readouts"):
+        io.read_mrd(empty)
+
+
+def test_a_trajectory_as_a_fraction_of_the_bandwidth_is_scaled_by_the_matrix(tmp_path):
+    k = np.stack([np.linspace(-0.5, 0.5, 16, endpoint=False), np.zeros(16)], axis=1)
+    acquisitions = [
+        _acquisition(np.ones((2, 16)), trajectory=k.astype(np.float32), kspace_encode_step_1=line)
+        for line in range(12)
+    ]
+    path = _write(tmp_path / "f.h5", _header(trajectory="radial"), acquisitions)
+    grid = io.read_mrd(path, trajectory_units="fraction").trajectory
+    np.testing.assert_allclose(grid[0, :, 0].numpy(), np.linspace(-8, 8, 16, endpoint=False))
+
+
+def test_readouts_without_orientation_have_no_affine(tmp_path):
+    none = ((0.0, 0.0, 0.0),) * 3
+    acquisitions = [_acquisition(np.ones((2, 16)), dirs=none, kspace_encode_step_1=0)]
+    assert io.read_mrd(_write(tmp_path / "o.h5", _header(), acquisitions)).affine is None
+    tilted = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 0.0))
+    acquisitions = [_acquisition(np.ones((2, 16)), dirs=tilted, kspace_encode_step_1=0)]
+    affine = io.read_mrd(_write(tmp_path / "t.h5", _header(), acquisitions)).affine
+    np.testing.assert_allclose(affine[:3, 2].numpy(), [0.0, 0.0, 5.0])
+
+
+def test_nifti_files_of_different_geometry_are_not_stacked(tmp_path):
+    a = io.write_nifti(tmp_path / "a.nii", torch.ones(4, 5), torch.eye(4))
+    b = io.write_nifti(tmp_path / "b.nii", torch.ones(4, 5), 2 * torch.eye(4))
+    assert io.read_nifti(a).image.shape == (1, 1, 4, 5)
+    with pytest.raises(ValueError, match="differs"):
+        io.read_nifti([a, b])
+    with pytest.raises(ValueError, match="unknown timing"):
+        io.write_nifti(tmp_path / "c.nii", torch.ones(4, 5), torch.eye(4), timings={"te": 1.0})
+
+
+def test_a_scaled_nifti_reads_in_its_real_values(tmp_path):
+    image = nibabel.Nifti1Image(np.arange(20, dtype=np.int16).reshape(5, 4, 1), np.eye(4))
+    image.header.set_slope_inter(0.5, 2.0)
+    nibabel.save(image, tmp_path / "s.nii")
+    back = io.read_nifti(tmp_path / "s.nii")
+    assert back.image[0, 0, 1, 1].item() == pytest.approx(0.5 * 5 + 2.0)
+
+
+def test_a_missing_optional_dependency_names_the_extra():
+    from bartorch.io._optional import require
+
+    with pytest.raises(ImportError, match=r"bartorch\[io\]"):
+        require("a_module_that_is_not_installed")
