@@ -12,12 +12,18 @@ MODELS = ["D", "G0", "G0 from a start", "G1", "G1 from a start", "G3", "G3 from 
 
 CASES = [[MAG]] + [[f"{FIT}[{m}]", MAG] for m in MODELS] + [[ROUTE, MAG], [FIT, MAG]]
 
+CHILD = (
+    "import faulthandler, sys, pytest\n"
+    "f = open('stacks.txt', 'w')\n"
+    "faulthandler.dump_traceback_later(120, file=f)\n"
+    "sys.exit(pytest.main(['-v', '-p', 'no:cacheprovider', '-p', 'no:faulthandler', *sys.argv[1:]]))\n"
+)
+
 for case in CASES:
     start = time.time()
     try:
         done = subprocess.run(
-            [sys.executable, "-m", "pytest", "-v", "-p", "no:cacheprovider",
-             "-o", "faulthandler_timeout=90", *case],
+            [sys.executable, "-c", CHILD, *case],
             capture_output=True, text=True, timeout=180,
         )
         verdict, out = f"exit {done.returncode}", done.stdout + done.stderr
@@ -28,3 +34,7 @@ for case in CASES:
     print(f"=== {verdict} after {time.time() - start:.0f} s: {case}", flush=True)
     if verdict != "exit 0":
         print("\n".join(out.splitlines()[-120:]), flush=True)
+        try:
+            print("--- stacks ---\n" + open("stacks.txt").read(), flush=True)
+        except OSError:
+            pass
