@@ -7,7 +7,7 @@ The tours are standalone.  Every page can be downloaded as a Python script or
 a notebook, or opened in Colab.  The concepts are in
 {doc}`../explanation/index`, and the interfaces in {doc}`../api/index`.
 
-The scripts need `pip install bartorch brainweb-dl matplotlib cmap`;
+The scripts need `pip install 'bartorch[io]' brainweb-dl matplotlib cmap`;
 `brainweb-dl` downloads the BrainWeb phantoms several examples build their
 images from.
 
@@ -106,6 +106,7 @@ images from.
 | --- | --- |
 | {doc}`../auto_examples/05-model-based/01-subspace-t1-mapping` | Subspace-constrained inversion recovery and $T_1$ mapping |
 | {doc}`../auto_examples/05-model-based/02-quantitative-models` | $T_2$ maps from multi-echo k-space through a signal model |
+| {doc}`../auto_examples/05-model-based/03-maps-from-scanner-images` | A $T_2$ map from DICOM magnitude images, written back as DICOM and NIfTI |
 
 ```{toctree}
 :hidden:
@@ -113,6 +114,7 @@ images from.
 
 ../auto_examples/05-model-based/01-subspace-t1-mapping
 ../auto_examples/05-model-based/02-quantitative-models
+../auto_examples/05-model-based/03-maps-from-scanner-images
 ```
 
 ## Learned regularization
