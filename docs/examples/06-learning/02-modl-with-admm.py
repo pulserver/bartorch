@@ -3,9 +3,14 @@ r"""
 MoDL, on BART's ADMM
 ====================
 
-An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser
-in the proximal step of BART's alternating-direction iteration, trained end to
-end against fully sampled images.
+This lesson trains an unrolled reconstruction network for undersampled
+Cartesian SENSE: a small convolutional denoiser placed in the proximal step of
+BART's alternating-direction iteration, with the whole iteration trained end
+to end against fully sampled images. The aim is to show how a learned
+regularizer is combined with the physical encoding model -- coil
+sensitivities, Fourier transform and sampling pattern -- so that the network
+only has to remove what the data leave undetermined, and how such a network is
+trained with standard tools.
 
 MoDL [#modl]_ writes a reconstruction as an alternation between a learned denoiser and a
 data-consistency step, and trains the denoiser through it. As published the
@@ -56,39 +61,98 @@ networks for complex multi-channel volumes.
 
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
+from cmap import Colormap
+from matplotlib.colors import ListedColormap
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
+WIDTH = 8.0  # inches, the width of the documentation column
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
+# Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
+# colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
+LIPARI = Colormap("crameri:lipari").to_matplotlib()
+NAVIA = Colormap("crameri:navia").to_matplotlib()
+# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
+# mygbm, turned so that zero phase is yellow and +/-pi is blue.
+MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
+PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
+
+# Colormap, window and unit per parameter.  Both relaxation windows stop short
+# of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
+# in T1, 70 against 83 ms in T2 -- take up most of the scale and CSF saturates.
+STYLE = {
+    "T1": (LIPARI, (0.0, 1200.0), "$T_1$ [ms]"),
+    "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
+}
 
 
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
-def show(axis, values, title=None, vmax=None, cmap="gray"):
-    """One panel, of a magnitude."""
+def show(axis, values, title=None, vmax=None, cmap="gray", vmin=0.0):
+    """One panel, of a magnitude by default."""
     values = values.detach().abs().cpu().numpy() if hasattr(values, "detach") else values
-    handle = axis.imshow(values, cmap=cmap, vmin=0.0, vmax=vmax)
+    handle = axis.imshow(values, cmap=cmap, vmin=vmin, vmax=vmax)
     if title is not None:
         axis.set_title(title)
     return handle
+
+
+def parameter(axis, values, name, title=None):
+    """One relaxation map in the colormap and window its parameter is read in."""
+    cmap, limits, _ = STYLE[name]
+    return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
+
+
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
+def domain(axis, values, title=None):
+    """A complex map the way a coil sensitivity is read: phase in colour,
+    magnitude in brightness."""
+    values = values.detach().cpu()
+    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
+    magnitude = values.abs().numpy()
+    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
+    axis.imshow(colours * magnitude[..., None])
+    if title is not None:
+        axis.set_title(title)
+
+
+def phase_bar(figure, axes):
+    """The colour-to-phase key for the panels beside it."""
+    bar = figure.colorbar(
+        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
+        ax=axes,
+        fraction=0.046,
+        ticks=[-np.pi, 0.0, np.pi],
+    )
+    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
+    bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
+
+
+def scaled(estimate, reference):
+    """``estimate`` scaled to ``reference`` in the least-squares sense."""
+    a, b = estimate.abs().double(), reference.abs().double()
+    return (float((a * b).sum() / (a * a).sum()) * a).float()
 
 
 # sphinx_gallery_end_ignore
@@ -435,15 +499,45 @@ for name, estimate in rows.items():
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(2, 5)
-for row in range(2):
-    top = float(truth[row].abs().max())
-    show(axes[row, 0], truth[row], "truth" if 0 == row else None, vmax=top)
-    for column, (name, estimate) in enumerate(rows.items(), start=1):
-        show(axes[row, column], estimate[row], name if 0 == row else None, vmax=top)
-figure.suptitle(f"two validation slices, {SIZE / int(lines.sum()):.1f}-fold undersampled")
+reference = truth[0]
+top = float(reference.abs().max())
+learned_name = f"MoDL, K={ITERATIONS}"
+figure, axes = panels(4)
+show(axes[0, 0], reference, "reference", vmax=top)
+for axis, name in zip(axes[0, 1:], ("adjoint", "ADMM, wavelet", learned_name)):
+    show(axis, scaled(rows[name][0], reference), name, vmax=top)
+figure.suptitle(f"a validation slice, {SIZE / int(lines.sum()):.1f}-fold undersampled")
+plt.show()
+
+compared = ("CG SENSE", "ADMM, wavelet", learned_name)
+figure, axes = panels(3, width=0.8 * WIDTH)
+for axis, name in zip(axes[0], compared):
+    difference = (scaled(rows[name][0], reference) - reference.abs()).abs() / top
+    handle = show(axis, difference.detach().numpy(), name, vmax=0.15, cmap="magma")
+figure.colorbar(handle, ax=axes[0], fraction=0.046, label="|error| / peak")
+figure.suptitle("error magnitude")
+plt.show()
+
+zoom = (slice(70, 118), slice(40, 88))
+figure, axes = panels(4)
+show(axes[0, 0], reference.abs()[zoom], "reference", vmax=top)
+for axis, name in zip(axes[0, 1:], compared):
+    show(axis, scaled(rows[name][0], reference)[zoom], name, vmax=top)
+figure.suptitle("enlarged")
 plt.show()
 # sphinx_gallery_end_ignore
+
+# %%
+#
+# The adjoint shows the aliasing of the random undersampling and the noise.
+# CG-SENSE removes most of the aliasing and amplifies the noise, most visibly
+# in the error map. The wavelet penalty and the unrolled network both suppress
+# the noise and leave their largest errors at the bright, thin scalp. After
+# fifteen epochs the network, with five iterations, is close to the wavelet
+# penalty with fifty: the two images differ little in the enlarged region.
+# The network sees the data only through the x-update of each iteration,
+# which holds the image to the measured k-space, so what it contributes is
+# limited to what the undersampling and the noise leave undetermined.
 
 # %%
 #

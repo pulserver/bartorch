@@ -3,11 +3,15 @@
 Regularized reconstruction
 ==========================
 
-Three regularization terms applied to the same undersampled SENSE problem,
-and the dependence of the reconstruction error on the regularization weight.
+This lesson compares three regularization terms on the same undersampled,
+noisy SENSE acquisition, shows how the choice of the regularization weight
+trades residual noise and aliasing against loss of detail, and combines two
+terms in one reconstruction.
 
-An undersampled, noisy acquisition does not determine the image, and a
-reconstruction adds prior information as a penalty:
+At high acceleration, or low SNR, the SENSE problem is ill-conditioned: the
+encoding does not determine the image, and a plain least-squares fit amplifies
+the noise by the g-factor. A reconstruction therefore adds prior knowledge
+about the image as a penalty,
 
 .. math::
 
@@ -15,6 +19,9 @@ reconstruction adds prior information as a penalty:
 
 with :math:`A` the SENSE encoding, :math:`g` a convex functional,
 :math:`G` a linear transform and :math:`\\lambda` the regularization weight.
+Tikhonov regularization favours a small image, a wavelet :math:`\\ell_1`
+penalty an image that is sparse in a wavelet basis, as in compressed sensing,
+and total variation (TV) an image that is piecewise constant.
 :mod:`bartorch.priors` provides BART's terms :math:`g(Gx)` as objects, and
 :func:`bartorch.apps.pics` solves the problem with the iteration each term
 admits. :doc:`../../explanation/inverse-problems` introduces the formulation
@@ -25,9 +32,9 @@ and the algorithms.
 - Pass regularization terms from :mod:`bartorch.priors` to
   :func:`bartorch.apps.pics`, and choose a solver the term admits.
 - Compare Tikhonov, wavelet :math:`\\ell_1` and total-variation
-  regularization on the same data.
+  regularization on the same data, by their images and error maps.
 - Select a regularization weight by the error against a reference, and
-  interpret the trade-off between residual noise and loss of detail.
+  recognize under- and over-regularization in the image.
 - Combine two terms in one reconstruction.
 
 The previous lessons, :doc:`../01-basics/02-from-kspace-to-image` and
@@ -42,6 +49,8 @@ reconstruction from an operator, a term and a solver.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+
+WIDTH = 8.0  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -60,28 +69,13 @@ STYLE = {
     "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
 }
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
-
-
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -100,10 +94,17 @@ def parameter(axis, values, name, title=None):
     return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
 
 
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
 def domain(axis, values, title=None):
     """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness, so an unsupported corner reads as background
-    rather than as a phase."""
+    magnitude in brightness."""
     values = values.detach().cpu()
     colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
     magnitude = values.abs().numpy()
@@ -111,15 +112,6 @@ def domain(axis, values, title=None):
     axis.imshow(colours * magnitude[..., None])
     if title is not None:
         axis.set_title(title)
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    bar = figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-    return bar
 
 
 def phase_bar(figure, axes):
@@ -132,6 +124,15 @@ def phase_bar(figure, axes):
     )
     bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
     bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -240,13 +241,13 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 # Acquisition
 # -----------
 #
-# A quarter of the phase encodes, drawn at random from a variable density
-# around a fully sampled calibration region of 24 lines, as in
+# A quarter of the phase encodes (:math:`R = 4`), drawn at random from a
+# variable density around a fully sampled ACS region of 24 lines, as in
 # :doc:`../01-basics/02-from-kspace-to-image`. The noise is a hundred times
 # stronger than in that lesson: complex Gaussian noise of variance
 # :math:`10^{-3}` per sample of the unitary transform of an image whose peak
-# is one, so that noise amplification, and not only aliasing, determines the
-# error of an unregularized reconstruction.
+# is one. At this level noise amplification, and not only aliasing, determines
+# the error of an unregularized reconstruction.
 
 kspace = bt.noise(bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True), n=1e-3, s=42)
 
@@ -272,102 +273,123 @@ maps = bt.ecalib(measured, maps=1, calib_size=CALIBRATION, crop=0.8)
 # Tikhonov regularization, :math:`g(x) = \tfrac12\|x\|_2^2`, is the ``l2``
 # argument of ``pics`` and keeps the problem quadratic, so conjugate gradients
 # solve it. The wavelet term :math:`\|\Psi x\|_1` promotes an image whose
-# wavelet coefficients are sparse [#lustig]_; its transform is inside its
-# proximal operator, so FISTA [#beck]_ applies it. Total variation,
-# :math:`\sum_r \|(\nabla x)_r\|_2`, promotes a piecewise-constant image
-# [#block]_; its transform :math:`\nabla` is not, so it requires a splitting
-# method, here ADMM [#boyd]_. The axes of a term are the tensor axes it acts
-# along, here the two spatial axes.
+# wavelet coefficients are sparse [#lustig]_; its transform is orthogonal and
+# is applied inside its proximal operator, so FISTA [#beck]_ solves it. Total
+# variation, :math:`\sum_r \|(\nabla x)_r\|_2`, promotes a piecewise-constant
+# image [#block]_; the finite-difference operator :math:`\nabla` has no such
+# closed-form proximal operator, so TV requires a splitting method, here ADMM
+# [#boyd]_. The axes of a term are the tensor axes it acts along, here the two
+# spatial axes.
 #
-# The weights are the ones that minimize the error of each term in the sweep
-# further down. They are relative to the data divided by the scaling
-# :func:`bartorch.optim.data_scaling` estimates, which ``pics`` applies, so the
-# same weight means the same thing for data of a different overall scale.
+# Each term is run over a range of weights. The weights are relative to the
+# data divided by the scaling :func:`bartorch.optim.data_scaling` estimates,
+# which ``pics`` applies, so the same weight means the same thing for data of
+# a different overall scale.
 
-reconstructions = {
-    "Tikhonov": apps.pics(measured, maps, l2=0.1, maxiter=60),
-    "wavelet": apps.pics(
-        measured, maps, regularizers=priors.Wavelet((-1, -2), 0.012), solver="fista", maxiter=60
-    ),
-    "total variation": apps.pics(
-        measured,
-        maps,
-        regularizers=priors.TotalVariation((-1, -2), 0.012),
-        solver="admm",
-        maxiter=60,
-    ),
+sweeps = {
+    "Tikhonov": [0.03, 0.1, 0.3, 1.0],
+    "wavelet": [0.003, 0.006, 0.012, 0.03],
+    "total variation": [0.002, 0.006, 0.012, 0.04],
 }
 
-for name, estimate in reconstructions.items():
-    error = bt.nrmse(image.abs(), estimate.abs(), scaled=True)
+
+def reconstruct(name, weight):
+    if name == "Tikhonov":
+        return apps.pics(measured, maps, l2=weight, maxiter=30)
+    if name == "wavelet":
+        term, solver = priors.Wavelet((-1, -2), weight), "fista"
+    else:
+        term, solver = priors.TotalVariation((-1, -2), weight), "admm"
+    return apps.pics(measured, maps, regularizers=term, solver=solver, maxiter=30)
+
+
+reconstructions = {
+    name: {weight: reconstruct(name, weight) for weight in weights}
+    for name, weights in sweeps.items()
+}
+errors_by_weight = {
+    name: {w: bt.nrmse(image.abs(), x.abs(), scaled=True) for w, x in results.items()}
+    for name, results in reconstructions.items()
+}
+
+best = {name: min(values, key=values.get) for name, values in errors_by_weight.items()}
+for name, weight in best.items():
+    estimate = reconstructions[name][weight]
+    error = errors_by_weight[name][weight]
     similarity = bt.ssim(image.abs(), scaled(estimate, image))
-    print(f"{name:>16}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
+    print(f"{name:>16}  weight {weight:<6}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
 
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(2, 4, height=1.1)
 peak = float(image.abs().max())
-show(axes[0, 0], image, "phantom", vmax=peak)
-axes[1, 0].axis("off")
-for column, (name, estimate) in enumerate(reconstructions.items(), start=1):
-    show(axes[0, column], scaled(estimate, image), name, vmax=peak)
-    show(axes[1, column], (scaled(estimate, image) - image.abs()).abs(), vmax=0.2 * peak)
-axes[1, 1].set_ylabel("|error|, x5")
-figure.suptitle(f"{ACCELERATION}x undersampled, noisy")
+chosen = {name: reconstructions[name][weight] for name, weight in best.items()}
+
+figure, axes = panels(4)
+show(axes[0, 0], image, "reference", vmax=peak)
+for axis, (name, estimate) in zip(axes[0, 1:], chosen.items()):
+    show(axis, scaled(estimate, image), f"{name}, $\\lambda$ = {best[name]}", vmax=peak)
+figure.suptitle(f"R = {ACCELERATION}, noisy, each at its best weight")
+plt.show()
+
+figure, axes = panels(3, width=0.8 * WIDTH)
+errors(figure, axes[0], chosen.values(), image, 0.2)
+for axis, name in zip(axes[0], chosen):
+    axis.set_title(name)
+figure.suptitle("error magnitude")
+plt.show()
+
+# Occipital cortex, where the gyri are thinnest.
+zoom = (slice(110, 175), slice(60, 130))
+figure, axes = panels(4)
+show(axes[0, 0], image.abs()[zoom], "reference", vmax=peak)
+for axis, (name, estimate) in zip(axes[0, 1:], chosen.items()):
+    show(axis, scaled(estimate, image)[zoom], name, vmax=peak)
+figure.suptitle("enlarged: posterior cortex")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The Tikhonov reconstruction retains noise and the incoherent aliasing of the
-# random sampling across the whole image. Both sparsity-promoting terms reduce
-# them; the wavelet term leaves a faint blockiness at the scale of its coarsest
-# wavelets, and total variation flattens the gradual intensity variation within
-# white matter into patches of constant intensity.
+# The Tikhonov reconstruction retains amplified noise and the incoherent
+# aliasing of the random sampling across the whole head: a quadratic penalty
+# that is strong enough to suppress them also blurs the image, so its best
+# weight leaves them in. Both sparsity-promoting terms remove most of the
+# noise while keeping the tissue boundaries, which the error maps show as a
+# much darker background inside the brain. They differ in their residual
+# artefacts: in the enlarged region the wavelet penalty leaves a blotchy
+# residual texture in white matter, and total variation renders the gradual
+# intensity variations within white matter as patches of constant intensity
+# (staircasing).
 #
 # The regularization weight
 # -------------------------
 #
 # A weight that is too small leaves the noise in; one that is too large
 # removes image detail with it, and the error against the reference has a
-# minimum between the two. The sweep below spans a factor of sixteen for each
-# term. It is possible here because the phantom is known; for measured data
-# the weight is chosen by a criterion that does not require the reference, or
-# fixed once for a protocol.
-
-sweeps = {
-    "Tikhonov": [0.01, 0.03, 0.1, 0.3, 1.0],
-    "wavelet": [0.003, 0.006, 0.012, 0.025, 0.05],
-    "total variation": [0.003, 0.006, 0.012, 0.025, 0.05],
-}
-
-
-def reconstruct(name, weight):
-    if name == "Tikhonov":
-        return apps.pics(measured, maps, l2=weight, maxiter=60)
-    if name == "wavelet":
-        term, solver = priors.Wavelet((-1, -2), weight), "fista"
-    else:
-        term, solver = priors.TotalVariation((-1, -2), weight), "admm"
-    return apps.pics(measured, maps, regularizers=term, solver=solver, maxiter=60)
-
-
-errors = {
-    name: [bt.nrmse(image.abs(), reconstruct(name, w).abs(), scaled=True) for w in weights]
-    for name, weights in sweeps.items()
-}
-
-# %%
+# minimum between the two. The sweep above spans a factor of ten or more
+# for each term. It is possible here because the phantom is known; for
+# measured data the weight is chosen by a criterion that does not require the
+# reference, or fixed once for a protocol.
 
 # sphinx_gallery_start_ignore
-figure, axis = plt.subplots(figsize=(6.0, 3.6))
-for name, weights in sweeps.items():
-    axis.semilogx(weights, errors[name], "o-", label=name)
+figure, axis = plt.subplots(figsize=(0.75 * WIDTH, 3.4))
+for name, values in errors_by_weight.items():
+    axis.semilogx(list(values), list(values.values()), "o-", label=name)
 axis.set_xlabel("regularization weight $\\lambda$")
 axis.set_ylabel("NRMSE")
 axis.legend()
 axis.grid(True, which="both", alpha=0.3)
+plt.show()
+
+weights = sweeps["total variation"]
+figure, axes = panels(3)
+for axis, weight, label in zip(
+    axes[0], (weights[0], best["total variation"], weights[-1]), ("too small", "best", "too large")
+):
+    estimate = reconstructions["total variation"][weight]
+    show(axis, scaled(estimate, image)[zoom], f"TV, $\\lambda$ = {weight} ({label})", vmax=peak)
+figure.suptitle("total variation: under- and over-regularization, enlarged")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -379,6 +401,10 @@ plt.show()
 # minimum each sparsity-promoting term reaches a lower error than Tikhonov
 # regularization at its own minimum, for this image and this noise level.
 #
+# The three TV reconstructions show the two failure modes. At the smallest
+# weight the noise and the incoherent aliasing remain; at the largest the
+# cortex is flattened into patches of constant intensity and thin gyri merge.
+#
 # Combining terms
 # ---------------
 #
@@ -389,9 +415,12 @@ plt.show()
 combined = apps.pics(
     measured,
     maps,
-    regularizers=[priors.Wavelet((-1, -2), 0.006), priors.TotalVariation((-1, -2), 0.006)],
+    regularizers=[
+        priors.Wavelet((-1, -2), best["wavelet"] / 2),
+        priors.TotalVariation((-1, -2), best["total variation"] / 2),
+    ],
     solver="admm",
-    maxiter=60,
+    maxiter=30,
 )
 print(f"wavelet + TV  NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 

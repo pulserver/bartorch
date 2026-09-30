@@ -1262,9 +1262,9 @@ is:
 
 | Section | Directory | What is in it |
 | --- | --- | --- |
-| User guide | `docs/guides/user/` | Prerequisites, installation, data conventions, issues, security |
+| User guide | `docs/guides/user/` | Prerequisites, installation, preparing data, issues, security |
 | Developer guide | `docs/guides/developer/` | Building, layout, workflow, style, terminology, documentation, pull requests |
-| Explanation | `docs/explanation/` | The concepts: execution model, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation |
+| Explanation | `docs/explanation/` | The concepts: execution model, data layout, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation |
 | Examples | `docs/examples/` | The gallery: executable scripts rendered by sphinx-gallery |
 | API reference | `docs/api/` | One page per public module, listing its objects in tables |
 | Misc | `docs/misc/` | License, related projects, citation |
@@ -1283,8 +1283,11 @@ An example is a Python script under `docs/examples/<section>/`, named
 `NN-title.py`, whose module docstring becomes the page and whose numeric prefix
 orders it within its section. A section is a directory with a `README.rst`
 holding its heading and a paragraph; `docs/conf.py` lists the sections in the
-order a reader meets them, and `docs/examples/index.md` is the landing page
-that links them. Code that is not about this library -- figure
+order a reader meets them, and `docs/examples/index.md` is the landing page:
+it includes each section's paragraph under a heading of its own, tabulates the
+section's examples, and lists the example pages in its hidden toctrees, so the
+sidebar reaches every example directly from *Examples*.  The section pages
+sphinx-gallery writes stay under its orphan root and out of the sidebar. Code that is not about this library -- figure
 layout, colormaps, the phantom's arithmetic -- goes between
 `# sphinx_gallery_start_ignore` and `# sphinx_gallery_end_ignore`, which keeps
 it off the page and in the downloadable script and notebook. Anything a reader

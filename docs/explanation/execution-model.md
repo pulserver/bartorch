@@ -9,7 +9,11 @@
 - Operators pass tensors to BART without copying and commands copy their inputs by default; an error inside BART raises {class}`~bartorch.BartError`, and FINUFFT or cuFINUFFT computes every non-uniform Fourier transform.
 ```
 
-bartorch exposes BART at three levels.  A pipeline in {mod}`bartorch.apps`
+A reconstruction needs as much control over BART as its method requires: a
+standard SENSE or compressed-sensing reconstruction is one call, an encoding
+with an additional factor needs the encoding operator itself, and a learned
+reconstruction needs gradients through the solver.  bartorch therefore exposes
+BART at three levels.  A pipeline in {mod}`bartorch.apps`
 performs one of BART's reconstructions — `pics`, `moba`, `mobafit`,
 POCSENSE — in one call.  The composable interface exposes the objects those
 pipelines are assembled from: the encoding operator, the regularization terms

@@ -34,10 +34,14 @@ class SusceptibilityCorrection:
     Parameters
     ----------
     field_map : torch.Tensor
-        Estimated displacement field along the phase-encoding axis, defined on
-        cell edges: one sample longer than the images along that axis.
+        Estimated displacement along the phase-encoding axis, in the units of
+        ``voxel_size``, defined on cell edges: one sample longer than the
+        images along that axis.  The corrected blip-up image is the blip-up
+        image sampled at :math:`x + b(x)`, and the blip-down at
+        :math:`x - b(x)`.
     blip_up, blip_down : torch.Tensor
-        The two corrected images.
+        The two corrected images, in the intensity units of the input pair and
+        with the intensity modulation of the displacement removed.
     """
 
     field_map: torch.Tensor
@@ -122,6 +126,8 @@ def _data_object(
     up = blip_up.to(device=device, dtype=dtype).permute(permutation)
     down = blip_down.to(device=device, dtype=dtype).permute(permutation)
     holder.im1, holder.im2 = up, down
+    holder.intensity_offset = torch.minimum(up.min(), down.min())
+    holder.intensity_scale = (torch.maximum(up.max(), down.max()) - holder.intensity_offset) / 256
     normalised_up, normalised_down = parts["normalize"](up, down)
     holder.I1 = parts["Interp1D"](normalised_up, holder.omega, holder.m, dtype=dtype, device=device)
     holder.I2 = parts["Interp1D"](
@@ -237,10 +243,27 @@ def correct_susceptibility(
     solver.log.log_file = os.devnull
     solver.run_correction(initial)
 
-    field = solver.Bc.detach().reshape(list(parts["m_plus"](holder.m)))
+    field = solver.Bc.detach()
     shape = list(holder.m)
+    up, down = _in_input_units(objective, holder, field)
     return SusceptibilityCorrection(
-        field_map=field.permute(holder.p),
-        blip_up=objective.corr1.reshape(shape).permute(holder.p),
-        blip_down=objective.corr2.reshape(shape).permute(holder.p),
+        field_map=field.reshape(list(parts["m_plus"](holder.m))).permute(holder.p),
+        blip_up=up.reshape(shape).permute(holder.p),
+        blip_down=down.reshape(shape).permute(holder.p),
+    )
+
+
+def _in_input_units(objective, holder, field: torch.Tensor):
+    """The corrected pair at ``field``, in the intensity units of the input pair.
+
+    PyHySCO corrects the pair after mapping its joint range onto ``[0, 256]``;
+    the correction is linear in the image, so the map is undone with the
+    offset carried through each image's own intensity modulation.
+    """
+    with torch.no_grad():
+        objective.eval(field)
+        jacobian = objective.D.mat_mul(field)
+    return (
+        objective.corr1 * holder.intensity_scale + holder.intensity_offset * (1 + jacobian),
+        objective.corr2 * holder.intensity_scale + holder.intensity_offset * (1 - jacobian),
     )

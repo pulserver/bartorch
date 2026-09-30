@@ -100,37 +100,75 @@ class ReadoutTiming:
 
 @dataclass(frozen=True)
 class SpiralTransfer:
-    r"""Separable factorization of the off-resonance transfer of a spiral readout.
+    r"""Low-rank factorization of the off-resonance transfer of a spiral readout.
 
-    .. math:: e^{-2\pi i f t(k)} \approx \sum_m a_m(f)\, e^{\alpha_m |k|^2 / k_{max}^2}
+    .. math:: e^{-2\pi i f t(k)} \approx \sum_m a_m(f)\, h_m(k)
 
-    with :math:`t(k)` the readout time at which :math:`k` is sampled.  Each
-    k-space factor is a product over the axes, so each term is a separable
-    convolution of the image, and the field map enters only through the
-    per-voxel weights :math:`a_m(f)`.  As :math:`|k|` is invariant under
-    rotation, one factorization serves every arm of a rotated 2D spiral or 3D
-    spiral-projection acquisition.
+    with :math:`t(k)` the readout time at which :math:`k` is sampled.  The
+    field map enters only through the per-voxel weights :math:`a_m(f)`, and
+    each term is one k-space multiply of the image by :math:`h_m`.  Two bases
+    are available:
+
+    * multifrequency interpolation (MFI) [1]_, with demodulation frequencies
+      :math:`f_m`: :math:`h_m(k) = e^{-2\pi i f_m t(k)}`, the image
+      demodulated at :math:`f_m`;
+    * a separable basis, with complex rates :math:`\alpha_m`:
+      :math:`h_m(k) = e^{\alpha_m |k|^2 / k_{max}^2}`, a product over the axes,
+      so that each term is also a separable convolution of the image.
+
+    As :math:`|k|` is invariant under rotation, one factorization serves every
+    interleaf of a rotated 2D spiral or 3D spiral-projection acquisition.
 
     Parameters
     ----------
-    rates : numpy.ndarray
-        Complex rates :math:`\alpha_m`, ``(terms,)``.
+    rates : numpy.ndarray or None
+        Complex rates :math:`\alpha_m` of the separable basis, ``(terms,)``;
+        ``None`` for MFI.
     weights : numpy.ndarray
         Weights :math:`a_m(f)` at the tabulated frequencies,
         ``(terms, frequencies)``.
     frequencies : numpy.ndarray
         Uniformly spaced off-resonance frequencies, in Hz; a frequency outside
         them is clamped to the nearest end.
+    demodulation : numpy.ndarray, default=None
+        MFI demodulation frequencies :math:`f_m`, in Hz, ``(terms,)``.
+    timing : ReadoutTiming, default=None
+        The time map :math:`t(k)` the demodulation is evaluated on; required
+        with ``demodulation``.
+
+    Raises
+    ------
+    ValueError
+        If neither or both of ``rates`` and ``demodulation`` are given, or
+        ``demodulation`` is given without ``timing``.
+
+    References
+    ----------
+    .. [1] Man LC, Pauly JM, Macovski A. Multifrequency interpolation for fast
+       off-resonance correction. Magn Reson Med 37(5):785-792 (1997).
     """
 
-    rates: np.ndarray
+    rates: np.ndarray | None
     weights: np.ndarray
     frequencies: np.ndarray
+    demodulation: np.ndarray | None = None
+    timing: ReadoutTiming | None = None
+
+    def __post_init__(self):
+        if (self.rates is None) == (self.demodulation is None):
+            raise ValueError("give either rates (separable) or demodulation frequencies (MFI)")
+        if self.demodulation is not None and self.timing is None:
+            raise ValueError("demodulation frequencies need the timing they are evaluated on")
+
+    @property
+    def separable(self) -> bool:
+        """Whether each term's k-space factor is a product over the axes."""
+        return self.rates is not None
 
     @property
     def terms(self) -> int:
-        """Number of separable terms."""
-        return len(self.rates)
+        """Number of terms."""
+        return int(self.weights.shape[0])
 
     @property
     def amplification(self) -> float:
@@ -156,31 +194,53 @@ class SpiralTransfer:
         float
         """
         exact = _exact_transfer(timing, self.frequencies)
-        fitted = np.exp(np.outer(timing.squared_radius, self.rates)) @ self.weights
+        fitted = self._profiles(timing) @ self.weights
         weight = timing.density[:, None]
         residual = np.sum(weight * np.abs(fitted - exact) ** 2, axis=0)
         return float(np.sqrt(residual / timing.density.sum()).max())
 
+    def _profiles(self, timing: ReadoutTiming) -> np.ndarray:
+        """The k-space factors on the squared-radius grid of ``timing``, ``(points, terms)``."""
+        if self.separable:
+            return np.exp(np.outer(timing.squared_radius, self.rates))
+        return _exact_transfer(timing, self.demodulation)
+
 
 def _exact_transfer(timing: ReadoutTiming, frequencies: np.ndarray) -> np.ndarray:
     """Off-resonance transfer on the (squared radius, frequency) grid."""
-    cycles = frequencies * timing.duration
+    cycles = np.asarray(frequencies, dtype=float) * timing.duration
     return np.exp(-2j * np.pi * np.outer(timing.times, cycles))
+
+
+Method = Literal["mfi", "separable"]
 
 
 def fit_transfer(
     timing: ReadoutTiming,
     *,
     band: float,
-    terms: int = 6,
+    terms: int | None = None,
+    tolerance: float = 1e-2,
     frequencies: int = 65,
+    method: Method = "mfi",
 ) -> SpiralTransfer:
-    """Fit a :class:`SpiralTransfer` to a readout's time map.
+    r"""Fit a :class:`SpiralTransfer` to a readout's time map.
 
-    The rates are shared by every frequency and found by multi-snapshot ESPRIT
-    over the columns of the exact transfer, with growing terms made purely
-    oscillatory; the weights are the density-weighted least-squares fit at
-    each frequency.
+    With ``method="mfi"`` the basis is the transfer at ``terms`` demodulation
+    frequencies spaced uniformly over ``[-band, band]``, as in multifrequency
+    interpolation [1]_ and Gadgetron's ``MFIOperator``.  With
+    ``method="separable"`` the rates are shared by every frequency and found
+    by multi-snapshot ESPRIT over the columns of the exact transfer, with
+    growing terms made purely oscillatory.  Either way the weights are the
+    density-weighted least-squares fit at each frequency, which is the
+    least-squares fit over the readout's samples.
+
+    MFI is close to the truncated-SVD factorization of the same rank and
+    well conditioned.  The separable basis is what the ``"conv"`` backend of
+    :func:`deblur` needs; for an Archimedean spiral, whose readout time is
+    proportional to :math:`|k|`, it needs more terms than MFI for the same
+    :meth:`SpiralTransfer.error`, and has a larger
+    :attr:`SpiralTransfer.amplification`.
 
     Parameters
     ----------
@@ -188,11 +248,20 @@ def fit_transfer(
         Time map of the readout.
     band : float
         Half-width of the off-resonance range, in Hz.
-    terms : int, default=6
-        Number of separable terms; :func:`deblur` costs one k-space multiply or
-        separable convolution per term.
+    terms : int, default=None
+        Number of terms; :func:`deblur` costs one k-space multiply or
+        separable convolution per term.  ``None`` takes the fewest terms whose
+        :meth:`SpiralTransfer.error` is at most ``tolerance``, starting from
+        :math:`\lceil 2.5\, \Delta f\, T \rceil` rounded up to an odd number,
+        with :math:`\Delta f` the band and :math:`T` the readout duration: the
+        number of frequencies of Gadgetron's ``MFIOperator``.
+    tolerance : float, default=0.01
+        Largest :meth:`SpiralTransfer.error` accepted when ``terms`` is
+        ``None``; ignored otherwise.  The search stops at 64 terms.
     frequencies : int, default=65
         Number of tabulated frequencies spanning ``[-band, band]``.
+    method : {"mfi", "separable"}, default='mfi'
+        The k-space basis, as described in :class:`SpiralTransfer`.
 
     Returns
     -------
@@ -200,22 +269,58 @@ def fit_transfer(
         The factorization; :meth:`SpiralTransfer.error` and
         :attr:`SpiralTransfer.amplification` report its quality.
 
+    Raises
+    ------
+    ValueError
+        If ``terms`` is below one or ``method`` is unknown.
+
+    References
+    ----------
+    .. [1] Man LC, Pauly JM, Macovski A. Multifrequency interpolation for fast
+       off-resonance correction. Magn Reson Med 37(5):785-792 (1997).
+
     Examples
     --------
     >>> timing = ReadoutTiming.from_trajectory(arm, duration=5e-3)
-    >>> transfer = fit_transfer(timing, band=100.0, terms=5)
+    >>> transfer = fit_transfer(timing, band=100.0)
     """
-    if terms < 1:
-        raise ValueError("terms must be at least 1")
+    if method not in ("mfi", "separable"):
+        raise ValueError(f"method must be 'mfi' or 'separable', not {method!r}")
+    if terms is not None:
+        if terms < 1:
+            raise ValueError("terms must be at least 1")
+        return _fit(timing, band, terms, frequencies, method)
+    count = max(int(np.ceil(2.5 * band * timing.duration)), 1)
+    count += 1 - count % 2
+    while True:
+        transfer = _fit(timing, band, count, frequencies, method)
+        if count >= _MOST_TERMS or transfer.error(timing) <= tolerance:
+            return transfer
+        count += 1
+
+
+_MOST_TERMS = 64
+
+
+def _fit(timing: ReadoutTiming, band: float, terms: int, frequencies: int, method: str):
     grid = timing.squared_radius
     tabulated = np.linspace(-band, band, frequencies)
     exact = _exact_transfer(timing, tabulated)
-
-    rates = _shared_rates(grid, exact, terms)
-    basis = np.exp(np.outer(grid, rates))
+    if method == "mfi":
+        rates, demodulation = None, np.linspace(-band, band, terms) if terms > 1 else np.zeros(1)
+        basis = _exact_transfer(timing, demodulation)
+    else:
+        rates, demodulation = _shared_rates(grid, exact, terms), None
+        basis = np.exp(np.outer(grid, rates))
     root = np.sqrt(timing.density)[:, None]
     weights = np.linalg.lstsq(root * basis, root * exact, rcond=None)[0]
-    return SpiralTransfer(rates, weights, tabulated)
+    return SpiralTransfer(
+        rates,
+        weights,
+        tabulated,
+        demodulation=demodulation,
+        timing=timing if demodulation is not None else None,
+    )
 
 
 def _shared_rates(grid: np.ndarray, exact: np.ndarray, terms: int) -> np.ndarray:
@@ -310,11 +415,10 @@ def deblur(
         Factorization from :func:`fit_transfer`.
     backend : {"auto", "fft", "conv"}, default='auto'
         ``"fft"`` applies each term as a k-space multiply; ``"conv"``, for a
-        CUDA image with Triton installed, as a separable circular convolution
-        truncated to the taps holding all but 1e-5 of the kernel's energy per
-        axis; ``"auto"`` chooses
-        ``"conv"`` for a CUDA image when Triton is importable and ``"fft"``
-        otherwise.
+        separable ``transfer`` and a CUDA image with Triton installed, as a
+        separable circular convolution truncated to the taps holding all but
+        1e-5 of the kernel's energy per axis; ``"auto"`` chooses ``"conv"``
+        where it applies and Triton is importable, and ``"fft"`` otherwise.
 
     Returns
     -------
@@ -324,13 +428,13 @@ def deblur(
     Raises
     ------
     ValueError
-        If ``image`` is not complex or its spatial shape is not that of
-        ``field_map``.
+        If ``image`` is not complex, its spatial shape is not that of
+        ``field_map``, or ``backend="conv"`` is asked of an MFI ``transfer``.
 
     Notes
     -----
-    Peak memory is one accumulator and one working volume, independent of the
-    number of terms.
+    Peak memory is one accumulator and one working volume, and for MFI one
+    real volume of readout times, independent of the number of terms.
     """
     if not image.is_complex():
         raise ValueError("image must be complex")
@@ -341,17 +445,27 @@ def deblur(
             f"image spatial shape {tuple(image.shape[-spatial:])} does not match "
             f"field map {tuple(field_map.shape)}"
         )
-    chosen = _resolve_backend(backend, image)
+    chosen = _resolve_backend(backend, image, transfer)
     shape = tuple(image.shape[-spatial:])
+    real = _real_for(image.dtype)
+    time_map = (
+        None
+        if transfer.separable
+        else _time_map(transfer.timing, shape, device=image.device, dtype=real)
+    )
 
     result = torch.zeros_like(image)
     fused = _fused_accumulate(image)
     spectrum = torch.fft.fftn(image, dim=axes) if chosen == "fft" else None
     working = torch.empty_like(image) if chosen == "fft" else None
     for term in range(transfer.terms):
-        rate = complex(transfer.rates[term])
-        if chosen == "fft":
-            factors = _axis_factors(rate, shape, device=image.device, dtype=_real_for(image.dtype))
+        if time_map is not None:
+            phase = (-2.0 * np.pi * float(transfer.demodulation[term])) * time_map
+            torch.mul(spectrum, torch.polar(torch.ones_like(phase), phase), out=working)
+            contribution = torch.fft.ifftn(working, dim=axes)
+        elif chosen == "fft":
+            rate = complex(transfer.rates[term])
+            factors = _axis_factors(rate, shape, device=image.device, dtype=real)
             torch.mul(spectrum, factors[0], out=working)
             for factor in factors[1:]:
                 working *= factor
@@ -359,7 +473,7 @@ def deblur(
         else:
             from bartorch.tools._correct._triton_spiral import separable_convolve
 
-            contribution = separable_convolve(image, rate, axes)
+            contribution = separable_convolve(image, complex(transfer.rates[term]), axes)
         if fused is not None:
             fused(
                 result,
@@ -375,6 +489,32 @@ def deblur(
     return result
 
 
+def _time_map(
+    timing: ReadoutTiming,
+    shape: tuple[int, ...],
+    *,
+    device: torch.device,
+    dtype: torch.dtype,
+) -> torch.Tensor:
+    """Readout time, in seconds, at each point of the image's k-space grid, in FFT order.
+
+    Points outside the sampled sphere take the time of its edge.
+    """
+    squared = torch.zeros(shape, device=device, dtype=torch.float64)
+    for axis, length in enumerate(shape):
+        coordinate = torch.fft.fftfreq(length, device=device, dtype=torch.float64) * 2.0
+        view = [1] * len(shape)
+        view[axis] = length
+        squared = squared + coordinate.reshape(view) ** 2
+    grid = torch.as_tensor(timing.squared_radius, device=device, dtype=torch.float64)
+    times = torch.as_tensor(timing.times, device=device, dtype=torch.float64)
+    position = squared.clamp(0.0, 1.0) * (len(grid) - 1)
+    lower = position.floor().clamp(max=len(grid) - 2).long()
+    fraction = position - lower
+    interpolated = torch.lerp(times[lower], times[lower + 1], fraction)
+    return (interpolated * timing.duration).to(dtype)
+
+
 def _fused_accumulate(image: torch.Tensor):
     """The Triton weighted accumulator, when the device and dtype allow it."""
     if image.device.type != "cuda" or image.dtype != torch.complex64:
@@ -386,12 +526,16 @@ def _fused_accumulate(image: torch.Tensor):
     return accumulate_weighted
 
 
-def _resolve_backend(backend: Backend, image: torch.Tensor) -> str:
+def _resolve_backend(backend: Backend, image: torch.Tensor, transfer: SpiralTransfer) -> str:
     if backend not in ("auto", "fft", "conv"):
         raise ValueError(f"backend must be 'auto', 'fft' or 'conv', not {backend!r}")
+    if backend == "conv" and not transfer.separable:
+        raise ValueError(
+            "backend='conv' needs a separable factorization: fit_transfer(..., method='separable')"
+        )
     if backend != "auto":
         return backend
-    if image.device.type != "cuda":
+    if image.device.type != "cuda" or not transfer.separable:
         return "fft"
     try:
         import triton  # noqa: F401

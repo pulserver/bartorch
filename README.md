@@ -22,16 +22,21 @@
   </picture>
 </p>
 
-bartorch embeds BART, the Berkeley Advanced Reconstruction Toolbox, in the
-Python process and calls it on PyTorch tensors in host or CUDA device memory.
-BART's linear and nonlinear operators are composable Python objects, its
-iterative algorithms are solver classes and iteration blocks, its
-reconstructions are pipelines assembled from both, and its remaining commands
-are Python functions.  Applying an operator or a solver to a tensor that
-requires a gradient records it for PyTorch autograd.  The arithmetic is BART's
-except where bartorch substitutes a component: FINUFFT and cuFINUFFT compute
-every non-uniform Fourier transform, the FFT and BLAS/LAPACK routines come from
-MKL, PyTorch's linked library or SciPy, and the MRI encoding operators run on
+bartorch makes BART, the Berkeley Advanced Reconstruction Toolbox, available in
+Python on PyTorch tensors, in host memory or on a CUDA device.  BART is compiled
+into the package and runs in the Python process, so a reconstruction written in
+Python uses BART's parallel imaging, compressed sensing, non-Cartesian and
+model-based methods without writing files or calling an executable, and can be
+placed inside a larger PyTorch computation such as the training of an unrolled
+network.
+
+BART's encoding operators are composable Python objects, its iterative
+algorithms are solver classes and differentiable iteration blocks, its
+reconstructions (`pics`, `moba`, `mobafit`, POCSENSE) are pipelines assembled
+from both, and its remaining commands are Python functions.  The arithmetic is
+BART's except where bartorch substitutes a component: FINUFFT and cuFINUFFT
+compute every non-uniform FFT, the FFT and BLAS/LAPACK routines come from MKL,
+PyTorch's linked library or SciPy, and the MRI encoding operators run on
 bartorch's own executor built from BART's operators.
 
 ## Features
@@ -44,7 +49,8 @@ bartorch's own executor built from BART's operators.
   estimation from navigators.
 - The `bartorch` command line, which accepts the arguments of `bart`.
 - MRI encoding operators — Cartesian, non-Cartesian and wave-encoded SENSE,
-  off-resonance correction — composed with `@` and `+` into single BART operators.
+  subspace models, B0 off-resonance correction — composed with
+  `@` and `+` into single BART operators.
 - BART's regularization terms and its CG, IST, FISTA, ADMM and primal-dual
   iterations, as solvers and as differentiable iteration blocks.
 - Nonlinear operators, iteratively regularized Gauss-Newton, and quantitative
@@ -81,7 +87,7 @@ describes which interface fits which task.
 
 <https://pulserver.github.io/bartorch/> has the
 [user guide](https://pulserver.github.io/bartorch/latest/guides/user/index.html)
-(installation, supported platforms, data layout), the
+(installation, supported platforms, preparing data), the
 [developer guide](https://pulserver.github.io/bartorch/latest/guides/developer/index.html),
 conceptual [explanations](https://pulserver.github.io/bartorch/latest/explanation/index.html),
 executed [examples](https://pulserver.github.io/bartorch/latest/examples/index.html)

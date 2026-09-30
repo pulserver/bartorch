@@ -1,12 +1,14 @@
 Parallel imaging
 ----------------
 
-The coil sensitivities a SENSE reconstruction depends on, and the channel
-noise it propagates.
-
-The first lesson compares three sensitivity estimates from the same
-acquisition, :func:`bartorch.tools.caldir`, ESPIRiT and nonlinear inversion.
-The second estimates the image and the sensitivities jointly where the
-calibration region is too small for a separate calibration. The third measures
-the effect of correlated channel noise on the reconstruction and removes it by
-prewhitening.
+Parallel imaging recovers an image from k-space undersampled along the
+phase-encoding directions by exploiting the spatial sensitivities of a receive
+array.  A SENSE reconstruction is only as accurate as its coil sensitivity
+maps, and it propagates the thermal noise of the channels, amplified by the
+g-factor.  This section treats both: sensitivity estimation from the
+autocalibration (ACS) region, by direct division and by ESPIRiT; joint
+estimation of image and sensitivities by nonlinear inversion when the ACS
+region is too small for a separate calibration; and prewhitening of correlated
+channel noise, evaluated by the SNR of the reconstruction.
+:doc:`/explanation/encoding` derives the SENSE model and
+:doc:`/explanation/nonlinear` the joint estimation.

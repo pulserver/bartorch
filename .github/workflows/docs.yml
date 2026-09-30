@@ -124,16 +124,20 @@ jobs:
           CXX: g++-14
         run: pip install -e . --no-build-isolation
 
+      # The tours correct with SimpleITK and PyHySCO.  PyHySCO is
+      # GPL-3.0-only: it runs here to execute the examples and is not
+      # distributed with bartorch.
       - name: Install the documentation and example requirements
-        run: pip install -r docs/requirements.txt brainweb-dl
+        run: pip install -r docs/requirements.txt brainweb-dl SimpleITK PyHySCO
 
-      # The segmentation is fetched once and reused: the download is a form
-      # submission per tissue class against a server that is not ours.
-      - name: Cache the BrainWeb segmentation
+      # The segmentation and the T1- and T2-weighted images are fetched once
+      # and reused: the download is a form submission per tissue class
+      # against a server that is not ours.
+      - name: Cache the BrainWeb phantom
         uses: actions/cache@v4
         with:
           path: ~/.cache/brainweb
-          key: brainweb-subject0-fuzzy
+          key: brainweb-subject0-fuzzy-t1-t2
 
       # A release is built as `stable`, the URL a reader should land on, and
       # archived under its tag as well; the canonical links of both copies
