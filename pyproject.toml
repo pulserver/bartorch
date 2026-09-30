@@ -192,9 +192,6 @@ relative_files = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# A test still running after five minutes has every thread's stack written to
-# the log, so a hang on a runner names the call it is stuck in.
-faulthandler_timeout = 300
 
 [tool.codespell]
 # One place for what the spelling check reads, so that `scripts/lint.sh` and

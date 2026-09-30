@@ -216,48 +216,7 @@ jobs:
       - name: One OpenMP runtime with torch and FINUFFT threaded together
         run: pytest tests/test_openmp.py -v -s
 
-      - name: "Hang bisection: install py-spy (temporary, Windows)"
-        if: runner.os == 'Windows'
-        run: python -m pip install py-spy
-
-      - name: "Hang bisection 0: test_abi to test_cfl, then test_cli (temporary, Windows)"
-        if: runner.os == 'Windows'
-        timeout-minutes: 12
-        continue-on-error: true
-        run: python scripts/bisect_hang.py 0
-
-      - name: "Hang bisection 1: test_apps, then test_cli (temporary, Windows)"
-        if: runner.os == 'Windows'
-        timeout-minutes: 12
-        continue-on-error: true
-        run: python scripts/bisect_hang.py 1
-
-      - name: "Hang bisection 2: test_abi, test_catalogue, test_cfl, then test_cli (temporary, Windows)"
-        if: runner.os == 'Windows'
-        timeout-minutes: 12
-        continue-on-error: true
-        run: python scripts/bisect_hang.py 2
-
-      - name: "Hang bisection 3: test_apps, the fits, then the magnitude fit (temporary, Windows)"
-        if: runner.os == 'Windows'
-        timeout-minutes: 12
-        continue-on-error: true
-        run: python scripts/bisect_hang.py 3
-
-      - name: "Hang bisection 4: test_apps, then the magnitude fit (temporary, Windows)"
-        if: runner.os == 'Windows'
-        timeout-minutes: 12
-        continue-on-error: true
-        run: python scripts/bisect_hang.py 4
-
-      - name: "Hang bisection 5: test_cli alone (temporary, Windows)"
-        if: runner.os == 'Windows'
-        timeout-minutes: 12
-        continue-on-error: true
-        run: python scripts/bisect_hang.py 5
-
       - name: Run the test suite
-        if: runner.os != 'Windows'
         run: pytest tests/ -v ${{ matrix.coverage && '--cov --cov-report=xml' || '' }}
 
       # A rejected upload is a broken report, not a passing build: without
