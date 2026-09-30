@@ -158,12 +158,10 @@ plt.show()
 # and on the in-plane shape of the slice. The fit is voxel by voxel, so the
 # slice axis is dropped here; a volume is fitted the same way with the model
 # built on ``(slices, rows, columns)``. DICOM stores intensities in arbitrary
-# units, and the Gauss-Newton steps start from an amplitude of order one, so
-# the echoes are scaled to unit peak first; the scale does not change
-# :math:`T_2`.
+# units; the fit scales the echoes to unit peak and returns the amplitude in
+# the units of the files.
 
 images = echoes.image[:, 0].to(torch.complex64)
-images = images / images.abs().max()
 M = nlop.MultiEcho(te.tolist(), tuple(images.shape[1:]))
 maps = apps.mobafit(images, M, magnitude=True, T2=80.0)
 t2 = torch.where(images[0].abs() > 0.05 * images.abs().max(), maps["T2"], torch.zeros(()))
