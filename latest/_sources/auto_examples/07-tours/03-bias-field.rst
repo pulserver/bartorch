@@ -29,8 +29,8 @@ shades the image: the same tissue appears brighter near the array than far
 from it, which biases segmentation, intensity-based registration and any
 quantitative comparison across the field of view.
 
-This example shades a T1-weighted head with the posterior elements of a head
-array, estimates the field with N4 [#tustison]_ through
+This example shades a T1-weighted head with a head array that has no anterior
+elements, estimates the field with N4 [#tustison]_ through
 :func:`bartorch.tools.bias_field_correct`, and compares the corrected image and
 the estimated field with the object and the true field.
 
@@ -41,10 +41,11 @@ the estimated field with the object and the true field.
 * Estimate and remove the bias field with N4, and assess the result by the
   uniformity of a tissue class and by the intensity histogram.
 * Choose the mask and the fitting grid of the estimate.
-* Recognise what N4 cannot recover: the scale of the field, and a smooth
-  intensity variation that belongs to the object.
+* Recognise what N4 does not recover: the scale of the field, the steep part
+  of a field of large range, and a smooth intensity variation that belongs to
+  the object.
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-70
+.. GENERATED FROM PYTHON SOURCE LINES 31-71
 
 .. code-block:: Python
 
@@ -62,7 +63,7 @@ the estimated field with the object and the true field.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-78
+.. GENERATED FROM PYTHON SOURCE LINES 72-79
 
 Object
 ------
@@ -72,7 +73,7 @@ through the lateral ventricles, 128 x 128 over a 220 mm field of view. The
 BrainWeb tissue model also gives the voxels that are at least 90 % white or
 grey matter, over which the uniformity of each class is measured.
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-85
+.. GENERATED FROM PYTHON SOURCE LINES 80-86
 
 .. code-block:: Python
 
@@ -86,30 +87,33 @@ grey matter, over which the uniformity of each class is measured.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-95
+.. GENERATED FROM PYTHON SOURCE LINES 87-96
 
 The shaded image
 ----------------
 
-The array is the posterior half of BART's analytical eight-element head
-coil, four elements. Each coil image is the object weighted by one
-element's sensitivity :math:`S_c`, with independent complex Gaussian noise;
-their root sum of squares is the object weighted by the bias field
-:math:`B = \sqrt{\sum_c |S_c|^2}`, and the noise adds a Rician floor in the
-background.
+The array is BART's analytical eight-element head coil without its two
+anterior elements, as in an open-face head coil: six elements. Each coil
+image is the object weighted by one element's sensitivity :math:`S_c`, with
+independent complex Gaussian noise; their root sum of squares is the object
+weighted by the bias field :math:`B = \sqrt{\sum_c |S_c|^2}`, and the noise
+adds a Rician floor in the background.
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-108
+.. GENERATED FROM PYTHON SOURCE LINES 97-112
 
 .. code-block:: Python
 
 
-    sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=8)[[0, 1, 6, 7], 0]
-    bias = bartorch.rss(sensitivities, axes=(0,)).abs()
-    sensitivities = sensitivities / bias[brain].mean()
-    bias = bias / bias[brain].mean()
 
-    coil_images = bt.noise(sensitivities * image, n=1e-4, s=3)
-    shaded = bartorch.rss(coil_images, axes=(0,)).abs()
+    def shaded_image(elements):
+        sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=8)[elements, 0]
+        bias = bartorch.rss(sensitivities, axes=(0,)).abs()
+        sensitivities = sensitivities / bias[brain].mean()
+        coil_images = bt.noise(sensitivities * image, n=1e-4, s=3)
+        return bartorch.rss(coil_images, axes=(0,)).abs(), bias / bias[brain].mean()
+
+
+    shaded, bias = shaded_image([0, 1, 2, 5, 6, 7])
 
     low, high = bias[brain].quantile(0.02), bias[brain].quantile(0.98)
     print(f"bias field over the brain: {float(low):.2f} to {float(high):.2f} (2nd to 98th percentile)")
@@ -122,12 +126,12 @@ background.
 
  .. code-block:: none
 
-    bias field over the brain: 0.35 to 1.55 (2nd to 98th percentile)
+    bias field over the brain: 0.56 to 1.27 (2nd to 98th percentile)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-122
+.. GENERATED FROM PYTHON SOURCE LINES 113-128
 
 N4 correction
 -------------
@@ -139,16 +143,18 @@ splines to what the sharpening removed, over a hierarchy of control-point
 grids. It uses no model of the coil, only an object whose intensities form
 classes.
 
-The uniformity of a tissue class is its coefficient of variation, the
-standard deviation over the mean, which the object has too through partial
-volume at the class boundaries.
+The field is fitted on the image shrunk by ``shrink_factor``, whose default
+of 4 would leave a 32 x 32 grid of this 128 matrix; a factor of 2 keeps
+64 x 64. The uniformity of a tissue class is its coefficient of variation,
+the standard deviation over the mean, which the object has too through
+partial volume at the class boundaries.
 
-.. GENERATED FROM PYTHON SOURCE LINES 123-138
+.. GENERATED FROM PYTHON SOURCE LINES 129-144
 
 .. code-block:: Python
 
 
-    corrected, estimate = bt.bias_field_correct(shaded, return_field=True)
+    corrected, estimate = bt.bias_field_correct(shaded, shrink_factor=2, return_field=True)
 
 
     def variation(values, region):
@@ -171,28 +177,33 @@ volume at the class boundaries.
  .. code-block:: none
 
     object        coefficient of variation: white matter 0.011, grey matter 0.035; white/grey 1.35
-    shaded        coefficient of variation: white matter 0.262, grey matter 0.335; white/grey 1.41
-    N4-corrected  coefficient of variation: white matter 0.104, grey matter 0.180; white/grey 1.37
+    shaded        coefficient of variation: white matter 0.135, grey matter 0.193; white/grey 1.38
+    N4-corrected  coefficient of variation: white matter 0.035, grey matter 0.073; white/grey 1.35
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-142
+.. GENERATED FROM PYTHON SOURCE LINES 145-148
 
 A multiplicative field is determined up to a constant factor, which the
 correction leaves in the image. The estimate is therefore compared with the
 true field after scaling both to unit mean over the brain.
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-152
+.. GENERATED FROM PYTHON SOURCE LINES 149-163
 
 .. code-block:: Python
 
 
+
+    def agreement(estimate, bias):
+        ratio = (estimate / estimate[brain].mean() / bias)[brain]
+        return float(ratio.median()), float(((ratio - 1).abs() < 0.1).float().mean())
+
+
+    median, within = agreement(estimate, bias)
     estimate = estimate / estimate[brain].mean()
-    ratio = (estimate / bias)[brain]
-    within = float(((ratio - 1).abs() < 0.1).float().mean())
     print(
-        f"estimated / true field over the brain: median {float(ratio.median()):.3f}, "
+        f"estimated / true field over the brain: median {median:.3f}, "
         f"within 10 % in {100 * within:.0f} % of the voxels"
     )
 
@@ -204,12 +215,12 @@ true field after scaling both to unit mean over the brain.
 
  .. code-block:: none
 
-    estimated / true field over the brain: median 0.965, within 10 % in 81 % of the voxels
+    estimated / true field over the brain: median 0.997, within 10 % in 93 % of the voxels
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 153-202
+.. GENERATED FROM PYTHON SOURCE LINES 164-245
 
 
 
@@ -227,50 +238,56 @@ true field after scaling both to unit mean over the brain.
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_002.png
-         :alt: true field, N4 estimate, estimate / true
+         :alt: true field, N4 estimate
          :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_003.png
-         :alt: profile along the dashed line, intensity histogram
+         :alt: image / object on the line, field on the line
          :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_004.png
+         :alt: intensity histogram of the brain
+         :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_004.png
          :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 203-220
+.. GENERATED FROM PYTHON SOURCE LINES 246-261
 
-The field varies by a factor of four over the brain: in the shaded image
-the occipital lobes are bright and the frontal lobes dark, and the
-histogram of the brain has no separate grey- and white-matter peaks. After
-correction the variation of the white matter falls by more than half and
-the two peaks separate. The
-estimated field is within 10 % of the true one over most of the brain; it
-overestimates the field at the frontal pole, where the true field falls
-steeply to a third of its mean and below, so the corrected frontal cortex
-remains darker than the object. A residual of this kind is the reason a
-corrected image is still compared across regions with care.
+The images share one window, each scaled to its white-matter mean. In the
+shaded image the frontal lobes are darker than the occipital lobes: along
+the dashed line the ratio of the shaded image to the object follows the
+field, and the histogram of the brain has no separate grey- and
+white-matter peaks. After correction the ratio stays close to one except at
+the frontal pole, where the estimated field does not fall as far as the true
+one, and the two peaks separate.
 
 The mask and the fitting grid
 -----------------------------
 
 The field is fitted only over a mask, by default Otsu's threshold of the
-image, which under strong shading can exclude the darkest tissue. The
-alternative compared here is a mask of the whole head.
+image. The alternatives compared here are a mask of the whole head, which
+adds the scalp and the skull, and a brain mask, such as a skull-stripping
+tool provides; the BrainWeb tissue model gives it here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 221-227
+.. GENERATED FROM PYTHON SOURCE LINES 262-269
 
 .. code-block:: Python
 
 
     head = ndimage.binary_fill_holes(shaded > 0.02 * shaded.max())
-    with_head = bt.bias_field_correct(shaded, mask=torch.as_tensor(head, dtype=torch.uint8))
-    print(f"Otsu mask: white-matter variation {variation(corrected, white):.3f}")
-    print(f"head mask: white-matter variation {variation(with_head, white):.3f}")
+    masks = {"Otsu": None, "head": torch.as_tensor(head), "brain": brain}
+    for name, mask in masks.items():
+        trial = bt.bias_field_correct(shaded, mask=mask, shrink_factor=2)
+        print(f"{name:5s} mask: white-matter variation {variation(trial, white):.3f}")
 
 
 
@@ -280,19 +297,26 @@ alternative compared here is a mask of the whole head.
 
  .. code-block:: none
 
-    Otsu mask: white-matter variation 0.104
-    head mask: white-matter variation 0.115
+    Otsu  mask: white-matter variation 0.035
+    head  mask: white-matter variation 0.063
+    brain mask: white-matter variation 0.023
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-231
+.. GENERATED FROM PYTHON SOURCE LINES 270-279
+
+N4 sharpens one histogram over the whole mask. The scalp and the skull add
+intensity classes of their own, and the fit over the head mask is the least
+uniform; the brain mask, which holds only the classes the field is judged
+by, is the most.
 
 The field is fitted on the image shrunk by ``shrink_factor`` and evaluated
 on the full grid. A field that is smooth on the scale of the head needs few
-grid points, and the cost of each N4 iteration falls with their number.
+grid points, and the cost of each N4 iteration falls with their number,
+until the shrunk image holds too few voxels of each tissue class.
 
-.. GENERATED FROM PYTHON SOURCE LINES 232-237
+.. GENERATED FROM PYTHON SOURCE LINES 280-285
 
 .. code-block:: Python
 
@@ -309,15 +333,73 @@ grid points, and the cost of each N4 iteration falls with their number.
 
  .. code-block:: none
 
-    shrink_factor 1: white-matter variation 0.095
-    shrink_factor 2: white-matter variation 0.096
-    shrink_factor 4: white-matter variation 0.104
-    shrink_factor 8: white-matter variation 0.137
+    shrink_factor 1: white-matter variation 0.029
+    shrink_factor 2: white-matter variation 0.035
+    shrink_factor 4: white-matter variation 0.036
+    shrink_factor 8: white-matter variation 0.056
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 238-257
+.. GENERATED FROM PYTHON SOURCE LINES 286-292
+
+What N4 does not recover
+------------------------
+
+The estimate degrades as the range of the field grows. With the four
+posterior elements alone the field falls steeply towards the frontal pole,
+and N4 overestimates it there.
+
+.. GENERATED FROM PYTHON SOURCE LINES 293-305
+
+.. code-block:: Python
+
+
+    steep, steep_bias = shaded_image([0, 1, 6, 7])
+    steep_corrected, steep_estimate = bt.bias_field_correct(steep, shrink_factor=2, return_field=True)
+    low, high = steep_bias[brain].quantile(0.02), steep_bias[brain].quantile(0.98)
+    median, within = agreement(steep_estimate, steep_bias)
+    print(f"four posterior elements: field {float(low):.2f} to {float(high):.2f}")
+    print(
+        f"white-matter variation: shaded {variation(steep, white):.3f}, "
+        f"N4-corrected {variation(steep_corrected, white):.3f}; "
+        f"estimate within 10 % in {100 * within:.0f} % of the voxels"
+    )
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    four posterior elements: field 0.35 to 1.55
+    white-matter variation: shaded 0.262, N4-corrected 0.096; estimate within 10 % in 83 % of the voxels
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 306-319
+
+
+
+
+.. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_005.png
+   :alt: shaded, N4-corrected, field on the line
+   :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_005.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 320-344
+
+The corrected frontal cortex remains darker than the occipital cortex,
+because the estimated field does not fall as far as the true one at the frontal pole. A
+residual of this kind is the reason a corrected image is still compared
+across regions with care.
 
 N4 removes any smooth intensity variation, whatever its origin: a receive
 field, a transmit field in a gradient-echo image, or a genuine slow change
@@ -342,7 +424,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.886 seconds)
+   **Total running time of the script:** (0 minutes 4.590 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_03-bias-field.py:

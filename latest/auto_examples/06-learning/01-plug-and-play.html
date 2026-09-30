@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -632,8 +632,9 @@ estimation.</p>
 </section>
 <section id="a-specified-regularizer">
 <h2>A specified regularizer<a class="headerlink" href="#a-specified-regularizer" title="Link to this heading">#</a></h2>
-<p>Total variation under ADMM, at the weight that minimizes the error against
-the phantom among 0.002, 0.005, 0.01 and 0.02, is the reference point.</p>
+<p>Total variation under ADMM is the reference point, at the best of the
+weights 0.002, 0.005, 0.01 and 0.02 judged by NRMSE and SSIM against the
+phantom.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">total_variation</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><span class="n">optim</span><span class="o">.</span><span class="n">admm</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">priors</span><span class="o">.</span><span class="n">TotalVariation</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 </section>
@@ -669,19 +670,15 @@ is trained here. Each iteration costs one application of the network.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
 
   0%|          | 0.00/125M [00:00&lt;?, ?B/s]
-  0%|          | 128k/125M [00:00&lt;05:42, 380kB/s]
-  1%|          | 640k/125M [00:00&lt;01:15, 1.72MB/s]
-  1%|▏         | 1.75M/125M [00:00&lt;00:28, 4.55MB/s]
-  4%|▍         | 4.88M/125M [00:00&lt;00:10, 12.5MB/s]
- 11%|█         | 13.2M/125M [00:00&lt;00:03, 34.1MB/s]
- 23%|██▎       | 28.2M/125M [00:00&lt;00:01, 69.9MB/s]
- 44%|████▎     | 54.4M/125M [00:00&lt;00:00, 129MB/s]
- 55%|█████▍    | 68.1M/125M [00:01&lt;00:00, 88.5MB/s]
- 65%|██████▍   | 80.4M/125M [00:01&lt;00:00, 97.1MB/s]
- 74%|███████▎  | 91.8M/125M [00:01&lt;00:00, 90.1MB/s]
- 84%|████████▎ | 104M/125M [00:01&lt;00:00, 98.8MB/s]
- 93%|█████████▎| 116M/125M [00:01&lt;00:00, 106MB/s]
-100%|██████████| 125M/125M [00:01&lt;00:00, 73.1MB/s]
+  0%|          | 128k/125M [00:00&lt;04:21, 499kB/s]
+ 17%|█▋        | 20.8M/125M [00:00&lt;00:01, 76.5MB/s]
+ 27%|██▋       | 33.0M/125M [00:00&lt;00:01, 74.8MB/s]
+ 42%|████▏     | 51.9M/125M [00:00&lt;00:00, 109MB/s]
+ 52%|█████▏    | 65.2M/125M [00:00&lt;00:00, 72.5MB/s]
+ 71%|███████   | 88.1M/125M [00:01&lt;00:00, 106MB/s]
+ 82%|████████▏ | 103M/125M [00:01&lt;00:00, 75.9MB/s]
+ 97%|█████████▋| 120M/125M [00:01&lt;00:00, 94.4MB/s]
+100%|██████████| 125M/125M [00:01&lt;00:00, 83.4MB/s]
      zero-filled  NRMSE 0.199  SSIM 0.482
  total variation  NRMSE 0.161  SSIM 0.754
     DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -689,13 +686,13 @@ is trained here. Each iteration costs one application of the network.</p>
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_01-plug-and-play_001.png" srcset="../../_images/sphx_glr_01-plug-and-play_001.png" alt="R = 4, noisy, reference, zero-filled, total variation, DRUNet, ADMM" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_01-plug-and-play_002.png" srcset="../../_images/sphx_glr_01-plug-and-play_002.png" alt="error magnitude, total variation, DRUNet, ADMM, DRUNet, FISTA" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_01-plug-and-play_003.png" srcset="../../_images/sphx_glr_01-plug-and-play_003.png" alt="enlarged, reference, total variation, DRUNet, ADMM, DRUNet, FISTA" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-plug-and-play_001.png" srcset="../../_images/sphx_glr_01-plug-and-play_001.png" alt="reference, zero-filled, total variation, DRUNet, ADMM" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-plug-and-play_002.png" srcset="../../_images/sphx_glr_01-plug-and-play_002.png" alt="zero-filled error, total variation error, DRUNet, ADMM error, DRUNet, FISTA error" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-plug-and-play_003.png" srcset="../../_images/sphx_glr_01-plug-and-play_003.png" alt="reference, enlarged, total variation, DRUNet, ADMM, DRUNet, FISTA" class = "sphx-glr-multi-img"/></li>
 </ul>
 <p>The zero-filled image shows the incoherent aliasing of the random sampling
-and the noise. Total variation removes most of both, but at the weight that
-minimizes the error it leaves a blotchy texture across the brain and
+and the noise. Total variation removes most of both, but at its best weight it
+leaves a blotchy texture across the brain and
 flattens the gradual intensity variations into patches. The plug-and-play
 reconstruction under ADMM removes the noise and the aliasing while keeping
 the tissue boundaries, and its error map is darker inside the brain; in the
@@ -744,7 +741,7 @@ sigma 0.05  NRMSE 0.103  SSIM 0.893
 sigma 0.12  NRMSE 0.127  SSIM 0.886
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-plug-and-play_004.png" srcset="../../_images/sphx_glr_01-plug-and-play_004.png" alt="DRUNet under ADMM, enlarged, $\sigma$ = 0.02 (too small), $\sigma$ = 0.05, $\sigma$ = 0.12 (too large)" class = "sphx-glr-single-img"/><p>At the smallest <span class="math notranslate nohighlight">\(\sigma\)</span> the noise and the aliasing remain as a
+<img src="../../_images/sphx_glr_01-plug-and-play_004.png" srcset="../../_images/sphx_glr_01-plug-and-play_004.png" alt="$\sigma$ = 0.02 (too small), $\sigma$ = 0.05, $\sigma$ = 0.12 (too large)" class = "sphx-glr-single-img"/><p>At the smallest <span class="math notranslate nohighlight">\(\sigma\)</span> the noise and the aliasing remain as a
 mottled texture; at the largest the cortex is smoothed into uniform white
 matter and small structures disappear; the printed errors have their
 minimum in between.</p>
@@ -777,7 +774,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 21.523 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 50.024 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-01-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/51d621c9981b908bc0655f32fc40806e/01-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-plug-and-play.ipynb</span></code></a></p>

@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -671,14 +671,16 @@ flipped only: ghost-to-signal 18.22 %, NRMSE 3.2e-01
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" alt="displayed from 0 to 30 % of the peak; phase encoding vertical, delay-free, flipped only GSR 18.2 %, NRMSE 0.32, navigator-corrected GSR 1.4 %, NRMSE 1e-07, flipped only - delay-free" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" alt="navigator phase in hybrid space, central column" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" alt="delay-free, flipped only, corrected" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" alt="navigator phase, central column" class = "sphx-glr-multi-img"/></li>
 </ul>
-<p>Without the phase correction the ghost appears at the top and bottom of the
-field of view and overlaps the object where it wraps. With the first-order
-fit the ghost-to-signal ratio returns to that of the delay-free image, whose
-signal outside the object is the truncation ringing of the phantom, since
-the simulated phase error is exactly first order. On measured data, higher
+<p>The images are displayed from zero to 30 % of the peak, with the
+phase-encoding direction vertical. Without the phase correction the ghost
+appears at the top and bottom of the field of view and overlaps the object
+where it wraps. With the first-order fit the ghost-to-signal ratio returns
+to that of the delay-free image, whose signal outside the object is the
+truncation ringing of the phantom, since the simulated phase error is
+exactly first order. On measured data, higher
 orders of the phase, and phase errors that differ between lines of the same
 polarity, leave a residual ghost.</p>
 </section>
@@ -742,7 +744,11 @@ samples.</p>
     linear interpolation: image NRMSE 3.2e-02
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png" alt="trapezoidal readout gradient, image profile, |error| / peak" class = "sphx-glr-single-img"/><p>The band-limited resampling reproduces the profile of a uniformly sampled
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png" alt="trapezoidal readout gradient" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_004.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_004.png" alt="image profile, |error| / peak" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The band-limited resampling reproduces the profile of a uniformly sampled
 readout to the precision of the operator, which is returned in single
 precision. Linear interpolation errs most on the plateau, where the samples
 are furthest apart; in the image its error is spread over the whole field of
@@ -762,7 +768,7 @@ sampling. <em>Magn Reson Med</em> 23(2):311-323 (1992).
 <a class="reference external" href="https://doi.org/10.1002/mrm.1910230211">https://doi.org/10.1002/mrm.1910230211</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.515 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.671 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-02-epi-ghost-and-ramp-sampling-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/e1b93ce604617aa68e6131c0ca73ca42/02-epi-ghost-and-ramp-sampling.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-epi-ghost-and-ramp-sampling.ipynb</span></code></a></p>

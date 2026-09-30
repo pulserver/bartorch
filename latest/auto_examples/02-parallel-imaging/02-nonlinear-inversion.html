@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -626,9 +626,9 @@ NRMSE, nlinv       0.078
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_001.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_001.png" alt="R = 3.1, 6 central lines, reference, zero-filled, nlinv, |error|, nlinv" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_002.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_002.png" alt="sensitivities, simulated, channel 0, channel 2, channel 4, channel 6" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_003.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_003.png" alt="sensitivities, estimated by nlinv, channel 0, channel 2, channel 4, channel 6" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_001.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_001.png" alt="reference, zero-filled, nlinv, |error|, nlinv" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_002.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_002.png" alt="simulated, channel 2, simulated, channel 4, simulated, channel 6, nlinv, channel 2, nlinv, channel 4, nlinv, channel 6" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_003.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_003.png" alt="simulated, channel 2, simulated, channel 4, simulated, channel 6, nlinv, channel 2, nlinv, channel 4, nlinv, channel 6" class = "sphx-glr-multi-img"/></li>
 </ul>
 <p>From a third of the phase encodes and six central lines, nonlinear inversion
 removes the aliasing of the zero-filled image; its error is concentrated at
@@ -643,12 +643,15 @@ needs no separate penalty on the coils.</p>
 <p>The pair is determined only up to a common factor: multiplying every map by
 a nonzero function <span class="math notranslate nohighlight">\(\gamma(r)\)</span> and dividing the image by it leaves the
 data unchanged (<a class="reference internal" href="../../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a>). The weighting restricts
-<span class="math notranslate nohighlight">\(\gamma\)</span> to smooth functions, so the estimated maps match the simulated
-ones up to a smooth common magnitude and phase, which is why each is drawn
-on its own scale and why an <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> image is reported after multiplication
-by the root sum of squares of the maps. Outside the object neither factor is
-determined at all – their product is zero for any pair – so the maps there
-follow from the initialization and the weighting.</p>
+<span class="math notranslate nohighlight">\(\gamma\)</span> to smooth functions, so the estimated maps match the
+simulated ones up to a smooth common magnitude and phase. The figures above
+therefore show the estimated maps inside the head, divided by their root sum
+of squares and with the phase of channel 0 subtracted, which removes that
+factor; so normalized, they reproduce the simulated maps. An <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> image
+is reported after multiplication by the root sum of squares of the maps.
+Outside the object neither factor is determined at all – their product is
+zero for any pair – so the maps there follow from the initialization and
+the weighting.</p>
 </section>
 <section id="the-model-and-the-solver">
 <h2>The model and the solver<a class="headerlink" href="#the-model-and-the-solver" title="Link to this heading">#</a></h2>
@@ -729,7 +732,7 @@ Inverse Problems.</em> Springer (2004).
 <a class="reference external" href="https://doi.org/10.1007/978-1-4020-3122-9">https://doi.org/10.1007/978-1-4020-3122-9</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.519 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.385 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-parallel-imaging-02-nonlinear-inversion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/2a7ee1ff47c6d5e99d66921f3d0a10a5/02-nonlinear-inversion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-nonlinear-inversion.ipynb</span></code></a></p>

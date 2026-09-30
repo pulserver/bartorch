@@ -56,7 +56,7 @@ It follows :doc:`01-regularized-reconstruction`. The next section,
 :doc:`../04-non-cartesian/01-trajectories-and-transforms`, uses these
 operators off the Cartesian grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-250
+.. GENERATED FROM PYTHON SOURCE LINES 42-253
 
 .. code-block:: Python
 
@@ -89,7 +89,7 @@ operators off the Cartesian grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-265
+.. GENERATED FROM PYTHON SOURCE LINES 254-268
 
 The encoding operator
 ---------------------
@@ -106,7 +106,7 @@ applications iterate in; the default is the centred convention that
 and give the same image, so the choice matters only when the operator is
 applied to data already in one of them, as it is below.
 
-.. GENERATED FROM PYTHON SOURCE LINES 266-274
+.. GENERATED FROM PYTHON SOURCE LINES 269-277
 
 .. code-block:: Python
 
@@ -133,7 +133,7 @@ applied to data already in one of them, as it is below.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 275-287
+.. GENERATED FROM PYTHON SOURCE LINES 278-290
 
 ``A.plan`` reports the form the operator was lowered into: which transform,
 what multiplies the image and the samples, and how the normal operator
@@ -148,7 +148,7 @@ definition :math:`\langle Ax, y\rangle = \langle x, A^H y\rangle` holds for
 any pair of vectors, and holds for random vectors as readily as for real
 data, so it is a usable check on an operator.
 
-.. GENERATED FROM PYTHON SOURCE LINES 288-297
+.. GENERATED FROM PYTHON SOURCE LINES 291-300
 
 .. code-block:: Python
 
@@ -169,12 +169,12 @@ data, so it is a usable check on an operator.
 
  .. code-block:: none
 
-    relative difference 2.41e-07
+    relative difference 1.20e-07
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 298-307
+.. GENERATED FROM PYTHON SOURCE LINES 301-310
 
 Solving
 -------
@@ -186,7 +186,7 @@ by the scaling :func:`bartorch.optim.data_scaling` estimates from the adjoint
 reconstruction, which is the step that makes a regularization weight
 transferable from one dataset to the next.
 
-.. GENERATED FROM PYTHON SOURCE LINES 308-316
+.. GENERATED FROM PYTHON SOURCE LINES 311-319
 
 .. code-block:: Python
 
@@ -205,19 +205,21 @@ transferable from one dataset to the next.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 317-320
+.. GENERATED FROM PYTHON SOURCE LINES 320-323
 
 With the same preprocessing the assembled solve and the application are not
 merely close: they are the same iteration over the same operator, and return
 the same bits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 321-325
+.. GENERATED FROM PYTHON SOURCE LINES 324-330
 
 .. code-block:: Python
 
 
     tool = apps.pics(kspace, maps, regularizers=term, solver="fista", maxiter=100)
     print(f"identical to pics: {torch.equal(assembled.squeeze(), tool.squeeze())}")
+    print(f"NRMSE, adjoint {bt.nrmse(image.abs(), A.H(data).abs(), scaled=True):.3f}")
+    print(f"NRMSE, FISTA   {bt.nrmse(image.abs(), assembled.abs(), scaled=True):.3f}")
 
 
 
@@ -228,11 +230,13 @@ the same bits.
  .. code-block:: none
 
     identical to pics: True
+    NRMSE, adjoint 0.119
+    NRMSE, FISTA   0.032
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 326-344
+.. GENERATED FROM PYTHON SOURCE LINES 331-351
 
 
 
@@ -246,13 +250,14 @@ the same bits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-361
+.. GENERATED FROM PYTHON SOURCE LINES 352-369
 
 The adjoint of the encoding is not its inverse: :math:`A^H y` is the
 sensitivity-weighted coil combination of the zero-filled k-space, and
 carries the aliasing of the undersampling and the shading of
-:math:`\sum_c |S_c|^2`, which the solve removes. The error of the solution,
-at a tenth of the image peak, is concentrated at the tissue boundaries.
+:math:`\sum_c |S_c|^2`, which the solve removes, as the NRMSE printed above
+shows. The error of the solution, at a tenth of the image peak, is
+concentrated at the tissue boundaries.
 
 Operator algebra
 ----------------
@@ -265,7 +270,7 @@ iteration on an operator, which is how a gradient step size is chosen: the
 Lipschitz constant of the least-squares gradient is the largest eigenvalue of
 :math:`A^H A`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 362-365
+.. GENERATED FROM PYTHON SOURCE LINES 370-373
 
 .. code-block:: Python
 
@@ -285,14 +290,14 @@ Lipschitz constant of the least-squares gradient is the largest eigenvalue of
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 366-370
+.. GENERATED FROM PYTHON SOURCE LINES 374-378
 
 An operator defined in Python is composed with BART's through
 :meth:`~bartorch.linop.LinearOperator.from_callbacks`, which BART applies as
 a callback. Here it is a spatially varying phase, as an off-resonance or an
 eddy-current phase would be, placed between the image and the encoding.
 
-.. GENERATED FROM PYTHON SOURCE LINES 371-379
+.. GENERATED FROM PYTHON SOURCE LINES 379-387
 
 .. code-block:: Python
 
@@ -317,7 +322,7 @@ eddy-current phase would be, placed between the image and the encoding.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-390
+.. GENERATED FROM PYTHON SOURCE LINES 388-398
 
 Differentiation
 ---------------
@@ -330,7 +335,7 @@ Wirtinger convention torch uses for complex tensors.  For a real :math:`A`,
 :doc:`../../explanation/differentiation` describes the backward passes of
 the solvers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 391-400
+.. GENERATED FROM PYTHON SOURCE LINES 399-408
 
 .. code-block:: Python
 
@@ -351,12 +356,12 @@ the solvers.
 
  .. code-block:: none
 
-    relative difference from 2 A^H (Ax - y): 2.05e-07
+    relative difference from 2 A^H (Ax - y): 2.06e-07
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 401-405
+.. GENERATED FROM PYTHON SOURCE LINES 409-413
 
 The regularization terms are the subject of :mod:`bartorch.priors`, and the
 iterations of :mod:`bartorch.optim`;
@@ -366,7 +371,7 @@ which problem.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.037 seconds)
+   **Total running time of the script:** (0 minutes 3.329 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_02-operators-and-solvers.py:

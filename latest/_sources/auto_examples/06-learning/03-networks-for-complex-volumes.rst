@@ -52,7 +52,7 @@ which a random offset of the grid averages out.
 It follows :doc:`02-modl-with-admm`. The next lesson,
 :doc:`04-staged-training`, trains an unrolled network in stages.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-130
+.. GENERATED FROM PYTHON SOURCE LINES 38-143
 
 .. code-block:: Python
 
@@ -84,7 +84,7 @@ It follows :doc:`02-modl-with-admm`. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-142
+.. GENERATED FROM PYTHON SOURCE LINES 144-155
 
 A multi-contrast complex volume
 -------------------------------
@@ -98,7 +98,7 @@ tissues it contains. Subject 0 is the training volume and subject 4 the test
 volume. Complex Gaussian noise of 6 per cent of each contrast's peak gives
 the test volume an SNR typical of a fast high-resolution scan.
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-196
+.. GENERATED FROM PYTHON SOURCE LINES 156-209
 
 .. code-block:: Python
 
@@ -113,7 +113,7 @@ the test volume an SNR typical of a fast high-resolution scan.
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_001.png
-   :alt: T1w, T2w, PDw, noisy
+   :alt: T1w, T2w, PDw, T1w, noisy, T2w, noisy, PDw, noisy
    :srcset: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_001.png
    :class: sphx-glr-single-img
 
@@ -127,7 +127,7 @@ the test volume an SNR typical of a fast high-resolution scan.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 197-209
+.. GENERATED FROM PYTHON SOURCE LINES 210-222
 
 The network
 -----------
@@ -142,7 +142,7 @@ inverse square root of the channels' covariance before the call, and undoes
 both after it, so that the network sees uncorrelated channels of unit
 variance whatever the relative energy of the contrasts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 210-222
+.. GENERATED FROM PYTHON SOURCE LINES 223-235
 
 .. code-block:: Python
 
@@ -172,7 +172,7 @@ variance whatever the relative energy of the contrasts.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 223-240
+.. GENERATED FROM PYTHON SOURCE LINES 236-253
 
 Patches and augmentation
 ------------------------
@@ -192,7 +192,7 @@ than this lesson runs.
 Each patch becomes a training pair when a new draw of noise is added to it,
 so the network sees a different noise realization at every epoch.
 
-.. GENERATED FROM PYTHON SOURCE LINES 241-278
+.. GENERATED FROM PYTHON SOURCE LINES 254-291
 
 .. code-block:: Python
 
@@ -248,7 +248,7 @@ so the network sees a different noise realization at every epoch.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 279-299
+.. GENERATED FROM PYTHON SOURCE LINES 292-312
 
 Applying the network patch by patch
 -----------------------------------
@@ -271,7 +271,7 @@ every time. With ``shift=True``, the grid is offset at random at every call,
 and averaging a few calls with :func:`~bartorch.learning.moments` spreads
 the boundary errors across the volume.
 
-.. GENERATED FROM PYTHON SOURCE LINES 300-345
+.. GENERATED FROM PYTHON SOURCE LINES 313-359
 
 .. code-block:: Python
 
@@ -311,15 +311,22 @@ the boundary errors across the volume.
     *
 
       .. image-sg:: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_002.png
-         :alt: reference, noisy, denoised, whole, NRMSE 0.131, NRMSE 0.095
+         :alt: reference, noisy, denoised, whole
          :srcset: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_003.png
-         :alt: fixed grid − whole, 8 random grids − whole
+         :alt: noisy NRMSE 0.131, denoised, whole NRMSE 0.095
          :srcset: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_004.png
+         :alt: fixed grid − whole, 8 random grids − whole
+         :srcset: /auto_examples/06-learning/images/sphx_glr_03-networks-for-complex-volumes_004.png
          :class: sphx-glr-multi-img
 
 
@@ -335,7 +342,7 @@ the boundary errors across the volume.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 346-363
+.. GENERATED FROM PYTHON SOURCE LINES 360-377
 
 The network, 0.14 million weights trained for a few minutes on patches of
 one head, removes a third or more of the noise of the other head's volume
@@ -355,7 +362,7 @@ The variance :func:`~bartorch.learning.moments` returns is a map of how much
 the result depends on where the patches fall, one of the spreads of
 :doc:`07-uncertainty`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 366-377
+.. GENERATED FROM PYTHON SOURCE LINES 380-391
 
 Size of the network
 -------------------
@@ -369,7 +376,7 @@ frames with a separate one-dimensional convolution, and never downsamples
 the frame axis; ``periodic=True`` pads it circularly, which suits a cardiac
 cycle. This factorization costs few weights beyond the spatial network.
 
-.. GENERATED FROM PYTHON SOURCE LINES 378-390
+.. GENERATED FROM PYTHON SOURCE LINES 392-404
 
 .. code-block:: Python
 
@@ -404,7 +411,7 @@ cycle. This factorization costs few weights beyond the spatial network.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 20.364 seconds)
+   **Total running time of the script:** (15 minutes 19.155 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_03-networks-for-complex-volumes.py:

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**10:01.480** total execution time for 7 files **from auto_examples/06-learning**:
+**29:43.696** total execution time for 7 files **from auto_examples/06-learning**:
 
 .. container::
 
@@ -33,23 +33,23 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_06-learning_03-networks-for-complex-volumes.py` (``03-networks-for-complex-volumes.py``)
-     - 03:20.364
+     - 15:19.155
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_02-modl-with-admm.py` (``02-modl-with-admm.py``)
-     - 02:20.885
+     - 04:48.890
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_05-self-supervised-training.py` (``05-self-supervised-training.py``)
-     - 01:50.032
+     - 04:01.403
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_04-staged-training.py` (``04-staged-training.py``)
-     - 01:06.554
+     - 02:31.034
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_07-uncertainty.py` (``07-uncertainty.py``)
-     - 00:45.436
+     - 01:35.686
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_01-plug-and-play.py` (``01-plug-and-play.py``)
-     - 00:21.523
+     - 00:50.024
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_06-annealed-plug-and-play.py` (``06-annealed-plug-and-play.py``)
-     - 00:16.686
+     - 00:37.502
      - 0.0

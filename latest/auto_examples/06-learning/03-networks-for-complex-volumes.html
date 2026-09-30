@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -605,7 +605,7 @@ the test volume an SNR typical of a fast high-resolution scan.</p>
 </span><span class="n">noisy</span> <span class="o">=</span> <span class="n">test_volume</span> <span class="o">+</span> <span class="n">NOISE</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">test_volume</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">test volume </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">test_volume</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">test_volume</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_03-networks-for-complex-volumes_001.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_001.png" alt="T1w, T2w, PDw, noisy" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>test volume (3, 64, 64, 64), torch.complex64
+<img src="../../_images/sphx_glr_03-networks-for-complex-volumes_001.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_001.png" alt="T1w, T2w, PDw, T1w, noisy, T2w, noisy, PDw, noisy" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>test volume (3, 64, 64, 64), torch.complex64
 </pre></div>
 </div>
 </section>
@@ -737,8 +737,9 @@ the boundary errors across the volume.</p>
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_03-networks-for-complex-volumes_002.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_002.png" alt="reference, noisy, denoised, whole, NRMSE 0.131, NRMSE 0.095" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_03-networks-for-complex-volumes_003.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_003.png" alt="fixed grid − whole, 8 random grids − whole" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-networks-for-complex-volumes_002.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_002.png" alt="reference, noisy, denoised, whole" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-networks-for-complex-volumes_003.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_003.png" alt="noisy NRMSE 0.131, denoised, whole NRMSE 0.095" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-networks-for-complex-volumes_004.png" srcset="../../_images/sphx_glr_03-networks-for-complex-volumes_004.png" alt="fixed grid − whole, 8 random grids − whole" class = "sphx-glr-multi-img"/></li>
 </ul>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>noisy                  relative error 0.1850
 whole volume           relative error 0.1125, departure from the whole volume 0.0000
@@ -791,7 +792,7 @@ cycle. This factorization costs few weights beyond the spatial network.</p>
 (n, channels, frames, z, y, x): (1, 6, 10, 16, 16, 16)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 20.364 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (15 minutes 19.155 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-03-networks-for-complex-volumes-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/c8c571e6093282b50040904de5551870/03-networks-for-complex-volumes.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-networks-for-complex-volumes.ipynb</span></code></a></p>

@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -724,7 +724,7 @@ and are scored against its reference.</p>
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">SSIM </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">ssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>             supervised   PSNR 30.25 dB   SSIM 0.952
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>             supervised   PSNR 30.16 dB   SSIM 0.950
         self-supervised   PSNR 28.59 dB   SSIM 0.726
 CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 </pre></div>
@@ -740,7 +740,12 @@ unfolding amplifies across the whole field of view. The self-supervised
 network keeps more residual aliasing along the phase-encode direction
 (vertical), which its error map shows as horizontal striping: the lines never
 acquired are the ones it cannot score against.</p>
-<img src="../../_images/sphx_glr_05-self-supervised-training_002.png" srcset="../../_images/sphx_glr_05-self-supervised-training_002.png" alt="reference, CG-SENSE, supervised, self-supervised, NRMSE 0.124, NRMSE 0.062, NRMSE 0.076" class = "sphx-glr-single-img"/></section>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_05-self-supervised-training_002.png" srcset="../../_images/sphx_glr_05-self-supervised-training_002.png" alt="reference, CG-SENSE, supervised, self-supervised" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_05-self-supervised-training_003.png" srcset="../../_images/sphx_glr_05-self-supervised-training_003.png" alt="reference, enlarged, CG-SENSE, enlarged, supervised, enlarged, self-supervised, enlarged" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_05-self-supervised-training_004.png" srcset="../../_images/sphx_glr_05-self-supervised-training_004.png" alt="CG-SENSE NRMSE 0.124, supervised NRMSE 0.064, self-supervised NRMSE 0.076" class = "sphx-glr-multi-img"/></li>
+</ul>
+</section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <aside class="footnote-list brackets">
@@ -759,7 +764,7 @@ networks in highly accelerated magnetic resonance imaging. <em>NMR Biomed</em>
 35(12):e4798 (2022). <a class="reference external" href="https://doi.org/10.1002/nbm.4798">https://doi.org/10.1002/nbm.4798</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 50.032 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 1.403 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-05-self-supervised-training-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/1963a7acb99a6101aa402348958782b3/05-self-supervised-training.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">05-self-supervised-training.ipynb</span></code></a></p>

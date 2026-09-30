@@ -147,21 +147,33 @@ transform lengths.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-137
+.. GENERATED FROM PYTHON SOURCE LINES 109-126
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_001.png
-   :alt: 256 readout samples: field of view doubled along x, no oversampling, image-domain crop NRMSE 4.8e-03, crop - no oversampling (range ±0.02), k-space truncation half the resolution along x
-   :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_001.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_001.png
+         :alt: 256 readout samples
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
+         :alt: no oversampling, image-domain crop, crop - no oversampling, k-space truncation
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 138-158
+.. GENERATED FROM PYTHON SOURCE LINES 127-147
 
 The image-domain crop reproduces the acquisition without oversampling to the
 part of the truncation ringing that extends past the prescribed field of
@@ -184,7 +196,7 @@ The phantom is acquired on a 64 matrix and reconstructed on a 128 grid by
 zero-filling, which interpolates the image and makes the ringing visible
 between the pixels of the acquired grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-169
+.. GENERATED FROM PYTHON SOURCE LINES 148-158
 
 .. code-block:: Python
 
@@ -205,7 +217,7 @@ between the pixels of the acquired grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 170-177
+.. GENERATED FROM PYTHON SOURCE LINES 159-166
 
 :func:`bartorch.fermi_window` sets the radius of the half height and the
 width of the transition separately, and keeps a wide passband.
@@ -215,7 +227,7 @@ finer than the acquired one: the side lobes of an unwindowed acquisition
 have their zeros at the pixels of the acquired grid, so a point spread
 function read off that grid shows none.
 
-.. GENERATED FROM PYTHON SOURCE LINES 178-198
+.. GENERATED FROM PYTHON SOURCE LINES 167-187
 
 .. code-block:: Python
 
@@ -246,7 +258,7 @@ function read off that grid shows none.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-204
+.. GENERATED FROM PYTHON SOURCE LINES 188-193
 
 :func:`bartorch.apodize` multiplies k-space by either window over the axes
 it names. The ringing is measured as the standard deviation of the image
@@ -254,7 +266,7 @@ over the parenchyma within six pixels of the skull, where the object is
 uniform, and the resolution as the full width at half maximum of the point
 spread function, in pixels of the acquired grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 205-228
+.. GENERATED FROM PYTHON SOURCE LINES 194-217
 
 .. code-block:: Python
 
@@ -297,7 +309,7 @@ spread function, in pixels of the acquired grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 229-262
+.. GENERATED FROM PYTHON SOURCE LINES 218-248
 
 
 
@@ -307,26 +319,27 @@ spread function, in pixels of the acquired grid.
 
     *
 
-      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
-         :alt: left edge of the skull, displayed from 0 to half the skull intensity, object, no window ringing 0.0404, FWHM 1.00 px, Fermi ringing 0.0325, FWHM 1.50 px, Hann ringing 0.0100, FWHM 2.00 px
-         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
+         :alt: object, no window, FWHM 1.00 px, Fermi, FWHM 1.50 px, Hann, FWHM 2.00 px
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
          :class: sphx-glr-multi-img
 
     *
 
-      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
-         :alt: point spread function, |PSF|, profile across the skull, row 64
-         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_004.png
+         :alt: |PSF|, row 64, across the skull
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_004.png
          :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 263-284
+.. GENERATED FROM PYTHON SOURCE LINES 249-271
 
-Without a window the ringing is visible as bands parallel to the skull
-across the adjacent parenchyma. The Fermi window lowers the far side lobes
+The zoomed panels show the left edge of the skull, displayed from zero to
+half the skull intensity. Without a window the ringing is visible as bands
+parallel to the skull across the adjacent parenchyma. The Fermi window lowers the far side lobes
 by a factor of three and the ringing next to the skull by about a fifth, and
 widens the point spread function by half a pixel; the Hann window removes
 the ringing almost entirely and doubles the full width at half maximum,
@@ -347,7 +360,7 @@ the one-dimensional kernel at :math:`1/\sqrt{d}` along each of :math:`d`
 axes. The one-dimensional kernel at :math:`u` is the window at the centre of
 a grid with its radius moved to :math:`1 - u`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 285-297
+.. GENERATED FROM PYTHON SOURCE LINES 272-284
 
 .. code-block:: Python
 
@@ -377,21 +390,33 @@ a grid with its radius moved to :math:`1 - u`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 298-311
+.. GENERATED FROM PYTHON SOURCE LINES 285-310
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_004.png
-   :alt: radial, separable, separable - radial
-   :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_004.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_005.png
+         :alt: radial, separable
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_005.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_006.png
+         :alt: window along the diagonal
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_006.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-324
+.. GENERATED FROM PYTHON SOURCE LINES 311-323
 
 The radial window has the more isotropic point spread function and the
 higher signal-to-noise ratio; the separable one the better resolution along
@@ -409,7 +434,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.551 seconds)
+   **Total running time of the script:** (0 minutes 1.157 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_01-readout-oversampling-and-apodization.py:

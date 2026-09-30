@@ -57,7 +57,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -77,10 +77,13 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+def panels(columns, rows=1, width=WIDTH, bars=0):
+    """A row (or grid) of frameless square image panels, leaving room for
+    ``bars`` colorbars in each row."""
+    side = (width - 0.9 * bars) / columns
+    figure, axes = plt.subplots(
+        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+    )
     for axis in axes.flat:
         axis.set_axis_off()
     return figure, axes
@@ -107,18 +110,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-
-
-def domain(axis, values, title=None):
-    """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness."""
-    values = values.detach().cpu()
-    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
-    magnitude = values.abs().numpy()
-    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
-    axis.imshow(colours * magnitude[..., None])
-    if title is not None:
-        axis.set_title(title)
 
 
 def phase_bar(figure, axes):
@@ -237,20 +228,22 @@ print(
 
 # sphinx_gallery_start_ignore
 channel = 2
-figure, axes = panels(3, width=0.8 * WIDTH)
-for axis, (name, maps) in zip(
-    axes[0], (("caldir", direct), ("ESPIRiT", espirit), ("nlinv", nonlinear))
+figure, axes = panels(3, rows=2, bars=1)
+for column, (name, maps) in enumerate(
+    (("caldir", direct), ("ESPIRiT", espirit), ("nlinv", nonlinear))
 ):
-    domain(axis, maps[channel, 0], name)
-phase_bar(figure, axes[0, 2])
-figure.suptitle(f"estimated sensitivity of channel {channel}")
+    handle = show(axes[0, column], maps[channel, 0], f"{name}, channel {channel}", vmax=1.0)
+    show(axes[1, column], maps[channel, 0].angle().numpy(), cmap=PHASE, vmin=-np.pi, vmax=np.pi)
+scalebar(figure, axes[0, :], handle, "|sensitivity|")
+phase_bar(figure, axes[1, :])
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The phase of a sensitivity map is determined only up to a phase common to
-# all channels, which each estimator fixes differently; that common phase
+# The figure shows the three estimates of one channel, magnitude above and
+# phase below. The phase of a sensitivity map is determined only up to a phase
+# common to all channels, which each estimator fixes differently; that common phase
 # passes into the phase of the reconstructed image and leaves its magnitude
 # unchanged. Up to it, the three estimates agree inside the object. They
 # differ outside it, where the data do not determine a sensitivity:
@@ -275,7 +268,9 @@ print(f"{'nlinv image':>12}  NRMSE {error(joint):.3f}")
 # %%
 
 # sphinx_gallery_start_ignore
-peak = float(reference.max())
+# The skull is the brightest structure; a window at half its intensity shows
+# the aliasing inside the phantom.
+peak = 0.5 * float(reference.max())
 
 
 def within(estimate):
@@ -283,33 +278,34 @@ def within(estimate):
     return scaled(estimate.squeeze(), reference) * support
 
 
-figure, axes = panels(4)
+figure, axes = panels(3, rows=2)
 show(axes[0, 0], reference, "reference", vmax=peak)
 show(axes[0, 1], within(zero_filled), "zero-filled", vmax=peak)
-for axis, name in zip(axes[0, 2:], ("caldir", "ESPIRiT")):
+show(axes[0, 2], within(joint), "nlinv image", vmax=peak)
+for axis, name in zip(axes[1], reconstructions):
     show(axis, within(reconstructions[name]), f"SENSE, {name}", vmax=peak)
-figure.suptitle("24 ACS lines, R = 3")
 plt.show()
 
-figure, axes = panels(3, width=0.8 * WIDTH)
+figure, axes = panels(3, bars=1)
 errors(
     figure,
     axes[0],
     [within(reconstructions[name]) for name in reconstructions],
     reference * support,
-    0.05,
+    0.03,
 )
 for axis, name in zip(axes[0], reconstructions):
     axis.set_title(f"SENSE, {name}")
-figure.suptitle("error magnitude, 24 ACS lines")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The zero-filled image shows the three overlapping copies of the phantom
-# that regular undersampling produces. All three calibrations unfold them.
-# The error maps, at 5 % of the image peak, show the remaining
+# The images are windowed at half the intensity of the skull, which
+# saturates. The zero-filled image shows the three overlapping copies of the
+# phantom that regular undersampling produces. All three calibrations unfold
+# them, and so does the image ``nlinv`` returns with its sensitivities.
+# The error maps, at 3 % of the image peak, show the remaining
 # differences: the direct estimate leaves a faint residual fold at the edges
 # of the phantom, where its low-resolution sensitivities are least accurate,
 # and ESPIRiT and nonlinear inversion leave mostly noise.
@@ -345,14 +341,13 @@ for name, estimate in scarce_reconstructions.items():
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(3, width=0.8 * WIDTH)
+figure, axes = panels(3)
 show(axes[0, 0], reference, "reference", vmax=peak)
 show(axes[0, 1], within(scarce_reconstructions["caldir"]), "SENSE, caldir", vmax=peak)
 show(axes[0, 2], within(scarce_reconstructions["nlinv"]), "SENSE, nlinv", vmax=peak)
-figure.suptitle("8 ACS lines, R = 3")
 plt.show()
 
-figure, axes = panels(2, width=0.6 * WIDTH)
+figure, axes = panels(2, width=0.8 * WIDTH, bars=1)
 errors(
     figure,
     axes[0],
@@ -362,7 +357,6 @@ errors(
 )
 axes[0, 0].set_title("SENSE, caldir")
 axes[0, 1].set_title("SENSE, nlinv")
-figure.suptitle("error magnitude, 8 ACS lines")
 plt.show()
 # sphinx_gallery_end_ignore
 

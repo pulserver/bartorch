@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -622,7 +622,7 @@ the second lets an acquisition be cut into frames after it was measured, as
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(201, 128, 3): 201 shots of 128 samples
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-trajectories-and-transforms_001.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_001.png" alt="uniform, first 24 spokes, golden angle, first 24 spokes" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_01-trajectories-and-transforms_001.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_001.png" alt="first 24 of 201 spokes, uniform, golden angle" class = "sphx-glr-single-img"/></section>
 <section id="the-transform">
 <h2>The transform<a class="headerlink" href="#the-transform" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="../../generated/bartorch.nufft.html#bartorch.nufft" title="bartorch.nufft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.nufft()</span></code></a> samples an image along a trajectory and
@@ -744,13 +744,14 @@ spiral  compensated  NRMSE 0.089
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" alt="spiral, 16 interleaves, density compensation weight, one interleaf" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" alt="16 interleaves, interleaf 1 in blue, weight along interleaf 1" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_01-trajectories-and-transforms_004.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_004.png" alt="reference, spiral, no compensation, spiral, compensated" class = "sphx-glr-multi-img"/></li>
 </ul>
 <p>The estimated weight of an Archimedean spiral grows with the radius: the
 interleaves are separated by a constant distance while the arc length
-traversed per sample grows, so the samples are densest at the centre. At
-the very edge the weight rises further, where the outermost turn has no
+traversed per sample grows, so the samples are densest at the centre. The
+weight oscillates with the period of the turns, levels off in the outer part
+of k-space, and drops over the last samples, where the outermost turn has no
 neighbour outside it. Without compensation the spiral adjoint is dominated
 by the densely sampled low spatial frequencies and appears as a blurred,
 low-contrast image; with the estimated weights the tissue contrast and the
@@ -780,8 +781,8 @@ spread function on a doubled grid rather than a transform each way
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">A^H A as two transforms  </span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">transforms</span><span class="si">:</span><span class="s2">6.1f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference      </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">toeplitz</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">pair</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pair</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>A^H A as a convolution      0.6 ms
-A^H A as two transforms     0.4 ms
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>A^H A as a convolution      1.0 ms
+A^H A as two transforms     1.2 ms
 relative difference      2.7e-03
 </pre></div>
 </div>
@@ -829,7 +830,7 @@ inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
 <a class="reference external" href="https://doi.org/10.1109/TSP.2005.853152">https://doi.org/10.1109/TSP.2005.853152</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.803 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.409 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-non-cartesian-01-trajectories-and-transforms-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/00a0b780dce827c2458ef95c55e684ae/01-trajectories-and-transforms.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-trajectories-and-transforms.ipynb</span></code></a></p>

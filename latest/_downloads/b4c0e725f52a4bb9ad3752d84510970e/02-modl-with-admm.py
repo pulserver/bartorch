@@ -63,8 +63,9 @@ networks for complex multi-channel volumes.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+from matplotlib.patches import Rectangle
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -84,9 +85,9 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
+def panels(columns, rows=1, width=WIDTH, bar=False):
+    """A row (or grid) of frameless square image panels, with room for a colorbar if ``bar``."""
+    side = (width - (0.9 if bar else 0.0)) / columns
     figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
     for axis in axes.flat:
         axis.set_axis_off()
@@ -114,6 +115,21 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
+def outline(axis, crop):
+    """Mark the region ``crop`` that a later figure enlarges."""
+    rows, cols = crop
+    axis.add_patch(
+        Rectangle(
+            (cols.start - 0.5, rows.start - 0.5),
+            cols.stop - cols.start,
+            rows.stop - rows.start,
+            fill=False,
+            edgecolor="#e8a33d",
+            linewidth=1.5,
+        )
+    )
 
 
 def domain(axis, values, title=None):
@@ -502,28 +518,26 @@ for name, estimate in rows.items():
 reference = truth[0]
 top = float(reference.abs().max())
 learned_name = f"MoDL, K={ITERATIONS}"
-figure, axes = panels(4)
+zoom = (slice(70, 118), slice(40, 88))
+figure, axes = panels(2, rows=2, width=0.9 * WIDTH)
 show(axes[0, 0], reference, "reference", vmax=top)
-for axis, name in zip(axes[0, 1:], ("adjoint", "ADMM, wavelet", learned_name)):
+outline(axes[0, 0], zoom)
+for axis, name in zip(axes.ravel()[1:], ("adjoint", "CG SENSE", learned_name)):
     show(axis, scaled(rows[name][0], reference), name, vmax=top)
-figure.suptitle(f"a validation slice, {SIZE / int(lines.sum()):.1f}-fold undersampled")
 plt.show()
 
 compared = ("CG SENSE", "ADMM, wavelet", learned_name)
-figure, axes = panels(3, width=0.8 * WIDTH)
+figure, axes = panels(3, bar=True)
 for axis, name in zip(axes[0], compared):
     difference = (scaled(rows[name][0], reference) - reference.abs()).abs() / top
-    handle = show(axis, difference.detach().numpy(), name, vmax=0.15, cmap="magma")
+    handle = show(axis, difference.detach().numpy(), f"{name} error", vmax=0.08, cmap="magma")
 figure.colorbar(handle, ax=axes[0], fraction=0.046, label="|error| / peak")
-figure.suptitle("error magnitude")
 plt.show()
 
-zoom = (slice(70, 118), slice(40, 88))
-figure, axes = panels(4)
-show(axes[0, 0], reference.abs()[zoom], "reference", vmax=top)
-for axis, name in zip(axes[0, 1:], compared):
+figure, axes = panels(2, rows=2, width=0.9 * WIDTH)
+show(axes[0, 0], reference.abs()[zoom], "reference, enlarged", vmax=top)
+for axis, name in zip(axes.ravel()[1:], compared):
     show(axis, scaled(rows[name][0], reference)[zoom], name, vmax=top)
-figure.suptitle("enlarged")
 plt.show()
 # sphinx_gallery_end_ignore
 

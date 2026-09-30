@@ -73,7 +73,7 @@ The pretrained weights, about 125 MB, are downloaded on the first call. The
 network runs once per iteration, which dominates the run time of this example
 on a CPU.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-238
+.. GENERATED FROM PYTHON SOURCE LINES 59-254
 
 .. code-block:: Python
 
@@ -104,7 +104,7 @@ on a CPU.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 239-251
+.. GENERATED FROM PYTHON SOURCE LINES 255-267
 
 Acquisition
 -----------
@@ -119,7 +119,7 @@ simulated with, so that the comparison below concerns the regularization
 alone; :doc:`../02-parallel-imaging/01-coil-calibration` compares their
 estimation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 252-268
+.. GENERATED FROM PYTHON SOURCE LINES 268-284
 
 .. code-block:: Python
 
@@ -146,15 +146,16 @@ estimation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 269-274
+.. GENERATED FROM PYTHON SOURCE LINES 285-291
 
 A specified regularizer
 -----------------------
 
-Total variation under ADMM, at the weight that minimizes the error against
-the phantom among 0.002, 0.005, 0.01 and 0.02, is the reference point.
+Total variation under ADMM is the reference point, at the best of the
+weights 0.002, 0.005, 0.01 and 0.02 judged by NRMSE and SSIM against the
+phantom.
 
-.. GENERATED FROM PYTHON SOURCE LINES 275-278
+.. GENERATED FROM PYTHON SOURCE LINES 292-295
 
 .. code-block:: Python
 
@@ -168,7 +169,7 @@ the phantom among 0.002, 0.005, 0.01 and 0.02, is the reference point.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 279-288
+.. GENERATED FROM PYTHON SOURCE LINES 296-305
 
 A denoiser as the proximal step
 -------------------------------
@@ -180,7 +181,7 @@ two grayscale planes, and scales the result back, so ``sigma`` is in units of
 the image's peak. The network is evaluated without gradients, since nothing
 is trained here. Each iteration costs one application of the network.
 
-.. GENERATED FROM PYTHON SOURCE LINES 289-311
+.. GENERATED FROM PYTHON SOURCE LINES 306-328
 
 .. code-block:: Python
 
@@ -215,7 +216,7 @@ is trained here. Each iteration costs one application of the network.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<05:42, 380kB/s]      1%|          | 640k/125M [00:00<01:15, 1.72MB/s]      1%|▏         | 1.75M/125M [00:00<00:28, 4.55MB/s]      4%|▍         | 4.88M/125M [00:00<00:10, 12.5MB/s]     11%|█         | 13.2M/125M [00:00<00:03, 34.1MB/s]     23%|██▎       | 28.2M/125M [00:00<00:01, 69.9MB/s]     44%|████▎     | 54.4M/125M [00:00<00:00, 129MB/s]      55%|█████▍    | 68.1M/125M [00:01<00:00, 88.5MB/s]     65%|██████▍   | 80.4M/125M [00:01<00:00, 97.1MB/s]     74%|███████▎  | 91.8M/125M [00:01<00:00, 90.1MB/s]     84%|████████▎ | 104M/125M [00:01<00:00, 98.8MB/s]      93%|█████████▎| 116M/125M [00:01<00:00, 106MB/s]     100%|██████████| 125M/125M [00:01<00:00, 73.1MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<04:21, 499kB/s]     17%|█▋        | 20.8M/125M [00:00<00:01, 76.5MB/s]     27%|██▋       | 33.0M/125M [00:00<00:01, 74.8MB/s]     42%|████▏     | 51.9M/125M [00:00<00:00, 109MB/s]      52%|█████▏    | 65.2M/125M [00:00<00:00, 72.5MB/s]     71%|███████   | 88.1M/125M [00:01<00:00, 106MB/s]      82%|████████▏ | 103M/125M [00:01<00:00, 75.9MB/s]     97%|█████████▋| 120M/125M [00:01<00:00, 94.4MB/s]    100%|██████████| 125M/125M [00:01<00:00, 83.4MB/s]
          zero-filled  NRMSE 0.199  SSIM 0.482
      total variation  NRMSE 0.161  SSIM 0.754
         DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -224,7 +225,7 @@ is trained here. Each iteration costs one application of the network.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-340
+.. GENERATED FROM PYTHON SOURCE LINES 329-361
 
 
 
@@ -235,21 +236,21 @@ is trained here. Each iteration costs one application of the network.
     *
 
       .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_001.png
-         :alt: R = 4, noisy, reference, zero-filled, total variation, DRUNet, ADMM
+         :alt: reference, zero-filled, total variation, DRUNet, ADMM
          :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_002.png
-         :alt: error magnitude, total variation, DRUNet, ADMM, DRUNet, FISTA
+         :alt: zero-filled error, total variation error, DRUNet, ADMM error, DRUNet, FISTA error
          :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_003.png
-         :alt: enlarged, reference, total variation, DRUNet, ADMM, DRUNet, FISTA
+         :alt: reference, enlarged, total variation, DRUNet, ADMM, DRUNet, FISTA
          :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_003.png
          :class: sphx-glr-multi-img
 
@@ -257,11 +258,11 @@ is trained here. Each iteration costs one application of the network.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 341-369
+.. GENERATED FROM PYTHON SOURCE LINES 362-390
 
 The zero-filled image shows the incoherent aliasing of the random sampling
-and the noise. Total variation removes most of both, but at the weight that
-minimizes the error it leaves a blotchy texture across the brain and
+and the noise. Total variation removes most of both, but at its best weight it
+leaves a blotchy texture across the brain and
 flattens the gradual intensity variations into patches. The plug-and-play
 reconstruction under ADMM removes the noise and the aliasing while keeping
 the tissue boundaries, and its error map is darker inside the brain; in the
@@ -288,7 +289,7 @@ The noise level
 than the iterate contains leaves residual noise and aliasing in place; one
 asked for more removes image detail with them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-391
+.. GENERATED FROM PYTHON SOURCE LINES 391-412
 
 .. code-block:: Python
 
@@ -328,13 +329,13 @@ asked for more removes image detail with them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 392-402
+.. GENERATED FROM PYTHON SOURCE LINES 413-422
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_004.png
-   :alt: DRUNet under ADMM, enlarged, $\sigma$ = 0.02 (too small), $\sigma$ = 0.05, $\sigma$ = 0.12 (too large)
+   :alt: $\sigma$ = 0.02 (too small), $\sigma$ = 0.05, $\sigma$ = 0.12 (too large)
    :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_004.png
    :class: sphx-glr-single-img
 
@@ -342,7 +343,7 @@ asked for more removes image detail with them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 403-412
+.. GENERATED FROM PYTHON SOURCE LINES 423-432
 
 At the smallest :math:`\sigma` the noise and the aliasing remain as a
 mottled texture; at the largest the cortex is smoothed into uniform white
@@ -354,7 +355,7 @@ undersampled acquisition leaves, which is not white Gaussian noise. The next
 lesson, :doc:`02-modl-with-admm`, trains a network inside the iteration, on
 the acquisition it is applied to.
 
-.. GENERATED FROM PYTHON SOURCE LINES 415-431
+.. GENERATED FROM PYTHON SOURCE LINES 435-451
 
 References
 ----------
@@ -376,7 +377,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 21.523 seconds)
+   **Total running time of the script:** (0 minutes 50.024 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

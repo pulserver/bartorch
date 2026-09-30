@@ -182,10 +182,10 @@ LINE = "#e8a33d"
 ZOOM = (slice(8, 88), slice(8, 88))
 grid_lines = grid_phantom(index.astype(float)) > 0.65
 
-figure, axes = plt.subplots(1, 2, figsize=(8.0, 4.0))
+figure, axes = plt.subplots(1, 2, figsize=(7.8, 4.1))
 for axis, values, title in ((axes[0], acquired, "acquired"), (axes[1], corrected, "corrected")):
     show(axis, values, title)
-    axis.contour(grid_lines, levels=[0.5], colors=LINE, linewidths=0.5)
+    axis.contour(grid_lines, levels=[0.5], colors=LINE, linewidths=0.9)
     axis.add_patch(
         Rectangle(
             (ZOOM[1].start, ZOOM[0].start),
@@ -196,29 +196,29 @@ for axis, values, title in ((axes[0], acquired, "acquired"), (axes[1], corrected
             linewidth=1.2,
         )
     )
-figure.suptitle("grid of the object in orange")
+figure.suptitle("orange: grid of the object")
 plt.show()
 
-figure, axes = plt.subplots(1, 4, figsize=(10.4, 2.9))
+figure, axes = plt.subplots(2, 2, figsize=(7.0, 7.4))
 for axis, values, title in zip(
-    axes,
+    axes.flat,
     (truth, acquired, geometry_only, corrected),
     ("object", "acquired", "geometry only", "corrected"),
     strict=True,
 ):
-    show(axis, values[ZOOM], title if values is truth else f"{title}\nNRMSE {nrmse(values):.3f}")
-figure.suptitle("superior right corner", color="#3dbde8")
+    show(axis, values[ZOOM], title)
+figure.suptitle("superior right corner (blue box)")
 plt.show()
 
 nan = np.nan
 inside = truth > 0.1
-figure, axes = plt.subplots(1, 2, figsize=(8.0, 3.4))
+figure, axes = plt.subplots(1, 2, figsize=(7.8, 3.4))
 handle = show(
     axes[0],
     np.where(inside, np.linalg.norm(displacement_mm, axis=-1), nan),
     "displacement",
     0,
-    20,
+    10,
     "magma",
 )
 figure.colorbar(handle, ax=axes[0], fraction=0.046, label="mm")
@@ -233,25 +233,22 @@ handle = show(
 figure.colorbar(handle, ax=axes[1], fraction=0.046)
 plt.show()
 
-figure, axes = plt.subplots(1, 3, figsize=(10.4, 3.3))
+figure, axes = plt.subplots(1, 2, figsize=(7.4, 3.5))
 for axis, values, title in zip(
-    axes,
-    (acquired, geometry_only, corrected),
-    ("acquired", "geometry only", "corrected"),
-    strict=True,
+    axes, (geometry_only, corrected), ("geometry only", "corrected"), strict=True
 ):
     handle = show(
         axis,
         np.where(inside, values - truth, nan),
-        f"{title} - object\nNRMSE {nrmse(values):.3f}",
+        f"{title} - object",
         -0.3,
         0.3,
         "RdBu_r",
     )
-figure.colorbar(handle, ax=axes, fraction=0.03, label="difference")
+figure.colorbar(handle, ax=axes, shrink=0.9, label="difference")
 plt.show()
 
-figure, axes = plt.subplots(1, 2, figsize=(10.4, 3.0), sharey=True)
+figure, axes = plt.subplots(1, 2, figsize=(7.8, 3.6), sharey=True)
 centre = SIZE // 2
 for axis, profile, position, label in (
     (axes[0], lambda v: v[:centre, centre], -offset_mm[:centre, 0, 0], "z [mm], superior"),
@@ -266,9 +263,9 @@ for axis, profile, position, label in (
     axis.set_xlim(0, 225)
     axis.set_xlabel(label)
 axes[0].set_ylabel("signal")
-axes[0].set_title("profile along z through isocentre")
-axes[1].set_title("profile along x through isocentre")
-axes[1].legend(frameon=False, ncol=3, loc="upper left")
+axes[0].set_title("along z")
+axes[1].set_title("along x")
+figure.legend(*axes[0].get_legend_handles_labels(), loc="outside upper center", ncol=3)
 plt.show()
 # sphinx_gallery_end_ignore
 

@@ -254,7 +254,7 @@ restores the intensity. ``jacobian=False`` corrects the geometry only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-275
+.. GENERATED FROM PYTHON SOURCE LINES 179-272
 
 
 
@@ -265,14 +265,14 @@ restores the intensity. ``jacobian=False`` corrects the geometry only.
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_001.png
-         :alt: grid of the object in orange, acquired, corrected
+         :alt: orange: grid of the object, acquired, corrected
          :srcset: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_002.png
-         :alt: superior right corner, object, acquired NRMSE 0.427, geometry only NRMSE 0.118, corrected NRMSE 0.025
+         :alt: superior right corner (blue box), object, acquired, geometry only, corrected
          :srcset: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_002.png
          :class: sphx-glr-multi-img
 
@@ -286,14 +286,14 @@ restores the intensity. ``jacobian=False`` corrects the geometry only.
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_004.png
-         :alt: acquired - object NRMSE 0.427, geometry only - object NRMSE 0.118, corrected - object NRMSE 0.025
+         :alt: geometry only - object, corrected - object
          :srcset: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_004.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_005.png
-         :alt: profile along z through isocentre, profile along x through isocentre
+         :alt: along z, along x
          :srcset: /auto_examples/07-tours/images/sphx_glr_04-gradient-nonlinearity_005.png
          :class: sphx-glr-multi-img
 
@@ -301,7 +301,7 @@ restores the intensity. ``jacobian=False`` corrects the geometry only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-304
+.. GENERATED FROM PYTHON SOURCE LINES 273-301
 
 The displacement grows with the cube of the distance from isocentre: the
 centre of the field of view is unaffected, and at 200 mm the grid lines are
@@ -335,7 +335,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.768 seconds)
+   **Total running time of the script:** (0 minutes 1.387 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_04-gradient-nonlinearity.py:

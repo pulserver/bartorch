@@ -46,8 +46,8 @@ on the k-space side, between the transform of each frame and its samples:
 
    y[c, t] = \sum_a \Phi_{at} \, \mathrm{NUFFT}_t \!\left( S_c \, \alpha_a \right).
 
-The coefficient maps :math:`\alpha_a` are reconstructed under a locally
-low-rank penalty, any frame of the series can be synthesized from them, and
+The coefficient maps :math:`\alpha_a` are reconstructed under a
+total-variation penalty, any frame of the series can be synthesized from them, and
 :math:`T_1` is estimated by matching each voxel's coefficients against the
 dictionary.
 
@@ -60,16 +60,17 @@ this page and present in the script this page can be downloaded as.
 - Simulate a dictionary of inversion-recovery curves and extract a
   low-dimensional subspace from it by the singular value decomposition.
 - Include a subspace basis in a non-Cartesian encoding.
-- Reconstruct coefficient maps under a locally low-rank penalty, and
+- Reconstruct coefficient maps under a total-variation penalty, and
   synthesize images at any inversion time from them.
-- Estimate :math:`T_1` by dictionary matching in the subspace, and identify
-  the partial-volume bias of a voxelwise fit.
+- Estimate :math:`T_1` by dictionary matching in the subspace, compare it
+  with matching frames reconstructed one at a time, and identify the
+  partial-volume bias of a voxelwise fit.
 
 It follows :doc:`../04-non-cartesian/03-dynamic-golden-angle`, whose frames
 are constrained here by a linear signal model. The next lesson,
 :doc:`02-quantitative-models`, fits a nonlinear one directly to k-space.
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-174
+.. GENERATED FROM PYTHON SOURCE LINES 56-175
 
 .. code-block:: Python
 
@@ -102,7 +103,7 @@ are constrained here by a linear signal model. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-188
+.. GENERATED FROM PYTHON SOURCE LINES 176-189
 
 The dictionary and its subspace
 -------------------------------
@@ -118,7 +119,7 @@ The same object serves the fit: handed to :func:`bartorch.nlop.Bloch` it is
 a model operator, which is how :doc:`02-quantitative-models`
 solves for the maps directly. Here only its forward evaluation is wanted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 189-200
+.. GENERATED FROM PYTHON SOURCE LINES 190-201
 
 .. code-block:: Python
 
@@ -146,7 +147,7 @@ solves for the maps directly. Here only its forward evaluation is wanted.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-210
+.. GENERATED FROM PYTHON SOURCE LINES 202-211
 
 The left panel shows a few entries of the dictionary: the signal starts
 negative after the inversion, passes through zero at a time that grows with
@@ -158,13 +159,13 @@ four, is marked by the dashed line. The rank is a modelling decision: too
 few coefficients bias the recovered curves toward the span of the basis, too
 many increase the number of unknowns the undersampled data must determine.
 
-.. GENERATED FROM PYTHON SOURCE LINES 211-234
+.. GENERATED FROM PYTHON SOURCE LINES 212-238
 
 
 
 
 .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_001.png
-   :alt: 01 subspace t1 mapping
+   :alt: dictionary entries, singular values
    :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_001.png
    :class: sphx-glr-single-img
 
@@ -172,7 +173,7 @@ many increase the number of unknowns the undersampled data must determine.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 235-243
+.. GENERATED FROM PYTHON SOURCE LINES 239-247
 
 Phantom
 -------
@@ -183,7 +184,7 @@ sum of them. A voxel holding two tissues therefore follows a sum of two
 recovery curves, which is not itself an inversion-recovery curve -- the
 partial-volume error any voxelwise fit carries.
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-320
+.. GENERATED FROM PYTHON SOURCE LINES 248-324
 
 
 
@@ -192,7 +193,7 @@ partial-volume error any voxelwise fit carries.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 321-331
+.. GENERATED FROM PYTHON SOURCE LINES 325-338
 
 Acquisition and reconstruction
 ------------------------------
@@ -203,9 +204,12 @@ One golden-angle spoke per repetition time, four hundred of them in
 the train cover k-space densely. The trajectory indexes frames as well as
 samples, and the image the encoding operator maps from is the four
 coefficient maps rather than the four hundred frames, with ``basis``
-contracting the one into the other.
+contracting the one into the other. Complex Gaussian noise of variance
+:math:`10^{-5}` per sample is added to the simulated samples, which puts the
+signal-to-noise ratio of white matter, in a fully sampled image of the
+steady state, at the value printed below.
 
-.. GENERATED FROM PYTHON SOURCE LINES 332-350
+.. GENERATED FROM PYTHON SOURCE LINES 339-367
 
 .. code-block:: Python
 
@@ -215,7 +219,8 @@ contracting the one into the other.
 
 
     frames = linop.NoncartesianSense(sensitivities, (FRAMES, SIZE, SIZE), traj=trajectory)
-    measured = bt.noise(frames(series), n=1e-7, s=5)
+    measured = bt.noise(frames(series), n=1e-5, s=5)
+
 
     A = linop.NoncartesianSense(sensitivities, (RANK, SIZE, SIZE), traj=trajectory, basis=basis)
     print(f"{A.ishape} -> {A.oshape}")
@@ -229,33 +234,43 @@ contracting the one into the other.
 
  .. code-block:: none
 
+    white-matter SNR of a fully sampled steady-state image: 15
     (4, 128, 128) -> (8, 400, 1, 128)
     Plan(transform=nufft, image=sensitivities, kspace=basis, contraction=subspace(4), normal=kernel, coil_batch=1, streamed=coils, executor=slab)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 351-361
+.. GENERATED FROM PYTHON SOURCE LINES 368-387
 
 ``plan.contraction`` reports the subspace and its rank, and the normal
 operator is a point spread function over the basis as well as the
 trajectory, so an iteration does not transform the four hundred frames.
 
-The penalty is locally low rank [#llr]_: the coefficient maps are stacked
-into a matrix per block of voxels, and its nuclear norm is penalized.
-``joint_axes`` makes the coefficients the columns of that matrix, so the
-penalty favours neighbouring voxels that follow the same few curves, rather
-than coefficient maps that are each sparse. Penalizing the maps one at a
-time does not couple the coefficients of a voxel.
+The penalty is the total variation [#rof]_ of each coefficient map over the
+two spatial axes. A tissue follows one recovery curve throughout, so its
+coefficients are piecewise constant, and the noise, which the data
+determine least well in the coefficients of the weaker singular vectors,
+is not. A locally low-rank penalty [#llr]_ over blocks of voxels is the
+other common choice; a block that straddles two tissues is rank two, and
+shrinking its second singular value mixes their curves and biases the
+fitted :math:`T_1` towards the neighbouring tissue.
 
-.. GENERATED FROM PYTHON SOURCE LINES 362-369
+The ADMM penalty parameter ``rho`` weights the auxiliary variable, which
+starts at zero, against the data in each update of the coefficients. At
+the default of 0.5 the coefficients of the weaker singular vectors, which
+carry the differences between recovery curves, are still biased towards
+zero after forty iterations, and the fitted :math:`T_1` with them; 0.05
+lets the data determine them within that number of iterations.
+
+.. GENERATED FROM PYTHON SOURCE LINES 388-395
 
 .. code-block:: Python
 
 
     data = measured / optim.data_scaling(measured[..., None], A=A)
-    term = priors.LocallyLowRank(axes=(-1, -2), weight=0.005, joint_axes=(-3,), block=8)
-    coefficients = optim.ADMM(term, maxiter=30)(data, A)
+    term = priors.TotalVariation(axes=(-1, -2), weight=0.001)
+    coefficients = optim.ADMM(term, maxiter=40, rho=0.05)(data, A)
 
     recovered = torch.einsum("af,ayx->fyx", basis.to(torch.complex64), coefficients)
 
@@ -266,59 +281,23 @@ time does not couple the coefficients of a voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-378
+.. GENERATED FROM PYTHON SOURCE LINES 396-399
 
-Parameter fit
--------------
+The frames reconstructed one at a time are the reference point: the
+density-compensated adjoint of the encoding without the basis, which is the
+gridding reconstruction of each frame from its single spoke.
 
-The recovered coefficients are matched against the dictionary projected onto
-the same subspace, by the normalized inner product, which is dictionary
-matching performed in four dimensions rather than four hundred. Matching in
-the subspace and matching the reconstructed curves differ only by the
-component of the dictionary the basis discards.
-
-.. GENERATED FROM PYTHON SOURCE LINES 379-388
+.. GENERATED FROM PYTHON SOURCE LINES 400-409
 
 .. code-block:: Python
 
 
-    atoms = basis.to(torch.complex64) @ dictionary.T.to(torch.complex64)
-    atoms = atoms / atoms.norm(dim=0, keepdim=True)
-    voxels = coefficients.reshape(RANK, -1)
-    voxels = voxels / voxels.norm(dim=0, keepdim=True).clamp(min=1e-12)
+    weights = torch.linalg.norm(trajectory.real[..., :2], dim=-1).clamp(min=0.25)
+    gridded = frames.H(measured * weights.to(torch.complex64))
 
-    matched = (atoms.conj().T @ voxels).abs().argmax(0)
-    t1_map = t1_values[matched].reshape(SIZE, SIZE)
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 389-391
-
-The fit is reported where the proton density is high enough for a curve to be
-defined, and separately for the voxels each tissue class dominates.
-
-.. GENERATED FROM PYTHON SOURCE LINES 392-407
-
-.. code-block:: Python
-
-
-    support = occupancy > 0.2 * float(occupancy.max())
-    dominant = memberships.argmax(0)
-    pure = memberships.max(0).values > 0.7
-
-    for name, index in CLASS.items():
-        selected = support & pure & (dominant == index)
-        if int(selected.sum()) < 20:
-            continue
-        estimate = float(t1_map[selected].median())
+    for name, estimate in (("frame by frame", gridded), ("subspace", recovered)):
         print(
-            f"{name:>13}  table {tissue_t1[index]:6.0f} ms"
-            f"   fitted {estimate:6.0f} ms   ({int(selected.sum())} voxels)"
+            f"{name:>14}  NRMSE of the series {bt.nrmse(series.abs(), estimate.abs(), scaled=True):.3f}"
         )
 
 
@@ -329,23 +308,117 @@ defined, and separately for the voxels each tissue class dominates.
 
  .. code-block:: none
 
-              CSF  table   2569 ms   fitted   1515 ms   (563 voxels)
-               GM  table    833 ms   fitted    830 ms   (1461 voxels)
-               WM  table    500 ms   fitted    564 ms   (2189 voxels)
-              FAT  table    350 ms   fitted    741 ms   (23 voxels)
-      MUSCLE/SKIN  table    900 ms   fitted   1007 ms   (377 voxels)
-             SKIN  table   2569 ms   fitted   1648 ms   (411 voxels)
+    frame by frame  NRMSE of the series 1.621
+          subspace  NRMSE of the series 0.145
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 408-418
+.. GENERATED FROM PYTHON SOURCE LINES 410-419
+
+Parameter fit
+-------------
+
+The recovered coefficients are matched against the dictionary projected onto
+the same subspace, by the normalized inner product, which is dictionary
+matching performed in four dimensions rather than four hundred. Matching in
+the subspace and matching the reconstructed curves differ only by the
+component of the dictionary the basis discards. The frame-by-frame series
+has no subspace, and is matched against the dictionary itself.
+
+.. GENERATED FROM PYTHON SOURCE LINES 420-433
+
+.. code-block:: Python
+
+
+
+    def match(voxels, atoms):
+        """The T1 of the dictionary atom with the largest normalized inner product."""
+        voxels = voxels.reshape(len(atoms), -1)
+        voxels = voxels / voxels.norm(dim=0, keepdim=True).clamp(min=1e-12)
+        atoms = atoms / atoms.norm(dim=0, keepdim=True)
+        return t1_values[(atoms.conj().T @ voxels).abs().argmax(0)].reshape(SIZE, SIZE)
+
+
+    t1_map = match(coefficients, basis.to(torch.complex64) @ dictionary.T.to(torch.complex64))
+    t1_gridded = match(gridded, dictionary.T.to(torch.complex64))
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 434-438
+
+The fit is reported where the proton density is high enough for a curve to be
+defined, and separately in the interior of each tissue class: the voxels
+one class dominates, less a one-voxel rim, so that the numbers are not
+those of partial volume.
+
+.. GENERATED FROM PYTHON SOURCE LINES 439-471
+
+.. code-block:: Python
+
+
+    support = occupancy > 0.2 * float(occupancy.max())
+    dominant = memberships.argmax(0)
+    pure = support & (memberships.max(0).values > 0.7)
+
+
+    def erode(mask):
+        """The mask less a one-voxel rim."""
+        return -torch.nn.functional.max_pool2d(-mask.float()[None], 3, 1, 1)[0] > 0
+
+
+    core = {index: erode(pure & (dominant == index)) for index in CLASS.values()}
+    interior = torch.stack(list(core.values())).any(0)
+
+    print(f"{'':>13}  {'table':>7}  {'frame by frame':>14}  {'subspace':>8}   [ms]")
+    for name, index in CLASS.items():
+        selected = core[index]
+        if int(selected.sum()) < 20:
+            continue
+        print(
+            f"{name:>13}  {tissue_t1[index]:7.0f}  {float(t1_gridded[selected].median()):14.0f}"
+            f"  {float(t1_map[selected].median()):8.0f}   ({int(selected.sum())} voxels)"
+        )
+    white = core[CLASS["WM"]]
+    for name, estimate in (("frame by frame", t1_gridded), ("subspace", t1_map)):
+        relative = (estimate - T1).abs() / T1.clamp(min=1.0)
+        print(
+            f"{name:>14}  mean relative T1 error: interior {float(relative[interior].mean()):.3f},"
+            f" whole head {float(relative[support].mean()):.3f};"
+            f"  white-matter standard deviation {float(estimate[white].std()):.0f} ms"
+        )
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+                     table  frame by frame  subspace   [ms]
+              CSF     2569            2289      2598   (68 voxels)
+               GM      833             852       830   (76 voxels)
+               WM      500             520       498   (1143 voxels)
+      MUSCLE/SKIN      900             896       896   (22 voxels)
+    frame by frame  mean relative T1 error: interior 0.057, whole head 0.099;  white-matter standard deviation 29 ms
+          subspace  mean relative T1 error: interior 0.012, whole head 0.092;  white-matter standard deviation 6 ms
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 472-482
 
 
 
 
 .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_002.png
-   :alt: coefficient maps, magnitude, each on its own scale, $\alpha_1$, $\alpha_2$, $\alpha_3$, $\alpha_4$
+   :alt: coefficient maps, each on its own scale, $\alpha_1$, $\alpha_2$, $\alpha_3$, $\alpha_4$
    :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_002.png
    :class: sphx-glr-single-img
 
@@ -353,13 +426,15 @@ defined, and separately for the voxels each tissue class dominates.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 419-434
+.. GENERATED FROM PYTHON SOURCE LINES 483-500
 
 Each coefficient map is the weight of one singular vector of the dictionary.
 The first resembles a proton-density-weighted image, since the first singular
 vector is close to the mean recovery curve; the later ones encode the
 differences between the curves of short and long :math:`T_1`, and are not
-images of a tissue contrast.
+images of a tissue contrast. The basis is orthonormal, so the noise is
+spread over the four maps alike while the signal falls with the singular
+value: the fourth map has the lowest signal-to-noise ratio of the four.
 
 Images at any inversion time
 ----------------------------
@@ -371,28 +446,40 @@ longitudinal magnetization is negative in every tissue; each tissue then
 passes through zero at its own null time, shortest for white matter, and
 approaches the steady state of the gradient-echo train.
 
-.. GENERATED FROM PYTHON SOURCE LINES 435-476
+.. GENERATED FROM PYTHON SOURCE LINES 501-531
 
 
 
 
-.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
-   :alt: magnitude images after the inversion, t = 33 ms, t = 295 ms, t = 447 ms, t = 1636 ms
-   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
+         :alt: t = 33 ms, t = 295 ms, t = 1636 ms
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_004.png
+         :alt: t = 295 ms, reference, frame by frame, subspace
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_004.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 477-489
+.. GENERATED FROM PYTHON SOURCE LINES 532-544
 
-The four frames are shortly after the inversion, when every tissue is
-inverted and bright in magnitude; at the null of white matter, which appears
-dark; at the null of grey matter, where white matter, only just past its own
-null, is dark as well; and at the end of the train, in the steady state.
-The recovered frames reproduce these contrast changes, each from its single
-spoke, with blurring at the tissue boundaries.
+The three frames are shortly after the inversion, when every tissue is
+inverted and bright in magnitude; at the null of white matter, which
+appears dark; and at the end of the train, in the steady state. The
+subspace reconstruction reproduces these contrast changes, each frame from
+its single spoke. The same frame reconstructed on its own is the streak
+pattern of one spoke, with no anatomy left in it.
 
 The curve of a single voxel shows the same with its sign. The complex
 signal is rotated so that its steady state is positive and real, and the
@@ -400,36 +487,13 @@ reconstruction, which determines the series up to a global complex scale
 because the data are normalized before the solve, is scaled to the
 reference in the least-squares sense.
 
-.. GENERATED FROM PYTHON SOURCE LINES 490-515
-
-
-
-
-.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_004.png
-   :alt: reference (thick) and recovered (dashed)
-   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_004.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 516-522
-
-The :math:`T_1` map
--------------------
-
-The maps are drawn with the lipari colormap [#fuderer]_, in a window that
-spans white and grey matter; cerebrospinal fluid, beyond it, saturates. The
-difference map is in milliseconds.
-
-.. GENERATED FROM PYTHON SOURCE LINES 523-540
+.. GENERATED FROM PYTHON SOURCE LINES 545-570
 
 
 
 
 .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_005.png
-   :alt: reference, fitted, |fitted - reference|
+   :alt: reference (thick) and subspace (dashed)
    :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_005.png
    :class: sphx-glr-single-img
 
@@ -437,36 +501,78 @@ difference map is in milliseconds.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 541-567
+.. GENERATED FROM PYTHON SOURCE LINES 571-577
+
+The :math:`T_1` map
+-------------------
+
+The maps are drawn with the lipari colormap [#fuderer]_, in a window that
+spans white and grey matter; cerebrospinal fluid, beyond it, saturates. The
+difference maps are relative to the reference :math:`T_1`.
+
+.. GENERATED FROM PYTHON SOURCE LINES 578-598
+
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_006.png
+         :alt: reference, frame by frame, subspace
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_006.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_007.png
+         :alt: frame by frame, subspace
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_007.png
+         :class: sphx-glr-multi-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 599-632
 
 The printed table compares the median fitted :math:`T_1` with the tabulated
-value in the voxels a single tissue class dominates. Grey matter agrees
-closely. White matter is overestimated, consistent with its recovered curve
-above, which lies between the reference curves of white and grey matter: the
-locally low-rank penalty shares information between neighbouring voxels,
-and the thin white-matter structures border grey matter everywhere.
+value in the interior of each tissue class. The frames reconstructed one at
+a time still yield a :math:`T_1` map: the aliasing of each frame differs
+from that of the next, so along the recovery curve it is incoherent, and
+the match to the dictionary rejects much of it, which is the principle of
+MR fingerprinting [#mrf]_. What it does not reject remains as a
+voxel-to-voxel scatter over the whole head, visible in the white matter of
+the difference map and in its standard deviation. The subspace
+reconstruction fits the coefficient maps to all spokes at once under the
+total-variation penalty, and inside each tissue its error is a fraction of
+that of the frame-by-frame match.
 
-Cerebrospinal fluid is strongly underestimated, and the difference map
-saturates in the ventricles. Its :math:`T_1` is poorly determined by this
-acquisition: the recovery observed during a gradient-echo train is governed
-by the apparent relaxation time
-:math:`T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}` [#deichmann]_, which
-for a flip angle :math:`\alpha` of 6 degrees and :math:`T_R` of 4.1 ms is
-below 750 ms for any :math:`T_1`. The curves of long :math:`T_1` therefore
-differ from each other by little more than the error of the reconstruction.
-A smaller flip angle or a longer train increases the sensitivity to long
-:math:`T_1`.
+Cerebrospinal fluid is the tissue the frame-by-frame match underestimates
+most. Its :math:`T_1` is poorly determined by this acquisition: the
+recovery observed during a gradient-echo train is governed by the apparent
+relaxation time :math:`T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}`
+[#deichmann]_, which for a flip angle :math:`\alpha` of 6 degrees and
+:math:`T_R` of 4.1 ms is below 750 ms for any :math:`T_1`. The curves of
+long :math:`T_1` therefore differ from each other by little, and noise
+moves the match along the dictionary; a smaller flip angle or a longer
+train increases the sensitivity to long :math:`T_1`.
 
-At the boundaries between tissues the fit is biased for a different reason:
-a voxel holding two tissues follows the sum of two recovery curves, which is
-not itself a recovery curve, and the dictionary entry that matches it best
-has a :math:`T_1` between the two. This partial-volume bias belongs to any
-voxelwise fit, not to the subspace.
+What both difference maps share is the rim of every tissue. A voxel holding
+two tissues follows the sum of two recovery curves, which is not itself a
+recovery curve, and the dictionary entry that matches it best has a
+:math:`T_1` between the two. This partial-volume bias belongs to any
+voxelwise fit, not to the subspace, and it is why the whole-head error is
+larger than the interior one for both. The scalp fat is a layer one to two
+voxels thick, with no interior at this resolution, and is fitted between
+its own :math:`T_1` and that of its neighbours.
 
 Estimating the parameters directly from k-space, without an intermediate
 series or a subspace, is :doc:`02-quantitative-models`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 570-588
+.. GENERATED FROM PYTHON SOURCE LINES 635-661
 
 References
 ----------
@@ -475,9 +581,17 @@ References
    shuffling: sharp, multicontrast, volumetric fast spin-echo imaging.
    *Magn Reson Med* 77(1):180-195 (2017). https://doi.org/10.1002/mrm.26102
 
+.. [#rof] Rudin LI, Osher S, Fatemi E. Nonlinear total variation based noise removal
+   algorithms. *Physica D* 60(1-4):259-268 (1992).
+   https://doi.org/10.1016/0167-2789(92)90242-F
+
 .. [#llr] Zhang T, Pauly JM, Levesque IR. Accelerating parameter mapping with a
    locally low rank constraint. *Magn Reson Med* 73(2):655-661 (2015).
    https://doi.org/10.1002/mrm.25161
+
+.. [#mrf] Ma D, Gulani V, Seiberlich N, Liu K, Sunshine JL, Duerk JL, Griswold MA.
+   Magnetic resonance fingerprinting. *Nature* 495(7440):187-192 (2013).
+   https://doi.org/10.1038/nature11971
 
 .. [#deichmann] Deichmann R, Haase A. Quantification of T1 values by SNAPSHOT-FLASH
    NMR imaging. *J Magn Reson* 96(3):608-612 (1992).
@@ -490,7 +604,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 8.104 seconds)
+   **Total running time of the script:** (0 minutes 15.079 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-subspace-t1-mapping.py:

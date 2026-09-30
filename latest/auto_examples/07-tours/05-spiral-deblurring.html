@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -588,11 +588,12 @@ through the orbitofrontal cortex and the temporal lobes, 128 x 128 over a
 220 mm field of view (1.7 mm in-plane). The field map is the <span class="math notranslate nohighlight">\(B_0\)</span>
 offset at 3 T produced by the susceptibility difference between air and
 tissue, <span class="math notranslate nohighlight">\(\Delta\chi = 9.4\)</span> ppm, computed in 3D with the dipole kernel
-and less a second-order shim fitted over the brain, rounded to 1 Hz and
-limited to <span class="math notranslate nohighlight">\(\pm 150\)</span> Hz. The offsets are largest in the scalp; in the
-brain they reach about <span class="math notranslate nohighlight">\(-40\)</span> Hz in the lateral temporal lobes and
-<span class="math notranslate nohighlight">\(+40\)</span> Hz in the orbitofrontal cortex, a phase of about one cycle over
-the readout below.</p>
+and less a second-order shim fitted over the brain, rounded to 1 Hz,
+limited to <span class="math notranslate nohighlight">\(\pm 150\)</span> Hz, and set to zero outside the head, where a
+measured field map has no signal to be estimated from. The offsets are
+largest in the scalp; in the brain they reach about <span class="math notranslate nohighlight">\(-40\)</span> Hz in the
+lateral temporal lobes and <span class="math notranslate nohighlight">\(+40\)</span> Hz in the orbitofrontal cortex, a
+phase of about one cycle over the readout below.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">SIZE</span><span class="p">,</span> <span class="n">FOV_MM</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span> <span class="mf">220.0</span><span class="w">
 </span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">head</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">brain</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">brain</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="n">values</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="w">
@@ -720,32 +721,49 @@ be constant over the extent of the blurring.</p>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h2>
-<p>Each image is compared with the reconstruction of the same kind on
-resonance, as the normalized root-mean-square error (NRMSE) over the brain.</p>
+<p>The spiral samples a disc of radius <span class="math notranslate nohighlight">\(k_{max}\)</span>, and the truncation of
+the object’s spectrum at its edge leaves ringing around the scalp in every
+reconstruction, on resonance too. The on-resonance reconstruction of each
+kind is therefore the best achievable with this readout, and each image is
+compared with the reconstruction of the same kind on resonance, as the
+normalized root-mean-square error (NRMSE) over the brain. The on-resonance
+reconstructions are compared with the object after a least-squares scaling.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">nrmse</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">truth</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">estimate</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">truth</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">truth</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">magnitude</span> <span class="o">=</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">magnitude</span> <span class="o">*</span> <span class="p">(</span><span class="n">magnitude</span> <span class="o">*</span> <span class="n">truth</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">magnitude</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="n">ground_truth</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span> <span class="o">*</span> <span class="n">head</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">on_resonance_image</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">gridding</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">CG</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_reference</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">error</span> <span class="o">=</span> <span class="n">nrmse</span><span class="p">(</span><span class="n">scaled</span><span class="p">(</span><span class="n">on_resonance_image</span><span class="p">,</span> <span class="n">ground_truth</span><span class="p">)</span><span class="p">,</span> <span class="n">ground_truth</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">'</span><span class="s1">, on resonance</span><span class="s1">'</span><span class="si">:</span><span class="s2">23s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> against the object</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">gridding, uncorrected   </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">blurred</span><span class="p">,</span><span class="w"> </span><span class="n">reference</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">gridding, MFI           </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">deblurred</span><span class="p">,</span><span class="w"> </span><span class="n">reference</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">CG, uncorrected         </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">model_uncorrected</span><span class="p">,</span><span class="w"> </span><span class="n">model_reference</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">CG, time-segmented      </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">model_based</span><span class="p">,</span><span class="w"> </span><span class="n">model_reference</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>gridding, uncorrected   0.079
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>gridding, on resonance  0.040 against the object
+CG, on resonance        0.016 against the object
+gridding, uncorrected   0.079
 gridding, MFI           0.046
 CG, uncorrected         0.088
-CG, time-segmented      0.029
+CG, time-segmented      0.028
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_05-spiral-deblurring_001.png" srcset="../../_images/sphx_glr_05-spiral-deblurring_001.png" alt="object, on-resonance gridding, field map at 3 T" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_05-spiral-deblurring_001.png" srcset="../../_images/sphx_glr_05-spiral-deblurring_001.png" alt="object, field map at 3 T" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_05-spiral-deblurring_002.png" srcset="../../_images/sphx_glr_05-spiral-deblurring_002.png" alt="on resonance, uncorrected, MFI, 12 frequencies, CG, 12 segments" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_05-spiral-deblurring_003.png" srcset="../../_images/sphx_glr_05-spiral-deblurring_003.png" alt="orbitofrontal region, on resonance, uncorrected, MFI, 12 frequencies, CG, 12 segments" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_05-spiral-deblurring_004.png" srcset="../../_images/sphx_glr_05-spiral-deblurring_004.png" alt="left temporal region, on resonance, uncorrected, MFI, 12 frequencies, CG, 12 segments" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_05-spiral-deblurring_005.png" srcset="../../_images/sphx_glr_05-spiral-deblurring_005.png" alt="uncorrected - reference, MFI - reference, CG, time-segmented - reference" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_05-spiral-deblurring_005.png" srcset="../../_images/sphx_glr_05-spiral-deblurring_005.png" alt="MFI - reference, CG, time-segmented - reference" class = "sphx-glr-multi-img"/></li>
 </ul>
-<p>Uncorrected, the cortex of the temporal lobes and of the orbitofrontal
-region is smeared over several voxels and the scalp is spread into a halo.
+<p>Uncorrected, the scalp, where the field is largest, is spread into a halo
+that overlaps the frontal and temporal cortex, and the cortex of the
+temporal lobes is smeared over a few voxels.
 MFI restores the brain to the accuracy of exact conjugate-phase
 reconstruction, one demodulation per distinct frequency of the field map.
 Its residual is concentrated in the scalp, where the field changes by tens
@@ -820,7 +838,7 @@ Trans Med Imaging</em> 22(2):178-188 (2003).
 <a class="reference external" href="https://doi.org/10.1109/TMI.2002.808360">https://doi.org/10.1109/TMI.2002.808360</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.346 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.885 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-05-spiral-deblurring-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/60108a61b10ba82e01e7cb68a8c0ff47/05-spiral-deblurring.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">05-spiral-deblurring.ipynb</span></code></a></p>

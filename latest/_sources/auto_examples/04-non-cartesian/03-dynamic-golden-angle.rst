@@ -114,7 +114,7 @@ exploits.
 
 
 .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_03-dynamic-golden-angle_001.png
-   :alt: phantom: before, during and after the first pass, frame 0, frame 2, frame 4, frame 15
+   :alt: phantom: before, during and after the first pass, frame 0, frame 4, frame 15
    :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_03-dynamic-golden-angle_001.png
    :class: sphx-glr-single-img
 
@@ -229,7 +229,7 @@ difference between a spatial and a temporal regularizer.
     *
 
       .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_03-dynamic-golden-angle_002.png
-         :alt: frame 4, the peak of the first pass: 13 spokes, reference, gridding, temporal TV
+         :alt: frame 4, peak of the first pass, 13 spokes, reference, gridding, temporal TV
          :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_03-dynamic-golden-angle_002.png
          :class: sphx-glr-multi-img
 
@@ -286,7 +286,7 @@ A perfusion study reports the signal in a region as a function of time, so
 the reconstructions are compared on that curve too. The region is the grey
 matter, where the enhancement is strongest.
 
-.. GENERATED FROM PYTHON SOURCE LINES 389-415
+.. GENERATED FROM PYTHON SOURCE LINES 389-416
 
 .. code-block:: Python
 
@@ -310,7 +310,7 @@ matter, where the enhancement is strongest.
 
 
 .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_03-dynamic-golden-angle_005.png
-   :alt: 03 dynamic golden angle
+   :alt: grey matter
    :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_03-dynamic-golden-angle_005.png
    :class: sphx-glr-single-img
 
@@ -325,7 +325,7 @@ matter, where the enhancement is strongest.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 416-424
+.. GENERATED FROM PYTHON SOURCE LINES 417-425
 
 Averaged over the grey matter, the streaks largely cancel, and gridding
 recovers the shape of the curve but not its level: part of the signal of
@@ -336,7 +336,7 @@ total-variation penalty flattens a signal change that lasts only a few
 frames more than any other feature, and a larger weight trades more of the
 peak for less noise.
 
-.. GENERATED FROM PYTHON SOURCE LINES 427-440
+.. GENERATED FROM PYTHON SOURCE LINES 428-441
 
 References
 ----------
@@ -355,7 +355,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.864 seconds)
+   **Total running time of the script:** (0 minutes 6.822 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_03-dynamic-golden-angle.py:

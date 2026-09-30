@@ -52,7 +52,7 @@ It follows :doc:`06-annealed-plug-and-play`. This lesson ends the course; the
 standalone examples of :doc:`../07-tours/index` apply the package to
 individual problems.
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-133
+.. GENERATED FROM PYTHON SOURCE LINES 37-146
 
 .. code-block:: Python
 
@@ -88,7 +88,7 @@ individual problems.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-140
+.. GENERATED FROM PYTHON SOURCE LINES 147-153
 
 Data
 ----
@@ -97,7 +97,7 @@ The slices, coils and fourfold undersampling of :doc:`04-staged-training`,
 with sixteen slices of subject 4: the first eight to calibrate on, the last
 eight to check the calibration on.
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-219
+.. GENERATED FROM PYTHON SOURCE LINES 154-232
 
 .. code-block:: Python
 
@@ -133,7 +133,7 @@ eight to check the calibration on.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 220-228
+.. GENERATED FROM PYTHON SOURCE LINES 233-241
 
 A network with dropout
 ----------------------
@@ -144,7 +144,7 @@ against references. Dropout is a regularizer during training; left active
 at inference it makes each reconstruction one draw from a family of
 networks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 229-255
+.. GENERATED FROM PYTHON SOURCE LINES 242-268
 
 .. code-block:: Python
 
@@ -189,7 +189,7 @@ networks.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 256-266
+.. GENERATED FROM PYTHON SOURCE LINES 269-279
 
 Two spreads
 -----------
@@ -202,7 +202,7 @@ reconstructs each time from a random eighty per cent of the acquired lines,
 drawn by :func:`~bartorch.learning.split`, which measures how much the image
 depends on individual samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 267-303
+.. GENERATED FROM PYTHON SOURCE LINES 280-316
 
 .. code-block:: Python
 
@@ -249,7 +249,7 @@ depends on individual samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 304-313
+.. GENERATED FROM PYTHON SOURCE LINES 317-326
 
 Calibration
 -----------
@@ -261,7 +261,7 @@ the fraction of voxels whose error falls within ``factor * spread`` is
 measured. Split conformal calibration guarantees that fraction on average
 over voxels and subjects drawn alike, not voxel by voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 314-331
+.. GENERATED FROM PYTHON SOURCE LINES 327-344
 
 .. code-block:: Python
 
@@ -296,7 +296,7 @@ over voxels and subjects drawn alike, not voxel by voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 332-350
+.. GENERATED FROM PYTHON SOURCE LINES 345-363
 
 The coverage on the test slices is close to the one asked for, for both
 spreads, although their factors differ: the calibration absorbs whatever
@@ -317,13 +317,13 @@ are weak, so the intervals are wider than the error over much of the white
 matter and narrower than it in parts of the cortex. The coverage is met on
 average over voxels, as the calibration guarantees, not voxel by voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 351-373
+.. GENERATED FROM PYTHON SOURCE LINES 364-389
 
 
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_07-uncertainty_001.png
-   :alt: reconstruction (dropout mean), |error|, 90% interval, dropout, 90% interval, k-space subsets
+   :alt: dropout mean, |error|, 90% interval, dropout, 90% interval, k-space subsets
    :srcset: /auto_examples/06-learning/images/sphx_glr_07-uncertainty_001.png
    :class: sphx-glr-single-img
 
@@ -331,7 +331,7 @@ average over voxels, as the calibration guarantees, not voxel by voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 374-384
+.. GENERATED FROM PYTHON SOURCE LINES 390-400
 
 References
 ----------
@@ -347,7 +347,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 45.436 seconds)
+   **Total running time of the script:** (1 minutes 35.686 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_07-uncertainty.py:

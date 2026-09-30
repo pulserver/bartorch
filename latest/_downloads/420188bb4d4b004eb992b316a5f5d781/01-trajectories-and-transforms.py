@@ -56,7 +56,7 @@ import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -256,7 +256,7 @@ print(f"{tuple(golden.shape)}: {SPOKES} shots of {SIZE} samples")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 2, figsize=(0.8 * WIDTH, 0.4 * WIDTH + 0.4))
+figure, axes = plt.subplots(1, 2, figsize=(0.85 * WIDTH, 0.45 * WIDTH + 0.4))
 for axis, arms, title in (
     (axes[0], uniform, "uniform"),
     (axes[1], golden, "golden angle"),
@@ -265,9 +265,11 @@ for axis, arms, title in (
         line = arms[spoke].real
         axis.plot(line[:, 0], line[:, 1], lw=0.8, color=f"C{spoke % 10}")
     axis.set_aspect("equal")
-    axis.set_title(f"{title}, first 24 spokes")
+    axis.set(xlim=(-68, 68), ylim=(-68, 68))
+    axis.set_title(title)
     axis.set_xlabel("$k_x$ [grid units]")
 axes[0].set_ylabel("$k_y$ [grid units]")
+figure.suptitle(f"first 24 of {SPOKES} spokes")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -411,13 +413,14 @@ for name, adjoint in (("adjoint", spiral_plain), ("compensated", spiral_compensa
 # sphinx_gallery_start_ignore
 figure, axes = plt.subplots(1, 2, figsize=(WIDTH, 0.42 * WIDTH), width_ratios=(1, 1.3))
 for arm in range(INTERLEAVES):
-    axes[0].plot(spiral[arm, :, 0], spiral[arm, :, 1], lw=0.6)
+    axes[0].plot(spiral[arm, :, 0], spiral[arm, :, 1], lw=0.5, color="0.75")
+axes[0].plot(spiral[0, :, 0], spiral[0, :, 1], lw=1.5, color="C0")
 axes[0].set_aspect("equal")
-axes[0].set_title(f"spiral, {INTERLEAVES} interleaves")
+axes[0].set_title(f"{INTERLEAVES} interleaves, interleaf 1 in blue")
 axes[0].set_xlabel("$k_x$ [grid units]")
 axes[0].set_ylabel("$k_y$ [grid units]")
 axes[1].plot(radius, spiral_density[0, :, 0].real, lw=1.2, label="Pipe-Menon estimate")
-axes[1].set_title("density compensation weight, one interleaf")
+axes[1].set_title("weight along interleaf 1")
 axes[1].set_xlabel("$|k|$ [grid units]")
 axes[1].set_ylabel("weight [a.u.]")
 plt.show()
@@ -433,8 +436,9 @@ plt.show()
 #
 # The estimated weight of an Archimedean spiral grows with the radius: the
 # interleaves are separated by a constant distance while the arc length
-# traversed per sample grows, so the samples are densest at the centre. At
-# the very edge the weight rises further, where the outermost turn has no
+# traversed per sample grows, so the samples are densest at the centre. The
+# weight oscillates with the period of the turns, levels off in the outer part
+# of k-space, and drops over the last samples, where the outermost turn has no
 # neighbour outside it. Without compensation the spiral adjoint is dominated
 # by the densely sampled low spatial frequencies and appears as a blurred,
 # low-contrast image; with the estimated weights the tissue contrast and the

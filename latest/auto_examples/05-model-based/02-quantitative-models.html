@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -630,7 +630,7 @@ each echo applied to its samples.</p>
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">E</span><span class="o">.</span><span class="n">ishape</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">E</span><span class="o">.</span><span class="n">oshape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_02-quantitative-models_001.png" srcset="../../_images/sphx_glr_02-quantitative-models_001.png" alt="sampled phase encodes (white) per echo" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(8, 64, 64) -&gt; (8, 8, 64, 64)
+<img src="../../_images/sphx_glr_02-quantitative-models_001.png" srcset="../../_images/sphx_glr_02-quantitative-models_001.png" alt="sampled phase encodes (white)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(8, 64, 64) -&gt; (8, 8, 64, 64)
 </pre></div>
 </div>
 </section>
@@ -672,8 +672,8 @@ the data.</p>
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
   warnings.warn(
-reconstruct, then fit:       2.7 s
-model inside the operator:   7.7 s
+reconstruct, then fit:       5.8 s
+model inside the operator:  16.6 s
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">E</span> <span class="pre">&#64;</span> <span class="pre">M</span></code> composes a linear operator with a nonlinear one; the derivative of
@@ -681,7 +681,7 @@ the composition at a point is the encoding applied to the derivative of the
 model, which is the derivative a Gauss-Newton step requires.</p>
 <p>The echo images of the first route show what its fit is given. They are
 compared here with the fully sampled echo images of the phantom.</p>
-<img src="../../_images/sphx_glr_02-quantitative-models_002.png" srcset="../../_images/sphx_glr_02-quantitative-models_002.png" alt="echo images, TE = 12.5 ms, TE = 37.5 ms, TE = 62.5 ms, TE = 100.0 ms" class = "sphx-glr-single-img"/><p>Each reconstructed echo carries residual aliasing and noise, which differ
+<img src="../../_images/sphx_glr_02-quantitative-models_002.png" srcset="../../_images/sphx_glr_02-quantitative-models_002.png" alt="TE = 12.5 ms, TE = 50.0 ms, TE = 100.0 ms" class = "sphx-glr-single-img"/><p>Each reconstructed echo carries residual aliasing and noise, which differ
 from echo to echo because each echo has its own sampling pattern. At the
 later echoes the signal has decayed and the relative error grows, so the
 late echoes, which determine <span class="math notranslate nohighlight">\(T_2\)</span> most, are also the least accurate.</p>
@@ -696,7 +696,7 @@ the fit above.</p>
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">apps.moba:                 </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s2">5.1f</span><span class="si">}</span><span class="s2"> s</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">estimates</span> <span class="o">=</span> <span class="p">{</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">reconstruct, then fit</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">two_step</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">T2</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">two-step</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">two_step</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">T2</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
 </span>    <span class="s2">&quot;</span><span class="s2">model-based</span><span class="s2">&quot;</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-nlop sphx-glr-backref-type-py-method reference internal" href="../../generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.split" title="bartorch.nlop.SignalModel.split"><span class="n">M</span><span class="o">.</span><span class="n">split</span></a><span class="p">(</span><span class="n">model_based</span><span class="p">)</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">T2</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
 </span>    <span class="s2">&quot;</span><span class="s2">apps.moba</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">one_call</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">T2</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
 </span><span class="p">}</span><span class="w">
@@ -708,16 +708,16 @@ the fit above.</p>
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">'</span><span class="s1">phantom</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;22</span><span class="si">}</span><span class="s2">  median </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">t2</span><span class="p">[</span><span class="n">support</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">5.1f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>apps.moba:                   8.5 s
- reconstruct, then fit  median  86.1 ms   relative error 0.483
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>apps.moba:                  16.8 s
+              two-step  median  86.1 ms   relative error 0.483
            model-based  median  81.5 ms   relative error 0.007
              apps.moba  median  81.3 ms   relative error 0.057
                phantom  median  81.5 ms
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_02-quantitative-models_003.png" srcset="../../_images/sphx_glr_02-quantitative-models_003.png" alt="$T_2$ maps, reference, reconstruct, then fit, model-based, apps.moba" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-quantitative-models_004.png" srcset="../../_images/sphx_glr_02-quantitative-models_004.png" alt="$T_2$ error, reconstruct, then fit, model-based, apps.moba" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-quantitative-models_003.png" srcset="../../_images/sphx_glr_02-quantitative-models_003.png" alt="reference, two-step, model-based, apps.moba" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-quantitative-models_004.png" srcset="../../_images/sphx_glr_02-quantitative-models_004.png" alt="$T_2$ error, two-step, model-based, apps.moba" class = "sphx-glr-multi-img"/></li>
 </ul>
 <p>The two-step <span class="math notranslate nohighlight">\(T_2\)</span> map is dominated by the errors of the echo images:
 a voxelwise fit cannot distinguish residual aliasing from decay, and in
@@ -764,7 +764,7 @@ et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
 93(2):490-506 (2025). <a class="reference external" href="https://doi.org/10.1002/mrm.30290">https://doi.org/10.1002/mrm.30290</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 19.389 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 40.278 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-model-based-02-quantitative-models-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/47b33f4aece6ac39ed97ce8e5f0ea6e3/02-quantitative-models.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-quantitative-models.ipynb</span></code></a></p>

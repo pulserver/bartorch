@@ -160,7 +160,7 @@ each echo applied to its samples.
 
 
 .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_001.png
-   :alt: sampled phase encodes (white) per echo
+   :alt: sampled phase encodes (white)
    :srcset: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_001.png
    :class: sphx-glr-single-img
 
@@ -247,8 +247,8 @@ the data.
 
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
       warnings.warn(
-    reconstruct, then fit:       2.7 s
-    model inside the operator:   7.7 s
+    reconstruct, then fit:       5.8 s
+    model inside the operator:  16.6 s
 
 
 
@@ -262,13 +262,13 @@ model, which is the derivative a Gauss-Newton step requires.
 The echo images of the first route show what its fit is given. They are
 compared here with the fully sampled echo images of the phantom.
 
-.. GENERATED FROM PYTHON SOURCE LINES 356-379
+.. GENERATED FROM PYTHON SOURCE LINES 356-371
 
 
 
 
 .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_002.png
-   :alt: echo images, TE = 12.5 ms, TE = 37.5 ms, TE = 62.5 ms, TE = 100.0 ms
+   :alt: TE = 12.5 ms, TE = 50.0 ms, TE = 100.0 ms
    :srcset: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_002.png
    :class: sphx-glr-single-img
 
@@ -276,7 +276,7 @@ compared here with the fully sampled echo images of the phantom.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-391
+.. GENERATED FROM PYTHON SOURCE LINES 372-383
 
 Each reconstructed echo carries residual aliasing and noise, which differ
 from echo to echo because each echo has its own sampling pattern. At the
@@ -290,7 +290,7 @@ the maps in their own units. It scales the data by the rule of
 starting maps rather than towards zero, so its result is not identical to
 the fit above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 392-410
+.. GENERATED FROM PYTHON SOURCE LINES 384-402
 
 .. code-block:: Python
 
@@ -300,7 +300,7 @@ the fit above.
     print(f"apps.moba:                 {time.perf_counter() - start_time:5.1f} s")
 
     estimates = {
-        "reconstruct, then fit": two_step["T2"],
+        "two-step": two_step["T2"],
         "model-based": M.split(model_based)["T2"],
         "apps.moba": one_call["T2"],
     }
@@ -320,8 +320,8 @@ the fit above.
 
  .. code-block:: none
 
-    apps.moba:                   8.5 s
-     reconstruct, then fit  median  86.1 ms   relative error 0.483
+    apps.moba:                  16.8 s
+                  two-step  median  86.1 ms   relative error 0.483
                model-based  median  81.5 ms   relative error 0.007
                  apps.moba  median  81.3 ms   relative error 0.057
                    phantom  median  81.5 ms
@@ -329,7 +329,7 @@ the fit above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 411-430
+.. GENERATED FROM PYTHON SOURCE LINES 403-421
 
 
 
@@ -340,14 +340,14 @@ the fit above.
     *
 
       .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_003.png
-         :alt: $T_2$ maps, reference, reconstruct, then fit, model-based, apps.moba
+         :alt: reference, two-step, model-based, apps.moba
          :srcset: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_003.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_004.png
-         :alt: $T_2$ error, reconstruct, then fit, model-based, apps.moba
+         :alt: $T_2$ error, two-step, model-based, apps.moba
          :srcset: /auto_examples/05-model-based/images/sphx_glr_02-quantitative-models_004.png
          :class: sphx-glr-multi-img
 
@@ -355,7 +355,7 @@ the fit above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 431-453
+.. GENERATED FROM PYTHON SOURCE LINES 422-444
 
 The two-step :math:`T_2` map is dominated by the errors of the echo images:
 a voxelwise fit cannot distinguish residual aliasing from decay, and in
@@ -380,7 +380,7 @@ penalizes the maps rather than the echo images. Without ``sensitivities``,
 with an image. :doc:`../../explanation/nonlinear` explains the model-based
 approach in more detail.
 
-.. GENERATED FROM PYTHON SOURCE LINES 456-471
+.. GENERATED FROM PYTHON SOURCE LINES 447-462
 
 References
 ----------
@@ -401,7 +401,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 19.389 seconds)
+   **Total running time of the script:** (0 minutes 40.278 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_02-quantitative-models.py:

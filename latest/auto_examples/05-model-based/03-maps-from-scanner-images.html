@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -600,10 +600,10 @@ millimetres; every echo has to cover the same slices.</p>
 voxel size 1.7 x 1.7 x 4.0 mm
 </pre></div>
 </div>
-<p>The images of four of the echoes, on one window: the cerebrospinal fluid in
+<p>The images of three of the echoes, on one window: the cerebrospinal fluid in
 the ventricles, with the longest <span class="math notranslate nohighlight">\(T_2\)</span>, keeps its signal across the
 train while the scalp fat loses most of it.</p>
-<img src="../../_images/sphx_glr_03-maps-from-scanner-images_001.png" srcset="../../_images/sphx_glr_03-maps-from-scanner-images_001.png" alt="TE 10 ms, TE 30 ms, TE 50 ms, TE 80 ms" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_03-maps-from-scanner-images_001.png" srcset="../../_images/sphx_glr_03-maps-from-scanner-images_001.png" alt="TE 10 ms, TE 40 ms, TE 80 ms" class = "sphx-glr-single-img"/></section>
 <section id="fitting-the-decay">
 <h2>Fitting the decay<a class="headerlink" href="#fitting-the-decay" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="../../generated/bartorch.nlop.MultiEcho.html#bartorch.nlop.MultiEcho" title="bartorch.nlop.MultiEcho"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.MultiEcho</span></code></a> is built on the echo times the files state
@@ -660,7 +660,11 @@ largest affine difference 2.0e-06 mm
 were simulated with, and the difference between them. The error is largest
 in the cerebrospinal fluid, where eight echoes over 80 ms sample only the
 start of a 250 ms decay.</p>
-<img src="../../_images/sphx_glr_03-maps-from-scanner-images_002.png" srcset="../../_images/sphx_glr_03-maps-from-scanner-images_002.png" alt="simulated, fitted, |fitted - simulated|" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 30.678 seconds)</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_03-maps-from-scanner-images_002.png" srcset="../../_images/sphx_glr_03-maps-from-scanner-images_002.png" alt="simulated, fitted" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-maps-from-scanner-images_003.png" srcset="../../_images/sphx_glr_03-maps-from-scanner-images_003.png" alt="|fitted - simulated|" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 49.459 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-model-based-03-maps-from-scanner-images-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/fb5acc4c74a00cd9ce7ab2e04e9bff59/03-maps-from-scanner-images.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-maps-from-scanner-images.ipynb</span></code></a></p>

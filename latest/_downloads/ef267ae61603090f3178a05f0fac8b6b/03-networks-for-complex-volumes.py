@@ -40,13 +40,13 @@ It follows :doc:`02-modl-with-admm`. The next lesson,
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
+PAGE_WIDTH = 7.8  # inches, the width of the documentation column
 
 
-def panels(rows, columns):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side))
+def panels(rows, columns, width=PAGE_WIDTH, bar=False):
+    """A grid of square image panels, with room for one colorbar on the right if ``bar``."""
+    side = (width - (0.9 if bar else 0.0)) / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.45))
     for axis in axes.ravel():
         axis.set_xticks([])
         axis.set_yticks([])
@@ -67,43 +67,56 @@ def nrmse(made, truth):
     return float((made.abs() - truth.abs()).norm() / truth.abs().norm())
 
 
-def compare(truth, results, crop, gain=3.0):
-    """The reference and each result, whole, magnified on ``crop``, and their errors.
-
-    Row one holds whole images, row two the region ``crop`` magnified, row
-    three the magnitude error multiplied by ``gain`` on the scale of the
-    reference, with the NRMSE of each result.
-    """
-    columns = 1 + len(results)
-    figure, axes = panels(3, columns)
-    top = float(truth.abs().max())
+def outline(axis, crop):
     rows, cols = crop
-    show(axes[0, 0], truth, "reference", vmax=top)
-    axes[0, 0].add_patch(
+    axis.add_patch(
         Rectangle(
-            (cols.start, rows.start),
+            (cols.start - 0.5, rows.start - 0.5),
             cols.stop - cols.start,
             rows.stop - rows.start,
             fill=False,
             edgecolor="#e8a33d",
-            linewidth=1.2,
+            linewidth=1.5,
         )
     )
-    show(axes[1, 0], truth[crop], vmax=top)
-    axes[2, 0].text(
-        0.5, 0.5, f"error\n× {gain:g}", ha="center", va="center", transform=axes[2, 0].transAxes
-    )
-    for column, (name, made) in enumerate(results.items(), start=1):
-        show(axes[0, column], made, name, vmax=top)
-        show(axes[1, column], made[crop], vmax=top)
-        show(
-            axes[2, column],
-            gain * (made.abs() - truth.abs()),
-            f"NRMSE {nrmse(made, truth):.3f}",
-            vmax=top,
-            cmap="magma",
+
+
+def compare(truth, results, crop, scale=None):
+    """The reference and each result, whole and magnified on ``crop``, then the errors.
+
+    With at most three images, the whole images and the magnified regions are
+    the two rows of one figure; with more, each is a figure of its own. The
+    last figure holds the magnitude error of each result relative to the peak
+    of the reference, on one window ``scale`` shared by all of them (by
+    default the 99th percentile of the largest error), and the NRMSE.
+    """
+    top = float(truth.abs().max())
+    names = ["reference", *results]
+    images = [truth, *results.values()]
+    if len(images) <= 3:
+        figure, axes = panels(2, len(images))
+        whole, magnified = axes[0], axes[1]
+    else:
+        columns = (len(images) + 1) // 2
+        whole = panels(2, columns)[1].ravel()
+        magnified = panels(2, columns)[1].ravel()
+    for axis, name, image in zip(whole, names, images):
+        show(axis, image, name, vmax=top)
+    outline(whole[0], crop)
+    for axis, name, image in zip(magnified, names, images):
+        show(axis, image[crop], f"{name}, enlarged" if len(images) > 3 else None, vmax=top)
+    if len(images) <= 3:
+        magnified[0].set_ylabel("enlarged")
+
+    difference = [(made.abs() - truth.abs()).abs() / top for made in results.values()]
+    if scale is None:
+        scale = max(float(torch.quantile(d.flatten(), 0.99)) for d in difference)
+    figure, axes = panels(1, len(results), bar=True)
+    for axis, name, made, error in zip(axes[0], results, results.values(), difference):
+        handle = show(
+            axis, error, f"{name}\nNRMSE {nrmse(made, truth):.3f}", vmax=scale, cmap="magma"
         )
-    return figure
+    figure.colorbar(handle, ax=axes[0], fraction=0.046, label="|error| / peak")
 
 
 # sphinx_gallery_end_ignore
@@ -189,7 +202,7 @@ print(f"test volume {tuple(test_volume.shape)}, {test_volume.dtype}")
 figure, axes = panels(2, 3)
 for column, name in enumerate(CONTRASTS):
     show(axes[0, column], test_volume[column, SIZE // 2], name)
-    show(axes[1, column], noisy[column, SIZE // 2], "noisy" if 0 == column else None)
+    show(axes[1, column], noisy[column, SIZE // 2], f"{name}, noisy")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -329,16 +342,17 @@ compare(
     test_volume[cut],
     {"noisy": noisy[cut], "denoised, whole": whole[cut]},
     crop=(slice(14, 46), slice(16, 48)),
-    gain=5.0,
 )
 plt.show()
 
-figure, axes = panels(1, 2)
-departure_grid = (grid - whole)[cut].abs()
-departure_avg = (averaged - whole)[cut].abs()
+figure, axes = panels(1, 2, bar=True)
+top = float(test_volume[cut].abs().max())
+departure_grid = (grid - whole)[cut].abs() / top
+departure_avg = (averaged - whole)[cut].abs() / top
 scale = float(departure_grid.max())
 show(axes[0, 0], departure_grid, "fixed grid − whole", vmax=scale, cmap="magma")
-show(axes[0, 1], departure_avg, "8 random grids − whole", vmax=scale, cmap="magma")
+handle = show(axes[0, 1], departure_avg, "8 random grids − whole", vmax=scale, cmap="magma")
+figure.colorbar(handle, ax=axes[0], fraction=0.046, label="|departure| / peak")
 plt.show()
 # sphinx_gallery_end_ignore
 

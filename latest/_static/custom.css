@@ -56,3 +56,13 @@ html[data-theme="dark"] .bd-content img.sphx-glr-multi-img {
   background-color: transparent;
   filter: none;
 }
+
+/* A code cell that shows several figures lists them one under another at
+   full width, each at the size it was drawn, rather than side by side at
+   less than half of it. */
+ul.sphx-glr-horizontal li { display: block; }
+.bd-content img.sphx-glr-multi-img {
+  display: block;
+  margin: 0 auto 1rem;
+  max-width: 100%;
+}

@@ -37,13 +37,16 @@ acquisition with the functions introduced here.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
-    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+def panels(columns, rows=1, width=WIDTH, bars=0):
+    """A row (or grid) of frameless square image panels, leaving room for
+    ``bars`` colorbars in each row."""
+    side = (width - 0.9 * bars) / columns
+    figure, axes = plt.subplots(
+        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+    )
     for axis in axes.flat:
         axis.set_axis_off()
     return figure, axes
@@ -105,14 +108,13 @@ print(f"combined {tuple(combined.shape)}")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(4)
-# The skull is the brightest structure; a window at half the peak shows the
+figure, axes = panels(2, rows=2, width=0.8 * WIDTH)
+# The skull is the brightest structure; a window at a third of the peak shows the
 # brain, where the sensitivity shading is read.
-peak = 0.5 * float(coil_images.abs().max())
-for column, channel in enumerate((0, 2, 4, 6)):
-    axes[0, column].imshow(coil_images[channel, 0].abs(), vmin=0, vmax=peak)
-    axes[0, column].set_title(f"channel {channel}")
-figure.suptitle("single-channel magnitude images")
+peak = float(coil_images.abs().max()) / 3
+for axis, channel in zip(axes.flat, (0, 2, 4, 6)):
+    axis.imshow(coil_images[channel, 0].abs(), vmin=0, vmax=peak)
+    axis.set_title(f"channel {channel}")
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -150,7 +152,7 @@ print(f"norm ratio image/k-space: {float(coil_images.norm() / kspace.norm()):.6f
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(2, width=6.4)
+figure, axes = panels(2, bars=1)
 axes[0, 0].imshow(combined[0].abs(), vmin=0, vmax=float(combined.abs().max()))
 axes[0, 0].set_title("root sum of squares")
 log_k = torch.log10(kspace[0, 0].abs() / kspace.abs().max()).clamp(min=-5)
@@ -193,7 +195,7 @@ print(f"relative difference from the sampled phantom: {error:.3f}")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(3)
+figure, axes = panels(3, bars=1)
 axes[0, 0].imshow(image.abs(), vmin=0, vmax=1)
 axes[0, 0].set_title("sampled phantom")
 axes[0, 1].imshow(truncated.abs(), vmin=0, vmax=1)
@@ -203,11 +205,12 @@ axes[0, 2].set_title("|difference|")
 figure.colorbar(handle, ax=axes[0, 2], fraction=0.046, label="fraction of peak")
 
 row = SIZE // 2
-figure, axes = plt.subplots(1, 2, figsize=(WIDTH, 3.0), width_ratios=(2, 1))
+figure, axes = plt.subplots(1, 2, figsize=(WIDTH, 3.6), width_ratios=(2, 1))
 for axis, limits in zip(axes, ((0, SIZE - 1), (4, 30))):
     axis.plot(image[row].abs(), color="C0", lw=1.8, label="sampled phantom")
     axis.plot(truncated[row].abs(), color="C1", lw=1.2, label="from analytical k-space")
     axis.set_xlim(*limits)
+    axis.set_ylim(-0.05, 1.5)
     axis.set_xlabel("x [voxel]")
 axes[0].set_ylabel("magnitude")
 axes[0].set_title(f"profile along row {row}")

@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -604,7 +604,7 @@ the same anatomy in every frame, which is the structure the temporal penalty
 exploits.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">CLASSES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">grey matter</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">GM</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">white matter</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">WM</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span><span class="p">}</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_03-dynamic-golden-angle_001.png" srcset="../../_images/sphx_glr_03-dynamic-golden-angle_001.png" alt="phantom: before, during and after the first pass, frame 0, frame 2, frame 4, frame 15" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_03-dynamic-golden-angle_001.png" srcset="../../_images/sphx_glr_03-dynamic-golden-angle_001.png" alt="phantom: before, during and after the first pass, frame 0, frame 4, frame 15" class = "sphx-glr-single-img"/></section>
 <section id="acquisition">
 <h2>Acquisition<a class="headerlink" href="#acquisition" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">FRAMES</span> <span class="pre">*</span> <span class="pre">SPOKES</span></code> spokes are generated as one golden-angle trajectory and
@@ -661,7 +661,7 @@ given <code class="docutils literal notranslate"><span class="pre">(-1,</span> <
 all three would penalize both; the axes a term acts on are the whole
 difference between a spatial and a temporal regularizer.</p>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_03-dynamic-golden-angle_002.png" srcset="../../_images/sphx_glr_03-dynamic-golden-angle_002.png" alt="frame 4, the peak of the first pass: 13 spokes, reference, gridding, temporal TV" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-dynamic-golden-angle_002.png" srcset="../../_images/sphx_glr_03-dynamic-golden-angle_002.png" alt="frame 4, peak of the first pass, 13 spokes, reference, gridding, temporal TV" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_03-dynamic-golden-angle_003.png" srcset="../../_images/sphx_glr_03-dynamic-golden-angle_003.png" alt="error magnitude, frame 4, gridding, temporal TV" class = "sphx-glr-multi-img"/></li>
 </ul>
 <p>In the gridding reconstruction the streaks of thirteen spokes dominate the
@@ -698,7 +698,7 @@ matter, where the enhancement is strongest.</p>
 </span>    <span class="n">enhancement</span> <span class="o">=</span> <span class="n">volume</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="n">region</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">  curve NRMSE </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">enhancement</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">truth</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_03-dynamic-golden-angle_005.png" srcset="../../_images/sphx_glr_03-dynamic-golden-angle_005.png" alt="03 dynamic golden angle" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>   gridding  curve NRMSE 0.153
+<img src="../../_images/sphx_glr_03-dynamic-golden-angle_005.png" srcset="../../_images/sphx_glr_03-dynamic-golden-angle_005.png" alt="grey matter" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>   gridding  curve NRMSE 0.153
 temporal TV  curve NRMSE 0.039
 </pre></div>
 </div>
@@ -730,7 +730,7 @@ fast and flexible dynamic volumetric MRI. <em>Magn Reson Med</em> 72(3):707-717
 (2014). <a class="reference external" href="https://doi.org/10.1002/mrm.24980">https://doi.org/10.1002/mrm.24980</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.864 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.822 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-non-cartesian-03-dynamic-golden-angle-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/8f4e479a751b2577323267ccb5b73786/03-dynamic-golden-angle.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-dynamic-golden-angle.ipynb</span></code></a></p>

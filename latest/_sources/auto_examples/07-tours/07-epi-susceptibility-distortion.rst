@@ -26,39 +26,46 @@ In an echo-planar image, the phase-encoding direction is sampled at the echo
 spacing rather than the dwell time, so its bandwidth per pixel is a few tens of
 hertz. A spin off resonance by :math:`\Delta f` is displaced along the
 phase-encoding axis by :math:`\Delta f` divided by that bandwidth, which near
-the frontal sinus and the petrous bone amounts to several voxels at 3 T: the
-orbitofrontal cortex is compressed or stretched, and signal piles up where
-neighbouring voxels are displaced onto the same location.
+the frontal sinus and the petrous bone amounts to several millimetres at 3 T:
+the orbitofrontal cortex and the temporal poles are compressed or stretched,
+and signal piles up where neighbouring voxels are displaced onto the same
+location.
 
 The displacement changes sign with the direction in which k-space is
 traversed. Two acquisitions with opposite phase-encoding polarity,
 *blip-up* and *blip-down*, are distorted in opposite directions, and the
 displacement field that brings them into register is the correction
-[#andersson]_. This example simulates such a pair of a head at 3 T in a
-:math:`B_0` field computed from the magnetic susceptibility of the head, and
-corrects it with :func:`bartorch.tools.correct_susceptibility`, which runs
-PyHySCO [#pyhysco]_.
+[#andersson]_. This example corrects such a pair, measured at 3 T and
+published on OpenNeuro [#ds001600]_, with
+:func:`bartorch.tools.correct_susceptibility`, which runs PyHySCO [#pyhysco]_,
+and compares the estimated displacement with the one predicted by a
+gradient-echo field map of the same subject.
 
 **Learning objectives**
 
-* Compute the displacement of an EPI voxel from its off-resonance frequency,
-  the echo spacing and the number of phase-encoding lines.
+* Read a BIDS EPI series and its sidecar, and compute the bandwidth per pixel
+  along phase encoding and the displacement per hertz of off-resonance.
+* State the direction of the displacement in anatomical terms from the
+  phase-encoding direction and the image orientation.
 * Recognise the compression, stretching and signal pile-up of susceptibility
   distortion, and their reversal between the two phase-encoding polarities.
 * Estimate the displacement field from a reversed phase-encoding pair and
   correct both images, including their intensity.
-* Assess the estimated displacement against the field map it originates
-  from.
+* Assess the estimated displacement against an independent field map, and the
+  correction by the agreement of the two corrected images.
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-116
+.. GENERATED FROM PYTHON SOURCE LINES 40-74
 
 .. code-block:: Python
 
+
+    import json
 
     import torch
+    from nibabel.orientations import aff2axcodes
 
-    import bartorch
     import bartorch.tools as bt
+    from bartorch.io import read_nifti
 
 
 
@@ -67,31 +74,41 @@ PyHySCO [#pyhysco]_.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-128
+.. GENERATED FROM PYTHON SOURCE LINES 75-86
 
-Object and field map
---------------------
+The data
+--------
 
-The object is a slab of eleven axial slices of the BrainWeb T2-weighted head
-[#brainweb]_, 3 mm apart, through the orbitofrontal cortex and the temporal
-lobes, on a 96 x 96 matrix over a 220 mm field of view (2.3 mm in-plane).
-T2 weighting stands in for the :math:`b = 0` image of a diffusion
-acquisition. The field map is the :math:`B_0` offset at 3 T produced by the susceptibility
-difference between air and tissue, :math:`\Delta\chi = 9.4` ppm, computed in
-3D with the dipole kernel and less a second-order shim fitted over the brain,
-rounded to 1 Hz and limited to :math:`\pm 150` Hz.
+The dataset holds gradient-echo EPI series of one subject acquired on a
+Siemens Prisma at 3 T, 64 x 64 matrix, 44 axial slices, 3.75 x 3.75 x 4 mm,
+with the same protocol and shim and opposite phase-encoding polarity, and a
+dual-echo gradient-echo field map on the same grid. Each EPI series has five
+volumes; their mean is taken to raise the signal-to-noise ratio.
+:func:`~bartorch.io.read_nifti` returns the volumes as ``(volumes, z, y,
+x)`` and the affine from voxel indices ``(x, y, z)`` to RAS millimetres;
+the sidecars hold the timings of the readout.
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-142
+.. GENERATED FROM PYTHON SOURCE LINES 87-105
 
 .. code-block:: Python
 
 
-    SIZE, FOV_MM, SLICE_MM = 96, 220.0, 3.0
-    VOXEL_MM = (SLICE_MM, FOV_MM / SIZE, FOV_MM / SIZE)
-    print(f"slab {tuple(image.shape)}, voxel {VOXEL_MM[1]:.1f} x {VOXEL_MM[2]:.1f} x {SLICE_MM} mm")
-    for name, region in (("head", head), ("brain", brain)):
-        values = field_map[region]
-        print(f"field over the {name}: {float(values.min()):+.0f} to {float(values.max()):+.0f} Hz")
+    blip_up_file = CACHE / "sub-1/fmap/sub-1_dir-PA_epi"
+    blip_down_file = CACHE / "sub-1/func/sub-1_task-rest_acq-AP_bold"
+    blip_up = read_nifti(f"{blip_up_file}.nii.gz")
+    blip_down = read_nifti(f"{blip_down_file}.nii.gz")
+    sidecar_up = json.loads(Path(f"{blip_up_file}.json").read_text())
+    sidecar_down = json.loads(Path(f"{blip_down_file}.json").read_text())
+
+    affine = blip_up.affine
+    voxel_mm = tuple(float(v) for v in affine[:3, :3].norm(dim=0).flip(0))  # (z, y, x)
+    print(f"{tuple(blip_up.image.shape)} volumes, voxel (z, y, x) {voxel_mm} mm")
+    print("voxel axes x, y, z point to", "".join(aff2axcodes(affine.numpy())))
+    for label, sidecar in (("blip-up", sidecar_up), ("blip-down", sidecar_down)):
+        print(f"{label:9s} {sidecar['SeriesDescription']}: {sidecar['PhaseEncodingDirection']}")
+
+    up = blip_up.image.mean(0)
+    down = blip_down.image.mean(0)
 
 
 
@@ -101,25 +118,29 @@ rounded to 1 Hz and limited to :math:`\pm 150` Hz.
 
  .. code-block:: none
 
-    slab (11, 96, 96), voxel 2.3 x 2.3 x 3.0 mm
-    field over the head: -150 to +150 Hz
-    field over the brain: -67 to +59 Hz
+    (5, 44, 64, 64) volumes, voxel (z, y, x) (4.0, 3.75, 3.75) mm
+    voxel axes x, y, z point to LAS
+    blip-up   BOLD_3mm_matched_0.55esp_topup: j
+    blip-down BOLD_3mm_matched_0.55esp: j-
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-167
+.. GENERATED FROM PYTHON SOURCE LINES 106-131
+
+The voxel axis ``x`` points to the subject's left and ``y`` to anterior, so
+``PhaseEncodingDirection`` ``j`` is posterior to anterior and ``j-`` anterior
+to posterior: phase encoding is along the anterior-posterior axis of the
+head and the readout left-right. The figures show the slices with anterior
+at the top and the subject's left on the right.
 
 Displacement along the phase-encoding axis
 ------------------------------------------
 
-The phase-encoding axis is anterior-posterior and the readout is
-left-right. With :math:`N` phase-encoding lines acquired at echo spacing
-:math:`\Delta t_{esp}`, line :math:`n` is sampled at
-:math:`t_n = n\, \Delta t_{esp}` relative to the echo time, with
-:math:`k_y = n` in grid units from :math:`-N/2` to :math:`N/2 - 1`. The
-phase accrued off resonance, :math:`2\pi \Delta f\, t_n`, is then linear in
-:math:`k_y`, which is a displacement by
+With :math:`N` phase-encoding lines acquired at the effective echo spacing
+:math:`\Delta t_{esp}` (the echo spacing divided by any parallel-imaging
+acceleration), the phase accrued off resonance is linear in :math:`k_y`,
+which is a displacement by
 
 .. math::
 
@@ -127,26 +148,30 @@ phase accrued off resonance, :math:`2\pi \Delta f\, t_n`, is then linear in
    \mathrm{BW}_{PE} = \frac{1}{N\, \Delta t_{esp}},
 
 with :math:`\mathrm{BW}_{PE}` the bandwidth per pixel along the
-phase-encoding axis. Reversing the phase-encoding blips traverses
-:math:`k_y` in the opposite order, :math:`t_n = -n\, \Delta t_{esp}`, and
-reverses the displacement. The readout, sampled at a dwell time of a few
-microseconds, has a bandwidth per pixel over a kilohertz and its
-displacement is neglected. An echo spacing of 0.6 ms without parallel
-imaging is typical of a single-shot diffusion acquisition at this
-resolution.
+phase-encoding axis; BIDS writes :math:`(N - 1)\,\Delta t_{esp}` as
+``TotalReadoutTime``. The displacement is along ``PhaseEncodingDirection``
+for a positive :math:`\Delta f`, and reversing the blips reverses it. The
+readout, at a bandwidth per pixel of ``PixelBandwidth``, is displaced by a
+fraction of a voxel, which is neglected.
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-178
+.. GENERATED FROM PYTHON SOURCE LINES 132-148
 
 .. code-block:: Python
 
 
-    ECHO_SPACING_S = 0.6e-3
-    bandwidth_pe = 1 / (SIZE * ECHO_SPACING_S)
-    displacement_mm = field_map / bandwidth_pe * VOXEL_MM[1]
-    print(f"bandwidth per pixel along phase encoding: {bandwidth_pe:.1f} Hz")
+    lines = sidecar_up["AcquisitionMatrixPE"]
+    echo_spacing = sidecar_up["EffectiveEchoSpacing"]
+    bandwidth_pe = 1 / (lines * echo_spacing)
+    print(f"{lines} lines at an effective echo spacing of {1e3 * echo_spacing:.2f} ms")
     print(
-        f"displacement over the brain: {float(displacement_mm[brain].min()):+.1f} to "
-        f"{float(displacement_mm[brain].max()):+.1f} mm"
+        f"bandwidth per pixel: {bandwidth_pe:.1f} Hz along phase encoding "
+        f"(sidecar {sidecar_up['BandwidthPerPixelPhaseEncode']} Hz), "
+        f"{sidecar_up['PixelBandwidth']} Hz along the readout"
+    )
+    print(f"total readout time {1e3 * sidecar_up['TotalReadoutTime']:.2f} ms")
+    print(
+        f"100 Hz off resonance: {100 / bandwidth_pe:.1f} voxels = "
+        f"{100 / bandwidth_pe * voxel_mm[1]:.1f} mm along phase encoding"
     )
 
 
@@ -157,54 +182,59 @@ resolution.
 
  .. code-block:: none
 
-    bandwidth per pixel along phase encoding: 17.4 Hz
-    displacement over the brain: -8.8 to +7.8 mm
+    64 lines at an effective echo spacing of 0.55 ms
+    bandwidth per pixel: 28.4 Hz along phase encoding (sidecar 28.409 Hz), 2055 Hz along the readout
+    total readout time 34.65 ms
+    100 Hz off resonance: 3.5 voxels = 13.2 mm along phase encoding
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-189
+.. GENERATED FROM PYTHON SOURCE LINES 149-159
 
-The acquisition
----------------
+Reference field map
+-------------------
 
-Each column of each slice is simulated exactly for the field map: the
-phase-encoding line :math:`n` is the Fourier sum over the column,
-:math:`s_n = \sum_y x(y)\, e^{-2\pi i k_n y / N}\, e^{2\pi i \Delta f(y)\,
-t_n}`, and the image is its inverse transform along the phase-encoding axis
-with :func:`bartorch.ifft`. The blip-up image is the one acquired with
-:math:`t_n = -n\, \Delta t_{esp}`, whose voxels are displaced by
-:math:`+d`, towards posterior for a positive offset.
+The gradient-echo field map is the phase difference :math:`\Delta\phi`
+between two echoes, stored by the scanner as integers from 0 to 4095 for
+:math:`-\pi` to :math:`\pi`, and the off-resonance is
+:math:`\Delta f = \Delta\phi / (2\pi\, \Delta\mathrm{TE})`. The phase is
+smoothed as a complex exponential over one voxel. The displacement it
+predicts for the blip-up image is
+:math:`\Delta f / \mathrm{BW}_{PE}` voxels towards anterior.
 
-.. GENERATED FROM PYTHON SOURCE LINES 190-207
+.. GENERATED FROM PYTHON SOURCE LINES 160-184
 
 .. code-block:: Python
 
 
-    k_y = torch.arange(SIZE, dtype=torch.float64) - SIZE // 2
-    encoding = torch.exp(-2j * torch.pi * torch.outer(k_y, k_y) / SIZE) / SIZE**0.5  # (n, y)
-
-
-    def acquire(polarity):
-        line_time = polarity * k_y * ECHO_SPACING_S
-        accrued = torch.polar(
-            torch.ones((), dtype=torch.float64),
-            2 * torch.pi * line_time[:, None, None, None] * field_map.double(),
-        )
-        lines = torch.einsum("ny,nzyx,zyx->znx", encoding, accrued, image.to(torch.complex128))
-        return bartorch.ifft(lines.to(torch.complex64), axes=1, unitary=True).abs()
-
-
-    blip_up, blip_down = acquire(-1), acquire(+1)
+    phase_file = CACHE / "sub-1/fmap/sub-1_acq-v4_phasediff"
+    sidecar_phase = json.loads(Path(f"{phase_file}.json").read_text())
+    phase = (read_nifti(f"{phase_file}.nii.gz").image[0] - 2048) / 2048 * torch.pi
+    magnitude = read_nifti(str(CACHE / "sub-1/fmap/sub-1_acq-v4_magnitude1.nii.gz")).image[0]
+    delta_te = sidecar_phase["EchoTime2"] - sidecar_phase["EchoTime1"]
+    off_resonance = phase / (2 * torch.pi * delta_te)
+    predicted_mm = off_resonance / bandwidth_pe * voxel_mm[1]
+    print(
+        f"echo times {1e3 * sidecar_phase['EchoTime1']:.2f} and "
+        f"{1e3 * sidecar_phase['EchoTime2']:.2f} ms: unambiguous within "
+        f"+/-{1 / (2 * delta_te):.0f} Hz"
+    )
 
 
 
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    echo times 4.00 and 6.46 ms: unambiguous within +/-203 Hz
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 208-220
+
+.. GENERATED FROM PYTHON SOURCE LINES 185-199
 
 Correction from the reversed pair
 ---------------------------------
@@ -212,21 +242,23 @@ Correction from the reversed pair
 PyHySCO estimates the displacement field :math:`b` for which the blip-up
 image sampled at :math:`y + b` and the blip-down image sampled at
 :math:`y - b`, each multiplied by the Jacobian determinant of its
-transformation, agree. The Jacobian factor restores the intensity of voxels
-compressed into a pile-up or stretched over several voxels. A smoothness
-penalty on :math:`b` and a constraint that keeps both transformations
-invertible regularize the problem; the estimation is three-dimensional, and
-:func:`~bartorch.tools.correct_susceptibility` takes the slab with its voxel
-size and returns :math:`b` in millimetres.
+transformation, :math:`1 \pm \partial b / \partial y`, agree. The Jacobian
+factor restores the intensity of voxels compressed into a pile-up or
+stretched over several voxels. A smoothness penalty on :math:`b` and a
+constraint that keeps both transformations invertible regularize the
+problem. The estimation is three-dimensional: the volume is passed with its
+voxel size and the phase-encoding axis ``y``, and :math:`b` is returned in
+millimetres along the voxel axis ``y``, that is towards anterior, on the
+faces between voxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 221-226
+.. GENERATED FROM PYTHON SOURCE LINES 200-215
 
 .. code-block:: Python
 
 
-    result = bt.correct_susceptibility(blip_up, blip_down, voxel_size=VOXEL_MM, phase_encoding_axis=1)
-    corrected = 0.5 * (result.blip_up + result.blip_down).float()
+    result = bt.correct_susceptibility(up, down, voxel_size=voxel_mm, phase_encoding_axis=1)
     estimated_mm = 0.5 * (result.field_map[:, 1:] + result.field_map[:, :-1]).float()  # voxel centres
+    corrected_up, corrected_down = result.blip_up.float(), result.blip_down.float()
 
 
 
@@ -235,34 +267,34 @@ size and returns :math:`b` in millimetres.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 227-233
+.. GENERATED FROM PYTHON SOURCE LINES 216-223
 
-Results
--------
+The corrected pair
+------------------
 
-Each image is compared with the undistorted object as the normalized
-root-mean-square error (NRMSE) over the brain; the estimated displacement is
-compared with :math:`d` over the brain.
+Where the correction is right, the two corrected images are the same image.
+Their agreement is measured over the brain, where the corrected EPI and the
+field map's magnitude both have signal, as the correlation coefficient and
+as the root-mean-square difference relative to the mean image.
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-250
+.. GENERATED FROM PYTHON SOURCE LINES 224-239
 
 .. code-block:: Python
 
 
 
-    def nrmse(estimate, truth, region=brain):
-        return float((estimate - truth)[region].norm() / truth[region].norm())
+    def similarity(first, second, region=brain):
+        x, y = first[region].double(), second[region].double()
+        correlation = torch.corrcoef(torch.stack((x, y)))[0, 1].item()
+        return correlation, ((x - y).norm() / (0.5 * (x + y)).norm()).item()
 
 
-    print(f"blip-up                NRMSE {nrmse(blip_up, image):.3f}")
-    print(f"blip-down              NRMSE {nrmse(blip_down, image):.3f}")
-    print(f"mean of the pair       NRMSE {nrmse(0.5 * (blip_up + blip_down), image):.3f}")
-    print(f"corrected              NRMSE {nrmse(corrected, image):.3f}")
-    error_mm = (estimated_mm - displacement_mm)[brain]
-    print(
-        f"displacement over the brain: RMS {float(displacement_mm[brain].square().mean().sqrt()):.1f}"
-        f" mm, RMS error of the estimate {float(error_mm.square().mean().sqrt()):.1f} mm"
-    )
+    for label, pair in (("acquired", (up, down)), ("corrected", (corrected_up, corrected_down))):
+        correlation, difference = similarity(*pair)
+        print(
+            f"blip-up vs blip-down, {label:9s}: correlation {correlation:.3f}, "
+            f"RMS difference {100 * difference:.0f} % of the mean image"
+        )
 
 
 
@@ -272,16 +304,13 @@ compared with :math:`d` over the brain.
 
  .. code-block:: none
 
-    blip-up                NRMSE 0.251
-    blip-down              NRMSE 0.242
-    mean of the pair       NRMSE 0.170
-    corrected              NRMSE 0.080
-    displacement over the brain: RMS 1.8 mm, RMS error of the estimate 0.8 mm
+    blip-up vs blip-down, acquired : correlation 0.871, RMS difference 21 % of the mean image
+    blip-up vs blip-down, corrected: correlation 0.989, RMS difference 6 % of the mean image
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-338
+.. GENERATED FROM PYTHON SOURCE LINES 240-307
 
 
 
@@ -292,71 +321,153 @@ compared with :math:`d` over the brain.
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_001.png
-         :alt: object, T2-weighted, field map at 3 T
+         :alt: blip-up, P to A, blip-down, A to P, corrected
          :srcset: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_002.png
-         :alt: undistorted, blip-up, blip-down, corrected
+         :alt: blip-up, P to A, blip-down, A to P, corrected
          :srcset: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_003.png
-         :alt: orbitofrontal region, undistorted, blip-up, blip-down, corrected
+         :alt: acquired, slice 21, corrected, slice 21, acquired, slice 14, corrected, slice 14
          :srcset: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_003.png
          :class: sphx-glr-multi-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 308-340
+
+Slice 21 passes through the orbitofrontal cortex and slice 14 through the
+temporal poles and the cerebellum; the lower row of each figure enlarges the
+anterior part of the slice, with its own grey scale. Above the frontal sinus the off-resonance is
+positive: the blip-up image, phase-encoded from posterior to anterior,
+displaces the orbitofrontal cortex anteriorly and compresses its anterior
+edge into a bright rim, and the blip-down image displaces it posteriorly
+and flattens it. At the temporal poles, above the petrous bone and the
+mastoid air cells, the off-resonance is negative and the directions are
+exchanged: the blip-down image stretches the poles anteriorly into streaks,
+and the blip-up image compresses them into a few dark voxels. The corrected
+image, the mean of the two corrected images of the pair, places the cortex
+between the two and restores its intensity.
+
+In the overlays the blip-up image is shown in magenta and the blip-down
+image in green, so that tissue where the two agree is grey. Before
+correction the frontal, temporal and occipital edges carry a magenta fringe
+on one side and a green fringe on the other; after correction they are
+grey. What remains is green at the temporal poles, where the blip-up image
+has lost the signal that the blip-down image has: signal lost within a
+voxel in one acquisition is not restored by a displacement.
+
+Comparison with the field map
+-----------------------------
+
+The estimate is compared with the displacement predicted by the
+gradient-echo field map over the brain, and over the brain voxels where the
+field map predicts a displacement of more than one voxel,
+:math:`|\Delta f| > \mathrm{BW}_{PE}`: where there is a distortion to
+measure. Over the rest of the brain the field is close to zero, and the
+correlation there measures noise. The field map was acquired with its own
+shim, so the two fields may also differ by a smooth field of first and
+second order.
+
+.. GENERATED FROM PYTHON SOURCE LINES 341-368
+
+.. code-block:: Python
+
+
+
+    def correlation(first, second, region):
+        return torch.corrcoef(torch.stack((first[region], second[region])).double())[0, 1].item()
+
+
+    distorted = brain & (off_resonance.abs() > bandwidth_pe)
+    print("shim, EPI      ", sidecar_up["ShimSetting"])
+    print("shim, field map", sidecar_phase["ShimSetting"])
+    print(
+        f"field over the brain: {off_resonance[brain].quantile(0.01):+.0f} to "
+        f"{off_resonance[brain].quantile(0.99):+.0f} Hz (1st to 99th percentile)"
+    )
+    print(
+        f"displaced by more than one voxel: {100 * distorted.sum() / brain.sum():.0f} % "
+        "of the brain voxels"
+    )
+    for label, region in (("brain", brain), ("displaced voxels", distorted)):
+        slope = torch.linalg.lstsq(
+            torch.stack((predicted_mm[region], torch.ones(int(region.sum()))), 1),
+            estimated_mm[region, None],
+        ).solution[0, 0]
+        print(
+            f"estimate vs field map over the {label}: correlation "
+            f"{correlation(estimated_mm, predicted_mm, region):.2f}, slope {slope:.2f}"
+        )
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    shim, EPI       [1746, -3889, -287, 575, 111, -87, -1, -28]
+    shim, field map [1747, -3883, -285, 583, 125, -23, -45, -40]
+    field over the brain: -45 to +47 Hz (1st to 99th percentile)
+    displaced by more than one voxel: 7 % of the brain voxels
+    estimate vs field map over the brain: correlation 0.38, slope 0.31
+    estimate vs field map over the displaced voxels: correlation 0.61, slope 0.30
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 369-407
+
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_004.png
-         :alt: profile along the phase-encoding axis, dashed line above
+         :alt: PyHySCO estimate, slice 21, GRE field map, slice 21, PyHySCO estimate, slice 14, GRE field map, slice 14
          :srcset: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_004.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_005.png
-         :alt: displacement d, estimated b, b - d
+         :alt: brain, displaced > 1 voxel
          :srcset: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_005.png
          :class: sphx-glr-multi-img
 
-    *
-
-      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_006.png
-         :alt: blip-up - undistorted, blip-down - undistorted, corrected - undistorted
-         :srcset: /auto_examples/07-tours/images/sphx_glr_07-epi-susceptibility-distortion_006.png
-         :class: sphx-glr-multi-img
 
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 408-436
 
-.. GENERATED FROM PYTHON SOURCE LINES 339-375
-
-Where the offset is positive -- the scalp and the fat anterior to the
-frontal lobes, and the orbitofrontal cortex -- the blip-up image displaces
-signal towards posterior and the blip-down image towards anterior; in the
-lateral temporal lobes, where it is negative, the directions are exchanged.
-Where the displacement decreases along its own direction, neighbouring
-voxels converge onto one location and form a bright pile-up, as the frontal
-scalp does in the blip-up image; where it increases, their signal is
-stretched over more voxels and darkened. The mean of the pair superimposes
-both distortions. The corrected image restores the position and the
-intensity of the cortex. Its residual is largest in the scalp, where the
-displacement reaches several voxels and changes within a few, and where a
-pile-up has summed the signal of separate voxels into one, which no
-transformation of the pair separates.
-
-The estimate of :math:`b` follows :math:`d` over the brain; it is smoother,
-as the regularization requires, and has no information where the images
-carry no signal. In practice the pair is acquired as two short
-:math:`b = 0` series, the displacement field is estimated once, and it is
-applied to every diffusion-weighted volume acquired with one of the two
-polarities.
+The estimate follows the pattern of the field-map prediction: anterior
+displacement above the frontal sinus and in the cerebellum, posterior
+displacement at the temporal poles. It is smaller in amplitude, with a
+slope below one. Two likely causes, neither established here, are the
+smoothness penalty on the displacement field, which at 3.75 mm voxels
+flattens a displacement that changes within a few voxels, and the difference
+between the shims of the two acquisitions. Neither EPI image has signal in
+the voids above the sinus, where the field map predicts the largest
+displacement, so the estimate there is an extrapolation by the smoothness
+penalty. In practice the pair is acquired as two short series
+of a few volumes, the displacement field is estimated once, and it is
+applied to every volume of the functional or diffusion series acquired with
+one of the two polarities.
 
 References
 ----------
@@ -369,15 +480,14 @@ References
 .. [#pyhysco] Julian A, Ruthotto L. PyHySCO: GPU-enabled susceptibility
    artifact distortion correction in seconds. *Front Neurosci* (2024).
 
-.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ,
-   Holmes CJ, Evans AC. Design and construction of a realistic digital brain
-   phantom. *IEEE Trans Med Imaging* 17(3):463-468 (1998).
-   https://doi.org/10.1109/42.712135
+.. [#ds001600] Cieslak M, Elliott M, Satterthwaite T. Example Fieldmaps.
+   OpenNeuro, accession ds001600. https://openneuro.org/datasets/ds001600.
+   Licensed under CC-BY-SA.
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.994 seconds)
+   **Total running time of the script:** (0 minutes 3.014 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_07-epi-susceptibility-distortion.py:

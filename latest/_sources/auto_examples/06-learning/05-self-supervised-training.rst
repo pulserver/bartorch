@@ -59,7 +59,7 @@ It follows :doc:`04-staged-training`. The next lesson,
 :doc:`06-annealed-plug-and-play`, uses a denoiser trained once for any
 acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-141
+.. GENERATED FROM PYTHON SOURCE LINES 45-154
 
 .. code-block:: Python
 
@@ -95,7 +95,7 @@ acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-148
+.. GENERATED FROM PYTHON SOURCE LINES 155-161
 
 Data
 ----
@@ -104,7 +104,7 @@ The slices, coils and fourfold undersampling of :doc:`04-staged-training`:
 subject 0 to train on and subject 4 to validate on. The references are kept
 only to score the results; the self-supervised network never sees them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-230
+.. GENERATED FROM PYTHON SOURCE LINES 162-243
 
 .. code-block:: Python
 
@@ -143,7 +143,7 @@ only to score the results; the self-supervised network never sees them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-241
+.. GENERATED FROM PYTHON SOURCE LINES 244-254
 
 The split
 ---------
@@ -156,7 +156,7 @@ the eight central lines always stay in :math:`\Theta`: a reconstruction
 without the centre of k-space would lose the image contrast, and the loss
 would be dominated by it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 242-266
+.. GENERATED FROM PYTHON SOURCE LINES 255-279
 
 .. code-block:: Python
 
@@ -187,7 +187,7 @@ would be dominated by it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 267-277
+.. GENERATED FROM PYTHON SOURCE LINES 280-290
 
 Two networks, one trained each way
 ----------------------------------
@@ -200,7 +200,7 @@ acquired ``pattern`` in place of a ``target``, and
 every step. Its validation loss is the held-out loss on a split fixed for
 the whole run, and needs no reference either.
 
-.. GENERATED FROM PYTHON SOURCE LINES 278-318
+.. GENERATED FROM PYTHON SOURCE LINES 291-331
 
 .. code-block:: Python
 
@@ -259,7 +259,7 @@ the whole run, and needs no reference either.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 319-324
+.. GENERATED FROM PYTHON SOURCE LINES 332-337
 
 Results
 -------
@@ -267,7 +267,7 @@ Results
 Both networks reconstruct from all acquired lines of the validation subject
 and are scored against its reference.
 
-.. GENERATED FROM PYTHON SOURCE LINES 325-342
+.. GENERATED FROM PYTHON SOURCE LINES 338-355
 
 .. code-block:: Python
 
@@ -296,14 +296,14 @@ and are scored against its reference.
 
  .. code-block:: none
 
-                  supervised   PSNR 30.25 dB   SSIM 0.952
+                  supervised   PSNR 30.16 dB   SSIM 0.950
              self-supervised   PSNR 28.59 dB   SSIM 0.726
      CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 343-355
+.. GENERATED FROM PYTHON SOURCE LINES 356-368
 
 The self-supervised network is trained on less information: each step
 reconstructs from three quarters of the acquired lines and is told nothing
@@ -318,21 +318,40 @@ network keeps more residual aliasing along the phase-encode direction
 (vertical), which its error map shows as horizontal striping: the lines never
 acquired are the ones it cannot score against.
 
-.. GENERATED FROM PYTHON SOURCE LINES 356-370
+.. GENERATED FROM PYTHON SOURCE LINES 369-383
 
 
 
 
-.. image-sg:: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
-   :alt: reference, CG-SENSE, supervised, self-supervised, NRMSE 0.124, NRMSE 0.062, NRMSE 0.076
-   :srcset: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
+         :alt: reference, CG-SENSE, supervised, self-supervised
+         :srcset: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_003.png
+         :alt: reference, enlarged, CG-SENSE, enlarged, supervised, enlarged, self-supervised, enlarged
+         :srcset: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_004.png
+         :alt: CG-SENSE NRMSE 0.124, supervised NRMSE 0.064, self-supervised NRMSE 0.076
+         :srcset: /auto_examples/06-learning/images/sphx_glr_05-self-supervised-training_004.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 371-383
+.. GENERATED FROM PYTHON SOURCE LINES 384-396
 
 References
 ----------
@@ -350,7 +369,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 50.032 seconds)
+   **Total running time of the script:** (4 minutes 1.403 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_05-self-supervised-training.py:

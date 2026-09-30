@@ -68,7 +68,7 @@ with a 24-line ACS region. The next lesson, :doc:`02-nonlinear-inversion`,
 writes nonlinear inversion out as a nonlinear operator and a Gauss-Newton
 solver.
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-163
+.. GENERATED FROM PYTHON SOURCE LINES 54-154
 
 .. code-block:: Python
 
@@ -91,7 +91,7 @@ solver.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 164-178
+.. GENERATED FROM PYTHON SOURCE LINES 155-169
 
 Data
 ----
@@ -108,7 +108,7 @@ phantom's support, after a least-squares fit of a global scale, since the
 three estimators normalize the sensitivities, and hence the image, in
 different ways.
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-192
+.. GENERATED FROM PYTHON SOURCE LINES 170-183
 
 .. code-block:: Python
 
@@ -132,7 +132,7 @@ different ways.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-199
+.. GENERATED FROM PYTHON SOURCE LINES 184-190
 
 Every third phase encode is acquired, and a central block of ``calibration``
 lines is acquired in full. Regular undersampling by :math:`R` replicates the
@@ -141,7 +141,7 @@ voxel of the zero-filled image is the sum of three voxels a third of the
 field of view apart. Only the sensitivities, which differ between those
 voxels, can separate them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 200-215
+.. GENERATED FROM PYTHON SOURCE LINES 191-206
 
 .. code-block:: Python
 
@@ -173,7 +173,7 @@ voxels, can separate them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-225
+.. GENERATED FROM PYTHON SOURCE LINES 207-216
 
 Three calibrations
 ------------------
@@ -185,7 +185,7 @@ decreases with every step, so the count acts as a regularization parameter;
 twelve steps suit this noise level. Its sensitivities are normalized here to
 unit root sum of squares, the normalization the other two estimators use.
 
-.. GENERATED FROM PYTHON SOURCE LINES 226-236
+.. GENERATED FROM PYTHON SOURCE LINES 217-227
 
 .. code-block:: Python
 
@@ -212,13 +212,13 @@ unit root sum of squares, the normalization the other two estimators use.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 237-250
+.. GENERATED FROM PYTHON SOURCE LINES 228-242
 
 
 
 
 .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_001.png
-   :alt: estimated sensitivity of channel 2, caldir, ESPIRiT, nlinv
+   :alt: caldir, channel 2, ESPIRiT, channel 2, nlinv, channel 2
    :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_001.png
    :class: sphx-glr-single-img
 
@@ -226,10 +226,11 @@ unit root sum of squares, the normalization the other two estimators use.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-264
+.. GENERATED FROM PYTHON SOURCE LINES 243-257
 
-The phase of a sensitivity map is determined only up to a phase common to
-all channels, which each estimator fixes differently; that common phase
+The figure shows the three estimates of one channel, magnitude above and
+phase below. The phase of a sensitivity map is determined only up to a phase
+common to all channels, which each estimator fixes differently; that common phase
 passes into the phase of the reconstructed image and leaves its magnitude
 unchanged. Up to it, the three estimates agree inside the object. They
 differ outside it, where the data do not determine a sensitivity:
@@ -242,7 +243,7 @@ same Tikhonov weight and number of conjugate-gradient iterations, so that
 the reconstructions differ only in the sensitivities. The image ``nlinv``
 returns jointly with its sensitivities is a fourth estimate.
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-275
+.. GENERATED FROM PYTHON SOURCE LINES 258-268
 
 .. code-block:: Python
 
@@ -272,7 +273,7 @@ returns jointly with its sensitivities is a fourth estimate.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-308
+.. GENERATED FROM PYTHON SOURCE LINES 269-302
 
 
 
@@ -283,14 +284,14 @@ returns jointly with its sensitivities is a fourth estimate.
     *
 
       .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_002.png
-         :alt: 24 ACS lines, R = 3, reference, zero-filled, SENSE, caldir, SENSE, ESPIRiT
+         :alt: reference, zero-filled, nlinv image, SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv
          :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_003.png
-         :alt: error magnitude, 24 ACS lines, SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv
+         :alt: SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv
          :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_003.png
          :class: sphx-glr-multi-img
 
@@ -298,11 +299,13 @@ returns jointly with its sensitivities is a fourth estimate.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 309-326
+.. GENERATED FROM PYTHON SOURCE LINES 303-322
 
-The zero-filled image shows the three overlapping copies of the phantom
-that regular undersampling produces. All three calibrations unfold them.
-The error maps, at 5 % of the image peak, show the remaining
+The images are windowed at half the intensity of the skull, which
+saturates. The zero-filled image shows the three overlapping copies of the
+phantom that regular undersampling produces. All three calibrations unfold
+them, and so does the image ``nlinv`` returns with its sensitivities.
+The error maps, at 3 % of the image peak, show the remaining
 differences: the direct estimate leaves a faint residual fold at the edges
 of the phantom, where its low-resolution sensitivities are least accurate,
 and ESPIRiT and nonlinear inversion leave mostly noise.
@@ -318,7 +321,7 @@ reconstruction can use. ``caldir`` still runs, on an image of eight lines'
 resolution. ``nlinv`` uses every acquired sample, so the calibration region
 affects it only through the first Gauss-Newton steps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 327-345
+.. GENERATED FROM PYTHON SOURCE LINES 323-341
 
 .. code-block:: Python
 
@@ -356,7 +359,7 @@ affects it only through the first Gauss-Newton steps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 346-369
+.. GENERATED FROM PYTHON SOURCE LINES 342-363
 
 
 
@@ -367,14 +370,14 @@ affects it only through the first Gauss-Newton steps.
     *
 
       .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_004.png
-         :alt: 8 ACS lines, R = 3, reference, SENSE, caldir, SENSE, nlinv
+         :alt: reference, SENSE, caldir, SENSE, nlinv
          :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_004.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_005.png
-         :alt: error magnitude, 8 ACS lines, SENSE, caldir, SENSE, nlinv
+         :alt: SENSE, caldir, SENSE, nlinv
          :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_005.png
          :class: sphx-glr-multi-img
 
@@ -382,7 +385,7 @@ affects it only through the first Gauss-Newton steps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-382
+.. GENERATED FROM PYTHON SOURCE LINES 364-376
 
 With eight ACS lines the direct estimate leaves visible residual aliasing:
 sensitivities estimated at a resolution of eight lines do not represent the
@@ -397,7 +400,7 @@ The errors above are for one phantom, one noise level and one sampling
 pattern, and they depend on the regularization of each reconstruction; they
 do not rank the estimators in general.
 
-.. GENERATED FROM PYTHON SOURCE LINES 385-401
+.. GENERATED FROM PYTHON SOURCE LINES 379-395
 
 References
 ----------
@@ -419,7 +422,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.338 seconds)
+   **Total running time of the script:** (0 minutes 5.629 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_01-coil-calibration.py:

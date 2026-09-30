@@ -121,7 +121,7 @@ millimetres; every echo has to cover the same slices.
 
 .. GENERATED FROM PYTHON SOURCE LINES 136-139
 
-The images of four of the echoes, on one window: the cerebrospinal fluid in
+The images of three of the echoes, on one window: the cerebrospinal fluid in
 the ventricles, with the longest :math:`T_2`, keeps its signal across the
 train while the scalp fat loses most of it.
 
@@ -131,7 +131,7 @@ train while the scalp fat loses most of it.
 
 
 .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_001.png
-   :alt: TE 10 ms, TE 30 ms, TE 50 ms, TE 80 ms
+   :alt: TE 10 ms, TE 40 ms, TE 80 ms
    :srcset: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_001.png
    :class: sphx-glr-single-img
 
@@ -235,15 +235,27 @@ were simulated with, and the difference between them. The error is largest
 in the cerebrospinal fluid, where eight echoes over 80 ms sample only the
 start of a 250 ms decay.
 
-.. GENERATED FROM PYTHON SOURCE LINES 207-226
+.. GENERATED FROM PYTHON SOURCE LINES 207-225
 
 
 
 
-.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_002.png
-   :alt: simulated, fitted, |fitted - simulated|
-   :srcset: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_002.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_002.png
+         :alt: simulated, fitted
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_003.png
+         :alt: |fitted - simulated|
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_03-maps-from-scanner-images_003.png
+         :class: sphx-glr-multi-img
 
 
 
@@ -252,7 +264,7 @@ start of a 250 ms decay.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 30.678 seconds)
+   **Total running time of the script:** (0 minutes 49.459 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_03-maps-from-scanner-images.py:

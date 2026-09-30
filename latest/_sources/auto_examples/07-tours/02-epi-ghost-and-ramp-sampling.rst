@@ -219,7 +219,7 @@ the object divided by the mean signal inside it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 158-210
+.. GENERATED FROM PYTHON SOURCE LINES 158-195
 
 
 
@@ -230,14 +230,14 @@ the object divided by the mean signal inside it.
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png
-         :alt: displayed from 0 to 30 % of the peak; phase encoding vertical, delay-free, flipped only GSR 18.2 %, NRMSE 0.32, navigator-corrected GSR 1.4 %, NRMSE 1e-07, flipped only - delay-free
+         :alt: delay-free, flipped only, corrected
          :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png
-         :alt: navigator phase in hybrid space, central column
+         :alt: navigator phase, central column
          :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png
          :class: sphx-glr-multi-img
 
@@ -245,13 +245,15 @@ the object divided by the mean signal inside it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 211-235
+.. GENERATED FROM PYTHON SOURCE LINES 196-222
 
-Without the phase correction the ghost appears at the top and bottom of the
-field of view and overlaps the object where it wraps. With the first-order
-fit the ghost-to-signal ratio returns to that of the delay-free image, whose
-signal outside the object is the truncation ringing of the phantom, since
-the simulated phase error is exactly first order. On measured data, higher
+The images are displayed from zero to 30 % of the peak, with the
+phase-encoding direction vertical. Without the phase correction the ghost
+appears at the top and bottom of the field of view and overlaps the object
+where it wraps. With the first-order fit the ghost-to-signal ratio returns
+to that of the delay-free image, whose signal outside the object is the
+truncation ringing of the phantom, since the simulated phase error is
+exactly first order. On measured data, higher
 orders of the phase, and phase errors that differ between lines of the same
 polarity, leave a residual ghost.
 
@@ -272,7 +274,7 @@ The readout gradient is a trapezoid whose ramps each take 30 % of the ADC
 window, sampled with 160 samples, for a one-dimensional object of 64 pixels;
 positions are in cycles per pixel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 236-260
+.. GENERATED FROM PYTHON SOURCE LINES 223-247
 
 .. code-block:: Python
 
@@ -307,13 +309,13 @@ positions are in cycles per pixel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 261-264
+.. GENERATED FROM PYTHON SOURCE LINES 248-251
 
 Linear interpolation between neighbouring samples is the comparison. Both
 are assessed on the image profile, the inverse transform of the uniform
 samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-281
+.. GENERATED FROM PYTHON SOURCE LINES 252-268
 
 .. code-block:: Python
 
@@ -348,21 +350,33 @@ samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 282-316
+.. GENERATED FROM PYTHON SOURCE LINES 269-306
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png
-   :alt: trapezoidal readout gradient, image profile, |error| / peak
-   :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png
+         :alt: trapezoidal readout gradient
+         :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_004.png
+         :alt: image profile, |error| / peak
+         :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_004.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 317-333
+.. GENERATED FROM PYTHON SOURCE LINES 307-323
 
 The band-limited resampling reproduces the profile of a uniformly sampled
 readout to the precision of the operator, which is returned in single
@@ -384,7 +398,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.515 seconds)
+   **Total running time of the script:** (0 minutes 2.671 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py:

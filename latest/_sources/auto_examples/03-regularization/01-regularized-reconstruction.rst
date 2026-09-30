@@ -61,7 +61,7 @@ The previous lessons, :doc:`../01-basics/02-from-kspace-to-image` and
 weight. The next lesson, :doc:`02-operators-and-solvers`, assembles the same
 reconstruction from an operator, a term and a solver.
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-162
+.. GENERATED FROM PYTHON SOURCE LINES 47-165
 
 .. code-block:: Python
 
@@ -80,7 +80,7 @@ reconstruction from an operator, a term and a solver.
 
     SIZE = 192
     COILS = 8
-    ACCELERATION = 4
+    ACCELERATION = 3
     CALIBRATION = 24
 
 
@@ -90,14 +90,14 @@ reconstruction from an operator, a term and a solver.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-167
+.. GENERATED FROM PYTHON SOURCE LINES 166-170
 
 The phantom is the BrainWeb [#brainweb]_ slice of
 :doc:`../01-basics/02-from-kspace-to-image`, with the same eight-channel
 sensitivities; the cell that builds both is hidden on this page and present in
 the script this page can be downloaded as.
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-239
+.. GENERATED FROM PYTHON SOURCE LINES 171-242
 
 
 
@@ -106,25 +106,25 @@ the script this page can be downloaded as.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-250
+.. GENERATED FROM PYTHON SOURCE LINES 243-253
 
 Acquisition
 -----------
 
-A quarter of the phase encodes (:math:`R = 4`), drawn at random from a
+A third of the phase encodes (:math:`R = 3`), drawn at random from a
 variable density around a fully sampled ACS region of 24 lines, as in
-:doc:`../01-basics/02-from-kspace-to-image`. The noise is a hundred times
+:doc:`../01-basics/02-from-kspace-to-image`. The noise is three times
 stronger than in that lesson: complex Gaussian noise of variance
-:math:`10^{-3}` per sample of the unitary transform of an image whose peak
-is one. At this level noise amplification, and not only aliasing, determines
-the error of an unregularized reconstruction.
+:math:`3 \times 10^{-4}` per sample of the unitary transform of an image whose
+peak is one. At this level noise amplification, and not only aliasing,
+determines the error of an unregularized reconstruction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-268
+.. GENERATED FROM PYTHON SOURCE LINES 254-271
 
 .. code-block:: Python
 
 
-    kspace = bt.noise(bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True), n=1e-3, s=42)
+    kspace = bt.noise(bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True), n=3e-4, s=42)
 
     encodes = torch.arange(SIZE) - SIZE // 2
     centre = (encodes.abs() < CALIBRATION // 2).to(torch.float32)
@@ -147,7 +147,7 @@ the error of an unregularized reconstruction.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 269-287
+.. GENERATED FROM PYTHON SOURCE LINES 272-290
 
 Three terms
 -----------
@@ -168,13 +168,13 @@ data divided by the scaling :func:`bartorch.optim.data_scaling` estimates,
 which ``pics`` applies, so the same weight means the same thing for data of
 a different overall scale.
 
-.. GENERATED FROM PYTHON SOURCE LINES 288-322
+.. GENERATED FROM PYTHON SOURCE LINES 291-325
 
 .. code-block:: Python
 
 
     sweeps = {
-        "Tikhonov": [0.03, 0.1, 0.3, 1.0],
+        "Tikhonov": [0.01, 0.03, 0.1, 0.3],
         "wavelet": [0.003, 0.006, 0.012, 0.03],
         "total variation": [0.002, 0.006, 0.012, 0.04],
     }
@@ -182,12 +182,12 @@ a different overall scale.
 
     def reconstruct(name, weight):
         if name == "Tikhonov":
-            return apps.pics(measured, maps, l2=weight, maxiter=30)
+            return apps.pics(measured, maps, l2=weight, maxiter=100)
         if name == "wavelet":
             term, solver = priors.Wavelet((-1, -2), weight), "fista"
         else:
             term, solver = priors.TotalVariation((-1, -2), weight), "admm"
-        return apps.pics(measured, maps, regularizers=term, solver=solver, maxiter=30)
+        return apps.pics(measured, maps, regularizers=term, solver=solver, maxiter=100)
 
 
     reconstructions = {
@@ -214,14 +214,14 @@ a different overall scale.
 
  .. code-block:: none
 
-            Tikhonov  weight 0.1     NRMSE 0.128  SSIM 0.711
-             wavelet  weight 0.012   NRMSE 0.099  SSIM 0.789
-     total variation  weight 0.012   NRMSE 0.109  SSIM 0.815
+            Tikhonov  weight 0.03    NRMSE 0.082  SSIM 0.783
+             wavelet  weight 0.006   NRMSE 0.056  SSIM 0.867
+     total variation  weight 0.006   NRMSE 0.059  SSIM 0.926
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 323-352
+.. GENERATED FROM PYTHON SOURCE LINES 326-352
 
 
 
@@ -232,21 +232,21 @@ a different overall scale.
     *
 
       .. image-sg:: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_001.png
-         :alt: R = 4, noisy, each at its best weight, reference, Tikhonov, $\lambda$ = 0.1, wavelet, $\lambda$ = 0.012, total variation, $\lambda$ = 0.012
+         :alt: reference, Tikhonov, $\lambda$ = 0.03, wavelet, $\lambda$ = 0.006, total variation, $\lambda$ = 0.006
          :srcset: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_002.png
-         :alt: error magnitude, Tikhonov, wavelet, total variation
+         :alt: Tikhonov error, wavelet error, total variation error
          :srcset: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_003.png
-         :alt: enlarged: posterior cortex, reference, Tikhonov, wavelet, total variation
+         :alt: reference, enlarged, Tikhonov, wavelet, total variation
          :srcset: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_003.png
          :class: sphx-glr-multi-img
 
@@ -277,7 +277,7 @@ for each term. It is possible here because the phantom is known; for
 measured data the weight is chosen by a criterion that does not require the
 reference, or fixed once for a protocol.
 
-.. GENERATED FROM PYTHON SOURCE LINES 374-396
+.. GENERATED FROM PYTHON SOURCE LINES 374-395
 
 
 
@@ -295,7 +295,7 @@ reference, or fixed once for a protocol.
     *
 
       .. image-sg:: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_005.png
-         :alt: total variation: under- and over-regularization, enlarged, TV, $\lambda$ = 0.002 (too small), TV, $\lambda$ = 0.012 (best), TV, $\lambda$ = 0.04 (too large)
+         :alt: TV, $\lambda$ = 0.002 too small, TV, $\lambda$ = 0.006 best, TV, $\lambda$ = 0.04 too large
          :srcset: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_005.png
          :class: sphx-glr-multi-img
 
@@ -303,7 +303,7 @@ reference, or fixed once for a protocol.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 397-413
+.. GENERATED FROM PYTHON SOURCE LINES 396-412
 
 Each curve has an interior minimum. The weights of the Tikhonov term and of
 the two :math:`\ell_1` terms are not comparable with each other, because the
@@ -322,7 +322,7 @@ Combining terms
 variable once per term with a nontrivial transform, so it accepts any
 combination; FISTA accepts only terms whose transform is the identity.
 
-.. GENERATED FROM PYTHON SOURCE LINES 414-427
+.. GENERATED FROM PYTHON SOURCE LINES 413-426
 
 .. code-block:: Python
 
@@ -335,7 +335,7 @@ combination; FISTA accepts only terms whose transform is the identity.
             priors.TotalVariation((-1, -2), best["total variation"] / 2),
         ],
         solver="admm",
-        maxiter=30,
+        maxiter=100,
     )
     print(f"wavelet + TV  NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 
@@ -347,12 +347,12 @@ combination; FISTA accepts only terms whose transform is the identity.
 
  .. code-block:: none
 
-    wavelet + TV  NRMSE 0.114
+    wavelet + TV  NRMSE 0.058
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 428-436
+.. GENERATED FROM PYTHON SOURCE LINES 427-435
 
 With each weight halved the sum reaches an error comparable to either term
 alone. Whether a combination improves on its parts depends on the image and
@@ -363,7 +363,7 @@ than assumed.
 terms and the iteration -- and runs BART's solver on them. The next lesson,
 :doc:`02-operators-and-solvers`, builds them separately.
 
-.. GENERATED FROM PYTHON SOURCE LINES 439-462
+.. GENERATED FROM PYTHON SOURCE LINES 438-461
 
 References
 ----------
@@ -392,7 +392,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.624 seconds)
+   **Total running time of the script:** (0 minutes 11.151 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_01-regularized-reconstruction.py:

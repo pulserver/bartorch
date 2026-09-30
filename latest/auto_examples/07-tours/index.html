@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -525,9 +525,11 @@ it, each shown on its own and independent of the course: removal of readout
 oversampling and apodization, EPI Nyquist-ghost correction and regridding of
 ramp-sampled readouts, receive bias-field correction, correction of the
 geometric distortion caused by gradient nonlinearity, off-resonance deblurring
-of spiral images, and rigid head-motion tracking from navigators.  Each tour
-simulates the artefact from a known ground truth, so that the correction is
-evaluated against it.</p>
+of spiral images, rigid head-motion tracking from navigators, and correction
+of susceptibility distortion in EPI.  The first six tours simulate the
+artefact from a known ground truth, so that the correction is evaluated
+against it; the seventh corrects measured data and evaluates the correction
+against an independent field map.</p>
 <p>The first tour removes readout oversampling and compares Fermi and Hann
 apodization by their Gibbs ringing and resolution. The second corrects the
 Nyquist ghost of an EPI train from a three-line navigator and resamples a
@@ -538,8 +540,9 @@ coefficients. The fifth deblurs a spiral image off resonance by
 multifrequency interpolation and by a time-segmented reconstruction. The
 sixth measures rigid head motion from three orthogonal navigator planes and
 filters it across a scan. The seventh corrects the susceptibility distortion
-of an EPI image from a reversed phase-encoding pair.</p>
-<p>The section additionally requires:</p>
+of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro.</p>
+<p>The section additionally requires the following packages, and the seventh tour
+downloads about 2 MB of data into <code class="docutils literal notranslate"><span class="pre">~/.cache/bartorch-examples</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">SimpleITK</span> <span class="n">PyHySCO</span>
 </pre></div>
 </div>
@@ -561,7 +564,7 @@ of an EPI image from a reversed phase-encoding pair.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Head motion during a scan changes the position of the anatomy between the readouts that encode it, and the image acquires blurring and ghosting. Prospective correction updates the imaging field of view with the measured head pose before each readout; it requires a measurement of the rigid pose with six degrees of freedom, repeated during the scan. A navigator is a short, low-resolution acquisition interleaved with the imaging readouts, and its registration against the first navigator of the scan measures how the head has moved since [#ehman]_."><img alt="" src="../../_images/sphx_glr_06-navigator-motion_thumb.png" />
 <p><a class="reference internal" href="06-navigator-motion.html"><span class="doc">Rigid head motion from navigators</span></a></p>
   <div class="sphx-glr-thumbnail-title">Rigid head motion from navigators</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="In an echo-planar image, the phase-encoding direction is sampled at the echo spacing rather than the dwell time, so its bandwidth per pixel is a few tens of hertz. A spin off resonance by \Delta f is displaced along the phase-encoding axis by \Delta f divided by that bandwidth, which near the frontal sinus and the petrous bone amounts to several voxels at 3 T: the orbitofrontal cortex is compressed or stretched, and signal piles up where neighbouring voxels are displaced onto the same location."><img alt="" src="../../_images/sphx_glr_07-epi-susceptibility-distortion_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="In an echo-planar image, the phase-encoding direction is sampled at the echo spacing rather than the dwell time, so its bandwidth per pixel is a few tens of hertz. A spin off resonance by \Delta f is displaced along the phase-encoding axis by \Delta f divided by that bandwidth, which near the frontal sinus and the petrous bone amounts to several millimetres at 3 T: the orbitofrontal cortex and the temporal poles are compressed or stretched, and signal piles up where neighbouring voxels are displaced onto the same location."><img alt="" src="../../_images/sphx_glr_07-epi-susceptibility-distortion_thumb.png" />
 <p><a class="reference internal" href="07-epi-susceptibility-distortion.html"><span class="doc">Susceptibility distortion in EPI</span></a></p>
   <div class="sphx-glr-thumbnail-title">Susceptibility distortion in EPI</div>
 </div></div><div class="toctree-wrapper compound">

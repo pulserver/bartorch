@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -522,6 +522,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-shaded-image">The shaded image</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#n4-correction">N4 correction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-mask-and-the-fitting-grid">The mask and the fitting grid</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-n4-does-not-recover">What N4 does not recover</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
             </nav>
@@ -549,8 +550,8 @@ weighting is smooth, multiplicative and largest near the elements, and it
 shades the image: the same tissue appears brighter near the array than far
 from it, which biases segmentation, intensity-based registration and any
 quantitative comparison across the field of view.</p>
-<p>This example shades a T1-weighted head with the posterior elements of a head
-array, estimates the field with N4 <a class="footnote-reference brackets" href="#tustison" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> through
+<p>This example shades a T1-weighted head with a head array that has no anterior
+elements, estimates the field with N4 <a class="footnote-reference brackets" href="#tustison" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> through
 <a class="reference internal" href="../../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.bias_field_correct()</span></code></a>, and compares the corrected image and
 the estimated field with the object and the true field.</p>
 <p><strong>Learning objectives</strong></p>
@@ -560,8 +561,9 @@ sensitivities.</p></li>
 <li><p>Estimate and remove the bias field with N4, and assess the result by the
 uniformity of a tissue class and by the intensity histogram.</p></li>
 <li><p>Choose the mask and the fitting grid of the estimate.</p></li>
-<li><p>Recognise what N4 cannot recover: the scale of the field, and a smooth
-intensity variation that belongs to the object.</p></li>
+<li><p>Recognise what N4 does not recover: the scale of the field, the steep part
+of a field of large range, and a smooth intensity variation that belongs to
+the object.</p></li>
 </ul>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span><span class="w">
@@ -580,24 +582,26 @@ grey matter, over which the uniformity of each class is measured.</p>
 </section>
 <section id="the-shaded-image">
 <h2>The shaded image<a class="headerlink" href="#the-shaded-image" title="Link to this heading">#</a></h2>
-<p>The array is the posterior half of BART’s analytical eight-element head
-coil, four elements. Each coil image is the object weighted by one
-element’s sensitivity <span class="math notranslate nohighlight">\(S_c\)</span>, with independent complex Gaussian noise;
-their root sum of squares is the object weighted by the bias field
-<span class="math notranslate nohighlight">\(B = \sqrt{\sum_c |S_c|^2}\)</span>, and the noise adds a Rician floor in the
-background.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">sensitivities</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><span class="n">bt</span><span class="o">.</span><span class="n">coils</span></a><span class="p">(</span><span class="n">t</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><span class="n">bt</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">D</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="p">[</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
-</span><span class="n">bias</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">sensitivities</span> <span class="o">=</span> <span class="n">sensitivities</span> <span class="o">/</span> <span class="n">bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">bias</span> <span class="o">=</span> <span class="n">bias</span> <span class="o">/</span> <span class="n">bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="w">
+<p>The array is BART’s analytical eight-element head coil without its two
+anterior elements, as in an open-face head coil: six elements. Each coil
+image is the object weighted by one element’s sensitivity <span class="math notranslate nohighlight">\(S_c\)</span>, with
+independent complex Gaussian noise; their root sum of squares is the object
+weighted by the bias field <span class="math notranslate nohighlight">\(B = \sqrt{\sum_c |S_c|^2}\)</span>, and the noise
+adds a Rician floor in the background.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">shaded_image</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">sensitivities</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><span class="n">bt</span><span class="o">.</span><span class="n">coils</span></a><span class="p">(</span><span class="n">t</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><span class="n">bt</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">D</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="p">[</span><span class="n">elements</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
+</span>    <span class="n">bias</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">sensitivities</span> <span class="o">=</span> <span class="n">sensitivities</span> <span class="o">/</span> <span class="n">bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">coil_images</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><span class="n">sensitivities</span> <span class="o">*</span> <span class="n">image</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">coil_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">bias</span> <span class="o">/</span> <span class="n">bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="w">
-</span><span class="n">coil_images</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><span class="n">sensitivities</span> <span class="o">*</span> <span class="n">image</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="w">
-</span><span class="n">shaded</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">coil_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">shaded</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">shaded_image</span><span class="p">(</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.02</span><span class="p">)</span><span class="p">,</span> <span class="n">bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.98</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">bias field over the brain: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">low</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">high</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> (2nd to 98th percentile)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>bias field over the brain: 0.35 to 1.55 (2nd to 98th percentile)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>bias field over the brain: 0.56 to 1.27 (2nd to 98th percentile)
 </pre></div>
 </div>
 </section>
@@ -609,10 +613,12 @@ alternately sharpening the histogram of the log intensities and fitting the
 splines to what the sharpening removed, over a hierarchy of control-point
 grids. It uses no model of the coil, only an object whose intensities form
 classes.</p>
-<p>The uniformity of a tissue class is its coefficient of variation, the
-standard deviation over the mean, which the object has too through partial
-volume at the class boundaries.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">corrected</span><span class="p">,</span> <span class="n">estimate</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><span class="n">bt</span><span class="o">.</span><span class="n">bias_field_correct</span></a><span class="p">(</span><span class="n">shaded</span><span class="p">,</span> <span class="n">return_field</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+<p>The field is fitted on the image shrunk by <code class="docutils literal notranslate"><span class="pre">shrink_factor</span></code>, whose default
+of 4 would leave a 32 x 32 grid of this 128 matrix; a factor of 2 keeps
+64 x 64. The uniformity of a tissue class is its coefficient of variation,
+the standard deviation over the mean, which the object has too through
+partial volume at the class boundaries.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">corrected</span><span class="p">,</span> <span class="n">estimate</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><span class="n">bt</span><span class="o">.</span><span class="n">bias_field_correct</span></a><span class="p">(</span><span class="n">shaded</span><span class="p">,</span> <span class="n">shrink_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">return_field</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
 </span><span class="k">def</span><span class="w"> </span><span class="nf">variation</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span><span class="p">:</span><span class="w">
@@ -627,67 +633,102 @@ volume at the class boundaries.</p>
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>object        coefficient of variation: white matter 0.011, grey matter 0.035; white/grey 1.35
-shaded        coefficient of variation: white matter 0.262, grey matter 0.335; white/grey 1.41
-N4-corrected  coefficient of variation: white matter 0.104, grey matter 0.180; white/grey 1.37
+shaded        coefficient of variation: white matter 0.135, grey matter 0.193; white/grey 1.38
+N4-corrected  coefficient of variation: white matter 0.035, grey matter 0.073; white/grey 1.35
 </pre></div>
 </div>
 <p>A multiplicative field is determined up to a constant factor, which the
 correction leaves in the image. The estimate is therefore compared with the
 true field after scaling both to unit mean over the brain.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">estimate</span> <span class="o">=</span> <span class="n">estimate</span> <span class="o">/</span> <span class="n">estimate</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">estimate</span> <span class="o">/</span> <span class="n">bias</span><span class="p">)</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="w">
-</span><span class="n">within</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="p">(</span><span class="n">ratio</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">agreement</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">bias</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">estimate</span> <span class="o">/</span> <span class="n">estimate</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">bias</span><span class="p">)</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="w">
+</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">ratio</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="p">(</span><span class="n">ratio</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="n">median</span><span class="p">,</span> <span class="n">within</span> <span class="o">=</span> <span class="n">agreement</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">bias</span><span class="p">)</span><span class="w">
+</span><span class="n">estimate</span> <span class="o">=</span> <span class="n">estimate</span> <span class="o">/</span> <span class="n">estimate</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="w">
-</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">estimated / true field over the brain: median </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">ratio</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">estimated / true field over the brain: median </span><span class="si">{</span><span class="n">median</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">within 10 % in </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">within</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> % of the voxels</span><span class="s2">&quot;</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>estimated / true field over the brain: median 0.965, within 10 % in 81 % of the voxels
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>estimated / true field over the brain: median 0.997, within 10 % in 93 % of the voxels
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
 <li><img src="../../_images/sphx_glr_03-bias-field_001.png" srcset="../../_images/sphx_glr_03-bias-field_001.png" alt="object, shaded, N4-corrected" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_03-bias-field_002.png" srcset="../../_images/sphx_glr_03-bias-field_002.png" alt="true field, N4 estimate, estimate / true" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_03-bias-field_003.png" srcset="../../_images/sphx_glr_03-bias-field_003.png" alt="profile along the dashed line, intensity histogram" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-bias-field_002.png" srcset="../../_images/sphx_glr_03-bias-field_002.png" alt="true field, N4 estimate" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-bias-field_003.png" srcset="../../_images/sphx_glr_03-bias-field_003.png" alt="image / object on the line, field on the line" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-bias-field_004.png" srcset="../../_images/sphx_glr_03-bias-field_004.png" alt="intensity histogram of the brain" class = "sphx-glr-multi-img"/></li>
 </ul>
-<p>The field varies by a factor of four over the brain: in the shaded image
-the occipital lobes are bright and the frontal lobes dark, and the
-histogram of the brain has no separate grey- and white-matter peaks. After
-correction the variation of the white matter falls by more than half and
-the two peaks separate. The
-estimated field is within 10 % of the true one over most of the brain; it
-overestimates the field at the frontal pole, where the true field falls
-steeply to a third of its mean and below, so the corrected frontal cortex
-remains darker than the object. A residual of this kind is the reason a
-corrected image is still compared across regions with care.</p>
+<p>The images share one window, each scaled to its white-matter mean. In the
+shaded image the frontal lobes are darker than the occipital lobes: along
+the dashed line the ratio of the shaded image to the object follows the
+field, and the histogram of the brain has no separate grey- and
+white-matter peaks. After correction the ratio stays close to one except at
+the frontal pole, where the estimated field does not fall as far as the true
+one, and the two peaks separate.</p>
 </section>
 <section id="the-mask-and-the-fitting-grid">
 <h2>The mask and the fitting grid<a class="headerlink" href="#the-mask-and-the-fitting-grid" title="Link to this heading">#</a></h2>
 <p>The field is fitted only over a mask, by default Otsu’s threshold of the
-image, which under strong shading can exclude the darkest tissue. The
-alternative compared here is a mask of the whole head.</p>
+image. The alternatives compared here are a mask of the whole head, which
+adds the scalp and the skull, and a brain mask, such as a skull-stripping
+tool provides; the BrainWeb tissue model gives it here.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">head</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">shaded</span> <span class="o">&gt;</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">shaded</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="n">with_head</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><span class="n">bt</span><span class="o">.</span><span class="n">bias_field_correct</span></a><span class="p">(</span><span class="n">shaded</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">Otsu mask: white-matter variation </span><span class="si">{</span><span class="n">variation</span><span class="p">(</span><span class="n">corrected</span><span class="p">,</span><span class="w"> </span><span class="n">white</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">head mask: white-matter variation </span><span class="si">{</span><span class="n">variation</span><span class="p">(</span><span class="n">with_head</span><span class="p">,</span><span class="w"> </span><span class="n">white</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">masks</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">Otsu</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">head</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">head</span><span class="p">)</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">brain</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">brain</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">trial</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><span class="n">bt</span><span class="o">.</span><span class="n">bias_field_correct</span></a><span class="p">(</span><span class="n">shaded</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">shrink_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">5s</span><span class="si">}</span><span class="s2"> mask: white-matter variation </span><span class="si">{</span><span class="n">variation</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span><span class="w"> </span><span class="n">white</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Otsu mask: white-matter variation 0.104
-head mask: white-matter variation 0.115
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Otsu  mask: white-matter variation 0.035
+head  mask: white-matter variation 0.063
+brain mask: white-matter variation 0.023
 </pre></div>
 </div>
+<p>N4 sharpens one histogram over the whole mask. The scalp and the skull add
+intensity classes of their own, and the fit over the head mask is the least
+uniform; the brain mask, which holds only the classes the field is judged
+by, is the most.</p>
 <p>The field is fitted on the image shrunk by <code class="docutils literal notranslate"><span class="pre">shrink_factor</span></code> and evaluated
 on the full grid. A field that is smooth on the scale of the head needs few
-grid points, and the cost of each N4 iteration falls with their number.</p>
+grid points, and the cost of each N4 iteration falls with their number,
+until the shrunk image holds too few voxels of each tissue class.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">for</span> <span class="n">shrink</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="n">trial</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><span class="n">bt</span><span class="o">.</span><span class="n">bias_field_correct</span></a><span class="p">(</span><span class="n">shaded</span><span class="p">,</span> <span class="n">shrink_factor</span><span class="o">=</span><span class="n">shrink</span><span class="p">)</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">shrink_factor </span><span class="si">{</span><span class="n">shrink</span><span class="si">}</span><span class="s2">: white-matter variation </span><span class="si">{</span><span class="n">variation</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span><span class="w"> </span><span class="n">white</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>shrink_factor 1: white-matter variation 0.095
-shrink_factor 2: white-matter variation 0.096
-shrink_factor 4: white-matter variation 0.104
-shrink_factor 8: white-matter variation 0.137
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>shrink_factor 1: white-matter variation 0.029
+shrink_factor 2: white-matter variation 0.035
+shrink_factor 4: white-matter variation 0.036
+shrink_factor 8: white-matter variation 0.056
 </pre></div>
 </div>
+</section>
+<section id="what-n4-does-not-recover">
+<h2>What N4 does not recover<a class="headerlink" href="#what-n4-does-not-recover" title="Link to this heading">#</a></h2>
+<p>The estimate degrades as the range of the field grows. With the four
+posterior elements alone the field falls steeply towards the frontal pole,
+and N4 overestimates it there.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">steep</span><span class="p">,</span> <span class="n">steep_bias</span> <span class="o">=</span> <span class="n">shaded_image</span><span class="p">(</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span><span class="n">steep_corrected</span><span class="p">,</span> <span class="n">steep_estimate</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><span class="n">bt</span><span class="o">.</span><span class="n">bias_field_correct</span></a><span class="p">(</span><span class="n">steep</span><span class="p">,</span> <span class="n">shrink_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">return_field</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">steep_bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.02</span><span class="p">)</span><span class="p">,</span> <span class="n">steep_bias</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.98</span><span class="p">)</span><span class="w">
+</span><span class="n">median</span><span class="p">,</span> <span class="n">within</span> <span class="o">=</span> <span class="n">agreement</span><span class="p">(</span><span class="n">steep_estimate</span><span class="p">,</span> <span class="n">steep_bias</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">four posterior elements: field </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">low</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">high</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">white-matter variation: shaded </span><span class="si">{</span><span class="n">variation</span><span class="p">(</span><span class="n">steep</span><span class="p">,</span><span class="w"> </span><span class="n">white</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">N4-corrected </span><span class="si">{</span><span class="n">variation</span><span class="p">(</span><span class="n">steep_corrected</span><span class="p">,</span><span class="w"> </span><span class="n">white</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">; </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">estimate within 10 % in </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">within</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> % of the voxels</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>four posterior elements: field 0.35 to 1.55
+white-matter variation: shaded 0.262, N4-corrected 0.096; estimate within 10 % in 83 % of the voxels
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_03-bias-field_005.png" srcset="../../_images/sphx_glr_03-bias-field_005.png" alt="shaded, N4-corrected, field on the line" class = "sphx-glr-single-img"/><p>The corrected frontal cortex remains darker than the occipital cortex,
+because the estimated field does not fall as far as the true one at the frontal pole. A
+residual of this kind is the reason a corrected image is still compared
+across regions with care.</p>
 <p>N4 removes any smooth intensity variation, whatever its origin: a receive
 field, a transmit field in a gradient-echo image, or a genuine slow change
 of the tissue signal. In a SENSE reconstruction the sensitivities are
@@ -713,7 +754,7 @@ phantom. <em>IEEE Trans Med Imaging</em> 17(3):463-468 (1998).
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.886 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.590 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-03-bias-field-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/bce1b2bc5ed92953167b6926bb450aec/03-bias-field.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-bias-field.ipynb</span></code></a></p>
@@ -780,6 +821,7 @@ phantom. <em>IEEE Trans Med Imaging</em> 17(3):463-468 (1998).
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-shaded-image">The shaded image</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#n4-correction">N4 correction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-mask-and-the-fitting-grid">The mask and the fitting grid</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-n4-does-not-recover">What N4 does not recover</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>

@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -648,7 +648,7 @@ the 3D pose.</p>
 </span><span class="w">
 </span><span class="n">reference</span> <span class="o">=</span> <span class="n">navigator</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_06-navigator-motion_001.png" srcset="../../_images/sphx_glr_06-navigator-motion_001.png" alt="axial, 56$^2$ at 4 mm, coronal, 56$^2$ at 4 mm, sagittal, 56$^2$ at 4 mm" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_06-navigator-motion_001.png" srcset="../../_images/sphx_glr_06-navigator-motion_001.png" alt="axial, coronal, sagittal" class = "sphx-glr-single-img"/></section>
 <section id="one-pose">
 <h2>One pose<a class="headerlink" href="#one-pose" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="../../generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker" title="bartorch.tools.NavigatorMotionTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">NavigatorMotionTracker</span></code></a> takes the first
@@ -709,7 +709,7 @@ measured pose, what remains is the error of the pose.</p>
 sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.066
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_06-navigator-motion_002.png" srcset="../../_images/sphx_glr_06-navigator-motion_002.png" alt="axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.051, moved - measured pose NRMSE 0.048, moved - measured pose NRMSE 0.066" class = "sphx-glr-single-img"/><p>The residual error of the pose, a fraction of a degree and of a millimetre,
+<img src="../../_images/sphx_glr_06-navigator-motion_002.png" srcset="../../_images/sphx_glr_06-navigator-motion_002.png" alt="axial, coronal, sagittal" class = "sphx-glr-single-img"/><p>The residual error of the pose, a fraction of a degree and of a millimetre,
 has two sources: the navigator’s 4 mm resolution, and the
 through-plane motion, which each plane sees as a change of the anatomy in it
 rather than as a rigid motion within it. It is a small fraction of the 4 mm
@@ -768,12 +768,12 @@ measured coordinate. The trace is filtered with three values of
 </span>        <span class="o">+</span> <span class="s2">&quot;</span><span class="s2">, </span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">NAMES</span><span class="p">,</span> <span class="n">error</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="p">]</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rms error: rotation S/I 0.47°, A/P 0.37°, L/R 0.42°; shift S/I 0.18 mm, A/P 0.42 mm, L/R 0.19 mm
-process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
-process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.23°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rms error: rotation S/I 0.44°, A/P 0.37°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
+process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.30°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
+process_noise 0.0001 rms error: rotation S/I 0.43°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_06-navigator-motion_003.png" srcset="../../_images/sphx_glr_06-navigator-motion_003.png" alt="nod: rotation about L/R, drift: shift along S/I" class = "sphx-glr-single-img"/><p>A large <code class="docutils literal notranslate"><span class="pre">process_noise</span></code> leaves the filter at the measurements; a small one
+<img src="../../_images/sphx_glr_06-navigator-motion_003.png" srcset="../../_images/sphx_glr_06-navigator-motion_003.png" alt="nod, about L/R, drift, along S/I" class = "sphx-glr-single-img"/><p>A large <code class="docutils literal notranslate"><span class="pre">process_noise</span></code> leaves the filter at the measurements; a small one
 makes it trust its constant-velocity prediction, which smooths the
 registration error and lags a change of direction: at <code class="docutils literal notranslate"><span class="pre">1e-4</span></code> the error of
 the nod grows while that of the other coordinates falls. An error common to
@@ -806,7 +806,7 @@ Evans AC. Design and construction of a realistic digital brain phantom.
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.541 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.907 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-06-navigator-motion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0237a94056ab625458d97bb6b88710fb/06-navigator-motion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">06-navigator-motion.ipynb</span></code></a></p>

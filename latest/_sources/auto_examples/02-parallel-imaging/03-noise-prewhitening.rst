@@ -61,7 +61,7 @@ and present in the script this page can be downloaded as.
 It follows :doc:`02-nonlinear-inversion`. The next section starts with
 :doc:`../03-regularization/01-regularized-reconstruction`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-230
+.. GENERATED FROM PYTHON SOURCE LINES 47-233
 
 .. code-block:: Python
 
@@ -90,7 +90,7 @@ It follows :doc:`02-nonlinear-inversion`. The next section starts with
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-240
+.. GENERATED FROM PYTHON SOURCE LINES 234-243
 
 Correlated channel noise
 ------------------------
@@ -102,7 +102,7 @@ between 0.6 and 1.6 times a common level. The noise scan measures the same
 channels without signal; its sample covariance is the estimate of
 :math:`\Psi` that :func:`bartorch.tools.whiten` inverts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 241-261
+.. GENERATED FROM PYTHON SOURCE LINES 244-264
 
 .. code-block:: Python
 
@@ -133,14 +133,14 @@ channels without signal; its sample covariance is the estimate of
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-266
+.. GENERATED FROM PYTHON SOURCE LINES 265-269
 
 The whitening matrix maps the measured covariance to the identity. The
 measure printed below is the mean magnitude of the off-diagonal covariance
 entries relative to the mean diagonal entry, which is zero for
 uncorrelated channels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 267-286
+.. GENERATED FROM PYTHON SOURCE LINES 270-289
 
 .. code-block:: Python
 
@@ -177,13 +177,13 @@ uncorrelated channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 287-306
+.. GENERATED FROM PYTHON SOURCE LINES 290-309
 
 
 
 
 .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_001.png
-   :alt: noise covariance, measured, after whitening
+   :alt: measured, whitened
    :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_001.png
    :class: sphx-glr-single-img
 
@@ -191,7 +191,7 @@ uncorrelated channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 307-319
+.. GENERATED FROM PYTHON SOURCE LINES 310-322
 
 The measured covariance has a strong diagonal whose entries grow with the
 channel index, the unequal noise levels, and off-diagonal bands, the
@@ -206,7 +206,7 @@ the same noise-free k-space. The sensitivities are calibrated once per
 pipeline, from the first replica: from the channels as measured, and from
 the whitened channels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 320-341
+.. GENERATED FROM PYTHON SOURCE LINES 323-344
 
 .. code-block:: Python
 
@@ -238,7 +238,7 @@ the whitened channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 342-348
+.. GENERATED FROM PYTHON SOURCE LINES 345-351
 
 Pseudo-replicas
 ---------------
@@ -247,7 +247,7 @@ Both pipelines use the same reconstruction, conjugate-gradient SENSE with a
 small Tikhonov weight and a fixed number of iterations; they differ only in
 whether the data are whitened first.
 
-.. GENERATED FROM PYTHON SOURCE LINES 349-358
+.. GENERATED FROM PYTHON SOURCE LINES 352-361
 
 .. code-block:: Python
 
@@ -267,13 +267,13 @@ whether the data are whitened first.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 359-362
+.. GENERATED FROM PYTHON SOURCE LINES 362-365
 
 The SNR of a voxel is the magnitude of the mean reconstruction over the
 standard deviation across replicas. Both are reported over the white
 matter, where the phantom is homogeneous.
 
-.. GENERATED FROM PYTHON SOURCE LINES 363-379
+.. GENERATED FROM PYTHON SOURCE LINES 366-382
 
 .. code-block:: Python
 
@@ -308,7 +308,7 @@ matter, where the phantom is homogeneous.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-415
+.. GENERATED FROM PYTHON SOURCE LINES 383-416
 
 
 
@@ -326,7 +326,7 @@ matter, where the phantom is homogeneous.
     *
 
       .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_003.png
-         :alt: SNR ratio, prewhitened / as measured
+         :alt: SNR ratio
          :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_003.png
          :class: sphx-glr-multi-img
 
@@ -334,7 +334,7 @@ matter, where the phantom is homogeneous.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 416-443
+.. GENERATED FROM PYTHON SOURCE LINES 417-444
 
 Prewhitening raises the SNR throughout the head, and the white-matter
 histogram shifts by the ratio printed above. The gain varies in space: it is
@@ -367,7 +367,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.802 seconds)
+   **Total running time of the script:** (0 minutes 5.054 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_03-noise-prewhitening.py:

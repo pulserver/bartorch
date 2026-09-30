@@ -50,7 +50,7 @@ against NumPy, and runs the same command once more through BART's command line.
 The next lesson, :doc:`02-from-kspace-to-image`, reconstructs an undersampled
 acquisition with the functions introduced here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-65
+.. GENERATED FROM PYTHON SOURCE LINES 36-68
 
 .. code-block:: Python
 
@@ -74,7 +74,7 @@ acquisition with the functions introduced here.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 66-83
+.. GENERATED FROM PYTHON SOURCE LINES 69-86
 
 Array layout
 ------------
@@ -94,7 +94,7 @@ readout direction is the last tensor axis.
 image weighted by the complex receive sensitivities of BART's analytical
 eight-channel head array, one image per channel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 84-92
+.. GENERATED FROM PYTHON SOURCE LINES 87-95
 
 .. code-block:: Python
 
@@ -121,7 +121,7 @@ eight-channel head array, one image per channel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-100
+.. GENERATED FROM PYTHON SOURCE LINES 96-103
 
 Each channel sees the object through its own sensitivity profile: bright
 near the coil element, dark on the opposite side of the head. The root sum
@@ -131,7 +131,7 @@ object with the residual shading of the summed sensitivity magnitudes.
 :func:`bartorch.rss` takes the channel axis as a tensor index, as every
 function of this package does, rather than as BART's bitmask.
 
-.. GENERATED FROM PYTHON SOURCE LINES 101-105
+.. GENERATED FROM PYTHON SOURCE LINES 104-108
 
 .. code-block:: Python
 
@@ -152,13 +152,13 @@ function of this package does, rather than as BART's bitmask.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-119
+.. GENERATED FROM PYTHON SOURCE LINES 109-121
 
 
 
 
 .. image-sg:: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_001.png
-   :alt: single-channel magnitude images, channel 0, channel 2, channel 4, channel 6
+   :alt: channel 0, channel 2, channel 4, channel 6
    :srcset: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_001.png
    :class: sphx-glr-single-img
 
@@ -166,7 +166,7 @@ function of this package does, rather than as BART's bitmask.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 120-131
+.. GENERATED FROM PYTHON SOURCE LINES 122-133
 
 Fourier transform
 -----------------
@@ -180,7 +180,7 @@ even matrix size the centred transform equals NumPy's transform between
 ``ifftshift`` and ``fftshift``, which gives a reference computed outside
 BART.
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-141
+.. GENERATED FROM PYTHON SOURCE LINES 134-143
 
 .. code-block:: Python
 
@@ -206,14 +206,14 @@ BART.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-146
+.. GENERATED FROM PYTHON SOURCE LINES 144-148
 
 The difference is single-precision round-off. The unitary transform
 preserves the :math:`\ell_2` norm (Parseval's theorem), so white noise has
 the same standard deviation in k-space and in the image, a property the
 noise and SNR lessons rely on.
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-150
+.. GENERATED FROM PYTHON SOURCE LINES 149-152
 
 .. code-block:: Python
 
@@ -233,7 +233,7 @@ noise and SNR lessons rely on.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 151-163
+.. GENERATED FROM PYTHON SOURCE LINES 153-165
 
 
 
@@ -247,7 +247,7 @@ noise and SNR lessons rely on.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 164-185
+.. GENERATED FROM PYTHON SOURCE LINES 166-187
 
 The k-space magnitude, drawn on a logarithmic scale, spans five orders of
 magnitude: the signal energy is concentrated at the centre, which sets the
@@ -271,7 +271,7 @@ discrete model the reconstruction inverts, the *inverse crime*
 analytical k-space retains it and is therefore the more realistic test
 data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 186-193
+.. GENERATED FROM PYTHON SOURCE LINES 188-195
 
 .. code-block:: Python
 
@@ -295,7 +295,7 @@ data.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 194-219
+.. GENERATED FROM PYTHON SOURCE LINES 196-222
 
 
 
@@ -321,7 +321,7 @@ data.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 220-238
+.. GENERATED FROM PYTHON SOURCE LINES 223-241
 
 The difference map is largest at the ellipse boundaries and decays with
 distance from them. The profile through the centre of the phantom shows the
@@ -342,7 +342,7 @@ written for the ``bart`` executable runs against the same library;
 :func:`bartorch.io.writecfl` takes an array in BART's order, which the
 transpose of a C-order array is.
 
-.. GENERATED FROM PYTHON SOURCE LINES 239-248
+.. GENERATED FROM PYTHON SOURCE LINES 242-251
 
 .. code-block:: Python
 
@@ -368,7 +368,7 @@ transpose of a C-order array is.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-259
+.. GENERATED FROM PYTHON SOURCE LINES 252-262
 
 ``-u`` requests the unitary transform and ``3`` is BART's bitmask for its
 dimensions 0 and 1 (readout and first phase-encoding direction), the last
@@ -381,7 +381,7 @@ of :mod:`bartorch.optim`, introduced from
 :doc:`../03-regularization/02-operators-and-solvers` on, are differentiable.
 :doc:`../../explanation/execution-model` describes both routes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-268
+.. GENERATED FROM PYTHON SOURCE LINES 265-271
 
 References
 ----------
@@ -393,7 +393,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.457 seconds)
+   **Total running time of the script:** (0 minutes 0.950 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_01-tensors-and-commands.py:

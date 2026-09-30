@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -518,11 +518,12 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#object-and-field-map">Object and field map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-data">The data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displacement-along-the-phase-encoding-axis">Displacement along the phase-encoding axis</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-acquisition">The acquisition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-field-map">Reference field map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correction-from-the-reversed-pair">Correction from the reversed pair</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-corrected-pair">The corrected pair</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-with-the-field-map">Comparison with the field map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
             </nav>
@@ -548,185 +549,268 @@ to download the full example code.</p>
 spacing rather than the dwell time, so its bandwidth per pixel is a few tens of
 hertz. A spin off resonance by <span class="math notranslate nohighlight">\(\Delta f\)</span> is displaced along the
 phase-encoding axis by <span class="math notranslate nohighlight">\(\Delta f\)</span> divided by that bandwidth, which near
-the frontal sinus and the petrous bone amounts to several voxels at 3 T: the
-orbitofrontal cortex is compressed or stretched, and signal piles up where
-neighbouring voxels are displaced onto the same location.</p>
+the frontal sinus and the petrous bone amounts to several millimetres at 3 T:
+the orbitofrontal cortex and the temporal poles are compressed or stretched,
+and signal piles up where neighbouring voxels are displaced onto the same
+location.</p>
 <p>The displacement changes sign with the direction in which k-space is
 traversed. Two acquisitions with opposite phase-encoding polarity,
 <em>blip-up</em> and <em>blip-down</em>, are distorted in opposite directions, and the
 displacement field that brings them into register is the correction
-<a class="footnote-reference brackets" href="#andersson" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. This example simulates such a pair of a head at 3 T in a
-<span class="math notranslate nohighlight">\(B_0\)</span> field computed from the magnetic susceptibility of the head, and
-corrects it with <a class="reference internal" href="../../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.correct_susceptibility()</span></code></a>, which runs
-PyHySCO <a class="footnote-reference brackets" href="#pyhysco" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<a class="footnote-reference brackets" href="#andersson" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. This example corrects such a pair, measured at 3 T and
+published on OpenNeuro <a class="footnote-reference brackets" href="#ds001600" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, with
+<a class="reference internal" href="../../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.correct_susceptibility()</span></code></a>, which runs PyHySCO <a class="footnote-reference brackets" href="#pyhysco" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>,
+and compares the estimated displacement with the one predicted by a
+gradient-echo field map of the same subject.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
-<li><p>Compute the displacement of an EPI voxel from its off-resonance frequency,
-the echo spacing and the number of phase-encoding lines.</p></li>
+<li><p>Read a BIDS EPI series and its sidecar, and compute the bandwidth per pixel
+along phase encoding and the displacement per hertz of off-resonance.</p></li>
+<li><p>State the direction of the displacement in anatomical terms from the
+phase-encoding direction and the image orientation.</p></li>
 <li><p>Recognise the compression, stretching and signal pile-up of susceptibility
 distortion, and their reversal between the two phase-encoding polarities.</p></li>
 <li><p>Estimate the displacement field from a reversed phase-encoding pair and
 correct both images, including their intensity.</p></li>
-<li><p>Assess the estimated displacement against the field map it originates
-from.</p></li>
+<li><p>Assess the estimated displacement against an independent field map, and the
+correction by the agreement of the two corrected images.</p></li>
 </ul>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="w">
 </span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">nibabel</span><span class="nn">.</span><span class="nn">orientations</span><span class="w"> </span><span class="kn">import</span> <span class="n">aff2axcodes</span><span class="w">
+</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-bartorch-io sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><span class="n">read_nifti</span></a><span class="w">
 </span></pre></div></div>
-<section id="object-and-field-map">
-<h2>Object and field map<a class="headerlink" href="#object-and-field-map" title="Link to this heading">#</a></h2>
-<p>The object is a slab of eleven axial slices of the BrainWeb T2-weighted head
-<a class="footnote-reference brackets" href="#brainweb" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, 3 mm apart, through the orbitofrontal cortex and the temporal
-lobes, on a 96 x 96 matrix over a 220 mm field of view (2.3 mm in-plane).
-T2 weighting stands in for the <span class="math notranslate nohighlight">\(b = 0\)</span> image of a diffusion
-acquisition. The field map is the <span class="math notranslate nohighlight">\(B_0\)</span> offset at 3 T produced by the susceptibility
-difference between air and tissue, <span class="math notranslate nohighlight">\(\Delta\chi = 9.4\)</span> ppm, computed in
-3D with the dipole kernel and less a second-order shim fitted over the brain,
-rounded to 1 Hz and limited to <span class="math notranslate nohighlight">\(\pm 150\)</span> Hz.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">SIZE</span><span class="p">,</span> <span class="n">FOV_MM</span><span class="p">,</span> <span class="n">SLICE_MM</span> <span class="o">=</span> <span class="mi">96</span><span class="p">,</span> <span class="mf">220.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="w">
-</span><span class="n">VOXEL_MM</span> <span class="o">=</span> <span class="p">(</span><span class="n">SLICE_MM</span><span class="p">,</span> <span class="n">FOV_MM</span> <span class="o">/</span> <span class="n">SIZE</span><span class="p">,</span> <span class="n">FOV_MM</span> <span class="o">/</span> <span class="n">SIZE</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">slab </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">, voxel </span><span class="si">{</span><span class="n">VOXEL_MM</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">VOXEL_MM</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">SLICE_MM</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">head</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">brain</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">brain</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">values</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">field over the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">+.0f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">+.0f</span><span class="si">}</span><span class="s2"> Hz</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+<section id="the-data">
+<h2>The data<a class="headerlink" href="#the-data" title="Link to this heading">#</a></h2>
+<p>The dataset holds gradient-echo EPI series of one subject acquired on a
+Siemens Prisma at 3 T, 64 x 64 matrix, 44 axial slices, 3.75 x 3.75 x 4 mm,
+with the same protocol and shim and opposite phase-encoding polarity, and a
+dual-echo gradient-echo field map on the same grid. Each EPI series has five
+volumes; their mean is taken to raise the signal-to-noise ratio.
+<a class="reference internal" href="../../generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_nifti()</span></code></a> returns the volumes as <code class="docutils literal notranslate"><span class="pre">(volumes,</span> <span class="pre">z,</span> <span class="pre">y,</span>
+<span class="pre">x)</span></code> and the affine from voxel indices <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">z)</span></code> to RAS millimetres;
+the sidecars hold the timings of the readout.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">blip_up_file</span> <span class="o">=</span> <span class="n">CACHE</span> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">sub-1/fmap/sub-1_dir-PA_epi</span><span class="s2">&quot;</span><span class="w">
+</span><span class="n">blip_down_file</span> <span class="o">=</span> <span class="n">CACHE</span> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">sub-1/func/sub-1_task-rest_acq-AP_bold</span><span class="s2">&quot;</span><span class="w">
+</span><span class="n">blip_up</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-io sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><span class="n">read_nifti</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">blip_up_file</span><span class="si">}</span><span class="s2">.nii.gz</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">blip_down</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-io sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><span class="n">read_nifti</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">blip_down_file</span><span class="si">}</span><span class="s2">.nii.gz</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">sidecar_up</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">blip_up_file</span><span class="si">}</span><span class="s2">.json</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">sidecar_down</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">blip_down_file</span><span class="si">}</span><span class="s2">.json</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">affine</span> <span class="o">=</span> <span class="n">blip_up</span><span class="o">.</span><span class="n">affine</span><span class="w">
+</span><span class="n">voxel_mm</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">affine</span><span class="p">[</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="p">)</span>  <span class="c1"># (z, y, x)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">blip_up</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"> volumes, voxel (z, y, x) </span><span class="si">{</span><span class="n">voxel_mm</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">voxel axes x, y, z point to</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">aff2axcodes</span><span class="p">(</span><span class="n">affine</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">sidecar</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">blip-up</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sidecar_up</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">blip-down</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sidecar_down</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">9s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sidecar</span><span class="p">[</span><span class="s1">'</span><span class="s1">SeriesDescription</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">sidecar</span><span class="p">[</span><span class="s1">'</span><span class="s1">PhaseEncodingDirection</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">up</span> <span class="o">=</span> <span class="n">blip_up</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span><span class="n">down</span> <span class="o">=</span> <span class="n">blip_down</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>slab (11, 96, 96), voxel 2.3 x 2.3 x 3.0 mm
-field over the head: -150 to +150 Hz
-field over the brain: -67 to +59 Hz
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(5, 44, 64, 64) volumes, voxel (z, y, x) (4.0, 3.75, 3.75) mm
+voxel axes x, y, z point to LAS
+blip-up   BOLD_3mm_matched_0.55esp_topup: j
+blip-down BOLD_3mm_matched_0.55esp: j-
 </pre></div>
 </div>
+<p>The voxel axis <code class="docutils literal notranslate"><span class="pre">x</span></code> points to the subject’s left and <code class="docutils literal notranslate"><span class="pre">y</span></code> to anterior, so
+<code class="docutils literal notranslate"><span class="pre">PhaseEncodingDirection</span></code> <code class="docutils literal notranslate"><span class="pre">j</span></code> is posterior to anterior and <code class="docutils literal notranslate"><span class="pre">j-</span></code> anterior
+to posterior: phase encoding is along the anterior-posterior axis of the
+head and the readout left-right. The figures show the slices with anterior
+at the top and the subject’s left on the right.</p>
 </section>
 <section id="displacement-along-the-phase-encoding-axis">
 <h2>Displacement along the phase-encoding axis<a class="headerlink" href="#displacement-along-the-phase-encoding-axis" title="Link to this heading">#</a></h2>
-<p>The phase-encoding axis is anterior-posterior and the readout is
-left-right. With <span class="math notranslate nohighlight">\(N\)</span> phase-encoding lines acquired at echo spacing
-<span class="math notranslate nohighlight">\(\Delta t_{esp}\)</span>, line <span class="math notranslate nohighlight">\(n\)</span> is sampled at
-<span class="math notranslate nohighlight">\(t_n = n\, \Delta t_{esp}\)</span> relative to the echo time, with
-<span class="math notranslate nohighlight">\(k_y = n\)</span> in grid units from <span class="math notranslate nohighlight">\(-N/2\)</span> to <span class="math notranslate nohighlight">\(N/2 - 1\)</span>. The
-phase accrued off resonance, <span class="math notranslate nohighlight">\(2\pi \Delta f\, t_n\)</span>, is then linear in
-<span class="math notranslate nohighlight">\(k_y\)</span>, which is a displacement by</p>
+<p>With <span class="math notranslate nohighlight">\(N\)</span> phase-encoding lines acquired at the effective echo spacing
+<span class="math notranslate nohighlight">\(\Delta t_{esp}\)</span> (the echo spacing divided by any parallel-imaging
+acceleration), the phase accrued off resonance is linear in <span class="math notranslate nohighlight">\(k_y\)</span>,
+which is a displacement by</p>
 <div class="math notranslate nohighlight">
 \[d = \frac{\Delta f}{\mathrm{BW}_{PE}}\ \text{voxels}, \qquad
 \mathrm{BW}_{PE} = \frac{1}{N\, \Delta t_{esp}},\]</div>
 <p>with <span class="math notranslate nohighlight">\(\mathrm{BW}_{PE}\)</span> the bandwidth per pixel along the
-phase-encoding axis. Reversing the phase-encoding blips traverses
-<span class="math notranslate nohighlight">\(k_y\)</span> in the opposite order, <span class="math notranslate nohighlight">\(t_n = -n\, \Delta t_{esp}\)</span>, and
-reverses the displacement. The readout, sampled at a dwell time of a few
-microseconds, has a bandwidth per pixel over a kilohertz and its
-displacement is neglected. An echo spacing of 0.6 ms without parallel
-imaging is typical of a single-shot diffusion acquisition at this
-resolution.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">ECHO_SPACING_S</span> <span class="o">=</span> <span class="mf">0.6e-3</span><span class="w">
-</span><span class="n">bandwidth_pe</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">SIZE</span> <span class="o">*</span> <span class="n">ECHO_SPACING_S</span><span class="p">)</span><span class="w">
-</span><span class="n">displacement_mm</span> <span class="o">=</span> <span class="n">field_map</span> <span class="o">/</span> <span class="n">bandwidth_pe</span> <span class="o">*</span> <span class="n">VOXEL_MM</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">bandwidth per pixel along phase encoding: </span><span class="si">{</span><span class="n">bandwidth_pe</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> Hz</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+phase-encoding axis; BIDS writes <span class="math notranslate nohighlight">\((N - 1)\,\Delta t_{esp}\)</span> as
+<code class="docutils literal notranslate"><span class="pre">TotalReadoutTime</span></code>. The displacement is along <code class="docutils literal notranslate"><span class="pre">PhaseEncodingDirection</span></code>
+for a positive <span class="math notranslate nohighlight">\(\Delta f\)</span>, and reversing the blips reverses it. The
+readout, at a bandwidth per pixel of <code class="docutils literal notranslate"><span class="pre">PixelBandwidth</span></code>, is displaced by a
+fraction of a voxel, which is neglected.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">lines</span> <span class="o">=</span> <span class="n">sidecar_up</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">AcquisitionMatrixPE</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="n">echo_spacing</span> <span class="o">=</span> <span class="n">sidecar_up</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">EffectiveEchoSpacing</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="n">bandwidth_pe</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">lines</span> <span class="o">*</span> <span class="n">echo_spacing</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lines</span><span class="si">}</span><span class="s2"> lines at an effective echo spacing of </span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">echo_spacing</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="w">
-</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">displacement over the brain: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">displacement_mm</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> to </span><span class="s2">&quot;</span><span class="w">
-</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">displacement_mm</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">bandwidth per pixel: </span><span class="si">{</span><span class="n">bandwidth_pe</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> Hz along phase encoding </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">(sidecar </span><span class="si">{</span><span class="n">sidecar_up</span><span class="p">[</span><span class="s1">'</span><span class="s1">BandwidthPerPixelPhaseEncode</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2"> Hz), </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sidecar_up</span><span class="p">[</span><span class="s1">'</span><span class="s1">PixelBandwidth</span><span class="s1">'</span><span class="p">]</span><span class="si">}</span><span class="s2"> Hz along the readout</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">total readout time </span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sidecar_up</span><span class="p">[</span><span class="s1">'</span><span class="s1">TotalReadoutTime</span><span class="s1">'</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">100 Hz off resonance: </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">bandwidth_pe</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> voxels = </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">bandwidth_pe</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">voxel_mm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> mm along phase encoding</span><span class="s2">&quot;</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>bandwidth per pixel along phase encoding: 17.4 Hz
-displacement over the brain: -8.8 to +7.8 mm
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>64 lines at an effective echo spacing of 0.55 ms
+bandwidth per pixel: 28.4 Hz along phase encoding (sidecar 28.409 Hz), 2055 Hz along the readout
+total readout time 34.65 ms
+100 Hz off resonance: 3.5 voxels = 13.2 mm along phase encoding
 </pre></div>
 </div>
 </section>
-<section id="the-acquisition">
-<h2>The acquisition<a class="headerlink" href="#the-acquisition" title="Link to this heading">#</a></h2>
-<p>Each column of each slice is simulated exactly for the field map: the
-phase-encoding line <span class="math notranslate nohighlight">\(n\)</span> is the Fourier sum over the column,
-<span class="math notranslate nohighlight">\(s_n = \sum_y x(y)\, e^{-2\pi i k_n y / N}\, e^{2\pi i \Delta f(y)\,
-t_n}\)</span>, and the image is its inverse transform along the phase-encoding axis
-with <a class="reference internal" href="../../generated/bartorch.ifft.html#bartorch.ifft" title="bartorch.ifft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.ifft()</span></code></a>. The blip-up image is the one acquired with
-<span class="math notranslate nohighlight">\(t_n = -n\, \Delta t_{esp}\)</span>, whose voxels are displaced by
-<span class="math notranslate nohighlight">\(+d\)</span>, towards posterior for a positive offset.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">k_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="w">
-</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="n">j</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">k_y</span><span class="p">,</span> <span class="n">k_y</span><span class="p">)</span> <span class="o">/</span> <span class="n">SIZE</span><span class="p">)</span> <span class="o">/</span> <span class="n">SIZE</span><span class="o">*</span><span class="o">*</span><span class="mf">0.5</span>  <span class="c1"># (n, y)</span><span class="w">
-</span><span class="w">
-</span><span class="w">
-</span><span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="n">polarity</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">line_time</span> <span class="o">=</span> <span class="n">polarity</span> <span class="o">*</span> <span class="n">k_y</span> <span class="o">*</span> <span class="n">ECHO_SPACING_S</span><span class="w">
-</span>    <span class="n">accrued</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">polar</span><span class="p">(</span><span class="w">
-</span>        <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>        <span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">line_time</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">field_map</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>    <span class="p">)</span><span class="w">
-</span>    <span class="n">lines</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">ny,nzyx,zyx-&gt;znx</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="p">,</span> <span class="n">accrued</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.ifft.html#bartorch.ifft" title="bartorch.ifft"><span class="n">bartorch</span><span class="o">.</span><span class="n">ifft</span></a><span class="p">(</span><span class="n">lines</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="w">
-</span><span class="n">blip_up</span><span class="p">,</span> <span class="n">blip_down</span> <span class="o">=</span> <span class="n">acquire</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">acquire</span><span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w">
+<section id="reference-field-map">
+<h2>Reference field map<a class="headerlink" href="#reference-field-map" title="Link to this heading">#</a></h2>
+<p>The gradient-echo field map is the phase difference <span class="math notranslate nohighlight">\(\Delta\phi\)</span>
+between two echoes, stored by the scanner as integers from 0 to 4095 for
+<span class="math notranslate nohighlight">\(-\pi\)</span> to <span class="math notranslate nohighlight">\(\pi\)</span>, and the off-resonance is
+<span class="math notranslate nohighlight">\(\Delta f = \Delta\phi / (2\pi\, \Delta\mathrm{TE})\)</span>. The phase is
+smoothed as a complex exponential over one voxel. The displacement it
+predicts for the blip-up image is
+<span class="math notranslate nohighlight">\(\Delta f / \mathrm{BW}_{PE}\)</span> voxels towards anterior.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">phase_file</span> <span class="o">=</span> <span class="n">CACHE</span> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">sub-1/fmap/sub-1_acq-v4_phasediff</span><span class="s2">&quot;</span><span class="w">
+</span><span class="n">sidecar_phase</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phase_file</span><span class="si">}</span><span class="s2">.json</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">phase</span> <span class="o">=</span> <span class="p">(</span><a class="sphx-glr-backref-module-bartorch-io sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><span class="n">read_nifti</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phase_file</span><span class="si">}</span><span class="s2">.nii.gz</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2048</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2048</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span><span class="w">
+</span><span class="n">magnitude</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-io sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><span class="n">read_nifti</span></a><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">CACHE</span> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">sub-1/fmap/sub-1_acq-v4_magnitude1.nii.gz</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">delta_te</span> <span class="o">=</span> <span class="n">sidecar_phase</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">EchoTime2</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">sidecar_phase</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">EchoTime1</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="n">off_resonance</span> <span class="o">=</span> <span class="n">phase</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">delta_te</span><span class="p">)</span><span class="w">
+</span><span class="n">predicted_mm</span> <span class="o">=</span> <span class="n">off_resonance</span> <span class="o">/</span> <span class="n">bandwidth_pe</span> <span class="o">*</span> <span class="n">voxel_mm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">echo times </span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sidecar_phase</span><span class="p">[</span><span class="s1">'</span><span class="s1">EchoTime1</span><span class="s1">'</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> and </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sidecar_phase</span><span class="p">[</span><span class="s1">'</span><span class="s1">EchoTime2</span><span class="s1">'</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> ms: unambiguous within </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">+/-</span><span class="si">{</span><span class="mi">1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">delta_te</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> Hz</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>echo times 4.00 and 6.46 ms: unambiguous within +/-203 Hz
+</pre></div>
+</div>
 </section>
 <section id="correction-from-the-reversed-pair">
 <h2>Correction from the reversed pair<a class="headerlink" href="#correction-from-the-reversed-pair" title="Link to this heading">#</a></h2>
 <p>PyHySCO estimates the displacement field <span class="math notranslate nohighlight">\(b\)</span> for which the blip-up
 image sampled at <span class="math notranslate nohighlight">\(y + b\)</span> and the blip-down image sampled at
 <span class="math notranslate nohighlight">\(y - b\)</span>, each multiplied by the Jacobian determinant of its
-transformation, agree. The Jacobian factor restores the intensity of voxels
-compressed into a pile-up or stretched over several voxels. A smoothness
-penalty on <span class="math notranslate nohighlight">\(b\)</span> and a constraint that keeps both transformations
-invertible regularize the problem; the estimation is three-dimensional, and
-<a class="reference internal" href="../../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-func docutils literal notranslate"><span class="pre">correct_susceptibility()</span></code></a> takes the slab with its voxel
-size and returns <span class="math notranslate nohighlight">\(b\)</span> in millimetres.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><span class="n">bt</span><span class="o">.</span><span class="n">correct_susceptibility</span></a><span class="p">(</span><span class="n">blip_up</span><span class="p">,</span> <span class="n">blip_down</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="n">VOXEL_MM</span><span class="p">,</span> <span class="n">phase_encoding_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">
-</span><span class="n">corrected</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a><span class="o">.</span><span class="n">blip_up</span> <span class="o">+</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a><span class="o">.</span><span class="n">blip_down</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="w">
+transformation, <span class="math notranslate nohighlight">\(1 \pm \partial b / \partial y\)</span>, agree. The Jacobian
+factor restores the intensity of voxels compressed into a pile-up or
+stretched over several voxels. A smoothness penalty on <span class="math notranslate nohighlight">\(b\)</span> and a
+constraint that keeps both transformations invertible regularize the
+problem. The estimation is three-dimensional: the volume is passed with its
+voxel size and the phase-encoding axis <code class="docutils literal notranslate"><span class="pre">y</span></code>, and <span class="math notranslate nohighlight">\(b\)</span> is returned in
+millimetres along the voxel axis <code class="docutils literal notranslate"><span class="pre">y</span></code>, that is towards anterior, on the
+faces between voxels.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><span class="n">bt</span><span class="o">.</span><span class="n">correct_susceptibility</span></a><span class="p">(</span><span class="n">up</span><span class="p">,</span> <span class="n">down</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="n">voxel_mm</span><span class="p">,</span> <span class="n">phase_encoding_axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">
 </span><span class="n">estimated_mm</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a><span class="o">.</span><span class="n">field_map</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="p">]</span> <span class="o">+</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a><span class="o">.</span><span class="n">field_map</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span>  <span class="c1"># voxel centres</span><span class="w">
+</span><span class="n">corrected_up</span><span class="p">,</span> <span class="n">corrected_down</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a><span class="o">.</span><span class="n">blip_up</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><span class="n">result</span></a><span class="o">.</span><span class="n">blip_down</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 </section>
-<section id="results">
-<h2>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h2>
-<p>Each image is compared with the undistorted object as the normalized
-root-mean-square error (NRMSE) over the brain; the estimated displacement is
-compared with <span class="math notranslate nohighlight">\(d\)</span> over the brain.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">nrmse</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">truth</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">brain</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">estimate</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">truth</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+<section id="the-corrected-pair">
+<h2>The corrected pair<a class="headerlink" href="#the-corrected-pair" title="Link to this heading">#</a></h2>
+<p>Where the correction is right, the two corrected images are the same image.
+Their agreement is measured over the brain, where the corrected EPI and the
+field map’s magnitude both have signal, as the correlation coefficient and
+as the root-mean-square difference relative to the mean image.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">similarity</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">brain</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">second</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">correlation</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">correlation</span><span class="p">,</span> <span class="p">(</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">blip-up                NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">blip_up</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">blip-down              NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">blip_down</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">mean of the pair       NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">blip_up</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">blip_down</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">corrected              NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">corrected</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="n">error_mm</span> <span class="o">=</span> <span class="p">(</span><span class="n">estimated_mm</span> <span class="o">-</span> <span class="n">displacement_mm</span><span class="p">)</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="w">
-</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">displacement over the brain: RMS </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">displacement_mm</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
-</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2"> mm, RMS error of the estimate </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">error_mm</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="w">
-</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">pair</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">acquired</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">up</span><span class="p">,</span> <span class="n">down</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">corrected</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">corrected_up</span><span class="p">,</span> <span class="n">corrected_down</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">correlation</span><span class="p">,</span> <span class="n">difference</span> <span class="o">=</span> <span class="n">similarity</span><span class="p">(</span><span class="o">*</span><span class="n">pair</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">blip-up vs blip-down, </span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">9s</span><span class="si">}</span><span class="s2">: correlation </span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">RMS difference </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">difference</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> % of the mean image</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>blip-up                NRMSE 0.251
-blip-down              NRMSE 0.242
-mean of the pair       NRMSE 0.170
-corrected              NRMSE 0.080
-displacement over the brain: RMS 1.8 mm, RMS error of the estimate 0.8 mm
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>blip-up vs blip-down, acquired : correlation 0.871, RMS difference 21 % of the mean image
+blip-up vs blip-down, corrected: correlation 0.989, RMS difference 6 % of the mean image
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_001.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_001.png" alt="object, T2-weighted, field map at 3 T" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_002.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_002.png" alt="undistorted, blip-up, blip-down, corrected" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_003.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_003.png" alt="orbitofrontal region, undistorted, blip-up, blip-down, corrected" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_004.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_004.png" alt="profile along the phase-encoding axis, dashed line above" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_005.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_005.png" alt="displacement d, estimated b, b - d" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_006.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_006.png" alt="blip-up - undistorted, blip-down - undistorted, corrected - undistorted" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_001.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_001.png" alt="blip-up, P to A, blip-down, A to P, corrected" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_002.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_002.png" alt="blip-up, P to A, blip-down, A to P, corrected" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_003.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_003.png" alt="acquired, slice 21, corrected, slice 21, acquired, slice 14, corrected, slice 14" class = "sphx-glr-multi-img"/></li>
 </ul>
-<p>Where the offset is positive – the scalp and the fat anterior to the
-frontal lobes, and the orbitofrontal cortex – the blip-up image displaces
-signal towards posterior and the blip-down image towards anterior; in the
-lateral temporal lobes, where it is negative, the directions are exchanged.
-Where the displacement decreases along its own direction, neighbouring
-voxels converge onto one location and form a bright pile-up, as the frontal
-scalp does in the blip-up image; where it increases, their signal is
-stretched over more voxels and darkened. The mean of the pair superimposes
-both distortions. The corrected image restores the position and the
-intensity of the cortex. Its residual is largest in the scalp, where the
-displacement reaches several voxels and changes within a few, and where a
-pile-up has summed the signal of separate voxels into one, which no
-transformation of the pair separates.</p>
-<p>The estimate of <span class="math notranslate nohighlight">\(b\)</span> follows <span class="math notranslate nohighlight">\(d\)</span> over the brain; it is smoother,
-as the regularization requires, and has no information where the images
-carry no signal. In practice the pair is acquired as two short
-<span class="math notranslate nohighlight">\(b = 0\)</span> series, the displacement field is estimated once, and it is
-applied to every diffusion-weighted volume acquired with one of the two
-polarities.</p>
+<p>Slice 21 passes through the orbitofrontal cortex and slice 14 through the
+temporal poles and the cerebellum; the lower row of each figure enlarges the
+anterior part of the slice, with its own grey scale. Above the frontal sinus the off-resonance is
+positive: the blip-up image, phase-encoded from posterior to anterior,
+displaces the orbitofrontal cortex anteriorly and compresses its anterior
+edge into a bright rim, and the blip-down image displaces it posteriorly
+and flattens it. At the temporal poles, above the petrous bone and the
+mastoid air cells, the off-resonance is negative and the directions are
+exchanged: the blip-down image stretches the poles anteriorly into streaks,
+and the blip-up image compresses them into a few dark voxels. The corrected
+image, the mean of the two corrected images of the pair, places the cortex
+between the two and restores its intensity.</p>
+<p>In the overlays the blip-up image is shown in magenta and the blip-down
+image in green, so that tissue where the two agree is grey. Before
+correction the frontal, temporal and occipital edges carry a magenta fringe
+on one side and a green fringe on the other; after correction they are
+grey. What remains is green at the temporal poles, where the blip-up image
+has lost the signal that the blip-down image has: signal lost within a
+voxel in one acquisition is not restored by a displacement.</p>
+</section>
+<section id="comparison-with-the-field-map">
+<h2>Comparison with the field map<a class="headerlink" href="#comparison-with-the-field-map" title="Link to this heading">#</a></h2>
+<p>The estimate is compared with the displacement predicted by the
+gradient-echo field map over the brain, and over the brain voxels where the
+field map predicts a displacement of more than one voxel,
+<span class="math notranslate nohighlight">\(|\Delta f| &gt; \mathrm{BW}_{PE}\)</span>: where there is a distortion to
+measure. Over the rest of the brain the field is close to zero, and the
+correlation there measures noise. The field map was acquired with its own
+shim, so the two fields may also differ by a smooth field of first and
+second order.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">correlation</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">(</span><span class="n">first</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="p">,</span> <span class="n">second</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="n">distorted</span> <span class="o">=</span> <span class="n">brain</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">off_resonance</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">bandwidth_pe</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">shim, EPI      </span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sidecar_up</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">ShimSetting</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">shim, field map</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sidecar_phase</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">ShimSetting</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">field over the brain: </span><span class="si">{</span><span class="n">off_resonance</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span><span class="si">:</span><span class="s2">+.0f</span><span class="si">}</span><span class="s2"> to </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">off_resonance</span><span class="p">[</span><span class="n">brain</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span><span class="si">:</span><span class="s2">+.0f</span><span class="si">}</span><span class="s2"> Hz (1st to 99th percentile)</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="w">
+</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">displaced by more than one voxel: </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">distorted</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">brain</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> % </span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">of the brain voxels</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">brain</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">brain</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">displaced voxels</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">distorted</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">slope</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="w">
+</span>        <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">(</span><span class="n">predicted_mm</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>        <span class="n">estimated_mm</span><span class="p">[</span><span class="n">region</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="p">)</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">estimate vs field map over the </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: correlation </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">correlation</span><span class="p">(</span><span class="n">estimated_mm</span><span class="p">,</span><span class="w"> </span><span class="n">predicted_mm</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, slope </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>shim, EPI       [1746, -3889, -287, 575, 111, -87, -1, -28]
+shim, field map [1747, -3883, -285, 583, 125, -23, -45, -40]
+field over the brain: -45 to +47 Hz (1st to 99th percentile)
+displaced by more than one voxel: 7 % of the brain voxels
+estimate vs field map over the brain: correlation 0.38, slope 0.31
+estimate vs field map over the displaced voxels: correlation 0.61, slope 0.30
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_004.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_004.png" alt="PyHySCO estimate, slice 21, GRE field map, slice 21, PyHySCO estimate, slice 14, GRE field map, slice 14" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_07-epi-susceptibility-distortion_005.png" srcset="../../_images/sphx_glr_07-epi-susceptibility-distortion_005.png" alt="brain, displaced > 1 voxel" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The estimate follows the pattern of the field-map prediction: anterior
+displacement above the frontal sinus and in the cerebellum, posterior
+displacement at the temporal poles. It is smaller in amplitude, with a
+slope below one. Two likely causes, neither established here, are the
+smoothness penalty on the displacement field, which at 3.75 mm voxels
+flattens a displacement that changes within a few voxels, and the difference
+between the shims of the two acquisitions. Neither EPI image has signal in
+the voids above the sinus, where the field map predicts the largest
+displacement, so the estimate there is an extrapolation by the smoothness
+penalty. In practice the pair is acquired as two short series
+of a few volumes, the displacement field is estimated once, and it is
+applied to every volume of the functional or diffusion series acquired with
+one of the two polarities.</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
@@ -739,19 +823,18 @@ to diffusion tensor imaging. <em>NeuroImage</em> 20(2):870-888 (2003).
 <a class="reference external" href="https://doi.org/10.1016/S1053-8119(03)00336-7">https://doi.org/10.1016/S1053-8119(03)00336-7</a></p>
 </aside>
 <aside class="footnote brackets" id="pyhysco" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
 <p>Julian A, Ruthotto L. PyHySCO: GPU-enabled susceptibility
 artifact distortion correction in seconds. <em>Front Neurosci</em> (2024).</p>
 </aside>
-<aside class="footnote brackets" id="brainweb" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
-<p>Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ,
-Holmes CJ, Evans AC. Design and construction of a realistic digital brain
-phantom. <em>IEEE Trans Med Imaging</em> 17(3):463-468 (1998).
-<a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
+<aside class="footnote brackets" id="ds001600" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">3</a><span class="fn-bracket">]</span></span>
+<p>Cieslak M, Elliott M, Satterthwaite T. Example Fieldmaps.
+OpenNeuro, accession ds001600. <a class="reference external" href="https://openneuro.org/datasets/ds001600">https://openneuro.org/datasets/ds001600</a>.
+Licensed under CC-BY-SA.</p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.994 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.014 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-07-epi-susceptibility-distortion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0fab285c8eb755f9fa83ffeffac3370a/07-epi-susceptibility-distortion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">07-epi-susceptibility-distortion.ipynb</span></code></a></p>
@@ -814,11 +897,12 @@ phantom. <em>IEEE Trans Med Imaging</em> 17(3):463-468 (1998).
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#object-and-field-map">Object and field map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-data">The data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displacement-along-the-phase-encoding-axis">Displacement along the phase-encoding axis</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-acquisition">The acquisition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-field-map">Reference field map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correction-from-the-reversed-pair">Correction from the reversed pair</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-corrected-pair">The corrected pair</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-with-the-field-map">Comparison with the field map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>

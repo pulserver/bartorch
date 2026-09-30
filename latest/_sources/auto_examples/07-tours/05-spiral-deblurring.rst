@@ -69,7 +69,7 @@ corrects it with a known field map in two ways:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-126
+.. GENERATED FROM PYTHON SOURCE LINES 113-127
 
 Object and field map
 --------------------
@@ -79,13 +79,14 @@ through the orbitofrontal cortex and the temporal lobes, 128 x 128 over a
 220 mm field of view (1.7 mm in-plane). The field map is the :math:`B_0`
 offset at 3 T produced by the susceptibility difference between air and
 tissue, :math:`\Delta\chi = 9.4` ppm, computed in 3D with the dipole kernel
-and less a second-order shim fitted over the brain, rounded to 1 Hz and
-limited to :math:`\pm 150` Hz. The offsets are largest in the scalp; in the
-brain they reach about :math:`-40` Hz in the lateral temporal lobes and
-:math:`+40` Hz in the orbitofrontal cortex, a phase of about one cycle over
-the readout below.
+and less a second-order shim fitted over the brain, rounded to 1 Hz,
+limited to :math:`\pm 150` Hz, and set to zero outside the head, where a
+measured field map has no signal to be estimated from. The offsets are
+largest in the scalp; in the brain they reach about :math:`-40` Hz in the
+lateral temporal lobes and :math:`+40` Hz in the orbitofrontal cortex, a
+phase of about one cycle over the readout below.
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-139
+.. GENERATED FROM PYTHON SOURCE LINES 128-141
 
 .. code-block:: Python
 
@@ -109,7 +110,7 @@ the readout below.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 140-152
+.. GENERATED FROM PYTHON SOURCE LINES 142-154
 
 The spiral readout
 ------------------
@@ -124,7 +125,7 @@ speed by the gradient amplitude, which is modelled by the readout time
 :math:`t/T = (s^2 + 0.2\, s) / 1.2` along the arm coordinate
 :math:`s = |k|/k_{max}`. The trajectory is in grid units.
 
-.. GENERATED FROM PYTHON SOURCE LINES 153-166
+.. GENERATED FROM PYTHON SOURCE LINES 155-168
 
 .. code-block:: Python
 
@@ -148,7 +149,7 @@ speed by the gradient amplitude, which is modelled by the readout time
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 167-176
+.. GENERATED FROM PYTHON SOURCE LINES 169-178
 
 The acquisition
 ---------------
@@ -160,7 +161,7 @@ frequency's part of the object is transformed with :func:`bartorch.nufft`
 and given the phase it accrues at each sample time. The reference is the
 same acquisition on resonance.
 
-.. GENERATED FROM PYTHON SOURCE LINES 177-191
+.. GENERATED FROM PYTHON SOURCE LINES 179-193
 
 .. code-block:: Python
 
@@ -185,7 +186,7 @@ same acquisition on resonance.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 192-200
+.. GENERATED FROM PYTHON SOURCE LINES 194-202
 
 Gridding reconstruction
 -----------------------
@@ -196,7 +197,7 @@ resonance by :math:`f` is spread over a ring whose extent grows with the
 phase :math:`2\pi f T` accrued by the end of the readout: one full cycle at
 :math:`f = 1/T \approx 42` Hz.
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-213
+.. GENERATED FROM PYTHON SOURCE LINES 203-215
 
 .. code-block:: Python
 
@@ -219,7 +220,7 @@ phase :math:`2\pi f T` accrued by the end of the readout: one full cycle at
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 214-233
+.. GENERATED FROM PYTHON SOURCE LINES 216-235
 
 Multifrequency interpolation
 ----------------------------
@@ -241,7 +242,7 @@ number, takes the fewest that approximate the transfer to 1 % RMS, starting
 from :math:`\lceil 2.5\, f_{max}\, T \rceil`, the number Gadgetron's
 ``MFIOperator`` uses.
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-244
+.. GENERATED FROM PYTHON SOURCE LINES 236-246
 
 .. code-block:: Python
 
@@ -268,7 +269,7 @@ from :math:`\lceil 2.5\, f_{max}\, T \rceil`, the number Gadgetron's
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 245-257
+.. GENERATED FROM PYTHON SOURCE LINES 247-259
 
 Time-segmented model-based reconstruction
 -----------------------------------------
@@ -283,7 +284,7 @@ map and the sample times, and :class:`~bartorch.optim.CG` solves the normal
 equations. Unlike conjugate-phase methods, it does not assume the field to
 be constant over the extent of the blurring.
 
-.. GENERATED FROM PYTHON SOURCE LINES 258-268
+.. GENERATED FROM PYTHON SOURCE LINES 260-270
 
 .. code-block:: Python
 
@@ -304,15 +305,20 @@ be constant over the extent of the blurring.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 269-274
+.. GENERATED FROM PYTHON SOURCE LINES 271-281
 
 Results
 -------
 
-Each image is compared with the reconstruction of the same kind on
-resonance, as the normalized root-mean-square error (NRMSE) over the brain.
+The spiral samples a disc of radius :math:`k_{max}`, and the truncation of
+the object's spectrum at its edge leaves ringing around the scalp in every
+reconstruction, on resonance too. The on-resonance reconstruction of each
+kind is therefore the best achievable with this readout, and each image is
+compared with the reconstruction of the same kind on resonance, as the
+normalized root-mean-square error (NRMSE) over the brain. The on-resonance
+reconstructions are compared with the object after a least-squares scaling.
 
-.. GENERATED FROM PYTHON SOURCE LINES 275-286
+.. GENERATED FROM PYTHON SOURCE LINES 282-302
 
 .. code-block:: Python
 
@@ -322,6 +328,15 @@ resonance, as the normalized root-mean-square error (NRMSE) over the brain.
         return float((estimate - truth)[brain].norm() / truth[brain].norm())
 
 
+    def scaled(estimate, truth):
+        magnitude = estimate.abs()
+        return magnitude * (magnitude * truth.abs())[brain].sum() / (magnitude**2)[brain].sum()
+
+
+    ground_truth = (image * head).abs()
+    for name, on_resonance_image in (("gridding", reference), ("CG", model_reference)):
+        error = nrmse(scaled(on_resonance_image, ground_truth), ground_truth)
+        print(f"{name + ', on resonance':23s} {error:.3f} against the object")
     print(f"gridding, uncorrected   {nrmse(blurred, reference):.3f}")
     print(f"gridding, MFI           {nrmse(deblurred, reference):.3f}")
     print(f"CG, uncorrected         {nrmse(model_uncorrected, model_reference):.3f}")
@@ -335,15 +350,17 @@ resonance, as the normalized root-mean-square error (NRMSE) over the brain.
 
  .. code-block:: none
 
+    gridding, on resonance  0.040 against the object
+    CG, on resonance        0.016 against the object
     gridding, uncorrected   0.079
     gridding, MFI           0.046
     CG, uncorrected         0.088
-    CG, time-segmented      0.029
+    CG, time-segmented      0.028
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 287-357
+.. GENERATED FROM PYTHON SOURCE LINES 303-372
 
 
 
@@ -354,7 +371,7 @@ resonance, as the normalized root-mean-square error (NRMSE) over the brain.
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_001.png
-         :alt: object, on-resonance gridding, field map at 3 T
+         :alt: object, field map at 3 T
          :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_001.png
          :class: sphx-glr-multi-img
 
@@ -382,7 +399,7 @@ resonance, as the normalized root-mean-square error (NRMSE) over the brain.
     *
 
       .. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_005.png
-         :alt: uncorrected - reference, MFI - reference, CG, time-segmented - reference
+         :alt: MFI - reference, CG, time-segmented - reference
          :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_005.png
          :class: sphx-glr-multi-img
 
@@ -390,10 +407,11 @@ resonance, as the normalized root-mean-square error (NRMSE) over the brain.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 358-379
+.. GENERATED FROM PYTHON SOURCE LINES 373-395
 
-Uncorrected, the cortex of the temporal lobes and of the orbitofrontal
-region is smeared over several voxels and the scalp is spread into a halo.
+Uncorrected, the scalp, where the field is largest, is spread into a halo
+that overlaps the frontal and temporal cortex, and the cortex of the
+temporal lobes is smeared over a few voxels.
 MFI restores the brain to the accuracy of exact conjugate-phase
 reconstruction, one demodulation per distinct frequency of the field map.
 Its residual is concentrated in the scalp, where the field changes by tens
@@ -414,7 +432,7 @@ RMS error of the transfer, the largest :math:`\sum_m |a_m(f)|` -- the factor
 by which noise and residual error are amplified -- and the NRMSE of the
 corrected image over the brain.
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-390
+.. GENERATED FROM PYTHON SOURCE LINES 396-406
 
 .. code-block:: Python
 
@@ -446,7 +464,7 @@ corrected image over the brain.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 391-420
+.. GENERATED FROM PYTHON SOURCE LINES 407-436
 
 Beyond the point where the transfer error is small, more frequencies leave
 the image unchanged and raise the amplification. Gadgetron's
@@ -481,7 +499,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.346 seconds)
+   **Total running time of the script:** (0 minutes 4.885 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_05-spiral-deblurring.py:

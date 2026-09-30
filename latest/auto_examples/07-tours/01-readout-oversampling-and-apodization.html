@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -618,7 +618,11 @@ transform lengths.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>crop against no oversampling: NRMSE 4.8e-03
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" alt="256 readout samples: field of view doubled along x, no oversampling, image-domain crop NRMSE 4.8e-03, crop - no oversampling (range ±0.02), k-space truncation half the resolution along x" class = "sphx-glr-single-img"/><p>The image-domain crop reproduces the acquisition without oversampling to the
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" alt="256 readout samples" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" alt="no oversampling, image-domain crop, crop - no oversampling, k-space truncation" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The image-domain crop reproduces the acquisition without oversampling to the
 part of the truncation ringing that extends past the prescribed field of
 view along the readout and is cropped with it. Discarding k-space samples
 instead widens the pixel to twice the prescribed size along <span class="math notranslate nohighlight">\(x\)</span>: the
@@ -703,11 +707,12 @@ no window   0.0404    9.1e-02   1.00 px
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" alt="left edge of the skull, displayed from 0 to half the skull intensity, object, no window ringing 0.0404, FWHM 1.00 px, Fermi ringing 0.0325, FWHM 1.50 px, Hann ringing 0.0100, FWHM 2.00 px" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" alt="point spread function, |PSF|, profile across the skull, row 64" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" alt="object, no window, FWHM 1.00 px, Fermi, FWHM 1.50 px, Hann, FWHM 2.00 px" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_004.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_004.png" alt="|PSF|, row 64, across the skull" class = "sphx-glr-multi-img"/></li>
 </ul>
-<p>Without a window the ringing is visible as bands parallel to the skull
-across the adjacent parenchyma. The Fermi window lowers the far side lobes
+<p>The zoomed panels show the left edge of the skull, displayed from zero to
+half the skull intensity. Without a window the ringing is visible as bands
+parallel to the skull across the adjacent parenchyma. The Fermi window lowers the far side lobes
 by a factor of three and the ringing next to the skull by about a fifth, and
 widens the point spread function by half a pixel; the Hann window removes
 the ringing almost entirely and doubles the full width at half maximum,
@@ -741,7 +746,11 @@ a grid with its radius moved to <span class="math notranslate nohighlight">\(1 -
 3D: radial / separable at the diagonal 50.7 %
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_004.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_004.png" alt="radial, separable, separable - radial" class = "sphx-glr-single-img"/><p>The radial window has the more isotropic point spread function and the
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_005.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_005.png" alt="radial, separable" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_006.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_006.png" alt="window along the diagonal" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The radial window has the more isotropic point spread function and the
 higher signal-to-noise ratio; the separable one the better resolution along
 the diagonals. Both normalize each axis to its own Nyquist edge, so a
 rectangular matrix receives an ellipse matched to its grid.</p>
@@ -758,7 +767,7 @@ acquisition strategy. <em>J Magn Reson Imaging</em> 14(3):270-280 (2001).
 <a class="reference external" href="https://doi.org/10.1002/jmri.1183">https://doi.org/10.1002/jmri.1183</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.551 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.157 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-01-readout-oversampling-and-apodization-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/6d55b886e37c1d47737f62c1c6f2a17f/01-readout-oversampling-and-apodization.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-readout-oversampling-and-apodization.ipynb</span></code></a></p>

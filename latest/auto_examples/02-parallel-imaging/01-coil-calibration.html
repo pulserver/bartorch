@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -661,8 +661,9 @@ unit root sum of squares, the normalization the other two estimators use.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>caldir (8, 1, 128, 128), ecalib (8, 1, 128, 128), nlinv (8, 1, 128, 128)
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-coil-calibration_001.png" srcset="../../_images/sphx_glr_01-coil-calibration_001.png" alt="estimated sensitivity of channel 2, caldir, ESPIRiT, nlinv" class = "sphx-glr-single-img"/><p>The phase of a sensitivity map is determined only up to a phase common to
-all channels, which each estimator fixes differently; that common phase
+<img src="../../_images/sphx_glr_01-coil-calibration_001.png" srcset="../../_images/sphx_glr_01-coil-calibration_001.png" alt="caldir, channel 2, ESPIRiT, channel 2, nlinv, channel 2" class = "sphx-glr-single-img"/><p>The figure shows the three estimates of one channel, magnitude above and
+phase below. The phase of a sensitivity map is determined only up to a phase
+common to all channels, which each estimator fixes differently; that common phase
 passes into the phase of the reconstructed image and leaves its magnitude
 unchanged. Up to it, the three estimates agree inside the object. They
 differ outside it, where the data do not determine a sensitivity:
@@ -689,12 +690,14 @@ nlinv image  NRMSE 0.011
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_01-coil-calibration_002.png" srcset="../../_images/sphx_glr_01-coil-calibration_002.png" alt="24 ACS lines, R = 3, reference, zero-filled, SENSE, caldir, SENSE, ESPIRiT" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_01-coil-calibration_003.png" srcset="../../_images/sphx_glr_01-coil-calibration_003.png" alt="error magnitude, 24 ACS lines, SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-coil-calibration_002.png" srcset="../../_images/sphx_glr_01-coil-calibration_002.png" alt="reference, zero-filled, nlinv image, SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-coil-calibration_003.png" srcset="../../_images/sphx_glr_01-coil-calibration_003.png" alt="SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
 </ul>
-<p>The zero-filled image shows the three overlapping copies of the phantom
-that regular undersampling produces. All three calibrations unfold them.
-The error maps, at 5 % of the image peak, show the remaining
+<p>The images are windowed at half the intensity of the skull, which
+saturates. The zero-filled image shows the three overlapping copies of the
+phantom that regular undersampling produces. All three calibrations unfold
+them, and so does the image <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> returns with its sensitivities.
+The error maps, at 3 % of the image peak, show the remaining
 differences: the direct estimate leaves a faint residual fold at the edges
 of the phantom, where its low-resolution sensitivities are least accurate,
 and ESPIRiT and nonlinear inversion leave mostly noise.</p>
@@ -732,8 +735,8 @@ affects it only through the first Gauss-Newton steps.</p>
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_01-coil-calibration_004.png" srcset="../../_images/sphx_glr_01-coil-calibration_004.png" alt="8 ACS lines, R = 3, reference, SENSE, caldir, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_01-coil-calibration_005.png" srcset="../../_images/sphx_glr_01-coil-calibration_005.png" alt="error magnitude, 8 ACS lines, SENSE, caldir, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-coil-calibration_004.png" srcset="../../_images/sphx_glr_01-coil-calibration_004.png" alt="reference, SENSE, caldir, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-coil-calibration_005.png" srcset="../../_images/sphx_glr_01-coil-calibration_005.png" alt="SENSE, caldir, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
 </ul>
 <p>With eight ACS lines the direct estimate leaves visible residual aliasing:
 sensitivities estimated at a resolution of eight lines do not represent the
@@ -771,7 +774,7 @@ content. <em>Magn Reson Med</em> 60(3):674-682 (2008).
 <a class="reference external" href="https://doi.org/10.1002/mrm.21691">https://doi.org/10.1002/mrm.21691</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.338 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.629 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-parallel-imaging-01-coil-calibration-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/ec35ef476ab4a01c96f0aec0593e477e/01-coil-calibration.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-coil-calibration.ipynb</span></code></a></p>

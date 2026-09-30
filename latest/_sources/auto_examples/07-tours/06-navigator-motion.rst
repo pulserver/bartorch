@@ -180,7 +180,7 @@ the 3D pose.
 
 
 .. image-sg:: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_001.png
-   :alt: axial, 56$^2$ at 4 mm, coronal, 56$^2$ at 4 mm, sagittal, 56$^2$ at 4 mm
+   :alt: axial, coronal, sagittal
    :srcset: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_001.png
    :class: sphx-glr-single-img
 
@@ -285,13 +285,13 @@ measured pose, what remains is the error of the pose.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 212-239
+.. GENERATED FROM PYTHON SOURCE LINES 212-229
 
 
 
 
 .. image-sg:: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
-   :alt: axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.051, moved - measured pose NRMSE 0.048, moved - measured pose NRMSE 0.066
+   :alt: axial, coronal, sagittal
    :srcset: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
    :class: sphx-glr-single-img
 
@@ -299,7 +299,7 @@ measured pose, what remains is the error of the pose.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-259
+.. GENERATED FROM PYTHON SOURCE LINES 230-249
 
 The residual error of the pose, a fraction of a degree and of a millimetre,
 has two sources: the navigator's 4 mm resolution, and the
@@ -321,7 +321,7 @@ rad²/s⁴ and mm²/s⁴; ``measurement_noise`` is the variance it assigns to ea
 measured coordinate. The trace is filtered with three values of
 ``process_noise``; the largest leaves the filter at the measurements.
 
-.. GENERATED FROM PYTHON SOURCE LINES 260-302
+.. GENERATED FROM PYTHON SOURCE LINES 250-292
 
 .. code-block:: Python
 
@@ -375,20 +375,20 @@ measured coordinate. The trace is filtered with three values of
 
  .. code-block:: none
 
-    process_noise 100    rms error: rotation S/I 0.47°, A/P 0.37°, L/R 0.42°; shift S/I 0.18 mm, A/P 0.42 mm, L/R 0.19 mm
-    process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
-    process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.23°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
+    process_noise 100    rms error: rotation S/I 0.44°, A/P 0.37°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
+    process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.30°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
+    process_noise 0.0001 rms error: rotation S/I 0.43°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 303-327
+.. GENERATED FROM PYTHON SOURCE LINES 293-313
 
 
 
 
 .. image-sg:: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_003.png
-   :alt: nod: rotation about L/R, drift: shift along S/I
+   :alt: nod, about L/R, drift, along S/I
    :srcset: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_003.png
    :class: sphx-glr-single-img
 
@@ -396,7 +396,7 @@ measured coordinate. The trace is filtered with three values of
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 328-353
+.. GENERATED FROM PYTHON SOURCE LINES 314-339
 
 A large ``process_noise`` leaves the filter at the measurements; a small one
 makes it trust its constant-velocity prediction, which smooths the
@@ -427,7 +427,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.541 seconds)
+   **Total running time of the script:** (0 minutes 5.907 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_06-navigator-motion.py:

@@ -61,8 +61,9 @@ on a CPU.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+from matplotlib.patches import Rectangle
 
-WIDTH = 8.0  # inches, the width of the documentation column
+WIDTH = 7.8  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -82,9 +83,9 @@ STYLE = {
 }
 
 
-def panels(columns, rows=1, width=WIDTH):
-    """A row (or grid) of frameless square image panels."""
-    side = width / columns
+def panels(columns, rows=1, width=WIDTH, bar=False):
+    """A row (or grid) of frameless square image panels, with room for a colorbar if ``bar``."""
+    side = (width - (0.9 if bar else 0.0)) / columns
     figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
     for axis in axes.flat:
         axis.set_axis_off()
@@ -112,6 +113,21 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
+def outline(axis, crop):
+    """Mark the region ``crop`` that a later figure enlarges."""
+    rows, cols = crop
+    axis.add_patch(
+        Rectangle(
+            (cols.start - 0.5, rows.start - 0.5),
+            cols.stop - cols.start,
+            rows.stop - rows.start,
+            fill=False,
+            edgecolor="#e8a33d",
+            linewidth=1.5,
+        )
+    )
 
 
 def domain(axis, values, title=None):
@@ -270,8 +286,9 @@ data = bt.noise(A(image), n=1e-3, s=42) * pattern
 # A specified regularizer
 # -----------------------
 #
-# Total variation under ADMM, at the weight that minimizes the error against
-# the phantom among 0.002, 0.005, 0.01 and 0.02, is the reference point.
+# Total variation under ADMM is the reference point, at the best of the
+# weights 0.002, 0.005, 0.01 and 0.02 judged by NRMSE and SSIM against the
+# phantom.
 
 total_variation = optim.admm(data, A, priors.TotalVariation((-1, -2), 0.01), maxiter=60, rho=0.1)
 
@@ -312,36 +329,40 @@ for name, estimate in reconstructions.items():
 
 # sphinx_gallery_start_ignore
 peak = float(image.abs().max())
-figure, axes = panels(4)
+# Occipital cortex and the posterior horns of the lateral ventricles.
+zoom = (slice(70, 118), slice(40, 88))
+figure, axes = panels(2, rows=2, width=0.9 * WIDTH)
 show(axes[0, 0], image, "reference", vmax=peak)
-for axis, name in zip(axes[0, 1:], ("zero-filled", "total variation", "DRUNet, ADMM")):
+outline(axes[0, 0], zoom)
+for axis, name in zip(axes.flat[1:], ("zero-filled", "total variation", "DRUNet, ADMM")):
     show(axis, scaled(reconstructions[name], image), name, vmax=peak)
-figure.suptitle(f"R = {ACCELERATION}, noisy")
 plt.show()
 
 compared = ("total variation", "DRUNet, ADMM", "DRUNet, FISTA")
-figure, axes = panels(3, width=0.8 * WIDTH)
-errors(figure, axes[0], [reconstructions[name] for name in compared], image, 0.15)
-for axis, name in zip(axes[0], compared):
-    axis.set_title(name)
-figure.suptitle("error magnitude")
+figure, axes = panels(2, rows=2, bar=True)
+errors(
+    figure,
+    axes.ravel(),
+    [reconstructions[name] for name in ("zero-filled", *compared)],
+    image,
+    0.15,
+)
+for axis, name in zip(axes.flat, ("zero-filled", *compared)):
+    axis.set_title(f"{name} error")
 plt.show()
 
-# Occipital cortex and the posterior horns of the lateral ventricles.
-zoom = (slice(70, 118), slice(40, 88))
-figure, axes = panels(4)
-show(axes[0, 0], image.abs()[zoom], "reference", vmax=peak)
-for axis, name in zip(axes[0, 1:], compared):
+figure, axes = panels(2, rows=2, width=0.9 * WIDTH)
+show(axes[0, 0], image.abs()[zoom], "reference, enlarged", vmax=peak)
+for axis, name in zip(axes.flat[1:], compared):
     show(axis, scaled(reconstructions[name], image)[zoom], name, vmax=peak)
-figure.suptitle("enlarged")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
 # The zero-filled image shows the incoherent aliasing of the random sampling
-# and the noise. Total variation removes most of both, but at the weight that
-# minimizes the error it leaves a blotchy texture across the brain and
+# and the noise. Total variation removes most of both, but at its best weight it
+# leaves a blotchy texture across the brain and
 # flattens the gradual intensity variations into patches. The plug-and-play
 # reconstruction under ADMM removes the noise and the aliasing while keeping
 # the tissue boundaries, and its error map is darker inside the brain; in the
@@ -391,11 +412,10 @@ for sigma, estimate in sweep.items():
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(3, width=0.8 * WIDTH)
+figure, axes = panels(3)
 for axis, (sigma, estimate), label in zip(axes[0], sweep.items(), ("too small", "", "too large")):
     title = f"$\\sigma$ = {sigma}" + (f" ({label})" if label else "")
     show(axis, scaled(estimate, image)[zoom], title, vmax=peak)
-figure.suptitle("DRUNet under ADMM, enlarged")
 plt.show()
 # sphinx_gallery_end_ignore
 

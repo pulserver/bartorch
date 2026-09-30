@@ -66,7 +66,7 @@ after it examine calibration, regularization and the operator form of each
 step in turn; the next lesson, :doc:`../02-parallel-imaging/01-coil-calibration`,
 compares sensitivity estimators.
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-162
+.. GENERATED FROM PYTHON SOURCE LINES 52-154
 
 .. code-block:: Python
 
@@ -90,7 +90,7 @@ compares sensitivity estimators.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-172
+.. GENERATED FROM PYTHON SOURCE LINES 155-164
 
 Phantom
 -------
@@ -102,7 +102,7 @@ densities gives the signal of a chosen acquisition. The volume
 left-right)``, so its first axis selects an axial slice, and an image is
 drawn from its first row down, so flipping it puts anterior at the top.
 
-.. GENERATED FROM PYTHON SOURCE LINES 173-187
+.. GENERATED FROM PYTHON SOURCE LINES 165-179
 
 .. code-block:: Python
 
@@ -127,14 +127,14 @@ drawn from its first row down, so flipping it puts anterior at the top.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 188-192
+.. GENERATED FROM PYTHON SOURCE LINES 180-184
 
 The slice is cropped to a square field of view around the head and resampled
 to the matrix reconstructed here. The crop leaves a margin, as a real field
 of view does: the aliased copies of an undersampled acquisition then fall
 partly outside the head.
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-215
+.. GENERATED FROM PYTHON SOURCE LINES 185-207
 
 .. code-block:: Python
 
@@ -149,7 +149,7 @@ partly outside the head.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-226
+.. GENERATED FROM PYTHON SOURCE LINES 208-218
 
 A membership-weighted average of the table gives :math:`T_1`, :math:`T_2` and
 the proton density at every voxel, and the spin-echo signal
@@ -162,7 +162,7 @@ turns those into the image the experiment measures. At a short repetition
 time and a short echo time the contrast is :math:`T_1`-weighted: white matter
 bright, cerebrospinal fluid dark, subcutaneous fat brightest of all.
 
-.. GENERATED FROM PYTHON SOURCE LINES 227-249
+.. GENERATED FROM PYTHON SOURCE LINES 219-241
 
 .. code-block:: Python
 
@@ -195,7 +195,7 @@ bright, cerebrospinal fluid dark, subcutaneous fat brightest of all.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 250-261
+.. GENERATED FROM PYTHON SOURCE LINES 242-253
 
 Coils
 -----
@@ -209,7 +209,7 @@ combination of the coil images is the image itself and a reconstruction can
 be compared against it directly. Complex Gaussian noise is then added to
 every k-space sample, as thermal noise is in the receiver chain.
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-270
+.. GENERATED FROM PYTHON SOURCE LINES 254-262
 
 .. code-block:: Python
 
@@ -228,7 +228,7 @@ every k-space sample, as thermal noise is in the receiver chain.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 271-291
+.. GENERATED FROM PYTHON SOURCE LINES 263-300
 
 
 
@@ -239,14 +239,14 @@ every k-space sample, as thermal noise is in the receiver chain.
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_001.png
-         :alt: $T_1$-weighted image, $T_1$ map, $T_2$ map
+         :alt: $T_1$, $T_2$, proton density, $T_1$-weighted image
          :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_002.png
-         :alt: coil sensitivities: colour is phase, brightness is magnitude, channel 0, channel 2, channel 4, channel 6
+         :alt: channel 2, channel 4, channel 6
          :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_002.png
          :class: sphx-glr-multi-img
 
@@ -254,13 +254,16 @@ every k-space sample, as thermal noise is in the receiver chain.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 292-310
+.. GENERATED FROM PYTHON SOURCE LINES 301-322
 
-The relaxation maps are drawn with the perceptually uniform colormaps
-recommended for relaxometry [#fuderer]_ -- lipari for :math:`T_1`, navia for
-:math:`T_2` -- and with a window that stops short of cerebrospinal fluid.
-Each sensitivity is bright near its coil element and falls off across the
-head; its phase varies smoothly. These spatial variations are the extra
+The first figure is the ground truth: the relaxation maps, drawn with the
+perceptually uniform colormaps recommended for relaxometry [#fuderer]_ --
+lipari for :math:`T_1`, navia for :math:`T_2` -- and with a window that stops
+short of cerebrospinal fluid, the proton density, and the
+:math:`T_1`-weighted image they give. The second shows three of the eight
+sensitivities, magnitude above and phase below, with the outline of the head.
+Each magnitude is highest near its coil element and falls off across the
+head; the phase varies smoothly. These spatial variations are the extra
 encoding that parallel imaging uses to separate aliased voxels.
 
 Sampling
@@ -275,7 +278,7 @@ from the ACS region, so an acquisition without one would need a separate
 calibration scan. The pattern is a column vector along the phase-encoding
 direction: it broadcasts over the readout and over the channels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 311-332
+.. GENERATED FROM PYTHON SOURCE LINES 323-344
 
 .. code-block:: Python
 
@@ -313,7 +316,7 @@ direction: it broadcasts over the readout and over the channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 333-354
+.. GENERATED FROM PYTHON SOURCE LINES 345-366
 
 
 
@@ -327,7 +330,7 @@ direction: it broadcasts over the readout and over the channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 355-369
+.. GENERATED FROM PYTHON SOURCE LINES 367-381
 
 In the pattern (readout horizontal, phase encoding vertical) every acquired
 phase encode is a full line; the lines cluster towards the centre and the
@@ -344,7 +347,7 @@ coils, and :func:`bartorch.tools.ccapply` applies it. Calibration, the
 encoding operator and every iteration then cost six channels rather than
 eight, at a negligible loss of the encoding capacity of the array.
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-376
+.. GENERATED FROM PYTHON SOURCE LINES 382-388
 
 .. code-block:: Python
 
@@ -361,7 +364,7 @@ eight, at a negligible loss of the encoding capacity of the array.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 377-387
+.. GENERATED FROM PYTHON SOURCE LINES 389-399
 
 Sensitivity calibration
 -----------------------
@@ -374,7 +377,7 @@ object no eigenvalue is close to one; ``crop`` sets the maps to zero where
 the eigenvalue falls below it, which keeps the background out of the
 reconstruction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 388-391
+.. GENERATED FROM PYTHON SOURCE LINES 400-403
 
 .. code-block:: Python
 
@@ -388,7 +391,7 @@ reconstruction.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 392-409
+.. GENERATED FROM PYTHON SOURCE LINES 404-421
 
 Reconstruction
 --------------
@@ -408,7 +411,7 @@ Three reconstructions of the same data are compared.
   noise-like in the wavelet domain, and the sparsity penalty removes it
   together with the amplified noise.
 
-.. GENERATED FROM PYTHON SOURCE LINES 410-423
+.. GENERATED FROM PYTHON SOURCE LINES 422-435
 
 .. code-block:: Python
 
@@ -432,7 +435,7 @@ Three reconstructions of the same data are compared.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 424-430
+.. GENERATED FROM PYTHON SOURCE LINES 436-442
 
 The sensitivities ESPIRiT estimates and the ones the acquisition was
 simulated with differ by a phase that varies from voxel to voxel, so the
@@ -441,7 +444,7 @@ reconstructed image does too, and the comparison is between magnitudes.
 :func:`bartorch.tools.nrmse` is called with ``scaled=True``, which fits a
 global factor before comparing.
 
-.. GENERATED FROM PYTHON SOURCE LINES 431-438
+.. GENERATED FROM PYTHON SOURCE LINES 443-450
 
 .. code-block:: Python
 
@@ -467,7 +470,7 @@ global factor before comparing.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 439-465
+.. GENERATED FROM PYTHON SOURCE LINES 451-474
 
 
 
@@ -478,21 +481,21 @@ global factor before comparing.
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_004.png
-         :alt: R = 3.0, 6 virtual channels, reference, zero-filled, SENSE, wavelet CS
+         :alt: reference, zero-filled, SENSE, wavelet CS
          :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_004.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_005.png
-         :alt: error magnitude, zero-filled, SENSE, wavelet CS
+         :alt: zero-filled error, SENSE error, wavelet CS error
          :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_005.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_006.png
-         :alt: enlarged: posterior brain, reference, zero-filled, SENSE, wavelet CS
+         :alt: reference, enlarged, zero-filled, SENSE, wavelet CS
          :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_006.png
          :class: sphx-glr-multi-img
 
@@ -500,16 +503,16 @@ global factor before comparing.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 466-480
+.. GENERATED FROM PYTHON SOURCE LINES 475-489
 
 The zero-filled image carries the aliasing of the missing phase encodes as
-vertical ghosting of the whole head. SENSE removes the coherent aliasing, but
-its error map shows noise amplified in the centre of the head, where the
-coil sensitivities are least distinct, and incoherent residual artefacts of
-the random sampling. The wavelet penalty suppresses both; in the enlarged
-region the cortical folding and the ventricle boundaries are sharper and the
-background of the brain is smooth. The NRMSE and SSIM printed above
-quantify the same ordering.
+blurring and ghosting along the vertical, phase-encoding direction. SENSE
+removes the coherent aliasing, but its error map shows noise amplified in
+the centre of the head, where the coil sensitivities are least distinct, and
+incoherent residual artefacts of the random sampling. The wavelet penalty
+suppresses both; in the enlarged region the cortical folding and the
+ventricle boundaries are sharper and the background of the brain is smooth.
+The NRMSE and SSIM printed above quantify the same ordering.
 
 How much the penalty removes depends on its weight, which is chosen here and
 not estimated: a larger weight removes more noise and more fine texture with
@@ -517,7 +520,7 @@ it. :doc:`../02-parallel-imaging/01-coil-calibration` compares sensitivity
 estimators, and :doc:`../03-regularization/01-regularized-reconstruction`
 varies the weight.
 
-.. GENERATED FROM PYTHON SOURCE LINES 483-516
+.. GENERATED FROM PYTHON SOURCE LINES 492-525
 
 References
 ----------
@@ -556,7 +559,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.839 seconds)
+   **Total running time of the script:** (0 minutes 3.609 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_02-from-kspace-to-image.py:

@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=1bd537d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -565,8 +565,8 @@ as <span class="math notranslate nohighlight">\(x_t = \sum_a \Phi_{at} \alpha_a\
 on the k-space side, between the transform of each frame and its samples:</p>
 <div class="math notranslate nohighlight">
 \[y[c, t] = \sum_a \Phi_{at} \, \mathrm{NUFFT}_t \!\left( S_c \, \alpha_a \right).\]</div>
-<p>The coefficient maps <span class="math notranslate nohighlight">\(\alpha_a\)</span> are reconstructed under a locally
-low-rank penalty, any frame of the series can be synthesized from them, and
+<p>The coefficient maps <span class="math notranslate nohighlight">\(\alpha_a\)</span> are reconstructed under a
+total-variation penalty, any frame of the series can be synthesized from them, and
 <span class="math notranslate nohighlight">\(T_1\)</span> is estimated by matching each voxel’s coefficients against the
 dictionary.</p>
 <p>The phantom and the coil sensitivities are built as in
@@ -577,10 +577,11 @@ this page and present in the script this page can be downloaded as.</p>
 <li><p>Simulate a dictionary of inversion-recovery curves and extract a
 low-dimensional subspace from it by the singular value decomposition.</p></li>
 <li><p>Include a subspace basis in a non-Cartesian encoding.</p></li>
-<li><p>Reconstruct coefficient maps under a locally low-rank penalty, and
+<li><p>Reconstruct coefficient maps under a total-variation penalty, and
 synthesize images at any inversion time from them.</p></li>
-<li><p>Estimate <span class="math notranslate nohighlight">\(T_1\)</span> by dictionary matching in the subspace, and identify
-the partial-volume bias of a voxelwise fit.</p></li>
+<li><p>Estimate <span class="math notranslate nohighlight">\(T_1\)</span> by dictionary matching in the subspace, compare it
+with matching frames reconstructed one at a time, and identify the
+partial-volume bias of a voxelwise fit.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a>, whose frames
 are constrained here by a linear signal model. The next lesson,
@@ -639,7 +640,7 @@ than two orders of magnitude over the first four, and the rank used here,
 four, is marked by the dashed line. The rank is a modelling decision: too
 few coefficients bias the recovered curves toward the span of the basis, too
 many increase the number of unknowns the undersampled data must determine.</p>
-<img src="../../_images/sphx_glr_01-subspace-t1-mapping_001.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_001.png" alt="01 subspace t1 mapping" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_01-subspace-t1-mapping_001.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_001.png" alt="dictionary entries, singular values" class = "sphx-glr-single-img"/></section>
 <section id="phantom">
 <h2>Phantom<a class="headerlink" href="#phantom" title="Link to this heading">#</a></h2>
 <p>Each tissue class is given the <span class="math notranslate nohighlight">\(T_1\)</span> of the BrainWeb table and its own
@@ -656,37 +657,65 @@ partial-volume error any voxelwise fit carries.</p>
 the train cover k-space densely. The trajectory indexes frames as well as
 samples, and the image the encoding operator maps from is the four
 coefficient maps rather than the four hundred frames, with <code class="docutils literal notranslate"><span class="pre">basis</span></code>
-contracting the one into the other.</p>
+contracting the one into the other. Complex Gaussian noise of variance
+<span class="math notranslate nohighlight">\(10^{-5}\)</span> per sample is added to the simulated samples, which puts the
+signal-to-noise ratio of white matter, in a fully sampled image of the
+steady state, at the value printed below.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">trajectory</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><span class="n">bt</span><span class="o">.</span><span class="n">traj</span></a><span class="p">(</span><span class="n">readout</span><span class="o">=</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">spokes</span><span class="o">=</span><span class="n">FRAMES</span><span class="p">,</span> <span class="n">radial</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">golden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">trajectory</span> <span class="o">=</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">FRAMES</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">frames</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">NoncartesianSense</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="p">(</span><span class="n">FRAMES</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">)</span><span class="w">
-</span><span class="n">measured</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">frames</span></a><span class="p">(</span><span class="n">series</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span><span class="n">measured</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">frames</span></a><span class="p">(</span><span class="n">series</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span><span class="w">
 </span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">NoncartesianSense</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="p">(</span><span class="n">RANK</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="o">.</span><span class="n">ishape</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="o">.</span><span class="n">oshape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.plan" title="bartorch.linop.LinearOperator.plan"><span class="n">A</span><span class="o">.</span><span class="n">plan</span></a><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(4, 128, 128) -&gt; (8, 400, 1, 128)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>white-matter SNR of a fully sampled steady-state image: 15
+(4, 128, 128) -&gt; (8, 400, 1, 128)
 Plan(transform=nufft, image=sensitivities, kspace=basis, contraction=subspace(4), normal=kernel, coil_batch=1, streamed=coils, executor=slab)
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">plan.contraction</span></code> reports the subspace and its rank, and the normal
 operator is a point spread function over the basis as well as the
 trajectory, so an iteration does not transform the four hundred frames.</p>
-<p>The penalty is locally low rank <a class="footnote-reference brackets" href="#llr" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>: the coefficient maps are stacked
-into a matrix per block of voxels, and its nuclear norm is penalized.
-<code class="docutils literal notranslate"><span class="pre">joint_axes</span></code> makes the coefficients the columns of that matrix, so the
-penalty favours neighbouring voxels that follow the same few curves, rather
-than coefficient maps that are each sparse. Penalizing the maps one at a
-time does not couple the coefficients of a voxel.</p>
+<p>The penalty is the total variation <a class="footnote-reference brackets" href="#rof" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> of each coefficient map over the
+two spatial axes. A tissue follows one recovery curve throughout, so its
+coefficients are piecewise constant, and the noise, which the data
+determine least well in the coefficients of the weaker singular vectors,
+is not. A locally low-rank penalty <a class="footnote-reference brackets" href="#llr" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> over blocks of voxels is the
+other common choice; a block that straddles two tissues is rank two, and
+shrinking its second singular value mixes their curves and biases the
+fitted <span class="math notranslate nohighlight">\(T_1\)</span> towards the neighbouring tissue.</p>
+<p>The ADMM penalty parameter <code class="docutils literal notranslate"><span class="pre">rho</span></code> weights the auxiliary variable, which
+starts at zero, against the data in each update of the coefficients. At
+the default of 0.5 the coefficients of the weaker singular vectors, which
+carry the differences between recovery curves, are still biased towards
+zero after forty iterations, and the fitted <span class="math notranslate nohighlight">\(T_1\)</span> with them; 0.05
+lets the data determine them within that number of iterations.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">data</span> <span class="o">=</span> <span class="n">measured</span> <span class="o">/</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><span class="n">optim</span><span class="o">.</span><span class="n">data_scaling</span></a><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="p">)</span><span class="w">
-</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.LocallyLowRank.html#bartorch.priors.LocallyLowRank" title="bartorch.priors.LocallyLowRank"><span class="n">term</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.LocallyLowRank.html#bartorch.priors.LocallyLowRank" title="bartorch.priors.LocallyLowRank"><span class="n">priors</span><span class="o">.</span><span class="n">LocallyLowRank</span></a><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">joint_axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="w">
-</span><span class="n">coefficients</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><span class="n">optim</span><span class="o">.</span><span class="n">ADMM</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.LocallyLowRank.html#bartorch.priors.LocallyLowRank" title="bartorch.priors.LocallyLowRank"><span class="n">term</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">priors</span><span class="o">.</span><span class="n">TotalVariation</span></a><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span><span class="w">
+</span><span class="n">coefficients</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><span class="n">optim</span><span class="o">.</span><span class="n">ADMM</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">recovered</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">af,ayx-&gt;fyx</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">basis</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
+<p>The frames reconstructed one at a time are the reference point: the
+density-compensated adjoint of the encoding without the basis, which is the
+gridding reconstruction of each frame from its single spoke.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">real</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span><span class="w">
+</span><span class="n">gridded</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.H" title="bartorch.linop.LinearOperator.H"><span class="n">frames</span><span class="o">.</span><span class="n">H</span></a><span class="p">(</span><span class="n">measured</span> <span class="o">*</span> <span class="n">weights</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">frame by frame</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">gridded</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">subspace</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">recovered</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">  NRMSE of the series </span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>frame by frame  NRMSE of the series 1.621
+      subspace  NRMSE of the series 0.145
+</pre></div>
+</div>
 </section>
 <section id="parameter-fit">
 <h2>Parameter fit<a class="headerlink" href="#parameter-fit" title="Link to this heading">#</a></h2>
@@ -694,44 +723,70 @@ time does not couple the coefficients of a voxel.</p>
 the same subspace, by the normalized inner product, which is dictionary
 matching performed in four dimensions rather than four hundred. Matching in
 the subspace and matching the reconstructed curves differ only by the
-component of the dictionary the basis discards.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">atoms</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span> <span class="o">&#64;</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="w">
-</span><span class="n">atoms</span> <span class="o">=</span> <span class="n">atoms</span> <span class="o">/</span> <span class="n">atoms</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span><span class="n">voxels</span> <span class="o">=</span> <span class="n">coefficients</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">RANK</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">
-</span><span class="n">voxels</span> <span class="o">=</span> <span class="n">voxels</span> <span class="o">/</span> <span class="n">voxels</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span><span class="w">
+component of the dictionary the basis discards. The frame-by-frame series
+has no subspace, and is matched against the dictionary itself.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="n">voxels</span><span class="p">,</span> <span class="n">atoms</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;The T1 of the dictionary atom with the largest normalized inner product.&quot;&quot;&quot;</span><span class="w">
+</span>    <span class="n">voxels</span> <span class="o">=</span> <span class="n">voxels</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">
+</span>    <span class="n">voxels</span> <span class="o">=</span> <span class="n">voxels</span> <span class="o">/</span> <span class="n">voxels</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span><span class="w">
+</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">atoms</span> <span class="o">/</span> <span class="n">atoms</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">t1_values</span><span class="p">[</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">&#64;</span> <span class="n">voxels</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="w">
 </span><span class="w">
-</span><span class="n">matched</span> <span class="o">=</span> <span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">&#64;</span> <span class="n">voxels</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
-</span><span class="n">t1_map</span> <span class="o">=</span> <span class="n">t1_values</span><span class="p">[</span><span class="n">matched</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">t1_map</span> <span class="o">=</span> <span class="n">match</span><span class="p">(</span><span class="n">coefficients</span><span class="p">,</span> <span class="n">basis</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span> <span class="o">&#64;</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">t1_gridded</span> <span class="o">=</span> <span class="n">match</span><span class="p">(</span><span class="n">gridded</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <p>The fit is reported where the proton density is high enough for a curve to be
-defined, and separately for the voxels each tissue class dominates.</p>
+defined, and separately in the interior of each tissue class: the voxels
+one class dominates, less a one-voxel rim, so that the numbers are not
+those of partial volume.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">support</span> <span class="o">=</span> <span class="n">occupancy</span> <span class="o">&gt;</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="n">dominant</span> <span class="o">=</span> <span class="n">memberships</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
-</span><span class="n">pure</span> <span class="o">=</span> <span class="n">memberships</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="w">
+</span><span class="n">pure</span> <span class="o">=</span> <span class="n">support</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">memberships</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">)</span><span class="w">
 </span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">erode</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;The mask less a one-voxel rim.&quot;&quot;&quot;</span><span class="w">
+</span>    <span class="k">return</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="o">-</span><span class="n">mask</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="n">core</span> <span class="o">=</span> <span class="p">{</span><span class="n">index</span><span class="p">:</span> <span class="n">erode</span><span class="p">(</span><span class="n">pure</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dominant</span> <span class="o">==</span> <span class="n">index</span><span class="p">)</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">CLASS</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="p">)</span><span class="p">}</span><span class="w">
+</span><span class="n">interior</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">'</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">table</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">frame by frame</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">subspace</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">   [ms]</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">CLASS</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">selected</span> <span class="o">=</span> <span class="n">support</span> <span class="o">&amp;</span> <span class="n">pure</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dominant</span> <span class="o">==</span> <span class="n">index</span><span class="p">)</span><span class="w">
+</span>    <span class="n">selected</span> <span class="o">=</span> <span class="n">core</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w">
 </span>    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span><span class="w">
 </span>        <span class="k">continue</span><span class="w">
-</span>    <span class="n">estimate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">t1_map</span><span class="p">[</span><span class="n">selected</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="w">
-</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}</span><span class="s2">  table </span><span class="si">{</span><span class="n">tissue_t1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">:</span><span class="s2">6.0f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="w">
-</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">   fitted </span><span class="si">{</span><span class="n">estimate</span><span class="si">:</span><span class="s2">6.0f</span><span class="si">}</span><span class="s2"> ms   (</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">}</span><span class="s2"> voxels)</span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;13</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">tissue_t1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">:</span><span class="s2">7.0f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">t1_gridded</span><span class="p">[</span><span class="n">selected</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">14.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">  </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">t1_map</span><span class="p">[</span><span class="n">selected</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">8.0f</span><span class="si">}</span><span class="s2">   (</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">}</span><span class="s2"> voxels)</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span><span class="n">white</span> <span class="o">=</span> <span class="n">core</span><span class="p">[</span><span class="n">CLASS</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">WM</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">]</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">frame by frame</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">t1_gridded</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">subspace</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">t1_map</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">relative</span> <span class="o">=</span> <span class="p">(</span><span class="n">estimate</span> <span class="o">-</span> <span class="n">T1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">T1</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">  mean relative T1 error: interior </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">relative</span><span class="p">[</span><span class="n">interior</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">,</span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2"> whole head </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">relative</span><span class="p">[</span><span class="n">support</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">;</span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">  white-matter standard deviation </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">estimate</span><span class="p">[</span><span class="n">white</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>        CSF  table   2569 ms   fitted   1515 ms   (563 voxels)
-         GM  table    833 ms   fitted    830 ms   (1461 voxels)
-         WM  table    500 ms   fitted    564 ms   (2189 voxels)
-        FAT  table    350 ms   fitted    741 ms   (23 voxels)
-MUSCLE/SKIN  table    900 ms   fitted   1007 ms   (377 voxels)
-       SKIN  table   2569 ms   fitted   1648 ms   (411 voxels)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>                 table  frame by frame  subspace   [ms]
+          CSF     2569            2289      2598   (68 voxels)
+           GM      833             852       830   (76 voxels)
+           WM      500             520       498   (1143 voxels)
+  MUSCLE/SKIN      900             896       896   (22 voxels)
+frame by frame  mean relative T1 error: interior 0.057, whole head 0.099;  white-matter standard deviation 29 ms
+      subspace  mean relative T1 error: interior 0.012, whole head 0.092;  white-matter standard deviation 6 ms
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" alt="coefficient maps, magnitude, each on its own scale, $\alpha_1$, $\alpha_2$, $\alpha_3$, $\alpha_4$" class = "sphx-glr-single-img"/><p>Each coefficient map is the weight of one singular vector of the dictionary.
+<img src="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" alt="coefficient maps, each on its own scale, $\alpha_1$, $\alpha_2$, $\alpha_3$, $\alpha_4$" class = "sphx-glr-single-img"/><p>Each coefficient map is the weight of one singular vector of the dictionary.
 The first resembles a proton-density-weighted image, since the first singular
 vector is close to the mean recovery curve; the later ones encode the
 differences between the curves of short and long <span class="math notranslate nohighlight">\(T_1\)</span>, and are not
-images of a tissue contrast.</p>
+images of a tissue contrast. The basis is orthonormal, so the noise is
+spread over the four maps alike while the signal falls with the singular
+value: the fourth map has the lowest signal-to-noise ratio of the four.</p>
 </section>
 <section id="images-at-any-inversion-time">
 <h2>Images at any inversion time<a class="headerlink" href="#images-at-any-inversion-time" title="Link to this heading">#</a></h2>
@@ -741,44 +796,59 @@ which was measured with a single spoke. Early after the inversion the
 longitudinal magnetization is negative in every tissue; each tissue then
 passes through zero at its own null time, shortest for white matter, and
 approaches the steady state of the gradient-echo train.</p>
-<img src="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" alt="magnitude images after the inversion, t = 33 ms, t = 295 ms, t = 447 ms, t = 1636 ms" class = "sphx-glr-single-img"/><p>The four frames are shortly after the inversion, when every tissue is
-inverted and bright in magnitude; at the null of white matter, which appears
-dark; at the null of grey matter, where white matter, only just past its own
-null, is dark as well; and at the end of the train, in the steady state.
-The recovered frames reproduce these contrast changes, each from its single
-spoke, with blurring at the tissue boundaries.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" alt="t = 33 ms, t = 295 ms, t = 1636 ms" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-subspace-t1-mapping_004.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_004.png" alt="t = 295 ms, reference, frame by frame, subspace" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The three frames are shortly after the inversion, when every tissue is
+inverted and bright in magnitude; at the null of white matter, which
+appears dark; and at the end of the train, in the steady state. The
+subspace reconstruction reproduces these contrast changes, each frame from
+its single spoke. The same frame reconstructed on its own is the streak
+pattern of one spoke, with no anatomy left in it.</p>
 <p>The curve of a single voxel shows the same with its sign. The complex
 signal is rotated so that its steady state is positive and real, and the
 reconstruction, which determines the series up to a global complex scale
 because the data are normalized before the solve, is scaled to the
 reference in the least-squares sense.</p>
-<img src="../../_images/sphx_glr_01-subspace-t1-mapping_004.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_004.png" alt="reference (thick) and recovered (dashed)" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_01-subspace-t1-mapping_005.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_005.png" alt="reference (thick) and subspace (dashed)" class = "sphx-glr-single-img"/></section>
 <section id="the-t-1-map">
 <h2>The <span class="math notranslate nohighlight">\(T_1\)</span> map<a class="headerlink" href="#the-t-1-map" title="Link to this heading">#</a></h2>
-<p>The maps are drawn with the lipari colormap <a class="footnote-reference brackets" href="#fuderer" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>, in a window that
+<p>The maps are drawn with the lipari colormap <a class="footnote-reference brackets" href="#fuderer" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>, in a window that
 spans white and grey matter; cerebrospinal fluid, beyond it, saturates. The
-difference map is in milliseconds.</p>
-<img src="../../_images/sphx_glr_01-subspace-t1-mapping_005.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_005.png" alt="reference, fitted, |fitted - reference|" class = "sphx-glr-single-img"/><p>The printed table compares the median fitted <span class="math notranslate nohighlight">\(T_1\)</span> with the tabulated
-value in the voxels a single tissue class dominates. Grey matter agrees
-closely. White matter is overestimated, consistent with its recovered curve
-above, which lies between the reference curves of white and grey matter: the
-locally low-rank penalty shares information between neighbouring voxels,
-and the thin white-matter structures border grey matter everywhere.</p>
-<p>Cerebrospinal fluid is strongly underestimated, and the difference map
-saturates in the ventricles. Its <span class="math notranslate nohighlight">\(T_1\)</span> is poorly determined by this
-acquisition: the recovery observed during a gradient-echo train is governed
-by the apparent relaxation time
-<span class="math notranslate nohighlight">\(T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}\)</span> <a class="footnote-reference brackets" href="#deichmann" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, which
-for a flip angle <span class="math notranslate nohighlight">\(\alpha\)</span> of 6 degrees and <span class="math notranslate nohighlight">\(T_R\)</span> of 4.1 ms is
-below 750 ms for any <span class="math notranslate nohighlight">\(T_1\)</span>. The curves of long <span class="math notranslate nohighlight">\(T_1\)</span> therefore
-differ from each other by little more than the error of the reconstruction.
-A smaller flip angle or a longer train increases the sensitivity to long
-<span class="math notranslate nohighlight">\(T_1\)</span>.</p>
-<p>At the boundaries between tissues the fit is biased for a different reason:
-a voxel holding two tissues follows the sum of two recovery curves, which is
-not itself a recovery curve, and the dictionary entry that matches it best
-has a <span class="math notranslate nohighlight">\(T_1\)</span> between the two. This partial-volume bias belongs to any
-voxelwise fit, not to the subspace.</p>
+difference maps are relative to the reference <span class="math notranslate nohighlight">\(T_1\)</span>.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-subspace-t1-mapping_006.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_006.png" alt="reference, frame by frame, subspace" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-subspace-t1-mapping_007.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_007.png" alt="frame by frame, subspace" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The printed table compares the median fitted <span class="math notranslate nohighlight">\(T_1\)</span> with the tabulated
+value in the interior of each tissue class. The frames reconstructed one at
+a time still yield a <span class="math notranslate nohighlight">\(T_1\)</span> map: the aliasing of each frame differs
+from that of the next, so along the recovery curve it is incoherent, and
+the match to the dictionary rejects much of it, which is the principle of
+MR fingerprinting <a class="footnote-reference brackets" href="#mrf" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>. What it does not reject remains as a
+voxel-to-voxel scatter over the whole head, visible in the white matter of
+the difference map and in its standard deviation. The subspace
+reconstruction fits the coefficient maps to all spokes at once under the
+total-variation penalty, and inside each tissue its error is a fraction of
+that of the frame-by-frame match.</p>
+<p>Cerebrospinal fluid is the tissue the frame-by-frame match underestimates
+most. Its <span class="math notranslate nohighlight">\(T_1\)</span> is poorly determined by this acquisition: the
+recovery observed during a gradient-echo train is governed by the apparent
+relaxation time <span class="math notranslate nohighlight">\(T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}\)</span>
+<a class="footnote-reference brackets" href="#deichmann" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>, which for a flip angle <span class="math notranslate nohighlight">\(\alpha\)</span> of 6 degrees and
+<span class="math notranslate nohighlight">\(T_R\)</span> of 4.1 ms is below 750 ms for any <span class="math notranslate nohighlight">\(T_1\)</span>. The curves of
+long <span class="math notranslate nohighlight">\(T_1\)</span> therefore differ from each other by little, and noise
+moves the match along the dictionary; a smaller flip angle or a longer
+train increases the sensitivity to long <span class="math notranslate nohighlight">\(T_1\)</span>.</p>
+<p>What both difference maps share is the rim of every tissue. A voxel holding
+two tissues follows the sum of two recovery curves, which is not itself a
+recovery curve, and the dictionary entry that matches it best has a
+<span class="math notranslate nohighlight">\(T_1\)</span> between the two. This partial-volume bias belongs to any
+voxelwise fit, not to the subspace, and it is why the whole-head error is
+larger than the interior one for both. The scalp fat is a layer one to two
+voxels thick, with no interior at this resolution, and is fitted between
+its own <span class="math notranslate nohighlight">\(T_1\)</span> and that of its neighbours.</p>
 <p>Estimating the parameters directly from k-space, without an intermediate
 series or a subspace, is <a class="reference internal" href="02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>.</p>
 </section>
@@ -791,26 +861,38 @@ series or a subspace, is <a class="reference internal" href="02-quantitative-mod
 shuffling: sharp, multicontrast, volumetric fast spin-echo imaging.
 <em>Magn Reson Med</em> 77(1):180-195 (2017). <a class="reference external" href="https://doi.org/10.1002/mrm.26102">https://doi.org/10.1002/mrm.26102</a></p>
 </aside>
-<aside class="footnote brackets" id="llr" role="doc-footnote">
+<aside class="footnote brackets" id="rof" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Rudin LI, Osher S, Fatemi E. Nonlinear total variation based noise removal
+algorithms. <em>Physica D</em> 60(1-4):259-268 (1992).
+<a class="reference external" href="https://doi.org/10.1016/0167-2789(92)90242-F">https://doi.org/10.1016/0167-2789(92)90242-F</a></p>
+</aside>
+<aside class="footnote brackets" id="llr" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p>Zhang T, Pauly JM, Levesque IR. Accelerating parameter mapping with a
 locally low rank constraint. <em>Magn Reson Med</em> 73(2):655-661 (2015).
 <a class="reference external" href="https://doi.org/10.1002/mrm.25161">https://doi.org/10.1002/mrm.25161</a></p>
 </aside>
+<aside class="footnote brackets" id="mrf" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<p>Ma D, Gulani V, Seiberlich N, Liu K, Sunshine JL, Duerk JL, Griswold MA.
+Magnetic resonance fingerprinting. <em>Nature</em> 495(7440):187-192 (2013).
+<a class="reference external" href="https://doi.org/10.1038/nature11971">https://doi.org/10.1038/nature11971</a></p>
+</aside>
 <aside class="footnote brackets" id="deichmann" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
 <p>Deichmann R, Haase A. Quantification of T1 values by SNAPSHOT-FLASH
 NMR imaging. <em>J Magn Reson</em> 96(3):608-612 (1992).
 <a class="reference external" href="https://doi.org/10.1016/0022-2364(92)90347-A">https://doi.org/10.1016/0022-2364(92)90347-A</a></p>
 </aside>
 <aside class="footnote brackets" id="fuderer" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">4</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">6</a><span class="fn-bracket">]</span></span>
 <p>Fuderer M, Wichtmann B, Crameri F, de Souza NM, Baeßler B, Gulani V,
 et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
 93(2):490-506 (2025). <a class="reference external" href="https://doi.org/10.1002/mrm.30290">https://doi.org/10.1002/mrm.30290</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.104 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.079 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-model-based-01-subspace-t1-mapping-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/c40897b41797cbf2fb7d9a495d0de60d/01-subspace-t1-mapping.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-subspace-t1-mapping.ipynb</span></code></a></p>

@@ -140,13 +140,13 @@ the second lets an acquisition be cut into frames after it was measured, as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-274
+.. GENERATED FROM PYTHON SOURCE LINES 257-276
 
 
 
 
 .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_001.png
-   :alt: uniform, first 24 spokes, golden angle, first 24 spokes
+   :alt: first 24 of 201 spokes, uniform, golden angle
    :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_001.png
    :class: sphx-glr-single-img
 
@@ -154,7 +154,7 @@ the second lets an acquisition be cut into frames after it was measured, as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 275-283
+.. GENERATED FROM PYTHON SOURCE LINES 277-285
 
 The transform
 -------------
@@ -165,7 +165,7 @@ acquisition would measure are the transform of the image; below they are
 checked against the sum that defines them, evaluated in double precision over
 one spoke, which is a reference outside BART and outside FINUFFT.
 
-.. GENERATED FROM PYTHON SOURCE LINES 284-306
+.. GENERATED FROM PYTHON SOURCE LINES 286-308
 
 .. code-block:: Python
 
@@ -205,7 +205,7 @@ one spoke, which is a reference outside BART and outside FINUFFT.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 307-322
+.. GENERATED FROM PYTHON SOURCE LINES 309-324
 
 The transform is planned to a tolerance rather than computed exactly, and the
 difference above is within the tolerance it was planned with: a thousandth by
@@ -223,7 +223,7 @@ and the adjoint overweights low frequencies. The weight that compensates for
 it is the inverse sampling density [#pipe]_, which for radial sampling is
 proportional to the distance from the centre.
 
-.. GENERATED FROM PYTHON SOURCE LINES 323-330
+.. GENERATED FROM PYTHON SOURCE LINES 325-332
 
 .. code-block:: Python
 
@@ -241,7 +241,7 @@ proportional to the distance from the centre.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 331-342
+.. GENERATED FROM PYTHON SOURCE LINES 333-344
 
 
 
@@ -255,7 +255,7 @@ proportional to the distance from the centre.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 343-360
+.. GENERATED FROM PYTHON SOURCE LINES 345-362
 
 The uncompensated adjoint is the image convolved with the point spread
 function, the inverse Fourier transform of the sampling density; the density
@@ -275,7 +275,7 @@ with the same non-uniform transforms, and returns weights for each sample.
 It takes the coordinates as ``(..., samples, 2)``, so the spokes are
 flattened into one list of samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 361-369
+.. GENERATED FROM PYTHON SOURCE LINES 363-371
 
 .. code-block:: Python
 
@@ -301,7 +301,7 @@ flattened into one list of samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-377
+.. GENERATED FROM PYTHON SOURCE LINES 372-379
 
 For a radial trajectory the two weightings give similar errors, both of
 which include the k-space corners the disc does not cover. The estimate
@@ -311,7 +311,7 @@ Archimedean spiral: sixteen interleaves reaching :math:`\pm n/2`, with
 :math:`n / 32` turns each so that adjacent turns are one grid unit apart,
 the radial Nyquist spacing, and 1024 samples per interleaf.
 
-.. GENERATED FROM PYTHON SOURCE LINES 378-409
+.. GENERATED FROM PYTHON SOURCE LINES 380-411
 
 .. code-block:: Python
 
@@ -360,7 +360,7 @@ the radial Nyquist spacing, and 1024 samples per interleaf.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 410-432
+.. GENERATED FROM PYTHON SOURCE LINES 412-435
 
 
 
@@ -371,7 +371,7 @@ the radial Nyquist spacing, and 1024 samples per interleaf.
     *
 
       .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
-         :alt: spiral, 16 interleaves, density compensation weight, one interleaf
+         :alt: 16 interleaves, interleaf 1 in blue, weight along interleaf 1
          :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
          :class: sphx-glr-multi-img
 
@@ -386,12 +386,13 @@ the radial Nyquist spacing, and 1024 samples per interleaf.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 433-450
+.. GENERATED FROM PYTHON SOURCE LINES 436-454
 
 The estimated weight of an Archimedean spiral grows with the radius: the
 interleaves are separated by a constant distance while the arc length
-traversed per sample grows, so the samples are densest at the centre. At
-the very edge the weight rises further, where the outermost turn has no
+traversed per sample grows, so the samples are densest at the centre. The
+weight oscillates with the period of the turns, levels off in the outer part
+of k-space, and drops over the last samples, where the outermost turn has no
 neighbour outside it. Without compensation the spiral adjoint is dominated
 by the densely sampled low spatial frequencies and appears as a blurred,
 low-contrast image; with the estimated weights the tissue contrast and the
@@ -406,7 +407,7 @@ weights and a subspace basis where there are any, because its normal operator
 spread function on a doubled grid rather than a transform each way
 [#fessler2005]_, which is what a solver applies once per iteration.
 
-.. GENERATED FROM PYTHON SOURCE LINES 451-469
+.. GENERATED FROM PYTHON SOURCE LINES 455-473
 
 .. code-block:: Python
 
@@ -436,14 +437,14 @@ spread function on a doubled grid rather than a transform each way
 
  .. code-block:: none
 
-    A^H A as a convolution      0.6 ms
-    A^H A as two transforms     0.4 ms
+    A^H A as a convolution      1.0 ms
+    A^H A as two transforms     1.2 ms
     relative difference      2.7e-03
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 470-476
+.. GENERATED FROM PYTHON SOURCE LINES 474-480
 
 The two agree to a small multiple of the transform's tolerance.
 
@@ -452,7 +453,7 @@ the aliasing the trajectory produces: for a fully sampled radial trajectory
 it is a central peak with a low, broad skirt, and undersampling raises the
 skirt into the streaks a radial reconstruction is known for.
 
-.. GENERATED FROM PYTHON SOURCE LINES 477-481
+.. GENERATED FROM PYTHON SOURCE LINES 481-485
 
 .. code-block:: Python
 
@@ -467,7 +468,7 @@ skirt into the streaks a radial reconstruction is known for.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 482-499
+.. GENERATED FROM PYTHON SOURCE LINES 486-503
 
 
 
@@ -481,13 +482,13 @@ skirt into the streaks a radial reconstruction is known for.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 500-503
+.. GENERATED FROM PYTHON SOURCE LINES 504-507
 
 A reconstruction that uses all of this -- the transform, the weights, the
 sensitivities and the normal operator -- is
 :doc:`02-radial-sense`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 506-527
+.. GENERATED FROM PYTHON SOURCE LINES 510-531
 
 References
 ----------
@@ -514,7 +515,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.803 seconds)
+   **Total running time of the script:** (0 minutes 1.409 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py:
