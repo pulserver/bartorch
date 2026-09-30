@@ -128,7 +128,7 @@ jobs:
       # GPL-3.0-only: it runs here to execute the examples and is not
       # distributed with bartorch.
       - name: Install the documentation and example requirements
-        run: pip install -r docs/requirements.txt brainweb-dl SimpleITK PyHySCO
+        run: pip install -r docs/requirements.txt brainweb-dl SimpleITK PyHySCO ismrmrd pydicom nibabel
 
       # The segmentation and the T1- and T2-weighted images are fetched once
       # and reused: the download is a form submission per tissue class

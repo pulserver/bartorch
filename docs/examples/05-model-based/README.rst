@@ -12,4 +12,5 @@ signal curves are represented by a few temporal basis functions and
 :math:`T_1` is fitted to the coefficient maps, and a nonlinear signal model,
 through which :math:`T_2` maps are estimated directly from multi-echo k-space.
 :doc:`/explanation/nonlinear` compares the two with reconstruction followed by
-a voxel-wise fit.
+a voxel-wise fit.  The last lesson fits a signal model to magnitude
+images read from DICOM, as a scanner exports them, and writes the map back.

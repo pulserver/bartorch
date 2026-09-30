@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import torch
@@ -24,6 +25,19 @@ _ITERATIONS = 20
 #: BART's own ``--liniter`` default (mobafit.c:246), which is both the inner
 #: solver's iteration count and the Gauss-Newton step's ``cgiter``.
 _CG_MAXITER = 50
+
+#: The channel whose value scales with the data.
+_AMPLITUDE = "amplitude.real"
+
+
+def _amplitude(model: nlop.SignalModel, x: torch.Tensor, factor: float) -> torch.Tensor:
+    """``x`` with its amplitude channels multiplied by ``factor``."""
+    if factor == 1.0:
+        return x
+    weights = torch.tensor(
+        [factor if name.startswith("amplitude.") else 1.0 for name in model.names]
+    )
+    return x * weights.reshape(-1, *[1] * (x.dim() - 1)).to(x.dtype)
 
 
 def mobafit(
@@ -59,7 +73,9 @@ def mobafit(
     images : torch.Tensor
         Contrast images, ``(contrasts, *voxels)``, C order: one image per
         echo, inversion time or repetition, in the order the model's
-        acquisition lists them.
+        acquisition lists them.  Any intensity units: a model with an
+        amplitude is fitted to the images scaled to unit peak, and the
+        amplitude, given or fitted, is in the units of ``images``.
     model : bartorch.nlop.SignalModel
         The signal model, built on the acquisition that produced ``images``
         -- :func:`~bartorch.nlop.MultiEcho`, :func:`~bartorch.nlop.InversionRecovery`
@@ -115,7 +131,19 @@ def mobafit(
         forward = nlop.Abs(model.oshape) @ model
 
     x0 = model.initial(**values) if start is None else start
-    xref = None if reference is None else model.initial(**_inside(model, reference))
+    if reference is not None:
+        reference = _inside(model, reference)
+
+    # The steps start from an amplitude of order one and are regularized in
+    # the model's variables, so the data is fitted at unit peak; an amplitude
+    # given in data units, and the one fitted, cross by the same factor.
+    peak = float(images.abs().max())
+    scale = peak if _AMPLITUDE in model.names and math.isfinite(peak) and peak > 0 else 1.0
+    given = start is not None or "amplitude" in values
+    begin = _amplitude(model, x0, 1.0 / scale) if given else x0
+    if reference is not None and "amplitude" in reference:
+        reference["amplitude"] = torch.as_tensor(reference["amplitude"]) / scale
+    xref = None if reference is None else model.initial(**reference)
 
     solver = nlop.IRGNM(
         iterations=iterations,
@@ -125,10 +153,10 @@ def mobafit(
         cg_maxiter=cg_maxiter,
         inner=optim.CG(maxiter=cg_maxiter) if inner is None else inner,
     )
-    data = images.reshape(forward.oshape)
+    data = images.reshape(forward.oshape) / scale
     if magnitude:
         data = data.abs().to(data.dtype)
-    fitted = solver(data, forward, x0=x0, xref=xref)
+    fitted = _amplitude(model, solver(data, forward, x0=begin, xref=xref), scale)
 
     # A voxel with no signal at all constrains nothing, and a Gauss-Newton
     # step on it walks wherever the bounds allow; the command skips such a

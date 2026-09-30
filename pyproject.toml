@@ -83,6 +83,13 @@ learning = [
     "lightning>=2.2",
     "torchio>=0.19",
 ]
+# ISMRMRD raw data, DICOM and NIfTI images for `bartorch.io`, each imported by
+# the functions that read or write it.  h5py comes with ismrmrd.
+io = [
+    "ismrmrd>=1.14",
+    "pydicom>=3.0",
+    "nibabel>=5.0",
+]
 # MKL covers every BLAS and LAPACK routine BART calls and is about twice as
 # fast as the alternatives on the work that leans on LAPACK.  There is no MKL
 # wheel for macOS, where SciPy's OpenBLAS and Accelerate serve instead; on
@@ -140,6 +147,7 @@ wheel.license-files = [
     "external/finufft/NOTICE",
     "external/pocketfft/LICENSE.md",
     "external/blocksruntime/LICENSE.TXT",
+    "LICENSES/python-ismrmrd-server-MIT.txt",
 ]
 sdist.exclude = ["attic/", "build/"]
 
