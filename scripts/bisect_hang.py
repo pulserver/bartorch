@@ -25,20 +25,22 @@ CASES = [
 CHILD = (
     "import faulthandler, sys, pytest\n"
     "f = open('stacks.txt', 'w')\n"
-    "faulthandler.dump_traceback_later(300, file=f)\n"
+    "faulthandler.dump_traceback_later(480, file=f)\n"
     "sys.path.insert(0, 'scripts')\n"
     "sys.exit(pytest.main(['-v', '-p', 'no:cacheprovider', '-p', 'no:faulthandler', '-p', '_memplugin', *sys.argv[1:]]))\n"
 )
 
-for case in CASES:
+hung = False
+for case in [CASES[int(i)] for i in sys.argv[1:]] or CASES:
     start = time.time()
     child = subprocess.Popen([sys.executable, "-c", CHILD, *case], stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT, text=True)
     try:
-        out, _ = child.communicate(timeout=420)
+        out, _ = child.communicate(timeout=600)
         verdict = f"exit {child.returncode}"
     except subprocess.TimeoutExpired:
         verdict = "HUNG"
+        hung = True
         spy = subprocess.run(["py-spy", "dump", "--native", "--locals", "--pid", str(child.pid)],
                              capture_output=True, text=True)
         print("--- py-spy ---\n" + spy.stdout + spy.stderr, flush=True)
@@ -50,8 +52,11 @@ for case in CASES:
     except OSError:
         pass
     if verdict != "exit 0":
+        hung = True
         print("\n".join(out.splitlines()[-120:]), flush=True)
         try:
             print("--- stacks ---\n" + open("stacks.txt").read(), flush=True)
         except OSError:
             pass
+
+sys.exit(1 if hung else 0)
