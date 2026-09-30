@@ -121,6 +121,83 @@ _FITS = {
 }
 
 
+#: Multi-gradient-echo series.  BART's fat is Hamilton et al.'s six peaks at
+#: 3 T, with the echo times in seconds.
+GRADIENT_ECHO_TIMES = 1.1e-3 * (np.arange(8) + 1)
+_HAMILTON = [(-3.80, 0.086), (-3.40, 0.537), (-2.60, 0.165), (-1.94, 0.046), (-0.39, 0.052),
+             (0.60, 0.114)]  # fmt: skip
+_FAT = sum(
+    a * np.exp(2j * np.pi * 42.57747892e6 * 3.0 * p * 1e-6 * GRADIENT_ECHO_TIMES)
+    for p, a in _HAMILTON
+)
+WATER, FAT = _halves(0.9, 0.4) * PHASE, _halves(0.1, 0.5) * PHASE * np.exp(0.5j)
+R2S, FAT_R2S, FB0 = _halves(30.0, 50.0), _halves(60.0, 80.0), _halves(20.0, -10.0)
+
+
+def _gradient_echo(water, fat, water_rate, fat_rate, frequency):
+    t = GRADIENT_ECHO_TIMES
+    return (
+        water[..., None] * np.exp(-t * water_rate[..., None])
+        + fat[..., None] * _FAT * np.exp(-t * fat_rate[..., None])
+    ) * np.exp(2j * np.pi * frequency[..., None] * t)
+
+
+_NONE = np.zeros((FIT, FIT))
+_FITS |= {
+    "G0": (
+        ["-G", "-m", "0"],
+        GRADIENT_ECHO_TIMES,
+        _gradient_echo(WATER, FAT, _NONE, _NONE, FB0),
+        [WATER, FAT, FB0],
+    ),
+    "G1": (
+        ["-G"],
+        GRADIENT_ECHO_TIMES,
+        _gradient_echo(WATER, FAT, R2S, R2S, FB0),
+        [WATER, FAT, R2S, FB0],
+    ),
+    "G3": (
+        ["-G", "-m", "3"],
+        GRADIENT_ECHO_TIMES,
+        _gradient_echo(WATER, _NONE, R2S, R2S, FB0),
+        [WATER, R2S, FB0],
+    ),
+    "G4": (
+        ["-G", "-m", "4"],
+        GRADIENT_ECHO_TIMES,
+        _gradient_echo(WATER, _NONE, _NONE, _NONE, FB0),
+        [WATER, FB0],
+    ),
+}
+
+#: Diffusion: the encoding is -b in s/mm^2, D in mm^2/s.
+B_VALUES = np.array([0.0, 200.0, 500.0, 1000.0, 1500.0, 2000.0])
+DIFFUSIVITY = _halves(0.8e-3, 1.6e-3)
+#: One Lorentzian pool over offsets in ppm.
+OFFSETS = np.linspace(-5.0, 5.0, 21)
+DEPTH, WIDTH, SHIFT = _halves(0.8, 0.6), _halves(1.5, 2.5), _halves(0.1, -0.2)
+_FITS |= {
+    "D": (
+        ["-D"],
+        -B_VALUES,
+        M0 * np.exp(-B_VALUES * DIFFUSIVITY[..., None]),
+        [np.full(DIFFUSIVITY.shape, M0), DIFFUSIVITY],
+    ),
+    "M": (
+        ["-M", "1", "--init", "1:0.7:2:0"],
+        OFFSETS,
+        M0
+        * (
+            1
+            - DEPTH[..., None]
+            * (WIDTH[..., None] / 2) ** 2
+            / ((WIDTH[..., None] / 2) ** 2 + (OFFSETS - SHIFT[..., None]) ** 2)
+        ),
+        [np.full(DEPTH.shape, M0), DEPTH, WIDTH, SHIFT],
+    ),
+}
+
+
 def _relative(ours: np.ndarray, reference: np.ndarray) -> float:
     return float(np.abs(ours - reference).max() / np.abs(reference).max())
 
@@ -153,14 +230,15 @@ def test_mobafit_writes_the_commands_coefficients_to_the_tolerance_of_a_fit(
 @pytest.mark.parametrize(
     "line",
     [
-        ["mobafit", "t", "y", "x"],
-        ["mobafit", "-G", "t", "y", "x"],
+        ["mobafit", "-P", "t", "y", "x"],
+        ["mobafit", "-G", "--fB0-init", "t", "y", "x"],
+        ["mobafit", "-G", "-m", "2", "t", "y", "x"],
         ["mobafit", "-T", "-i", "5", "t", "y", "x"],
         ["mobafit", "-T", "--init", "1:0", "t", "y", "x"],
         ["mobafit", "-T", "--scale", "1:10", "t", "y", "x"],
         ["mobafit", "-T", "t", "y", "x", "covariance"],
     ],
-    ids=["default MGRE", "-G", "-i", "R2 start of zero", "--scale", "covariance"],
+    ids=["-P", "--fB0-init", "-m 2", "-i", "R2 start of zero", "--scale", "covariance"],
 )
 def test_a_mobafit_the_app_cannot_express_goes_to_the_command(line, tmp_path, monkeypatch):
     """The multi-echo gradient-echo models, BART's step count over its own

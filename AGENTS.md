@@ -925,7 +925,9 @@ same six through the command route with `numpy.array_equal`.  `mobafit` and
 TorchSim's bounded parameterisation: the same minimum reached by a different
 path.  `cli/_apps.py` writes BART's closed forms in TorchSim's variables --
 `-T` `(M0, R2)` as a multi-echo decay, `-I` `(M0, R1, c)` and `-L`
-`(Mss, M0, R1s)` as an inversion recovery with its efficiency free -- and
+`(Mss, M0, R1s)` as an inversion recovery with its efficiency free, `-G`'s
+water and fat as a complex amplitude with a fat fraction and phase, `-D` as
+TorchSim's diffusion decay and `-M` as its Lorentzian lines -- and
 converts the named maps back into rates in 1/s from times in seconds, and
 `moba`'s amplitudes into the units of the data scaling the command applies.
 Measured on the test phantoms, `mobafit` agrees with the command to 1e-05 of
@@ -938,8 +940,10 @@ because the command declared it.  That includes `-i`, which counts
 Gauss-Newton steps over BART's own coefficients and would stop a bounded fit
 short; `moba`'s `-C`, which counts FISTA iterations rather than conjugate
 gradients; `moba`'s default `-l1`, a wavelet term on the maps the app does not
-carry; the gradient-echo, diffusion and simulation models; and anything off a
-grid.
+carry; `mobafit`'s separate water and fat decays (`-m 2`), whose two rates the
+bounded fit does not separate, its phase and simulation models, and `-M`
+without a start; `moba`'s gradient-echo and simulation models; and anything
+off a grid.
 
 An input file that is not there is the one thing the command line names itself.
 A BART command that fails while loading its arguments leaves the library unable

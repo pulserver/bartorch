@@ -159,8 +159,7 @@ def _start(mode: str, given: tuple[float, ...] | None) -> dict[str, Any]:
     """
     if given is None:
         return {} if mode == "T" else {"inv_efficiency": 1.0}
-    values = list(given[: _COEFFICIENTS[mode]])
-    values += [0.0] * (_COEFFICIENTS[mode] - len(values))
+    values = _padded(given, _COEFFICIENTS[mode])
     if mode == "T":
         amplitude, rate = values
         start = {"amplitude": amplitude, "T2": _time(rate, (1.0, 1000.0))}
@@ -180,6 +179,12 @@ def _start(mode: str, given: tuple[float, ...] | None) -> dict[str, Any]:
     return start
 
 
+def _padded(given: tuple[float, ...], count: int) -> list[float]:
+    """``--init`` as the command reads it: zeros past the values given."""
+    values = [float(v) for v in given[:count]]
+    return values + [0.0] * (count - len(values))
+
+
 def _time(rate: float, bounds: tuple[float, float]) -> float:
     """A rate in 1/s as a time in ms, strictly inside the model's bounds."""
     if rate <= 0.0 or not bounds[0] < 1e3 / rate < bounds[1]:
@@ -197,6 +202,157 @@ def _coefficients(mode: str, maps: dict[str, torch.Tensor], scale: float = 1.0) 
     else:
         made = [amplitude, amplitude * maps["inv_efficiency"], 1e3 / maps["T1"]]
     return torch.stack([m.to(torch.complex64) for m in made])
+
+
+# --- water and fat -----------------------------------------------------------
+#
+# `-G` fits BART's multi-echo models in the variables of TorchSim's
+# MultiGradientEchoSimulator.  BART's echo times are in seconds -- its fat
+# spectrum is -- so R2* comes back in 1/s and fB0 in Hz.
+#
+#   m  BART                        TorchSim
+#   0  (W, F, fB0)                 fat_fraction, fat_phase, B0
+#   1  (W, F, R2*, fB0)            ... and T2star
+#   2  (W, R2*W, F, R2*F, fB0)     (goes to the command)
+#   3  (rho, R2*, fB0)             T2star, B0
+#   4  (rho, fB0)                  B0
+#
+# with W = A (1 - f), F = A f exp(i phase), R2* = 1000 / T2star and
+# fB0 = -B0: the off-resonance turns the other way round in TorchSim.  A
+# bounded T2* keeps each step physical; a thousand milliseconds is an R2* of
+# 1/s, below anything a gradient-echo train resolves.
+
+_WATER_FAT = {
+    0: ("fat_fraction", "fat_phase", "B0"),
+    1: ("fat_fraction", "fat_phase", "T2star", "B0"),
+    3: ("T2star", "B0"),
+    4: ("B0",),
+}
+_T2STAR = (1.0, 1000.0)
+#: The command's five steps are over coefficients it scales to order one; four
+#: bounded and periodic variables take this many to settle.
+_WATER_FAT_ITERATIONS = 60
+
+
+def _water_fat_model(times, voxels, which: int, field_strength: float, spectrum: str):
+    from torchsim.simulators import MultiGradientEchoSimulator
+
+    from bartorch import nlop
+
+    unknown = _WATER_FAT[which]
+    bounds = {"fat_fraction": (0.0, 1.0), "T2star": _T2STAR}
+    scale = {"fat_phase": 90.0, "B0": 50.0}
+    sequence = MultiGradientEchoSimulator(
+        TE=[1e3 * float(t) for t in times],
+        field_strength=field_strength,
+        fat_spectrum=spectrum,
+    )
+    return nlop.Bloch(
+        sequence,
+        *unknown,
+        shape=voxels,
+        bounds={name: bounds[name] for name in unknown if name in bounds},
+        contrasts=len(times),
+        **{name: scale[name] for name in unknown if name in scale},
+    )
+
+
+def _water_fat_start(which: int, given: tuple[float, ...] | None) -> dict[str, Any]:
+    """The app's start, or BART's ``--init`` in the app's variables.
+
+    Raises
+    ------
+    Unsupported
+        A start the model's bounds do not contain.
+    """
+    unknown = _WATER_FAT[which]
+    if given is None:
+        start = {"fat_fraction": 0.5, "fat_phase": 0.0, "T2star": 30.0}
+        return {name: value for name, value in start.items() if name in unknown} | {"B0": 0.0}
+    values = _padded(given, len(unknown) + (0 if which < 3 else 1))
+    if which == 0:
+        water, fat, frequency = values
+        rates = []
+    elif which == 1:
+        water, fat, rate, frequency = values
+        rates = [rate]
+    else:
+        water, fat, *rates, frequency = values[0], 0.0, *values[1:]
+    start: dict[str, Any] = {"B0": -frequency}
+    if which < 3:
+        total = abs(water) + abs(fat)
+        fraction = 0.5 if total == 0.0 else abs(fat) / total
+        if not 0.0 < fraction < 1.0:
+            raise Unsupported("a start with no water or no fat has no phase between them")
+        start |= {
+            "amplitude": water / (1 - fraction),
+            "fat_fraction": fraction,
+            "fat_phase": 0.0 if fat * water >= 0 else 180.0,
+        }
+    else:
+        start["amplitude"] = water
+    for rate in rates:
+        start["T2star"] = _time(rate, _T2STAR)
+    return start
+
+
+def _water_fat_coefficients(which: int, maps: dict[str, torch.Tensor]) -> torch.Tensor:
+    amplitude = maps["amplitude"]
+    frequency = -maps["B0"]
+    if which >= 3:
+        rates = [1e3 / maps["T2star"]] if which == 3 else []
+        made = [amplitude, *rates, frequency]
+    else:
+        fraction = maps["fat_fraction"]
+        water = amplitude * (1 - fraction)
+        fat = amplitude * fraction * torch.exp(1j * torch.deg2rad(maps["fat_phase"]))
+        rates = [1e3 / maps["T2star"]] if which == 1 else []
+        made = [water, fat, *rates, frequency]
+    return torch.stack([m.to(torch.complex64) for m in made])
+
+
+# --- diffusion and Z-spectra ---------------------------------------------------
+#
+# `-D` is M0 exp(enc x) over an encoding with one column, which is -b: TorchSim's
+# DiffusionSimulator is M0 exp(-1e-3 b D), so b = -1000 enc and D is BART's
+# coefficient in whatever units the encoding's reciprocal carries.  `-M` is the
+# Lorentzian Z-spectrum over the offsets the encoding lists, (M0, then amplitude,
+# width and shift per pool), in the same order as TorchSim's properties.
+
+
+def _diffusion_model(times, voxels):
+    from torchsim.simulators import DiffusionSimulator
+
+    from bartorch import nlop
+
+    b = [-1e3 * float(t) for t in times]
+    largest = max(abs(value) for value in b) or 1.0
+    return nlop.Bloch(DiffusionSimulator(b=b), "D", shape=voxels, contrasts=len(b), D=1e3 / largest)
+
+
+def _lorentzian_names(pools: int) -> tuple[str, ...]:
+    return tuple(
+        f"pool{index}_{what}"
+        for index in range(1, pools + 1)
+        for what in ("amplitude", "width", "shift")
+    )
+
+
+def _lorentzian_model(offsets, voxels, pools: int):
+    from torchsim.simulators import LorentzianSimulator
+
+    from bartorch import nlop
+
+    # A line's width enters squared; bounding it positive keeps the fit on
+    # the side the command's start puts it.
+    names = _lorentzian_names(pools)
+    return nlop.Bloch(
+        LorentzianSimulator(pools, offsets=[float(t) for t in offsets]),
+        *names,
+        shape=voxels,
+        contrasts=len(offsets),
+        bounds={name: (0.0, None) for name in names if name.endswith("_width")},
+    )
 
 
 def _mode(options: dict[str, list[Any]], name: str, modes: tuple[str, ...]) -> str:
@@ -250,16 +406,29 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     not something the app takes; the app's own count applies.  ``--liniter``
     counts conjugate-gradient steps in both.  Without ``--init`` the app
     starts from its own values, since the command's start of zero is no
-    relaxation time.
+    relaxation time; ``-M`` has no such start and is routed with one.
     """
-    mode = _mode(options, "mobafit", ("T", "I", "L"))
+    pools = _only(options.pop("M")) if "M" in options else 0
+    # With no model named the command fits the multi-echo one.
+    named = [flag for flag in ("T", "I", "L", "G", "D") if flag in options]
+    mode = "M" if pools else _mode(options, "mobafit", ("T", "I", "L", "G", "D")) if named else "G"
+    which = _only(options.pop("m", [1]))
+    if mode == "G" and which not in _WATER_FAT:
+        raise Unsupported(f"mobafit -m {which} is not a multi-echo model")
+    if mode == "G" and which == 2:
+        # Two decays that differ only by fat's share of the signal are nearly
+        # one; the Gauss-Newton weight towards the middle of each bound walks
+        # the pair off where the command's unbounded rates stay.
+        raise Unsupported("mobafit -m 2 does not converge in the app's bounded variables")
+    field_strength = _only(options.pop("field_strength", [3.0]))
+    spectrum = "middleton2009" if options.pop("fat_spec_0", False) else "hamilton2011"
     made: dict[str, Any] = {}
     if "a" in options:
         options.pop("a")
         made["magnitude"] = True
     if "liniter" in options:
         made["cg_maxiter"] = _only(options.pop("liniter"))
-    start = _start(mode, _only(options.pop("init")) if "init" in options else None)
+    given = _only(options.pop("init")) if "init" in options else None
     if options:
         raise Unsupported(f"mobafit {sorted(options)} is not something the app takes")
     if outputs != 1:
@@ -274,15 +443,48 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     rest = np.moveaxis(y, _TE, 0)
     data = torch.as_tensor(rest.reshape(contrasts, -1)).to(torch.complex64)
     empty = data.abs().amax(dim=0) == 0
+    voxels = (data.shape[1],)
+
+    if mode == "G":
+        model = _water_fat_model(times, voxels, which, field_strength, spectrum)
+        start = _water_fat_start(which, given)
+        made.setdefault("iterations", _WATER_FAT_ITERATIONS)
+
+        def coefficients(maps):
+            return _water_fat_coefficients(which, maps)
+    elif mode == "D":
+        model = _diffusion_model(times, voxels)
+        amplitude, rate = _padded(given, 2) if given is not None else (1.0, 0.0)
+        start = {"amplitude": amplitude, "D": rate}
+
+        def coefficients(maps):
+            return torch.stack([maps["amplitude"], maps["D"].to(torch.complex64)])
+    elif mode == "M":
+        if given is None:
+            raise Unsupported("mobafit -M is routed with --init; a Z-spectrum has no neutral start")
+        model = _lorentzian_model(times, voxels, pools)
+        names = _lorentzian_names(pools)
+        values = _padded(given, 1 + len(names))
+        start = {"amplitude": values[0], **dict(zip(names, values[1:], strict=True))}
+
+        def coefficients(maps):
+            return torch.stack(
+                [maps["amplitude"], *(maps[name].to(torch.complex64) for name in names)]
+            )
+    else:
+        model = _model(mode, times, voxels)
+        start = _start(mode, given)
+
+        def coefficients(maps):
+            return _coefficients(mode, maps)
 
     def written(maps: dict[str, torch.Tensor]) -> list[torch.Tensor]:
         # A voxel with no data is written as zero, which is what the command
         # writes for a slice with none.
-        made = torch.where(empty, 0, _coefficients(mode, maps)).numpy()
+        made = torch.where(empty, 0, coefficients(maps)).numpy()
         made = made.reshape(made.shape[:1] + rest.shape[1:])
         return [_ours(np.moveaxis(made, 0, _COEFF))]
 
-    model = _model(mode, times, (data.shape[1],))
     return Call((data, model), {**made, **start}, written)
 
 
