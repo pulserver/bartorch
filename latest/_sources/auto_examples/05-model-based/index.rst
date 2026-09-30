@@ -16,7 +16,8 @@ signal curves are represented by a few temporal basis functions and
 :math:`T_1` is fitted to the coefficient maps, and a nonlinear signal model,
 through which :math:`T_2` maps are estimated directly from multi-echo k-space.
 :doc:`/explanation/nonlinear` compares the two with reconstruction followed by
-a voxel-wise fit.
+a voxel-wise fit.  The last lesson fits a signal model to magnitude
+images read from DICOM, as a scanner exports them, and writes the map back.
 
 
 .. raw:: html
@@ -64,6 +65,23 @@ a voxel-wise fit.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from the magnitude images a scanner exports, without access to the raw data: a multi-echo spin-echo series is read from DICOM, the decay is fitted voxel by voxel, and the map is written back as a DICOM series of the same study and as a NIfTI volume. The aim is to show the geometry and the acquisition timings passing from the scanner&#x27;s files to the fit and on to the output unchanged, so that the map overlays the images it was computed from.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05-model-based/images/thumb/sphx_glr_03-maps-from-scanner-images_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05-model-based/03-maps-from-scanner-images`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -76,4 +94,5 @@ a voxel-wise fit.
 
    /auto_examples/05-model-based/01-subspace-t1-mapping
    /auto_examples/05-model-based/02-quantitative-models
+   /auto_examples/05-model-based/03-maps-from-scanner-images
 

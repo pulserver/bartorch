@@ -101,29 +101,7 @@ rounded to 1 Hz and limited to :math:`\pm 150` Hz.
 
  .. code-block:: none
 
-
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.44kB/s]
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 40.8kB [00:00, 138kB/s] 
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 177kB [00:00, 481kB/s] 
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 489kB [00:00, 1.14MB/s]
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 1.09MB [00:00, 2.31MB/s]
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 2.29MB [00:00, 4.51MB/s]
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 4.69MB [00:01, 8.81MB/s]
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 6.76MB [00:01, 12.0MB/s]
-
-    Downloading T2+ICBM+normal+1mm+pn0+rf0: 8.00MB [00:01, 10.6MB/s]
-
-                                                                    slab (11, 96, 96), voxel 2.3 x 2.3 x 3.0 mm
+    slab (11, 96, 96), voxel 2.3 x 2.3 x 3.0 mm
     field over the head: -150 to +150 Hz
     field over the brain: -67 to +59 Hz
 
@@ -399,7 +377,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.420 seconds)
+   **Total running time of the script:** (0 minutes 2.511 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_07-epi-susceptibility-distortion.py:

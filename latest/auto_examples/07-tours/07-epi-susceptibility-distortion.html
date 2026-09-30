@@ -245,6 +245,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
@@ -571,37 +572,7 @@ rounded to 1 Hz and limited to <span class="math notranslate nohighlight">\(\pm 
 </span>    <span class="n">values</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">field over the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">+.0f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">+.0f</span><span class="si">}</span><span class="s2"> Hz</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading T2+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.44kB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 40.8kB [00:00, 138kB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 177kB [00:00, 481kB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 489kB [00:00, 1.14MB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 1.09MB [00:00, 2.31MB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 2.29MB [00:00, 4.51MB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 4.69MB [00:01, 8.81MB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 6.76MB [00:01, 12.0MB/s]
-
-
-Downloading T2+ICBM+normal+1mm+pn0+rf0: 8.00MB [00:01, 10.6MB/s]
-
-
-                                                                slab (11, 96, 96), voxel 2.3 x 2.3 x 3.0 mm
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>slab (11, 96, 96), voxel 2.3 x 2.3 x 3.0 mm
 field over the head: -150 to +150 Hz
 field over the brain: -67 to +59 Hz
 </pre></div>
@@ -760,7 +731,7 @@ phantom. <em>IEEE Trans Med Imaging</em> 17(3):463-468 (1998).
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.420 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.511 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-07-epi-susceptibility-distortion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0fab285c8eb755f9fa83ffeffac3370a/07-epi-susceptibility-distortion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">07-epi-susceptibility-distortion.ipynb</span></code></a></p>

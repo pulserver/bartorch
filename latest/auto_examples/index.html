@@ -245,6 +245,7 @@
 <li class="toctree-l2"><a class="reference internal" href="04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
@@ -520,10 +521,10 @@
 <p>Reconstructions executed when the documentation is built: a course in six
 sections read in order, and standalone tours of the corrections applied around
 a reconstruction.  <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a> lists every lesson.</p>
-<p>Running them needs a built <code class="docutils literal notranslate"><span class="pre">bartorch</span></code>, <code class="docutils literal notranslate"><span class="pre">brainweb-dl</span></code>, which downloads the
+<p>Running them needs a built <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> with its <code class="docutils literal notranslate"><span class="pre">io</span></code> extra, <code class="docutils literal notranslate"><span class="pre">brainweb-dl</span></code>, which downloads the
 BrainWeb phantoms several examples build their images from, and
 <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> and <code class="docutils literal notranslate"><span class="pre">cmap</span></code> for the figures:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">bartorch</span> <span class="n">brainweb</span><span class="o">-</span><span class="n">dl</span> <span class="n">matplotlib</span> <span class="n">cmap</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s1">'bartorch[io]'</span> <span class="n">brainweb</span><span class="o">-</span><span class="n">dl</span> <span class="n">matplotlib</span> <span class="n">cmap</span>
 </pre></div>
 </div>
 <p>The learned-regularization section additionally requires <code class="docutils literal notranslate"><span class="pre">lightning</span></code>,
@@ -628,13 +629,17 @@ signal curves are represented by a few temporal basis functions and
 <span class="math notranslate nohighlight">\(T_1\)</span> is fitted to the coefficient maps, and a nonlinear signal model,
 through which <span class="math notranslate nohighlight">\(T_2\)</span> maps are estimated directly from multi-echo k-space.
 <a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> compares the two with reconstruction followed by
-a voxel-wise fit.</p>
+a voxel-wise fit.  The last lesson fits a signal model to magnitude
+images read from DICOM, as a scanner exports them, and writes the map back.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke. The aim is to show how a signal model turns a hopelessly undersampled time series into a well-posed reconstruction: the recovery curves of all plausible T_1 values span a subspace of low dimension, and reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude."><img alt="" src="../_images/sphx_glr_01-subspace-t1-mapping_thumb.png" />
 <p><a class="reference internal" href="05-model-based/01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p>
   <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first."><img alt="" src="../_images/sphx_glr_02-quantitative-models_thumb.png" />
 <p><a class="reference internal" href="05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
   <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from the magnitude images a scanner exports, without access to the raw data: a multi-echo spin-echo series is read from DICOM, the decay is fitted voxel by voxel, and the map is written back as a DICOM series of the same study and as a NIfTI volume. The aim is to show the geometry and the acquisition timings passing from the scanner&#x27;s files to the fit and on to the output unchanged, so that the map overlays the images it was computed from."><img alt="" src="../_images/sphx_glr_03-maps-from-scanner-images_thumb.png" />
+<p><a class="reference internal" href="05-model-based/03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
 </div></div></section>
 <section id="learned-regularization">
 <h2>Learned regularization<a class="headerlink" href="#learned-regularization" title="Link to this heading">#</a></h2>

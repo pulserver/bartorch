@@ -233,7 +233,7 @@ least-squares solution over the three planes.
  .. code-block:: none
 
                      truth  measured
-    rotation   S/I   1.15°     1.41°
+    rotation   S/I   1.15°     1.37°
     rotation   A/P  -1.72°    -1.44°
     rotation   L/R   2.86°     2.51°
     shift      S/I   3.0 mm   3.37 mm
@@ -279,8 +279,8 @@ measured pose, what remains is the error of the pose.
  .. code-block:: none
 
        axial: NRMSE against the moved navigator, reference 0.335, measured pose 0.051
-     coronal: NRMSE against the moved navigator, reference 0.332, measured pose 0.049
-    sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.066
+     coronal: NRMSE against the moved navigator, reference 0.332, measured pose 0.048
+    sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.065
 
 
 
@@ -291,7 +291,7 @@ measured pose, what remains is the error of the pose.
 
 
 .. image-sg:: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
-   :alt: axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.051, moved - measured pose NRMSE 0.049, moved - measured pose NRMSE 0.066
+   :alt: axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.051, moved - measured pose NRMSE 0.048, moved - measured pose NRMSE 0.065
    :srcset: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
    :class: sphx-glr-single-img
 
@@ -375,9 +375,9 @@ measured coordinate. The trace is filtered with three values of
 
  .. code-block:: none
 
-    process_noise 100    rms error: rotation S/I 74.31°, A/P 5.05°, L/R 5.00°; shift S/I 0.19 mm, A/P 1.84 mm, L/R 2.86 mm
-    process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.30°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
-    process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
+    process_noise 100    rms error: rotation S/I 0.47°, A/P 0.37°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
+    process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
+    process_noise 0.0001 rms error: rotation S/I 0.42°, A/P 0.23°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 
 
 
@@ -427,7 +427,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.537 seconds)
+   **Total running time of the script:** (0 minutes 4.775 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_06-navigator-motion.py:

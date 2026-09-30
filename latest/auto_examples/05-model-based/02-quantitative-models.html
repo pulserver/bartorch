@@ -67,7 +67,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Plug-and-play denoisers" href="../06-learning/01-plug-and-play.html" />
+    <link rel="next" title="Parameter maps from scanner images" href="03-maps-from-scanner-images.html" />
     <link rel="prev" title="Subspace-constrained T1 mapping" href="01-subspace-t1-mapping.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -245,6 +245,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
@@ -559,9 +560,9 @@ it with the encoding, with <a class="reference internal" href="../../generated/b
 <li><p>Explain, from the echo images and the error maps, why the model-based fit
 is more accurate at the same undersampling.</p></li>
 </ul>
-<p>It follows <a class="reference internal" href="01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a>. The next section,
-<a class="reference internal" href="../06-learning/01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a>, replaces a specified regularizer with a
-learned denoiser.</p>
+<p>It follows <a class="reference internal" href="01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a>, and
+<a class="reference internal" href="03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a> fits the same model to images read from
+DICOM.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
@@ -651,8 +652,8 @@ the data.</p>
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
   warnings.warn(
-reconstruct, then fit:       2.7 s
-model inside the operator:   7.8 s
+reconstruct, then fit:       4.1 s
+model inside the operator:  11.4 s
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">E</span> <span class="pre">&#64;</span> <span class="pre">M</span></code> composes a linear operator with a nonlinear one; the derivative of
@@ -687,8 +688,8 @@ the fit above.</p>
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">'</span><span class="s1">phantom</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;22</span><span class="si">}</span><span class="s2">  median </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">t2</span><span class="p">[</span><span class="n">support</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">5.1f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>apps.moba:                   8.7 s
- reconstruct, then fit  median  86.2 ms   relative error 0.481
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>apps.moba:                  12.3 s
+ reconstruct, then fit  median  86.1 ms   relative error 0.483
            model-based  median  81.5 ms   relative error 0.007
              apps.moba  median  81.3 ms   relative error 0.057
                phantom  median  81.5 ms
@@ -743,7 +744,7 @@ et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
 93(2):490-506 (2025). <a class="reference external" href="https://doi.org/10.1002/mrm.30290">https://doi.org/10.1002/mrm.30290</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 19.843 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 28.613 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-model-based-02-quantitative-models-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/47b33f4aece6ac39ed97ce8e5f0ea6e3/02-quantitative-models.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-quantitative-models.ipynb</span></code></a></p>
@@ -780,11 +781,11 @@ et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
       </div>
     </a>
     <a class="right-next"
-       href="../06-learning/01-plug-and-play.html"
+       href="03-maps-from-scanner-images.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Plug-and-play denoisers</p>
+        <p class="prev-next-title">Parameter maps from scanner images</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

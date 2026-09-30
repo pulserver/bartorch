@@ -417,7 +417,7 @@ reconstruction that produced it.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:07 • 0:00:00 1.60it/s loss: 0.000 psnr:
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:12 • 0:00:00 0.97it/s loss: 0.000 psnr:
                                                                    32.748 ssim:     
                                                                    0.890            
     rho ended at 0.027
@@ -650,7 +650,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 13.512 seconds)
+   **Total running time of the script:** (3 minutes 39.591 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:

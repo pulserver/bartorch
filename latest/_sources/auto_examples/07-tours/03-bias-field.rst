@@ -83,35 +83,6 @@ grey matter, over which the uniformity of each class is measured.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.51kB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 40.8kB [00:00, 139kB/s] 
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 185kB [00:00, 507kB/s] 
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 465kB [00:00, 1.07MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.98MB [00:00, 2.05MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.01MB [00:00, 3.92MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.06MB [00:01, 7.57MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.74MB [00:01, 9.95MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.76MB [00:01, 9.42MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.70MB [00:01, 8.23MB/s]
-
-                                                                    
 
 
 
@@ -371,7 +342,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.327 seconds)
+   **Total running time of the script:** (0 minutes 2.536 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_03-bias-field.py:

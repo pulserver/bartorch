@@ -65,9 +65,9 @@ hidden on this page and present in the script this page can be downloaded as.
 - Explain, from the echo images and the error maps, why the model-based fit
   is more accurate at the same undersampling.
 
-It follows :doc:`01-subspace-t1-mapping`. The next section,
-:doc:`../06-learning/01-plug-and-play`, replaces a specified regularizer with a
-learned denoiser.
+It follows :doc:`01-subspace-t1-mapping`, and
+:doc:`03-maps-from-scanner-images` fits the same model to images read from
+DICOM.
 
 .. GENERATED FROM PYTHON SOURCE LINES 55-173
 
@@ -247,8 +247,8 @@ the data.
 
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
       warnings.warn(
-    reconstruct, then fit:       2.7 s
-    model inside the operator:   7.8 s
+    reconstruct, then fit:       4.1 s
+    model inside the operator:  11.4 s
 
 
 
@@ -320,8 +320,8 @@ the fit above.
 
  .. code-block:: none
 
-    apps.moba:                   8.7 s
-     reconstruct, then fit  median  86.2 ms   relative error 0.481
+    apps.moba:                  12.3 s
+     reconstruct, then fit  median  86.1 ms   relative error 0.483
                model-based  median  81.5 ms   relative error 0.007
                  apps.moba  median  81.3 ms   relative error 0.057
                    phantom  median  81.5 ms
@@ -401,7 +401,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 19.843 seconds)
+   **Total running time of the script:** (0 minutes 28.613 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_02-quantitative-models.py:

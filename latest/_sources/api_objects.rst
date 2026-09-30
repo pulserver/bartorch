@@ -327,6 +327,12 @@ bartorch.io
    :toctree: generated
    :nosignatures:
 
+   read_mrd
+   read_dicom
+   to_dicom
+   write_dicom
+   read_nifti
+   write_nifti
    readcfl
    writecfl
 

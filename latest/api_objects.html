@@ -243,6 +243,7 @@
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_examples/05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
@@ -1264,6 +1265,24 @@ the same objects in tables; this page generates the page of each.</p>
 <h2>bartorch.io<a class="headerlink" href="#bartorch-io" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.read_mrd.html#bartorch.io.read_mrd" title="bartorch.io.read_mrd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_mrd</span></code></a></p></td>
+<td><p>Read the readouts of one encoding space of an ISMRMRD HDF5 file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.read_dicom.html#bartorch.io.read_dicom" title="bartorch.io.read_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_dicom</span></code></a></p></td>
+<td><p>Read a DICOM MR image series into a tensor sorted by contrast and slice.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dicom</span></code></a></p></td>
+<td><p>Convert a real image to the datasets of one DICOM MR image series.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.write_dicom.html#bartorch.io.write_dicom" title="bartorch.io.write_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_dicom</span></code></a></p></td>
+<td><p>Write a real image as one DICOM MR image series, a file per image.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_nifti</span></code></a></p></td>
+<td><p>Read NIfTI images, and the timings of their BIDS sidecars, as contrasts.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.write_nifti.html#bartorch.io.write_nifti" title="bartorch.io.write_nifti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_nifti</span></code></a></p></td>
+<td><p>Write an image as a NIfTI file, and its timings as a BIDS sidecar.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.readcfl.html#bartorch.io.readcfl" title="bartorch.io.readcfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">readcfl</span></code></a></p></td>
 <td><p>Read the CFL pair <code class="docutils literal notranslate"><span class="pre">name.hdr</span></code> / <code class="docutils literal notranslate"><span class="pre">name.cfl</span></code> into a NumPy array.</p></td>
 </tr>

@@ -46,9 +46,9 @@ hidden on this page and present in the script this page can be downloaded as.
 - Explain, from the echo images and the error maps, why the model-based fit
   is more accurate at the same undersampling.
 
-It follows :doc:`01-subspace-t1-mapping`. The next section,
-:doc:`../06-learning/01-plug-and-play`, replaces a specified regularizer with a
-learned denoiser.
+It follows :doc:`01-subspace-t1-mapping`, and
+:doc:`03-maps-from-scanner-images` fits the same model to images read from
+DICOM.
 """
 
 # %%

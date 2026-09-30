@@ -324,7 +324,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.529 seconds)
+   **Total running time of the script:** (0 minutes 3.375 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py:

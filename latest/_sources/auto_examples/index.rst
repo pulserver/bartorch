@@ -7,11 +7,11 @@ Reconstructions executed when the documentation is built: a course in six
 sections read in order, and standalone tours of the corrections applied around
 a reconstruction.  :doc:`/examples/index` lists every lesson.
 
-Running them needs a built ``bartorch``, ``brainweb-dl``, which downloads the
+Running them needs a built ``bartorch`` with its ``io`` extra, ``brainweb-dl``, which downloads the
 BrainWeb phantoms several examples build their images from, and
 ``matplotlib`` and ``cmap`` for the figures::
 
-    pip install bartorch brainweb-dl matplotlib cmap
+    pip install 'bartorch[io]' brainweb-dl matplotlib cmap
 
 The learned-regularization section additionally requires ``lightning``,
 ``torchio``, ``monai`` and ``deepinv``, and downloads the DRUNet weights
@@ -350,7 +350,8 @@ signal curves are represented by a few temporal basis functions and
 :math:`T_1` is fitted to the coefficient maps, and a nonlinear signal model,
 through which :math:`T_2` maps are estimated directly from multi-echo k-space.
 :doc:`/explanation/nonlinear` compares the two with reconstruction followed by
-a voxel-wise fit.
+a voxel-wise fit.  The last lesson fits a signal model to magnitude
+images read from DICOM, as a scanner exports them, and writes the map back.
 
 
 .. raw:: html
@@ -395,6 +396,23 @@ a voxel-wise fit.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from the magnitude images a scanner exports, without access to the raw data: a multi-echo spin-echo series is read from DICOM, the decay is fitted voxel by voxel, and the map is written back as a DICOM series of the same study and as a NIfTI volume. The aim is to show the geometry and the acquisition timings passing from the scanner&#x27;s files to the fit and on to the output unchanged, so that the map overlays the images it was computed from.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05-model-based/images/thumb/sphx_glr_03-maps-from-scanner-images_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05-model-based/03-maps-from-scanner-images`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
     </div>
 
 
