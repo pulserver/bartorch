@@ -564,6 +564,17 @@ def test_a_command_with_no_app_runs_as_itself(_dataset):
     assert readcfl("img").shape == (SIZE, SIZE, 1, COILS)
 
 
+def test_one_process_writes_the_headers_of_many_files(tmp_path, monkeypatch):
+    """A header is a few dozen formatted writes to the file's descriptor, and
+    the Windows C runtime holds a fixed number of streams per process, so a
+    write that opened one over the descriptor would fail a few dozen files in."""
+    monkeypatch.chdir(tmp_path)
+    for index in range(64):
+        code, _, failure = run_command(["ones", "3", "2", "2", "2", f"x{index}"])
+        assert code == 0, f"file {index}: {failure}"
+    assert readcfl("x63").shape == (2, 2, 2)
+
+
 def test_an_input_that_is_not_there_is_named_before_bart_is_asked(_dataset, capsys):
     """BART would report it, and would be the one to ask -- except that a
     command which fails while loading its arguments leaves the library unable

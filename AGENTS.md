@@ -951,7 +951,10 @@ to serve the next call in the same process -- `ecalib` and `nufft`
 handed a name with no file behind it both spin the call after them, while `fft`
 does not -- so a caller who runs `main` twice would hang rather than see the
 second answer.  `cli._missing` checks the names against the filesystem before
-BART is asked.
+BART is asked.  The mechanism is BART's `error` jumping out of an OpenMP
+critical section: `load_cfl` and `create_cfl` open their files inside one, a
+failure there leaves it held, and the next command to enter it waits on it for
+ever.
 
 Help is the catalogue's, because BART answers its own by calling `exit`, which
 in this process ends the interpreter.
