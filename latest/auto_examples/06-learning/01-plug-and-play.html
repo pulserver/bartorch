@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="MoDL, on BART’s ADMM" href="02-modl-with-admm.html" />
-    <link rel="prev" title="Learned regularization" href="index.html" />
+    <link rel="prev" title="Parameter maps straight from k-space" href="../05-model-based/02-quantitative-models.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -502,26 +522,30 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-06-learning-01-plug-and-play-py"></span><h1>Plug-and-play denoisers<a class="headerlink" href="#plug-and-play-denoisers" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/06-learning/01-plug-and-play.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>A pretrained image denoiser used as the proximal step of BART’s iterations, in
-place of a specified regularization term, for an undersampled Cartesian SENSE
-acquisition.</p>
-<p>A proximal iteration such as ADMM or FISTA applies the regularization term
-only through its proximal operator,</p>
+<p>This lesson regularizes an undersampled, noisy Cartesian SENSE reconstruction
+with a pretrained image denoiser in place of a specified penalty, and compares
+the result with total-variation regularization of the same data. The aim is to
+show how a denoiser enters a proximal iteration, what it improves on a
+hand-crafted penalty, and how its noise level plays the role of the
+regularization weight.</p>
+<p>A proximal iteration such as ADMM or FISTA uses the regularization term only
+through its proximal operator,</p>
 <div class="math notranslate nohighlight">
 \[\operatorname{prox}_{\gamma g}(v) = \arg\min_x \; \tfrac12 \|x - v\|_2^2 + \gamma\, g(x),\]</div>
-<p>which is the maximum a posteriori estimate of an image observed in white
-Gaussian noise under the prior <span class="math notranslate nohighlight">\(\exp(-g)\)</span>. Plug-and-play regularization
-<a class="footnote-reference brackets" href="#venkatakrishnan" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#ahmad" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> replaces this operator by an image denoiser
-<span class="math notranslate nohighlight">\(D_\sigma\)</span>, without writing down <span class="math notranslate nohighlight">\(g\)</span>. The denoiser’s noise level
-<span class="math notranslate nohighlight">\(\sigma\)</span> takes the role of the regularization weight, and the penalty
-parameter <span class="math notranslate nohighlight">\(\rho\)</span> of ADMM sets how far each x-update may move from the
-denoised image towards data consistency.</p>
-<p>The denoiser here is DRUNet <a class="footnote-reference brackets" href="#zhang" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> with the weights distributed by
-<code class="docutils literal notranslate"><span class="pre">deepinv</span></code>, trained for Gaussian denoising of natural grayscale images and not
-on MR images. <a class="reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.priors.ImplicitPrior</span></code></a> converts between the
-complex image of the reconstruction and the real planes the network takes; the
-iterations are <a class="reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.admm()</span></code></a> and <a class="reference internal" href="../../generated/bartorch.optim.fista.html#bartorch.optim.fista" title="bartorch.optim.fista"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.fista()</span></code></a>,
-unchanged.</p>
+<p>which is the maximum a posteriori estimate of an image <span class="math notranslate nohighlight">\(x\)</span> observed as
+<span class="math notranslate nohighlight">\(v\)</span> in white Gaussian noise, under the prior <span class="math notranslate nohighlight">\(\exp(-g)\)</span>: the
+proximal operator is a denoiser. Plug-and-play regularization
+<a class="footnote-reference brackets" href="#venkatakrishnan" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#ahmad" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> replaces it by any image denoiser
+<span class="math notranslate nohighlight">\(D_\sigma\)</span>, without writing down <span class="math notranslate nohighlight">\(g\)</span>. Each iteration alternates a
+step towards consistency with the measured k-space and a denoising step; the
+noise level <span class="math notranslate nohighlight">\(\sigma\)</span> of the denoiser takes the role of the
+regularization weight.</p>
+<p>The denoiser is DRUNet <a class="footnote-reference brackets" href="#zhang" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, a convolutional network with the weights
+distributed by <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>, trained for Gaussian denoising of natural
+grayscale photographs, not of MR images.
+<a class="reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.priors.ImplicitPrior</span></code></a> converts between the complex image of
+the reconstruction and the real planes the network takes; the iterations are
+<a class="reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.admm()</span></code></a> and <a class="reference internal" href="../../generated/bartorch.optim.fista.html#bartorch.optim.fista" title="bartorch.optim.fista"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.fista()</span></code></a>, unchanged.</p>
 <p>The phantom is the BrainWeb slice of
 <a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a>; the cell that builds
 it is hidden on this page and present in the downloadable script.</p>
@@ -530,12 +554,16 @@ it is hidden on this page and present in the downloadable script.</p>
 <li><p>Wrap a pretrained denoiser as <a class="reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.priors.ImplicitPrior</span></code></a> and
 pass it to <a class="reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.admm()</span></code></a> and <a class="reference internal" href="../../generated/bartorch.optim.fista.html#bartorch.optim.fista" title="bartorch.optim.fista"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.fista()</span></code></a> in
 place of a <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> term.</p></li>
-<li><p>Compare the result with total-variation regularization on the same data.</p></li>
-<li><p>Vary the denoiser’s noise level and relate it to the regularization weight.</p></li>
+<li><p>Compare the result with total-variation regularization on the same data,
+in the images, the error maps and an enlarged region.</p></li>
+<li><p>Vary the denoiser’s noise level and recognize under- and
+over-regularization.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="../05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>. The next lesson,
 <a class="reference internal" href="02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a>, trains the denoiser through the iteration.</p>
-<p>The pretrained weights, about 125 MB, are downloaded on the first call.</p>
+<p>The pretrained weights, about 125 MB, are downloaded on the first call. The
+network runs once per iteration, which dominates the run time of this example
+on a CPU.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
 </span><span class="w">
@@ -556,12 +584,15 @@ place of a <code class="xref py py-mod docutils literal notranslate"><span class
 </span></pre></div></div>
 <section id="acquisition">
 <h2>Acquisition<a class="headerlink" href="#acquisition" title="Link to this heading">#</a></h2>
-<p>A quarter of the phase encodes, drawn from a variable density around a fully
-sampled region of 16 lines, with complex Gaussian noise of variance
-<span class="math notranslate nohighlight">\(10^{-3}\)</span> per sample of the unitary transform. The sensitivities are
-the ones the data was simulated with, so that the comparison below concerns
-the regularization alone; <a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a>
-compares their estimation.</p>
+<p>A quarter of the phase encodes (<span class="math notranslate nohighlight">\(R = 4\)</span>), drawn from a variable
+density around a fully sampled ACS region of 16 lines, with complex Gaussian
+noise of variance <span class="math notranslate nohighlight">\(10^{-3}\)</span> per sample of the unitary transform: the
+acquisition of <a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a>,
+where both noise amplification and incoherent aliasing limit an
+unregularized reconstruction. The sensitivities are the ones the data were
+simulated with, so that the comparison below concerns the regularization
+alone; <a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a> compares their
+estimation.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">encodes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="w">
 </span><span class="n">centre</span> <span class="o">=</span> <span class="p">(</span><span class="n">encodes</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CALIBRATION</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="w">
 </span><span class="n">drawn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="w">
@@ -592,13 +623,15 @@ shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <s
 each image to unit peak modulus, denoises its real and imaginary parts as
 two grayscale planes, and scales the result back, so <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is in units of
 the image’s peak. The network is evaluated without gradients, since nothing
-is trained here.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">denoiser</span> <span class="o">=</span> <span class="n">DRUNet</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">download</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="p">)</span><span class="w">
+is trained here. Each iteration costs one application of the network.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">ITERATIONS</span> <span class="o">=</span> <span class="mi">30</span><span class="w">
+</span><span class="w">
+</span><span class="n">denoiser</span> <span class="o">=</span> <span class="n">DRUNet</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">download</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">prior</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span></a><span class="p">(</span><span class="n">denoiser</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">admm</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><span class="n">optim</span><span class="o">.</span><span class="n">admm</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">prior</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="w">
-</span>    <span class="n">fista</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.fista.html#bartorch.optim.fista" title="bartorch.optim.fista"><span class="n">optim</span><span class="o">.</span><span class="n">fista</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">prior</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span><span class="w">
+</span>    <span class="n">admm</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><span class="n">optim</span><span class="o">.</span><span class="n">admm</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">prior</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="w">
+</span>    <span class="n">fista</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.fista.html#bartorch.optim.fista" title="bartorch.optim.fista"><span class="n">optim</span><span class="o">.</span><span class="n">fista</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">prior</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">reconstructions</span> <span class="o">=</span> <span class="p">{</span><span class="w">
 </span>    <span class="s2">&quot;</span><span class="s2">zero-filled</span><span class="s2">&quot;</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.H" title="bartorch.linop.LinearOperator.H"><span class="n">A</span><span class="o">.</span><span class="n">H</span></a><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="p">,</span><span class="w">
@@ -615,40 +648,90 @@ is trained here.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
 
   0%|          | 0.00/125M [00:00&lt;?, ?B/s]
-  0%|          | 128k/125M [00:00&lt;04:51, 448kB/s]
- 22%|██▏       | 26.9M/125M [00:00&lt;00:01, 91.9MB/s]
- 34%|███▍      | 42.5M/125M [00:00&lt;00:01, 83.1MB/s]
- 46%|████▌     | 57.0M/125M [00:00&lt;00:00, 86.1MB/s]
- 54%|█████▍    | 67.6M/125M [00:00&lt;00:00, 77.5MB/s]
- 71%|███████▏  | 88.9M/125M [00:01&lt;00:00, 109MB/s]
- 82%|████████▏ | 102M/125M [00:01&lt;00:00, 77.0MB/s]
- 97%|█████████▋| 120M/125M [00:01&lt;00:00, 98.1MB/s]
-100%|██████████| 125M/125M [00:01&lt;00:00, 66.8MB/s]
+  0%|          | 128k/125M [00:00&lt;06:24, 339kB/s]
+  3%|▎         | 3.62M/125M [00:00&lt;00:12, 10.1MB/s]
+  5%|▍         | 5.75M/125M [00:00&lt;00:09, 13.2MB/s]
+  7%|▋         | 8.12M/125M [00:00&lt;00:07, 15.5MB/s]
+  9%|▊         | 10.9M/125M [00:00&lt;00:06, 17.9MB/s]
+ 11%|█         | 13.8M/125M [00:00&lt;00:05, 19.9MB/s]
+ 13%|█▎        | 16.4M/125M [00:01&lt;00:05, 20.6MB/s]
+ 15%|█▌        | 19.2M/125M [00:01&lt;00:05, 21.7MB/s]
+ 18%|█▊        | 22.1M/125M [00:01&lt;00:04, 22.4MB/s]
+ 20%|██        | 25.0M/125M [00:01&lt;00:04, 22.9MB/s]
+ 22%|██▏       | 27.8M/125M [00:01&lt;00:04, 23.1MB/s]
+ 24%|██▍       | 30.5M/125M [00:01&lt;00:04, 23.2MB/s]
+ 27%|██▋       | 33.5M/125M [00:01&lt;00:04, 23.7MB/s]
+ 29%|██▉       | 36.4M/125M [00:01&lt;00:03, 23.8MB/s]
+ 32%|███▏      | 39.2M/125M [00:02&lt;00:03, 24.2MB/s]
+ 34%|███▍      | 42.2M/125M [00:02&lt;00:03, 24.3MB/s]
+ 36%|███▌      | 45.1M/125M [00:02&lt;00:03, 24.5MB/s]
+ 39%|███▊      | 48.1M/125M [00:02&lt;00:03, 24.4MB/s]
+ 41%|████      | 51.1M/125M [00:02&lt;00:03, 24.6MB/s]
+ 43%|████▎     | 54.1M/125M [00:02&lt;00:02, 24.7MB/s]
+ 46%|████▌     | 57.2M/125M [00:02&lt;00:02, 25.2MB/s]
+ 48%|████▊     | 60.1M/125M [00:02&lt;00:02, 24.9MB/s]
+ 51%|█████     | 63.2M/125M [00:03&lt;00:02, 25.4MB/s]
+ 53%|█████▎    | 65.8M/125M [00:03&lt;00:03, 15.9MB/s]
+ 57%|█████▋    | 70.4M/125M [00:03&lt;00:02, 21.8MB/s]
+ 61%|██████    | 75.4M/125M [00:03&lt;00:01, 28.0MB/s]
+ 65%|██████▌   | 81.0M/125M [00:03&lt;00:01, 34.8MB/s]
+ 69%|██████▉   | 85.9M/125M [00:03&lt;00:01, 37.9MB/s]
+ 74%|███████▍  | 91.9M/125M [00:03&lt;00:00, 43.2MB/s]
+ 77%|███████▋  | 96.5M/125M [00:04&lt;00:00, 43.4MB/s]
+ 81%|████████▏ | 101M/125M [00:04&lt;00:00, 45.2MB/s]
+ 86%|████████▌ | 107M/125M [00:04&lt;00:00, 47.3MB/s]
+ 91%|█████████ | 113M/125M [00:04&lt;00:00, 50.3MB/s]
+ 95%|█████████▌| 118M/125M [00:04&lt;00:00, 51.7MB/s]
+100%|█████████▉| 124M/125M [00:04&lt;00:00, 52.8MB/s]
+100%|██████████| 125M/125M [00:04&lt;00:00, 28.3MB/s]
      zero-filled  NRMSE 0.199  SSIM 0.482
  total variation  NRMSE 0.161  SSIM 0.754
-    DRUNet, ADMM  NRMSE 0.094  SSIM 0.897
+    DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
    DRUNet, FISTA  NRMSE 0.135  SSIM 0.898
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-plug-and-play_001.png" srcset="../../_images/sphx_glr_01-plug-and-play_001.png" alt="phantom, zero-filled, total variation, DRUNet, ADMM, DRUNet, FISTA" class = "sphx-glr-single-img"/><p>Both plug-and-play reconstructions remove the noise and the incoherent
-aliasing that total variation leaves at this weight. They differ in the
-step: FISTA applies the denoiser after a gradient step of fixed length on the
-data term, ADMM after solving a quadratic problem that holds the image to
-the data with weight <span class="math notranslate nohighlight">\(\rho\)</span>. A fixed <span class="math notranslate nohighlight">\(\sigma\)</span> makes neither
-iteration the minimization of a known objective, so the number of iterations
-and <span class="math notranslate nohighlight">\(\rho\)</span> enter the result, and are parameters to be chosen like the
-weight of a specified term.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-plug-and-play_001.png" srcset="../../_images/sphx_glr_01-plug-and-play_001.png" alt="R = 4, noisy, reference, zero-filled, total variation, DRUNet, ADMM" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-plug-and-play_002.png" srcset="../../_images/sphx_glr_01-plug-and-play_002.png" alt="error magnitude, total variation, DRUNet, ADMM, DRUNet, FISTA" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-plug-and-play_003.png" srcset="../../_images/sphx_glr_01-plug-and-play_003.png" alt="enlarged, reference, total variation, DRUNet, ADMM, DRUNet, FISTA" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The zero-filled image shows the incoherent aliasing of the random sampling
+and the noise. Total variation removes most of both, but at the weight that
+minimizes the error it leaves a blotchy texture across the brain and
+flattens the gradual intensity variations into patches. The plug-and-play
+reconstruction under ADMM removes the noise and the aliasing while keeping
+the tissue boundaries, and its error map is darker inside the brain; in the
+enlarged region the ventricles and the larger cortical folds are delineated,
+although the finest sulci are lost. Under FISTA, at the same <span class="math notranslate nohighlight">\(\sigma\)</span>,
+the same denoiser produces a much smoother image, in which the cortical
+folds have disappeared, and its error lies along every tissue boundary.</p>
+<p>The two iterations differ in the step before the denoiser: FISTA takes a
+gradient step of fixed length on the data term, ADMM solves a quadratic
+problem that holds the image to the data with weight <span class="math notranslate nohighlight">\(\rho\)</span>. The
+denoiser is therefore applied to different images, and its effective
+strength differs between the two iterations at the same <span class="math notranslate nohighlight">\(\sigma\)</span>. A
+fixed <span class="math notranslate nohighlight">\(\sigma\)</span> makes neither iteration the minimization of a known
+objective, so the number of iterations and <span class="math notranslate nohighlight">\(\rho\)</span> enter the result,
+and are parameters to be chosen like the weight of a specified term. The
+printed SSIM ranks the over-smoothed FISTA image above the ADMM image: a
+single figure of merit does not replace looking at the images.</p>
 </section>
 <section id="the-noise-level">
 <h2>The noise level<a class="headerlink" href="#the-noise-level" title="Link to this heading">#</a></h2>
 <p><span class="math notranslate nohighlight">\(\sigma\)</span> is the strength of the prior. A denoiser asked for less noise
-than the iterate contains leaves the residual noise and aliasing in place;
-one asked for more removes image detail with them.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">levels</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span><span class="w">
+than the iterate contains leaves residual noise and aliasing in place; one
+asked for more removes image detail with them.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">levels</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">)</span><span class="w">
 </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="n">sweep</span> <span class="o">=</span> <span class="p">{</span><span class="w">
-</span>        <span class="n">sigma</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><span class="n">optim</span><span class="o">.</span><span class="n">admm</span></a><span class="p">(</span><span class="w">
-</span>            <span class="n">data</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span></a><span class="p">(</span><span class="n">denoiser</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.2</span><span class="w">
+</span>        <span class="n">sigma</span><span class="p">:</span> <span class="n">admm</span><span class="w">
+</span>        <span class="k">if</span> <span class="n">sigma</span> <span class="o">==</span> <span class="mf">0.05</span><span class="w">
+</span>        <span class="k">else</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><span class="n">optim</span><span class="o">.</span><span class="n">admm</span></a><span class="p">(</span><span class="w">
+</span>            <span class="n">data</span><span class="p">,</span><span class="w">
+</span>            <span class="n">A</span><span class="p">,</span><span class="w">
+</span>            <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span></a><span class="p">(</span><span class="n">denoiser</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">,</span><span class="w">
+</span>            <span class="n">rho</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span><span class="w">
 </span>        <span class="p">)</span><span class="w">
 </span>        <span class="k">for</span> <span class="n">sigma</span> <span class="ow">in</span> <span class="n">levels</span><span class="w">
 </span>    <span class="p">}</span><span class="w">
@@ -658,12 +741,16 @@ one asked for more removes image detail with them.</p>
 </span>    <span class="n">similarity</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><span class="n">bt</span><span class="o">.</span><span class="n">ssim</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">sigma </span><span class="si">{</span><span class="n">sigma</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">  NRMSE </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  SSIM </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sigma 0.02  NRMSE 0.139  SSIM 0.717
-sigma 0.05  NRMSE 0.094  SSIM 0.897
-sigma 0.10  NRMSE 0.116  SSIM 0.907
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sigma 0.02  NRMSE 0.139  SSIM 0.734
+sigma 0.05  NRMSE 0.103  SSIM 0.893
+sigma 0.12  NRMSE 0.127  SSIM 0.886
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-plug-and-play_002.png" srcset="../../_images/sphx_glr_01-plug-and-play_002.png" alt="$\sigma$ = 0.02, $\sigma$ = 0.05, $\sigma$ = 0.1" class = "sphx-glr-single-img"/><p>The denoiser was not trained on MR images, nor for the residual aliasing an
+<img src="../../_images/sphx_glr_01-plug-and-play_004.png" srcset="../../_images/sphx_glr_01-plug-and-play_004.png" alt="DRUNet under ADMM, enlarged, $\sigma$ = 0.02 (too small), $\sigma$ = 0.05, $\sigma$ = 0.12 (too large)" class = "sphx-glr-single-img"/><p>At the smallest <span class="math notranslate nohighlight">\(\sigma\)</span> the noise and the aliasing remain as a
+mottled texture; at the largest the cortex is smoothed into uniform white
+matter and small structures disappear; the printed errors have their
+minimum in between.</p>
+<p>The denoiser was not trained on MR images, nor for the residual aliasing an
 undersampled acquisition leaves, which is not white Gaussian noise. The next
 lesson, <a class="reference internal" href="02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a>, trains a network inside the iteration, on
 the acquisition it is applied to.</p>
@@ -692,7 +779,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 2.833 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 23.839 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-01-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/51d621c9981b908bc0655f32fc40806e/01-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-plug-and-play.ipynb</span></code></a></p>
@@ -720,12 +807,12 @@ Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https:/
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../05-model-based/02-quantitative-models.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Learned regularization</p>
+        <p class="prev-next-title">Parameter maps straight from k-space</p>
       </div>
     </a>
     <a class="right-next"

@@ -37,20 +37,24 @@ the **SENSE** forward model:[^pruessmann1999] $S$ maps an image to one coil
 image per channel, $F$ is the Fourier transform of each coil image, and $P$
 selects the acquired samples.
 
-With $R$-fold Cartesian undersampling, each voxel of a coil image obtained by
-the inverse FFT of the undersampled data is the superposition of $R$ object
-voxels separated by $\mathrm{FOV}/R$.  For $C$ coils the
-aliased voxels satisfy $C$ equations in $R$ unknowns; they are determined when
-$C \ge R$ and the sensitivity vectors of the aliased voxels are linearly
-independent, and the conditioning of this small system — the g-factor — sets
-the noise amplification.  Coil sensitivities therefore make an accelerated
+Undersampling Cartesian k-space along a phase-encoding direction by the
+**acceleration factor** $R$ reduces the field of view along that direction by
+$R$: each voxel of a coil image obtained by the inverse FFT of the
+undersampled data is the superposition of $R$ object voxels separated by
+$\mathrm{FOV}/R$.  For $C$ coils the aliased voxels satisfy $C$ equations in
+$R$ unknowns; they are determined when $C \ge R$ and the sensitivity vectors of
+the aliased voxels are linearly independent.  The conditioning of this small
+system sets the noise amplification: the SNR of the unfolded image is that of
+the fully sampled acquisition divided by $g\sqrt{R}$, where $\sqrt{R}$
+accounts for the shorter acquisition and the **g-factor** $g \ge 1$, which
+varies from voxel to voxel, for the coil geometry.  Coil sensitivities therefore make an accelerated
 acquisition solvable within the limits of the coil geometry; beyond them, and
 outside the object, the system is underdetermined or poorly conditioned and a
 regularized estimate is needed ({doc}`inverse-problems`).
 
 The sensitivities are smooth functions of position, estimated from the data:
-{func}`~bartorch.tools.ecalib` by ESPIRiT from a fully sampled region of the
-k-space centre,[^espirit] {func}`~bartorch.tools.nlinv` by nonlinear inversion
+{func}`~bartorch.tools.ecalib` by ESPIRiT from the **autocalibration (ACS)
+region**, a fully sampled block at the centre of k-space,[^espirit] {func}`~bartorch.tools.nlinv` by nonlinear inversion
 jointly with the image, on a Cartesian grid or along a trajectory, and
 {func}`~bartorch.tools.ncalib` from non-Cartesian samples; {doc}`nonlinear`
 describes the joint estimation.

@@ -22,48 +22,58 @@
 Coil sensitivity calibration
 ============================
 
-Three estimates of the receive sensitivities of a coil array from the same
-undersampled Cartesian acquisition, and the SENSE reconstructions they lead to.
-
+This lesson compares three ways of estimating the receive sensitivities of a
+coil array from the undersampled acquisition itself, and shows how the size
+of the fully sampled calibration region decides which of them can be used.
 A SENSE reconstruction [#sense]_ inverts
 
 .. math::
 
    y_c = P F (S_c \, x),
 
-and is only as accurate as the sensitivities :math:`S_c` it is given. They are
-usually estimated from the acquisition itself, from a fully sampled region at
-the centre of k-space, the autocalibration region. The three estimators
-compared here differ in what they take from the data:
+and is only as accurate as the sensitivities :math:`S_c` it is given: an
+error in :math:`S_c` appears in the image as residual aliasing or as shading,
+however good the solver. In clinical practice the sensitivities are estimated
+either from a separate low-resolution prescan or, as here, by
+autocalibration, from a fully sampled block of lines at the centre of
+k-space, the autocalibration signal (ACS) region. The three estimators
+differ in what they take from the data:
 
-- :func:`bartorch.tools.caldir` divides each low-resolution coil image, from
-  the calibration region alone, by their root sum of squares;
+- :func:`bartorch.tools.caldir` divides each low-resolution coil image,
+  reconstructed from the ACS region alone, by their root sum of squares;
 - :func:`bartorch.tools.ecalib` (ESPIRiT [#espirit]_) takes the sensitivities
-  as the eigenvectors of an operator built from the calibration region;
+  as the eigenvectors of an operator built from the k-space neighbourhoods of
+  the ACS region;
 - :func:`bartorch.tools.nlinv` (nonlinear inversion [#nlinv]_) estimates the
-  sensitivities and the image jointly from all acquired samples, with the
-  calibration region only as part of the data.
+  sensitivities and the image jointly from all acquired samples, with the ACS
+  region only as part of the data.
 
-The previous lesson, :doc:`../01-basics/02-from-kspace-to-image`, used ESPIRiT
-with a calibration region of 24 lines. This lesson varies that region.
+The acquisition is regularly undersampled by :math:`R = 3`, which folds the
+object into three overlapping copies along the phase-encoding direction. With
+a generous ACS region all three estimators unfold it; with a small one, the
+direct estimate is too coarse to separate the copies and ESPIRiT has too few
+kernel positions to calibrate at all.
 
 **Learning objectives**
 
 - Estimate coil sensitivities with ``caldir``, ``ecalib`` and ``nlinv``, and
   use each in :func:`bartorch.apps.pics`.
 - Evaluate a reconstruction against a noise-free reference within the object
-  support.
-- State why ESPIRiT requires a calibration region larger than its kernel, and
-  why nonlinear inversion does not.
+  support, by an error map and the NRMSE.
+- State why ESPIRiT requires an ACS region larger than its kernel, and why
+  nonlinear inversion does not.
 
-The next lesson, :doc:`02-nonlinear-inversion`, writes nonlinear inversion out
-as a nonlinear operator and a Gauss-Newton solver.
+The previous lesson, :doc:`../01-basics/02-from-kspace-to-image`, used ESPIRiT
+with a 24-line ACS region. The next lesson, :doc:`02-nonlinear-inversion`,
+writes nonlinear inversion out as a nonlinear operator and a Gauss-Newton
+solver.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-82
+.. GENERATED FROM PYTHON SOURCE LINES 54-163
 
 .. code-block:: Python
 
 
+    import numpy as np
     import torch
 
     import bartorch
@@ -81,7 +91,7 @@ as a nonlinear operator and a Gauss-Newton solver.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-95
+.. GENERATED FROM PYTHON SOURCE LINES 164-178
 
 Data
 ----
@@ -93,10 +103,12 @@ reconstructions below do not share the discretization of the simulation.
 Complex Gaussian noise of variance 2 is added to every sample.
 
 The reference is the root sum of squares of the fully sampled, noise-free
-coil images, and every error is the NRMSE of a magnitude image within the
-phantom's support, after a least-squares fit of a global scale.
+coil images. Every error is the NRMSE of a magnitude image within the
+phantom's support, after a least-squares fit of a global scale, since the
+three estimators normalize the sensitivities, and hence the image, in
+different ways.
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-109
+.. GENERATED FROM PYTHON SOURCE LINES 179-192
 
 .. code-block:: Python
 
@@ -120,13 +132,16 @@ phantom's support, after a least-squares fit of a global scale.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 110-113
+.. GENERATED FROM PYTHON SOURCE LINES 193-199
 
 Every third phase encode is acquired, and a central block of ``calibration``
-lines is acquired in full. Regular undersampling folds the image into three
-overlapping copies, which only the sensitivities can separate.
+lines is acquired in full. Regular undersampling by :math:`R` replicates the
+point spread function :math:`R` times across the field of view, so each
+voxel of the zero-filled image is the sum of three voxels a third of the
+field of view apart. Only the sensitivities, which differ between those
+voxels, can separate them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-127
+.. GENERATED FROM PYTHON SOURCE LINES 200-215
 
 .. code-block:: Python
 
@@ -143,6 +158,8 @@ overlapping copies, which only the sensitivities can separate.
     measured = acquire(24)
     print(f"{float(bt.pattern(measured).real.mean()):.0%} of k-space acquired")
 
+    zero_filled = bartorch.rss(bartorch.ifft(measured, axes=(-2, -1)), axes=(0,))[0]
+
 
 
 
@@ -156,7 +173,7 @@ overlapping copies, which only the sensitivities can separate.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 128-137
+.. GENERATED FROM PYTHON SOURCE LINES 216-225
 
 Three calibrations
 ------------------
@@ -168,7 +185,7 @@ decreases with every step, so the count acts as a regularization parameter;
 twelve steps suit this noise level. Its sensitivities are normalized here to
 unit root sum of squares, the normalization the other two estimators use.
 
-.. GENERATED FROM PYTHON SOURCE LINES 138-148
+.. GENERATED FROM PYTHON SOURCE LINES 226-236
 
 .. code-block:: Python
 
@@ -195,14 +212,37 @@ unit root sum of squares, the normalization the other two estimators use.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-153
+.. GENERATED FROM PYTHON SOURCE LINES 237-250
 
-All three are ``(coils, 1, y, x)``: the sensitivities of one set of maps.
-Each is given to :func:`bartorch.apps.pics` with the same Tikhonov weight and
-number of conjugate-gradient iterations, so that the reconstructions differ
-only in the sensitivities.
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-164
+
+
+.. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_001.png
+   :alt: estimated sensitivity of channel 2, caldir, ESPIRiT, nlinv
+   :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 251-264
+
+The phase of a sensitivity map is determined only up to a phase common to
+all channels, which each estimator fixes differently; that common phase
+passes into the phase of the reconstructed image and leaves its magnitude
+unchanged. Up to it, the three estimates agree inside the object. They
+differ outside it, where the data do not determine a sensitivity:
+``caldir`` divides noise by noise there and returns an arbitrary unit-modulus
+value, ESPIRiT sets the maps to zero, and ``nlinv`` extrapolates the smooth
+function its regularization favours.
+
+Each set of sensitivities is given to :func:`bartorch.apps.pics` with the
+same Tikhonov weight and number of conjugate-gradient iterations, so that
+the reconstructions differ only in the sensitivities. The image ``nlinv``
+returns jointly with its sensitivities is a fourth estimate.
+
+.. GENERATED FROM PYTHON SOURCE LINES 265-275
 
 .. code-block:: Python
 
@@ -211,10 +251,10 @@ only in the sensitivities.
         name: apps.pics(measured, maps, l2=0.001, maxiter=40)
         for name, maps in (("caldir", direct), ("ESPIRiT", espirit), ("nlinv", nonlinear))
     }
-    reconstructions["nlinv image"] = joint
 
     for name, estimate in reconstructions.items():
         print(f"{name:>12}  NRMSE {error(estimate):.3f}")
+    print(f"{'nlinv image':>12}  NRMSE {error(joint):.3f}")
 
 
 
@@ -232,39 +272,53 @@ only in the sensitivities.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-186
+.. GENERATED FROM PYTHON SOURCE LINES 276-308
 
 
 
 
-.. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_001.png
-   :alt: 24 calibration lines: sensitivity magnitude (top), reconstruction (bottom), caldir, channel 2, ESPIRiT, channel 2, nlinv, channel 2, reference, caldir, 0.025, ESPIRiT, 0.015, nlinv, 0.012, nlinv image, 0.011
-   :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_001.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_002.png
+         :alt: 24 ACS lines, R = 3, reference, zero-filled, SENSE, caldir, SENSE, ESPIRiT
+         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_003.png
+         :alt: error magnitude, 24 ACS lines, SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv
+         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_003.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 187-202
+.. GENERATED FROM PYTHON SOURCE LINES 309-326
 
-With 24 calibration lines the three estimates agree inside the object. They
-differ outside it, where the data do not determine a sensitivity: ``caldir``
-extends a smooth estimate into the background, ESPIRiT sets it to zero, and
-``nlinv`` extrapolates the smooth function its regularization favours.
+The zero-filled image shows the three overlapping copies of the phantom
+that regular undersampling produces. All three calibrations unfold them.
+The error maps, at 5 % of the image peak, show the remaining
+differences: the direct estimate leaves a faint residual fold at the edges
+of the phantom, where its low-resolution sensitivities are least accurate,
+and ESPIRiT and nonlinear inversion leave mostly noise.
 
 A smaller calibration region
 ----------------------------
 
 ESPIRiT builds its calibration matrix from every position of a kernel, six
-samples wide by default, inside the calibration region. Eight lines leave
-three kernel positions along the phase-encoding axis, and from this data
+samples wide by default, inside the ACS region. Eight lines leave three
+kernel positions along the phase-encoding axis, and from this data
 ``ecalib`` returns sensitivities that are zero in every voxel, which no
 reconstruction can use. ``caldir`` still runs, on an image of eight lines'
 resolution. ``nlinv`` uses every acquired sample, so the calibration region
-affects it only through the first steps of the iteration.
+affects it only through the first Gauss-Newton steps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 203-221
+.. GENERATED FROM PYTHON SOURCE LINES 327-345
 
 .. code-block:: Python
 
@@ -302,35 +356,48 @@ affects it only through the first steps of the iteration.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 222-234
+.. GENERATED FROM PYTHON SOURCE LINES 346-369
 
 
 
 
-.. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_002.png
-   :alt: 8 calibration lines, caldir, 0.173, nlinv, 0.040, nlinv image, 0.033
-   :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_002.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_004.png
+         :alt: 8 ACS lines, R = 3, reference, SENSE, caldir, SENSE, nlinv
+         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_004.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_005.png
+         :alt: error magnitude, 8 ACS lines, SENSE, caldir, SENSE, nlinv
+         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_01-coil-calibration_005.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 235-246
+.. GENERATED FROM PYTHON SOURCE LINES 370-382
 
-With eight calibration lines the direct estimate leaves residual aliasing,
-because a sensitivity estimated at that resolution does not represent the
-coil profiles closely enough to unfold three copies. The sensitivities from
-nonlinear inversion still unfold the image. The same estimator applies to
-non-Cartesian data, where no Cartesian calibration region exists, as
-:func:`bartorch.tools.ncalib`, which :doc:`../04-non-cartesian/02-radial-sense`
-uses.
+With eight ACS lines the direct estimate leaves visible residual aliasing:
+sensitivities estimated at a resolution of eight lines do not represent the
+coil profiles closely enough to unfold three copies, and the fold-over
+edges of the skull reappear inside the phantom. The sensitivities from
+nonlinear inversion still unfold the image, because they are fitted to all
+acquired samples. The same estimator applies to non-Cartesian data, where
+no Cartesian ACS region exists, as :func:`bartorch.tools.ncalib`, which
+:doc:`../04-non-cartesian/02-radial-sense` uses.
 
 The errors above are for one phantom, one noise level and one sampling
 pattern, and they depend on the regularization of each reconstruction; they
 do not rank the estimators in general.
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-265
+.. GENERATED FROM PYTHON SOURCE LINES 385-401
 
 References
 ----------
@@ -352,7 +419,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.098 seconds)
+   **Total running time of the script:** (0 minutes 3.245 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_01-coil-calibration.py:

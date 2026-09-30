@@ -3,25 +3,26 @@
 Nonlinear inversion
 ===================
 
-Estimating the image and the coil sensitivities together, from undersampled
-data whose fully sampled central region is too small for a separate
-calibration.
+This lesson reconstructs an image and the coil sensitivities together from
+undersampled data whose fully sampled central region is too small for a
+separate calibration, and then writes the same reconstruction out as a
+nonlinear operator and a Gauss-Newton solver.
 
-ESPIRiT [#espirit]_ estimates the sensitivities from a fully sampled region at
-the centre of k-space, and a linear reconstruction then uses them as known.
-Where the acquisition provides no such region, the sensitivities are unknowns
-like the image,
-and the forward model
+ESPIRiT [#espirit]_ estimates the sensitivities from the autocalibration
+(ACS) region at the centre of k-space, and a linear SENSE reconstruction then
+treats them as known. When the ACS region is small, or absent, as in many
+real-time, non-Cartesian and highly accelerated protocols, the sensitivities
+are unknowns like the image, and the forward model
 
 .. math::
 
    y_c = P F (S_c \\cdot x)
 
-is bilinear rather than linear: it is a product of two unknowns. Nonlinear
-inversion (``nlinv``) [#nlinv]_ solves it by iteratively regularized
-Gauss-Newton [#bakushinsky]_, and
-the smoothness of the sensitivities, which constrains the factorization,
-enters as a weighting inside the model rather than as a penalty beside it.
+becomes bilinear: it is a product of two unknowns. Nonlinear inversion
+(NLINV) [#nlinv]_ solves it by the iteratively regularized Gauss-Newton
+method (IRGNM) [#bakushinsky]_, with the smoothness of the sensitivities, which
+resolves the ambiguity of the factorization, built into the model as a
+weighting of their k-space coefficients rather than added as a penalty.
 
 The phantom and the coil sensitivities are built as in
 :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
@@ -30,8 +31,7 @@ this page and present in the script this page can be downloaded as.
 **Learning objectives**
 
 - Reconstruct an image and its sensitivities jointly with
-  :func:`bartorch.tools.nlinv` from a calibration region too small for
-  ESPIRiT.
+  :func:`bartorch.tools.nlinv` from an ACS region too small for ESPIRiT.
 - State the ambiguity of the bilinear factorization and the role of the
   Sobolev weighting of the sensitivities.
 - Write the same reconstruction as :class:`bartorch.nlop.NonlinearSense`
@@ -39,7 +39,7 @@ this page and present in the script this page can be downloaded as.
 
 It follows :doc:`01-coil-calibration`, which used ``nlinv`` as a calibration
 step. The next lesson, :doc:`03-noise-prewhitening`, turns to the noise model
-of the channels.
+of the receive channels.
 """
 
 # %%
@@ -48,6 +48,8 @@ of the channels.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+
+WIDTH = 8.0  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -66,28 +68,13 @@ STYLE = {
     "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
 }
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
-
-
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -106,10 +93,17 @@ def parameter(axis, values, name, title=None):
     return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
 
 
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
 def domain(axis, values, title=None):
     """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness, so an unsupported corner reads as background
-    rather than as a phase."""
+    magnitude in brightness."""
     values = values.detach().cpu()
     colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
     magnitude = values.abs().numpy()
@@ -117,15 +111,6 @@ def domain(axis, values, title=None):
     axis.imshow(colours * magnitude[..., None])
     if title is not None:
         axis.set_title(title)
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    bar = figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-    return bar
 
 
 def phase_bar(figure, axes):
@@ -138,6 +123,15 @@ def phase_bar(figure, axes):
     )
     bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
     bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -259,18 +253,18 @@ print(f"{float(lines.mean()):.0%} of the phase encodes, {CALIBRATION} of them at
 
 # %%
 #
-# Six central lines locate the centre of k-space. With ESPIRiT's default
-# kernel of six points, a calibration region of six lines leaves a single
-# kernel position along the phase-encoding axis, too few rows for the
-# calibration matrix of :func:`bartorch.tools.ecalib`.
+# Six central lines locate the k-space centre but do not calibrate anything
+# on their own. With ESPIRiT's default kernel of six points, a six-line ACS
+# region leaves a single kernel position along the phase-encoding axis, too
+# few rows for the calibration matrix of :func:`bartorch.tools.ecalib`.
 #
-# The application
-# ---------------
+# Joint reconstruction
+# --------------------
 #
 # :func:`bartorch.tools.nlinv` takes the k-space and returns the image and,
 # when asked, the sensitivities it estimated along the way. Its iteration count
-# is Gauss-Newton steps rather than linear iterations, and it is a
-# regularization parameter rather than a convergence threshold: the
+# is a number of Gauss-Newton steps rather than of linear iterations, and it
+# acts as a regularization parameter rather than a convergence threshold: the
 # regularization weight is halved after every step, so stopping early leaves a
 # smoother image and running longer eventually lets the noise in. Eight steps
 # is BART's default; twelve are used here.
@@ -278,65 +272,80 @@ print(f"{float(lines.mean()):.0%} of the phase encodes, {CALIBRATION} of them at
 STEPS = 12
 
 reconstruction, estimated = bt.nlinv(measured, maxiter=STEPS, return_sensitivities=True)
+zero_filled = bartorch.rss(bartorch.ifft(measured[:, 0], axes=(-2, -1), unitary=True), axes=(0,))
 
-print(f"NRMSE {bt.nrmse(image.abs(), reconstruction.abs(), scaled=True):.3f}")
+print(f"NRMSE, zero-filled {bt.nrmse(image.abs(), zero_filled.abs(), scaled=True):.3f}")
+print(f"NRMSE, nlinv       {bt.nrmse(image.abs(), reconstruction.abs(), scaled=True):.3f}")
 
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 3)
 peak = float(image.abs().max())
-show(axes[0, 0], image, "phantom", vmax=peak)
-show(axes[0, 1], reconstruction, "nlinv", vmax=None)
-show(axes[0, 2], bartorch.rss(estimated[:, 0], axes=(0,)), "root sum of squares of the maps")
+figure, axes = panels(4)
+show(axes[0, 0], image, "reference", vmax=peak)
+show(axes[0, 1], scaled(zero_filled, image), "zero-filled", vmax=peak)
+show(axes[0, 2], scaled(reconstruction, image), "nlinv", vmax=peak)
+handle = show(
+    axes[0, 3],
+    (scaled(reconstruction, image) - image.abs()).abs() / peak,
+    "|error|, nlinv",
+    cmap="magma",
+    vmax=0.2,
+)
+figure.colorbar(handle, ax=axes[0, 3], fraction=0.046, label="|error| / peak")
+figure.suptitle(f"R = {SIZE / lines.sum():.1f}, {CALIBRATION} central lines")
+plt.show()
 
-figure, axes = panels(2, 4)
 # Each map on its own scale: the estimate is determined only up to the scale
 # the image takes the reciprocal of.
-for column in range(4):
-    domain(axes[0, column], sensitivities[column], f"channel {column}")
-    domain(axes[1, column], estimated[column, 0])
-for row, label in enumerate(("simulated", "estimated")):
-    axes[row, 0].set_ylabel(label)
-    for axis in axes[row]:
-        axis.set_xticks([])
-        axis.set_yticks([])
-phase_bar(figure, axes)
-plt.show()
+for label, maps in (("simulated", sensitivities), ("estimated by nlinv", estimated[:, 0])):
+    figure, axes = panels(4)
+    for column in range(4):
+        domain(axes[0, column], maps[2 * column], f"channel {2 * column}")
+    phase_bar(figure, axes[0, 3])
+    figure.suptitle(f"sensitivities, {label}")
+    plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
+# From a third of the phase encodes and six central lines, nonlinear inversion
+# removes the aliasing of the zero-filled image; its error is concentrated at
+# tissue boundaries and in the noise-like residue of the random sampling.
+#
 # The estimated sensitivities are smooth by construction rather than by
-# agreement with the data: the coil unknown is
-# not the sensitivity map but its k-space representation
-# :math:`\hat{s}`, and the map follows as
-# :math:`S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2} \hat{s}]`. A step in the
-# unknown is therefore a smooth change in the map by construction, and the
-# joint problem needs no separate penalty on the coils. The pair is determined
-# only up to a common factor: multiplying every map by a nonzero function
-# :math:`\gamma(r)` and dividing the image by it leaves the data unchanged
-# (:doc:`../../explanation/nonlinear`). The smoothness weighting restricts
-# :math:`\gamma` to smooth functions, which is why the two rows above are drawn
-# on their own scales and why a nonlinear inversion is reported after
-# normalizing by the root sum of squares of the maps. Outside the object
-# neither factor is determined at all -- their product is zero for any pair --
-# so what is drawn there follows from the initialization and the weighting.
+# agreement with the data: the coil unknown is not the sensitivity map but its
+# k-space representation :math:`\hat{s}`, and the map follows as
+# :math:`S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2} \hat{s}]`, a Sobolev-norm
+# weighting that suppresses high spatial frequencies. A Gauss-Newton step in
+# the unknown is therefore a smooth change of the map, and the joint problem
+# needs no separate penalty on the coils.
+#
+# The pair is determined only up to a common factor: multiplying every map by
+# a nonzero function :math:`\gamma(r)` and dividing the image by it leaves the
+# data unchanged (:doc:`../../explanation/nonlinear`). The weighting restricts
+# :math:`\gamma` to smooth functions, so the estimated maps match the simulated
+# ones up to a smooth common magnitude and phase, which is why each is drawn
+# on its own scale and why an ``nlinv`` image is reported after multiplication
+# by the root sum of squares of the maps. Outside the object neither factor is
+# determined at all -- their product is zero for any pair -- so the maps there
+# follow from the initialization and the weighting.
 #
 # The model and the solver
 # ------------------------
 #
 # :class:`bartorch.nlop.NonlinearSense` is that forward model as a nonlinear
-# operator with two inputs, and :class:`bartorch.nlop.IRGNM` is the
-# Gauss-Newton loop over it. Each step linearizes the model at the current
-# point :math:`x_k` and solves
+# operator with two inputs, the image and the coil coefficients, and
+# :class:`bartorch.nlop.IRGNM` is the Gauss-Newton loop over it. Each step
+# linearizes the model at the current estimate :math:`x_k` and solves
 #
 # .. math::
 #
 #    \min_x \, \| DF_{x_k} (x - x_k) - (y - F(x_k)) \|^2
 #    + \alpha_k \| x - x_{\mathrm{ref}} \|^2,
 #
-# with :math:`x_{\mathrm{ref}}` zero unless one is given and :math:`\alpha_k`
+# with :math:`DF_{x_k}` the derivative of the forward model,
+# :math:`x_{\mathrm{ref}}` zero unless one is given, and :math:`\alpha_k`
 # halved after every step, so the first steps are heavily regularized and the
 # later ones are not.
 
@@ -348,9 +357,9 @@ print(f"inputs {model.ishapes} -> output {model.oshapes}")
 # %%
 #
 # ``nlinv`` scales the data by ``100 / ||y||`` before it starts, which fixes
-# the meaning of :math:`\alpha`, and takes its conjugate gradients to a hundred
-# iterations or a tolerance of a tenth. Given the same three settings the loop
-# written here is the application.
+# the meaning of :math:`\alpha`, and runs the conjugate gradients of each step
+# to a hundred iterations or a relative tolerance of a tenth. Given the same
+# three settings, the loop written here is the application.
 
 data = model.prepare(measured * (100.0 / float(torch.linalg.vector_norm(measured))))
 fitted, coefficients = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)(data, model)
@@ -367,12 +376,12 @@ print(f"NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 # %%
 #
 # The two agree to single-precision round-off rather than to the last bit,
-# because the scaling above is computed here and inside the application by
+# because the data scaling is computed here and inside the application by
 # different expressions.
 #
-# What the operator layer adds is everything around the step. The linearized
-# problem can go to a solver from :mod:`bartorch.optim` instead of the
-# conjugate gradients inside the library (``inner=optim.CG()`` is the same
+# What the operator form adds is access to everything around the step. The
+# linearized problem can go to a solver from :mod:`bartorch.optim` instead of
+# the conjugate gradients inside the library (``inner=optim.CG()`` is the same
 # method written out, and a regularized solver makes the step a regularized
 # one), the loop can be unrolled as :class:`bartorch.nlop.IRGNMBlock`, and a
 # Gauss-Newton step is differentiable with respect to the data, the iterate,

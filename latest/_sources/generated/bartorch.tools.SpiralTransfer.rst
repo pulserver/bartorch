@@ -7,6 +7,8 @@
 .. autoclass:: SpiralTransfer
    :show-inheritance:
 
+   .. autoproperty:: separable
+
    .. autoproperty:: terms
 
    .. autoproperty:: amplification

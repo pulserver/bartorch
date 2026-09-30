@@ -22,21 +22,25 @@
 Operators and solvers
 =====================
 
-The same reconstruction written as an encoding operator and a solver rather
-than as a call to a BART application.
+This lesson rebuilds the reconstruction of the previous lessons from its
+parts -- the encoding operator, the regularization term and the iterative
+algorithm -- instead of calling a BART application, and shows that the
+result is identical.
 
 :func:`bartorch.apps.pics` builds three objects and runs BART's iteration
-with them: the encoding operator, the regularization terms, and the algorithm.
-:mod:`bartorch.linop` and :mod:`bartorch.optim` expose those three separately,
-for the reconstructions BART has no application for: an encoding with an extra
-factor in it, a solver reached from an outer loop, an operator defined in
-Python.
+with them: the SENSE encoding operator :math:`A = PFS`, the regularization
+terms, and the algorithm. Building them separately with :mod:`bartorch.linop`
+and :mod:`bartorch.optim` is what a reconstruction BART has no application for
+requires: an encoding with an additional factor, such as an off-resonance or
+motion-induced phase, a solver called from an outer loop, an operator defined
+in Python, or a gradient with respect to the data for training a network.
 
-This example builds the encoding of :doc:`../01-basics/02-from-kspace-to-image`, checks it
-against the definition of an adjoint, solves with it, and compares the result
-with the application. The phantom, the coil sensitivities and the sampling are
-that example's; the cell that builds them is hidden on this page and present in
-the script this page can be downloaded as.
+The example builds the Cartesian SENSE encoding of
+:doc:`../01-basics/02-from-kspace-to-image`, checks it against the definition
+of the adjoint, solves with it, and compares the result with the application.
+The phantom, the coil sensitivities and the sampling are that example's; the
+cell that builds them is hidden on this page and present in the script this
+page can be downloaded as.
 
 **Learning objectives**
 
@@ -52,7 +56,7 @@ It follows :doc:`01-regularized-reconstruction`. The next section,
 :doc:`../04-non-cartesian/01-trajectories-and-transforms`, uses these
 operators off the Cartesian grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-252
+.. GENERATED FROM PYTHON SOURCE LINES 42-250
 
 .. code-block:: Python
 
@@ -85,7 +89,7 @@ operators off the Cartesian grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 253-267
+.. GENERATED FROM PYTHON SOURCE LINES 251-265
 
 The encoding operator
 ---------------------
@@ -102,7 +106,7 @@ applications iterate in; the default is the centred convention that
 and give the same image, so the choice matters only when the operator is
 applied to data already in one of them, as it is below.
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-276
+.. GENERATED FROM PYTHON SOURCE LINES 266-274
 
 .. code-block:: Python
 
@@ -129,7 +133,7 @@ applied to data already in one of them, as it is below.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 277-289
+.. GENERATED FROM PYTHON SOURCE LINES 275-287
 
 ``A.plan`` reports the form the operator was lowered into: which transform,
 what multiplies the image and the samples, and how the normal operator
@@ -144,7 +148,7 @@ definition :math:`\langle Ax, y\rangle = \langle x, A^H y\rangle` holds for
 any pair of vectors, and holds for random vectors as readily as for real
 data, so it is a usable check on an operator.
 
-.. GENERATED FROM PYTHON SOURCE LINES 290-299
+.. GENERATED FROM PYTHON SOURCE LINES 288-297
 
 .. code-block:: Python
 
@@ -170,7 +174,7 @@ data, so it is a usable check on an operator.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 300-309
+.. GENERATED FROM PYTHON SOURCE LINES 298-307
 
 Solving
 -------
@@ -182,7 +186,7 @@ by the scaling :func:`bartorch.optim.data_scaling` estimates from the adjoint
 reconstruction, which is the step that makes a regularization weight
 transferable from one dataset to the next.
 
-.. GENERATED FROM PYTHON SOURCE LINES 310-318
+.. GENERATED FROM PYTHON SOURCE LINES 308-316
 
 .. code-block:: Python
 
@@ -201,13 +205,13 @@ transferable from one dataset to the next.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 319-322
+.. GENERATED FROM PYTHON SOURCE LINES 317-320
 
 With the same preprocessing the assembled solve and the application are not
 merely close: they are the same iteration over the same operator, and return
 the same bits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 323-327
+.. GENERATED FROM PYTHON SOURCE LINES 321-325
 
 .. code-block:: Python
 
@@ -228,7 +232,27 @@ the same bits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 328-338
+.. GENERATED FROM PYTHON SOURCE LINES 326-344
+
+
+
+
+.. image-sg:: /auto_examples/03-regularization/images/sphx_glr_02-operators-and-solvers_001.png
+   :alt: reference, adjoint, $A^H y$, FISTA, wavelet, |error|, FISTA
+   :srcset: /auto_examples/03-regularization/images/sphx_glr_02-operators-and-solvers_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 345-361
+
+The adjoint of the encoding is not its inverse: :math:`A^H y` is the
+sensitivity-weighted coil combination of the zero-filled k-space, and
+carries the aliasing of the undersampling and the shading of
+:math:`\sum_c |S_c|^2`, which the solve removes. The error of the solution,
+at a tenth of the image peak, is concentrated at the tissue boundaries.
 
 Operator algebra
 ----------------
@@ -241,7 +265,7 @@ iteration on an operator, which is how a gradient step size is chosen: the
 Lipschitz constant of the least-squares gradient is the largest eigenvalue of
 :math:`A^H A`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 339-342
+.. GENERATED FROM PYTHON SOURCE LINES 362-365
 
 .. code-block:: Python
 
@@ -261,14 +285,14 @@ Lipschitz constant of the least-squares gradient is the largest eigenvalue of
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 343-347
+.. GENERATED FROM PYTHON SOURCE LINES 366-370
 
 An operator defined in Python is composed with BART's through
 :meth:`~bartorch.linop.LinearOperator.from_callbacks`, which BART applies as
 a callback. Here it is a spatially varying phase, as an off-resonance or an
 eddy-current phase would be, placed between the image and the encoding.
 
-.. GENERATED FROM PYTHON SOURCE LINES 348-356
+.. GENERATED FROM PYTHON SOURCE LINES 371-379
 
 .. code-block:: Python
 
@@ -293,7 +317,7 @@ eddy-current phase would be, placed between the image and the encoding.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 357-367
+.. GENERATED FROM PYTHON SOURCE LINES 380-390
 
 Differentiation
 ---------------
@@ -306,7 +330,7 @@ Wirtinger convention torch uses for complex tensors.  For a real :math:`A`,
 :doc:`../../explanation/differentiation` describes the backward passes of
 the solvers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 368-377
+.. GENERATED FROM PYTHON SOURCE LINES 391-400
 
 .. code-block:: Python
 
@@ -332,25 +356,7 @@ the solvers.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 378-388
-
-
-
-
-.. image-sg:: /auto_examples/03-regularization/images/sphx_glr_02-operators-and-solvers_001.png
-   :alt: phantom, adjoint reconstruction, FISTA, wavelet penalty
-   :srcset: /auto_examples/03-regularization/images/sphx_glr_02-operators-and-solvers_001.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 389-397
-
-The adjoint of the encoding is not its inverse: :math:`A^H y` is the coil
-combination of the zero-filled k-space, and carries the aliasing of the
-undersampling, which the solve removes.
+.. GENERATED FROM PYTHON SOURCE LINES 401-405
 
 The regularization terms are the subject of :mod:`bartorch.priors`, and the
 iterations of :mod:`bartorch.optim`;
@@ -360,7 +366,7 @@ which problem.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.510 seconds)
+   **Total running time of the script:** (0 minutes 2.016 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_02-operators-and-solvers.py:

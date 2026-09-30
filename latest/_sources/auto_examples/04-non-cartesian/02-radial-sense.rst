@@ -22,24 +22,35 @@
 Radial SENSE reconstruction
 ===========================
 
-An undersampled golden-angle radial acquisition reconstructed by regularized
-least squares, with the non-Cartesian SENSE operator
+This lesson reconstructs an undersampled golden-angle radial acquisition with
+eight receive coils: the density-compensated gridding reconstruction first,
+then an iterative SENSE reconstruction with coil sensitivities estimated from
+the radial data themselves, with and without a total-variation penalty. The
+aim is to see which of the streak artefacts of radial undersampling the coil
+encoding removes, which the regularization removes, and what each costs.
+
+A radial acquisition that satisfies the Nyquist criterion at the edge of
+k-space needs :math:`\pi/2` times as many spokes as the matrix has lines;
+with fewer, the azimuthal gaps between spokes alias into streaks that run
+across the whole field of view. Radial undersampling is nevertheless
+benign compared with Cartesian undersampling: every spoke passes through the
+k-space centre, so the low spatial frequencies stay fully sampled and the
+aliasing is incoherent rather than a discrete fold-over. Parallel imaging
+removes it by fitting the image to the non-Cartesian SENSE model
+[#pruessmann2001]_
 
 .. math::
 
-   A = W \, \mathrm{NUFFT} \, S.
+   A = W \, \mathrm{NUFFT} \, S,
 
-The sensitivities are estimated from the radial data itself, and the same
-reconstruction is run twice: once through :func:`bartorch.apps.pics` and once
-through the operator and a solver, the route an encoding BART has no
-application for would take.
+with :math:`S` the coil sensitivities, the NUFFT evaluated along the
+trajectory and :math:`W` an optional weighting of the samples. The fit is
+solved iteratively, since :math:`A^H A` is not diagonal in any basis.
 
 The measured data are simulated with the same transform the reconstruction
-uses — an inverse crime — so the experiment measures the effect of
-undersampling, noise and the estimated sensitivities, not that of a mismatch
-between the forward model and the measurement.
-
-The phantom and the coil sensitivities are built as in
+uses, so the comparison isolates the undersampling, the noise and the error
+of the estimated sensitivities from any mismatch between the forward model
+and the measurement. The phantom and the coil sensitivities are built as in
 :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.
 
@@ -49,13 +60,16 @@ this page and present in the script this page can be downloaded as.
   :class:`bartorch.linop.NoncartesianSense`.
 - Estimate sensitivities from the radial data with
   :func:`bartorch.tools.ncalib`.
+- Compare gridding, unregularized CG-SENSE and total-variation-regularized
+  SENSE, and identify the residual artefact of each.
 - Reconstruct with :func:`bartorch.apps.pics` and with the operator under
-  :class:`bartorch.optim.ADMM`, and compare the normal operator's two forms.
+  :class:`bartorch.optim.ADMM`, and compare the two forms of the normal
+  operator.
 
 It follows :doc:`01-trajectories-and-transforms`. The next lesson,
 :doc:`03-dynamic-golden-angle`, adds a time axis.
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-232
+.. GENERATED FROM PYTHON SOURCE LINES 55-242
 
 .. code-block:: Python
 
@@ -75,7 +89,9 @@ It follows :doc:`01-trajectories-and-transforms`. The next lesson,
 
     SIZE = 192
     COILS = 8
-    SPOKES = 64  # against pi/2 * SIZE = 302 for a trajectory that is not undersampled
+    SPOKES = 48  # against pi/2 * SIZE = 302 for a trajectory that is not undersampled
+    TV_WEIGHT = 0.0005
+    ITERATIONS = 30
 
 
 
@@ -86,18 +102,24 @@ It follows :doc:`01-trajectories-and-transforms`. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 233-241
+.. GENERATED FROM PYTHON SOURCE LINES 243-257
 
 Acquisition
 -----------
 
-Sixty-four golden-angle spokes across a 192 matrix, which is a fifth of the
-number radial sampling would need. The measurement is simulated with
-:class:`bartorch.linop.NoncartesianSense`, which maps an image to the samples
-of every channel along the trajectory; the reconstruction uses the same
-operator over the estimated sensitivities.
+Forty-eight golden-angle spokes of 192 samples each, across a 192 matrix:
+:math:`\pi/2 \times 192 \approx 302` spokes would sample the edge of k-space
+at the Nyquist rate, so the acquisition is undersampled by a factor of about
+6.3. Successive spokes are rotated by the golden angle, 111.25 degrees, so
+any contiguous subset of them covers k-space nearly uniformly
+[#winkelmann]_; :doc:`03-dynamic-golden-angle` relies on that property.
 
-.. GENERATED FROM PYTHON SOURCE LINES 242-251
+:class:`bartorch.linop.NoncartesianSense` maps an image to the samples of
+every channel along the trajectory. The measurement is that operator applied
+to the phantom, with complex Gaussian noise of variance :math:`10^{-4}` per
+sample added, as in the Cartesian lessons.
+
+.. GENERATED FROM PYTHON SOURCE LINES 258-267
 
 .. code-block:: Python
 
@@ -105,7 +127,7 @@ operator over the estimated sensitivities.
     trajectory = bt.traj(readout=SIZE, spokes=SPOKES, radial=True, golden=True)
 
     E = linop.NoncartesianSense(sensitivities, (SIZE, SIZE), traj=trajectory)
-    measured = bt.noise(E(image), n=1e-6, s=7)
+    measured = bt.noise(E(image), n=1e-4, s=7)
 
     print(f"{E.ishape} -> {E.oshape}")
     print(E.plan)
@@ -118,36 +140,36 @@ operator over the estimated sensitivities.
 
  .. code-block:: none
 
-    (192, 192) -> (8, 64, 192)
+    (192, 192) -> (8, 48, 192)
     Plan(transform=nufft, image=sensitivities, normal=kernel, coil_batch=1, streamed=coils, executor=slab)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 252-272
+.. GENERATED FROM PYTHON SOURCE LINES 268-288
 
-The operator's samples are ``(coils, shots, samples)``. BART's applications
-carry the k-space in its own layout, ``(coils, shots, samples, 1)``, whose
-trailing axis is the readout dimension a Cartesian acquisition would use, so
-an application is given ``measured[..., None]``.
+The operator's samples are ``(coils, spokes, samples)``. BART's applications
+carry non-Cartesian k-space in their own layout, ``(coils, spokes, samples,
+1)``, whose trailing axis is the readout dimension of a Cartesian
+acquisition, so an application is given ``measured[..., None]``.
 
 Sensitivity calibration
 -----------------------
 
-ESPIRiT reads its calibration matrix from a Cartesian neighbourhood, so on
-non-Cartesian data it needs the centre of k-space gridded first.
-:func:`bartorch.tools.ncalib` instead estimates the sensitivities from the
-samples as they were measured, by nonlinear inversion [#nlinv]_ at low
-resolution.
+ESPIRiT reads its calibration matrix from a Cartesian neighbourhood of the
+k-space centre, so on radial data it needs that region gridded first.
+:func:`bartorch.tools.ncalib` estimates the sensitivities from the samples as
+they were measured, by nonlinear inversion [#nlinv]_ at low resolution; the
+densely sampled centre of a radial acquisition acts as its own
+autocalibration region.
 
-``N=True`` divides the estimated maps by their own root sum of squares. What
-a SENSE fit recovers is the image :math:`x` for which :math:`Sx` explains the
-data, so maps whose root sum of squares varies across the field of view leave
-its reciprocal in the image as a smooth shading. ESPIRiT normalizes its maps
-by construction; a nonlinear inversion does not, and ``N=True`` requests the
-normalization.
+``N=True`` divides the estimated maps by their root sum of squares. A SENSE
+fit recovers the image :math:`x` for which :math:`Sx` explains the data, so
+maps whose root sum of squares varies across the field of view leave its
+reciprocal in the image as a smooth intensity shading. ESPIRiT maps are
+normalized by construction; nonlinear inversion maps are not.
 
-.. GENERATED FROM PYTHON SOURCE LINES 273-276
+.. GENERATED FROM PYTHON SOURCE LINES 289-301
 
 .. code-block:: Python
 
@@ -158,21 +180,33 @@ normalization.
 
 
 
+.. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_001.png
+   :alt: coil 1, simulated, coil 3, simulated, coil 5, simulated, coil 7, simulated, estimated, estimated, estimated, estimated
+   :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_001.png
+   :class: sphx-glr-single-img
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 277-285
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 302-316
+
+The estimated maps reproduce the magnitude and phase of the simulated ones
+over the head. They are smoother, because nonlinear inversion penalizes the
+high spatial frequencies of the sensitivities, and outside the head, where
+there is no signal to calibrate from, they are extrapolated.
 
 Gridding
 --------
 
-The reference reconstruction is the density-compensated adjoint: weight each
-sample by its distance from the centre of k-space, map the samples onto the
-grid, and combine the channels by the root sum of squares. It uses no model
-of the encoding, so the undersampling appears in it as the streaks the point
-spread function of a radial trajectory predicts.
+The gridding reconstruction is the density-compensated adjoint: each sample
+is weighted by its distance from the k-space centre (the ramp filter of
+filtered back-projection), the samples are interpolated onto the grid by the
+adjoint NUFFT, and the channels are combined by root sum of squares. It uses
+no model of the coil encoding, so the missing spokes appear in it as the
+streaks the point spread function of the trajectory predicts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 286-293
+.. GENERATED FROM PYTHON SOURCE LINES 317-324
 
 .. code-block:: Python
 
@@ -190,28 +224,40 @@ spread function of a radial trajectory predicts.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 294-301
+.. GENERATED FROM PYTHON SOURCE LINES 325-336
 
-Reconstruction
---------------
+Iterative SENSE
+---------------
 
-Total variation [#rof]_ penalizes the streaks, which are not piecewise
-constant, more than the anatomy, which largely is. The operator is the
-non-Cartesian SENSE model [#pruessmann2001]_, and ADMM is the algorithm
-``pics`` selects for the penalty.
+Conjugate gradients on the normal equations :math:`A^H A x = A^H y`, with no
+penalty, is CG-SENSE [#pruessmann2001]_. The coil encoding separates the
+aliased signal the streaks consist of, but at this undersampling the problem
+is ill-conditioned, and each further iteration fits more of the noise; the
+number of iterations acts as the regularization. A total-variation penalty
+[#rof]_ adds prior knowledge instead: streaks and noise have a large total
+variation, the anatomy a small one. ADMM is the algorithm ``pics`` selects
+for this penalty.
 
-.. GENERATED FROM PYTHON SOURCE LINES 302-311
+.. GENERATED FROM PYTHON SOURCE LINES 337-354
 
 .. code-block:: Python
 
 
-    term = priors.TotalVariation(axes=(-1, -2), weight=0.001)
+    cg_sense = apps.pics(measured, maps, traj=trajectory, maxiter=30)
+
+    term = priors.TotalVariation(axes=(-1, -2), weight=TV_WEIGHT)
 
     start = time.perf_counter()
     reconstruction = apps.pics(
-        measured, maps, traj=trajectory, regularizers=term, solver="admm", maxiter=50
+        measured, maps, traj=trajectory, regularizers=term, solver="admm", maxiter=ITERATIONS
     )
     print(f"pics: {time.perf_counter() - start:.2f} s")
+
+    results = {"gridding": gridded, "CG-SENSE": cg_sense, "SENSE + TV": reconstruction}
+    for name, estimate in results.items():
+        error = bt.nrmse(image.abs(), estimate.abs(), scaled=True)
+        similarity = bt.ssim(image.abs(), scaled(estimate, image))
+        print(f"{name:>12}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
 
 
 
@@ -221,20 +267,72 @@ non-Cartesian SENSE model [#pruessmann2001]_, and ADMM is the algorithm
 
  .. code-block:: none
 
-    pics: 1.46 s
+    pics: 0.60 s
+        gridding  NRMSE 0.324  SSIM 0.418
+        CG-SENSE  NRMSE 0.087  SSIM 0.565
+      SENSE + TV  NRMSE 0.084  SSIM 0.863
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-317
+.. GENERATED FROM PYTHON SOURCE LINES 355-382
 
-The same solve through the operator. Besides the iteration, the application
-scales the data; off a grid the scaling is estimated from the adjoint
-reconstruction and therefore needs the operator, which
-:func:`bartorch.optim.data_scaling` takes. The encoding is the operator
-built above, now over the estimated sensitivities rather than the true ones.
 
-.. GENERATED FROM PYTHON SOURCE LINES 318-329
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_002.png
+         :alt: 48 golden-angle spokes, 8 coils, reference, gridding, CG-SENSE, SENSE + TV
+         :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_003.png
+         :alt: error magnitude, gridding, CG-SENSE, SENSE + TV
+         :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_004.png
+         :alt: enlarged, reference, gridding, CG-SENSE, SENSE + TV
+         :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_004.png
+         :class: sphx-glr-multi-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 383-404
+
+Gridding shows the streaks of radial undersampling over the whole field of
+view, superimposed on an image that is otherwise sharp: the low spatial
+frequencies are fully sampled, and the streaks come from the high ones. The
+error map shows them extending outside the head, where the object has no
+signal. CG-SENSE removes the streaks, whose aliased signal the coil
+encoding separates, and leaves amplified noise across the head; its largest
+errors are at the scalp, whose bright, thin edge has most of its energy at
+spatial frequencies the sparse outer k-space samples poorly. The
+total-variation penalty suppresses the noise as well. Its residual error
+lies along the tissue boundaries, and in the enlarged region the thin
+cortical folds are flattened, since a boundary between two tissues of
+similar intensity also has a small total variation. The disc of k-space the
+trajectory samples limits the resolution of all three.
+
+The same solve through the operator
+-----------------------------------
+
+Besides the iteration, ``pics`` scales the data. Off the Cartesian grid it
+estimates the scale from the adjoint reconstruction and therefore needs the
+operator, which :func:`bartorch.optim.data_scaling` takes. The encoding is
+the operator built above, now over the estimated sensitivities.
+
+.. GENERATED FROM PYTHON SOURCE LINES 405-416
 
 .. code-block:: Python
 
@@ -243,7 +341,7 @@ built above, now over the estimated sensitivities rather than the true ones.
     data = measured / optim.data_scaling(measured[..., None], A=A)
 
     start = time.perf_counter()
-    assembled = optim.ADMM(term, maxiter=50)(data, A)
+    assembled = optim.ADMM(term, maxiter=ITERATIONS)(data, A)
     print(f"operator and solver: {time.perf_counter() - start:.2f} s")
 
     difference = (assembled.squeeze() - reconstruction.squeeze()).abs().max()
@@ -257,30 +355,37 @@ built above, now over the estimated sensitivities rather than the true ones.
 
  .. code-block:: none
 
-    operator and solver: 1.41 s
+    operator and solver: 0.59 s
     relative difference from pics: 0.0e+00
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 330-338
+.. GENERATED FROM PYTHON SOURCE LINES 417-432
+
+The two run the same iteration over the same operator. The NUFFT spreads
+samples onto the grid over several threads and sums in the order they
+finish in, so the two can differ at the level of floating-point round-off.
 
 The normal operator
 -------------------
 
-Each iteration applies :math:`A^H A`, which the operator computes by default
-as a convolution with a point spread function rather than as a transform each
-way. ``toeplitz=False`` asks for the transform pair instead. The two normal
-operators differ by the tolerance the transform is planned to, and fifty
+Each iteration applies :math:`A^H A`. For a single coil this is a
+convolution with the point spread function of the trajectory, so it can be
+computed exactly by FFTs on a grid of twice the matrix size (the Toeplitz
+embedding [#fessler]_) instead of by a NUFFT and an adjoint NUFFT; with coils
+it is that convolution between multiplications by the sensitivities. The
+operator uses the convolution by default, and ``toeplitz=False`` requests the
+transform pair. The two differ by the tolerance of the transforms, and the
 iterations carry that difference into the reconstructions.
 
-.. GENERATED FROM PYTHON SOURCE LINES 339-347
+.. GENERATED FROM PYTHON SOURCE LINES 433-441
 
 .. code-block:: Python
 
 
     start = time.perf_counter()
-    pair = optim.ADMM(term, maxiter=50)(
+    pair = optim.ADMM(term, maxiter=ITERATIONS)(
         data, linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory, toeplitz=False)
     )
     print(f"without the Toeplitz normal: {time.perf_counter() - start:.2f} s")
@@ -294,66 +399,35 @@ iterations carry that difference into the reconstructions.
 
  .. code-block:: none
 
-    without the Toeplitz normal: 0.65 s
-    relative difference 1.5e-02
+    without the Toeplitz normal: 0.23 s
+    relative difference 3.2e-02
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 348-351
+.. GENERATED FROM PYTHON SOURCE LINES 442-449
 
-The two differ in cost: the convolution is an FFT, a pointwise
-multiplication and an inverse FFT on the doubled grid, the pair two
-non-uniform transforms over every sample of every channel.
+The convolution costs an FFT, a pointwise multiplication and an inverse FFT
+on the doubled grid per coil, independent of the number of samples; the pair
+costs two non-uniform transforms, whose spreading and interpolation grow with
+the number of samples. With 48 spokes there are fewer samples than grid
+points, and the pair is not the slower of the two; as the number of samples
+grows, with more spokes or with the frames of a dynamic series sharing one
+normal operator, the convolution becomes the cheaper.
 
-.. GENERATED FROM PYTHON SOURCE LINES 354-373
-
-
-
-
-.. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_001.png
-   :alt: phantom, gridding, 64 spokes, total variation, |error|, gridding, |error|, total variation
-   :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_02-radial-sense_001.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 374-378
-
-.. code-block:: Python
-
-
-    for name, estimate in (("gridding", gridded), ("total variation", reconstruction)):
-        print(f"{name:>16}  NRMSE {bt.nrmse(image.abs(), estimate.abs(), scaled=True):.3f}")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-            gridding  NRMSE 0.289
-     total variation  NRMSE 0.079
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 379-384
-
-The error maps are at a quarter of the image scale. Gridding leaves the
-streaks spread over the whole field of view; the regularized fit leaves its
-error at the tissue boundaries, where the piecewise-constant model the total
-variation penalty prefers is least accurate. Neither recovers the frequencies
-outside the disc the radial trajectory samples.
-
-.. GENERATED FROM PYTHON SOURCE LINES 387-402
+.. GENERATED FROM PYTHON SOURCE LINES 452-477
 
 References
 ----------
+
+.. [#pruessmann2001] Pruessmann KP, Weiger M, Börnert P, Boesiger P. Advances in sensitivity
+   encoding with arbitrary k-space trajectories. *Magn Reson Med*
+   46(4):638-651 (2001). https://doi.org/10.1002/mrm.1241
+
+.. [#winkelmann] Winkelmann S, Schaeffter T, Koehler T, Eggers H, Doessel O. An optimal
+   radial profile order based on the golden ratio for time-resolved MRI.
+   *IEEE Trans Med Imaging* 26(1):68-76 (2007).
+   https://doi.org/10.1109/TMI.2006.885337
 
 .. [#nlinv] Uecker M, Hohage T, Block KT, Frahm J. Image reconstruction by regularized
    nonlinear inversion -- joint estimation of coil sensitivities and image
@@ -364,14 +438,15 @@ References
    algorithms. *Physica D* 60(1-4):259-268 (1992).
    https://doi.org/10.1016/0167-2789(92)90242-F
 
-.. [#pruessmann2001] Pruessmann KP, Weiger M, Börnert P, Boesiger P. Advances in sensitivity
-   encoding with arbitrary k-space trajectories. *Magn Reson Med*
-   46(4):638-651 (2001). https://doi.org/10.1002/mrm.1241
+.. [#fessler] Fessler JA, Lee S, Olafsson VT, Shi HR, Noll DC. Toeplitz-based iterative
+   image reconstruction for MRI with correction for magnetic field
+   inhomogeneity. *IEEE Trans Signal Process* 53(9):3393-3402 (2005).
+   https://doi.org/10.1109/TSP.2005.853152
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.552 seconds)
+   **Total running time of the script:** (0 minutes 3.001 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_02-radial-sense.py:

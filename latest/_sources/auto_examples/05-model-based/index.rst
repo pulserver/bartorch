@@ -5,13 +5,18 @@
 Model-based reconstruction
 --------------------------
 
-Reconstructions that put a signal model into the encoding.
-
-The first lesson constrains a series of four hundred radial frames to a
-low-dimensional subspace of inversion-recovery curves and fits :math:`T_1`
-from the coefficient maps. The second estimates :math:`T_2` maps from
-multi-echo k-space directly, through a nonlinear forward operator, and
-compares the result with fitting reconstructed echo images.
+Quantitative MRI estimates tissue parameters such as :math:`T_1` and
+:math:`T_2` from a series of images acquired at different contrasts.
+Reconstructing each contrast separately and fitting a signal model afterwards
+ignores the relation between the contrasts that the signal model states.  A
+model-based reconstruction places that relation in the forward operator, so
+that every contrast constrains the same unknowns.  This section treats the two
+standard formulations: a linear subspace model, in which inversion-recovery
+signal curves are represented by a few temporal basis functions and
+:math:`T_1` is fitted to the coefficient maps, and a nonlinear signal model,
+through which :math:`T_2` maps are estimated directly from multi-echo k-space.
+:doc:`/explanation/nonlinear` compares the two with reconstruction followed by
+a voxel-wise fit.
 
 
 .. raw:: html
@@ -27,7 +32,7 @@ compares the result with fitting reconstructed echo images.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="An inversion-recovery FLASH acquisition of four hundred frames, one spoke each, reconstructed into the coefficients of a signal subspace and fitted for T_1.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke. The aim is to show how a signal model turns a hopelessly undersampled time series into a well-posed reconstruction: the recovery curves of all plausible T_1 values span a subspace of low dimension, and reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude.">
 
 .. only:: html
 
@@ -44,7 +49,7 @@ compares the result with fitting reconstructed echo images.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A multi-echo spin-echo acquisition fitted for T_2 in two ways: by reconstructing the echo images and fitting them afterwards, and by putting the signal model inside the forward operator and fitting the k-space directly.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first.">
 
 .. only:: html
 

@@ -67,7 +67,7 @@
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Basics" href="../auto_examples/01-basics/index.html" />
+    <link rel="next" title="Tensors and commands" href="../auto_examples/01-basics/01-tensors-and-commands.html" />
     <link rel="prev" title="Learned reconstruction" href="../explanation/learned-reconstruction.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -477,7 +497,12 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#course">Course</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">Basics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-imaging">Parallel imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization">Regularization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-imaging">Non-Cartesian imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-based-reconstruction">Model-based reconstruction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learned-regularization">Learned regularization</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
 </ul>
             </nav>
@@ -493,102 +518,254 @@
   <section class="tex2jax_ignore mathjax_ignore" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <p>Reconstructions executed when the documentation is built, so every figure and
-printed number is produced by the code shown.  The course is read in order:
-each lesson states its aim and learning objectives and builds on the lessons
-before it.  The tours are standalone.  Concepts are in
-<a class="reference internal" href="../explanation/index.html"><span class="doc">Explanation</span></a>, interfaces in <a class="reference internal" href="../api/index.html"><span class="doc">API reference</span></a>.</p>
-<section id="course">
-<h2>Course<a class="headerlink" href="#course" title="Link to this heading">#</a></h2>
+printed number on these pages is produced by the code shown.  The course is
+read in order: each lesson states its aim and builds on the lessons before it.
+The tours are standalone.  Every page can be downloaded as a Python script or
+a notebook, or opened in Colab.  The concepts are in
+<a class="reference internal" href="../explanation/index.html"><span class="doc">Explanation</span></a>, and the interfaces in <a class="reference internal" href="../api/index.html"><span class="doc">API reference</span></a>.</p>
+<p>The scripts need <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">bartorch</span> <span class="pre">brainweb-dl</span> <span class="pre">matplotlib</span> <span class="pre">cmap</span></code>;
+<code class="docutils literal notranslate"><span class="pre">brainweb-dl</span></code> downloads the BrainWeb phantoms several examples build their
+images from.</p>
+<section id="basics">
+<h2>Basics<a class="headerlink" href="#basics" title="Link to this heading">#</a></h2>
+<p>The course starts from the data a scanner delivers, multichannel k-space, and
+reconstructs an image from it.  The first lesson relates PyTorch tensors to
+BART’s arrays and commands, simulates an acquisition with BART’s analytical
+phantom and verifies the centring and scaling of BART’s FFT against NumPy.  The
+second reconstructs an undersampled Cartesian acquisition through the three
+steps every later section builds on: coil compression, calibration of the coil
+sensitivity maps by ESPIRiT, and a regularized SENSE reconstruction.  The
+signal model is derived in <a class="reference internal" href="../explanation/encoding.html"><span class="doc">The MRI encoding operator</span></a>, and the array
+conventions are stated in <a class="reference internal" href="../explanation/data-layout.html"><span class="doc">Data layout and conventions</span></a>.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Section</p></th>
-<th class="head"><p>Lesson</p></th>
+<tr class="row-odd"><th class="head"><p>Lesson</p></th>
 <th class="head"><p>Covers</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/01-basics/index.html"><span class="doc">Basics</span></a></p></td>
-<td><p><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html"><span class="doc">Tensors and commands</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html"><span class="doc">Tensors and commands</span></a></p></td>
 <td><p>Tensor shapes and BART’s dimensions, the analytical phantom, BART’s FFT against NumPy, the command line</p></td>
 </tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a></p></td>
-<td><p>Undersampled Cartesian k-space to an image: channel compression, ESPIRiT, <a class="reference internal" href="../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a></p></td>
+<td><p>Undersampled Cartesian k-space to an image: coil compression, ESPIRiT, <a class="reference internal" href="../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html"><span class="doc">Parallel imaging</span></a></p></td>
-<td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a></p></td>
-<td><p>Sensitivities by <code class="docutils literal notranslate"><span class="pre">caldir</span></code>, ESPIRiT and nonlinear inversion, and the SENSE reconstructions they give</p></td>
+</tbody>
+</table>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="parallel-imaging">
+<h2>Parallel imaging<a class="headerlink" href="#parallel-imaging" title="Link to this heading">#</a></h2>
+<p>Parallel imaging recovers an image from k-space undersampled along the
+phase-encoding directions by exploiting the spatial sensitivities of a receive
+array.  A SENSE reconstruction is only as accurate as its coil sensitivity
+maps, and it propagates the thermal noise of the channels, amplified by the
+g-factor.  This section treats both: sensitivity estimation from the
+autocalibration (ACS) region, by direct division and by ESPIRiT; joint
+estimation of image and sensitivities by nonlinear inversion when the ACS
+region is too small for a separate calibration; and prewhitening of correlated
+channel noise, evaluated by the SNR of the reconstruction.
+<a class="reference internal" href="../explanation/encoding.html"><span class="doc">The MRI encoding operator</span></a> derives the SENSE model and
+<a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> the joint estimation.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Lesson</p></th>
+<th class="head"><p>Covers</p></th>
 </tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p></td>
-<td><p>Image and sensitivities estimated jointly by iteratively regularized Gauss-Newton</p></td>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a></p></td>
+<td><p>Coil sensitivity maps by direct division, ESPIRiT and nonlinear inversion, and the SENSE reconstructions they give</p></td>
 </tr>
-<tr class="row-even"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p></td>
-<td><p>Correlated channel noise, prewhitening, and the pseudo-replica SNR</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p></td>
+<td><p>Image and coil sensitivities estimated jointly by iteratively regularized Gauss-Newton</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/03-regularization/index.html"><span class="doc">Regularization</span></a></p></td>
-<td><p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a></p></td>
-<td><p>Tikhonov, wavelet and total-variation terms, and the choice of their weight</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p></td>
+<td><p>Correlated channel noise, prewhitening, and the SNR by the pseudo-replica method</p></td>
 </tr>
-<tr class="row-even"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p></td>
-<td><p>The same reconstruction as an encoding operator and a solver</p></td>
+</tbody>
+</table>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="regularization">
+<h2>Regularization<a class="headerlink" href="#regularization" title="Link to this heading">#</a></h2>
+<p>Beyond the acceleration factor the coil geometry supports, the SENSE problem
+is ill-conditioned: a least-squares solution amplifies noise, and the aliasing
+of the undersampling is not fully resolved.  A regularized reconstruction adds
+prior knowledge of the image as a penalty.  This section compares Tikhonov,
+wavelet-sparsity (compressed sensing) and total-variation penalties on one
+undersampled acquisition and shows how the regularization weight is chosen.  It
+then writes the same reconstruction as an explicit encoding operator and an
+iterative solver, the form required by an encoding for which BART has no
+application.  <a class="reference internal" href="../explanation/inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a> introduces the formulations
+and the algorithms.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Lesson</p></th>
+<th class="head"><p>Covers</p></th>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html"><span class="doc">Non-Cartesian imaging</span></a></p></td>
-<td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a></p></td>
-<td><p>Trajectories, the non-uniform transform, density compensation, the point spread function</p></td>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a></p></td>
+<td><p>Tikhonov, wavelet and total-variation penalties, and the choice of the regularization weight</p></td>
 </tr>
-<tr class="row-even"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p></td>
-<td><p>Radial SENSE with sensitivities estimated from the radial data</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p></td>
+<td><p>The same reconstruction as an encoding operator and an iterative solver</p></td>
 </tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p></td>
-<td><p>A golden-angle acquisition reconstructed as a time series</p></td>
+</tbody>
+</table>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="non-cartesian-imaging">
+<h2>Non-Cartesian imaging<a class="headerlink" href="#non-cartesian-imaging" title="Link to this heading">#</a></h2>
+<p>Radial and spiral trajectories sample k-space off the Cartesian grid.  Their
+Fourier transform is a non-uniform FFT (NUFFT), their adjoint approximates an
+inverse only after density compensation, and the normal operator of an
+iterative reconstruction becomes a convolution with the point spread function
+of the trajectory.  This section introduces trajectories, the NUFFT, density
+compensation and the point spread function; reconstructs an undersampled
+golden-angle radial acquisition by non-Cartesian SENSE, with coil sensitivities
+estimated from the radial data; and reconstructs a continuous golden-angle
+acquisition as a time series with a temporal regularizer.
+<a class="reference internal" href="../explanation/non-cartesian.html"><span class="doc">Non-Cartesian sampling</span></a> defines the transform and its accuracy.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Lesson</p></th>
+<th class="head"><p>Covers</p></th>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/05-model-based/index.html"><span class="doc">Model-based reconstruction</span></a></p></td>
-<td><p><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p></td>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a></p></td>
+<td><p>Trajectories, the NUFFT, density compensation, the point spread function</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p></td>
+<td><p>Radial SENSE with coil sensitivities estimated from the radial data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p></td>
+<td><p>A golden-angle radial acquisition reconstructed as a time series</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="model-based-reconstruction">
+<h2>Model-based reconstruction<a class="headerlink" href="#model-based-reconstruction" title="Link to this heading">#</a></h2>
+<p>Quantitative MRI estimates tissue parameters such as <span class="math notranslate nohighlight">\(T_1\)</span> and
+<span class="math notranslate nohighlight">\(T_2\)</span> from a series of images acquired at different contrasts.
+Reconstructing each contrast separately and fitting a signal model afterwards
+ignores the relation between the contrasts that the signal model states.  A
+model-based reconstruction places that relation in the forward operator, so
+that every contrast constrains the same unknowns.  This section treats the two
+standard formulations: a linear subspace model, in which inversion-recovery
+signal curves are represented by a few temporal basis functions and
+<span class="math notranslate nohighlight">\(T_1\)</span> is fitted to the coefficient maps, and a nonlinear signal model,
+through which <span class="math notranslate nohighlight">\(T_2\)</span> maps are estimated directly from multi-echo k-space.
+<a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> compares the two with reconstruction followed by
+a voxel-wise fit.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Lesson</p></th>
+<th class="head"><p>Covers</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p></td>
 <td><p>Subspace-constrained inversion recovery and <span class="math notranslate nohighlight">\(T_1\)</span> mapping</p></td>
 </tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p></td>
 <td><p><span class="math notranslate nohighlight">\(T_2\)</span> maps from multi-echo k-space through a signal model</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/06-learning/index.html"><span class="doc">Learned regularization</span></a></p></td>
-<td><p><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a></p></td>
-<td><p>A pretrained denoiser as the proximal step of ADMM and FISTA</p></td>
+</tbody>
+</table>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="learned-regularization">
+<h2>Learned regularization<a class="headerlink" href="#learned-regularization" title="Link to this heading">#</a></h2>
+<p>A learned reconstruction replaces the hand-specified regularization term by a
+neural network and keeps the encoding operator and the data consistency of the
+iterative reconstruction.  This section starts with plug-and-play
+reconstruction, in which a pretrained denoiser takes the place of the proximal
+operator of ADMM and FISTA without any training, and proceeds to an unrolled
+network trained through BART’s ADMM (MoDL); networks for complex
+multi-contrast volumes, applied patch by patch; staged and self-supervised
+training of an unrolled network; plug-and-play with an annealed noise level;
+and calibrated voxel-wise uncertainty.
+<a class="reference internal" href="../explanation/learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a> describes where a network enters a
+reconstruction.</p>
+<p>The section additionally requires:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">lightning</span> <span class="n">torchio</span> <span class="n">monai</span> <span class="n">deepinv</span>
+</pre></div>
+</div>
+<p>The first lesson downloads the DRUNet weights <code class="docutils literal notranslate"><span class="pre">deepinv</span></code> distributes.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Lesson</p></th>
+<th class="head"><p>Covers</p></th>
 </tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p></td>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a></p></td>
+<td><p>A pretrained denoiser as the proximal operator of ADMM and FISTA</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p></td>
 <td><p>MoDL unrolled on BART’s ADMM and trained end to end</p></td>
 </tr>
-<tr class="row-even"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a></p></td>
 <td><p>A U-Net for complex multi-contrast volumes, trained on patches and applied patch by patch</p></td>
 </tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p></td>
 <td><p>An unrolled network trained in stages: denoiser, per iteration, end to end</p></td>
 </tr>
-<tr class="row-even"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p></td>
 <td><p>The same network trained from undersampled k-space alone</p></td>
 </tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p></td>
 <td><p>A noise-conditioned denoiser in ADMM with an annealed noise level</p></td>
 </tr>
-<tr class="row-even"><td><p></p></td>
-<td><p><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p></td>
 <td><p>Voxel-wise error bars from dropout and k-space subsets, calibrated to a coverage</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 <section id="tours">
 <h2>Tours<a class="headerlink" href="#tours" title="Link to this heading">#</a></h2>
+<p>Corrections applied to the data before reconstruction or to the image after
+it, each shown on its own and independent of the course: removal of readout
+oversampling and apodization, EPI Nyquist-ghost correction and regridding of
+ramp-sampled readouts, receive bias-field correction, correction of the
+geometric distortion caused by gradient nonlinearity, off-resonance deblurring
+of spiral images, and rigid head-motion tracking from navigators.  Each tour
+simulates the artefact from a known ground truth, so that the correction is
+evaluated against it.</p>
+<p>The first tour removes readout oversampling and compares Fermi and Hann
+apodization by their Gibbs ringing and resolution. The second corrects the
+Nyquist ghost of an EPI train from a three-line navigator and resamples a
+ramp-sampled readout. The third estimates the receive bias field of a head
+array with N4. The fourth corrects the geometric distortion and intensity
+error of gradient nonlinearity from the coil’s spherical-harmonic
+coefficients. The fifth deblurs a spiral image off resonance by
+multifrequency interpolation and by a time-segmented reconstruction. The
+sixth measures rigid head motion from three orthogonal navigator planes and
+filters it across a scan. The seventh corrects the susceptibility distortion
+of an EPI image from a reversed phase-encoding pair.</p>
+<p>The section additionally requires:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">SimpleITK</span> <span class="n">PyHySCO</span>
+</pre></div>
+</div>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Tour</p></th>
@@ -597,29 +774,29 @@ before it.  The tours are standalone.  Concepts are in
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html"><span class="doc">Readout oversampling and apodization</span></a></p></td>
-<td><p>Removal of readout oversampling; Hann and Fermi apodization</p></td>
+<td><p>Removal of readout oversampling; Gibbs ringing and resolution with Fermi and Hann apodization</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html"><span class="doc">EPI Nyquist ghost and ramp sampling</span></a></p></td>
-<td><p>The EPI odd/even phase from a navigator; ramp-sampled readouts</p></td>
+<td><p>Nyquist ghost correction from a three-line navigator; resampling of ramp-sampled readouts</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html"><span class="doc">Receive bias field</span></a></p></td>
-<td><p>N4 correction of the receive field of a surface array</p></td>
+<td><p>N4 correction of the receive bias field of a head array</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html"><span class="doc">Gradient nonlinearity</span></a></p></td>
-<td><p>Geometric distortion from a spherical-harmonic coil description</p></td>
+<td><p>Geometric and intensity correction of gradient nonlinearity from spherical-harmonic coefficients</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html"><span class="doc">Off-resonance blurring in spirals</span></a></p></td>
-<td><p>Off-resonance deblurring of a spiral image</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html"><span class="doc">Off-resonance correction of spiral imaging</span></a></p></td>
+<td><p>Spiral off-resonance deblurring by multifrequency interpolation and time-segmented reconstruction</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html"><span class="doc">Rigid head motion from navigators</span></a></p></td>
-<td><p>Rigid head motion from three navigator planes, filtered across a scan</p></td>
+<td><p>Rigid head motion from three orthogonal navigator planes, filtered across a scan</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html"><span class="doc">Susceptibility distortion in EPI</span></a></p></td>
+<td><p>EPI susceptibility distortion corrected from a reversed phase-encoding pair</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>The scripts need <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">bartorch</span> <span class="pre">brainweb-dl</span> <span class="pre">matplotlib</span> <span class="pre">cmap</span></code>; the
-learned-regularization section also <code class="docutils literal notranslate"><span class="pre">lightning</span> <span class="pre">torchio</span> <span class="pre">monai</span> <span class="pre">deepinv</span></code>, and the
-tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</span></code>.  Each page can be downloaded as a script or a notebook.</p>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -646,11 +823,11 @@ tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</sp
       </div>
     </a>
     <a class="right-next"
-       href="../auto_examples/01-basics/index.html"
+       href="../auto_examples/01-basics/01-tensors-and-commands.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Basics</p>
+        <p class="prev-next-title">Tensors and commands</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -672,7 +849,12 @@ tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</sp
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#course">Course</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">Basics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-imaging">Parallel imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization">Regularization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-imaging">Non-Cartesian imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-based-reconstruction">Model-based reconstruction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learned-regularization">Learned regularization</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
 </ul>
   </nav></div>

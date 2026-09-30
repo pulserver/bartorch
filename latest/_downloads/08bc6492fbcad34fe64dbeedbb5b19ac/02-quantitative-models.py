@@ -3,39 +3,48 @@
 Parameter maps straight from k-space
 ====================================
 
-A multi-echo spin-echo acquisition fitted for :math:`T_2` in two ways: by
-reconstructing the echo images and fitting them afterwards, and by putting the
-signal model inside the forward operator and fitting the k-space directly.
+This lesson estimates a :math:`T_2` map from an undersampled multi-echo
+spin-echo acquisition in two ways, and compares them: reconstructing an image
+per echo and fitting the decay voxel by voxel afterwards, and fitting the
+signal model directly to the k-space data. The aim is to show why the second,
+model-based reconstruction, tolerates undersampling that ruins the first.
 
-The two-step route solves an ill-posed reconstruction eight times over, once
-per echo, and then fits a model to the answers. Each reconstruction is
-undersampled on its own, and none of the eight uses the relation between the
-echo images. The model-based route puts that relation in the forward operator,
+In a multi-echo spin-echo (CPMG) acquisition the signal of each voxel decays
+from echo to echo as :math:`M_0 \\exp(-\\mathrm{TE}/T_2)`. Undersampling each
+echo shortens the scan, but a reconstruction of each echo on its own is an
+ill-posed problem, and its aliasing and noise differ from echo to echo; a
+voxelwise fit cannot tell them apart from decay, and carries them into the
+map. The model-based approach [#sumpf]_ [#wang]_ puts the signal model inside
+the forward operator,
 
 .. math::
 
    y_{c,e} = P_e F \\, (S_c \\cdot M_e(\\theta)),
 
-where :math:`M` is the signal model and :math:`\\theta` the parameter maps, and
-solves for :math:`\\theta` directly [#sumpf]_ [#wang]_. The unknowns then number
-three maps rather than eight images, and every echo constrains all of them.
-
-The model here is :class:`bartorch.nlop.MultiEcho`, a TorchSim simulator as a
-BART nonlinear operator; the solver is the Gauss-Newton loop of
+where :math:`P_e` is the sampling pattern of echo :math:`e`, :math:`F` the
+Fourier transform, :math:`S_c` the sensitivity of coil :math:`c`,
+:math:`M` the signal model and :math:`\\theta` the parameter maps, and solves
+for :math:`\\theta` from the k-space data of all echoes at once. The unknowns
+are then three real maps rather than eight complex images, and every echo
+constrains all of them. The operator is nonlinear in :math:`\\theta`, so the
+problem is solved by the iteratively regularized Gauss-Newton method of
 :doc:`../02-parallel-imaging/02-nonlinear-inversion`, over a different model.
 
-The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
-this page and present in the script this page can be downloaded as.
+The model here is :class:`bartorch.nlop.MultiEcho`, a TorchSim simulator as a
+BART nonlinear operator. The phantom and the coil sensitivities are built as
+in :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is
+hidden on this page and present in the script this page can be downloaded as.
 
 **Learning objectives**
 
 - Represent a relaxation model as a TorchSim-backed
   :class:`bartorch.nlop.SignalModel`.
-- Fit it to reconstructed images, and directly to k-space by composing it
-  with the encoding, with :class:`bartorch.nlop.IRGNM`.
+- Fit it to reconstructed echo images, and directly to k-space by composing
+  it with the encoding, with :class:`bartorch.nlop.IRGNM`.
 - Run the same fits through :func:`bartorch.apps.mobafit` and
   :func:`bartorch.apps.moba`.
+- Explain, from the echo images and the error maps, why the model-based fit
+  is more accurate at the same undersampling.
 
 It follows :doc:`01-subspace-t1-mapping`. The next section,
 :doc:`../06-learning/01-plug-and-play`, replaces a specified regularizer with a
@@ -48,6 +57,8 @@ learned denoiser.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+
+WIDTH = 8.0  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -66,28 +77,13 @@ STYLE = {
     "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
 }
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
-
-
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -106,10 +102,17 @@ def parameter(axis, values, name, title=None):
     return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
 
 
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
 def domain(axis, values, title=None):
     """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness, so an unsupported corner reads as background
-    rather than as a phase."""
+    magnitude in brightness."""
     values = values.detach().cpu()
     colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
     magnitude = values.abs().numpy()
@@ -117,15 +120,6 @@ def domain(axis, values, title=None):
     axis.imshow(colours * magnitude[..., None])
     if title is not None:
         axis.set_title(title)
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    bar = figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-    return bar
 
 
 def phase_bar(figure, axes):
@@ -138,6 +132,15 @@ def phase_bar(figure, axes):
     )
     bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
     bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -253,12 +256,14 @@ contrasts = (amplitude[None] * torch.exp(-ECHO_TIMES[:, None, None] / t2[None]))
 # Acquisition
 # -----------
 #
-# Each echo is sampled at a quarter of the phase encodes, with its own random
-# draw, so the sets of missing phase encodes differ between echoes. The echoes are a batch of
-# the encoding rather than an axis inside it: the sensitivities are shared, the
-# transform is the same, and only the pattern differs, so the operator is the
-# Cartesian SENSE encoding of :doc:`../03-regularization/02-operators-and-solvers` with
-# the per-echo pattern applied to its samples.
+# Eight echoes at an echo spacing of 12.5 ms, each sampled at a quarter of the
+# phase encodes (:math:`R = 4`) around eight fully sampled central lines, with
+# a different random draw per echo, so that the missing phase encodes differ
+# between echoes. The echoes are a batch of the encoding rather than an axis
+# inside it: the sensitivities and the transform are shared, and only the
+# pattern differs, so the operator is the Cartesian SENSE encoding of
+# :doc:`../03-regularization/02-operators-and-solvers` with the pattern of
+# each echo applied to its samples.
 
 # sphinx_gallery_start_ignore
 # BART's analytical head coil on the image grid, normalized so that the
@@ -273,6 +278,23 @@ lines = torch.zeros(ECHOES, 1, SIZE, 1)
 for echo in range(ECHOES):
     lines[echo, 0, torch.randperm(SIZE, generator=generator)[: SIZE // ACCELERATION]] = 1.0
     lines[echo, 0, SIZE // 2 - 4 : SIZE // 2 + 4] = 1.0
+
+figure, axis = plt.subplots(figsize=(0.7 * WIDTH, 1.9))
+axis.imshow(
+    lines[:, 0, :, 0].numpy(),
+    cmap="gray",
+    aspect="auto",
+    vmin=0.0,
+    vmax=1.0,
+    extent=(-SIZE / 2, SIZE / 2, ECHOES + 0.5, 0.5),
+)
+axis.set_xlabel("phase encode")
+axis.set_ylabel("echo")
+axis.set_yticks(range(1, ECHOES + 1))
+axis.set_title("sampled phase encodes (white) per echo")
+for spine in axis.spines.values():
+    spine.set_visible(False)
+plt.show()
 # sphinx_gallery_end_ignore
 
 encoding = linop.CartesianSense(sensitivities, (ECHOES, SIZE, SIZE), ndim=2)
@@ -304,12 +326,13 @@ print(f"unknowns {M.names}: {M.ishapes[0]} -> {M.oshapes[0]}")
 # Two routes
 # ----------
 #
-# The first reconstructs the echo images by conjugate gradients and fits the
-# model to them voxel by voxel, which is what :func:`bartorch.apps.mobafit`
-# does given the images. The second composes the model with the encoding and
-# fits the k-space with :class:`bartorch.nlop.IRGNM`. Both are Gauss-Newton
-# loops of twenty steps and differ in the forward operator that maps the
-# unknowns to the data.
+# The first reconstructs the echo images by conjugate gradients on the SENSE
+# normal equations and fits the model to them voxel by voxel, which is what
+# :func:`bartorch.apps.mobafit` does given the images. The second composes the
+# model with the encoding and fits the k-space with
+# :class:`bartorch.nlop.IRGNM`. Both are Gauss-Newton loops of the same number
+# of steps and differ only in the forward operator that maps the unknowns to
+# the data.
 
 STEPS = 20
 
@@ -328,9 +351,41 @@ print(f"model inside the operator: {time.perf_counter() - start_time:5.1f} s")
 # the composition at a point is the encoding applied to the derivative of the
 # model, which is the derivative a Gauss-Newton step requires.
 #
-# :func:`bartorch.apps.moba` assembles the same composition from the k-space,
-# the model, the sensitivities and the sampling pattern, and returns the maps
-# in their own units. It scales the data by the rule of
+# The echo images of the first route show what its fit is given. They are
+# compared here with the fully sampled echo images of the phantom.
+
+# sphinx_gallery_start_ignore
+shown = (0, 2, 4, 7)
+figure, axes = panels(len(shown), 2, width=0.9 * WIDTH)
+top = float(contrasts.abs().max())
+for column, echo in enumerate(shown):
+    show(axes[0, column], contrasts[echo], f"TE = {float(ECHO_TIMES[echo]):.1f} ms", vmax=top)
+    show(axes[1, column], scaled(images[echo], contrasts[echo]), vmax=top)
+for row, label in enumerate(("reference", "SENSE, R = 4")):
+    axes[row, 0].text(
+        -0.06,
+        0.5,
+        label,
+        rotation=90,
+        va="center",
+        ha="right",
+        transform=axes[row, 0].transAxes,
+        color="#8a8a8a",
+    )
+figure.suptitle("echo images")
+plt.show()
+# sphinx_gallery_end_ignore
+
+# %%
+#
+# Each reconstructed echo carries residual aliasing and noise, which differ
+# from echo to echo because each echo has its own sampling pattern. At the
+# later echoes the signal has decayed and the relative error grows, so the
+# late echoes, which determine :math:`T_2` most, are also the least accurate.
+#
+# :func:`bartorch.apps.moba` assembles the model-based composition from the
+# k-space, the model, the sensitivities and the sampling pattern, and returns
+# the maps in their own units. It scales the data by the rule of
 # :func:`bartorch.optim.data_scaling` and regularizes each step towards the
 # starting maps rather than towards zero, so its result is not identical to
 # the fit above.
@@ -355,41 +410,47 @@ print(f"{'phantom':>22}  median {float(t2[support].median()):5.1f} ms")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 4)
-for axis, values, title in (
-    (axes[0, 0], t2, "phantom"),
-    (axes[0, 1], estimates["reconstruct, then fit"], "reconstruct, then fit"),
-    (axes[0, 2], estimates["model-based"], "model-based"),
-    (axes[0, 3], estimates["apps.moba"], "apps.moba"),
-):
-    parameter(axis, torch.where(support, values, torch.zeros(())).detach(), "T2")
-    axis.set_title(title, fontsize=10)
-scalebar(figure, axes[0, 3], name="T2")
+figure, axes = panels(4)
+parameter(axes[0, 0], torch.where(support, t2, torch.zeros(())), "T2", "reference")
+for axis, (name, values) in zip(axes[0, 1:], estimates.items()):
+    parameter(axis, torch.where(support, values, torch.zeros(())).detach(), "T2", name)
+scalebar(figure, axes[0], name="T2")
+figure.suptitle("$T_2$ maps")
+plt.show()
 
-figure, axes = panels(1, 4)
-for column, echo in enumerate((0, 2, 4, 7)):
-    axes[0, column].imshow(images[echo].abs().cpu().numpy(), cmap="gray", vmin=0.0, vmax=1.0)
-    axes[0, column].set_title(f"TE = {float(ECHO_TIMES[echo]):.0f} ms")
-figure.suptitle("echo images from the two-step route")
+figure, axes = panels(3, width=0.8 * WIDTH)
+for axis, (name, values) in zip(axes[0], estimates.items()):
+    difference = torch.where(support, (values.detach() - t2).abs(), torch.zeros(()))
+    handle = show(axis, difference.numpy(), name, vmax=40.0, cmap="magma")
+figure.colorbar(handle, ax=axes[0], fraction=0.046, label="$|\\Delta T_2|$ [ms]")
+figure.suptitle("$T_2$ error")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The echo images carry the residual aliasing of each echo's sampling, and the
-# voxel-wise fit that follows cannot separate it from signal decay, so it
-# propagates into the two-step :math:`T_2` map. Fitting the k-space constrains
-# the three maps with all eight echoes at once, and both model-based fits
-# reach a lower error than the two-step fit. The explanation
-# of the model-based approach is :doc:`../../explanation/nonlinear`.
-# The maps are drawn with the navia colormap [#fuderer]_.
+# The two-step :math:`T_2` map is dominated by the errors of the echo images:
+# a voxelwise fit cannot distinguish residual aliasing from decay, and in
+# voxels where a late echo is too bright or too dark the fitted :math:`T_2` is
+# far off. The model-based fits reach a much lower error from the same data,
+# since the model admits only images that decay exponentially from echo to
+# echo, and the aliasing of eight different sampling patterns is not such an
+# image. The fit inside the operator reproduces the phantom almost exactly,
+# because every voxel of the phantom decays with a single :math:`T_2`, as the
+# model assumes; a measured voxel holding two tissues decays with two, and a
+# single exponential cannot represent it. :func:`bartorch.apps.moba`
+# regularizes each Gauss-Newton step towards the starting maps, and its
+# residual error is largest where :math:`T_2` is farthest from the starting
+# value of 80 ms: in cerebrospinal fluid and the scalp. The maps are drawn with
+# the navia colormap [#fuderer]_ in a window that spans white and grey matter.
 #
 # Since the maps are the solver's unknowns, a regularizer passed to the
 # linearized problem -- the ``inner`` solver of :func:`bartorch.apps.moba` --
 # penalizes the maps rather than the echo images. Without ``sensitivities``,
 # :func:`bartorch.apps.moba` estimates the coils jointly with the maps, as
 # :doc:`../02-parallel-imaging/02-nonlinear-inversion` estimates them jointly
-# with an image.
+# with an image. :doc:`../../explanation/nonlinear` explains the model-based
+# approach in more detail.
 
 # %%
 #

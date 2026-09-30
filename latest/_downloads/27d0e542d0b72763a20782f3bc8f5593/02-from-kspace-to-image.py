@@ -3,43 +3,49 @@
 From k-space to image
 =====================
 
-Reconstruction of an undersampled Cartesian acquisition, from the measured
-k-space to a coil-combined image.
+This lesson reconstructs an undersampled Cartesian brain acquisition from its
+multichannel k-space to a coil-combined image, and shows what each step of a
+parallel-imaging and compressed-sensing pipeline contributes. Scan time in
+Cartesian MRI is proportional to the number of phase-encoding lines; skipping
+lines shortens the scan by the acceleration factor :math:`R`, but violates the
+Nyquist criterion and folds the image onto itself. Recovering an unaliased
+image from such data is what the receive coil array, and prior knowledge of
+the image, are used for.
 
 The acquisition is simulated from a BrainWeb tissue segmentation and the eight
-channels of BART's head coil model, sampled at a third of the Nyquist rate
-along the phase-encode direction. The reconstruction consists of channel
-compression, sensitivity calibration by ESPIRiT, and a regularized
-least-squares fit of the SENSE model
+channels of BART's head-coil model, with one line in three acquired along the
+phase-encoding direction. The pipeline consists of coil compression,
+sensitivity calibration by ESPIRiT, and a regularized least-squares fit of the
+SENSE forward model
 
 .. math::
 
    y = P F S x + \\varepsilon,
 
-with :math:`S` the coil sensitivities, :math:`F` the Fourier transform and
-:math:`P` the sampling operator. :doc:`../../explanation/encoding` states the
-model and :doc:`../../explanation/inverse-problems` the estimator.
+with :math:`S` the coil sensitivities, :math:`F` the Fourier transform,
+:math:`P` the sampling operator that keeps the acquired phase encodes, and
+:math:`\\varepsilon` complex Gaussian noise. :doc:`../../explanation/encoding`
+states the model and :doc:`../../explanation/inverse-problems` the estimator.
 
-Shapes here are C order, so a Cartesian k-space is ``(coils, z, y, x)`` and an
-axis argument indexes that shape; see :doc:`../../guides/user/conventions`.
-
-The lesson runs the Cartesian pipeline once, from simulated k-space to a
-reconstructed image; the sections after it examine calibration,
-regularization and the operator form of each step in turn. It builds on the
-conventions of :doc:`01-tensors-and-commands`.
+Shapes are C order, so a Cartesian k-space is ``(coils, z, y, x)`` with the
+readout along ``x`` and the phase encoding along ``y``; see
+:doc:`../../guides/user/conventions`.
 
 **Learning objectives**
 
 - Simulate a multichannel Cartesian acquisition from a tissue segmentation.
 - Undersample the phase-encoding direction with a variable-density pattern
-  around a fully sampled calibration region.
+  around a fully sampled autocalibration (ACS) region.
 - Compress the channels with :func:`bartorch.tools.cc` and estimate their
   sensitivities with :func:`bartorch.tools.ecalib`.
-- Reconstruct with :func:`bartorch.apps.pics`, with and without a sparsity
-  penalty, and quantify the result by NRMSE and SSIM.
+- Reconstruct with :func:`bartorch.apps.pics`, with a Tikhonov and with a
+  wavelet sparsity penalty, and compare the results by error maps, NRMSE and
+  SSIM.
 
-The next lesson, :doc:`../02-parallel-imaging/01-coil-calibration`, compares
-sensitivity estimators.
+It builds on the conventions of :doc:`01-tensors-and-commands`. The sections
+after it examine calibration, regularization and the operator form of each
+step in turn; the next lesson, :doc:`../02-parallel-imaging/01-coil-calibration`,
+compares sensitivity estimators.
 """
 
 # %%
@@ -48,6 +54,8 @@ sensitivity estimators.
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+
+WIDTH = 8.0  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -66,28 +74,13 @@ STYLE = {
     "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
 }
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
-
-
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -106,10 +99,17 @@ def parameter(axis, values, name, title=None):
     return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
 
 
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
 def domain(axis, values, title=None):
     """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness, so an unsupported corner reads as background
-    rather than as a phase."""
+    magnitude in brightness."""
     values = values.detach().cpu()
     colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
     magnitude = values.abs().numpy()
@@ -117,15 +117,6 @@ def domain(axis, values, title=None):
     axis.imshow(colours * magnitude[..., None])
     if title is not None:
         axis.set_title(title)
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    bar = figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-    return bar
 
 
 def phase_bar(figure, axes):
@@ -138,6 +129,15 @@ def phase_bar(figure, axes):
     )
     bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
     bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -251,34 +251,38 @@ image = (signal * torch.exp(0.8j * (grid_x**2 - 0.5 * grid_y**2))).to(torch.comp
 # Coils
 # -----
 #
-# The sensitivities are BART's analytical head coil, evaluated on the image
-# grid that :func:`bartorch.tools.grid` describes. Dividing by the root sum of
-# squares over the channels makes the combination of the coil images the image
-# itself, so a reconstruction can be compared against it directly.
+# Each receive channel measures the object weighted by its complex sensitivity
+# profile, :math:`x_c = S_c x`. The sensitivities here are BART's analytical
+# head coil, evaluated on the image grid that :func:`bartorch.tools.grid`
+# describes. Dividing them by their root sum of squares over the channels
+# normalizes :math:`\sum_c |S_c|^2` to one, so that the optimal coil
+# combination of the coil images is the image itself and a reconstruction can
+# be compared against it directly. Complex Gaussian noise is then added to
+# every k-space sample, as thermal noise is in the receiver chain.
 
 sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
 sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=True)
 
 coil_images = sensitivities * image
 kspace = bartorch.fft(coil_images, axes=(-2, -1), unitary=True)
-kspace = bt.noise(kspace, n=1e-5, s=42)
+kspace = bt.noise(kspace, n=1e-4, s=42)
 
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(1, 3)
+figure, axes = panels(3)
 peak = float(image.abs().max())
-show(axes[0, 0], image, "$T_1$-weighted phantom", vmax=peak)
-parameter(axes[0, 1], T1, "T1", "$T_1$")
+show(axes[0, 0], image, "$T_1$-weighted image", vmax=peak)
+head = proton_density > 0.05
+parameter(axes[0, 1], torch.where(head, T1, 0.0), "T1", "$T_1$ map")
 scalebar(figure, axes[0, 1], name="T1")
-parameter(axes[0, 2], T2, "T2", "$T_2$")
+parameter(axes[0, 2], torch.where(head, T2, 0.0), "T2", "$T_2$ map")
 scalebar(figure, axes[0, 2], name="T2")
+plt.show()
 
-figure, axes = panels(1, 4)
+figure, axes = panels(4)
 for column in range(4):
-    domain(axes[0, column], sensitivities[column], f"channel {column}")
-    axes[0, column].set_xticks([])
-    axes[0, column].set_yticks([])
+    domain(axes[0, column], sensitivities[2 * column], f"channel {2 * column}")
 phase_bar(figure, axes[0, 3])
 figure.suptitle("coil sensitivities: colour is phase, brightness is magnitude")
 plt.show()
@@ -288,19 +292,22 @@ plt.show()
 #
 # The relaxation maps are drawn with the perceptually uniform colormaps
 # recommended for relaxometry [#fuderer]_ -- lipari for :math:`T_1`, navia for
-# :math:`T_2` -- so that one is not read as the other, and with a
-# window that stops short of cerebrospinal fluid, which is far enough from the
-# rest to take the whole scale. The sensitivities are complex, and are drawn
-# the way a sensitivity is read: a cyclic colormap for the phase, brightness
-# for the magnitude.
+# :math:`T_2` -- and with a window that stops short of cerebrospinal fluid.
+# Each sensitivity is bright near its coil element and falls off across the
+# head; its phase varies smoothly. These spatial variations are the extra
+# encoding that parallel imaging uses to separate aliased voxels.
 #
 # Sampling
 # --------
 #
-# The readout is fully sampled and the phase encodes are drawn at random from a
-# variable density, with a 24-line calibration region at the centre kept in
-# full. ESPIRiT reads its calibration matrix from that region, so an
-# acquisition that omitted it would need a separate calibration scan.
+# The readout is fully sampled, since it costs no scan time, and a subset of
+# the phase encodes is acquired. The lines are drawn at random from a
+# variable density that is highest at the k-space centre, where most of the
+# signal energy is, with a block of 24 central lines, the autocalibration
+# signal (ACS) region, acquired in full. ESPIRiT reads its calibration matrix
+# from the ACS region, so an acquisition without one would need a separate
+# calibration scan. The pattern is a column vector along the phase-encoding
+# direction: it broadcasts over the readout and over the channels.
 
 ACCELERATION = 3
 CALIBRATION = 24
@@ -317,14 +324,38 @@ drawn = torch.multinomial(
 lines = centre.clone()
 lines[drawn] = 1.0
 
-# A pattern broadcasts over one channel's samples, so a column of it
-# undersamples the phase-encode axis for every channel.
 pattern = lines.reshape(SIZE, 1).to(torch.complex64)
 measured = kspace[:, None] * pattern
 
-print(f"{float(lines.mean()):.0%} of the phase encodes acquired")
+print(f"{int(lines.sum())} of {SIZE} phase encodes acquired, R = {SIZE / lines.sum():.1f}")
 
 # %%
+
+# sphinx_gallery_start_ignore
+figure, axes = panels(2, width=6.4)
+show(axes[0, 0], pattern.real.expand(SIZE, SIZE), "sampling pattern", vmax=1.0)
+axes[0, 0].annotate(
+    "ACS",
+    xy=(SIZE * 0.98, SIZE / 2),
+    xytext=(SIZE * 1.02, SIZE / 2),
+    va="center",
+    ha="left",
+    color="C1",
+    annotation_clip=False,
+)
+log_k = torch.log10(measured[0, 0].abs() / kspace.abs().max()).clamp(min=-5)
+handle = show(
+    axes[0, 1], log_k.numpy(), "acquired k-space, channel 0", cmap="magma", vmin=-5, vmax=0
+)
+figure.colorbar(handle, ax=axes[0, 1], fraction=0.046, label="$\\log_{10}$ (|signal| / peak)")
+plt.show()
+# sphinx_gallery_end_ignore
+
+# %%
+#
+# In the pattern (readout horizontal, phase encoding vertical) every acquired
+# phase encode is a full line; the lines cluster towards the centre and the
+# ACS band is dense.
 #
 # Channel compression
 # -------------------
@@ -332,10 +363,10 @@ print(f"{float(lines.mean()):.0%} of the phase encodes acquired")
 # Eight channels carry less independent information than eight images: the
 # sensitivities overlap, and the singular value spectrum of the calibration
 # matrix falls off. :func:`bartorch.tools.cc` returns the matrix that projects
-# the channels onto their leading singular vectors [#huangcc]_, and
-# :func:`bartorch.tools.ccapply` applies it. Everything downstream --
-# calibration, the encoding operator, every iteration -- then costs six
-# channels rather than eight.
+# the channels onto their leading singular vectors [#huangcc]_, the virtual
+# coils, and :func:`bartorch.tools.ccapply` applies it. Calibration, the
+# encoding operator and every iteration then cost six channels rather than
+# eight, at a negligible loss of the encoding capacity of the array.
 
 VIRTUAL = 6
 
@@ -347,10 +378,13 @@ compressed = bt.ccapply(measured, matrix, p=VIRTUAL)
 # Sensitivity calibration
 # -----------------------
 #
-# ESPIRiT [#espirit]_ estimates the sensitivities as the leading eigenvector, per voxel, of
-# an operator built from the calibration region. ``crop`` discards the voxels
-# whose eigenvalue falls below it, and so keeps the maps from being
-# extrapolated into the background.
+# ESPIRiT [#espirit]_ estimates the sensitivities from the ACS region alone:
+# it builds a calibration matrix from all k-space neighbourhoods (kernels) in
+# the region, and obtains the sensitivities at each voxel as the eigenvector
+# of an operator derived from that matrix whose eigenvalue is one. Outside the
+# object no eigenvalue is close to one; ``crop`` sets the maps to zero where
+# the eigenvalue falls below it, which keeps the background out of the
+# reconstruction.
 
 maps = bt.ecalib(compressed, maps=1, calib_size=CALIBRATION, crop=0.8)
 
@@ -359,22 +393,29 @@ maps = bt.ecalib(compressed, maps=1, calib_size=CALIBRATION, crop=0.8)
 # Reconstruction
 # --------------
 #
-# :func:`bartorch.apps.pics` solves the regularized least-squares problem. A
-# Tikhonov weight alone gives the conjugate-gradient SENSE reconstruction
-# [#sense]_; an :math:`\ell_1` penalty on the wavelet coefficients is the
-# compressed-sensing reconstruction [#lustig]_ of the same data, solved by
-# FISTA [#beck]_. Both are compared against
-# the root sum of squares of the zero-filled channel images, which uses no
-# model of the encoding.
+# Three reconstructions of the same data are compared.
+#
+# - The **zero-filled** reconstruction sets the missing phase encodes to zero,
+#   inverse-transforms each channel and combines them by root sum of squares.
+#   It uses no model of the encoding, so every missing line leaves aliasing.
+# - **SENSE** [#sense]_ solves :math:`\min_x \|PFSx - y\|_2^2 +
+#   \lambda\|x\|_2^2` by conjugate gradients. The sensitivities unfold the
+#   aliasing, but the inversion amplifies the noise by the g-factor, which is
+#   highest where the coils cannot distinguish aliased voxels.
+# - **Compressed sensing** [#lustig]_ replaces the Tikhonov term by an
+#   :math:`\ell_1` penalty on the wavelet coefficients, solved by FISTA
+#   [#beck]_. The random undersampling makes the aliasing incoherent, i.e.
+#   noise-like in the wavelet domain, and the sparsity penalty removes it
+#   together with the amplified noise.
 
 channel_images = bartorch.ifft(compressed[:, 0], axes=(-2, -1), unitary=True)
-gridded = bartorch.rss(channel_images, axes=(0,))
+zero_filled = bartorch.rss(channel_images, axes=(0,))
 
 sense = apps.pics(compressed, maps, l2=0.001, maxiter=60)
 wavelet = apps.pics(
     compressed,
     maps,
-    regularizers=priors.Wavelet((-1, -2), 0.002),
+    regularizers=priors.Wavelet((-1, -2), 0.004),
     solver="fista",
     maxiter=100,
 )
@@ -388,53 +429,55 @@ wavelet = apps.pics(
 # :func:`bartorch.tools.nrmse` is called with ``scaled=True``, which fits a
 # global factor before comparing.
 
-for name, estimate in (
-    ("root sum of squares", gridded),
-    ("SENSE", sense),
-    ("wavelet", wavelet),
-):
+results = {"zero-filled": zero_filled, "SENSE": sense, "wavelet CS": wavelet}
+for name, estimate in results.items():
     error = bt.nrmse(image.abs(), estimate.abs(), scaled=True)
     similarity = bt.ssim(image.abs(), scaled(estimate, image))
-    print(f"{name:>20}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
+    print(f"{name:>12}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
 
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = panels(2, 4, height=1.1)
-for axis, values, title in (
-    (axes[0, 0], image, "phantom"),
-    (axes[0, 1], scaled(gridded, image), "root sum of squares"),
-    (axes[0, 2], scaled(sense, image), "SENSE"),
-    (axes[0, 3], scaled(wavelet, image), "wavelet"),
-):
-    show(axis, values, title, vmax=peak)
-axes[1, 0].axis("off")
-for axis, values in (
-    (axes[1, 1], scaled(gridded, image)),
-    (axes[1, 2], scaled(sense, image)),
-    (axes[1, 3], scaled(wavelet, image)),
-):
-    show(axis, (values - image.abs()).abs(), vmax=0.2 * peak)
-axes[1, 1].set_ylabel("|error|, x5")
-figure.suptitle(f"{ACCELERATION}x undersampled, {VIRTUAL} virtual channels")
+figure, axes = panels(4)
+show(axes[0, 0], image, "reference", vmax=peak)
+for axis, (name, estimate) in zip(axes[0, 1:], results.items()):
+    show(axis, scaled(estimate, image), name, vmax=peak)
+figure.suptitle(f"R = {SIZE / lines.sum():.1f}, {VIRTUAL} virtual channels")
+plt.show()
+
+figure, axes = panels(3, width=0.8 * WIDTH)
+errors(figure, axes[0], results.values(), image, 0.2)
+for axis, name in zip(axes[0], results):
+    axis.set_title(name)
+figure.suptitle("error magnitude")
+plt.show()
+
+# The posterior horn of the lateral ventricles and the cortex behind it.
+zoom = (slice(95, 165), slice(55, 125))
+figure, axes = panels(4)
+show(axes[0, 0], image.abs()[zoom], "reference", vmax=peak)
+for axis, (name, estimate) in zip(axes[0, 1:], results.items()):
+    show(axis, scaled(estimate, image)[zoom], name, vmax=peak)
+figure.suptitle("enlarged: posterior brain")
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The root sum of squares carries the aliasing of the missing phase encodes.
-# The Tikhonov-regularized SENSE fit removes the coherent aliasing but leaves
-# noise amplification and incoherent residual artefacts of the variable-density
-# random sampling.  The wavelet :math:`\ell_1` penalty reduces both, which the
-# NRMSE printed above quantifies.
+# The zero-filled image carries the aliasing of the missing phase encodes as
+# vertical ghosting of the whole head. SENSE removes the coherent aliasing, but
+# its error map shows noise amplified in the centre of the head, where the
+# coil sensitivities are least distinct, and incoherent residual artefacts of
+# the random sampling. The wavelet penalty suppresses both; in the enlarged
+# region the cortical folding and the ventricle boundaries are sharper and the
+# background of the brain is smooth. The NRMSE and SSIM printed above
+# quantify the same ordering.
 #
-# How much it removes depends on its weight, which is chosen here and not
-# estimated: a larger one removes more noise and more texture with it.
-#
-# The sensitivities and the regularization weight were fixed here. The next
-# lesson, :doc:`../02-parallel-imaging/01-coil-calibration`, compares
-# sensitivity estimators, and
-# :doc:`../03-regularization/01-regularized-reconstruction` varies the weight.
+# How much the penalty removes depends on its weight, which is chosen here and
+# not estimated: a larger weight removes more noise and more fine texture with
+# it. :doc:`../02-parallel-imaging/01-coil-calibration` compares sensitivity
+# estimators, and :doc:`../03-regularization/01-regularized-reconstruction`
+# varies the weight.
 
 # %%
 #

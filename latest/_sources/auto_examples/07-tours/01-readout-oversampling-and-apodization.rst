@@ -22,16 +22,34 @@
 Readout oversampling and apodization
 ====================================
 
-Two operations on Cartesian k-space before it is reconstructed: removing the
-readout oversampling, and weighting the measurement by an apodization window
-to suppress the Gibbs ringing of its truncation.
+Two operations are applied to Cartesian k-space before the image is
+reconstructed. Readout oversampling doubles the field of view along the
+frequency-encoding direction, and is removed so that the image has the
+prescribed matrix. Truncation of k-space at the edge of the acquired matrix
+convolves the image with a sinc, whose side lobes appear as Gibbs ringing
+parallel to every sharp edge; an apodization window reduces the ringing at the
+cost of spatial resolution.
 
-The k-space is BART's analytical Shepp-Logan phantom, evaluated at the sample
-positions rather than computed by a discrete Fourier transform of a sampled
-image, so the truncation and the oversampling are those of a continuous
-object.
+This example removes twofold readout oversampling from the k-space of a
+Shepp-Logan phantom and compares the result with an acquisition without
+oversampling, then reconstructs a 64 x 64 acquisition with no window, a Fermi
+window and a Hann window, and measures the ringing and the resolution of each.
+The k-space is evaluated analytically at the sample positions, so its
+truncation and its oversampling are those of a continuous object.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-38
+**Learning objectives**
+
+* Remove readout oversampling in the image domain with
+  :func:`bartorch.remove_readout_oversampling`, and distinguish it from
+  discarding the outer readout samples.
+* Relate the Gibbs ringing of a truncated acquisition to the side lobes of its
+  point spread function.
+* Apodize k-space with :func:`bartorch.apodize`, and quantify the trade-off
+  between ringing amplitude and the full width at half maximum.
+* Choose between the radial and the separable extension of a window over
+  k-space.
+
+.. GENERATED FROM PYTHON SOURCE LINES 35-59
 
 .. code-block:: Python
 
@@ -50,22 +68,22 @@ object.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-51
+.. GENERATED FROM PYTHON SOURCE LINES 60-72
 
 Readout oversampling
 --------------------
 
-A scanner digitises more samples along the readout than the prescribed
-matrix, so that the anti-aliasing filter of the receiver can roll off
-outside the field of view. Twofold oversampling halves the sample spacing
-along :math:`k_x`, which doubles the field of view along :math:`x`; the
-extent of k-space, and so the resolution, is unchanged.
+The receiver digitises the echo at twice the sampling rate the prescribed
+matrix requires, so that its anti-aliasing filter can roll off outside the
+field of view. Twofold oversampling halves the sample spacing
+:math:`\Delta k_x`, which doubles the field of view along the readout; the
+extent of k-space, and so the spatial resolution, is unchanged.
 
-The trajectory below has 128 phase encodes at unit spacing and 256 readout
-samples at half that spacing, in the grid units of a 128 matrix. Its first
-component is :math:`k_x`, along the last image axis.
+The acquisition has 128 phase-encoding lines and 256 readout samples at
+half the phase-encoding spacing, in the grid units of a 128 matrix. The
+first trajectory component is :math:`k_x`, along the last image axis.
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-62
+.. GENERATED FROM PYTHON SOURCE LINES 73-82
 
 .. code-block:: Python
 
@@ -77,58 +95,44 @@ component is :math:`k_x`, along the last image axis.
     trajectory = torch.stack([kx, ky, torch.zeros_like(kx)], dim=-1)
 
     oversampled = bt.phantom(traj=trajectory).reshape(MATRIX, 2 * MATRIX)
-    print(f"oversampled k-space {tuple(oversampled.shape)}")
 
 
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    oversampled k-space (128, 256)
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 63-67
+.. GENERATED FROM PYTHON SOURCE LINES 83-91
 
 :func:`bartorch.remove_readout_oversampling` transforms the readout to the
 image domain, crops the field of view to the prescribed matrix and
-transforms back. Discarding the outer half of the readout samples in k-space
-instead keeps the doubled field of view and halves the resolution.
+transforms back. Discarding the outer half of the readout samples instead
+keeps the doubled field of view and halves the resolution along the
+readout. The crop is compared with an acquisition without oversampling; the
+crop uses the unitary transform, whose normalization depends on the number
+of samples, so the two differ by the factor :math:`\sqrt{2}` between the
+transform lengths.
 
-.. GENERATED FROM PYTHON SOURCE LINES 68-72
-
-.. code-block:: Python
-
-
-    cropped = bartorch.remove_readout_oversampling(oversampled, MATRIX, axis=-1)
-    truncated = bartorch.resize(oversampled, (MATRIX, MATRIX))
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 73-77
-
-The cropped k-space is compared with the k-space acquired without
-oversampling. The crop uses the unitary transform, whose normalization
-depends on the number of samples, so the two differ by the factor
-:math:`\sqrt{2}` between the transform lengths.
-
-.. GENERATED FROM PYTHON SOURCE LINES 78-83
+.. GENERATED FROM PYTHON SOURCE LINES 92-108
 
 .. code-block:: Python
 
 
+    cropped = bartorch.remove_readout_oversampling(oversampled, MATRIX, axis=-1) / math.sqrt(2)
+    truncated = bartorch.resize(oversampled, (MATRIX, MATRIX)) / math.sqrt(2)
     reference = bt.phantom(MATRIX, kspace=True)
-    difference = (cropped / math.sqrt(2) - reference).abs().max() / reference.abs().max()
-    print(f"cropped against unoversampled k-space: {float(difference):.1e} of the peak")
+
+
+    def image_of(kspace):
+        return bartorch.fft(kspace, axes=(-2, -1), inverse=True).abs()
+
+
+    def nrmse(estimate, target):
+        return float((estimate - target).norm() / target.norm())
+
+
+    print(f"crop against no oversampling: NRMSE {nrmse(image_of(cropped), image_of(reference)):.1e}")
 
 
 
@@ -138,18 +142,18 @@ depends on the number of samples, so the two differ by the factor
 
  .. code-block:: none
 
-    cropped against unoversampled k-space: 1.1e-03 of the peak
+    crop against no oversampling: NRMSE 4.8e-03
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 84-99
+.. GENERATED FROM PYTHON SOURCE LINES 109-137
 
 
 
 
 .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_001.png
-   :alt: 256 readout samples, image-domain crop, k-space truncation
+   :alt: 256 readout samples: field of view doubled along x, no oversampling, image-domain crop NRMSE 4.8e-03, crop - no oversampling (range ±0.02), k-space truncation half the resolution along x
    :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_001.png
    :class: sphx-glr-single-img
 
@@ -157,36 +161,41 @@ depends on the number of samples, so the two differ by the factor
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 100-115
+.. GENERATED FROM PYTHON SOURCE LINES 138-158
 
-The residual difference is the part of the truncation ringing that extends
-past the prescribed field of view along the readout and is cropped with it.
+The image-domain crop reproduces the acquisition without oversampling to the
+part of the truncation ringing that extends past the prescribed field of
+view along the readout and is cropped with it. Discarding k-space samples
+instead widens the pixel to twice the prescribed size along :math:`x`: the
+object occupies half of the matrix.
 
 Apodization
 -----------
 
-A measurement truncated at the edge of k-space is the object's spectrum
-multiplied by a rectangle, and its image the object convolved with a sinc,
-whose side lobes produce ringing at every sharp edge. An apodization window
-rolls the measurement off towards the edge instead, which lowers the side
-lobes and widens the main lobe of the point spread function [#bernstein]_.
+An acquisition truncated at the edge of k-space is the object's spectrum
+multiplied by a rectangle, and its image the object convolved with a sinc.
+The first side lobe of the sinc is 22 % of its peak, which appears as an
+overshoot of about 9 % at a step edge and as ringing that decays over a few
+pixels. An apodization window rolls the data off towards the edge of
+k-space, which lowers the side lobes and widens the main lobe of the point
+spread function [#bernstein]_.
 
-The phantom is measured on a 64 matrix and reconstructed on a 128 grid by
+The phantom is acquired on a 64 matrix and reconstructed on a 128 grid by
 zero-filling, which interpolates the image and makes the ringing visible
-between the samples of the acquired grid.
+between the pixels of the acquired grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 116-126
+.. GENERATED FROM PYTHON SOURCE LINES 159-169
 
 .. code-block:: Python
 
 
     GRID, ACQUIRED = 128, 64
-    image = bt.phantom(GRID)
+    image = bt.phantom(GRID).abs()
     measured = bt.phantom(ACQUIRED, kspace=True)
 
 
     def reconstruct(kspace):
-        return bartorch.fft(bartorch.resize(kspace, (GRID, GRID)), axes=(-2, -1), inverse=True)
+        return bartorch.fft(bartorch.resize(kspace, (GRID, GRID)), axes=(-2, -1), inverse=True).abs()
 
 
 
@@ -196,24 +205,24 @@ between the samples of the acquired grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-134
+.. GENERATED FROM PYTHON SOURCE LINES 170-177
 
 :func:`bartorch.fermi_window` sets the radius of the half height and the
 width of the transition separately, and keeps a wide passband.
 :func:`bartorch.hann_window` tapers from the centre of k-space to zero at
 the edge. The point spread functions are evaluated on a grid eight times
-finer than the acquired one: the side lobes of an unwindowed measurement
-have their zeros at the samples of the acquired grid, so a point spread
+finer than the acquired one: the side lobes of an unwindowed acquisition
+have their zeros at the pixels of the acquired grid, so a point spread
 function read off that grid shows none.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-158
+.. GENERATED FROM PYTHON SOURCE LINES 178-198
 
 .. code-block:: Python
 
 
     fermi = bartorch.fermi_window((ACQUIRED, ACQUIRED), radius=0.8, width=0.08)
     hann = bartorch.hann_window((ACQUIRED, ACQUIRED))
-    windows = {"none": torch.ones(ACQUIRED, ACQUIRED), "Fermi": fermi, "Hann": hann}
+    windows = {"no window": torch.ones(ACQUIRED, ACQUIRED), "Fermi": fermi, "Hann": hann}
 
     UPSAMPLE = 8
     offset = (torch.arange(UPSAMPLE * ACQUIRED) - UPSAMPLE * ACQUIRED // 2) / UPSAMPLE
@@ -225,52 +234,52 @@ function read off that grid shows none.
         return profile / profile.max()
 
 
-    print(f"{'window':>6}  {'side lobe':>9}  {'FWHM':>7}")
-    for name, window in windows.items():
-        profile = psf(window)
-        lobe = float(profile[offset.abs() > 3].max())
+    def fwhm(profile):
         above = torch.nonzero(profile > 0.5).flatten()
-        width = float(offset[above[-1]] - offset[above[0]])
-        print(f"{name:>6}  {lobe:9.1e}  {width:5.2f} px")
+        return float(offset[above[-1]] - offset[above[0]])
 
 
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    window  side lobe     FWHM
-      none    9.1e-02   1.00 px
-     Fermi    2.6e-02   1.50 px
-      Hann    5.6e-03   2.00 px
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-165
-
-The side lobe is the largest value beyond three pixels of the peak, and the
-full width at half maximum is in pixels of the acquired grid, to the eighth
-of a pixel the fine grid resolves.
+.. GENERATED FROM PYTHON SOURCE LINES 199-204
 
 :func:`bartorch.apodize` multiplies k-space by either window over the axes
-it names.
+it names. The ringing is measured as the standard deviation of the image
+over the parenchyma within six pixels of the skull, where the object is
+uniform, and the resolution as the full width at half maximum of the point
+spread function, in pixels of the acquired grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-176
+.. GENERATED FROM PYTHON SOURCE LINES 205-228
 
 .. code-block:: Python
 
 
     reconstructions = {
-        "none": reconstruct(measured),
+        "no window": reconstruct(measured),
         "Fermi": reconstruct(bartorch.apodize(measured, kind="fermi", radius=0.8, width=0.08)),
         "Hann": reconstruct(bartorch.apodize(measured, kind="hann")),
     }
-    for name, estimate in reconstructions.items():
-        overshoot = float(estimate.abs().max() - image.abs().max())
-        print(f"{name:>6}: maximum above the object's {overshoot:+.3f}")
+
+    skull = (image > 0.9).float()[None, None]
+    near_skull = torch.nn.functional.max_pool2d(skull, 13, stride=1, padding=6)[0, 0] > 0
+    flat = torch.nn.functional.max_pool2d(
+        (image - 0.2).abs().gt(1e-3).float()[None, None], 5, stride=1, padding=2
+    )[0, 0].eq(0)
+    ringing_region = near_skull & flat
+
+    print(f"{'window':>9}  {'ringing':>7}  {'side lobe':>9}  {'FWHM':>7}")
+    metrics = {}
+    for name, window in windows.items():
+        profile = psf(window)
+        ringing = float(reconstructions[name][ringing_region].std())
+        lobe = float(profile[offset.abs() > 3].max())
+        metrics[name] = (ringing, fwhm(profile))
+        print(f"{name:>9}  {ringing:7.4f}  {lobe:9.1e}  {fwhm(profile):5.2f} px")
 
 
 
@@ -280,49 +289,65 @@ it names.
 
  .. code-block:: none
 
-      none: maximum above the object's +0.200
-     Fermi: maximum above the object's +0.119
-      Hann: maximum above the object's -0.144
+       window  ringing  side lobe     FWHM
+    no window   0.0404    9.1e-02   1.00 px
+        Fermi   0.0325    2.6e-02   1.50 px
+         Hann   0.0100    5.6e-03   2.00 px
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 177-196
+.. GENERATED FROM PYTHON SOURCE LINES 229-262
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
-   :alt: none, Fermi, Hann
-   :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
+         :alt: left edge of the skull, displayed from 0 to half the skull intensity, object, no window ringing 0.0404, FWHM 1.00 px, Fermi ringing 0.0325, FWHM 1.50 px, Hann ringing 0.0100, FWHM 2.00 px
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
+         :alt: point spread function, |PSF|, profile across the skull, row 64
+         :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 197-215
+.. GENERATED FROM PYTHON SOURCE LINES 263-284
 
-Neither window is a positive blur: their point spread functions have
-negative lobes, so an apodized image can still exceed the object's maximum.
-The Fermi window reduces the overshoot and keeps most of the resolution; the
-Hann window removes it at the cost of the widest main lobe.
+Without a window the ringing is visible as bands parallel to the skull
+across the adjacent parenchyma. The Fermi window lowers the far side lobes
+by a factor of three and the ringing next to the skull by about a fifth, and
+widens the point spread function by half a pixel; the Hann window removes
+the ringing almost entirely and doubles the full width at half maximum,
+which blurs the skull into the parenchyma. The Fermi window's wide passband
+is the usual compromise for anatomical imaging.
 
 Radial and separable windows
 ----------------------------
 
-The one-dimensional kernel is extended over the grid either on the Euclidean
-norm of the normalized coordinates (``geometry="radial"``, an ellipsoid) or
-as a product along each axis (``geometry="separable"``), which retains more
-of the corners of k-space. Bernstein et al. [#bernstein]_ give the ratio of
-the two at the diagonal Nyquist point as 52.4 % in two dimensions and 50.7 %
-in three, for a Fermi window of transition width 10/128. The radial window
-is 0.5 there; the separable one is the product of the one-dimensional kernel
-at :math:`1/\sqrt{d}` along each of :math:`d` axes. The one-dimensional
-kernel at :math:`u` is the window at the centre of a grid with its radius
-moved to :math:`1 - u`.
+The one-dimensional kernel is extended over k-space either on the
+Euclidean norm of the normalized coordinates (``geometry="radial"``, an
+ellipse) or as a product along each axis (``geometry="separable"``), which
+retains more of the corners of k-space. Bernstein et al. [#bernstein]_ give
+the ratio of the two at the diagonal Nyquist point as 52.4 % in two
+dimensions and 50.7 % in three, for a Fermi window of transition width
+10/128. The radial window is 0.5 there; the separable one is the product of
+the one-dimensional kernel at :math:`1/\sqrt{d}` along each of :math:`d`
+axes. The one-dimensional kernel at :math:`u` is the window at the centre of
+a grid with its radius moved to :math:`1 - u`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-228
+.. GENERATED FROM PYTHON SOURCE LINES 285-297
 
 .. code-block:: Python
 
@@ -352,21 +377,21 @@ moved to :math:`1 - u`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 229-243
+.. GENERATED FROM PYTHON SOURCE LINES 298-311
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
-   :alt: radial, separable
-   :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_003.png
+.. image-sg:: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_004.png
+   :alt: radial, separable, separable - radial
+   :srcset: /auto_examples/07-tours/images/sphx_glr_01-readout-oversampling-and-apodization_004.png
    :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-256
+.. GENERATED FROM PYTHON SOURCE LINES 312-324
 
 The radial window has the more isotropic point spread function and the
 higher signal-to-noise ratio; the separable one the better resolution along
@@ -384,7 +409,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.296 seconds)
+   **Total running time of the script:** (0 minutes 0.529 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_01-readout-oversampling-and-apodization.py:

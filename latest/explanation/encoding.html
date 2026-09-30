@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Explanation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -529,19 +549,23 @@ A = P F S ,
 <p>the <strong>SENSE</strong> forward model:<a class="footnote-reference brackets" href="#pruessmann1999" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <span class="math notranslate nohighlight">\(S\)</span> maps an image to one coil
 image per channel, <span class="math notranslate nohighlight">\(F\)</span> is the Fourier transform of each coil image, and <span class="math notranslate nohighlight">\(P\)</span>
 selects the acquired samples.</p>
-<p>With <span class="math notranslate nohighlight">\(R\)</span>-fold Cartesian undersampling, each voxel of a coil image obtained by
-the inverse FFT of the undersampled data is the superposition of <span class="math notranslate nohighlight">\(R\)</span> object
-voxels separated by <span class="math notranslate nohighlight">\(\mathrm{FOV}/R\)</span>.  For <span class="math notranslate nohighlight">\(C\)</span> coils the
-aliased voxels satisfy <span class="math notranslate nohighlight">\(C\)</span> equations in <span class="math notranslate nohighlight">\(R\)</span> unknowns; they are determined when
-<span class="math notranslate nohighlight">\(C \ge R\)</span> and the sensitivity vectors of the aliased voxels are linearly
-independent, and the conditioning of this small system — the g-factor — sets
-the noise amplification.  Coil sensitivities therefore make an accelerated
+<p>Undersampling Cartesian k-space along a phase-encoding direction by the
+<strong>acceleration factor</strong> <span class="math notranslate nohighlight">\(R\)</span> reduces the field of view along that direction by
+<span class="math notranslate nohighlight">\(R\)</span>: each voxel of a coil image obtained by the inverse FFT of the
+undersampled data is the superposition of <span class="math notranslate nohighlight">\(R\)</span> object voxels separated by
+<span class="math notranslate nohighlight">\(\mathrm{FOV}/R\)</span>.  For <span class="math notranslate nohighlight">\(C\)</span> coils the aliased voxels satisfy <span class="math notranslate nohighlight">\(C\)</span> equations in
+<span class="math notranslate nohighlight">\(R\)</span> unknowns; they are determined when <span class="math notranslate nohighlight">\(C \ge R\)</span> and the sensitivity vectors of
+the aliased voxels are linearly independent.  The conditioning of this small
+system sets the noise amplification: the SNR of the unfolded image is that of
+the fully sampled acquisition divided by <span class="math notranslate nohighlight">\(g\sqrt{R}\)</span>, where <span class="math notranslate nohighlight">\(\sqrt{R}\)</span>
+accounts for the shorter acquisition and the <strong>g-factor</strong> <span class="math notranslate nohighlight">\(g \ge 1\)</span>, which
+varies from voxel to voxel, for the coil geometry.  Coil sensitivities therefore make an accelerated
 acquisition solvable within the limits of the coil geometry; beyond them, and
 outside the object, the system is underdetermined or poorly conditioned and a
 regularized estimate is needed (<a class="reference internal" href="inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a>).</p>
 <p>The sensitivities are smooth functions of position, estimated from the data:
-<a class="reference internal" href="../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">ecalib()</span></code></a> by ESPIRiT from a fully sampled region of the
-k-space centre,<a class="footnote-reference brackets" href="#espirit" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="reference internal" href="../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">nlinv()</span></code></a> by nonlinear inversion
+<a class="reference internal" href="../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">ecalib()</span></code></a> by ESPIRiT from the <strong>autocalibration (ACS)
+region</strong>, a fully sampled block at the centre of k-space,<a class="footnote-reference brackets" href="#espirit" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="reference internal" href="../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">nlinv()</span></code></a> by nonlinear inversion
 jointly with the image, on a Cartesian grid or along a trajectory, and
 <a class="reference internal" href="../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">ncalib()</span></code></a> from non-Cartesian samples; <a class="reference internal" href="nonlinear.html"><span class="doc">Nonlinear forward models</span></a>
 describes the joint estimation.</p>

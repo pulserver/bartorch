@@ -22,22 +22,30 @@
 Noise prewhitening
 ==================
 
-The effect of channel-noise correlation on a SENSE reconstruction, and its
-removal by prewhitening with a noise measurement.
+This lesson measures how correlated noise between receive channels lowers
+the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it
+prewhitening with a noise-only acquisition recovers.
 
-The thermal noise of a receive array is correlated between channels and
-differs in level from one channel to another.  Least squares is the
-maximum-likelihood estimator only for white noise, so the data are first
-transformed by a whitening matrix :math:`W` with :math:`W \Psi W^H = I`,
-:math:`\Psi` being the channel noise covariance estimated from a
-noise-only acquisition [#roemer]_ [#pruessmann]_.  ESPIRiT then calibrates
-the sensitivities of the whitened channels, and the reconstruction proceeds
-unchanged.
+The thermal noise of a receive array is correlated between channels, through
+mutual inductance between the coil elements and shared noise sources in the
+sample, and its level differs from one channel to another, through the
+elements' size, loading and preamplifier gain. Least squares is the
+maximum-likelihood estimator only for white noise, i.e. for a channel noise
+covariance proportional to the identity. A reconstruction that ignores the
+covariance :math:`\Psi` weights every channel equally and does not combine
+them with the optimal SNR [#roemer]_. Prewhitening transforms the data by a
+matrix :math:`W` with :math:`W \Psi W^H = I`, which makes the channel noise
+white; the sensitivities are then calibrated on, and the SENSE reconstruction
+run on, the whitened channels unchanged [#pruessmann]_. :math:`\Psi` is
+estimated from a noise scan, an acquisition with the RF transmitter off that
+most vendors run before every protocol.
 
-The signal-to-noise ratio of the two reconstructions is measured by the
-pseudo-replica method [#robson]_: the same reconstruction is repeated on
-independent noise realizations added to one noise-free acquisition, and the
-standard deviation across repetitions is the noise of each voxel.
+The SNR of the two reconstructions is measured by the pseudo-replica method
+[#robson]_: the same reconstruction is repeated on independent noise
+realizations added to one noise-free acquisition, and the standard deviation
+across repetitions is the noise of each voxel. This is how SNR and g-factor
+maps are obtained for iterative reconstructions, for which no closed-form
+noise propagation exists.
 
 The phantom and the coil sensitivities are built as in
 :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on this page
@@ -47,13 +55,13 @@ and present in the script this page can be downloaded as.
 
 - Estimate the channel noise covariance from a noise scan and whiten the data
   with :func:`bartorch.tools.whiten`.
-- Measure a signal-to-noise ratio map by the pseudo-replica method.
-- Quantify the change in SNR that prewhitening gives a SENSE reconstruction.
+- Measure an SNR map by the pseudo-replica method.
+- Quantify the SNR gain that prewhitening gives a SENSE reconstruction.
 
 It follows :doc:`02-nonlinear-inversion`. The next section starts with
 :doc:`../03-regularization/01-regularized-reconstruction`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-228
+.. GENERATED FROM PYTHON SOURCE LINES 47-230
 
 .. code-block:: Python
 
@@ -82,19 +90,19 @@ It follows :doc:`02-nonlinear-inversion`. The next section starts with
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 229-238
+.. GENERATED FROM PYTHON SOURCE LINES 231-240
 
 Correlated channel noise
 ------------------------
 
-The noise covariance used for the simulation couples neighbouring channels
-by a factor falling as :math:`0.5^{|i-j|}` and gives the channels standard
-deviations between 0.8 and 1.25 of a common level.  A noise scan -- an
-acquisition with the RF transmitter off -- measures the same channels
-without signal; its covariance is the estimate of :math:`\Psi` that
-:func:`bartorch.tools.whiten` inverts.
+The noise covariance of the simulation couples the channels by a
+correlation coefficient falling as :math:`0.5^{|i-j|}` with the distance
+between their indices, and gives the channels noise standard deviations
+between 0.6 and 1.6 times a common level. The noise scan measures the same
+channels without signal; its sample covariance is the estimate of
+:math:`\Psi` that :func:`bartorch.tools.whiten` inverts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 239-259
+.. GENERATED FROM PYTHON SOURCE LINES 241-261
 
 .. code-block:: Python
 
@@ -102,7 +110,7 @@ without signal; its covariance is the estimate of :math:`\Psi` that
     SIGMA = 0.01  # noise level, relative to the image's peak
 
     channels = torch.arange(COILS)
-    levels = torch.linspace(0.8, 1.25, COILS)
+    levels = torch.linspace(0.6, 1.6, COILS)
     correlation = 0.5 ** (channels[:, None] - channels[None, :]).abs().float()
     covariance = levels[:, None] * correlation * levels[None, :]
     mixing = torch.linalg.cholesky(covariance).to(torch.complex64)
@@ -125,13 +133,14 @@ without signal; its covariance is the estimate of :math:`\Psi` that
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 260-263
+.. GENERATED FROM PYTHON SOURCE LINES 262-266
 
-The whitening matrix maps the measured covariance to the identity.  The
-measure below is the mean magnitude of the off-diagonal covariance entries,
-relative to the mean diagonal entry: zero for uncorrelated channels.
+The whitening matrix maps the measured covariance to the identity. The
+measure printed below is the mean magnitude of the off-diagonal covariance
+entries relative to the mean diagonal entry, which is zero for
+uncorrelated channels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 264-283
+.. GENERATED FROM PYTHON SOURCE LINES 267-286
 
 .. code-block:: Python
 
@@ -162,19 +171,19 @@ relative to the mean diagonal entry: zero for uncorrelated channels.
 
  .. code-block:: none
 
-    off-diagonal covariance: 0.209 measured
+    off-diagonal covariance: 0.202 measured
                              0.000 after whitening
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 284-303
+.. GENERATED FROM PYTHON SOURCE LINES 287-306
 
 
 
 
 .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_001.png
-   :alt: measured, after whitening
+   :alt: noise covariance, measured, after whitening
    :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_001.png
    :class: sphx-glr-single-img
 
@@ -182,18 +191,22 @@ relative to the mean diagonal entry: zero for uncorrelated channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 304-312
+.. GENERATED FROM PYTHON SOURCE LINES 307-319
+
+The measured covariance has a strong diagonal whose entries grow with the
+channel index, the unequal noise levels, and off-diagonal bands, the
+correlation. After whitening it is the identity.
 
 Acquisition and calibration
 ---------------------------
 
-Every second phase encode is acquired, with 24 central lines kept for
-calibration.  Each pseudo-replica adds a new noise realization to the same
-noise-free k-space.  The sensitivities are calibrated once per pipeline,
-from the first replica: from the channels as measured, and from the
-whitened channels.
+Every second phase encode is acquired (:math:`R = 2`), with 24 central lines
+kept as the ACS region. Each pseudo-replica adds a new noise realization to
+the same noise-free k-space. The sensitivities are calibrated once per
+pipeline, from the first replica: from the channels as measured, and from
+the whitened channels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 313-334
+.. GENERATED FROM PYTHON SOURCE LINES 320-341
 
 .. code-block:: Python
 
@@ -225,7 +238,7 @@ whitened channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 335-341
+.. GENERATED FROM PYTHON SOURCE LINES 342-348
 
 Pseudo-replicas
 ---------------
@@ -234,7 +247,7 @@ Both pipelines use the same reconstruction, conjugate-gradient SENSE with a
 small Tikhonov weight and a fixed number of iterations; they differ only in
 whether the data are whitened first.
 
-.. GENERATED FROM PYTHON SOURCE LINES 342-351
+.. GENERATED FROM PYTHON SOURCE LINES 349-358
 
 .. code-block:: Python
 
@@ -254,13 +267,13 @@ whether the data are whitened first.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 352-355
+.. GENERATED FROM PYTHON SOURCE LINES 359-362
 
-The signal-to-noise ratio of a voxel is the magnitude of the mean
-reconstruction over its standard deviation across replicas.  Both are
-reported over the white matter, where the phantom is homogeneous.
+The SNR of a voxel is the magnitude of the mean reconstruction over the
+standard deviation across replicas. Both are reported over the white
+matter, where the phantom is homogeneous.
 
-.. GENERATED FROM PYTHON SOURCE LINES 356-372
+.. GENERATED FROM PYTHON SOURCE LINES 363-379
 
 .. code-block:: Python
 
@@ -288,33 +301,51 @@ reported over the white matter, where the phantom is homogeneous.
 
  .. code-block:: none
 
-     as measured  white-matter SNR   41.9 (median 41.5)
-     prewhitened  white-matter SNR   53.8 (median 53.7)
-    SNR ratio, prewhitened over as measured: 1.28 (median)
+     as measured  white-matter SNR   38.1 (median 37.7)
+     prewhitened  white-matter SNR   55.6 (median 54.3)
+    SNR ratio, prewhitened over as measured: 1.42 (median)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 373-397
+.. GENERATED FROM PYTHON SOURCE LINES 380-415
 
 
 
 
-.. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_002.png
-   :alt: SNR, as measured, SNR, prewhitened, SNR ratio
-   :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_002.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_002.png
+         :alt: SNR, as measured, SNR, prewhitened
+         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_003.png
+         :alt: SNR ratio, prewhitened / as measured
+         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_03-noise-prewhitening_003.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 398-419
+.. GENERATED FROM PYTHON SOURCE LINES 416-443
 
-With this covariance, prewhitening raises the white-matter SNR by the
-ratio printed above.  The size of the gain depends on the array's noise
-correlation and on the spread of the channel noise levels; it is measured
-here for one simulated covariance.
+Prewhitening raises the SNR throughout the head, and the white-matter
+histogram shifts by the ratio printed above. The gain varies in space: it is
+largest in the posterior half of the head, where the channels with the
+lowest noise level (the first channels here) are most sensitive. Without
+whitening the least-squares fit weights those channels no more than the
+noisiest ones; after whitening each channel enters with the weight its noise
+level warrants. The size of the
+gain depends on the array's noise correlation and on the spread of its
+channel noise levels, and is measured here for one simulated covariance;
+with uncorrelated channels of equal noise level it is one.
 
 References
 ----------
@@ -336,7 +367,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.909 seconds)
+   **Total running time of the script:** (0 minutes 3.004 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_03-noise-prewhitening.py:

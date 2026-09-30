@@ -5,15 +5,17 @@
 Parallel imaging
 ----------------
 
-The coil sensitivities a SENSE reconstruction depends on, and the channel
-noise it propagates.
-
-The first lesson compares three sensitivity estimates from the same
-acquisition, :func:`bartorch.tools.caldir`, ESPIRiT and nonlinear inversion.
-The second estimates the image and the sensitivities jointly where the
-calibration region is too small for a separate calibration. The third measures
-the effect of correlated channel noise on the reconstruction and removes it by
-prewhitening.
+Parallel imaging recovers an image from k-space undersampled along the
+phase-encoding directions by exploiting the spatial sensitivities of a receive
+array.  A SENSE reconstruction is only as accurate as its coil sensitivity
+maps, and it propagates the thermal noise of the channels, amplified by the
+g-factor.  This section treats both: sensitivity estimation from the
+autocalibration (ACS) region, by direct division and by ESPIRiT; joint
+estimation of image and sensitivities by nonlinear inversion when the ACS
+region is too small for a separate calibration; and prewhitening of correlated
+channel noise, evaluated by the SNR of the reconstruction.
+:doc:`/explanation/encoding` derives the SENSE model and
+:doc:`/explanation/nonlinear` the joint estimation.
 
 
 .. raw:: html
@@ -29,7 +31,7 @@ prewhitening.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Three estimates of the receive sensitivities of a coil array from the same undersampled Cartesian acquisition, and the SENSE reconstructions they lead to.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This lesson compares three ways of estimating the receive sensitivities of a coil array from the undersampled acquisition itself, and shows how the size of the fully sampled calibration region decides which of them can be used. A SENSE reconstruction [#sense]_ inverts">
 
 .. only:: html
 
@@ -46,7 +48,7 @@ prewhitening.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Estimating the image and the coil sensitivities together, from undersampled data whose fully sampled central region is too small for a separate calibration.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an image and the coil sensitivities together from undersampled data whose fully sampled central region is too small for a separate calibration, and then writes the same reconstruction out as a nonlinear operator and a Gauss-Newton solver.">
 
 .. only:: html
 
@@ -63,7 +65,7 @@ prewhitening.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The effect of channel-noise correlation on a SENSE reconstruction, and its removal by prewhitening with a noise measurement.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This lesson measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers.">
 
 .. only:: html
 

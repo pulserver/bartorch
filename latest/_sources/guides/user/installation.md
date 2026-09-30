@@ -23,6 +23,7 @@ extras:
 ```bash
 python -m pip install 'bartorch[mkl]'        # Linux x86-64: MKL for BLAS, LAPACK and FFT
 python -m pip install 'bartorch[deepinv]'    # bartorch.interop.to_deepinv
+python -m pip install 'bartorch[learning]'   # Lightning and TorchIO, for bartorch.learning.training
 python -m pip install 'bartorch[correct]'    # SimpleITK, for bias field and gradient nonlinearity correction
 python -m pip install 'bartorch[motion]'     # SimpleITK, for navigator registration
 python -m pip install 'bartorch[pyhysco]'    # PyHySCO (GPL-3.0-only), for susceptibility correction

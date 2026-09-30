@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Operators and solvers" href="02-operators-and-solvers.html" />
-    <link rel="prev" title="Regularization" href="index.html" />
+    <link rel="prev" title="Noise prewhitening" href="../02-parallel-imaging/03-noise-prewhitening.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -502,14 +522,21 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-03-regularization-01-regularized-reconstruction-py"></span><h1>Regularized reconstruction<a class="headerlink" href="#regularized-reconstruction" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/03-regularization/01-regularized-reconstruction.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>Three regularization terms applied to the same undersampled SENSE problem,
-and the dependence of the reconstruction error on the regularization weight.</p>
-<p>An undersampled, noisy acquisition does not determine the image, and a
-reconstruction adds prior information as a penalty:</p>
+<p>This lesson compares three regularization terms on the same undersampled,
+noisy SENSE acquisition, shows how the choice of the regularization weight
+trades residual noise and aliasing against loss of detail, and combines two
+terms in one reconstruction.</p>
+<p>At high acceleration, or low SNR, the SENSE problem is ill-conditioned: the
+encoding does not determine the image, and a plain least-squares fit amplifies
+the noise by the g-factor. A reconstruction therefore adds prior knowledge
+about the image as a penalty,</p>
 <div class="math notranslate nohighlight">
 \[\hat{x} = \arg\min_x \tfrac12 \| A x - y \|_2^2 + \lambda\, g(G x),\]</div>
 <p>with <span class="math notranslate nohighlight">\(A\)</span> the SENSE encoding, <span class="math notranslate nohighlight">\(g\)</span> a convex functional,
 <span class="math notranslate nohighlight">\(G\)</span> a linear transform and <span class="math notranslate nohighlight">\(\lambda\)</span> the regularization weight.
+Tikhonov regularization favours a small image, a wavelet <span class="math notranslate nohighlight">\(\ell_1\)</span>
+penalty an image that is sparse in a wavelet basis, as in compressed sensing,
+and total variation (TV) an image that is piecewise constant.
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> provides BART’s terms <span class="math notranslate nohighlight">\(g(Gx)\)</span> as objects, and
 <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> solves the problem with the iteration each term
 admits. <a class="reference internal" href="../../explanation/inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a> introduces the formulation
@@ -519,9 +546,9 @@ and the algorithms.</p>
 <li><p>Pass regularization terms from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> to
 <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a>, and choose a solver the term admits.</p></li>
 <li><p>Compare Tikhonov, wavelet <span class="math notranslate nohighlight">\(\ell_1\)</span> and total-variation
-regularization on the same data.</p></li>
+regularization on the same data, by their images and error maps.</p></li>
 <li><p>Select a regularization weight by the error against a reference, and
-interpret the trade-off between residual noise and loss of detail.</p></li>
+recognize under- and over-regularization in the image.</p></li>
 <li><p>Combine two terms in one reconstruction.</p></li>
 </ul>
 <p>The previous lessons, <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a> and
@@ -551,13 +578,13 @@ sensitivities; the cell that builds both is hidden on this page and present in
 the script this page can be downloaded as.</p>
 <section id="acquisition">
 <h2>Acquisition<a class="headerlink" href="#acquisition" title="Link to this heading">#</a></h2>
-<p>A quarter of the phase encodes, drawn at random from a variable density
-around a fully sampled calibration region of 24 lines, as in
+<p>A quarter of the phase encodes (<span class="math notranslate nohighlight">\(R = 4\)</span>), drawn at random from a
+variable density around a fully sampled ACS region of 24 lines, as in
 <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>. The noise is a hundred times
 stronger than in that lesson: complex Gaussian noise of variance
 <span class="math notranslate nohighlight">\(10^{-3}\)</span> per sample of the unitary transform of an image whose peak
-is one, so that noise amplification, and not only aliasing, determines the
-error of an unregularized reconstruction.</p>
+is one. At this level noise amplification, and not only aliasing, determines
+the error of an unregularized reconstruction.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">kspace</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">sensitivities</span> <span class="o">*</span> <span class="n">image</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">encodes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="w">
@@ -580,81 +607,91 @@ error of an unregularized reconstruction.</p>
 <p>Tikhonov regularization, <span class="math notranslate nohighlight">\(g(x) = \tfrac12\|x\|_2^2\)</span>, is the <code class="docutils literal notranslate"><span class="pre">l2</span></code>
 argument of <code class="docutils literal notranslate"><span class="pre">pics</span></code> and keeps the problem quadratic, so conjugate gradients
 solve it. The wavelet term <span class="math notranslate nohighlight">\(\|\Psi x\|_1\)</span> promotes an image whose
-wavelet coefficients are sparse <a class="footnote-reference brackets" href="#lustig" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>; its transform is inside its
-proximal operator, so FISTA <a class="footnote-reference brackets" href="#beck" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> applies it. Total variation,
-<span class="math notranslate nohighlight">\(\sum_r \|(\nabla x)_r\|_2\)</span>, promotes a piecewise-constant image
-<a class="footnote-reference brackets" href="#block" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>; its transform <span class="math notranslate nohighlight">\(\nabla\)</span> is not, so it requires a splitting
-method, here ADMM <a class="footnote-reference brackets" href="#boyd" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>. The axes of a term are the tensor axes it acts
-along, here the two spatial axes.</p>
-<p>The weights are the ones that minimize the error of each term in the sweep
-further down. They are relative to the data divided by the scaling
-<a class="reference internal" href="../../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> estimates, which <code class="docutils literal notranslate"><span class="pre">pics</span></code> applies, so the
-same weight means the same thing for data of a different overall scale.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">reconstructions</span> <span class="o">=</span> <span class="p">{</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">Tikhonov</span><span class="s2">&quot;</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">wavelet</span><span class="s2">&quot;</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="w">
-</span>        <span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">regularizers</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">)</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">fista</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="w">
-</span>    <span class="p">)</span><span class="p">,</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">total variation</span><span class="s2">&quot;</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="w">
-</span>        <span class="n">measured</span><span class="p">,</span><span class="w">
-</span>        <span class="n">maps</span><span class="p">,</span><span class="w">
-</span>        <span class="n">regularizers</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">priors</span><span class="o">.</span><span class="n">TotalVariation</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>        <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">admm</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
-</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span><span class="w">
-</span>    <span class="p">)</span><span class="p">,</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="n">reconstructions</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">error</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span>    <span class="n">similarity</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><span class="n">bt</span><span class="o">.</span><span class="n">ssim</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;16</span><span class="si">}</span><span class="s2">  NRMSE </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  SSIM </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>       Tikhonov  NRMSE 0.128  SSIM 0.711
-        wavelet  NRMSE 0.099  SSIM 0.791
-total variation  NRMSE 0.100  SSIM 0.850
-</pre></div>
-</div>
-<img src="../../_images/sphx_glr_01-regularized-reconstruction_001.png" srcset="../../_images/sphx_glr_01-regularized-reconstruction_001.png" alt="4x undersampled, noisy, phantom, Tikhonov, wavelet, total variation" class = "sphx-glr-single-img"/><p>The Tikhonov reconstruction retains noise and the incoherent aliasing of the
-random sampling across the whole image. Both sparsity-promoting terms reduce
-them; the wavelet term leaves a faint blockiness at the scale of its coarsest
-wavelets, and total variation flattens the gradual intensity variation within
-white matter into patches of constant intensity.</p>
-</section>
-<section id="the-regularization-weight">
-<h2>The regularization weight<a class="headerlink" href="#the-regularization-weight" title="Link to this heading">#</a></h2>
-<p>A weight that is too small leaves the noise in; one that is too large
-removes image detail with it, and the error against the reference has a
-minimum between the two. The sweep below spans a factor of sixteen for each
-term. It is possible here because the phantom is known; for measured data
-the weight is chosen by a criterion that does not require the reference, or
-fixed once for a protocol.</p>
+wavelet coefficients are sparse <a class="footnote-reference brackets" href="#lustig" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>; its transform is orthogonal and
+is applied inside its proximal operator, so FISTA <a class="footnote-reference brackets" href="#beck" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> solves it. Total
+variation, <span class="math notranslate nohighlight">\(\sum_r \|(\nabla x)_r\|_2\)</span>, promotes a piecewise-constant
+image <a class="footnote-reference brackets" href="#block" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>; the finite-difference operator <span class="math notranslate nohighlight">\(\nabla\)</span> has no such
+closed-form proximal operator, so TV requires a splitting method, here ADMM
+<a class="footnote-reference brackets" href="#boyd" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>. The axes of a term are the tensor axes it acts along, here the two
+spatial axes.</p>
+<p>Each term is run over a range of weights. The weights are relative to the
+data divided by the scaling <a class="reference internal" href="../../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> estimates,
+which <code class="docutils literal notranslate"><span class="pre">pics</span></code> applies, so the same weight means the same thing for data of
+a different overall scale.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">sweeps</span> <span class="o">=</span> <span class="p">{</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">Tikhonov</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span><span class="p">,</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">wavelet</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span><span class="p">,</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">total variation</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">Tikhonov</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">wavelet</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">total variation</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">]</span><span class="p">,</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span><span class="w">
 </span><span class="w">
 </span><span class="k">def</span><span class="w"> </span><span class="nf">reconstruct</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s2">Tikhonov</span><span class="s2">&quot;</span><span class="p">:</span><span class="w">
-</span>        <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="w">
+</span>        <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="w">
 </span>    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s2">wavelet</span><span class="s2">&quot;</span><span class="p">:</span><span class="w">
 </span>        <span class="n">term</span><span class="p">,</span> <span class="n">solver</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">fista</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="k">else</span><span class="p">:</span><span class="w">
 </span>        <span class="n">term</span><span class="p">,</span> <span class="n">solver</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">priors</span><span class="o">.</span><span class="n">TotalVariation</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">admm</span><span class="s2">&quot;</span><span class="w">
-</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">regularizers</span><span class="o">=</span><span class="n">term</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">regularizers</span><span class="o">=</span><span class="n">term</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
-</span><span class="n">errors</span> <span class="o">=</span> <span class="p">{</span><span class="w">
-</span>    <span class="n">name</span><span class="p">:</span> <span class="p">[</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span><span class="w">
+</span><span class="n">reconstructions</span> <span class="o">=</span> <span class="p">{</span><span class="w">
+</span>    <span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">weight</span><span class="p">:</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">}</span><span class="w">
 </span>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">weights</span> <span class="ow">in</span> <span class="n">sweeps</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="p">}</span><span class="w">
+</span><span class="n">errors_by_weight</span> <span class="o">=</span> <span class="p">{</span><span class="w">
+</span>    <span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">w</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">}</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">results</span> <span class="ow">in</span> <span class="n">reconstructions</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="n">best</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">errors_by_weight</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">best</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">estimate</span> <span class="o">=</span> <span class="n">reconstructions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="p">[</span><span class="n">weight</span><span class="p">]</span><span class="w">
+</span>    <span class="n">error</span> <span class="o">=</span> <span class="n">errors_by_weight</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="p">[</span><span class="n">weight</span><span class="p">]</span><span class="w">
+</span>    <span class="n">similarity</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><span class="n">bt</span><span class="o">.</span><span class="n">ssim</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;16</span><span class="si">}</span><span class="s2">  weight </span><span class="si">{</span><span class="n">weight</span><span class="si">:</span><span class="s2">&lt;6</span><span class="si">}</span><span class="s2">  NRMSE </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  SSIM </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_01-regularized-reconstruction_002.png" srcset="../../_images/sphx_glr_01-regularized-reconstruction_002.png" alt="01 regularized reconstruction" class = "sphx-glr-single-img"/><p>Each curve has an interior minimum. The weights of the Tikhonov term and of
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>       Tikhonov  weight 0.1     NRMSE 0.128  SSIM 0.711
+        wavelet  weight 0.012   NRMSE 0.099  SSIM 0.789
+total variation  weight 0.012   NRMSE 0.109  SSIM 0.815
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-regularized-reconstruction_001.png" srcset="../../_images/sphx_glr_01-regularized-reconstruction_001.png" alt="R = 4, noisy, each at its best weight, reference, Tikhonov, $\lambda$ = 0.1, wavelet, $\lambda$ = 0.012, total variation, $\lambda$ = 0.012" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-regularized-reconstruction_002.png" srcset="../../_images/sphx_glr_01-regularized-reconstruction_002.png" alt="error magnitude, Tikhonov, wavelet, total variation" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-regularized-reconstruction_003.png" srcset="../../_images/sphx_glr_01-regularized-reconstruction_003.png" alt="enlarged: posterior cortex, reference, Tikhonov, wavelet, total variation" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The Tikhonov reconstruction retains amplified noise and the incoherent
+aliasing of the random sampling across the whole head: a quadratic penalty
+that is strong enough to suppress them also blurs the image, so its best
+weight leaves them in. Both sparsity-promoting terms remove most of the
+noise while keeping the tissue boundaries, which the error maps show as a
+much darker background inside the brain. They differ in their residual
+artefacts: in the enlarged region the wavelet penalty leaves a blotchy
+residual texture in white matter, and total variation renders the gradual
+intensity variations within white matter as patches of constant intensity
+(staircasing).</p>
+</section>
+<section id="the-regularization-weight">
+<h2>The regularization weight<a class="headerlink" href="#the-regularization-weight" title="Link to this heading">#</a></h2>
+<p>A weight that is too small leaves the noise in; one that is too large
+removes image detail with it, and the error against the reference has a
+minimum between the two. The sweep above spans a factor of ten or more
+for each term. It is possible here because the phantom is known; for
+measured data the weight is chosen by a criterion that does not require the
+reference, or fixed once for a protocol.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-regularized-reconstruction_004.png" srcset="../../_images/sphx_glr_01-regularized-reconstruction_004.png" alt="01 regularized reconstruction" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-regularized-reconstruction_005.png" srcset="../../_images/sphx_glr_01-regularized-reconstruction_005.png" alt="total variation: under- and over-regularization, enlarged, TV, $\lambda$ = 0.002 (too small), TV, $\lambda$ = 0.012 (best), TV, $\lambda$ = 0.04 (too large)" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>Each curve has an interior minimum. The weights of the Tikhonov term and of
 the two <span class="math notranslate nohighlight">\(\ell_1\)</span> terms are not comparable with each other, because the
 functionals differ; only the location of each minimum is meaningful. At its
 minimum each sparsity-promoting term reaches a lower error than Tikhonov
 regularization at its own minimum, for this image and this noise level.</p>
+<p>The three TV reconstructions show the two failure modes. At the smallest
+weight the noise and the incoherent aliasing remain; at the largest the
+cortex is flattened into patches of constant intensity and thin gyri merge.</p>
 </section>
 <section id="combining-terms">
 <h2>Combining terms<a class="headerlink" href="#combining-terms" title="Link to this heading">#</a></h2>
@@ -664,13 +701,16 @@ combination; FISTA accepts only terms whose transform is the identity.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">combined</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="w">
 </span>    <span class="n">measured</span><span class="p">,</span><span class="w">
 </span>    <span class="n">maps</span><span class="p">,</span><span class="w">
-</span>    <span class="n">regularizers</span><span class="o">=</span><span class="p">[</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">)</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">priors</span><span class="o">.</span><span class="n">TotalVariation</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">)</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="n">regularizers</span><span class="o">=</span><span class="p">[</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">best</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">wavelet</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">priors</span><span class="o">.</span><span class="n">TotalVariation</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">best</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">total variation</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="p">]</span><span class="p">,</span><span class="w">
 </span>    <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">admm</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
-</span>    <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span><span class="w">
+</span>    <span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">wavelet + TV  NRMSE </span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">combined</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>wavelet + TV  NRMSE 0.103
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>wavelet + TV  NRMSE 0.114
 </pre></div>
 </div>
 <p>With each weight halved the sum reaches an error comparable to either term
@@ -716,7 +756,7 @@ statistical learning via the alternating direction method of multipliers.
 <em>Found Trends Mach Learn</em> 3(1):1-122 (2011). <a class="reference external" href="https://doi.org/10.1561/2200000016">https://doi.org/10.1561/2200000016</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.738 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.645 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-regularization-01-regularized-reconstruction-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/6337fdae570adba1d95ce13abcf7de64/01-regularized-reconstruction.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-regularized-reconstruction.ipynb</span></code></a></p>
@@ -744,12 +784,12 @@ statistical learning via the alternating direction method of multipliers.
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../02-parallel-imaging/03-noise-prewhitening.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Regularization</p>
+        <p class="prev-next-title">Noise prewhitening</p>
       </div>
     </a>
     <a class="right-next"

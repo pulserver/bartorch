@@ -67,8 +67,8 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API reference" href="../../api/index.html" />
-    <link rel="prev" title="Off-resonance blurring in spirals" href="05-spiral-deblurring.html" />
+    <link rel="next" title="Susceptibility distortion in EPI" href="07-epi-susceptibility-distortion.html" />
+    <link rel="prev" title="Off-resonance correction of spiral imaging" href="05-spiral-deblurring.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -502,19 +522,32 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-07-tours-06-navigator-motion-py"></span><h1>Rigid head motion from navigators<a class="headerlink" href="#rigid-head-motion-from-navigators" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/07-tours/06-navigator-motion.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>Six-degree-of-freedom rigid head motion measured from three orthogonal
-radial navigator planes, and carried across a scan by a Kalman filter, with
-the rigid-motion functions of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code>.</p>
-<p>A navigator is a short, low-resolution acquisition interleaved with the
-imaging readouts, reconstructed and registered against the first navigator of
-the scan to measure how the head has moved since <a class="footnote-reference brackets" href="#ehman" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. A 2D plane
-measures three of the six degrees of freedom: the rotation about its normal
-and the translations along its two in-plane axes. Three orthogonal planes
-measure each rotation once and each translation twice, and the rigid pose is
-solved from the nine measurements by least squares. Between navigators, a
-constant-velocity extended Kalman filter predicts the pose and weighs each new
-measurement against the prediction, as in PROMO <a class="footnote-reference brackets" href="#promo" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, which tracks the
-head with three orthogonal spiral navigators.</p>
+<p>Head motion during a scan changes the position of the anatomy between the
+readouts that encode it, and the image acquires blurring and ghosting.
+Prospective correction updates the imaging field of view with the measured
+head pose before each readout; it requires a measurement of the rigid pose
+with six degrees of freedom, repeated during the scan. A navigator is a
+short, low-resolution acquisition interleaved with the imaging readouts, and
+its registration against the first navigator of the scan measures how the
+head has moved since <a class="footnote-reference brackets" href="#ehman" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>This example measures the rigid pose of a BrainWeb head from three
+orthogonal radial navigator planes, compares the navigator after motion and
+after the measured pose is applied with the reference navigator, and tracks a
+nodding and drifting head over a 12 s scan with a constant-velocity extended
+Kalman filter, as in PROMO <a class="footnote-reference brackets" href="#promo" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, which tracks the head with three
+orthogonal spiral navigators.</p>
+<p><strong>Learning objectives</strong></p>
+<ul class="simple">
+<li><p>Relate each 2D navigator plane to the three degrees of freedom it measures,
+and the rigid pose to the nine measurements of three orthogonal planes.</p></li>
+<li><p>Reconstruct radial navigator planes with
+<a class="reference internal" href="../../generated/bartorch.tools.reconstruct_navigator.html#bartorch.tools.reconstruct_navigator" title="bartorch.tools.reconstruct_navigator"><code class="xref py py-func docutils literal notranslate"><span class="pre">reconstruct_navigator()</span></code></a> and measure the pose with
+<a class="reference internal" href="../../generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker" title="bartorch.tools.NavigatorMotionTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">NavigatorMotionTracker</span></code></a>.</p></li>
+<li><p>Assess a measured pose by the residual between the navigator and the
+navigator of the head moved by that pose.</p></li>
+<li><p>Set the filter’s process and measurement noise against the precision of the
+navigator and the dynamics of the motion.</p></li>
+</ul>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mri</span><span class="w">
@@ -527,10 +560,10 @@ head with three orthogonal spiral navigators.</p>
 <section id="the-head">
 <h2>The head<a class="headerlink" href="#the-head" title="Link to this heading">#</a></h2>
 <p>A BrainWeb T1-weighted volume <a class="footnote-reference brackets" href="#brainweb" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, downsampled to 2 mm isotropic
-and padded to <span class="math notranslate nohighlight">\(112^3\)</span>. Array axis 0 runs inferior to superior, axis 1
-posterior to anterior and axis 2 left to right; poses below are stated in
-that frame, rotations in radians about the volume’s centre and translations
-in millimetres.</p>
+and padded to <span class="math notranslate nohighlight">\(112^3\)</span>. Array axis 0 runs inferior to superior (S/I),
+axis 1 posterior to anterior (A/P) and axis 2 left to right (L/R). Poses are
+stated in that frame: a rotation vector in radians about the centre of the
+volume, printed in degrees, and a translation in millimetres.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">VOXEL_MM</span> <span class="o">=</span> <span class="mf">2.0</span><span class="w">
 </span><span class="w">
 </span><span class="w">
@@ -542,36 +575,6 @@ in millimetres.</p>
 </span>        <span class="n">volume</span><span class="p">,</span> <span class="n">rotation</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">centre</span> <span class="o">-</span> <span class="n">rotation</span><span class="o">.</span><span class="n">T</span> <span class="o">&#64;</span> <span class="p">(</span><span class="n">centre</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.34kB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 265kB [00:00, 995kB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.20MB [00:00, 3.97MB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.72MB [00:00, 7.78MB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.65MB [00:00, 8.39MB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.54MB [00:00, 8.69MB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.44MB [00:00, 8.80MB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.32MB [00:00, 8.58MB/s]
-
-
-Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.17MB [00:01, 8.15MB/s]
-</pre></div>
-</div>
 </section>
 <section id="the-navigator">
 <h2>The navigator<a class="headerlink" href="#the-navigator" title="Link to this heading">#</a></h2>
@@ -632,32 +635,71 @@ navigator it is given as the reference and returns the pose of every later
 one relative to it. Each plane is registered in 2D by
 <a class="reference internal" href="../../generated/bartorch.tools.RigidRegistration.html#bartorch.tools.RigidRegistration" title="bartorch.tools.RigidRegistration"><code class="xref py py-class docutils literal notranslate"><span class="pre">RigidRegistration</span></code></a>; the pose is the
 least-squares solution over the three planes.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">rotvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="mf">0.02</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span><span class="p">)</span><span class="w">
-</span><span class="n">translation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]</span><span class="p">)</span><span class="w">
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">rotvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="mf">0.02</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span><span class="p">)</span>  <span class="c1"># rad</span><span class="w">
+</span><span class="n">translation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]</span><span class="p">)</span>  <span class="c1"># mm</span><span class="w">
 </span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker" title="bartorch.tools.NavigatorMotionTracker"><span class="n">tracker</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker" title="bartorch.tools.NavigatorMotionTracker"><span class="n">bt</span><span class="o">.</span><span class="n">NavigatorMotionTracker</span></a><span class="p">(</span><span class="n">measurement_noise</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-method reference internal" href="../../generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.track" title="bartorch.tools.NavigatorMotionTracker.track"><span class="n">tracker</span><span class="o">.</span><span class="n">track</span></a><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">AXES</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">SPACING_MM</span><span class="p">)</span><span class="w">
-</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate" title="bartorch.tools.RigidMotionEstimate"><span class="n">pose</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-method reference internal" href="../../generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.track" title="bartorch.tools.NavigatorMotionTracker.track"><span class="n">tracker</span><span class="o">.</span><span class="n">track</span></a><span class="p">(</span><span class="n">navigator</span><span class="p">(</span><span class="n">move</span><span class="p">(</span><span class="n">rotvec</span><span class="p">,</span> <span class="n">translation</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">AXES</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">SPACING_MM</span><span class="p">)</span><span class="w">
+</span><span class="n">moved</span> <span class="o">=</span> <span class="n">navigator</span><span class="p">(</span><span class="n">move</span><span class="p">(</span><span class="n">rotvec</span><span class="p">,</span> <span class="n">translation</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate" title="bartorch.tools.RigidMotionEstimate"><span class="n">pose</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-method reference internal" href="../../generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.track" title="bartorch.tools.NavigatorMotionTracker.track"><span class="n">tracker</span><span class="o">.</span><span class="n">track</span></a><span class="p">(</span><span class="n">moved</span><span class="p">,</span> <span class="n">AXES</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">SPACING_MM</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">measured_rotvec</span> <span class="o">=</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate.matrix" title="bartorch.tools.RigidMotionEstimate.matrix"><span class="n">pose</span><span class="o">.</span><span class="n">matrix</span></a><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="p">)</span><span class="o">.</span><span class="n">as_rotvec</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">rotation vector, rad   truth</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rotvec</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2"> measured</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">measured_rotvec</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">translation, mm        truth</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">translation</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2"> measured</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate.translation" title="bartorch.tools.RigidMotionEstimate.translation"><span class="n">pose</span><span class="o">.</span><span class="n">translation</span></a><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">
-</span><span class="p">)</span><span class="w">
+</span><span class="n">measured_translation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate.translation" title="bartorch.tools.RigidMotionEstimate.translation"><span class="n">pose</span><span class="o">.</span><span class="n">translation</span></a><span class="p">)</span><span class="w">
+</span><span class="n">NAMES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">S/I</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">A/P</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">L/R</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">'</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'</span><span class="s1">truth</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'</span><span class="s1">measured</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">NAMES</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">rotation </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">rotvec</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="p">)</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2">° </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">measured_rotvec</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="p">)</span><span class="si">:</span><span class="s2">8.2f</span><span class="si">}</span><span class="s2">°</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">NAMES</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">shift    </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">translation</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="si">:</span><span class="s2">5.1f</span><span class="si">}</span><span class="s2"> mm </span><span class="si">{</span><span class="n">measured_translation</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rotation vector, rad   truth [ 0.02 -0.03  0.05]  measured [ 0.0249 -0.0252  0.0439]
-translation, mm        truth [ 3. -2.  4.]  measured [ 3.37 -2.66  3.65]
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>                 truth  measured
+rotation   S/I   1.15°     1.41°
+rotation   A/P  -1.72°    -1.44°
+rotation   L/R   2.86°     2.51°
+shift      S/I   3.0 mm   3.37 mm
+shift      A/P  -2.0 mm  -2.66 mm
+shift      L/R   4.0 mm   3.65 mm
 </pre></div>
 </div>
-<p>The residual error, a few milliradians and a few tenths of a millimetre, has
-two sources: the navigator’s 4 mm resolution, and the out-of-plane motion,
-which each plane sees as a change of the anatomy in it rather than as a
-rigid motion within it.</p>
+<p>The measured pose is assessed on the navigator itself: the head moved by the
+measured pose, navigated again, is compared with the navigator after the
+motion. Without correction, the difference is that of the motion; with the
+measured pose, what remains is the error of the pose.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">realigned</span> <span class="o">=</span> <span class="n">navigator</span><span class="p">(</span><span class="n">move</span><span class="p">(</span><span class="n">measured_rotvec</span><span class="p">,</span> <span class="n">measured_translation</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">nrmse</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">estimate</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">target</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">for</span> <span class="n">plane</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="w">
+</span>    <span class="p">(</span><span class="s2">&quot;</span><span class="s2">axial</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">coronal</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">sagittal</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">realigned</span><span class="p">,</span> <span class="n">moved</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="w">
+</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">plane</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">: NRMSE against the moved navigator, reference </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">before</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">measured pose </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">after</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>   axial: NRMSE against the moved navigator, reference 0.335, measured pose 0.051
+ coronal: NRMSE against the moved navigator, reference 0.332, measured pose 0.049
+sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.066
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_06-navigator-motion_002.png" srcset="../../_images/sphx_glr_06-navigator-motion_002.png" alt="axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.051, moved - measured pose NRMSE 0.049, moved - measured pose NRMSE 0.066" class = "sphx-glr-single-img"/><p>The residual error of the pose, a fraction of a degree and of a millimetre,
+has two sources: the navigator’s 4 mm resolution, and the
+through-plane motion, which each plane sees as a change of the anatomy in it
+rather than as a rigid motion within it. It is a small fraction of the 4 mm
+navigator voxel, and the residual difference is confined to the edges of the
+head.</p>
 </section>
 <section id="a-scan">
 <h2>A scan<a class="headerlink" href="#a-scan" title="Link to this heading">#</a></h2>
-<p>The head nods about the left-right axis and drifts along the
-inferior-superior axis over 12 s, with a navigator every 0.5 s. Each
+<p>The head nods, a rotation about the left-right axis, by up to 2.3° with a
+period of 8 s, and drifts by 3 mm along the superior-inferior axis over
+12 s, with a navigator every 0.5 s. Each
 navigator carries complex Gaussian k-space noise, so each measured pose
 carries registration error. The filter’s <code class="docutils literal notranslate"><span class="pre">process_noise</span></code> is the variance
 of the acceleration it allows between navigators, per pose coordinate, in
@@ -666,8 +708,8 @@ measured coordinate. The trace is filtered with three values of
 <code class="docutils literal notranslate"><span class="pre">process_noise</span></code>; the largest leaves the filter at the measurements.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">DT</span><span class="p">,</span> <span class="n">COUNT</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">24</span><span class="w">
 </span><span class="n">seconds</span> <span class="o">=</span> <span class="n">DT</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">COUNT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="w">
-</span><span class="n">nod</span> <span class="o">=</span> <span class="mf">0.04</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">seconds</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># rad, about axis 2</span><span class="w">
-</span><span class="n">drift</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">seconds</span> <span class="o">/</span> <span class="n">seconds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># mm, along axis 0</span><span class="w">
+</span><span class="n">nod</span> <span class="o">=</span> <span class="mf">0.04</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">seconds</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># rad, about L/R</span><span class="w">
+</span><span class="n">drift</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">seconds</span> <span class="o">/</span> <span class="n">seconds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># mm, along S/I</span><span class="w">
 </span><span class="n">truth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="p">(</span><span class="n">COUNT</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="n">truth</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="p">,</span> <span class="n">truth</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">nod</span><span class="p">,</span> <span class="n">drift</span><span class="w">
 </span><span class="w">
@@ -696,23 +738,25 @@ measured coordinate. The trace is filtered with three values of
 </span><span class="w">
 </span><span class="w">
 </span><span class="n">traces</span> <span class="o">=</span> <span class="p">{</span><span class="n">noise</span><span class="p">:</span> <span class="n">track</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span> <span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="p">(</span><span class="mf">1e2</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span><span class="p">}</span><span class="w">
-</span><span class="k">for</span> <span class="n">noise</span><span class="p">,</span> <span class="n">trace</span> <span class="ow">in</span> <span class="n">traces</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">(</span><span class="n">trace</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span> <span class="o">*</span><span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">rms</span> <span class="o">=</span> <span class="p">{</span><span class="n">noise</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">(</span><span class="n">trace</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span> <span class="o">*</span><span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="p">)</span> <span class="k">for</span> <span class="n">noise</span><span class="p">,</span> <span class="n">trace</span> <span class="ow">in</span> <span class="n">traces</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span> <span class="n">noise</span><span class="p">,</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">rms</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="w">
-</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">process_noise </span><span class="si">{</span><span class="n">noise</span><span class="si">:</span><span class="s2">&lt;6g</span><span class="si">}</span><span class="s2"> rotation rms error </span><span class="si">{</span><span class="n">rms</span><span class="p">[</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="si">}</span><span class="s2"> rad</span><span class="s2">&quot;</span><span class="w">
-</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">   translation rms error </span><span class="si">{</span><span class="n">rms</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">process_noise </span><span class="si">{</span><span class="n">noise</span><span class="si">:</span><span class="s2">&lt;6g</span><span class="si">}</span><span class="s2"> rms error: rotation </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="o">+</span> <span class="s2">&quot;</span><span class="s2">, </span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">NAMES</span><span class="p">,</span> <span class="n">error</span><span class="p">[</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>        <span class="o">+</span> <span class="s2">&quot;</span><span class="s2">; shift </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="o">+</span> <span class="s2">&quot;</span><span class="s2">, </span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">NAMES</span><span class="p">,</span> <span class="n">error</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="p">]</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rotation rms error [0.0082 0.0064 0.007 ] rad   translation rms error [0.19 0.42 0.19] mm
-process_noise 0.001  rotation rms error [0.0074 0.0051 0.0063] rad   translation rms error [0.16 0.41 0.15] mm
-process_noise 0.0001 rotation rms error [0.0071 0.0041 0.0105] rad   translation rms error [0.15 0.42 0.13] mm
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>process_noise 100    rms error: rotation S/I 74.31°, A/P 5.05°, L/R 5.00°; shift S/I 0.19 mm, A/P 1.84 mm, L/R 2.86 mm
+process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.30°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
+process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_06-navigator-motion_002.png" srcset="../../_images/sphx_glr_06-navigator-motion_002.png" alt="rotation about axis 2, mrad, translation along axis 0, mm" class = "sphx-glr-single-img"/><p>A large <code class="docutils literal notranslate"><span class="pre">process_noise</span></code> leaves the filter at the measurements; a small one
+<img src="../../_images/sphx_glr_06-navigator-motion_003.png" srcset="../../_images/sphx_glr_06-navigator-motion_003.png" alt="nod: rotation about L/R, drift: shift along S/I" class = "sphx-glr-single-img"/><p>A large <code class="docutils literal notranslate"><span class="pre">process_noise</span></code> leaves the filter at the measurements; a small one
 makes it trust its constant-velocity prediction, which smooths the
 registration error and lags a change of direction: at <code class="docutils literal notranslate"><span class="pre">1e-4</span></code> the error of
-the nod grows while that of the other coordinates falls. An error
-common to every navigator, such as the offset along axis 1, is a bias of the
+the nod grows while that of the other coordinates falls. An error common to
+every navigator, such as the offset of the A/P shift, is a bias of the
 measurement and is not reduced by any value. The value that minimizes the
 error depends on the motion and on the navigator’s precision, and is set
 against a motion trace of the application.</p>
@@ -741,7 +785,7 @@ Evans AC. Design and construction of a realistic digital brain phantom.
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.475 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.537 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-06-navigator-motion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0237a94056ab625458d97bb6b88710fb/06-navigator-motion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">06-navigator-motion.ipynb</span></code></a></p>
@@ -774,15 +818,15 @@ Evans AC. Design and construction of a realistic digital brain phantom.
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Off-resonance blurring in spirals</p>
+        <p class="prev-next-title">Off-resonance correction of spiral imaging</p>
       </div>
     </a>
     <a class="right-next"
-       href="../../api/index.html"
+       href="07-epi-susceptibility-distortion.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API reference</p>
+        <p class="prev-next-title">Susceptibility distortion in EPI</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

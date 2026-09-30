@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -505,9 +525,14 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-06-learning-02-modl-with-admm-py"></span><h1>MoDL, on BART’s ADMM<a class="headerlink" href="#modl-on-bart-s-admm" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/06-learning/02-modl-with-admm.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>An unrolled network for undersampled Cartesian SENSE: a convolutional denoiser
-in the proximal step of BART’s alternating-direction iteration, trained end to
-end against fully sampled images.</p>
+<p>This lesson trains an unrolled reconstruction network for undersampled
+Cartesian SENSE: a small convolutional denoiser placed in the proximal step of
+BART’s alternating-direction iteration, with the whole iteration trained end
+to end against fully sampled images. The aim is to show how a learned
+regularizer is combined with the physical encoding model – coil
+sensitivities, Fourier transform and sampling pattern – so that the network
+only has to remove what the data leave undetermined, and how such a network is
+trained with standard tools.</p>
 <p>MoDL <a class="footnote-reference brackets" href="#modl" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> writes a reconstruction as an alternation between a learned denoiser and a
 data-consistency step, and trains the denoiser through it. As published the
 alternation is half-quadratic splitting, which is</p>
@@ -769,7 +794,7 @@ reconstruction that produced it.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:12 • 0:00:00 0.98it/s loss: 0.000 psnr:
+Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:07 • 0:00:00 1.60it/s loss: 0.000 psnr:
                                                                32.748 ssim:
                                                                0.890
 rho ended at 0.027
@@ -826,7 +851,21 @@ a manually chosen weight, supports no conclusion about either on measured
 data. A quantitative comparison would
 require many subjects, validation on subjects excluded from training, and a
 fixed reconstruction time.</p>
-<img src="../../_images/sphx_glr_02-modl-with-admm_001.png" srcset="../../_images/sphx_glr_02-modl-with-admm_001.png" alt="two validation slices, 3.8-fold undersampled, truth, adjoint, CG SENSE, ADMM, wavelet, MoDL, K=5" class = "sphx-glr-single-img"/></section>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_02-modl-with-admm_001.png" srcset="../../_images/sphx_glr_02-modl-with-admm_001.png" alt="a validation slice, 3.8-fold undersampled, reference, adjoint, ADMM, wavelet, MoDL, K=5" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-modl-with-admm_002.png" srcset="../../_images/sphx_glr_02-modl-with-admm_002.png" alt="error magnitude, CG SENSE, ADMM, wavelet, MoDL, K=5" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-modl-with-admm_003.png" srcset="../../_images/sphx_glr_02-modl-with-admm_003.png" alt="enlarged, reference, CG SENSE, ADMM, wavelet, MoDL, K=5" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The adjoint shows the aliasing of the random undersampling and the noise.
+CG-SENSE removes most of the aliasing and amplifies the noise, most visibly
+in the error map. The wavelet penalty and the unrolled network both suppress
+the noise and leave their largest errors at the bright, thin scalp. After
+fifteen epochs the network, with five iterations, is close to the wavelet
+penalty with fifty: the two images differ little in the enlarged region.
+The network sees the data only through the x-update of each iteration,
+which holds the image to the measured k-space, so what it contributes is
+limited to what the undersampling and the noise leave undetermined.</p>
+</section>
 <section id="differentiating-a-deeper-stack">
 <h2>Differentiating a deeper stack<a class="headerlink" href="#differentiating-a-deeper-stack" title="Link to this heading">#</a></h2>
 <p>Five iterations of a two-dimensional encoding record a graph of modest size.
@@ -916,7 +955,7 @@ Information Processing Systems</em> 32:688-699 (2019).
 <a class="reference external" href="https://arxiv.org/abs/1909.01377">https://arxiv.org/abs/1909.01377</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 37.793 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 13.512 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-02-modl-with-admm-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/42594de98a240394ccc806510fa4d388/02-modl-with-admm.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-modl-with-admm.ipynb</span></code></a></p>

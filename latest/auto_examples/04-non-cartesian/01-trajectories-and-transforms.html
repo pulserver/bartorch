@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Radial SENSE reconstruction" href="02-radial-sense.html" />
-    <link rel="prev" title="Non-Cartesian imaging" href="index.html" />
+    <link rel="prev" title="Operators and solvers" href="../03-regularization/02-operators-and-solvers.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -503,18 +523,24 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-04-non-cartesian-01-trajectories-and-transforms-py"></span><h1>Trajectories and transforms<a class="headerlink" href="#trajectories-and-transforms" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/04-non-cartesian/01-trajectories-and-transforms.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>The non-Cartesian interfaces: the trajectories
-<a class="reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> generates, the non-uniform Fourier transform along
-one, the density compensation an adjoint reconstruction needs, and the point
-spread function the normal operator convolves with.</p>
-<p>Every non-Cartesian transform in bartorch is computed by FINUFFT <a class="footnote-reference brackets" href="#finufft" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>,
-which evaluates</p>
+<p>This lesson introduces the building blocks of non-Cartesian reconstruction:
+radial, golden-angle and spiral trajectories, the non-uniform fast Fourier
+transform (NUFFT) that samples an image along them, the density compensation
+that an adjoint (gridding) reconstruction needs, and the point spread function
+(PSF) that describes the undersampling artefacts.</p>
+<p>Non-Cartesian trajectories sample k-space along curves rather than on a grid.
+Radial and spiral readouts start at the k-space centre, which makes them
+robust to motion and flow and lets them oversample the low spatial
+frequencies; they are the basis of real-time, ultrashort-echo-time and
+free-breathing imaging. Their samples do not lie on the Cartesian grid, so
+the FFT is replaced by the NUFFT. Every non-Cartesian transform in bartorch is
+computed by FINUFFT <a class="footnote-reference brackets" href="#finufft" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, which evaluates</p>
 <div class="math notranslate nohighlight">
 \[y_j = \frac{1}{\sqrt{N}} \sum_{m} x_m \,
 \exp\!\Big(-2\pi i \sum_d \frac{k_{j,d}\, m_d}{n_d}\Big)\]</div>
 <p>to a requested tolerance, with the sum over the <span class="math notranslate nohighlight">\(N\)</span> voxels <span class="math notranslate nohighlight">\(m\)</span>
 of an image of <span class="math notranslate nohighlight">\(n_d\)</span> voxels along dimension <span class="math notranslate nohighlight">\(d\)</span>, and
-<span class="math notranslate nohighlight">\(k_j\)</span> in grid units.  The spreading kernel and the deapodization are
+<span class="math notranslate nohighlight">\(k_j\)</span> in grid units. The spreading kernel and the deapodization are
 FINUFFT’s, sized from the tolerance: <a class="reference internal" href="../../explanation/non-cartesian.html"><span class="doc">Non-Cartesian sampling</span></a>
 states the conventions and the accuracy.</p>
 <p>The phantom is built as in <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>; the
@@ -526,10 +552,11 @@ be downloaded as.</p>
 <a class="reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a>, and a spiral trajectory directly.</p></li>
 <li><p>Apply <a class="reference internal" href="../../generated/bartorch.nufft.html#bartorch.nufft" title="bartorch.nufft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.nufft()</span></code></a> and <a class="reference internal" href="../../generated/bartorch.nufft_adjoint.html#bartorch.nufft_adjoint" title="bartorch.nufft_adjoint"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.nufft_adjoint()</span></code></a>, and check
 the transform against the sum that defines it.</p></li>
-<li><p>Compute density compensation weights, analytically and with
-<a class="reference internal" href="../../generated/bartorch.estimate_density.html#bartorch.estimate_density" title="bartorch.estimate_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.estimate_density()</span></code></a>.</p></li>
+<li><p>Explain why a gridding reconstruction needs density compensation, and
+compute the weights analytically and with <a class="reference internal" href="../../generated/bartorch.estimate_density.html#bartorch.estimate_density" title="bartorch.estimate_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.estimate_density()</span></code></a>.</p></li>
 <li><p>Compare the normal operator as a convolution with the transform pair, and
-compute a point spread function.</p></li>
+relate the PSF of an undersampled radial trajectory to its streak
+artefacts.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="../03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a>. The next
 lesson, <a class="reference internal" href="02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a>, reconstructs an undersampled radial
@@ -627,7 +654,7 @@ proportional to the distance from the centre.</p>
 </span><span class="n">plain</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.nufft_adjoint.html#bartorch.nufft_adjoint" title="bartorch.nufft_adjoint"><span class="n">bartorch</span><span class="o">.</span><span class="n">nufft_adjoint</span></a><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">golden</span><span class="p">,</span> <span class="n">image_shape</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="n">compensated</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.nufft_adjoint.html#bartorch.nufft_adjoint" title="bartorch.nufft_adjoint"><span class="n">bartorch</span><span class="o">.</span><span class="n">nufft_adjoint</span></a><span class="p">(</span><span class="n">samples</span> <span class="o">*</span> <span class="n">weights</span><span class="p">,</span> <span class="n">golden</span><span class="p">,</span> <span class="n">image_shape</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_01-trajectories-and-transforms_002.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_002.png" alt="image, adjoint, density compensated" class = "sphx-glr-single-img"/><p>The uncompensated adjoint is the image convolved with the point spread
+<img src="../../_images/sphx_glr_01-trajectories-and-transforms_002.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_002.png" alt="gridding reconstruction, 201 golden-angle spokes, reference, adjoint, no compensation, density compensated" class = "sphx-glr-single-img"/><p>The uncompensated adjoint is the image convolved with the point spread
 function, the inverse Fourier transform of the sampling density; the density
 is concentrated at the centre of k-space, so the result is blurred. The
 compensated adjoint resolves the tissue boundaries. Neither recovers the
@@ -695,10 +722,18 @@ the radial Nyquist spacing, and 1024 samples per interleaf.</p>
 spiral  compensated  NRMSE 0.089
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" alt="spiral, 16 interleaves, estimated weight, one interleaf, compensated" class = "sphx-glr-single-img"/><p>The estimated weight of an Archimedean spiral grows with the radius, since
-the interleaves are separated by a constant distance while the arc length
-per sample grows; the compensated adjoint of the spiral has a lower error
-than its uncompensated adjoint by the ratio printed above.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_003.png" alt="spiral, 16 interleaves, density compensation weight, one interleaf" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-trajectories-and-transforms_004.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_004.png" alt="reference, spiral, no compensation, spiral, compensated" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The estimated weight of an Archimedean spiral grows with the radius: the
+interleaves are separated by a constant distance while the arc length
+traversed per sample grows, so the samples are densest at the centre. At
+the very edge the weight rises further, where the outermost turn has no
+neighbour outside it. Without compensation the spiral adjoint is dominated
+by the densely sampled low spatial frequencies and appears as a blurred,
+low-contrast image; with the estimated weights the tissue contrast and the
+edges are restored, which the NRMSE printed above quantifies.</p>
 </section>
 <section id="the-normal-operator">
 <h2>The normal operator<a class="headerlink" href="#the-normal-operator" title="Link to this heading">#</a></h2>
@@ -724,8 +759,8 @@ spread function on a doubled grid rather than a transform each way
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">A^H A as two transforms  </span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">transforms</span><span class="si">:</span><span class="s2">6.1f</span><span class="si">}</span><span class="s2"> ms</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference      </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">toeplitz</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">pair</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pair</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>A^H A as a convolution      0.8 ms
-A^H A as two transforms     0.7 ms
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>A^H A as a convolution      0.6 ms
+A^H A as two transforms     0.5 ms
 relative difference      2.7e-03
 </pre></div>
 </div>
@@ -737,7 +772,7 @@ skirt into the streaks a radial reconstruction is known for.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">fully_sampled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.psf.html#bartorch.tools.psf" title="bartorch.tools.psf"><span class="n">bt</span><span class="o">.</span><span class="n">psf</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><span class="n">bt</span><span class="o">.</span><span class="n">traj</span></a><span class="p">(</span><span class="n">readout</span><span class="o">=</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">spokes</span><span class="o">=</span><span class="n">SPOKES</span><span class="p">,</span> <span class="n">radial</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">golden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="n">undersampled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.psf.html#bartorch.tools.psf" title="bartorch.tools.psf"><span class="n">bt</span><span class="o">.</span><span class="n">psf</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><span class="n">bt</span><span class="o">.</span><span class="n">traj</span></a><span class="p">(</span><span class="n">readout</span><span class="o">=</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">spokes</span><span class="o">=</span><span class="n">SPOKES</span> <span class="o">/</span><span class="o">/</span> <span class="mi">8</span><span class="p">,</span> <span class="n">radial</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">golden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_01-trajectories-and-transforms_004.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_004.png" alt="point spread function, normalized, 201 spokes, 25 spokes" class = "sphx-glr-single-img"/><p>A reconstruction that uses all of this – the transform, the weights, the
+<img src="../../_images/sphx_glr_01-trajectories-and-transforms_005.png" srcset="../../_images/sphx_glr_01-trajectories-and-transforms_005.png" alt="point spread function, normalized, 201 spokes, 25 spokes" class = "sphx-glr-single-img"/><p>A reconstruction that uses all of this – the transform, the weights, the
 sensitivities and the normal operator – is
 <a class="reference internal" href="02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a>.</p>
 </section>
@@ -773,7 +808,7 @@ inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
 <a class="reference external" href="https://doi.org/10.1109/TSP.2005.853152">https://doi.org/10.1109/TSP.2005.853152</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.942 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.781 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-non-cartesian-01-trajectories-and-transforms-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/00a0b780dce827c2458ef95c55e684ae/01-trajectories-and-transforms.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-trajectories-and-transforms.ipynb</span></code></a></p>
@@ -801,12 +836,12 @@ inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../03-regularization/02-operators-and-solvers.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Non-Cartesian imaging</p>
+        <p class="prev-next-title">Operators and solvers</p>
       </div>
     </a>
     <a class="right-next"

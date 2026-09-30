@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -501,13 +521,33 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-07-tours-02-epi-ghost-and-ramp-sampling-py"></span><h1>EPI Nyquist ghost and ramp sampling<a class="headerlink" href="#epi-nyquist-ghost-and-ramp-sampling" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/07-tours/02-epi-ghost-and-ramp-sampling.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>Two corrections an echo-planar readout needs before its lines form a
-Cartesian k-space: the odd/even phase that produces the Nyquist ghost,
-estimated from a three-line navigator, and the resampling of samples taken on
-the gradient ramps onto the uniform grid.</p>
-<p>The data is BART’s analytical Shepp-Logan phantom with eight simulated coils,
-into which a known readout delay is introduced, so the estimate can be
-compared with the delay.</p>
+<p>An echo-planar readout acquires k-space in a train of lines of alternating
+readout gradient polarity, and two corrections are applied before the lines
+form a Cartesian k-space. A timing error between the readout gradient and the
+ADC, and eddy currents, displace the echoes of the reversed lines relative to
+the forward ones; the resulting odd/even phase produces a Nyquist ghost, a
+copy of the object displaced by half the field of view along the
+phase-encoding direction. Sampling during the ramps of the readout gradient
+shortens the echo spacing, and the samples, uniform in time, are not uniform
+in <span class="math notranslate nohighlight">\(k_x\)</span>.</p>
+<p>This example simulates an eight-channel EPI acquisition of a Shepp-Logan
+phantom with a known ADC delay and constant phase error, estimates the
+odd/even phase from a three-line navigator, and compares the ghosted and the
+corrected image with the delay-free image. It then resamples a ramp-sampled
+readout onto a uniform <span class="math notranslate nohighlight">\(k_x\)</span> grid and compares the result with linear
+interpolation.</p>
+<p><strong>Learning objectives</strong></p>
+<ul class="simple">
+<li><p>Relate an ADC delay to a linear phase in hybrid space and to the Nyquist
+ghost at half the field of view.</p></li>
+<li><p>Estimate the odd/even phase from a three-line navigator with
+<a class="reference internal" href="../../generated/bartorch.tools.estimate_epi_phase.html#bartorch.tools.estimate_epi_phase" title="bartorch.tools.estimate_epi_phase"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_epi_phase()</span></code></a>, and apply it to the reversed
+lines with <a class="reference internal" href="../../generated/bartorch.tools.correct_lines.html#bartorch.tools.correct_lines" title="bartorch.tools.correct_lines"><code class="xref py py-func docutils literal notranslate"><span class="pre">correct_lines()</span></code></a>.</p></li>
+<li><p>Quantify the ghost by the ghost-to-signal ratio.</p></li>
+<li><p>Resample a ramp-sampled readout with
+<a class="reference internal" href="../../generated/bartorch.tools.epi_ramp_operator.html#bartorch.tools.epi_ramp_operator" title="bartorch.tools.epi_ramp_operator"><code class="xref py py-func docutils literal notranslate"><span class="pre">epi_ramp_operator()</span></code></a>, and check the sampling condition
+under which the resampling is exact.</p></li>
+</ul>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">math</span><span class="w">
 </span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
@@ -518,22 +558,23 @@ compared with the delay.</p>
 </span></pre></div></div>
 <section id="the-nyquist-ghost">
 <h2>The Nyquist ghost<a class="headerlink" href="#the-nyquist-ghost" title="Link to this heading">#</a></h2>
-<p>An EPI train reads alternate lines with readout gradients of opposite
-polarity. A delay between the gradient and the ADC shifts the echo of every
-line by the same time, which is a shift towards positive <span class="math notranslate nohighlight">\(k_x\)</span> on a
+<p>A delay <span class="math notranslate nohighlight">\(\delta\)</span> of the ADC relative to the readout gradient shifts
+the echo of every line by the same time: towards positive <span class="math notranslate nohighlight">\(k_x\)</span> on a
 forward line and towards negative <span class="math notranslate nohighlight">\(k_x\)</span> on a reversed one. In hybrid
-space – after the inverse transform along the readout – a shift in
-<span class="math notranslate nohighlight">\(k_x\)</span> is a linear phase in <span class="math notranslate nohighlight">\(x\)</span>, so the reversed lines carry a
-phase the forward ones do not. A phase that alternates from line to line
-modulates k-space at the Nyquist frequency of the phase-encoding direction,
-and the image acquires a copy of the object displaced by half the field of
-view.</p>
-<p>Below, forward lines carry <span class="math notranslate nohighlight">\(+(a u + b)\)</span> and reversed lines
-<span class="math notranslate nohighlight">\(-(a u + b)\)</span> in hybrid space, with <span class="math notranslate nohighlight">\(u \in [-1, 1]\)</span> the readout
-coordinate. A reversed line is stored in the order it was digitised, that is
-flipped along the readout.</p>
+space – after the inverse Fourier transform along the readout – a shift of
+<span class="math notranslate nohighlight">\(\delta\)</span> dwell times is a linear phase <span class="math notranslate nohighlight">\(\pi \delta u\)</span> over the
+readout coordinate <span class="math notranslate nohighlight">\(u \in [-1, 1]\)</span>. A constant phase <span class="math notranslate nohighlight">\(\phi_0\)</span>,
+from eddy currents or a <span class="math notranslate nohighlight">\(B_0\)</span> offset during the readout, adds to it
+with the same alternating sign. The phase difference between odd and even
+lines modulates k-space at the Nyquist frequency of the phase-encoding
+direction, and the image acquires a ghost at half the field of view.</p>
+<p>Forward lines carry <span class="math notranslate nohighlight">\(+(\pi \delta u + \phi_0)\)</span> and reversed lines
+<span class="math notranslate nohighlight">\(-(\pi \delta u + \phi_0)\)</span>. A reversed line is stored in the order it
+was digitised, that is flipped along the readout.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">128</span><span class="w">
-</span><span class="n">SLOPE</span><span class="p">,</span> <span class="n">OFFSET</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.25</span>  <span class="c1"># rad</span><span class="w">
+</span><span class="n">DELAY</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># dwell times</span><span class="w">
+</span><span class="n">PHASE_0</span> <span class="o">=</span> <span class="mf">0.25</span>  <span class="c1"># rad</span><span class="w">
+</span><span class="n">SLOPE</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">DELAY</span> <span class="o">*</span> <span class="p">(</span><span class="n">SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">SIZE</span>  <span class="c1"># rad over u in [-1, 1]</span><span class="w">
 </span><span class="w">
 </span><span class="n">kspace</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">kspace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coils</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># (coils, ky, kx)</span><span class="w">
 </span><span class="n">hybrid</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
@@ -542,7 +583,7 @@ flipped along the readout.</p>
 </span><span class="w">
 </span><span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">polarity</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="sd">&quot;&quot;&quot;One readout of polarity +1 or -1, digitised in the order it was played.&quot;&quot;&quot;</span><span class="w">
-</span>    <span class="n">delayed</span> <span class="o">=</span> <span class="n">row</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">polar</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">polarity</span> <span class="o">*</span> <span class="p">(</span><span class="n">SLOPE</span> <span class="o">*</span> <span class="n">u</span> <span class="o">+</span> <span class="n">OFFSET</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">delayed</span> <span class="o">=</span> <span class="n">row</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">polar</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">polarity</span> <span class="o">*</span> <span class="p">(</span><span class="n">SLOPE</span> <span class="o">*</span> <span class="n">u</span> <span class="o">+</span> <span class="n">PHASE_0</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span>    <span class="n">line</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">delayed</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span>    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span> <span class="k">if</span> <span class="n">polarity</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">line</span><span class="w">
 </span><span class="w">
@@ -552,7 +593,7 @@ flipped along the readout.</p>
 </section>
 <section id="the-navigator">
 <h2>The navigator<a class="headerlink" href="#the-navigator" title="Link to this heading">#</a></h2>
-<p>Three lines of alternating polarity acquired without a phase-encoding blip
+<p>Three lines of alternating polarity acquired without phase-encoding blips
 sample the same line of k-space, so the phase between the reversed line and
 the mean of its two neighbours is the odd/even phase alone.
 <a class="reference internal" href="../../generated/bartorch.tools.estimate_epi_phase.html#bartorch.tools.estimate_epi_phase" title="bartorch.tools.estimate_epi_phase"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_epi_phase()</span></code></a> fits a polynomial to it,
@@ -563,18 +604,19 @@ navigator line is passed already flipped into readout order.</p>
 </span><span class="w">
 </span><span class="n">fit</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.estimate_epi_phase.html#bartorch.tools.estimate_epi_phase" title="bartorch.tools.estimate_epi_phase"><span class="n">bt</span><span class="o">.</span><span class="n">estimate_epi_phase</span></a><span class="p">(</span><span class="n">navigator</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">fitted     constant </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">)</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">  linear </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2"> rad</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">impressed  constant </span><span class="si">{</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">OFFSET</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">  linear </span><span class="si">{</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">SLOPE</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2"> rad</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">impressed  constant </span><span class="si">{</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PHASE_0</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">  linear </span><span class="si">{</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">SLOPE</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2"> rad</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>fitted     constant +0.500  linear +1.200 rad
-impressed  constant +0.500  linear +1.200 rad
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>fitted     constant +0.500  linear +1.247 rad
+impressed  constant +0.500  linear +1.247 rad
 </pre></div>
 </div>
 <p>The fitted phase is twice the impressed one, because the navigator measures
 the difference between a forward and a reversed line. The correction is
-applied to the reversed lines only, which rotates them onto the forward ones
-and leaves the image in place.</p>
-<p><a class="reference internal" href="../../generated/bartorch.tools.correct_lines.html#bartorch.tools.correct_lines" title="bartorch.tools.correct_lines"><code class="xref py py-func docutils literal notranslate"><span class="pre">correct_lines()</span></code></a> flips the reversed lines back
-and, given the fit, removes the phase.</p>
+applied to the reversed lines only: it brings them into phase with the
+forward lines, whose remaining phase is common to all lines and does not
+change the magnitude image.</p>
+<p>The ghost is measured by the ghost-to-signal ratio: the mean signal outside
+the object divided by the mean signal inside it.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">reconstruct</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="n">coil_images</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">coil_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
@@ -584,32 +626,55 @@ and, given the fit, removes the phase.</p>
 </span><span class="n">ghosted</span> <span class="o">=</span> <span class="n">reconstruct</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.correct_lines.html#bartorch.tools.correct_lines" title="bartorch.tools.correct_lines"><span class="n">bt</span><span class="o">.</span><span class="n">correct_lines</span></a><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="n">corrected</span> <span class="o">=</span> <span class="n">reconstruct</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.correct_lines.html#bartorch.tools.correct_lines" title="bartorch.tools.correct_lines"><span class="n">bt</span><span class="o">.</span><span class="n">correct_lines</span></a><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">fit</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="w">
-</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">flipped only</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ghosted</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">phase-corrected</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">corrected</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">error</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">estimate</span> <span class="o">-</span> <span class="n">ideal</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">ideal</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;16</span><span class="si">}</span><span class="s2">: difference from the delay-free image </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">inside</span> <span class="o">=</span> <span class="n">ideal</span> <span class="o">&gt;</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">ideal</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">outside</span> <span class="o">=</span> <span class="n">ideal</span> <span class="o">&lt;</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">ideal</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">nrmse</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">estimate</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">target</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">ghost_to_signal</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="n">outside</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">image</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">delay-free</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ideal</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">flipped only</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ghosted</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">corrected</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">corrected</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">: ghost-to-signal </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ghost_to_signal</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> %, </span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="n">ideal</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>   flipped only: difference from the delay-free image 3.0e-01
-phase-corrected: difference from the delay-free image 1.1e-07
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  delay-free: ghost-to-signal  1.38 %, NRMSE 0.0e+00
+flipped only: ghost-to-signal 18.22 %, NRMSE 3.2e-01
+   corrected: ghost-to-signal  1.38 %, NRMSE 1.1e-07
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" alt="flipped only, window 0-30 %, corrected, window 0-30 %, central column" class = "sphx-glr-single-img"/><p>The images are windowed to 30 % of the peak, where the ghost at half the
-field of view is visible. What remains after correction is the difference
-between the first-order phase model and the impressed phase, which here is
-zero up to single-precision round-off.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png" alt="displayed from 0 to 30 % of the peak; phase encoding vertical, delay-free, flipped only GSR 18.2 %, NRMSE 0.32, navigator-corrected GSR 1.4 %, NRMSE 1e-07, flipped only - delay-free" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" alt="navigator phase in hybrid space, central column" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>Without the phase correction the ghost appears at the top and bottom of the
+field of view and overlaps the object where it wraps. With the first-order
+fit the ghost-to-signal ratio returns to that of the delay-free image, whose
+signal outside the object is the truncation ringing of the phantom, since
+the simulated phase error is exactly first order. On measured data, higher
+orders of the phase, and phase errors that differ between lines of the same
+polarity, leave a residual ghost.</p>
 </section>
 <section id="ramp-sampling">
 <h2>Ramp sampling<a class="headerlink" href="#ramp-sampling" title="Link to this heading">#</a></h2>
-<p>Sampling during the gradient ramps shortens the echo spacing, but the
-samples are not uniformly spaced in <span class="math notranslate nohighlight">\(k_x\)</span>. The readout is the
+<p>Sampling during the ramps of the trapezoidal readout gradient places the
+samples at <span class="math notranslate nohighlight">\(k_x(t) = \gamma \int_0^t G_x(\tau)\, d\tau\)</span>, which is
+denser on the ramps than on the plateau. The readout is the Fourier
 transform of an object that spans <code class="docutils literal notranslate"><span class="pre">support</span></code> pixels, so samples at any
 positions determine it, provided no two neighbouring samples are further
 apart than one over the support, the Nyquist spacing of that object.
 <a class="reference internal" href="../../generated/bartorch.tools.epi_ramp_operator.html#bartorch.tools.epi_ramp_operator" title="bartorch.tools.epi_ramp_operator"><code class="xref py py-func docutils literal notranslate"><span class="pre">epi_ramp_operator()</span></code></a> <a class="footnote-reference brackets" href="#bruder" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> is the regularized
 least-squares inverse of the transform at the sampled positions followed by
 the transform at the uniform ones.</p>
-<p>A trapezoidal readout gradient of 160 samples with ramps of 30 % of its
-duration is simulated for a one-dimensional object of 64 pixels, positions
-in cycles per pixel.</p>
+<p>The readout gradient is a trapezoid whose ramps each take 30 % of the ADC
+window, sampled with 160 samples, for a one-dimensional object of 64 pixels;
+positions are in cycles per pixel.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">SUPPORT</span><span class="p">,</span> <span class="n">SAMPLES</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">160</span><span class="w">
 </span><span class="n">profile</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">SUPPORT</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span><span class="w">
 </span><span class="n">profile</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">48</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span><span class="p">)</span><span class="w">
@@ -631,32 +696,39 @@ in cycles per pixel.</p>
 </span><span class="n">measured</span><span class="p">,</span> <span class="n">truth</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">sampled_at</span><span class="p">)</span><span class="p">,</span> <span class="n">encode</span><span class="p">(</span><span class="n">uniform_at</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">operator</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.epi_ramp_operator.html#bartorch.tools.epi_ramp_operator" title="bartorch.tools.epi_ramp_operator"><span class="n">bt</span><span class="o">.</span><span class="n">epi_ramp_operator</span></a><span class="p">(</span><span class="n">sampled_at</span><span class="p">,</span> <span class="n">uniform_at</span><span class="p">,</span> <span class="n">SUPPORT</span><span class="p">)</span><span class="w">
-</span><span class="n">resampled</span> <span class="o">=</span> <span class="p">(</span><span class="n">measured</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">&#64;</span> <span class="n">operator</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">resampled</span> <span class="o">=</span> <span class="p">(</span><span class="n">measured</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">&#64;</span> <span class="n">operator</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<p>Linear interpolation between neighbouring samples is the comparison.</p>
+<p>Linear interpolation between neighbouring samples is the comparison. Both
+are assessed on the image profile, the inverse transform of the uniform
+samples.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">linear</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="w">
 </span>    <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">uniform_at</span><span class="p">,</span> <span class="n">sampled_at</span><span class="p">,</span> <span class="n">measured</span><span class="o">.</span><span class="n">real</span><span class="p">)</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span>    <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">uniform_at</span><span class="p">,</span> <span class="n">sampled_at</span><span class="p">,</span> <span class="n">measured</span><span class="o">.</span><span class="n">imag</span><span class="p">)</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
-</span><span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="n">estimate</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">estimate</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">truth</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">image_profile</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
 </span><span class="n">step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sampled_at</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span> <span class="o">*</span> <span class="n">SUPPORT</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">largest step x support: </span><span class="si">{</span><span class="n">step</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">  (the samples determine the object below 1)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">band-limited resampling </span><span class="si">{</span><span class="n">error</span><span class="p">(</span><span class="n">resampled</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">   linear interpolation </span><span class="si">{</span><span class="n">error</span><span class="p">(</span><span class="n">linear</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">band-limited resampling</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">resampled</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">linear interpolation</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">linear</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;24</span><span class="si">}</span><span class="s2">: image NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">image_profile</span><span class="p">(</span><span class="n">estimate</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">image_profile</span><span class="p">(</span><span class="n">truth</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>largest step x support: 0.57  (the samples determine the object below 1)
-band-limited resampling 1.4e-06   linear interpolation 0.032
+ band-limited resampling: image NRMSE 1.4e-06
+    linear interpolation: image NRMSE 3.2e-02
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png" alt="error" class = "sphx-glr-single-img"/><p>The resampling is exact to the precision of the operator, which is returned
-in single precision; linear interpolation errs most on the plateau, where
-the samples are furthest apart. The ratio printed above is the condition to
-check on a measured trajectory: where a step exceeds one over the support,
-the readout is aliased and no resampling recovers it.</p>
+<img src="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png" srcset="../../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png" alt="trapezoidal readout gradient, image profile, |error| / peak" class = "sphx-glr-single-img"/><p>The band-limited resampling reproduces the profile of a uniformly sampled
+readout to the precision of the operator, which is returned in single
+precision. Linear interpolation errs most on the plateau, where the samples
+are furthest apart; in the image its error is spread over the whole field of
+view, inside and outside the object, at up to a few per cent of the peak.
+The ratio printed above is the condition to check on a measured trajectory:
+where a step exceeds one over the support, the readout is aliased and no
+resampling recovers it.</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
@@ -669,7 +741,7 @@ sampling. <em>Magn Reson Med</em> 23(2):311-323 (1992).
 <a class="reference external" href="https://doi.org/10.1002/mrm.1910230211">https://doi.org/10.1002/mrm.1910230211</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.914 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.543 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-02-epi-ghost-and-ramp-sampling-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/e1b93ce604617aa68e6131c0ca73ca42/02-epi-ghost-and-ramp-sampling.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-epi-ghost-and-ramp-sampling.ipynb</span></code></a></p>

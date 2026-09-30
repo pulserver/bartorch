@@ -73,7 +73,7 @@ positions than the image has voxels, but each position is measured by several
 coils.  If the coils' sensitivities separate the voxels that alias onto one
 another, $A$ has full column rank and the problem is ill-conditioned rather
 than underdetermined; the spatially resolved noise amplification is the
-g-factor of SENSE.[^pruessmann1999]  At accelerations beyond what the coil
+g-factor of SENSE.[^pruessmann1999]  At acceleration factors beyond what the coil
 geometry supports, and outside the region the coils cover, $A$ becomes rank
 deficient.
 

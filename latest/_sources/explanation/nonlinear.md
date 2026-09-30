@@ -18,8 +18,9 @@ Gauss-Newton method.
 ## Two nonlinear models
 
 **Joint estimation of image and sensitivities.**  When the acquisition has no
-fully sampled calibration region, or the sensitivities are to be estimated
-from all of the data, both are unknowns:
+autocalibration (ACS) region large enough for a separate calibration, or the
+coil sensitivity maps are to be estimated from all of the data, both are
+unknowns:
 
 $$
 y_c = P F \left( S_c \cdot x \right).

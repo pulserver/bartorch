@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Nonlinear inversion" href="02-nonlinear-inversion.html" />
-    <link rel="prev" title="Parallel imaging" href="index.html" />
+    <link rel="prev" title="From k-space to image" href="../01-basics/02-from-kspace-to-image.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -501,38 +521,49 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-02-parallel-imaging-01-coil-calibration-py"></span><h1>Coil sensitivity calibration<a class="headerlink" href="#coil-sensitivity-calibration" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/02-parallel-imaging/01-coil-calibration.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>Three estimates of the receive sensitivities of a coil array from the same
-undersampled Cartesian acquisition, and the SENSE reconstructions they lead to.</p>
-<p>A SENSE reconstruction <a class="footnote-reference brackets" href="#sense" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> inverts</p>
+<p>This lesson compares three ways of estimating the receive sensitivities of a
+coil array from the undersampled acquisition itself, and shows how the size
+of the fully sampled calibration region decides which of them can be used.
+A SENSE reconstruction <a class="footnote-reference brackets" href="#sense" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> inverts</p>
 <div class="math notranslate nohighlight">
 \[y_c = P F (S_c \, x),\]</div>
-<p>and is only as accurate as the sensitivities <span class="math notranslate nohighlight">\(S_c\)</span> it is given. They are
-usually estimated from the acquisition itself, from a fully sampled region at
-the centre of k-space, the autocalibration region. The three estimators
-compared here differ in what they take from the data:</p>
+<p>and is only as accurate as the sensitivities <span class="math notranslate nohighlight">\(S_c\)</span> it is given: an
+error in <span class="math notranslate nohighlight">\(S_c\)</span> appears in the image as residual aliasing or as shading,
+however good the solver. In clinical practice the sensitivities are estimated
+either from a separate low-resolution prescan or, as here, by
+autocalibration, from a fully sampled block of lines at the centre of
+k-space, the autocalibration signal (ACS) region. The three estimators
+differ in what they take from the data:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../../generated/bartorch.tools.caldir.html#bartorch.tools.caldir" title="bartorch.tools.caldir"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.caldir()</span></code></a> divides each low-resolution coil image, from
-the calibration region alone, by their root sum of squares;</p></li>
+<li><p><a class="reference internal" href="../../generated/bartorch.tools.caldir.html#bartorch.tools.caldir" title="bartorch.tools.caldir"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.caldir()</span></code></a> divides each low-resolution coil image,
+reconstructed from the ACS region alone, by their root sum of squares;</p></li>
 <li><p><a class="reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ecalib()</span></code></a> (ESPIRiT <a class="footnote-reference brackets" href="#espirit" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>) takes the sensitivities
-as the eigenvectors of an operator built from the calibration region;</p></li>
+as the eigenvectors of an operator built from the k-space neighbourhoods of
+the ACS region;</p></li>
 <li><p><a class="reference internal" href="../../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.nlinv()</span></code></a> (nonlinear inversion <a class="footnote-reference brackets" href="#nlinv" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>) estimates the
-sensitivities and the image jointly from all acquired samples, with the
-calibration region only as part of the data.</p></li>
+sensitivities and the image jointly from all acquired samples, with the ACS
+region only as part of the data.</p></li>
 </ul>
-<p>The previous lesson, <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>, used ESPIRiT
-with a calibration region of 24 lines. This lesson varies that region.</p>
+<p>The acquisition is regularly undersampled by <span class="math notranslate nohighlight">\(R = 3\)</span>, which folds the
+object into three overlapping copies along the phase-encoding direction. With
+a generous ACS region all three estimators unfold it; with a small one, the
+direct estimate is too coarse to separate the copies and ESPIRiT has too few
+kernel positions to calibrate at all.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
 <li><p>Estimate coil sensitivities with <code class="docutils literal notranslate"><span class="pre">caldir</span></code>, <code class="docutils literal notranslate"><span class="pre">ecalib</span></code> and <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>, and
 use each in <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a>.</p></li>
 <li><p>Evaluate a reconstruction against a noise-free reference within the object
-support.</p></li>
-<li><p>State why ESPIRiT requires a calibration region larger than its kernel, and
-why nonlinear inversion does not.</p></li>
+support, by an error map and the NRMSE.</p></li>
+<li><p>State why ESPIRiT requires an ACS region larger than its kernel, and why
+nonlinear inversion does not.</p></li>
 </ul>
-<p>The next lesson, <a class="reference internal" href="02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a>, writes nonlinear inversion out
-as a nonlinear operator and a Gauss-Newton solver.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
+<p>The previous lesson, <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>, used ESPIRiT
+with a 24-line ACS region. The next lesson, <a class="reference internal" href="02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a>,
+writes nonlinear inversion out as a nonlinear operator and a Gauss-Newton
+solver.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
 </span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span><span class="w">
@@ -550,8 +581,10 @@ sampled image (<a class="reference internal" href="../01-basics/01-tensors-and-c
 reconstructions below do not share the discretization of the simulation.
 Complex Gaussian noise of variance 2 is added to every sample.</p>
 <p>The reference is the root sum of squares of the fully sampled, noise-free
-coil images, and every error is the NRMSE of a magnitude image within the
-phantom’s support, after a least-squares fit of a global scale.</p>
+coil images. Every error is the NRMSE of a magnitude image within the
+phantom’s support, after a least-squares fit of a global scale, since the
+three estimators normalize the sensitivities, and hence the image, in
+different ways.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">clean</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">coils</span><span class="o">=</span><span class="n">COILS</span><span class="p">,</span> <span class="n">kspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">kspace</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><span class="n">clean</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="w">
 </span><span class="w">
@@ -564,8 +597,11 @@ phantom’s support, after a least-squares fit of a global scale.</p>
 </span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">reference</span> <span class="o">*</span> <span class="n">support</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="p">)</span> <span class="o">*</span> <span class="n">support</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <p>Every third phase encode is acquired, and a central block of <code class="docutils literal notranslate"><span class="pre">calibration</span></code>
-lines is acquired in full. Regular undersampling folds the image into three
-overlapping copies, which only the sensitivities can separate.</p>
+lines is acquired in full. Regular undersampling by <span class="math notranslate nohighlight">\(R\)</span> replicates the
+point spread function <span class="math notranslate nohighlight">\(R\)</span> times across the field of view, so each
+voxel of the zero-filled image is the sum of three voxels a third of the
+field of view apart. Only the sensitivities, which differ between those
+voxels, can separate them.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">encodes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="w">
 </span><span class="w">
 </span><span class="w">
@@ -577,6 +613,8 @@ overlapping copies, which only the sensitivities can separate.</p>
 </span><span class="w">
 </span><span class="n">measured</span> <span class="o">=</span> <span class="n">acquire</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.pattern.html#bartorch.tools.pattern" title="bartorch.tools.pattern"><span class="n">bt</span><span class="o">.</span><span class="n">pattern</span></a><span class="p">(</span><span class="n">measured</span><span class="p">)</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> of k-space acquired</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">zero_filled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.ifft.html#bartorch.ifft" title="bartorch.ifft"><span class="n">bartorch</span><span class="o">.</span><span class="n">ifft</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>46% of k-space acquired
 </pre></div>
@@ -602,18 +640,26 @@ unit root sum of squares, the normalization the other two estimators use.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>caldir (8, 1, 128, 128), ecalib (8, 1, 128, 128), nlinv (8, 1, 128, 128)
 </pre></div>
 </div>
-<p>All three are <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">1,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>: the sensitivities of one set of maps.
-Each is given to <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> with the same Tikhonov weight and
-number of conjugate-gradient iterations, so that the reconstructions differ
-only in the sensitivities.</p>
+<img src="../../_images/sphx_glr_01-coil-calibration_001.png" srcset="../../_images/sphx_glr_01-coil-calibration_001.png" alt="estimated sensitivity of channel 2, caldir, ESPIRiT, nlinv" class = "sphx-glr-single-img"/><p>The phase of a sensitivity map is determined only up to a phase common to
+all channels, which each estimator fixes differently; that common phase
+passes into the phase of the reconstructed image and leaves its magnitude
+unchanged. Up to it, the three estimates agree inside the object. They
+differ outside it, where the data do not determine a sensitivity:
+<code class="docutils literal notranslate"><span class="pre">caldir</span></code> divides noise by noise there and returns an arbitrary unit-modulus
+value, ESPIRiT sets the maps to zero, and <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> extrapolates the smooth
+function its regularization favours.</p>
+<p>Each set of sensitivities is given to <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> with the
+same Tikhonov weight and number of conjugate-gradient iterations, so that
+the reconstructions differ only in the sensitivities. The image <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>
+returns jointly with its sensitivities is a fourth estimate.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">reconstructions</span> <span class="o">=</span> <span class="p">{</span><span class="w">
 </span>    <span class="n">name</span><span class="p">:</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span><span class="w">
 </span>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">maps</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">caldir</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">direct</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">ESPIRiT</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">espirit</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">nlinv</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">nonlinear</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span><span class="n">reconstructions</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">nlinv image</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">joint</span><span class="w">
 </span><span class="w">
 </span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="n">reconstructions</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">  NRMSE </span><span class="si">{</span><span class="n">error</span><span class="p">(</span><span class="n">estimate</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">'</span><span class="s1">nlinv image</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">  NRMSE </span><span class="si">{</span><span class="n">error</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>     caldir  NRMSE 0.025
     ESPIRiT  NRMSE 0.015
@@ -621,20 +667,26 @@ only in the sensitivities.</p>
 nlinv image  NRMSE 0.011
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-coil-calibration_001.png" srcset="../../_images/sphx_glr_01-coil-calibration_001.png" alt="24 calibration lines: sensitivity magnitude (top), reconstruction (bottom), caldir, channel 2, ESPIRiT, channel 2, nlinv, channel 2, reference, caldir, 0.025, ESPIRiT, 0.015, nlinv, 0.012, nlinv image, 0.011" class = "sphx-glr-single-img"/><p>With 24 calibration lines the three estimates agree inside the object. They
-differ outside it, where the data do not determine a sensitivity: <code class="docutils literal notranslate"><span class="pre">caldir</span></code>
-extends a smooth estimate into the background, ESPIRiT sets it to zero, and
-<code class="docutils literal notranslate"><span class="pre">nlinv</span></code> extrapolates the smooth function its regularization favours.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-coil-calibration_002.png" srcset="../../_images/sphx_glr_01-coil-calibration_002.png" alt="24 ACS lines, R = 3, reference, zero-filled, SENSE, caldir, SENSE, ESPIRiT" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-coil-calibration_003.png" srcset="../../_images/sphx_glr_01-coil-calibration_003.png" alt="error magnitude, 24 ACS lines, SENSE, caldir, SENSE, ESPIRiT, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The zero-filled image shows the three overlapping copies of the phantom
+that regular undersampling produces. All three calibrations unfold them.
+The error maps, at 5 % of the image peak, show the remaining
+differences: the direct estimate leaves a faint residual fold at the edges
+of the phantom, where its low-resolution sensitivities are least accurate,
+and ESPIRiT and nonlinear inversion leave mostly noise.</p>
 </section>
 <section id="a-smaller-calibration-region">
 <h2>A smaller calibration region<a class="headerlink" href="#a-smaller-calibration-region" title="Link to this heading">#</a></h2>
 <p>ESPIRiT builds its calibration matrix from every position of a kernel, six
-samples wide by default, inside the calibration region. Eight lines leave
-three kernel positions along the phase-encoding axis, and from this data
+samples wide by default, inside the ACS region. Eight lines leave three
+kernel positions along the phase-encoding axis, and from this data
 <code class="docutils literal notranslate"><span class="pre">ecalib</span></code> returns sensitivities that are zero in every voxel, which no
 reconstruction can use. <code class="docutils literal notranslate"><span class="pre">caldir</span></code> still runs, on an image of eight lines’
 resolution. <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> uses every acquired sample, so the calibration region
-affects it only through the first steps of the iteration.</p>
+affects it only through the first Gauss-Newton steps.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">scarce</span> <span class="o">=</span> <span class="n">acquire</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">espirit</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><span class="n">bt</span><span class="o">.</span><span class="n">ecalib</span></a><span class="p">(</span><span class="n">scarce</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">calib_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span><span class="w">
@@ -658,13 +710,18 @@ affects it only through the first steps of the iteration.</p>
  nlinv image  NRMSE 0.033
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-coil-calibration_002.png" srcset="../../_images/sphx_glr_01-coil-calibration_002.png" alt="8 calibration lines, caldir, 0.173, nlinv, 0.040, nlinv image, 0.033" class = "sphx-glr-single-img"/><p>With eight calibration lines the direct estimate leaves residual aliasing,
-because a sensitivity estimated at that resolution does not represent the
-coil profiles closely enough to unfold three copies. The sensitivities from
-nonlinear inversion still unfold the image. The same estimator applies to
-non-Cartesian data, where no Cartesian calibration region exists, as
-<a class="reference internal" href="../../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ncalib()</span></code></a>, which <a class="reference internal" href="../04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a>
-uses.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-coil-calibration_004.png" srcset="../../_images/sphx_glr_01-coil-calibration_004.png" alt="8 ACS lines, R = 3, reference, SENSE, caldir, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-coil-calibration_005.png" srcset="../../_images/sphx_glr_01-coil-calibration_005.png" alt="error magnitude, 8 ACS lines, SENSE, caldir, SENSE, nlinv" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>With eight ACS lines the direct estimate leaves visible residual aliasing:
+sensitivities estimated at a resolution of eight lines do not represent the
+coil profiles closely enough to unfold three copies, and the fold-over
+edges of the skull reappear inside the phantom. The sensitivities from
+nonlinear inversion still unfold the image, because they are fitted to all
+acquired samples. The same estimator applies to non-Cartesian data, where
+no Cartesian ACS region exists, as <a class="reference internal" href="../../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ncalib()</span></code></a>, which
+<a class="reference internal" href="../04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a> uses.</p>
 <p>The errors above are for one phantom, one noise level and one sampling
 pattern, and they depend on the regularization of each reconstruction; they
 do not rank the estimators in general.</p>
@@ -693,7 +750,7 @@ content. <em>Magn Reson Med</em> 60(3):674-682 (2008).
 <a class="reference external" href="https://doi.org/10.1002/mrm.21691">https://doi.org/10.1002/mrm.21691</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.098 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.245 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-parallel-imaging-01-coil-calibration-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/ec35ef476ab4a01c96f0aec0593e477e/01-coil-calibration.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-coil-calibration.ipynb</span></code></a></p>
@@ -721,12 +778,12 @@ content. <em>Magn Reson Med</em> 60(3):674-682 (2008).
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../01-basics/02-from-kspace-to-image.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Parallel imaging</p>
+        <p class="prev-next-title">From k-space to image</p>
       </div>
     </a>
     <a class="right-next"

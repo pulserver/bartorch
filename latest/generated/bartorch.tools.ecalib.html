@@ -197,7 +197,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
@@ -219,6 +219,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -228,13 +229,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -525,22 +545,22 @@ step is split along, takes an axis of <code class="docutils literal notranslate"
 
 <section id="examples-using-ecalib">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">ecalib</span></code><a class="headerlink" href="#examples-using-ecalib" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Reconstruction of an undersampled Cartesian acquisition, from the measured k-space to a coil-combined image."><img alt="" src="../_images/sphx_glr_02-from-kspace-to-image_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an undersampled Cartesian brain acquisition from its multichannel k-space to a coil-combined image, and shows what each step of a parallel-imaging and compressed-sensing pipeline contributes. Scan time in Cartesian MRI is proportional to the number of phase-encoding lines; skipping lines shortens the scan by the acceleration factor R, but violates the Nyquist criterion and folds the image onto itself. Recovering an unaliased image from such data is what the receive coil array, and prior knowledge of the image, are used for."><img alt="" src="../_images/sphx_glr_02-from-kspace-to-image_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a></p>
   <div class="sphx-glr-thumbnail-title">From k-space to image</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Three estimates of the receive sensitivities of a coil array from the same undersampled Cartesian acquisition, and the SENSE reconstructions they lead to."><img alt="" src="../_images/sphx_glr_01-coil-calibration_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson compares three ways of estimating the receive sensitivities of a coil array from the undersampled acquisition itself, and shows how the size of the fully sampled calibration region decides which of them can be used. A SENSE reconstruction [#sense]_ inverts"><img alt="" src="../_images/sphx_glr_01-coil-calibration_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a></p>
   <div class="sphx-glr-thumbnail-title">Coil sensitivity calibration</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Estimating the image and the coil sensitivities together, from undersampled data whose fully sampled central region is too small for a separate calibration."><img alt="" src="../_images/sphx_glr_02-nonlinear-inversion_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an image and the coil sensitivities together from undersampled data whose fully sampled central region is too small for a separate calibration, and then writes the same reconstruction out as a nonlinear operator and a Gauss-Newton solver."><img alt="" src="../_images/sphx_glr_02-nonlinear-inversion_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p>
   <div class="sphx-glr-thumbnail-title">Nonlinear inversion</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The effect of channel-noise correlation on a SENSE reconstruction, and its removal by prewhitening with a noise measurement."><img alt="" src="../_images/sphx_glr_03-noise-prewhitening_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers."><img alt="" src="../_images/sphx_glr_03-noise-prewhitening_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
   <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Three regularization terms applied to the same undersampled SENSE problem, and the dependence of the reconstruction error on the regularization weight."><img alt="" src="../_images/sphx_glr_01-regularized-reconstruction_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson compares three regularization terms on the same undersampled, noisy SENSE acquisition, shows how the choice of the regularization weight trades residual noise and aliasing against loss of detail, and combines two terms in one reconstruction."><img alt="" src="../_images/sphx_glr_01-regularized-reconstruction_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a></p>
   <div class="sphx-glr-thumbnail-title">Regularized reconstruction</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The same reconstruction written as an encoding operator and a solver rather than as a call to a BART application."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson rebuilds the reconstruction of the previous lessons from its parts -- the encoding operator, the regularization term and the iterative algorithm -- instead of calling a BART application, and shows that the result is identical."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p>
   <div class="sphx-glr-thumbnail-title">Operators and solvers</div>
 </div></div></section>

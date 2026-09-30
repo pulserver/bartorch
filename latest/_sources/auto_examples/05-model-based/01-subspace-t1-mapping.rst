@@ -22,25 +22,34 @@
 Subspace-constrained T1 mapping
 ===============================
 
-An inversion-recovery FLASH acquisition of four hundred frames, one spoke each,
-reconstructed into the coefficients of a signal subspace and fitted for
-:math:`T_1`.
+This lesson estimates a :math:`T_1` map from a single continuous
+inversion-recovery acquisition in which each of four hundred time points is
+encoded by one radial spoke. The aim is to show how a signal model turns a
+hopelessly undersampled time series into a well-posed reconstruction: the
+recovery curves of all plausible :math:`T_1` values span a subspace of low
+dimension, and reconstructing the few coefficients of that subspace instead of
+the individual frames reduces the number of unknowns by two orders of
+magnitude.
 
-A single spoke does not determine a frame. What makes the series recoverable is
-that the frames are not arbitrary: every voxel follows an inversion-recovery
-curve, and the curves of every plausible :math:`T_1` lie close to a subspace
-of low dimension, four here. A subspace-constrained reconstruction [#tamir]_
-writes the unknown series as :math:`x_t = \sum_a \Phi_{at} \alpha_a`, which
-turns four hundred images into four coefficient maps, and the
-basis :math:`\Phi` enters the encoding on the k-space side, after the
-transform and before the samples:
+The sequence is an inversion pulse followed by a train of spoiled gradient
+echoes with a small flip angle, each echo read out along one golden-angle
+spoke, as in MPnRAGE and radial Look-Locker methods. The longitudinal
+magnetization recovers from inversion towards a steady state at an apparent
+rate that depends on :math:`T_1`, the flip angle and the repetition time, so
+each voxel follows one of a family of recovery curves. The family is
+simulated as a dictionary, and its dominant singular vectors
+:math:`\Phi` form the basis of a subspace [#tamir]_. The time series is written
+as :math:`x_t = \sum_a \Phi_{at} \alpha_a`, and the basis enters the encoding
+on the k-space side, between the transform of each frame and its samples:
 
 .. math::
 
    y[c, t] = \sum_a \Phi_{at} \, \mathrm{NUFFT}_t \!\left( S_c \, \alpha_a \right).
 
-The subspace is estimated from a simulated dictionary, which is also what the
-parameter fit matches against.
+The coefficient maps :math:`\alpha_a` are reconstructed under a locally
+low-rank penalty, any frame of the series can be synthesized from them, and
+:math:`T_1` is estimated by matching each voxel's coefficients against the
+dictionary.
 
 The phantom and the coil sensitivities are built as in
 :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
@@ -48,17 +57,19 @@ this page and present in the script this page can be downloaded as.
 
 **Learning objectives**
 
-- Simulate a signal dictionary and extract a low-dimensional subspace from
-  it.
+- Simulate a dictionary of inversion-recovery curves and extract a
+  low-dimensional subspace from it by the singular value decomposition.
 - Include a subspace basis in a non-Cartesian encoding.
-- Reconstruct coefficient maps under a locally low-rank penalty and estimate
-  :math:`T_1` from them by dictionary matching.
+- Reconstruct coefficient maps under a locally low-rank penalty, and
+  synthesize images at any inversion time from them.
+- Estimate :math:`T_1` by dictionary matching in the subspace, and identify
+  the partial-volume bias of a voxelwise fit.
 
 It follows :doc:`../04-non-cartesian/03-dynamic-golden-angle`, whose frames
 are constrained here by a linear signal model. The next lesson,
-:doc:`02-quantitative-models`, uses a nonlinear one.
+:doc:`02-quantitative-models`, fits a nonlinear one directly to k-space.
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-169
+.. GENERATED FROM PYTHON SOURCE LINES 55-174
 
 .. code-block:: Python
 
@@ -91,7 +102,7 @@ are constrained here by a linear signal model. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 170-183
+.. GENERATED FROM PYTHON SOURCE LINES 175-188
 
 The dictionary and its subspace
 -------------------------------
@@ -107,7 +118,7 @@ The same object serves the fit: handed to :func:`bartorch.nlop.Bloch` it is
 a model operator, which is how :doc:`02-quantitative-models`
 solves for the maps directly. Here only its forward evaluation is wanted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 184-195
+.. GENERATED FROM PYTHON SOURCE LINES 189-200
 
 .. code-block:: Python
 
@@ -135,15 +146,19 @@ solves for the maps directly. Here only its forward evaluation is wanted.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 196-201
+.. GENERATED FROM PYTHON SOURCE LINES 201-210
 
-The singular values of the dictionary say how many coefficients a
-reconstruction has to carry. The rank used here, four, is marked by the
-dashed line; it is a modelling decision rather than a measurement: too few
-coefficients bias the recovered curves toward the span of the basis, and too
+The left panel shows a few entries of the dictionary: the signal starts
+negative after the inversion, passes through zero at a time that grows with
+:math:`T_1`, and approaches the steady state of the gradient-echo train. The
+curves are smooth and similar to each other, so a few singular vectors
+represent them all. The singular values in the right panel decay by more
+than two orders of magnitude over the first four, and the rank used here,
+four, is marked by the dashed line. The rank is a modelling decision: too
+few coefficients bias the recovered curves toward the span of the basis, too
 many increase the number of unknowns the undersampled data must determine.
 
-.. GENERATED FROM PYTHON SOURCE LINES 202-213
+.. GENERATED FROM PYTHON SOURCE LINES 211-234
 
 
 
@@ -157,7 +172,7 @@ many increase the number of unknowns the undersampled data must determine.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 214-222
+.. GENERATED FROM PYTHON SOURCE LINES 235-243
 
 Phantom
 -------
@@ -168,7 +183,7 @@ sum of them. A voxel holding two tissues therefore follows a sum of two
 recovery curves, which is not itself an inversion-recovery curve -- the
 partial-volume error any voxelwise fit carries.
 
-.. GENERATED FROM PYTHON SOURCE LINES 223-299
+.. GENERATED FROM PYTHON SOURCE LINES 244-320
 
 
 
@@ -177,17 +192,20 @@ partial-volume error any voxelwise fit carries.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 300-307
+.. GENERATED FROM PYTHON SOURCE LINES 321-331
 
 Acquisition and reconstruction
 ------------------------------
 
-One golden-angle spoke per frame. The trajectory indexes frames as well as
+One golden-angle spoke per repetition time, four hundred of them in
+1.64 s after the inversion. Each frame is sampled by a single spoke, about
+:math:`1/200` of what a fully sampled frame needs; together the spokes of
+the train cover k-space densely. The trajectory indexes frames as well as
 samples, and the image the encoding operator maps from is the four
 coefficient maps rather than the four hundred frames, with ``basis``
 contracting the one into the other.
 
-.. GENERATED FROM PYTHON SOURCE LINES 308-326
+.. GENERATED FROM PYTHON SOURCE LINES 332-350
 
 .. code-block:: Python
 
@@ -217,7 +235,7 @@ contracting the one into the other.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 327-337
+.. GENERATED FROM PYTHON SOURCE LINES 351-361
 
 ``plan.contraction`` reports the subspace and its rank, and the normal
 operator is a point spread function over the basis as well as the
@@ -230,7 +248,7 @@ penalty favours neighbouring voxels that follow the same few curves, rather
 than coefficient maps that are each sparse. Penalizing the maps one at a
 time does not couple the coefficients of a voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 338-345
+.. GENERATED FROM PYTHON SOURCE LINES 362-369
 
 .. code-block:: Python
 
@@ -248,7 +266,7 @@ time does not couple the coefficients of a voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 346-354
+.. GENERATED FROM PYTHON SOURCE LINES 370-378
 
 Parameter fit
 -------------
@@ -259,7 +277,7 @@ matching performed in four dimensions rather than four hundred. Matching in
 the subspace and matching the reconstructed curves differ only by the
 component of the dictionary the basis discards.
 
-.. GENERATED FROM PYTHON SOURCE LINES 355-364
+.. GENERATED FROM PYTHON SOURCE LINES 379-388
 
 .. code-block:: Python
 
@@ -279,12 +297,12 @@ component of the dictionary the basis discards.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 365-367
+.. GENERATED FROM PYTHON SOURCE LINES 389-391
 
 The fit is reported where the proton density is high enough for a curve to be
 defined, and separately for the voxels each tissue class dominates.
 
-.. GENERATED FROM PYTHON SOURCE LINES 368-383
+.. GENERATED FROM PYTHON SOURCE LINES 392-407
 
 .. code-block:: Python
 
@@ -321,54 +339,134 @@ defined, and separately for the voxels each tissue class dominates.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 384-420
+.. GENERATED FROM PYTHON SOURCE LINES 408-418
 
 
 
 
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_002.png
-         :alt: subspace coefficient maps, each on its own scale, coefficient 0, coefficient 1, coefficient 2, coefficient 3
-         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_002.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
-         :alt: membership-weighted $T_1$, fitted $T_1$
-         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
-         :class: sphx-glr-multi-img
+.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_002.png
+   :alt: coefficient maps, magnitude, each on its own scale, $\alpha_1$, $\alpha_2$, $\alpha_3$, $\alpha_4$
+   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_002.png
+   :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 421-439
+.. GENERATED FROM PYTHON SOURCE LINES 419-434
 
-Each coefficient map is the weight of one singular vector of the
-dictionary. The first resembles a magnetization image; the later ones encode
-the differences between recovery curves that the earlier vectors do not
-represent, and do not correspond to tissue contrast.
+Each coefficient map is the weight of one singular vector of the dictionary.
+The first resembles a proton-density-weighted image, since the first singular
+vector is close to the mean recovery curve; the later ones encode the
+differences between the curves of short and long :math:`T_1`, and are not
+images of a tissue contrast.
 
-The recovered curve is the reconstruction's, which determines it only up to a
-global scale -- the data was normalized before the solve -- so the panel
-beside the maps compares the two after dividing that scale out. The fit is
-invariant to it, being a normalized inner product.
+Images at any inversion time
+----------------------------
 
-The :math:`T_1` maps are drawn with the lipari colormap [#fuderer]_. The
-printed table compares the fitted :math:`T_1` with the tabulated value in the
-voxels each tissue class dominates. The fit is biased where two tissues meet,
-because the sum of two recovery curves is not a recovery curve, and it lies
-within the range of :math:`T_1` the dictionary covers.
+The coefficient maps determine the whole series: multiplying by the basis
+synthesizes the image at every one of the four hundred time points, each of
+which was measured with a single spoke. Early after the inversion the
+longitudinal magnetization is negative in every tissue; each tissue then
+passes through zero at its own null time, shortest for white matter, and
+approaches the steady state of the gradient-echo train.
+
+.. GENERATED FROM PYTHON SOURCE LINES 435-476
+
+
+
+
+.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
+   :alt: magnitude images after the inversion, t = 33 ms, t = 295 ms, t = 447 ms, t = 1636 ms
+   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_003.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 477-489
+
+The four frames are shortly after the inversion, when every tissue is
+inverted and bright in magnitude; at the null of white matter, which appears
+dark; at the null of grey matter, where white matter, only just past its own
+null, is dark as well; and at the end of the train, in the steady state.
+The recovered frames reproduce these contrast changes, each from its single
+spoke, with blurring at the tissue boundaries.
+
+The curve of a single voxel shows the same with its sign. The complex
+signal is rotated so that its steady state is positive and real, and the
+reconstruction, which determines the series up to a global complex scale
+because the data are normalized before the solve, is scaled to the
+reference in the least-squares sense.
+
+.. GENERATED FROM PYTHON SOURCE LINES 490-515
+
+
+
+
+.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_004.png
+   :alt: reference (thick) and recovered (dashed)
+   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_004.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 516-522
+
+The :math:`T_1` map
+-------------------
+
+The maps are drawn with the lipari colormap [#fuderer]_, in a window that
+spans white and grey matter; cerebrospinal fluid, beyond it, saturates. The
+difference map is in milliseconds.
+
+.. GENERATED FROM PYTHON SOURCE LINES 523-540
+
+
+
+
+.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_005.png
+   :alt: reference, fitted, |fitted - reference|
+   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-subspace-t1-mapping_005.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 541-567
+
+The printed table compares the median fitted :math:`T_1` with the tabulated
+value in the voxels a single tissue class dominates. Grey matter agrees
+closely. White matter is overestimated, consistent with its recovered curve
+above, which lies between the reference curves of white and grey matter: the
+locally low-rank penalty shares information between neighbouring voxels,
+and the thin white-matter structures border grey matter everywhere.
+
+Cerebrospinal fluid is strongly underestimated, and the difference map
+saturates in the ventricles. Its :math:`T_1` is poorly determined by this
+acquisition: the recovery observed during a gradient-echo train is governed
+by the apparent relaxation time
+:math:`T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}` [#deichmann]_, which
+for a flip angle :math:`\alpha` of 6 degrees and :math:`T_R` of 4.1 ms is
+below 750 ms for any :math:`T_1`. The curves of long :math:`T_1` therefore
+differ from each other by little more than the error of the reconstruction.
+A smaller flip angle or a longer train increases the sensitivity to long
+:math:`T_1`.
+
+At the boundaries between tissues the fit is biased for a different reason:
+a voxel holding two tissues follows the sum of two recovery curves, which is
+not itself a recovery curve, and the dictionary entry that matches it best
+has a :math:`T_1` between the two. This partial-volume bias belongs to any
+voxelwise fit, not to the subspace.
 
 Estimating the parameters directly from k-space, without an intermediate
 series or a subspace, is :doc:`02-quantitative-models`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 442-456
+.. GENERATED FROM PYTHON SOURCE LINES 570-588
 
 References
 ----------
@@ -381,6 +479,10 @@ References
    locally low rank constraint. *Magn Reson Med* 73(2):655-661 (2015).
    https://doi.org/10.1002/mrm.25161
 
+.. [#deichmann] Deichmann R, Haase A. Quantification of T1 values by SNAPSHOT-FLASH
+   NMR imaging. *J Magn Reson* 96(3):608-612 (1992).
+   https://doi.org/10.1016/0022-2364(92)90347-A
+
 .. [#fuderer] Fuderer M, Wichtmann B, Crameri F, de Souza NM, Baeßler B, Gulani V,
    et al. Color-map recommendation for MR relaxometry maps. *Magn Reson Med*
    93(2):490-506 (2025). https://doi.org/10.1002/mrm.30290
@@ -388,7 +490,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 10.179 seconds)
+   **Total running time of the script:** (0 minutes 7.826 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-subspace-t1-mapping.py:

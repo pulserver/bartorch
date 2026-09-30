@@ -22,25 +22,39 @@
 Receive bias field
 ==================
 
-The intensity shading that a surface receive array leaves in a
-root-sum-of-squares image, estimated and removed by N4 bias field correction.
+A root-sum-of-squares combination of the images of a receive array is the
+object weighted by the root sum of squares of the coil sensitivities. That
+weighting is smooth, multiplicative and largest near the elements, and it
+shades the image: the same tissue appears brighter near the array than far
+from it, which biases segmentation, intensity-based registration and any
+quantitative comparison across the field of view.
 
-The object is BART's brain phantom, whose tissue classes each have one
-intensity; the array is BART's analytical eight-element head coil. N4
-[#tustison]_ is SimpleITK's implementation, reached through
-:func:`bartorch.tools.bias_field_correct`.
+This example shades a T1-weighted head with the posterior elements of a head
+array, estimates the field with N4 [#tustison]_ through
+:func:`bartorch.tools.bias_field_correct`, and compares the corrected image and
+the estimated field with the object and the true field.
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-37
+**Learning objectives**
+
+* Relate the shading of a root-sum-of-squares image to the receive
+  sensitivities.
+* Estimate and remove the bias field with N4, and assess the result by the
+  uniformity of a tissue class and by the intensity histogram.
+* Choose the mask and the fitting grid of the estimate.
+* Recognise what N4 cannot recover: the scale of the field, and a smooth
+  intensity variation that belongs to the object.
+
+.. GENERATED FROM PYTHON SOURCE LINES 30-70
 
 .. code-block:: Python
 
 
     import torch
+    from scipy import ndimage
 
     import bartorch
     import bartorch.tools as bt
 
-    SIZE = 128
 
 
 
@@ -48,39 +62,22 @@ intensity; the array is BART's analytical eight-element head coil. N4
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 71-78
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-45
+Object
+------
 
-The shaded image
-----------------
+The object is an axial slice of the BrainWeb T1-weighted head [#brainweb]_
+through the lateral ventricles, 128 x 128 over a 220 mm field of view. The
+BrainWeb tissue model also gives the voxels that are at least 90 % white or
+grey matter, over which the uniformity of each class is measured.
 
-The coil images are the object weighted by each element's sensitivity, plus
-independent noise. Their root sum of squares is the object weighted by the
-root sum of squares of the sensitivities, which is smooth, multiplicative and
-largest near the elements.
-
-.. GENERATED FROM PYTHON SOURCE LINES 46-65
+.. GENERATED FROM PYTHON SOURCE LINES 79-85
 
 .. code-block:: Python
 
 
-    brain = bt.phantom(SIZE, geometry="brain").abs()
-    brain = brain / brain.max()
-    support = brain > 0
-
-    head_coil = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=8)[:, 0]
-
-
-    def acquire(elements):
-        """Root sum of squares of noisy coil images, and the field it carries."""
-        elements = elements / bartorch.rss(elements, axes=(0,)).abs().max()
-        coil_images = bt.noise(elements * brain, n=1e-4, s=3)
-        return bartorch.rss(coil_images, axes=(0,)).abs(), bartorch.rss(elements, axes=(0,)).abs()
-
-
-    observed, field = acquire(head_coil)
-    inside = field[support]
-    print(f"the field spans a factor {float(inside.max() / inside.min()):.1f} over the object")
+    SIZE, FOV_MM = 128, 220.0
 
 
 
@@ -90,44 +87,109 @@ largest near the elements.
 
  .. code-block:: none
 
-    the field spans a factor 2.8 over the object
+
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.51kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 40.8kB [00:00, 139kB/s] 
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 185kB [00:00, 507kB/s] 
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 465kB [00:00, 1.07MB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.98MB [00:00, 2.05MB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.01MB [00:00, 3.92MB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.06MB [00:01, 7.57MB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.74MB [00:01, 9.95MB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.76MB [00:01, 9.42MB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.70MB [00:01, 8.23MB/s]
+
+                                                                    
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 86-95
+
+The shaded image
+----------------
+
+The array is the posterior half of BART's analytical eight-element head
+coil, four elements. Each coil image is the object weighted by one
+element's sensitivity :math:`S_c`, with independent complex Gaussian noise;
+their root sum of squares is the object weighted by the bias field
+:math:`B = \sqrt{\sum_c |S_c|^2}`, and the noise adds a Rician floor in the
+background.
+
+.. GENERATED FROM PYTHON SOURCE LINES 96-108
+
+.. code-block:: Python
+
+
+    sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=8)[[0, 1, 6, 7], 0]
+    bias = bartorch.rss(sensitivities, axes=(0,)).abs()
+    sensitivities = sensitivities / bias[brain].mean()
+    bias = bias / bias[brain].mean()
+
+    coil_images = bt.noise(sensitivities * image, n=1e-4, s=3)
+    shaded = bartorch.rss(coil_images, axes=(0,)).abs()
+
+    low, high = bias[brain].quantile(0.02), bias[brain].quantile(0.98)
+    print(f"bias field over the brain: {float(low):.2f} to {float(high):.2f} (2nd to 98th percentile)")
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 66-78
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    bias field over the brain: 0.35 to 1.55 (2nd to 98th percentile)
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 109-122
 
 N4 correction
 -------------
 
 N4 models the logarithm of the image as the logarithm of the object plus a
-smooth field, represented by B-splines, and estimates the field by
-iteratively sharpening the histogram of the log intensities. It needs no
-model of the coil, only an object whose intensities form classes, and it is
-blind to the origin of the shading: a genuine smooth intensity variation of
-the object is removed as well.
+smooth field, represented by cubic B-splines, and estimates the field by
+alternately sharpening the histogram of the log intensities and fitting the
+splines to what the sharpening removed, over a hierarchy of control-point
+grids. It uses no model of the coil, only an object whose intensities form
+classes.
 
-The measure of uniformity is the coefficient of variation over the
-brightest tissue class, which is zero in the object.
+The uniformity of a tissue class is its coefficient of variation, the
+standard deviation over the mean, which the object has too through partial
+volume at the class boundaries.
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-94
+.. GENERATED FROM PYTHON SOURCE LINES 123-138
 
 .. code-block:: Python
 
 
-    corrected, estimated = bt.bias_field_correct(observed, return_field=True)
-
-    brightest = brain > 0.99
+    corrected, estimate = bt.bias_field_correct(shaded, return_field=True)
 
 
-    def variation(image):
-        return float(image[brightest].std() / image[brightest].mean())
+    def variation(values, region):
+        return float(values[region].std() / values[region].mean())
 
 
-    print(
-        f"coefficient of variation: observed {variation(observed):.3f}, "
-        f"corrected {variation(corrected):.3f}"
-    )
+    for name, values in (("object", image), ("shaded", shaded), ("N4-corrected", corrected)):
+        contrast = values[white].mean() / values[grey].mean()
+        print(
+            f"{name:13s} coefficient of variation: white matter {variation(values, white):.3f}, "
+            f"grey matter {variation(values, grey):.3f}; white/grey {float(contrast):.2f}"
+        )
 
 
 
@@ -137,98 +199,136 @@ brightest tissue class, which is zero in the object.
 
  .. code-block:: none
 
-    coefficient of variation: observed 0.088, corrected 0.015
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 95-98
-
-A multiplicative field is determined up to a constant, which the correction
-leaves in the image, so the estimate is compared with the true field after
-matching their means over the object.
-
-.. GENERATED FROM PYTHON SOURCE LINES 99-104
-
-.. code-block:: Python
-
-
-    scale = field[support].mean() / estimated[support].mean()
-    residual = ((scale * estimated - field).abs() / field)[support]
-    print(f"field recovered to {100 * float(residual.median()):.1f} % (median over the object)")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    field recovered to 0.9 % (median over the object)
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 105-126
-
-
-
-
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_001.png
-   :alt: object, root sum of squares, N4-corrected, estimated field
-   :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_001.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 127-132
-
-The mask and the fitting grid
------------------------------
-
-The field is fitted only over a mask, by default Otsu's threshold of the
-image. The object's full support is the alternative compared here.
-
-.. GENERATED FROM PYTHON SOURCE LINES 133-138
-
-.. code-block:: Python
-
-
-    full = bt.bias_field_correct(observed, mask=support.to(torch.uint8))
-    print(f"Otsu mask    {variation(corrected):.3f}")
-    print(f"full support {variation(full):.3f}")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    Otsu mask    0.015
-    full support 0.010
+    object        coefficient of variation: white matter 0.011, grey matter 0.035; white/grey 1.35
+    shaded        coefficient of variation: white matter 0.262, grey matter 0.335; white/grey 1.41
+    N4-corrected  coefficient of variation: white matter 0.104, grey matter 0.180; white/grey 1.37
 
 
 
 
 .. GENERATED FROM PYTHON SOURCE LINES 139-142
 
-The field is fitted on the image shrunk by ``shrink_factor`` and evaluated
-on the full grid; a field that is smooth on the scale of the object needs
-few grid points, and the cost of each N4 iteration falls with their number.
+A multiplicative field is determined up to a constant factor, which the
+correction leaves in the image. The estimate is therefore compared with the
+true field after scaling both to unit mean over the brain.
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-148
+.. GENERATED FROM PYTHON SOURCE LINES 143-152
+
+.. code-block:: Python
+
+
+    estimate = estimate / estimate[brain].mean()
+    ratio = (estimate / bias)[brain]
+    within = float(((ratio - 1).abs() < 0.1).float().mean())
+    print(
+        f"estimated / true field over the brain: median {float(ratio.median()):.3f}, "
+        f"within 10 % in {100 * within:.0f} % of the voxels"
+    )
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    estimated / true field over the brain: median 0.965, within 10 % in 81 % of the voxels
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 153-202
+
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_001.png
+         :alt: object, shaded, N4-corrected
+         :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_002.png
+         :alt: true field, N4 estimate, estimate / true
+         :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_03-bias-field_003.png
+         :alt: profile along the dashed line, intensity histogram
+         :srcset: /auto_examples/07-tours/images/sphx_glr_03-bias-field_003.png
+         :class: sphx-glr-multi-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 203-220
+
+The field varies by a factor of four over the brain: in the shaded image
+the occipital lobes are bright and the frontal lobes dark, and the
+histogram of the brain has no separate grey- and white-matter peaks. After
+correction the variation of the white matter falls by more than half and
+the two peaks separate. The
+estimated field is within 10 % of the true one over most of the brain; it
+overestimates the field at the frontal pole, where the true field falls
+steeply to a third of its mean and below, so the corrected frontal cortex
+remains darker than the object. A residual of this kind is the reason a
+corrected image is still compared across regions with care.
+
+The mask and the fitting grid
+-----------------------------
+
+The field is fitted only over a mask, by default Otsu's threshold of the
+image, which under strong shading can exclude the darkest tissue. The
+alternative compared here is a mask of the whole head.
+
+.. GENERATED FROM PYTHON SOURCE LINES 221-227
+
+.. code-block:: Python
+
+
+    head = ndimage.binary_fill_holes(shaded > 0.02 * shaded.max())
+    with_head = bt.bias_field_correct(shaded, mask=torch.as_tensor(head, dtype=torch.uint8))
+    print(f"Otsu mask: white-matter variation {variation(corrected, white):.3f}")
+    print(f"head mask: white-matter variation {variation(with_head, white):.3f}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Otsu mask: white-matter variation 0.104
+    head mask: white-matter variation 0.115
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 228-231
+
+The field is fitted on the image shrunk by ``shrink_factor`` and evaluated
+on the full grid. A field that is smooth on the scale of the head needs few
+grid points, and the cost of each N4 iteration falls with their number.
+
+.. GENERATED FROM PYTHON SOURCE LINES 232-237
 
 .. code-block:: Python
 
 
     for shrink in (1, 2, 4, 8):
-        estimate = bt.bias_field_correct(observed, shrink_factor=shrink)
-        print(f"shrink_factor {shrink}: coefficient of variation {variation(estimate):.3f}")
+        trial = bt.bias_field_correct(shaded, shrink_factor=shrink)
+        print(f"shrink_factor {shrink}: white-matter variation {variation(trial, white):.3f}")
 
 
 
@@ -238,62 +338,23 @@ few grid points, and the cost of each N4 iteration falls with their number.
 
  .. code-block:: none
 
-    shrink_factor 1: coefficient of variation 0.017
-    shrink_factor 2: coefficient of variation 0.017
-    shrink_factor 4: coefficient of variation 0.015
-    shrink_factor 8: coefficient of variation 0.017
+    shrink_factor 1: white-matter variation 0.095
+    shrink_factor 2: white-matter variation 0.096
+    shrink_factor 4: white-matter variation 0.104
+    shrink_factor 8: white-matter variation 0.137
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-155
+.. GENERATED FROM PYTHON SOURCE LINES 238-257
 
-A stronger field
-----------------
-
-Three elements on one side of the head leave a field that varies by an
-order of magnitude over the object, and the same correction recovers it
-less closely.
-
-.. GENERATED FROM PYTHON SOURCE LINES 156-169
-
-.. code-block:: Python
-
-
-    strong, strong_field = acquire(head_coil[:3])
-    inside = strong_field[support]
-    flattened, strong_estimate = bt.bias_field_correct(strong, return_field=True)
-    scale = strong_field[support].mean() / strong_estimate[support].mean()
-    residual = ((scale * strong_estimate - strong_field).abs() / strong_field)[support]
-    print(f"the field spans a factor {float(inside.max() / inside.min()):.1f} over the object")
-    print(
-        f"coefficient of variation: observed {variation(strong):.3f}, "
-        f"corrected {variation(flattened):.3f}"
-    )
-    print(f"field recovered to {100 * float(residual.median()):.1f} % (median over the object)")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    the field spans a factor 14.1 over the object
-    coefficient of variation: observed 0.314, corrected 0.143
-    field recovered to 17.6 % (median over the object)
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 170-182
-
-The correction applies to a magnitude image after coil combination. In a
-SENSE reconstruction the sensitivities are normalized so that their root sum
-of squares is one, which removes the same shading within the
-reconstruction; N4 is for images whose sensitivities are not available,
-such as a root-sum-of-squares combination.
+N4 removes any smooth intensity variation, whatever its origin: a receive
+field, a transmit field in a gradient-echo image, or a genuine slow change
+of the tissue signal. In a SENSE reconstruction the sensitivities are
+normalized to unit root sum of squares, which removes the receive shading
+within the reconstruction; N4 serves images for which the sensitivities are
+not available, such as a root-sum-of-squares combination, and the transmit
+field, which no receive calibration measures.
 
 References
 ----------
@@ -302,10 +363,15 @@ References
    Gee JC. N4ITK: improved N3 bias correction. *IEEE Trans Med Imaging*
    29(6):1310-1320 (2010). https://doi.org/10.1109/TMI.2010.2046908
 
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ,
+   Holmes CJ, Evans AC. Design and construction of a realistic digital brain
+   phantom. *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.845 seconds)
+   **Total running time of the script:** (0 minutes 4.327 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_03-bias-field.py:

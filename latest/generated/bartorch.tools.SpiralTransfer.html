@@ -199,7 +199,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
@@ -221,6 +221,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -230,13 +231,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -476,6 +496,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.separable"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.separable</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.terms"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.terms</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.amplification"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.amplification</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.error"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.error()</span></code></a></li>
@@ -498,30 +519,60 @@
 <dt class="sig sig-object py" id="bartorch.tools.SpiralTransfer">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">SpiralTransfer</span></span><a class="headerlink" href="#bartorch.tools.SpiralTransfer" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
-<p>Separable factorization of the off-resonance transfer of a spiral readout.</p>
+<p>Low-rank factorization of the off-resonance transfer of a spiral readout.</p>
 <div class="math notranslate nohighlight">
-\[e^{-2\pi i f t(k)} \approx \sum_m a_m(f)\, e^{\alpha_m |k|^2 / k_{max}^2}\]</div>
-<p>with <span class="math notranslate nohighlight">\(t(k)\)</span> the readout time at which <span class="math notranslate nohighlight">\(k\)</span> is sampled.  Each
-k-space factor is a product over the axes, so each term is a separable
-convolution of the image, and the field map enters only through the
-per-voxel weights <span class="math notranslate nohighlight">\(a_m(f)\)</span>.  As <span class="math notranslate nohighlight">\(|k|\)</span> is invariant under
-rotation, one factorization serves every arm of a rotated 2D spiral or 3D
-spiral-projection acquisition.</p>
+\[e^{-2\pi i f t(k)} \approx \sum_m a_m(f)\, h_m(k)\]</div>
+<p>with <span class="math notranslate nohighlight">\(t(k)\)</span> the readout time at which <span class="math notranslate nohighlight">\(k\)</span> is sampled.  The
+field map enters only through the per-voxel weights <span class="math notranslate nohighlight">\(a_m(f)\)</span>, and
+each term is one k-space multiply of the image by <span class="math notranslate nohighlight">\(h_m\)</span>.  Two bases
+are available:</p>
+<ul class="simple">
+<li><p>multifrequency interpolation (MFI) <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, with demodulation frequencies
+<span class="math notranslate nohighlight">\(f_m\)</span>: <span class="math notranslate nohighlight">\(h_m(k) = e^{-2\pi i f_m t(k)}\)</span>, the image
+demodulated at <span class="math notranslate nohighlight">\(f_m\)</span>;</p></li>
+<li><p>a separable basis, with complex rates <span class="math notranslate nohighlight">\(\alpha_m\)</span>:
+<span class="math notranslate nohighlight">\(h_m(k) = e^{\alpha_m |k|^2 / k_{max}^2}\)</span>, a product over the axes,
+so that each term is also a separable convolution of the image.</p></li>
+</ul>
+<p>As <span class="math notranslate nohighlight">\(|k|\)</span> is invariant under rotation, one factorization serves every
+interleaf of a rotated 2D spiral or 3D spiral-projection acquisition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rates</strong> (<em>numpy.ndarray</em>) – Complex rates <span class="math notranslate nohighlight">\(\alpha_m\)</span>, <code class="docutils literal notranslate"><span class="pre">(terms,)</span></code>.</p></li>
+<li><p><strong>rates</strong> (<em>numpy.ndarray</em><em> or </em><em>None</em>) – Complex rates <span class="math notranslate nohighlight">\(\alpha_m\)</span> of the separable basis, <code class="docutils literal notranslate"><span class="pre">(terms,)</span></code>;
+<code class="docutils literal notranslate"><span class="pre">None</span></code> for MFI.</p></li>
 <li><p><strong>weights</strong> (<em>numpy.ndarray</em>) – Weights <span class="math notranslate nohighlight">\(a_m(f)\)</span> at the tabulated frequencies,
 <code class="docutils literal notranslate"><span class="pre">(terms,</span> <span class="pre">frequencies)</span></code>.</p></li>
 <li><p><strong>frequencies</strong> (<em>numpy.ndarray</em>) – Uniformly spaced off-resonance frequencies, in Hz; a frequency outside
 them is clamped to the nearest end.</p></li>
+<li><p><strong>demodulation</strong> (<em>numpy.ndarray</em><em>, </em><em>default=None</em>) – MFI demodulation frequencies <span class="math notranslate nohighlight">\(f_m\)</span>, in Hz, <code class="docutils literal notranslate"><span class="pre">(terms,)</span></code>.</p></li>
+<li><p><strong>timing</strong> (<a class="reference internal" href="bartorch.tools.ReadoutTiming.html#bartorch.tools.ReadoutTiming" title="bartorch.tools.ReadoutTiming"><em>ReadoutTiming</em></a><em>, </em><em>default=None</em>) – The time map <span class="math notranslate nohighlight">\(t(k)\)</span> the demodulation is evaluated on; required
+with <code class="docutils literal notranslate"><span class="pre">demodulation</span></code>.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If neither or both of <code class="docutils literal notranslate"><span class="pre">rates</span></code> and <code class="docutils literal notranslate"><span class="pre">demodulation</span></code> are given, or
+    <code class="docutils literal notranslate"><span class="pre">demodulation</span></code> is given without <code class="docutils literal notranslate"><span class="pre">timing</span></code>.</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Man LC, Pauly JM, Macovski A. Multifrequency interpolation for fast
+off-resonance correction. Magn Reson Med 37(5):785-792 (1997).</p>
+</aside>
+</aside>
+<dl class="py property">
+<dt class="sig sig-object py" id="bartorch.tools.SpiralTransfer.separable">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">separable</span></span><a class="headerlink" href="#bartorch.tools.SpiralTransfer.separable" title="Link to this definition">#</a></dt>
+<dd><p>Whether each term’s k-space factor is a product over the axes.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.tools.SpiralTransfer.terms">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">terms</span></span><a class="headerlink" href="#bartorch.tools.SpiralTransfer.terms" title="Link to this definition">#</a></dt>
-<dd><p>Number of separable terms.</p>
+<dd><p>Number of terms.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -582,6 +633,7 @@ grows with the phase accrued over the readout and can be large while
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.separable"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.separable</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.terms"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.terms</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.amplification"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.amplification</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.tools.SpiralTransfer.error"><code class="docutils literal notranslate"><span class="pre">SpiralTransfer.error()</span></code></a></li>

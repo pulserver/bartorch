@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Parameter maps straight from k-space" href="02-quantitative-models.html" />
-    <link rel="prev" title="Model-based reconstruction" href="index.html" />
+    <link rel="prev" title="Dynamic golden-angle radial MRI" href="../04-non-cartesian/03-dynamic-golden-angle.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -481,6 +501,8 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#phantom">Phantom</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acquisition-and-reconstruction">Acquisition and reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameter-fit">Parameter fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#images-at-any-inversion-time">Images at any inversion time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-t-1-map">The <span class="math notranslate nohighlight">\(T_1\)</span> map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
             </nav>
@@ -502,35 +524,46 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-05-model-based-01-subspace-t1-mapping-py"></span><h1>Subspace-constrained T1 mapping<a class="headerlink" href="#subspace-constrained-t1-mapping" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/05-model-based/01-subspace-t1-mapping.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>An inversion-recovery FLASH acquisition of four hundred frames, one spoke each,
-reconstructed into the coefficients of a signal subspace and fitted for
-<span class="math notranslate nohighlight">\(T_1\)</span>.</p>
-<p>A single spoke does not determine a frame. What makes the series recoverable is
-that the frames are not arbitrary: every voxel follows an inversion-recovery
-curve, and the curves of every plausible <span class="math notranslate nohighlight">\(T_1\)</span> lie close to a subspace
-of low dimension, four here. A subspace-constrained reconstruction <a class="footnote-reference brackets" href="#tamir" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
-writes the unknown series as <span class="math notranslate nohighlight">\(x_t = \sum_a \Phi_{at} \alpha_a\)</span>, which
-turns four hundred images into four coefficient maps, and the
-basis <span class="math notranslate nohighlight">\(\Phi\)</span> enters the encoding on the k-space side, after the
-transform and before the samples:</p>
+<p>This lesson estimates a <span class="math notranslate nohighlight">\(T_1\)</span> map from a single continuous
+inversion-recovery acquisition in which each of four hundred time points is
+encoded by one radial spoke. The aim is to show how a signal model turns a
+hopelessly undersampled time series into a well-posed reconstruction: the
+recovery curves of all plausible <span class="math notranslate nohighlight">\(T_1\)</span> values span a subspace of low
+dimension, and reconstructing the few coefficients of that subspace instead of
+the individual frames reduces the number of unknowns by two orders of
+magnitude.</p>
+<p>The sequence is an inversion pulse followed by a train of spoiled gradient
+echoes with a small flip angle, each echo read out along one golden-angle
+spoke, as in MPnRAGE and radial Look-Locker methods. The longitudinal
+magnetization recovers from inversion towards a steady state at an apparent
+rate that depends on <span class="math notranslate nohighlight">\(T_1\)</span>, the flip angle and the repetition time, so
+each voxel follows one of a family of recovery curves. The family is
+simulated as a dictionary, and its dominant singular vectors
+<span class="math notranslate nohighlight">\(\Phi\)</span> form the basis of a subspace <a class="footnote-reference brackets" href="#tamir" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. The time series is written
+as <span class="math notranslate nohighlight">\(x_t = \sum_a \Phi_{at} \alpha_a\)</span>, and the basis enters the encoding
+on the k-space side, between the transform of each frame and its samples:</p>
 <div class="math notranslate nohighlight">
 \[y[c, t] = \sum_a \Phi_{at} \, \mathrm{NUFFT}_t \!\left( S_c \, \alpha_a \right).\]</div>
-<p>The subspace is estimated from a simulated dictionary, which is also what the
-parameter fit matches against.</p>
+<p>The coefficient maps <span class="math notranslate nohighlight">\(\alpha_a\)</span> are reconstructed under a locally
+low-rank penalty, any frame of the series can be synthesized from them, and
+<span class="math notranslate nohighlight">\(T_1\)</span> is estimated by matching each voxel’s coefficients against the
+dictionary.</p>
 <p>The phantom and the coil sensitivities are built as in
 <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
-<li><p>Simulate a signal dictionary and extract a low-dimensional subspace from
-it.</p></li>
+<li><p>Simulate a dictionary of inversion-recovery curves and extract a
+low-dimensional subspace from it by the singular value decomposition.</p></li>
 <li><p>Include a subspace basis in a non-Cartesian encoding.</p></li>
-<li><p>Reconstruct coefficient maps under a locally low-rank penalty and estimate
-<span class="math notranslate nohighlight">\(T_1\)</span> from them by dictionary matching.</p></li>
+<li><p>Reconstruct coefficient maps under a locally low-rank penalty, and
+synthesize images at any inversion time from them.</p></li>
+<li><p>Estimate <span class="math notranslate nohighlight">\(T_1\)</span> by dictionary matching in the subspace, and identify
+the partial-volume bias of a voxelwise fit.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a>, whose frames
 are constrained here by a linear signal model. The next lesson,
-<a class="reference internal" href="02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>, uses a nonlinear one.</p>
+<a class="reference internal" href="02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>, fits a nonlinear one directly to k-space.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
 </span><span class="w">
@@ -576,10 +609,14 @@ solves for the maps directly. Here only its forward evaluation is wanted.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>dictionary (200, 400), basis (4, 400)
 </pre></div>
 </div>
-<p>The singular values of the dictionary say how many coefficients a
-reconstruction has to carry. The rank used here, four, is marked by the
-dashed line; it is a modelling decision rather than a measurement: too few
-coefficients bias the recovered curves toward the span of the basis, and too
+<p>The left panel shows a few entries of the dictionary: the signal starts
+negative after the inversion, passes through zero at a time that grows with
+<span class="math notranslate nohighlight">\(T_1\)</span>, and approaches the steady state of the gradient-echo train. The
+curves are smooth and similar to each other, so a few singular vectors
+represent them all. The singular values in the right panel decay by more
+than two orders of magnitude over the first four, and the rank used here,
+four, is marked by the dashed line. The rank is a modelling decision: too
+few coefficients bias the recovered curves toward the span of the basis, too
 many increase the number of unknowns the undersampled data must determine.</p>
 <img src="../../_images/sphx_glr_01-subspace-t1-mapping_001.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_001.png" alt="01 subspace t1 mapping" class = "sphx-glr-single-img"/></section>
 <section id="phantom">
@@ -592,7 +629,10 @@ partial-volume error any voxelwise fit carries.</p>
 </section>
 <section id="acquisition-and-reconstruction">
 <h2>Acquisition and reconstruction<a class="headerlink" href="#acquisition-and-reconstruction" title="Link to this heading">#</a></h2>
-<p>One golden-angle spoke per frame. The trajectory indexes frames as well as
+<p>One golden-angle spoke per repetition time, four hundred of them in
+1.64 s after the inversion. Each frame is sampled by a single spoke, about
+<span class="math notranslate nohighlight">\(1/200\)</span> of what a fully sampled frame needs; together the spokes of
+the train cover k-space densely. The trajectory indexes frames as well as
 samples, and the image the encoding operator maps from is the four
 coefficient maps rather than the four hundred frames, with <code class="docutils literal notranslate"><span class="pre">basis</span></code>
 contracting the one into the other.</p>
@@ -666,23 +706,58 @@ MUSCLE/SKIN  table    900 ms   fitted   1007 ms   (377 voxels)
        SKIN  table   2569 ms   fitted   1648 ms   (411 voxels)
 </pre></div>
 </div>
-<ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" alt="subspace coefficient maps, each on its own scale, coefficient 0, coefficient 1, coefficient 2, coefficient 3" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" alt="membership-weighted $T_1$, fitted $T_1$" class = "sphx-glr-multi-img"/></li>
-</ul>
-<p>Each coefficient map is the weight of one singular vector of the
-dictionary. The first resembles a magnetization image; the later ones encode
-the differences between recovery curves that the earlier vectors do not
-represent, and do not correspond to tissue contrast.</p>
-<p>The recovered curve is the reconstruction’s, which determines it only up to a
-global scale – the data was normalized before the solve – so the panel
-beside the maps compares the two after dividing that scale out. The fit is
-invariant to it, being a normalized inner product.</p>
-<p>The <span class="math notranslate nohighlight">\(T_1\)</span> maps are drawn with the lipari colormap <a class="footnote-reference brackets" href="#fuderer" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. The
-printed table compares the fitted <span class="math notranslate nohighlight">\(T_1\)</span> with the tabulated value in the
-voxels each tissue class dominates. The fit is biased where two tissues meet,
-because the sum of two recovery curves is not a recovery curve, and it lies
-within the range of <span class="math notranslate nohighlight">\(T_1\)</span> the dictionary covers.</p>
+<img src="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_002.png" alt="coefficient maps, magnitude, each on its own scale, $\alpha_1$, $\alpha_2$, $\alpha_3$, $\alpha_4$" class = "sphx-glr-single-img"/><p>Each coefficient map is the weight of one singular vector of the dictionary.
+The first resembles a proton-density-weighted image, since the first singular
+vector is close to the mean recovery curve; the later ones encode the
+differences between the curves of short and long <span class="math notranslate nohighlight">\(T_1\)</span>, and are not
+images of a tissue contrast.</p>
+</section>
+<section id="images-at-any-inversion-time">
+<h2>Images at any inversion time<a class="headerlink" href="#images-at-any-inversion-time" title="Link to this heading">#</a></h2>
+<p>The coefficient maps determine the whole series: multiplying by the basis
+synthesizes the image at every one of the four hundred time points, each of
+which was measured with a single spoke. Early after the inversion the
+longitudinal magnetization is negative in every tissue; each tissue then
+passes through zero at its own null time, shortest for white matter, and
+approaches the steady state of the gradient-echo train.</p>
+<img src="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_003.png" alt="magnitude images after the inversion, t = 33 ms, t = 295 ms, t = 447 ms, t = 1636 ms" class = "sphx-glr-single-img"/><p>The four frames are shortly after the inversion, when every tissue is
+inverted and bright in magnitude; at the null of white matter, which appears
+dark; at the null of grey matter, where white matter, only just past its own
+null, is dark as well; and at the end of the train, in the steady state.
+The recovered frames reproduce these contrast changes, each from its single
+spoke, with blurring at the tissue boundaries.</p>
+<p>The curve of a single voxel shows the same with its sign. The complex
+signal is rotated so that its steady state is positive and real, and the
+reconstruction, which determines the series up to a global complex scale
+because the data are normalized before the solve, is scaled to the
+reference in the least-squares sense.</p>
+<img src="../../_images/sphx_glr_01-subspace-t1-mapping_004.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_004.png" alt="reference (thick) and recovered (dashed)" class = "sphx-glr-single-img"/></section>
+<section id="the-t-1-map">
+<h2>The <span class="math notranslate nohighlight">\(T_1\)</span> map<a class="headerlink" href="#the-t-1-map" title="Link to this heading">#</a></h2>
+<p>The maps are drawn with the lipari colormap <a class="footnote-reference brackets" href="#fuderer" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>, in a window that
+spans white and grey matter; cerebrospinal fluid, beyond it, saturates. The
+difference map is in milliseconds.</p>
+<img src="../../_images/sphx_glr_01-subspace-t1-mapping_005.png" srcset="../../_images/sphx_glr_01-subspace-t1-mapping_005.png" alt="reference, fitted, |fitted - reference|" class = "sphx-glr-single-img"/><p>The printed table compares the median fitted <span class="math notranslate nohighlight">\(T_1\)</span> with the tabulated
+value in the voxels a single tissue class dominates. Grey matter agrees
+closely. White matter is overestimated, consistent with its recovered curve
+above, which lies between the reference curves of white and grey matter: the
+locally low-rank penalty shares information between neighbouring voxels,
+and the thin white-matter structures border grey matter everywhere.</p>
+<p>Cerebrospinal fluid is strongly underestimated, and the difference map
+saturates in the ventricles. Its <span class="math notranslate nohighlight">\(T_1\)</span> is poorly determined by this
+acquisition: the recovery observed during a gradient-echo train is governed
+by the apparent relaxation time
+<span class="math notranslate nohighlight">\(T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}\)</span> <a class="footnote-reference brackets" href="#deichmann" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, which
+for a flip angle <span class="math notranslate nohighlight">\(\alpha\)</span> of 6 degrees and <span class="math notranslate nohighlight">\(T_R\)</span> of 4.1 ms is
+below 750 ms for any <span class="math notranslate nohighlight">\(T_1\)</span>. The curves of long <span class="math notranslate nohighlight">\(T_1\)</span> therefore
+differ from each other by little more than the error of the reconstruction.
+A smaller flip angle or a longer train increases the sensitivity to long
+<span class="math notranslate nohighlight">\(T_1\)</span>.</p>
+<p>At the boundaries between tissues the fit is biased for a different reason:
+a voxel holding two tissues follows the sum of two recovery curves, which is
+not itself a recovery curve, and the dictionary entry that matches it best
+has a <span class="math notranslate nohighlight">\(T_1\)</span> between the two. This partial-volume bias belongs to any
+voxelwise fit, not to the subspace.</p>
 <p>Estimating the parameters directly from k-space, without an intermediate
 series or a subspace, is <a class="reference internal" href="02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>.</p>
 </section>
@@ -701,14 +776,20 @@ shuffling: sharp, multicontrast, volumetric fast spin-echo imaging.
 locally low rank constraint. <em>Magn Reson Med</em> 73(2):655-661 (2015).
 <a class="reference external" href="https://doi.org/10.1002/mrm.25161">https://doi.org/10.1002/mrm.25161</a></p>
 </aside>
+<aside class="footnote brackets" id="deichmann" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>Deichmann R, Haase A. Quantification of T1 values by SNAPSHOT-FLASH
+NMR imaging. <em>J Magn Reson</em> 96(3):608-612 (1992).
+<a class="reference external" href="https://doi.org/10.1016/0022-2364(92)90347-A">https://doi.org/10.1016/0022-2364(92)90347-A</a></p>
+</aside>
 <aside class="footnote brackets" id="fuderer" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">4</a><span class="fn-bracket">]</span></span>
 <p>Fuderer M, Wichtmann B, Crameri F, de Souza NM, Baeßler B, Gulani V,
 et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
 93(2):490-506 (2025). <a class="reference external" href="https://doi.org/10.1002/mrm.30290">https://doi.org/10.1002/mrm.30290</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 10.179 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.826 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-model-based-01-subspace-t1-mapping-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/c40897b41797cbf2fb7d9a495d0de60d/01-subspace-t1-mapping.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-subspace-t1-mapping.ipynb</span></code></a></p>
@@ -736,12 +817,12 @@ et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../04-non-cartesian/03-dynamic-golden-angle.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Model-based reconstruction</p>
+        <p class="prev-next-title">Dynamic golden-angle radial MRI</p>
       </div>
     </a>
     <a class="right-next"
@@ -775,6 +856,8 @@ et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#phantom">Phantom</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acquisition-and-reconstruction">Acquisition and reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameter-fit">Parameter fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#images-at-any-inversion-time">Images at any inversion time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-t-1-map">The <span class="math notranslate nohighlight">\(T_1\)</span> map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>

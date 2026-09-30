@@ -22,13 +22,19 @@
 Trajectories and transforms
 ===========================
 
-The non-Cartesian interfaces: the trajectories
-:func:`bartorch.tools.traj` generates, the non-uniform Fourier transform along
-one, the density compensation an adjoint reconstruction needs, and the point
-spread function the normal operator convolves with.
+This lesson introduces the building blocks of non-Cartesian reconstruction:
+radial, golden-angle and spiral trajectories, the non-uniform fast Fourier
+transform (NUFFT) that samples an image along them, the density compensation
+that an adjoint (gridding) reconstruction needs, and the point spread function
+(PSF) that describes the undersampling artefacts.
 
-Every non-Cartesian transform in bartorch is computed by FINUFFT [#finufft]_,
-which evaluates
+Non-Cartesian trajectories sample k-space along curves rather than on a grid.
+Radial and spiral readouts start at the k-space centre, which makes them
+robust to motion and flow and lets them oversample the low spatial
+frequencies; they are the basis of real-time, ultrashort-echo-time and
+free-breathing imaging. Their samples do not lie on the Cartesian grid, so
+the FFT is replaced by the NUFFT. Every non-Cartesian transform in bartorch is
+computed by FINUFFT [#finufft]_, which evaluates
 
 .. math::
 
@@ -37,7 +43,7 @@ which evaluates
 
 to a requested tolerance, with the sum over the :math:`N` voxels :math:`m`
 of an image of :math:`n_d` voxels along dimension :math:`d`, and
-:math:`k_j` in grid units.  The spreading kernel and the deapodization are
+:math:`k_j` in grid units. The spreading kernel and the deapodization are
 FINUFFT's, sized from the tolerance: :doc:`../../explanation/non-cartesian`
 states the conventions and the accuracy.
 
@@ -51,16 +57,17 @@ be downloaded as.
   :func:`bartorch.tools.traj`, and a spiral trajectory directly.
 - Apply :func:`bartorch.nufft` and :func:`bartorch.nufft_adjoint`, and check
   the transform against the sum that defines it.
-- Compute density compensation weights, analytically and with
-  :func:`bartorch.estimate_density`.
+- Explain why a gridding reconstruction needs density compensation, and
+  compute the weights analytically and with :func:`bartorch.estimate_density`.
 - Compare the normal operator as a convolution with the transform pair, and
-  compute a point spread function.
+  relate the PSF of an undersampled radial trajectory to its streak
+  artefacts.
 
 It follows :doc:`../03-regularization/02-operators-and-solvers`. The next
 lesson, :doc:`02-radial-sense`, reconstructs an undersampled radial
 acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-228
+.. GENERATED FROM PYTHON SOURCE LINES 53-229
 
 .. code-block:: Python
 
@@ -88,7 +95,7 @@ acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 229-246
+.. GENERATED FROM PYTHON SOURCE LINES 230-247
 
 Trajectories
 ------------
@@ -108,7 +115,7 @@ tiles it approximately uniformly for *any* number of consecutive spokes
 the second lets an acquisition be cut into frames after it was measured, as
 :doc:`03-dynamic-golden-angle` does.
 
-.. GENERATED FROM PYTHON SOURCE LINES 247-255
+.. GENERATED FROM PYTHON SOURCE LINES 248-256
 
 .. code-block:: Python
 
@@ -133,7 +140,7 @@ the second lets an acquisition be cut into frames after it was measured, as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 256-273
+.. GENERATED FROM PYTHON SOURCE LINES 257-274
 
 
 
@@ -147,7 +154,7 @@ the second lets an acquisition be cut into frames after it was measured, as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 274-282
+.. GENERATED FROM PYTHON SOURCE LINES 275-283
 
 The transform
 -------------
@@ -158,7 +165,7 @@ acquisition would measure are the transform of the image; below they are
 checked against the sum that defines them, evaluated in double precision over
 one spoke, which is a reference outside BART and outside FINUFFT.
 
-.. GENERATED FROM PYTHON SOURCE LINES 283-305
+.. GENERATED FROM PYTHON SOURCE LINES 284-306
 
 .. code-block:: Python
 
@@ -198,7 +205,7 @@ one spoke, which is a reference outside BART and outside FINUFFT.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 306-321
+.. GENERATED FROM PYTHON SOURCE LINES 307-322
 
 The transform is planned to a tolerance rather than computed exactly, and the
 difference above is within the tolerance it was planned with: a thousandth by
@@ -216,7 +223,7 @@ and the adjoint overweights low frequencies. The weight that compensates for
 it is the inverse sampling density [#pipe]_, which for radial sampling is
 proportional to the distance from the centre.
 
-.. GENERATED FROM PYTHON SOURCE LINES 322-329
+.. GENERATED FROM PYTHON SOURCE LINES 323-330
 
 .. code-block:: Python
 
@@ -234,13 +241,13 @@ proportional to the distance from the centre.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 330-339
+.. GENERATED FROM PYTHON SOURCE LINES 331-342
 
 
 
 
 .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_002.png
-   :alt: image, adjoint, density compensated
+   :alt: gridding reconstruction, 201 golden-angle spokes, reference, adjoint, no compensation, density compensated
    :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_002.png
    :class: sphx-glr-single-img
 
@@ -248,7 +255,7 @@ proportional to the distance from the centre.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 340-357
+.. GENERATED FROM PYTHON SOURCE LINES 343-360
 
 The uncompensated adjoint is the image convolved with the point spread
 function, the inverse Fourier transform of the sampling density; the density
@@ -268,7 +275,7 @@ with the same non-uniform transforms, and returns weights for each sample.
 It takes the coordinates as ``(..., samples, 2)``, so the spokes are
 flattened into one list of samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 358-366
+.. GENERATED FROM PYTHON SOURCE LINES 361-369
 
 .. code-block:: Python
 
@@ -294,7 +301,7 @@ flattened into one list of samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 367-374
+.. GENERATED FROM PYTHON SOURCE LINES 370-377
 
 For a radial trajectory the two weightings give similar errors, both of
 which include the k-space corners the disc does not cover. The estimate
@@ -304,7 +311,7 @@ Archimedean spiral: sixteen interleaves reaching :math:`\pm n/2`, with
 :math:`n / 32` turns each so that adjacent turns are one grid unit apart,
 the radial Nyquist spacing, and 1024 samples per interleaf.
 
-.. GENERATED FROM PYTHON SOURCE LINES 375-406
+.. GENERATED FROM PYTHON SOURCE LINES 378-409
 
 .. code-block:: Python
 
@@ -353,26 +360,42 @@ the radial Nyquist spacing, and 1024 samples per interleaf.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 407-426
+.. GENERATED FROM PYTHON SOURCE LINES 410-432
 
 
 
 
-.. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
-   :alt: spiral, 16 interleaves, estimated weight, one interleaf, compensated
-   :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
+         :alt: spiral, 16 interleaves, density compensation weight, one interleaf
+         :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_004.png
+         :alt: reference, spiral, no compensation, spiral, compensated
+         :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_004.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 427-440
+.. GENERATED FROM PYTHON SOURCE LINES 433-450
 
-The estimated weight of an Archimedean spiral grows with the radius, since
-the interleaves are separated by a constant distance while the arc length
-per sample grows; the compensated adjoint of the spiral has a lower error
-than its uncompensated adjoint by the ratio printed above.
+The estimated weight of an Archimedean spiral grows with the radius: the
+interleaves are separated by a constant distance while the arc length
+traversed per sample grows, so the samples are densest at the centre. At
+the very edge the weight rises further, where the outermost turn has no
+neighbour outside it. Without compensation the spiral adjoint is dominated
+by the densely sampled low spatial frequencies and appears as a blurred,
+low-contrast image; with the estimated weights the tissue contrast and the
+edges are restored, which the NRMSE printed above quantifies.
 
 The normal operator
 -------------------
@@ -383,7 +406,7 @@ weights and a subspace basis where there are any, because its normal operator
 spread function on a doubled grid rather than a transform each way
 [#fessler2005]_, which is what a solver applies once per iteration.
 
-.. GENERATED FROM PYTHON SOURCE LINES 441-459
+.. GENERATED FROM PYTHON SOURCE LINES 451-469
 
 .. code-block:: Python
 
@@ -413,14 +436,14 @@ spread function on a doubled grid rather than a transform each way
 
  .. code-block:: none
 
-    A^H A as a convolution      0.8 ms
-    A^H A as two transforms     0.7 ms
+    A^H A as a convolution      0.6 ms
+    A^H A as two transforms     0.5 ms
     relative difference      2.7e-03
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 460-466
+.. GENERATED FROM PYTHON SOURCE LINES 470-476
 
 The two agree to a small multiple of the transform's tolerance.
 
@@ -429,7 +452,7 @@ the aliasing the trajectory produces: for a fully sampled radial trajectory
 it is a central peak with a low, broad skirt, and undersampling raises the
 skirt into the streaks a radial reconstruction is known for.
 
-.. GENERATED FROM PYTHON SOURCE LINES 467-471
+.. GENERATED FROM PYTHON SOURCE LINES 477-481
 
 .. code-block:: Python
 
@@ -444,27 +467,27 @@ skirt into the streaks a radial reconstruction is known for.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 472-489
+.. GENERATED FROM PYTHON SOURCE LINES 482-499
 
 
 
 
-.. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_004.png
+.. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_005.png
    :alt: point spread function, normalized, 201 spokes, 25 spokes
-   :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_004.png
+   :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_005.png
    :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 490-493
+.. GENERATED FROM PYTHON SOURCE LINES 500-503
 
 A reconstruction that uses all of this -- the transform, the weights, the
 sensitivities and the normal operator -- is
 :doc:`02-radial-sense`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 496-517
+.. GENERATED FROM PYTHON SOURCE LINES 506-527
 
 References
 ----------
@@ -491,7 +514,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.942 seconds)
+   **Total running time of the script:** (0 minutes 0.781 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py:

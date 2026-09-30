@@ -22,22 +22,35 @@
 Rigid head motion from navigators
 =================================
 
-Six-degree-of-freedom rigid head motion measured from three orthogonal
-radial navigator planes, and carried across a scan by a Kalman filter, with
-the rigid-motion functions of :mod:`bartorch.tools`.
+Head motion during a scan changes the position of the anatomy between the
+readouts that encode it, and the image acquires blurring and ghosting.
+Prospective correction updates the imaging field of view with the measured
+head pose before each readout; it requires a measurement of the rigid pose
+with six degrees of freedom, repeated during the scan. A navigator is a
+short, low-resolution acquisition interleaved with the imaging readouts, and
+its registration against the first navigator of the scan measures how the
+head has moved since [#ehman]_.
 
-A navigator is a short, low-resolution acquisition interleaved with the
-imaging readouts, reconstructed and registered against the first navigator of
-the scan to measure how the head has moved since [#ehman]_. A 2D plane
-measures three of the six degrees of freedom: the rotation about its normal
-and the translations along its two in-plane axes. Three orthogonal planes
-measure each rotation once and each translation twice, and the rigid pose is
-solved from the nine measurements by least squares. Between navigators, a
-constant-velocity extended Kalman filter predicts the pose and weighs each new
-measurement against the prediction, as in PROMO [#promo]_, which tracks the
-head with three orthogonal spiral navigators.
+This example measures the rigid pose of a BrainWeb head from three
+orthogonal radial navigator planes, compares the navigator after motion and
+after the measured pose is applied with the reference navigator, and tracks a
+nodding and drifting head over a 12 s scan with a constant-velocity extended
+Kalman filter, as in PROMO [#promo]_, which tracks the head with three
+orthogonal spiral navigators.
 
-.. GENERATED FROM PYTHON SOURCE LINES 23-46
+**Learning objectives**
+
+* Relate each 2D navigator plane to the three degrees of freedom it measures,
+  and the rigid pose to the nine measurements of three orthogonal planes.
+* Reconstruct radial navigator planes with
+  :func:`~bartorch.tools.reconstruct_navigator` and measure the pose with
+  :class:`~bartorch.tools.NavigatorMotionTracker`.
+* Assess a measured pose by the residual between the navigator and the
+  navigator of the head moved by that pose.
+* Set the filter's process and measurement noise against the precision of the
+  navigator and the dynamics of the motion.
+
+.. GENERATED FROM PYTHON SOURCE LINES 36-60
 
 .. code-block:: Python
 
@@ -58,18 +71,18 @@ head with three orthogonal spiral navigators.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-55
+.. GENERATED FROM PYTHON SOURCE LINES 61-69
 
 The head
 --------
 
 A BrainWeb T1-weighted volume [#brainweb]_, downsampled to 2 mm isotropic
-and padded to :math:`112^3`. Array axis 0 runs inferior to superior, axis 1
-posterior to anterior and axis 2 left to right; poses below are stated in
-that frame, rotations in radians about the volume's centre and translations
-in millimetres.
+and padded to :math:`112^3`. Array axis 0 runs inferior to superior (S/I),
+axis 1 posterior to anterior (A/P) and axis 2 left to right (L/R). Poses are
+stated in that frame: a rotation vector in radians about the centre of the
+volume, printed in degrees, and a translation in millimetres.
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-76
+.. GENERATED FROM PYTHON SOURCE LINES 70-90
 
 .. code-block:: Python
 
@@ -90,37 +103,10 @@ in millimetres.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
 
 
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.34kB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 265kB [00:00, 995kB/s]  
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.20MB [00:00, 3.97MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.72MB [00:00, 7.78MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.65MB [00:00, 8.39MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.54MB [00:00, 8.69MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.44MB [00:00, 8.80MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.32MB [00:00, 8.58MB/s]
-
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.17MB [00:01, 8.15MB/s]
-
-                                                                    
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 77-91
+.. GENERATED FROM PYTHON SOURCE LINES 91-105
 
 The navigator
 -------------
@@ -137,7 +123,7 @@ plane by the density-compensated adjoint NUFFT, with weights from
 rows and columns; it is what relates each plane's in-plane measurement to
 the 3D pose.
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-132
+.. GENERATED FROM PYTHON SOURCE LINES 106-146
 
 .. code-block:: Python
 
@@ -188,7 +174,7 @@ the 3D pose.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 133-144
+.. GENERATED FROM PYTHON SOURCE LINES 147-158
 
 
 
@@ -202,7 +188,7 @@ the 3D pose.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-153
+.. GENERATED FROM PYTHON SOURCE LINES 159-167
 
 One pose
 --------
@@ -213,23 +199,30 @@ one relative to it. Each plane is registered in 2D by
 :class:`~bartorch.tools.RigidRegistration`; the pose is the
 least-squares solution over the three planes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-168
+.. GENERATED FROM PYTHON SOURCE LINES 168-189
 
 .. code-block:: Python
 
 
-    rotvec = np.array([0.02, -0.03, 0.05])
-    translation = np.array([3.0, -2.0, 4.0])
+    rotvec = np.array([0.02, -0.03, 0.05])  # rad
+    translation = np.array([3.0, -2.0, 4.0])  # mm
 
     tracker = bt.NavigatorMotionTracker(measurement_noise=1e-3)
     tracker.track(reference, AXES, spacing=SPACING_MM)
-    pose = tracker.track(navigator(move(rotvec, translation)), AXES, spacing=SPACING_MM)
+    moved = navigator(move(rotvec, translation))
+    pose = tracker.track(moved, AXES, spacing=SPACING_MM)
 
     measured_rotvec = Rotation.from_matrix(np.asarray(pose.matrix)[:3, :3]).as_rotvec()
-    print("rotation vector, rad   truth", rotvec, " measured", measured_rotvec.round(4))
-    print(
-        "translation, mm        truth", translation, " measured", np.asarray(pose.translation).round(2)
-    )
+    measured_translation = np.asarray(pose.translation)
+    NAMES = ("S/I", "A/P", "L/R")
+    print(f"{'':>14} {'truth':>7} {'measured':>9}")
+    for axis, name in enumerate(NAMES):
+        print(
+            f"rotation {name:>5} {np.degrees(rotvec[axis]):6.2f}° "
+            f"{np.degrees(measured_rotvec[axis]):8.2f}°"
+        )
+    for axis, name in enumerate(NAMES):
+        print(f"shift    {name:>5} {translation[axis]:5.1f} mm {measured_translation[axis]:6.2f} mm")
 
 
 
@@ -239,24 +232,88 @@ least-squares solution over the three planes.
 
  .. code-block:: none
 
-    rotation vector, rad   truth [ 0.02 -0.03  0.05]  measured [ 0.0249 -0.0252  0.0439]
-    translation, mm        truth [ 3. -2.  4.]  measured [ 3.37 -2.66  3.65]
+                     truth  measured
+    rotation   S/I   1.15°     1.41°
+    rotation   A/P  -1.72°    -1.44°
+    rotation   L/R   2.86°     2.51°
+    shift      S/I   3.0 mm   3.37 mm
+    shift      A/P  -2.0 mm  -2.66 mm
+    shift      L/R   4.0 mm   3.65 mm
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 169-185
+.. GENERATED FROM PYTHON SOURCE LINES 190-194
 
-The residual error, a few milliradians and a few tenths of a millimetre, has
-two sources: the navigator's 4 mm resolution, and the out-of-plane motion,
-which each plane sees as a change of the anatomy in it rather than as a
-rigid motion within it.
+The measured pose is assessed on the navigator itself: the head moved by the
+measured pose, navigated again, is compared with the navigator after the
+motion. Without correction, the difference is that of the motion; with the
+measured pose, what remains is the error of the pose.
+
+.. GENERATED FROM PYTHON SOURCE LINES 195-211
+
+.. code-block:: Python
+
+
+    realigned = navigator(move(measured_rotvec, measured_translation))
+
+
+    def nrmse(estimate, target):
+        return float((estimate - target).norm() / target.norm())
+
+
+    for plane, before, after, target in zip(
+        ("axial", "coronal", "sagittal"), reference, realigned, moved, strict=True
+    ):
+        print(
+            f"{plane:>8}: NRMSE against the moved navigator, reference {nrmse(before, target):.3f}, "
+            f"measured pose {nrmse(after, target):.3f}"
+        )
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+       axial: NRMSE against the moved navigator, reference 0.335, measured pose 0.051
+     coronal: NRMSE against the moved navigator, reference 0.332, measured pose 0.049
+    sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.066
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 212-239
+
+
+
+
+.. image-sg:: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
+   :alt: axial: moved - reference NRMSE 0.335, coronal: moved - reference NRMSE 0.332, sagittal: moved - reference NRMSE 0.421, moved - measured pose NRMSE 0.051, moved - measured pose NRMSE 0.049, moved - measured pose NRMSE 0.066
+   :srcset: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 240-259
+
+The residual error of the pose, a fraction of a degree and of a millimetre,
+has two sources: the navigator's 4 mm resolution, and the
+through-plane motion, which each plane sees as a change of the anatomy in it
+rather than as a rigid motion within it. It is a small fraction of the 4 mm
+navigator voxel, and the residual difference is confined to the edges of the
+head.
 
 A scan
 ------
 
-The head nods about the left-right axis and drifts along the
-inferior-superior axis over 12 s, with a navigator every 0.5 s. Each
+The head nods, a rotation about the left-right axis, by up to 2.3° with a
+period of 8 s, and drifts by 3 mm along the superior-inferior axis over
+12 s, with a navigator every 0.5 s. Each
 navigator carries complex Gaussian k-space noise, so each measured pose
 carries registration error. The filter's ``process_noise`` is the variance
 of the acceleration it allows between navigators, per pose coordinate, in
@@ -264,15 +321,15 @@ rad²/s⁴ and mm²/s⁴; ``measurement_noise`` is the variance it assigns to ea
 measured coordinate. The trace is filtered with three values of
 ``process_noise``; the largest leaves the filter at the measurements.
 
-.. GENERATED FROM PYTHON SOURCE LINES 186-226
+.. GENERATED FROM PYTHON SOURCE LINES 260-302
 
 .. code-block:: Python
 
 
     DT, COUNT = 0.5, 24
     seconds = DT * np.arange(1, COUNT + 1)
-    nod = 0.04 * np.sin(2 * np.pi * seconds / 8)  # rad, about axis 2
-    drift = 3.0 * seconds / seconds[-1]  # mm, along axis 0
+    nod = 0.04 * np.sin(2 * np.pi * seconds / 8)  # rad, about L/R
+    drift = 3.0 * seconds / seconds[-1]  # mm, along S/I
     truth = np.zeros((COUNT, 6))
     truth[:, 2], truth[:, 3] = nod, drift
 
@@ -301,11 +358,13 @@ measured coordinate. The trace is filtered with three values of
 
 
     traces = {noise: track(noise) for noise in (1e2, 1e-3, 1e-4)}
-    for noise, trace in traces.items():
-        rms = np.sqrt(np.mean((trace - truth) ** 2, axis=0))
+    rms = {noise: np.sqrt(np.mean((trace - truth) ** 2, axis=0)) for noise, trace in traces.items()}
+    for noise, error in rms.items():
         print(
-            f"process_noise {noise:<6g} rotation rms error {rms[:3].round(4)} rad"
-            f"   translation rms error {rms[3:].round(2)} mm"
+            f"process_noise {noise:<6g} rms error: rotation "
+            + ", ".join(f"{n} {np.degrees(e):.2f}°" for n, e in zip(NAMES, error[:3], strict=True))
+            + "; shift "
+            + ", ".join(f"{n} {e:.2f} mm" for n, e in zip(NAMES, error[3:], strict=True))
         )
 
 
@@ -316,34 +375,34 @@ measured coordinate. The trace is filtered with three values of
 
  .. code-block:: none
 
-    process_noise 100    rotation rms error [0.0082 0.0064 0.007 ] rad   translation rms error [0.19 0.42 0.19] mm
-    process_noise 0.001  rotation rms error [0.0074 0.0051 0.0063] rad   translation rms error [0.16 0.41 0.15] mm
-    process_noise 0.0001 rotation rms error [0.0071 0.0041 0.0105] rad   translation rms error [0.15 0.42 0.13] mm
+    process_noise 100    rms error: rotation S/I 74.31°, A/P 5.05°, L/R 5.00°; shift S/I 0.19 mm, A/P 1.84 mm, L/R 2.86 mm
+    process_noise 0.001  rms error: rotation S/I 0.44°, A/P 0.30°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
+    process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 227-248
+.. GENERATED FROM PYTHON SOURCE LINES 303-327
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
-   :alt: rotation about axis 2, mrad, translation along axis 0, mm
-   :srcset: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_002.png
+.. image-sg:: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_003.png
+   :alt: nod: rotation about L/R, drift: shift along S/I
+   :srcset: /auto_examples/07-tours/images/sphx_glr_06-navigator-motion_003.png
    :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-274
+.. GENERATED FROM PYTHON SOURCE LINES 328-353
 
 A large ``process_noise`` leaves the filter at the measurements; a small one
 makes it trust its constant-velocity prediction, which smooths the
 registration error and lags a change of direction: at ``1e-4`` the error of
-the nod grows while that of the other coordinates falls. An error
-common to every navigator, such as the offset along axis 1, is a bias of the
+the nod grows while that of the other coordinates falls. An error common to
+every navigator, such as the offset of the A/P shift, is a bias of the
 measurement and is not reduced by any value. The value that minimizes the
 error depends on the motion and on the navigator's precision, and is set
 against a motion trace of the application.
@@ -368,7 +427,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.475 seconds)
+   **Total running time of the script:** (0 minutes 3.537 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_06-navigator-motion.py:

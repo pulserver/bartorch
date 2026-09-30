@@ -52,6 +52,8 @@
     <script src="../../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/01-basics/01-tensors-and-commands';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -66,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="From k-space to image" href="02-from-kspace-to-image.html" />
-    <link rel="prev" title="Basics" href="index.html" />
+    <link rel="prev" title="Examples" href="../../examples/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -199,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -221,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -230,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -500,22 +522,27 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-01-basics-01-tensors-and-commands-py"></span><h1>Tensors and commands<a class="headerlink" href="#tensors-and-commands" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/01-basics/01-tensors-and-commands.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>The first lesson of the course: how BART’s arrays, commands and Fourier
-conventions appear in Python.</p>
+<p>This first lesson establishes how MR data from BART appear in Python: how a
+multichannel image and its k-space are laid out as tensors, which Fourier
+convention BART uses to go from k-space to the image, and how a BART command
+is called. Every later lesson relies on these conventions. A reconstruction
+that is off by a factor of <span class="math notranslate nohighlight">\(\sqrt{N}\)</span>, or by a half-voxel shift from a
+misplaced k-space centre, is a consequence of misreading one of them.</p>
 <p>bartorch runs BART inside the Python process. Every BART command is a function
 of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> or of the <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> namespace that takes and returns
-<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> objects, with no files and no subprocess in between. This
-lesson simulates a multichannel acquisition with BART’s analytical phantom,
-transforms it with BART’s FFT, checks the transform against NumPy, and runs the
-same command once more from a CFL file through BART’s command line.</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> objects, with no files and no subprocess in between. The
+lesson simulates a receive-array acquisition of BART’s analytical Shepp-Logan
+phantom, transforms it between image space and k-space, checks the transform
+against NumPy, and runs the same command once more through BART’s command line.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
-<li><p>Relate a C-order tensor shape to BART’s dimension vector.</p></li>
-<li><p>Generate an analytical phantom as an image, as coil images and as k-space.</p></li>
+<li><p>Relate a C-order tensor shape to BART’s dimension vector, and locate the
+receive-channel axis.</p></li>
+<li><p>Generate a phantom as an image, as coil images and as analytical k-space.</p></li>
 <li><p>State the centring and normalization of <a class="reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fft()</span></code></a>, and verify them
 against <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.fft.fftn()</span></code>.</p></li>
-<li><p>Explain why k-space simulated analytically differs from the DFT of a sampled
-image.</p></li>
+<li><p>Explain why analytically simulated k-space, truncated to the acquired
+matrix, reconstructs with Gibbs ringing.</p></li>
 <li><p>Call a BART command from Python, and the same command from its command line.</p></li>
 </ul>
 <p>The next lesson, <a class="reference internal" href="02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>, reconstructs an undersampled
@@ -535,15 +562,18 @@ acquisition with the functions introduced here.</p>
 <section id="array-layout">
 <h2>Array layout<a class="headerlink" href="#array-layout" title="Link to this heading">#</a></h2>
 <p>BART stores an array in Fortran order and describes it by a dimension vector
-whose first entry varies fastest. A tensor holding the same bytes in C order
-has the reversed shape, so no copy is needed between the two. BART reserves
-its dimension 3 for receive channels, which in a tensor is the fourth axis
-from the end: a two-dimensional multichannel image is
-<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">1,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, with the singleton standing for BART’s <code class="docutils literal notranslate"><span class="pre">z</span></code>.
-<a class="reference internal" href="../../guides/user/conventions.html"><span class="doc">Data layout and conventions</span></a> tabulates the layouts used throughout.</p>
+whose first entry varies fastest: readout (<code class="docutils literal notranslate"><span class="pre">x</span></code>), then the phase-encoding
+directions (<code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code>), then the receive channels in BART’s dimension 3,
+and further dimensions for sets of sensitivity maps, echoes, frames and so
+on. A tensor holding the same bytes in C order has the reversed shape, so no
+copy is needed between the two: a two-dimensional multichannel image is
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">1,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, with the singleton standing for BART’s <code class="docutils literal notranslate"><span class="pre">z</span></code>, and the
+readout direction is the last tensor axis.
+<a class="reference internal" href="../../guides/user/conventions.html"><span class="doc">Preparing data</span></a> tabulates the layouts used throughout.</p>
 <p><a class="reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.phantom()</span></code></a> is BART’s <code class="docutils literal notranslate"><span class="pre">phantom</span></code> command. Without
 <code class="docutils literal notranslate"><span class="pre">coils</span></code> it returns the Shepp-Logan image; with <code class="docutils literal notranslate"><span class="pre">coils</span></code> it returns that
-image multiplied by the sensitivities of BART’s analytical head coil.</p>
+image weighted by the complex receive sensitivities of BART’s analytical
+eight-channel head array, one image per channel.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">image</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span><span class="w">
 </span><span class="n">coil_images</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">coils</span><span class="o">=</span><span class="n">COILS</span><span class="p">)</span><span class="w">
 </span><span class="w">
@@ -556,23 +586,30 @@ coil images (8, 1, 128, 128)
 BART dimensions of the coil images [128, 128, 1, 8]
 </pre></div>
 </div>
-<p>The root sum of squares over the channel axis combines the coil images into
-a magnitude image. <a class="reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.rss()</span></code></a> takes the axis as a tensor index, as
-every function of this package does, rather than as BART’s bitmask.</p>
+<p>Each channel sees the object through its own sensitivity profile: bright
+near the coil element, dark on the opposite side of the head. The root sum
+of squares (RSS) over the channel axis, <span class="math notranslate nohighlight">\(\sqrt{\sum_c |x_c|^2}\)</span>, is
+the standard magnitude combination of a receive array; it recovers the
+object with the residual shading of the summed sensitivity magnitudes.
+<a class="reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.rss()</span></code></a> takes the channel axis as a tensor index, as every
+function of this package does, rather than as BART’s bitmask.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">combined</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">coil_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">combined </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">combined</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>combined (1, 128, 128)
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-tensors-and-commands_001.png" srcset="../../_images/sphx_glr_01-tensors-and-commands_001.png" alt="phantom, channel 0, channel 1, channel 2, root sum of squares" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_01-tensors-and-commands_001.png" srcset="../../_images/sphx_glr_01-tensors-and-commands_001.png" alt="single-channel magnitude images, channel 0, channel 2, channel 4, channel 6" class = "sphx-glr-single-img"/></section>
 <section id="fourier-transform">
 <h2>Fourier transform<a class="headerlink" href="#fourier-transform" title="Link to this heading">#</a></h2>
-<p><a class="reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fft()</span></code></a> is BART’s centred transform: the zero frequency and the
-image centre are both at index <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code>. It is unnormalized unless
-<code class="docutils literal notranslate"><span class="pre">unitary=True</span></code>. For an even number of samples the centred transform equals
-NumPy’s transform between <code class="docutils literal notranslate"><span class="pre">ifftshift</span></code> and <code class="docutils literal notranslate"><span class="pre">fftshift</span></code>, which gives a
-reference computed outside BART.</p>
+<p>The measured signal of a channel is the Fourier transform of its coil image,
+sampled on the k-space grid. <a class="reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fft()</span></code></a> is BART’s <em>centred</em>
+discrete transform: the k-space centre (DC) and the image centre are both at
+index <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code>, which is how k-space is displayed and how scanners
+deliver it. The transform is unnormalized unless <code class="docutils literal notranslate"><span class="pre">unitary=True</span></code>. For an
+even matrix size the centred transform equals NumPy’s transform between
+<code class="docutils literal notranslate"><span class="pre">ifftshift</span></code> and <code class="docutils literal notranslate"><span class="pre">fftshift</span></code>, which gives a reference computed outside
+BART.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">kspace</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">coil_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">shifted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">coil_images</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="w">
@@ -585,25 +622,34 @@ reference computed outside BART.</p>
 </pre></div>
 </div>
 <p>The difference is single-precision round-off. The unitary transform
-preserves the norm, so white noise has the same standard deviation in
-k-space and in the image.</p>
+preserves the <span class="math notranslate nohighlight">\(\ell_2\)</span> norm (Parseval’s theorem), so white noise has
+the same standard deviation in k-space and in the image, a property the
+noise and SNR lessons rely on.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">norm ratio image/k-space: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">coil_images</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">kspace</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>norm ratio image/k-space: 1.000004
 </pre></div>
 </div>
+<img src="../../_images/sphx_glr_01-tensors-and-commands_002.png" srcset="../../_images/sphx_glr_01-tensors-and-commands_002.png" alt="root sum of squares, k-space of channel 0" class = "sphx-glr-single-img"/><p>The k-space magnitude, drawn on a logarithmic scale, spans five orders of
+magnitude: the signal energy is concentrated at the centre, which sets the
+image contrast, while the periphery carries the edges and fine detail. This
+distribution is what variable-density undersampling exploits in the next
+lessons.</p>
 </section>
 <section id="analytical-k-space">
 <h2>Analytical k-space<a class="headerlink" href="#analytical-k-space" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">kspace=True</span></code> evaluates the Fourier transform of the phantom’s ellipses
 analytically at the k-space sample positions, rather than transforming the
-sampled image. The two are different data: the analytical k-space has
-infinite extent and is truncated at the edge of the matrix, so its inverse
-transform carries Gibbs ringing at every edge, whereas the DFT of the
-sampled image reproduces that image exactly. Simulating data with the same
-discrete model the reconstruction inverts, the <em>inverse crime</em> <a class="footnote-reference brackets" href="#guerquin" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>,
-removes this discretization error from a simulation; the analytical k-space
-retains it.</p>
+sampled image. The two are different data. The continuous object has
+infinite spatial-frequency extent, and an acquisition of a finite matrix
+truncates it at <span class="math notranslate nohighlight">\(\pm k_{\max}\)</span>; its inverse transform therefore
+carries Gibbs ringing, the oscillation next to every sharp edge that
+truncation artefacts produce on a scanner. The DFT of the sampled image,
+by contrast, reproduces that image exactly. Simulating data with the same
+discrete model the reconstruction inverts, the <em>inverse crime</em>
+<a class="footnote-reference brackets" href="#guerquin" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, removes this discretization error from a simulation;
+analytical k-space retains it and is therefore the more realistic test
+data.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">analytical</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">kspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">truncated</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.ifft.html#bartorch.ifft" title="bartorch.ifft"><span class="n">bartorch</span><span class="o">.</span><span class="n">ifft</span></a><span class="p">(</span><span class="n">analytical</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="w">
@@ -613,8 +659,14 @@ retains it.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>relative difference from the sampled phantom: 0.218
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-tensors-and-commands_002.png" srcset="../../_images/sphx_glr_01-tensors-and-commands_002.png" alt="sampled phantom, from analytical k-space, |difference|" class = "sphx-glr-single-img"/><p>The difference is largest at the ellipse boundaries, where the truncated
-spectrum rings, and decays with distance from them. The
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-tensors-and-commands_003.png" srcset="../../_images/sphx_glr_01-tensors-and-commands_003.png" alt="sampled phantom, from analytical k-space, |difference|" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-tensors-and-commands_004.png" srcset="../../_images/sphx_glr_01-tensors-and-commands_004.png" alt="profile along row 64, skull edge, enlarged" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The difference map is largest at the ellipse boundaries and decays with
+distance from them. The profile through the centre of the phantom shows the
+ringing directly: the image from analytical k-space overshoots at every
+intensity step and oscillates with a period of about two voxels next to it. The
 unnormalized inverse transform is used here because <code class="docutils literal notranslate"><span class="pre">phantom</span></code> scales its
 k-space so that the unnormalized inverse returns the image’s intensities.</p>
 </section>
@@ -640,8 +692,9 @@ transpose of a C-order array is.</p>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">-u</span></code> requests the unitary transform and <code class="docutils literal notranslate"><span class="pre">3</span></code> is BART’s bitmask for its
-dimensions 0 and 1, the last two tensor axes. The two routes run the same
-BART function on the same bytes, so the results are identical.</p>
+dimensions 0 and 1 (readout and first phase-encoding direction), the last
+two tensor axes. The two routes run the same BART function on the same
+bytes, so the results are identical.</p>
 <p>A BART command is not recorded by autograd: its result has no gradient with
 respect to its inputs. The operators of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code> and the solvers
 of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>, introduced from
@@ -658,7 +711,7 @@ phantoms for parallel magnetic resonance imaging. <em>IEEE Trans Med Imaging</em
 31(3):626-636 (2012). <a class="reference external" href="https://doi.org/10.1109/TMI.2011.2174158">https://doi.org/10.1109/TMI.2011.2174158</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.290 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.481 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-basics-01-tensors-and-commands-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/9f170d08384fadc199cdf02d4a9c369a/01-tensors-and-commands.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-tensors-and-commands.ipynb</span></code></a></p>
@@ -686,12 +739,12 @@ phantoms for parallel magnetic resonance imaging. <em>IEEE Trans Med Imaging</em
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../../examples/index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Basics</p>
+        <p class="prev-next-title">Examples</p>
       </div>
     </a>
     <a class="right-next"

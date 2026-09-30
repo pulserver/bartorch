@@ -2,6 +2,24 @@
 
 The vocabulary used in code, docstrings and documentation.  Definitions and
 derivations are in {doc}`../../explanation/index`; this page fixes the terms.
+The readers are MR scientists, so an established MR term is used rather than a
+description of what it denotes: *coil sensitivity maps*, not "the coils'
+weights"; *autocalibration region*, not "the fully sampled middle".
+
+## Acquisition and reconstruction
+
+| Term | Meaning |
+| --- | --- |
+| Readout, frequency-encoding direction | The k-space direction sampled during one ADC window; the last tensor axis of Cartesian k-space. |
+| Phase-encoding direction | A k-space direction stepped between readouts; `y`, and `z` in 3D. |
+| Acceleration factor $R$ | The ratio of the phase encodes of a fully sampled acquisition to those acquired. |
+| Autocalibration (ACS) region | The fully sampled block at the centre of k-space from which coil sensitivity maps are estimated. |
+| Coil sensitivity maps | The complex receive sensitivities $S_c(r)$ of the channels of an array. |
+| SENSE | The encoding model $A = PFS$ and its least-squares or regularized inversion. |
+| g-factor | The voxel-wise noise amplification of a parallel-imaging reconstruction beyond the $\sqrt{R}$ loss of the shorter acquisition. |
+| Density compensation | Weighting of non-Cartesian samples by the inverse of the local sampling density. |
+| Off-resonance, $B_0$ inhomogeneity | A deviation of the precession frequency from the reference frequency, in hertz; its map is the field map. |
+| Signal model | The dependence of the signal of a voxel on tissue parameters such as $T_1$ and $T_2$ and on the sequence. |
 
 ## Arrays
 
@@ -22,7 +40,7 @@ derivations are in {doc}`../../explanation/index`; this page fixes the terms.
 | Trajectory | The k-space coordinates `kx, ky, kz` of every sample, in grid units ($1/\mathrm{FOV}$). |
 | Non-uniform FFT (NUFFT) | The discrete Fourier transform between a Cartesian image grid and samples at arbitrary k-space positions, computed approximately to a tolerance; not "gridding", which names one algorithm for it. |
 | Sampling pattern | A binary mask on the Cartesian grid, one where a sample was acquired. |
-| Density weights | A diagonal in k-space applied to the samples of a non-Cartesian transform, on the forward pass and conjugated on the adjoint. |
+| Density weights | Density-compensation or data weights as a diagonal in k-space applied to the samples of a non-Cartesian transform, on the forward pass and conjugated on the adjoint. |
 | Subspace basis | A matrix `(coeffs, frames)` mapping coefficients to the frames of a signal series. |
 
 ## Operators

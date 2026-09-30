@@ -18,38 +18,49 @@
 .. _sphx_glr_auto_examples_07-tours_05-spiral-deblurring.py:
 
 
-=================================
-Off-resonance blurring in spirals
-=================================
+==========================================
+Off-resonance correction of spiral imaging
+==========================================
 
-The blurring that off-resonance produces in a spiral image, simulated for a
-known field map and removed with :func:`bartorch.tools.deblur`.
+A spiral readout acquires each k-space radius at its own time, so a spin off
+resonance accrues a phase that varies over k-space: its image is blurred into
+a ring rather than shifted, as it would be along the readout of a Cartesian
+acquisition. With readouts of tens of milliseconds, the :math:`B_0`
+inhomogeneity near air-tissue interfaces is enough to smear the temporal and
+orbitofrontal cortex over several voxels.
 
-A spin precessing at an offset :math:`f` from the reference frequency
-accumulates the phase :math:`2\pi f t` during the readout. A spiral acquires
-each k-space radius at its own time :math:`t(k)`, so the phase is a function
-of :math:`|k|`, and a voxel off resonance is convolved with a kernel whose
-width grows with :math:`f` and with the readout duration. Conjugate-phase
-reconstruction removes the phase at each voxel's own frequency [#noll]_; the
-correction here applies it as a sum of a few image-domain convolutions whose
-per-voxel weights depend on the field map, in the manner of multifrequency
-interpolation [#man]_.
+This example simulates an axial spiral acquisition of the head at 3 T in a
+:math:`B_0` field computed from the magnetic susceptibility of the head, and
+corrects it with a known field map in two ways:
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-45
+* by multifrequency interpolation (MFI) on the gridded image,
+  :func:`bartorch.tools.deblur`, the method of Gadgetron's spiral deblurring
+  gadget;
+* by a model-based reconstruction whose encoding operator includes the field
+  map by time segmentation, :func:`bartorch.linop.FieldCorrected`.
+
+**Learning objectives**
+
+* Relate the blurring of a spiral image to the off-resonance frequency and
+  the readout duration.
+* Describe a spiral readout by its time map :math:`t(|k|)` and factorize its
+  off-resonance transfer with :func:`~bartorch.tools.fit_transfer`.
+* Choose the number of MFI demodulation frequencies.
+* Set up a time-segmented model-based reconstruction, and recognise where it
+  outperforms conjugate-phase methods such as MFI.
+
+.. GENERATED FROM PYTHON SOURCE LINES 35-112
 
 .. code-block:: Python
 
 
     import math
 
-    import numpy as np
     import torch
 
     import bartorch
     import bartorch.tools as bt
-
-    SIZE = 128
-
+    from bartorch import linop, optim
 
 
 
@@ -57,29 +68,32 @@ interpolation [#man]_.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-52
 
-Object and field
-----------------
+.. GENERATED FROM PYTHON SOURCE LINES 113-126
 
-BART's brain phantom in a field map made of a smooth second-order variation
-and a localized offset near the frontal pole, of the kind an air-tissue
-interface produces, in Hz.
+Object and field map
+--------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-64
+The object is an axial slice of the BrainWeb T1-weighted head [#brainweb]_
+through the orbitofrontal cortex and the temporal lobes, 128 x 128 over a
+220 mm field of view (1.7 mm in-plane). The field map is the :math:`B_0`
+offset at 3 T produced by the susceptibility difference between air and
+tissue, :math:`\Delta\chi = 9.4` ppm, computed in 3D with the dipole kernel
+and less a second-order shim fitted over the brain, rounded to 1 Hz and
+limited to :math:`\pm 150` Hz. The offsets are largest in the scalp; in the
+brain they reach about :math:`-40` Hz in the lateral temporal lobes and
+:math:`+40` Hz in the orbitofrontal cortex, a phase of about one cycle over
+the readout below.
+
+.. GENERATED FROM PYTHON SOURCE LINES 127-139
 
 .. code-block:: Python
 
 
-    image = bt.phantom(SIZE, geometry="brain").abs()
-    image = (image / image.max()).to(torch.complex64)
-    inside = image.abs() > 0
-
-    y, x = torch.meshgrid(torch.linspace(-1, 1, SIZE), torch.linspace(-1, 1, SIZE), indexing="ij")
-    field = 40 * x - 30 * y + 60 * (x**2 + y**2) + 120 * torch.exp(-((y + 0.6) ** 2 + x**2) / 0.05)
-    field = field - field[inside].mean()
-    low, high = float(field[inside].min()), float(field[inside].max())
-    print(f"field over the object: {low:+.0f} to {high:+.0f} Hz")
+    SIZE, FOV_MM = 128, 220.0
+    for name, region in (("head", head), ("brain", brain)):
+        values = field_map[region]
+        print(f"field over the {name}: {float(values.min()):+.0f} to {float(values.max()):+.0f} Hz")
 
 
 
@@ -89,84 +103,114 @@ interface produces, in Hz.
 
  .. code-block:: none
 
-    field over the object: -42 to +129 Hz
+    field over the head: -109 to +150 Hz
+    field over the brain: -41 to +44 Hz
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-71
+.. GENERATED FROM PYTHON SOURCE LINES 140-152
 
-The spiral
-----------
+The spiral readout
+------------------
 
-Sixteen interleaves of a variable-density spiral, each a readout of 20 ms
-whose radius grows as :math:`t^{0.6}` to the edge of the 128 grid, in grid
-units. The density compensation is :func:`bartorch.estimate_density`.
+Four interleaves of an Archimedean spiral reach :math:`k_{max}` at the
+Nyquist edge of the 128 matrix, each in a 24 ms readout of 6000 samples
+(4 µs dwell time). The interleaves are rotations of one arm by
+:math:`2\pi/4`, and the arm makes 16 turns, so the rings of the four
+interleaves together are one grid unit apart. Near the centre of k-space the
+angular velocity is limited by the slew rate and further out the trajectory
+speed by the gradient amplitude, which is modelled by the readout time
+:math:`t/T = (s^2 + 0.2\, s) / 1.2` along the arm coordinate
+:math:`s = |k|/k_{max}`. The trajectory is in grid units.
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-94
-
-.. code-block:: Python
-
-
-    INTERLEAVES, SAMPLES, READOUT_S = 16, 2000, 20e-3
-    progress = np.linspace(0.0, 1.0, SAMPLES)
-    radius = progress**0.6 * SIZE / 2
-    angle = 2 * np.pi * SIZE / (2 * INTERLEAVES) * progress
-    arms = np.stack(
-        [
-            np.stack(
-                [
-                    radius * np.cos(angle + 2 * np.pi * arm / INTERLEAVES),
-                    radius * np.sin(angle + 2 * np.pi * arm / INTERLEAVES),
-                    np.zeros(SAMPLES),
-                ],
-                axis=-1,
-            )
-            for arm in range(INTERLEAVES)
-        ]
-    )
-    trajectory = torch.tensor(arms, dtype=torch.float32)
-    density = bartorch.estimate_density(trajectory[..., :2].reshape(-1, 2), (SIZE, SIZE))
-    density = density.reshape(INTERLEAVES, SAMPLES, 1)
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 95-98
-
-The acquisition is simulated exactly for a field quantized to 128 levels:
-each level's part of the object is transformed with :func:`bartorch.nufft`
-and given the phase its frequency accumulates at each sample time.
-
-.. GENERATED FROM PYTHON SOURCE LINES 99-121
+.. GENERATED FROM PYTHON SOURCE LINES 153-166
 
 .. code-block:: Python
 
 
-    sample_time = torch.tensor(progress * READOUT_S, dtype=torch.float32)
-    levels = torch.linspace(float(field.min()), float(field.max()), 128)
-    field = levels[(field[..., None] - levels).abs().argmin(-1)]
+    INTERLEAVES, SAMPLES, READOUT_S = 4, 6000, 24e-3
+    TURNS = SIZE / 2 / INTERLEAVES
+
+    sample_time = torch.linspace(0.0, READOUT_S, SAMPLES, dtype=torch.float64)
+    arm = torch.sqrt(0.01 + 1.2 * sample_time / READOUT_S) - 0.1  # s(t)
+    angle = 2 * math.pi * TURNS * arm + 2 * math.pi * torch.arange(INTERLEAVES)[:, None] / INTERLEAVES
+    radius = SIZE / 2 * arm
+    trajectory = torch.stack(
+        [radius * torch.cos(angle), radius * torch.sin(angle), torch.zeros_like(angle)], dim=-1
+    ).float()
+    sample_time = sample_time.float()
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 167-176
+
+The acquisition
+---------------
+
+A voxel at off-resonance frequency :math:`f` contributes
+:math:`x(r)\, e^{-2\pi i k \cdot r}\, e^{2\pi i f\, t(k)}` to the sample at
+:math:`k`. The acquisition is simulated exactly for the field map: each
+frequency's part of the object is transformed with :func:`bartorch.nufft`
+and given the phase it accrues at each sample time. The reference is the
+same acquisition on resonance.
+
+.. GENERATED FROM PYTHON SOURCE LINES 177-191
+
+.. code-block:: Python
+
 
 
     def acquire(field):
         samples = torch.zeros(INTERLEAVES, SAMPLES, 1, dtype=torch.complex64)
-        for frequency in torch.unique(field):
-            part = image * (field == frequency)
+        for frequency in torch.unique(field[head]):
+            part = image * ((field == frequency) & head)
             accrued = torch.polar(torch.ones(SAMPLES), 2 * math.pi * float(frequency) * sample_time)
             samples += bartorch.nufft(part, trajectory) * accrued[:, None]
         return samples
+
+
+    on_resonance = bartorch.nufft(image * head, trajectory)
+    off_resonance = acquire(field_map)
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 192-200
+
+Gridding reconstruction
+-----------------------
+
+The images are reconstructed by the density-compensated adjoint NUFFT, with
+Pipe-Menon weights from :func:`bartorch.estimate_density`. A voxel off
+resonance by :math:`f` is spread over a ring whose extent grows with the
+phase :math:`2\pi f T` accrued by the end of the readout: one full cycle at
+:math:`f = 1/T \approx 42` Hz.
+
+.. GENERATED FROM PYTHON SOURCE LINES 201-213
+
+.. code-block:: Python
+
+
+    density = bartorch.estimate_density(trajectory[..., :2].reshape(-1, 2), (SIZE, SIZE))
+    density = density.reshape(INTERLEAVES, SAMPLES, 1)
 
 
     def grid(samples):
         return bartorch.nufft_adjoint(samples * density, trajectory, image_shape=(SIZE, SIZE))
 
 
-    on_resonance = grid(bartorch.nufft(image, trajectory))
-    blurred = grid(acquire(field))
+    reference = grid(on_resonance)
+    blurred = grid(off_resonance)
 
 
 
@@ -175,39 +219,213 @@ and given the phase its frequency accumulates at each sample time.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-132
+.. GENERATED FROM PYTHON SOURCE LINES 214-233
 
-The transfer
-------------
+Multifrequency interpolation
+----------------------------
 
-:class:`~bartorch.tools.ReadoutTiming` tabulates the readout time as
-a function of :math:`|k|^2` from one arm; the interleaves are rotations of
-it, so it serves all of them. :func:`~bartorch.tools.fit_transfer`
-approximates :math:`e^{-2\pi i f t(k)}` over a band of frequencies by a sum
-of terms, each a separable function of k-space times a weight that depends
-on :math:`f` alone. More terms reduce the error of the approximation and
-cost one convolution each.
+Conjugate-phase reconstruction [#noll]_ demodulates each voxel at its own
+frequency, :math:`\hat x(r) = \sum_k w_k\, y_k\, e^{2\pi i k \cdot r}
+e^{-2\pi i f(r)\, t_k}`, which costs one transform per voxel. MFI [#man]_
+costs one transform per demodulation frequency: the transfer is approximated
+over the readout as :math:`e^{-2\pi i f t} \approx \sum_m a_m(f)\,
+e^{-2\pi i f_m t}`, the gridded image is demodulated at each :math:`f_m` in
+k-space, and the demodulated images are combined voxel by voxel with the
+weights :math:`a_m(f(r))`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 133-151
+:class:`~bartorch.tools.ReadoutTiming` tabulates the readout time as a
+function of :math:`|k|` from one interleaf; the others are rotations of it
+and share it. :func:`~bartorch.tools.fit_transfer` places the demodulation
+frequencies uniformly over the band of the field map and, unless given a
+number, takes the fewest that approximate the transfer to 1 % RMS, starting
+from :math:`\lceil 2.5\, f_{max}\, T \rceil`, the number Gadgetron's
+``MFIOperator`` uses.
+
+.. GENERATED FROM PYTHON SOURCE LINES 234-244
 
 .. code-block:: Python
 
 
-    timing = bt.ReadoutTiming.from_trajectory(arms[0][:, :2], duration=READOUT_S)
-    band = float(field.abs().max()) + 5.0
+    timing = bt.ReadoutTiming.from_trajectory(trajectory[0, :, :2], duration=READOUT_S)
+    band = float(field_map[head].abs().max())
+    transfer = bt.fit_transfer(timing, band=band)
+    deblurred = bt.deblur(blurred, field_map, transfer)
+    print(
+        f"band +-{band:.0f} Hz: {transfer.terms} demodulation frequencies, "
+        f"RMS error of the transfer {transfer.error(timing):.1e}"
+    )
 
 
-    def error(estimate):
-        return float((estimate - on_resonance).norm() / on_resonance.norm())
 
 
-    print(f"blurred        NRMSE {error(blurred):.3f}")
-    for terms in (4, 8, 16):
-        transfer = bt.fit_transfer(timing, band=band, terms=terms)
-        deblurred = bt.deblur(blurred, field, transfer)
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    band +-150 Hz: 12 demodulation frequencies, RMS error of the transfer 6.2e-03
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 245-257
+
+Time-segmented model-based reconstruction
+-----------------------------------------
+
+The field map can instead be included in the encoding operator,
+:math:`y = \sum_l \operatorname{diag}(b_l)\, E\, \operatorname{diag}(c_l)\, x`,
+with :math:`E` the NUFFT and the temporal and spatial coefficients
+:math:`b_l(t)` and :math:`c_l(r)` fitted to :math:`e^{2\pi i f(r) t}` over
+the histogram of the field map [#sutton]_.
+:func:`~bartorch.linop.FieldCorrected` builds the operator from the field
+map and the sample times, and :class:`~bartorch.optim.CG` solves the normal
+equations. Unlike conjugate-phase methods, it does not assume the field to
+be constant over the extent of the blurring.
+
+.. GENERATED FROM PYTHON SOURCE LINES 258-268
+
+.. code-block:: Python
+
+
+    E = linop.NoncartesianSense(
+        torch.ones(1, SIZE, SIZE, dtype=torch.complex64), (SIZE, SIZE), traj=trajectory
+    )
+    A = linop.FieldCorrected(E, field_map, readout_time=sample_time, mask=head, segments=transfer.terms)
+    solve = optim.CG(maxiter=20)
+    model_based = solve(off_resonance[None, ..., 0], A)
+    model_uncorrected = solve(off_resonance[None, ..., 0], E)
+    model_reference = solve(on_resonance[None, ..., 0], E)
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 269-274
+
+Results
+-------
+
+Each image is compared with the reconstruction of the same kind on
+resonance, as the normalized root-mean-square error (NRMSE) over the brain.
+
+.. GENERATED FROM PYTHON SOURCE LINES 275-286
+
+.. code-block:: Python
+
+
+
+    def nrmse(estimate, truth):
+        return float((estimate - truth)[brain].norm() / truth[brain].norm())
+
+
+    print(f"gridding, uncorrected   {nrmse(blurred, reference):.3f}")
+    print(f"gridding, MFI           {nrmse(deblurred, reference):.3f}")
+    print(f"CG, uncorrected         {nrmse(model_uncorrected, model_reference):.3f}")
+    print(f"CG, time-segmented      {nrmse(model_based, model_reference):.3f}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    gridding, uncorrected   0.079
+    gridding, MFI           0.046
+    CG, uncorrected         0.088
+    CG, time-segmented      0.029
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 287-357
+
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_001.png
+         :alt: object, on-resonance gridding, field map at 3 T
+         :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_002.png
+         :alt: on resonance, uncorrected, MFI, 12 frequencies, CG, 12 segments
+         :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_003.png
+         :alt: orbitofrontal region, on resonance, uncorrected, MFI, 12 frequencies, CG, 12 segments
+         :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_004.png
+         :alt: left temporal region, on resonance, uncorrected, MFI, 12 frequencies, CG, 12 segments
+         :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_004.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_005.png
+         :alt: uncorrected - reference, MFI - reference, CG, time-segmented - reference
+         :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_005.png
+         :class: sphx-glr-multi-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 358-379
+
+Uncorrected, the cortex of the temporal lobes and of the orbitofrontal
+region is smeared over several voxels and the scalp is spread into a halo.
+MFI restores the brain to the accuracy of exact conjugate-phase
+reconstruction, one demodulation per distinct frequency of the field map.
+Its residual is concentrated in the scalp, where the field changes by tens
+of hertz within the extent of a voxel's blurring ring: conjugate phase
+assumes the field constant over that extent, and where it is not, the
+demodulation leaves an intensity error. The time-segmented
+reconstruction models the phase of each voxel up to the segmentation error
+and removes that residual too, at the cost of an iterative solve with one
+NUFFT pair per segment and iteration, against one FFT pair per demodulation
+frequency for MFI.
+
+The number of demodulation frequencies
+--------------------------------------
+
+The MFI approximation is poor until the demodulation frequencies are about
+:math:`1/T` apart. The rows below give, for the band of this field map, the
+RMS error of the transfer, the largest :math:`\sum_m |a_m(f)|` -- the factor
+by which noise and residual error are amplified -- and the NRMSE of the
+corrected image over the brain.
+
+.. GENERATED FROM PYTHON SOURCE LINES 380-390
+
+.. code-block:: Python
+
+
+    print(f"{'terms':>5}  {'transfer':>8}  {'sum|a|':>6}  {'brain NRMSE':>11}")
+    for terms in (9, 13, 17, 21, 25):
+        trial = bt.fit_transfer(timing, band=band, terms=terms)
+        corrected = bt.deblur(blurred, field_map, trial)
         print(
-            f"{terms:2d} terms       NRMSE {error(deblurred):.3f}   fit error "
-            f"{transfer.error(timing):.1e}   amplification {transfer.amplification:.0f}"
+            f"{terms:5d}  {trial.error(timing):8.1e}  {trial.amplification:6.1f}  "
+            f"{nrmse(corrected, reference):11.3f}"
         )
 
 
@@ -218,71 +436,33 @@ cost one convolution each.
 
  .. code-block:: none
 
-    blurred        NRMSE 0.151
-     4 terms       NRMSE 0.711   fit error 9.6e-01   amplification 1
-     8 terms       NRMSE 0.297   fit error 2.2e-01   amplification 22
-    16 terms       NRMSE 0.083   fit error 3.5e-04   amplification 30
+    terms  transfer  sum|a|  brain NRMSE
+        9   1.6e-01     2.3        0.177
+       13   1.9e-03    14.8        0.046
+       17   8.7e-06   191.6        0.046
+       21   1.7e-08  2853.1        0.046
+       25   3.0e-10  1777.4        0.046
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 152-157
+.. GENERATED FROM PYTHON SOURCE LINES 391-420
 
-The error is measured against the gridding reconstruction of the same
-trajectory on resonance. Once the fit error is small, adding terms no longer
-changes the result, and the residual is the error of the conjugate-phase
-approximation itself, which treats the field as constant over the extent of
-each voxel's blurring kernel. A uniform field satisfies that assumption:
-
-.. GENERATED FROM PYTHON SOURCE LINES 158-165
-
-.. code-block:: Python
-
-
-    uniform = torch.full_like(field, 50.0)
-    transfer = bt.fit_transfer(timing, band=band, terms=16)
-    flat = grid(acquire(uniform))
-    deblurred_flat = bt.deblur(flat, uniform, transfer)
-    print(f"uniform 50 Hz: blurred {error(flat):.3f}, deblurred {error(deblurred_flat):.3f}")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    uniform 50 Hz: blurred 0.186, deblurred 0.021
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 166-189
-
-
-
-
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_001.png
-   :alt: on resonance, off resonance, deblurred, field map
-   :srcset: /auto_examples/07-tours/images/sphx_glr_05-spiral-deblurring_001.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 190-208
-
-The remaining error for the uniform field is the difference between the
-deblurred gridding reconstruction and the on-resonance one, which the
-approximation does not introduce. Where the field varies within the kernel,
-as at the localized offset, the conjugate-phase residual adds to it. An
-iterative reconstruction that includes the field in the encoding operator
-removes that residual at the cost of one transform per time segment.
+Beyond the point where the transfer error is small, more frequencies leave
+the image unchanged and raise the amplification. Gadgetron's
+``gpuSpiralDeblurGadget`` sets the band from the echo spacing of its field
+map, :math:`f_{max} = 1.2 / (2\,\Delta TE)`, estimates the field map from a
+low-pass filtered two-echo spiral, and applies MFI with
+:math:`\lceil 2.5\, f_{max}\, T \rceil` frequencies. Here the field map is
+known; in practice its own error and smoothing limit both corrections.
 
 References
 ----------
+
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ,
+   Holmes CJ, Evans AC. Design and construction of a realistic digital brain
+   phantom. *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
 
 .. [#noll] Noll DC, Meyer CH, Pauly JM, Nishimura DG, Macovski A. A homogeneity
    correction method for magnetic resonance imaging with time-varying
@@ -293,10 +473,15 @@ References
    off-resonance correction. *Magn Reson Med* 37(5):785-792 (1997).
    https://doi.org/10.1002/mrm.1910370523
 
+.. [#sutton] Sutton BP, Noll DC, Fessler JA. Fast, iterative image
+   reconstruction for MRI in the presence of field inhomogeneities. *IEEE
+   Trans Med Imaging* 22(2):178-188 (2003).
+   https://doi.org/10.1109/TMI.2002.808360
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.779 seconds)
+   **Total running time of the script:** (0 minutes 3.410 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_05-spiral-deblurring.py:

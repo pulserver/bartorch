@@ -67,7 +67,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Regularization" href="../03-regularization/index.html" />
+    <link rel="next" title="Regularized reconstruction" href="../03-regularization/01-regularized-reconstruction.html" />
     <link rel="prev" title="Nonlinear inversion" href="02-nonlinear-inversion.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -501,20 +521,28 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-02-parallel-imaging-03-noise-prewhitening-py"></span><h1>Noise prewhitening<a class="headerlink" href="#noise-prewhitening" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/02-parallel-imaging/03-noise-prewhitening.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>The effect of channel-noise correlation on a SENSE reconstruction, and its
-removal by prewhitening with a noise measurement.</p>
-<p>The thermal noise of a receive array is correlated between channels and
-differs in level from one channel to another.  Least squares is the
-maximum-likelihood estimator only for white noise, so the data are first
-transformed by a whitening matrix <span class="math notranslate nohighlight">\(W\)</span> with <span class="math notranslate nohighlight">\(W \Psi W^H = I\)</span>,
-<span class="math notranslate nohighlight">\(\Psi\)</span> being the channel noise covariance estimated from a
-noise-only acquisition <a class="footnote-reference brackets" href="#roemer" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#pruessmann" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.  ESPIRiT then calibrates
-the sensitivities of the whitened channels, and the reconstruction proceeds
-unchanged.</p>
-<p>The signal-to-noise ratio of the two reconstructions is measured by the
-pseudo-replica method <a class="footnote-reference brackets" href="#robson" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>: the same reconstruction is repeated on
-independent noise realizations added to one noise-free acquisition, and the
-standard deviation across repetitions is the noise of each voxel.</p>
+<p>This lesson measures how correlated noise between receive channels lowers
+the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it
+prewhitening with a noise-only acquisition recovers.</p>
+<p>The thermal noise of a receive array is correlated between channels, through
+mutual inductance between the coil elements and shared noise sources in the
+sample, and its level differs from one channel to another, through the
+elements’ size, loading and preamplifier gain. Least squares is the
+maximum-likelihood estimator only for white noise, i.e. for a channel noise
+covariance proportional to the identity. A reconstruction that ignores the
+covariance <span class="math notranslate nohighlight">\(\Psi\)</span> weights every channel equally and does not combine
+them with the optimal SNR <a class="footnote-reference brackets" href="#roemer" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. Prewhitening transforms the data by a
+matrix <span class="math notranslate nohighlight">\(W\)</span> with <span class="math notranslate nohighlight">\(W \Psi W^H = I\)</span>, which makes the channel noise
+white; the sensitivities are then calibrated on, and the SENSE reconstruction
+run on, the whitened channels unchanged <a class="footnote-reference brackets" href="#pruessmann" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. <span class="math notranslate nohighlight">\(\Psi\)</span> is
+estimated from a noise scan, an acquisition with the RF transmitter off that
+most vendors run before every protocol.</p>
+<p>The SNR of the two reconstructions is measured by the pseudo-replica method
+<a class="footnote-reference brackets" href="#robson" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>: the same reconstruction is repeated on independent noise
+realizations added to one noise-free acquisition, and the standard deviation
+across repetitions is the noise of each voxel. This is how SNR and g-factor
+maps are obtained for iterative reconstructions, for which no closed-form
+noise propagation exists.</p>
 <p>The phantom and the coil sensitivities are built as in
 <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>; the cell that does it is hidden on this page
 and present in the script this page can be downloaded as.</p>
@@ -522,8 +550,8 @@ and present in the script this page can be downloaded as.</p>
 <ul class="simple">
 <li><p>Estimate the channel noise covariance from a noise scan and whiten the data
 with <a class="reference internal" href="../../generated/bartorch.tools.whiten.html#bartorch.tools.whiten" title="bartorch.tools.whiten"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.whiten()</span></code></a>.</p></li>
-<li><p>Measure a signal-to-noise ratio map by the pseudo-replica method.</p></li>
-<li><p>Quantify the change in SNR that prewhitening gives a SENSE reconstruction.</p></li>
+<li><p>Measure an SNR map by the pseudo-replica method.</p></li>
+<li><p>Quantify the SNR gain that prewhitening gives a SENSE reconstruction.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a>. The next section starts with
 <a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a>.</p>
@@ -544,16 +572,16 @@ with <a class="reference internal" href="../../generated/bartorch.tools.whiten.h
 </span></pre></div></div>
 <section id="correlated-channel-noise">
 <h2>Correlated channel noise<a class="headerlink" href="#correlated-channel-noise" title="Link to this heading">#</a></h2>
-<p>The noise covariance used for the simulation couples neighbouring channels
-by a factor falling as <span class="math notranslate nohighlight">\(0.5^{|i-j|}\)</span> and gives the channels standard
-deviations between 0.8 and 1.25 of a common level.  A noise scan – an
-acquisition with the RF transmitter off – measures the same channels
-without signal; its covariance is the estimate of <span class="math notranslate nohighlight">\(\Psi\)</span> that
-<a class="reference internal" href="../../generated/bartorch.tools.whiten.html#bartorch.tools.whiten" title="bartorch.tools.whiten"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.whiten()</span></code></a> inverts.</p>
+<p>The noise covariance of the simulation couples the channels by a
+correlation coefficient falling as <span class="math notranslate nohighlight">\(0.5^{|i-j|}\)</span> with the distance
+between their indices, and gives the channels noise standard deviations
+between 0.6 and 1.6 times a common level. The noise scan measures the same
+channels without signal; its sample covariance is the estimate of
+<span class="math notranslate nohighlight">\(\Psi\)</span> that <a class="reference internal" href="../../generated/bartorch.tools.whiten.html#bartorch.tools.whiten" title="bartorch.tools.whiten"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.whiten()</span></code></a> inverts.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">SIGMA</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># noise level, relative to the image's peak</span><span class="w">
 </span><span class="w">
 </span><span class="n">channels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">COILS</span><span class="p">)</span><span class="w">
-</span><span class="n">levels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="n">COILS</span><span class="p">)</span><span class="w">
+</span><span class="n">levels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="n">COILS</span><span class="p">)</span><span class="w">
 </span><span class="n">correlation</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span><span class="o">*</span> <span class="p">(</span><span class="n">channels</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">channels</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="p">]</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">covariance</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">correlation</span> <span class="o">*</span> <span class="n">levels</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="p">]</span><span class="w">
 </span><span class="n">mixing</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">covariance</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="w">
@@ -569,9 +597,10 @@ without signal; its covariance is the estimate of <span class="math notranslate 
 </span><span class="w">
 </span><span class="n">noise_scan</span> <span class="o">=</span> <span class="n">channel_noise</span><span class="p">(</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="w">
 </span></pre></div></div>
-<p>The whitening matrix maps the measured covariance to the identity.  The
-measure below is the mean magnitude of the off-diagonal covariance entries,
-relative to the mean diagonal entry: zero for uncorrelated channels.</p>
+<p>The whitening matrix maps the measured covariance to the identity. The
+measure printed below is the mean magnitude of the off-diagonal covariance
+entries relative to the mean diagonal entry, which is zero for
+uncorrelated channels.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">channel_covariance</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample covariance of the channels, over every other axis.&quot;&quot;&quot;</span><span class="w">
 </span>    <span class="n">flat</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">COILS</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">
@@ -589,18 +618,21 @@ relative to the mean diagonal entry: zero for uncorrelated channels.</p>
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">off-diagonal covariance: </span><span class="si">{</span><span class="n">off_diagonal</span><span class="p">(</span><span class="n">measured</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> measured</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">                         </span><span class="si">{</span><span class="n">off_diagonal</span><span class="p">(</span><span class="n">whitened</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> after whitening</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>off-diagonal covariance: 0.209 measured
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>off-diagonal covariance: 0.202 measured
                          0.000 after whitening
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_03-noise-prewhitening_001.png" srcset="../../_images/sphx_glr_03-noise-prewhitening_001.png" alt="measured, after whitening" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_03-noise-prewhitening_001.png" srcset="../../_images/sphx_glr_03-noise-prewhitening_001.png" alt="noise covariance, measured, after whitening" class = "sphx-glr-single-img"/><p>The measured covariance has a strong diagonal whose entries grow with the
+channel index, the unequal noise levels, and off-diagonal bands, the
+correlation. After whitening it is the identity.</p>
+</section>
 <section id="acquisition-and-calibration">
 <h2>Acquisition and calibration<a class="headerlink" href="#acquisition-and-calibration" title="Link to this heading">#</a></h2>
-<p>Every second phase encode is acquired, with 24 central lines kept for
-calibration.  Each pseudo-replica adds a new noise realization to the same
-noise-free k-space.  The sensitivities are calibrated once per pipeline,
-from the first replica: from the channels as measured, and from the
-whitened channels.</p>
+<p>Every second phase encode is acquired (<span class="math notranslate nohighlight">\(R = 2\)</span>), with 24 central lines
+kept as the ACS region. Each pseudo-replica adds a new noise realization to
+the same noise-free k-space. The sensitivities are calibrated once per
+pipeline, from the first replica: from the channels as measured, and from
+the whitened channels.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">CALIBRATION</span> <span class="o">=</span> <span class="mi">24</span><span class="w">
 </span><span class="n">REPLICAS</span> <span class="o">=</span> <span class="mi">32</span><span class="w">
 </span><span class="w">
@@ -635,9 +667,9 @@ whether the data are whitened first.</p>
 </span><span class="w">
 </span><span class="n">plain</span><span class="p">,</span> <span class="n">prewhitened</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">plain</span><span class="p">)</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">prewhitened</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<p>The signal-to-noise ratio of a voxel is the magnitude of the mean
-reconstruction over its standard deviation across replicas.  Both are
-reported over the white matter, where the phantom is homogeneous.</p>
+<p>The SNR of a voxel is the magnitude of the mean reconstruction over the
+standard deviation across replicas. Both are reported over the white
+matter, where the phantom is homogeneous.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">white_matter</span> <span class="o">=</span> <span class="n">memberships</span><span class="p">[</span><span class="n">CLASS</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">WM</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="w">
 </span><span class="w">
 </span><span class="w">
@@ -653,15 +685,25 @@ reported over the white matter, where the phantom is homogeneous.</p>
 </span><span class="n">gain</span> <span class="o">=</span> <span class="n">snr_map</span><span class="p">(</span><span class="n">prewhitened</span><span class="p">)</span> <span class="o">/</span> <span class="n">snr_map</span><span class="p">(</span><span class="n">plain</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">SNR ratio, prewhitened over as measured: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">gain</span><span class="p">[</span><span class="n">white_matter</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> (median)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span> as measured  white-matter SNR   41.9 (median 41.5)
- prewhitened  white-matter SNR   53.8 (median 53.7)
-SNR ratio, prewhitened over as measured: 1.28 (median)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span> as measured  white-matter SNR   38.1 (median 37.7)
+ prewhitened  white-matter SNR   55.6 (median 54.3)
+SNR ratio, prewhitened over as measured: 1.42 (median)
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_03-noise-prewhitening_002.png" srcset="../../_images/sphx_glr_03-noise-prewhitening_002.png" alt="SNR, as measured, SNR, prewhitened, SNR ratio" class = "sphx-glr-single-img"/><p>With this covariance, prewhitening raises the white-matter SNR by the
-ratio printed above.  The size of the gain depends on the array’s noise
-correlation and on the spread of the channel noise levels; it is measured
-here for one simulated covariance.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_03-noise-prewhitening_002.png" srcset="../../_images/sphx_glr_03-noise-prewhitening_002.png" alt="SNR, as measured, SNR, prewhitened" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-noise-prewhitening_003.png" srcset="../../_images/sphx_glr_03-noise-prewhitening_003.png" alt="SNR ratio, prewhitened / as measured" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>Prewhitening raises the SNR throughout the head, and the white-matter
+histogram shifts by the ratio printed above. The gain varies in space: it is
+largest in the posterior half of the head, where the channels with the
+lowest noise level (the first channels here) are most sensitive. Without
+whitening the least-squares fit weights those channels no more than the
+noisiest ones; after whitening each channel enters with the weight its noise
+level warrants. The size of the
+gain depends on the array’s noise correlation and on the spread of its
+channel noise levels, and is measured here for one simulated covariance;
+with uncorrelated channels of equal noise level it is one.</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
@@ -687,7 +729,7 @@ reconstructions. <em>Magn Reson Med</em> 60(4):895-907 (2008).
 <a class="reference external" href="https://doi.org/10.1002/mrm.21728">https://doi.org/10.1002/mrm.21728</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.909 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.004 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-parallel-imaging-03-noise-prewhitening-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/33840194afe4de8f4d6a9d496d2827c4/03-noise-prewhitening.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-noise-prewhitening.ipynb</span></code></a></p>
@@ -724,11 +766,11 @@ reconstructions. <em>Magn Reson Med</em> 60(4):895-907 (2008).
       </div>
     </a>
     <a class="right-next"
-       href="../03-regularization/index.html"
+       href="../03-regularization/01-regularized-reconstruction.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Regularization</p>
+        <p class="prev-next-title">Regularized reconstruction</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

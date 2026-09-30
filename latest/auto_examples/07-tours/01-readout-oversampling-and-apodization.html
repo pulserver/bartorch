@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="EPI Nyquist ghost and ramp sampling" href="02-epi-ghost-and-ramp-sampling.html" />
-    <link rel="prev" title="Tours" href="index.html" />
+    <link rel="prev" title="Uncertainty estimation" href="../06-learning/07-uncertainty.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -501,13 +521,31 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-07-tours-01-readout-oversampling-and-apodization-py"></span><h1>Readout oversampling and apodization<a class="headerlink" href="#readout-oversampling-and-apodization" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/07-tours/01-readout-oversampling-and-apodization.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>Two operations on Cartesian k-space before it is reconstructed: removing the
-readout oversampling, and weighting the measurement by an apodization window
-to suppress the Gibbs ringing of its truncation.</p>
-<p>The k-space is BART’s analytical Shepp-Logan phantom, evaluated at the sample
-positions rather than computed by a discrete Fourier transform of a sampled
-image, so the truncation and the oversampling are those of a continuous
-object.</p>
+<p>Two operations are applied to Cartesian k-space before the image is
+reconstructed. Readout oversampling doubles the field of view along the
+frequency-encoding direction, and is removed so that the image has the
+prescribed matrix. Truncation of k-space at the edge of the acquired matrix
+convolves the image with a sinc, whose side lobes appear as Gibbs ringing
+parallel to every sharp edge; an apodization window reduces the ringing at the
+cost of spatial resolution.</p>
+<p>This example removes twofold readout oversampling from the k-space of a
+Shepp-Logan phantom and compares the result with an acquisition without
+oversampling, then reconstructs a 64 x 64 acquisition with no window, a Fermi
+window and a Hann window, and measures the ringing and the resolution of each.
+The k-space is evaluated analytically at the sample positions, so its
+truncation and its oversampling are those of a continuous object.</p>
+<p><strong>Learning objectives</strong></p>
+<ul class="simple">
+<li><p>Remove readout oversampling in the image domain with
+<a class="reference internal" href="../../generated/bartorch.remove_readout_oversampling.html#bartorch.remove_readout_oversampling" title="bartorch.remove_readout_oversampling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.remove_readout_oversampling()</span></code></a>, and distinguish it from
+discarding the outer readout samples.</p></li>
+<li><p>Relate the Gibbs ringing of a truncated acquisition to the side lobes of its
+point spread function.</p></li>
+<li><p>Apodize k-space with <a class="reference internal" href="../../generated/bartorch.apodize.html#bartorch.apodize" title="bartorch.apodize"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apodize()</span></code></a>, and quantify the trade-off
+between ringing amplitude and the full width at half maximum.</p></li>
+<li><p>Choose between the radial and the separable extension of a window over
+k-space.</p></li>
+</ul>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">math</span><span class="w">
 </span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
@@ -517,14 +555,14 @@ object.</p>
 </span></pre></div></div>
 <section id="readout-oversampling">
 <h2>Readout oversampling<a class="headerlink" href="#readout-oversampling" title="Link to this heading">#</a></h2>
-<p>A scanner digitises more samples along the readout than the prescribed
-matrix, so that the anti-aliasing filter of the receiver can roll off
-outside the field of view. Twofold oversampling halves the sample spacing
-along <span class="math notranslate nohighlight">\(k_x\)</span>, which doubles the field of view along <span class="math notranslate nohighlight">\(x\)</span>; the
-extent of k-space, and so the resolution, is unchanged.</p>
-<p>The trajectory below has 128 phase encodes at unit spacing and 256 readout
-samples at half that spacing, in the grid units of a 128 matrix. Its first
-component is <span class="math notranslate nohighlight">\(k_x\)</span>, along the last image axis.</p>
+<p>The receiver digitises the echo at twice the sampling rate the prescribed
+matrix requires, so that its anti-aliasing filter can roll off outside the
+field of view. Twofold oversampling halves the sample spacing
+<span class="math notranslate nohighlight">\(\Delta k_x\)</span>, which doubles the field of view along the readout; the
+extent of k-space, and so the spatial resolution, is unchanged.</p>
+<p>The acquisition has 128 phase-encoding lines and 256 readout samples at
+half the phase-encoding spacing, in the grid units of a 128 matrix. The
+first trajectory component is <span class="math notranslate nohighlight">\(k_x\)</span>, along the last image axis.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">MATRIX</span> <span class="o">=</span> <span class="mi">128</span><span class="w">
 </span><span class="n">phase_encodes</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">MATRIX</span><span class="p">)</span> <span class="o">-</span> <span class="n">MATRIX</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">readout</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">MATRIX</span><span class="p">)</span> <span class="o">-</span> <span class="n">MATRIX</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="w">
@@ -532,60 +570,69 @@ component is <span class="math notranslate nohighlight">\(k_x\)</span>, along th
 </span><span class="n">trajectory</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">[</span><span class="n">kx</span><span class="p">,</span> <span class="n">ky</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">kx</span><span class="p">)</span><span class="p">]</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">oversampled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">MATRIX</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">MATRIX</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">oversampled k-space </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">oversampled</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>oversampled k-space (128, 256)
-</pre></div>
-</div>
 <p><a class="reference internal" href="../../generated/bartorch.remove_readout_oversampling.html#bartorch.remove_readout_oversampling" title="bartorch.remove_readout_oversampling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.remove_readout_oversampling()</span></code></a> transforms the readout to the
 image domain, crops the field of view to the prescribed matrix and
-transforms back. Discarding the outer half of the readout samples in k-space
-instead keeps the doubled field of view and halves the resolution.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">cropped</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.remove_readout_oversampling.html#bartorch.remove_readout_oversampling" title="bartorch.remove_readout_oversampling"><span class="n">bartorch</span><span class="o">.</span><span class="n">remove_readout_oversampling</span></a><span class="p">(</span><span class="n">oversampled</span><span class="p">,</span> <span class="n">MATRIX</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">
-</span><span class="n">truncated</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.resize.html#bartorch.resize" title="bartorch.resize"><span class="n">bartorch</span><span class="o">.</span><span class="n">resize</span></a><span class="p">(</span><span class="n">oversampled</span><span class="p">,</span> <span class="p">(</span><span class="n">MATRIX</span><span class="p">,</span> <span class="n">MATRIX</span><span class="p">)</span><span class="p">)</span><span class="w">
+transforms back. Discarding the outer half of the readout samples instead
+keeps the doubled field of view and halves the resolution along the
+readout. The crop is compared with an acquisition without oversampling; the
+crop uses the unitary transform, whose normalization depends on the number
+of samples, so the two differ by the factor <span class="math notranslate nohighlight">\(\sqrt{2}\)</span> between the
+transform lengths.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">cropped</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.remove_readout_oversampling.html#bartorch.remove_readout_oversampling" title="bartorch.remove_readout_oversampling"><span class="n">bartorch</span><span class="o">.</span><span class="n">remove_readout_oversampling</span></a><span class="p">(</span><span class="n">oversampled</span><span class="p">,</span> <span class="n">MATRIX</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span><span class="n">truncated</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.resize.html#bartorch.resize" title="bartorch.resize"><span class="n">bartorch</span><span class="o">.</span><span class="n">resize</span></a><span class="p">(</span><span class="n">oversampled</span><span class="p">,</span> <span class="p">(</span><span class="n">MATRIX</span><span class="p">,</span> <span class="n">MATRIX</span><span class="p">)</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span><span class="n">reference</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">MATRIX</span><span class="p">,</span> <span class="n">kspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">image_of</span><span class="p">(</span><span class="n">kspace</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">nrmse</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">estimate</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">target</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">crop against no oversampling: NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="p">(</span><span class="n">image_of</span><span class="p">(</span><span class="n">cropped</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">image_of</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<p>The cropped k-space is compared with the k-space acquired without
-oversampling. The crop uses the unitary transform, whose normalization
-depends on the number of samples, so the two differ by the factor
-<span class="math notranslate nohighlight">\(\sqrt{2}\)</span> between the transform lengths.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">reference</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">MATRIX</span><span class="p">,</span> <span class="n">kspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span><span class="n">difference</span> <span class="o">=</span> <span class="p">(</span><span class="n">cropped</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">reference</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">reference</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">cropped against unoversampled k-space: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">difference</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2"> of the peak</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>cropped against unoversampled k-space: 1.1e-03 of the peak
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>crop against no oversampling: NRMSE 4.8e-03
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" alt="256 readout samples, image-domain crop, k-space truncation" class = "sphx-glr-single-img"/><p>The residual difference is the part of the truncation ringing that extends
-past the prescribed field of view along the readout and is cropped with it.</p>
+<img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_001.png" alt="256 readout samples: field of view doubled along x, no oversampling, image-domain crop NRMSE 4.8e-03, crop - no oversampling (range ±0.02), k-space truncation half the resolution along x" class = "sphx-glr-single-img"/><p>The image-domain crop reproduces the acquisition without oversampling to the
+part of the truncation ringing that extends past the prescribed field of
+view along the readout and is cropped with it. Discarding k-space samples
+instead widens the pixel to twice the prescribed size along <span class="math notranslate nohighlight">\(x\)</span>: the
+object occupies half of the matrix.</p>
 </section>
 <section id="apodization">
 <h2>Apodization<a class="headerlink" href="#apodization" title="Link to this heading">#</a></h2>
-<p>A measurement truncated at the edge of k-space is the object’s spectrum
-multiplied by a rectangle, and its image the object convolved with a sinc,
-whose side lobes produce ringing at every sharp edge. An apodization window
-rolls the measurement off towards the edge instead, which lowers the side
-lobes and widens the main lobe of the point spread function <a class="footnote-reference brackets" href="#bernstein" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
-<p>The phantom is measured on a 64 matrix and reconstructed on a 128 grid by
+<p>An acquisition truncated at the edge of k-space is the object’s spectrum
+multiplied by a rectangle, and its image the object convolved with a sinc.
+The first side lobe of the sinc is 22 % of its peak, which appears as an
+overshoot of about 9 % at a step edge and as ringing that decays over a few
+pixels. An apodization window rolls the data off towards the edge of
+k-space, which lowers the side lobes and widens the main lobe of the point
+spread function <a class="footnote-reference brackets" href="#bernstein" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>The phantom is acquired on a 64 matrix and reconstructed on a 128 grid by
 zero-filling, which interpolates the image and makes the ringing visible
-between the samples of the acquired grid.</p>
+between the pixels of the acquired grid.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">GRID</span><span class="p">,</span> <span class="n">ACQUIRED</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="w">
-</span><span class="n">image</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">GRID</span><span class="p">)</span><span class="w">
+</span><span class="n">image</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">GRID</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">measured</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span></a><span class="p">(</span><span class="n">ACQUIRED</span><span class="p">,</span> <span class="n">kspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
 </span><span class="k">def</span><span class="w"> </span><span class="nf">reconstruct</span><span class="p">(</span><span class="n">kspace</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.resize.html#bartorch.resize" title="bartorch.resize"><span class="n">bartorch</span><span class="o">.</span><span class="n">resize</span></a><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="p">(</span><span class="n">GRID</span><span class="p">,</span> <span class="n">GRID</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.resize.html#bartorch.resize" title="bartorch.resize"><span class="n">bartorch</span><span class="o">.</span><span class="n">resize</span></a><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="p">(</span><span class="n">GRID</span><span class="p">,</span> <span class="n">GRID</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <p><a class="reference internal" href="../../generated/bartorch.fermi_window.html#bartorch.fermi_window" title="bartorch.fermi_window"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fermi_window()</span></code></a> sets the radius of the half height and the
 width of the transition separately, and keeps a wide passband.
 <a class="reference internal" href="../../generated/bartorch.hann_window.html#bartorch.hann_window" title="bartorch.hann_window"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.hann_window()</span></code></a> tapers from the centre of k-space to zero at
 the edge. The point spread functions are evaluated on a grid eight times
-finer than the acquired one: the side lobes of an unwindowed measurement
-have their zeros at the samples of the acquired grid, so a point spread
+finer than the acquired one: the side lobes of an unwindowed acquisition
+have their zeros at the pixels of the acquired grid, so a point spread
 function read off that grid shows none.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">fermi</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fermi_window.html#bartorch.fermi_window" title="bartorch.fermi_window"><span class="n">bartorch</span><span class="o">.</span><span class="n">fermi_window</span></a><span class="p">(</span><span class="p">(</span><span class="n">ACQUIRED</span><span class="p">,</span> <span class="n">ACQUIRED</span><span class="p">)</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span><span class="w">
 </span><span class="n">hann</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.hann_window.html#bartorch.hann_window" title="bartorch.hann_window"><span class="n">bartorch</span><span class="o">.</span><span class="n">hann_window</span></a><span class="p">(</span><span class="p">(</span><span class="n">ACQUIRED</span><span class="p">,</span> <span class="n">ACQUIRED</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="n">windows</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">none</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ACQUIRED</span><span class="p">,</span> <span class="n">ACQUIRED</span><span class="p">)</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">Fermi</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">fermi</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">Hann</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">hann</span><span class="p">}</span><span class="w">
+</span><span class="n">windows</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">no window</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ACQUIRED</span><span class="p">,</span> <span class="n">ACQUIRED</span><span class="p">)</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">Fermi</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">fermi</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">Hann</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">hann</span><span class="p">}</span><span class="w">
 </span><span class="w">
 </span><span class="n">UPSAMPLE</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
 </span><span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">UPSAMPLE</span> <span class="o">*</span> <span class="n">ACQUIRED</span><span class="p">)</span> <span class="o">-</span> <span class="n">UPSAMPLE</span> <span class="o">*</span> <span class="n">ACQUIRED</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">UPSAMPLE</span><span class="w">
@@ -597,56 +644,67 @@ function read off that grid shows none.</p>
 </span>    <span class="k">return</span> <span class="n">profile</span> <span class="o">/</span> <span class="n">profile</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">'</span><span class="s1">window</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;6</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">side lobe</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">FWHM</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">profile</span> <span class="o">=</span> <span class="n">psf</span><span class="p">(</span><span class="n">window</span><span class="p">)</span><span class="w">
-</span>    <span class="n">lobe</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="n">offset</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">fwhm</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="n">above</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">profile</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span>    <span class="n">width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">offset</span><span class="p">[</span><span class="n">above</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span><span class="p">[</span><span class="n">above</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">]</span><span class="p">)</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;6</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">lobe</span><span class="si">:</span><span class="s2">9.1e</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">width</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> px</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">offset</span><span class="p">[</span><span class="n">above</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span><span class="p">[</span><span class="n">above</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">]</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>window  side lobe     FWHM
-  none    9.1e-02   1.00 px
- Fermi    2.6e-02   1.50 px
-  Hann    5.6e-03   2.00 px
-</pre></div>
-</div>
-<p>The side lobe is the largest value beyond three pixels of the peak, and the
-full width at half maximum is in pixels of the acquired grid, to the eighth
-of a pixel the fine grid resolves.</p>
 <p><a class="reference internal" href="../../generated/bartorch.apodize.html#bartorch.apodize" title="bartorch.apodize"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apodize()</span></code></a> multiplies k-space by either window over the axes
-it names.</p>
+it names. The ringing is measured as the standard deviation of the image
+over the parenchyma within six pixels of the skull, where the object is
+uniform, and the resolution as the full width at half maximum of the point
+spread function, in pixels of the acquired grid.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">reconstructions</span> <span class="o">=</span> <span class="p">{</span><span class="w">
-</span>    <span class="s2">&quot;</span><span class="s2">none</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">measured</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">no window</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">measured</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span>    <span class="s2">&quot;</span><span class="s2">Fermi</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">reconstruct</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apodize.html#bartorch.apodize" title="bartorch.apodize"><span class="n">bartorch</span><span class="o">.</span><span class="n">apodize</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">fermi</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span>    <span class="s2">&quot;</span><span class="s2">Hann</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">reconstruct</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apodize.html#bartorch.apodize" title="bartorch.apodize"><span class="n">bartorch</span><span class="o">.</span><span class="n">apodize</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">hann</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="n">reconstructions</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">overshoot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span> <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;6</span><span class="si">}</span><span class="s2">: maximum above the object</span><span class="s2">'</span><span class="s2">s </span><span class="si">{</span><span class="n">overshoot</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">skull</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="w">
+</span><span class="n">near_skull</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">skull</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="w">
+</span><span class="n">flat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="w">
+</span>    <span class="p">(</span><span class="n">image</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="w">
+</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span><span class="n">ringing_region</span> <span class="o">=</span> <span class="n">near_skull</span> <span class="o">&amp;</span> <span class="n">flat</span><span class="w">
+</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">'</span><span class="s1">window</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">ringing</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">side lobe</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">'</span><span class="s1">FWHM</span><span class="s1">'</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">profile</span> <span class="o">=</span> <span class="n">psf</span><span class="p">(</span><span class="n">window</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ringing</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">reconstructions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="p">[</span><span class="n">ringing_region</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">lobe</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="n">offset</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">metrics</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ringing</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">ringing</span><span class="si">:</span><span class="s2">7.4f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">lobe</span><span class="si">:</span><span class="s2">9.1e</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">fwhm</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> px</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span> none: maximum above the object's +0.200
-Fermi: maximum above the object's +0.119
- Hann: maximum above the object's -0.144
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>   window  ringing  side lobe     FWHM
+no window   0.0404    9.1e-02   1.00 px
+    Fermi   0.0325    2.6e-02   1.50 px
+     Hann   0.0100    5.6e-03   2.00 px
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" alt="none, Fermi, Hann" class = "sphx-glr-single-img"/><p>Neither window is a positive blur: their point spread functions have
-negative lobes, so an apodized image can still exceed the object’s maximum.
-The Fermi window reduces the overshoot and keeps most of the resolution; the
-Hann window removes it at the cost of the widest main lobe.</p>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_002.png" alt="left edge of the skull, displayed from 0 to half the skull intensity, object, no window ringing 0.0404, FWHM 1.00 px, Fermi ringing 0.0325, FWHM 1.50 px, Hann ringing 0.0100, FWHM 2.00 px" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" alt="point spread function, |PSF|, profile across the skull, row 64" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>Without a window the ringing is visible as bands parallel to the skull
+across the adjacent parenchyma. The Fermi window lowers the far side lobes
+by a factor of three and the ringing next to the skull by about a fifth, and
+widens the point spread function by half a pixel; the Hann window removes
+the ringing almost entirely and doubles the full width at half maximum,
+which blurs the skull into the parenchyma. The Fermi window’s wide passband
+is the usual compromise for anatomical imaging.</p>
 </section>
 <section id="radial-and-separable-windows">
 <h2>Radial and separable windows<a class="headerlink" href="#radial-and-separable-windows" title="Link to this heading">#</a></h2>
-<p>The one-dimensional kernel is extended over the grid either on the Euclidean
-norm of the normalized coordinates (<code class="docutils literal notranslate"><span class="pre">geometry=&quot;radial&quot;</span></code>, an ellipsoid) or
-as a product along each axis (<code class="docutils literal notranslate"><span class="pre">geometry=&quot;separable&quot;</span></code>), which retains more
-of the corners of k-space. Bernstein et al. <a class="footnote-reference brackets" href="#bernstein" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> give the ratio of
-the two at the diagonal Nyquist point as 52.4 % in two dimensions and 50.7 %
-in three, for a Fermi window of transition width 10/128. The radial window
-is 0.5 there; the separable one is the product of the one-dimensional kernel
-at <span class="math notranslate nohighlight">\(1/\sqrt{d}\)</span> along each of <span class="math notranslate nohighlight">\(d\)</span> axes. The one-dimensional
-kernel at <span class="math notranslate nohighlight">\(u\)</span> is the window at the centre of a grid with its radius
-moved to <span class="math notranslate nohighlight">\(1 - u\)</span>.</p>
+<p>The one-dimensional kernel is extended over k-space either on the
+Euclidean norm of the normalized coordinates (<code class="docutils literal notranslate"><span class="pre">geometry=&quot;radial&quot;</span></code>, an
+ellipse) or as a product along each axis (<code class="docutils literal notranslate"><span class="pre">geometry=&quot;separable&quot;</span></code>), which
+retains more of the corners of k-space. Bernstein et al. <a class="footnote-reference brackets" href="#bernstein" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> give
+the ratio of the two at the diagonal Nyquist point as 52.4 % in two
+dimensions and 50.7 % in three, for a Fermi window of transition width
+10/128. The radial window is 0.5 there; the separable one is the product of
+the one-dimensional kernel at <span class="math notranslate nohighlight">\(1/\sqrt{d}\)</span> along each of <span class="math notranslate nohighlight">\(d\)</span>
+axes. The one-dimensional kernel at <span class="math notranslate nohighlight">\(u\)</span> is the window at the centre of
+a grid with its radius moved to <span class="math notranslate nohighlight">\(1 - u\)</span>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">TRANSITION</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">/</span> <span class="mi">128</span><span class="w">
 </span><span class="w">
 </span><span class="w">
@@ -662,7 +720,7 @@ moved to <span class="math notranslate nohighlight">\(1 - u\)</span>.</p>
 3D: radial / separable at the diagonal 50.7 %
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_003.png" alt="radial, separable" class = "sphx-glr-single-img"/><p>The radial window has the more isotropic point spread function and the
+<img src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_004.png" srcset="../../_images/sphx_glr_01-readout-oversampling-and-apodization_004.png" alt="radial, separable, separable - radial" class = "sphx-glr-single-img"/><p>The radial window has the more isotropic point spread function and the
 higher signal-to-noise ratio; the separable one the better resolution along
 the diagonals. Both normalize each axis to its own Nyquist edge, so a
 rectangular matrix receives an ellipse matched to its grid.</p>
@@ -679,7 +737,7 @@ acquisition strategy. <em>J Magn Reson Imaging</em> 14(3):270-280 (2001).
 <a class="reference external" href="https://doi.org/10.1002/jmri.1183">https://doi.org/10.1002/jmri.1183</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.296 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.529 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-tours-01-readout-oversampling-and-apodization-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/6d55b886e37c1d47737f62c1c6f2a17f/01-readout-oversampling-and-apodization.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-readout-oversampling-and-apodization.ipynb</span></code></a></p>
@@ -707,12 +765,12 @@ acquisition strategy. <em>J Magn Reson Imaging</em> 14(3):270-280 (2001).
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../06-learning/07-uncertainty.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tours</p>
+        <p class="prev-next-title">Uncertainty estimation</p>
       </div>
     </a>
     <a class="right-next"

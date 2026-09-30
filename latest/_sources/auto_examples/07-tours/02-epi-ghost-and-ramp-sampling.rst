@@ -22,16 +22,36 @@
 EPI Nyquist ghost and ramp sampling
 ===================================
 
-Two corrections an echo-planar readout needs before its lines form a
-Cartesian k-space: the odd/even phase that produces the Nyquist ghost,
-estimated from a three-line navigator, and the resampling of samples taken on
-the gradient ramps onto the uniform grid.
+An echo-planar readout acquires k-space in a train of lines of alternating
+readout gradient polarity, and two corrections are applied before the lines
+form a Cartesian k-space. A timing error between the readout gradient and the
+ADC, and eddy currents, displace the echoes of the reversed lines relative to
+the forward ones; the resulting odd/even phase produces a Nyquist ghost, a
+copy of the object displaced by half the field of view along the
+phase-encoding direction. Sampling during the ramps of the readout gradient
+shortens the echo spacing, and the samples, uniform in time, are not uniform
+in :math:`k_x`.
 
-The data is BART's analytical Shepp-Logan phantom with eight simulated coils,
-into which a known readout delay is introduced, so the estimate can be
-compared with the delay.
+This example simulates an eight-channel EPI acquisition of a Shepp-Logan
+phantom with a known ADC delay and constant phase error, estimates the
+odd/even phase from a three-line navigator, and compares the ghosted and the
+corrected image with the delay-free image. It then resamples a ramp-sampled
+readout onto a uniform :math:`k_x` grid and compares the result with linear
+interpolation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-39
+**Learning objectives**
+
+* Relate an ADC delay to a linear phase in hybrid space and to the Nyquist
+  ghost at half the field of view.
+* Estimate the odd/even phase from a three-line navigator with
+  :func:`~bartorch.tools.estimate_epi_phase`, and apply it to the reversed
+  lines with :func:`~bartorch.tools.correct_lines`.
+* Quantify the ghost by the ghost-to-signal ratio.
+* Resample a ramp-sampled readout with
+  :func:`~bartorch.tools.epi_ramp_operator`, and check the sampling condition
+  under which the resampling is exact.
+
+.. GENERATED FROM PYTHON SOURCE LINES 37-60
 
 .. code-block:: Python
 
@@ -51,34 +71,35 @@ compared with the delay.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-58
+.. GENERATED FROM PYTHON SOURCE LINES 61-78
 
 The Nyquist ghost
 -----------------
 
-An EPI train reads alternate lines with readout gradients of opposite
-polarity. A delay between the gradient and the ADC shifts the echo of every
-line by the same time, which is a shift towards positive :math:`k_x` on a
+A delay :math:`\delta` of the ADC relative to the readout gradient shifts
+the echo of every line by the same time: towards positive :math:`k_x` on a
 forward line and towards negative :math:`k_x` on a reversed one. In hybrid
-space -- after the inverse transform along the readout -- a shift in
-:math:`k_x` is a linear phase in :math:`x`, so the reversed lines carry a
-phase the forward ones do not. A phase that alternates from line to line
-modulates k-space at the Nyquist frequency of the phase-encoding direction,
-and the image acquires a copy of the object displaced by half the field of
-view.
+space -- after the inverse Fourier transform along the readout -- a shift of
+:math:`\delta` dwell times is a linear phase :math:`\pi \delta u` over the
+readout coordinate :math:`u \in [-1, 1]`. A constant phase :math:`\phi_0`,
+from eddy currents or a :math:`B_0` offset during the readout, adds to it
+with the same alternating sign. The phase difference between odd and even
+lines modulates k-space at the Nyquist frequency of the phase-encoding
+direction, and the image acquires a ghost at half the field of view.
 
-Below, forward lines carry :math:`+(a u + b)` and reversed lines
-:math:`-(a u + b)` in hybrid space, with :math:`u \in [-1, 1]` the readout
-coordinate. A reversed line is stored in the order it was digitised, that is
-flipped along the readout.
+Forward lines carry :math:`+(\pi \delta u + \phi_0)` and reversed lines
+:math:`-(\pi \delta u + \phi_0)`. A reversed line is stored in the order it
+was digitised, that is flipped along the readout.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-77
+.. GENERATED FROM PYTHON SOURCE LINES 79-99
 
 .. code-block:: Python
 
 
     SIZE = 128
-    SLOPE, OFFSET = 0.6, 0.25  # rad
+    DELAY = 0.2  # dwell times
+    PHASE_0 = 0.25  # rad
+    SLOPE = math.pi * DELAY * (SIZE - 1) / SIZE  # rad over u in [-1, 1]
 
     kspace = bt.phantom(SIZE, kspace=True, coils=8)[:, 0]  # (coils, ky, kx)
     hybrid = bartorch.fft(kspace, axes=(-1,), inverse=True, unitary=True)
@@ -87,7 +108,7 @@ flipped along the readout.
 
     def acquire(row, polarity):
         """One readout of polarity +1 or -1, digitised in the order it was played."""
-        delayed = row * torch.polar(torch.ones(SIZE), polarity * (SLOPE * u + OFFSET))
+        delayed = row * torch.polar(torch.ones(SIZE), polarity * (SLOPE * u + PHASE_0))
         line = bartorch.fft(delayed, axes=(-1,), unitary=True)
         return torch.flip(line, [-1]) if polarity < 0 else line
 
@@ -101,19 +122,19 @@ flipped along the readout.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-87
+.. GENERATED FROM PYTHON SOURCE LINES 100-109
 
 The navigator
 -------------
 
-Three lines of alternating polarity acquired without a phase-encoding blip
+Three lines of alternating polarity acquired without phase-encoding blips
 sample the same line of k-space, so the phase between the reversed line and
 the mean of its two neighbours is the odd/even phase alone.
 :func:`~bartorch.tools.estimate_epi_phase` fits a polynomial to it,
 weighted by the signal magnitude and summed over coils. The reversed
 navigator line is passed already flipped into readout order.
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-96
+.. GENERATED FROM PYTHON SOURCE LINES 110-118
 
 .. code-block:: Python
 
@@ -123,7 +144,7 @@ navigator line is passed already flipped into readout order.
 
     fit = bt.estimate_epi_phase(navigator)
     print(f"fitted     constant {float(fit[0]):+.3f}  linear {float(fit[1]):+.3f} rad")
-    print(f"impressed  constant {2 * OFFSET:+.3f}  linear {2 * SLOPE:+.3f} rad")
+    print(f"impressed  constant {2 * PHASE_0:+.3f}  linear {2 * SLOPE:+.3f} rad")
 
 
 
@@ -133,23 +154,24 @@ navigator line is passed already flipped into readout order.
 
  .. code-block:: none
 
-    fitted     constant +0.500  linear +1.200 rad
-    impressed  constant +0.500  linear +1.200 rad
+    fitted     constant +0.500  linear +1.247 rad
+    impressed  constant +0.500  linear +1.247 rad
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 97-104
+.. GENERATED FROM PYTHON SOURCE LINES 119-127
 
 The fitted phase is twice the impressed one, because the navigator measures
 the difference between a forward and a reversed line. The correction is
-applied to the reversed lines only, which rotates them onto the forward ones
-and leaves the image in place.
+applied to the reversed lines only: it brings them into phase with the
+forward lines, whose remaining phase is common to all lines and does not
+change the magnitude image.
 
-:func:`~bartorch.tools.correct_lines` flips the reversed lines back
-and, given the fit, removes the phase.
+The ghost is measured by the ghost-to-signal ratio: the mean signal outside
+the object divided by the mean signal inside it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-120
+.. GENERATED FROM PYTHON SOURCE LINES 128-157
 
 .. code-block:: Python
 
@@ -164,9 +186,23 @@ and, given the fit, removes the phase.
     ghosted = reconstruct(bt.correct_lines(train))
     corrected = reconstruct(bt.correct_lines(train, fit))
 
-    for name, estimate in (("flipped only", ghosted), ("phase-corrected", corrected)):
-        error = float((estimate - ideal).norm() / ideal.norm())
-        print(f"{name:>16}: difference from the delay-free image {error:.1e}")
+    inside = ideal > 0.05 * ideal.max()
+    outside = ideal < 0.01 * ideal.max()
+
+
+    def nrmse(estimate, target):
+        return float((estimate - target).norm() / target.norm())
+
+
+    def ghost_to_signal(image):
+        return float(image[outside].mean() / image[inside].mean())
+
+
+    for name, image in (("delay-free", ideal), ("flipped only", ghosted), ("corrected", corrected)):
+        print(
+            f"{name:>12}: ghost-to-signal {100 * ghost_to_signal(image):5.2f} %, "
+            f"NRMSE {nrmse(image, ideal):.1e}"
+        )
 
 
 
@@ -176,38 +212,55 @@ and, given the fit, removes the phase.
 
  .. code-block:: none
 
-        flipped only: difference from the delay-free image 3.0e-01
-     phase-corrected: difference from the delay-free image 1.1e-07
+      delay-free: ghost-to-signal  1.38 %, NRMSE 0.0e+00
+    flipped only: ghost-to-signal 18.22 %, NRMSE 3.2e-01
+       corrected: ghost-to-signal  1.38 %, NRMSE 1.1e-07
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-138
+.. GENERATED FROM PYTHON SOURCE LINES 158-210
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png
-   :alt: flipped only, window 0-30 %, corrected, window 0-30 %, central column
-   :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png
+         :alt: displayed from 0 to 30 % of the peak; phase encoding vertical, delay-free, flipped only GSR 18.2 %, NRMSE 0.32, navigator-corrected GSR 1.4 %, NRMSE 1e-07, flipped only - delay-free
+         :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png
+         :alt: navigator phase in hybrid space, central column
+         :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-159
+.. GENERATED FROM PYTHON SOURCE LINES 211-235
 
-The images are windowed to 30 % of the peak, where the ghost at half the
-field of view is visible. What remains after correction is the difference
-between the first-order phase model and the impressed phase, which here is
-zero up to single-precision round-off.
+Without the phase correction the ghost appears at the top and bottom of the
+field of view and overlaps the object where it wraps. With the first-order
+fit the ghost-to-signal ratio returns to that of the delay-free image, whose
+signal outside the object is the truncation ringing of the phantom, since
+the simulated phase error is exactly first order. On measured data, higher
+orders of the phase, and phase errors that differ between lines of the same
+polarity, leave a residual ghost.
 
 Ramp sampling
 -------------
 
-Sampling during the gradient ramps shortens the echo spacing, but the
-samples are not uniformly spaced in :math:`k_x`. The readout is the
+Sampling during the ramps of the trapezoidal readout gradient places the
+samples at :math:`k_x(t) = \gamma \int_0^t G_x(\tau)\, d\tau`, which is
+denser on the ramps than on the plateau. The readout is the Fourier
 transform of an object that spans ``support`` pixels, so samples at any
 positions determine it, provided no two neighbouring samples are further
 apart than one over the support, the Nyquist spacing of that object.
@@ -215,11 +268,11 @@ apart than one over the support, the Nyquist spacing of that object.
 least-squares inverse of the transform at the sampled positions followed by
 the transform at the uniform ones.
 
-A trapezoidal readout gradient of 160 samples with ramps of 30 % of its
-duration is simulated for a one-dimensional object of 64 pixels, positions
-in cycles per pixel.
+The readout gradient is a trapezoid whose ramps each take 30 % of the ADC
+window, sampled with 160 samples, for a one-dimensional object of 64 pixels;
+positions are in cycles per pixel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 160-184
+.. GENERATED FROM PYTHON SOURCE LINES 236-260
 
 .. code-block:: Python
 
@@ -245,7 +298,7 @@ in cycles per pixel.
     measured, truth = encode(sampled_at), encode(uniform_at)
 
     operator = bt.epi_ramp_operator(sampled_at, uniform_at, SUPPORT)
-    resampled = (measured.to(torch.complex64)[None] @ operator.T)[0]
+    resampled = (measured.to(torch.complex64)[None] @ operator.T)[0].to(torch.complex128)
 
 
 
@@ -254,11 +307,13 @@ in cycles per pixel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-186
+.. GENERATED FROM PYTHON SOURCE LINES 261-264
 
-Linear interpolation between neighbouring samples is the comparison.
+Linear interpolation between neighbouring samples is the comparison. Both
+are assessed on the image profile, the inverse transform of the uniform
+samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 187-202
+.. GENERATED FROM PYTHON SOURCE LINES 265-281
 
 .. code-block:: Python
 
@@ -269,13 +324,14 @@ Linear interpolation between neighbouring samples is the comparison.
     )
 
 
-    def error(estimate):
-        return float((estimate.to(torch.complex128) - truth).norm() / truth.norm())
+    def image_profile(samples):
+        return torch.fft.fftshift(torch.fft.ifft(torch.fft.ifftshift(samples))).abs()
 
 
     step = float(torch.diff(sampled_at).max()) * SUPPORT
     print(f"largest step x support: {step:.2f}  (the samples determine the object below 1)")
-    print(f"band-limited resampling {error(resampled):.1e}   linear interpolation {error(linear):.3f}")
+    for name, estimate in (("band-limited resampling", resampled), ("linear interpolation", linear)):
+        print(f"{name:>24}: image NRMSE {nrmse(image_profile(estimate), image_profile(truth)):.1e}")
 
 
 
@@ -286,32 +342,36 @@ Linear interpolation between neighbouring samples is the comparison.
  .. code-block:: none
 
     largest step x support: 0.57  (the samples determine the object below 1)
-    band-limited resampling 1.4e-06   linear interpolation 0.032
+     band-limited resampling: image NRMSE 1.4e-06
+        linear interpolation: image NRMSE 3.2e-02
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 203-226
+.. GENERATED FROM PYTHON SOURCE LINES 282-316
 
 
 
 
-.. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png
-   :alt: error
-   :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_002.png
+.. image-sg:: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png
+   :alt: trapezoidal readout gradient, image profile, |error| / peak
+   :srcset: /auto_examples/07-tours/images/sphx_glr_02-epi-ghost-and-ramp-sampling_003.png
    :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 227-240
+.. GENERATED FROM PYTHON SOURCE LINES 317-333
 
-The resampling is exact to the precision of the operator, which is returned
-in single precision; linear interpolation errs most on the plateau, where
-the samples are furthest apart. The ratio printed above is the condition to
-check on a measured trajectory: where a step exceeds one over the support,
-the readout is aliased and no resampling recovers it.
+The band-limited resampling reproduces the profile of a uniformly sampled
+readout to the precision of the operator, which is returned in single
+precision. Linear interpolation errs most on the plateau, where the samples
+are furthest apart; in the image its error is spread over the whole field of
+view, inside and outside the object, at up to a few per cent of the peak.
+The ratio printed above is the condition to check on a measured trajectory:
+where a step exceeds one over the support, the readout is aliased and no
+resampling recovers it.
 
 References
 ----------
@@ -324,7 +384,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.914 seconds)
+   **Total running time of the script:** (0 minutes 1.543 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py:

@@ -211,9 +211,9 @@ coil sensitivities, sampling pattern or k-space enter the training.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    sigma 0.01: noisy 41.46 dB, denoised 43.41 dB
-    sigma 0.05: noisy 27.17 dB, denoised 33.20 dB
-    sigma 0.10: noisy 21.06 dB, denoised 28.81 dB
+    sigma 0.01: noisy 41.46 dB, denoised 42.77 dB
+    sigma 0.05: noisy 27.17 dB, denoised 32.80 dB
+    sigma 0.10: noisy 21.06 dB, denoised 28.53 dB
 
 
 
@@ -280,9 +280,9 @@ same :math:`\lambda`.
 
  .. code-block:: none
 
-       annealed, 0.1 to 0.01   PSNR 30.98 dB
-                 fixed, 0.03   PSNR 30.83 dB
-                 fixed, 0.01   PSNR 29.79 dB
+       annealed, 0.1 to 0.01   PSNR 30.80 dB
+                 fixed, 0.03   PSNR 30.67 dB
+                 fixed, 0.01   PSNR 30.06 dB
      CG SENSE, 20 iterations   PSNR 24.21 dB
 
 
@@ -304,7 +304,7 @@ to be tuned for the acquisition.
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_002.png
-   :alt: reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.056
+   :alt: reference, CG-SENSE, annealed plug-and-play, NRMSE 0.124, NRMSE 0.058
    :srcset: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_002.png
    :class: sphx-glr-single-img
 
@@ -342,7 +342,7 @@ reconstruction keeps the anatomy.
 
 
 .. image-sg:: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_003.png
-   :alt: reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.059
+   :alt: reference, CG-SENSE, R = 6, annealed, R = 6, NRMSE 0.168, NRMSE 0.062
    :srcset: /auto_examples/06-learning/images/sphx_glr_06-annealed-plug-and-play_003.png
    :class: sphx-glr-single-img
 
@@ -351,7 +351,7 @@ reconstruction keeps the anatomy.
 
  .. code-block:: none
 
-    sixfold: annealed plug-and-play 30.87 dB, CG SENSE 21.98 dB
+    sixfold: annealed plug-and-play 30.57 dB, CG SENSE 21.98 dB
 
 
 
@@ -373,7 +373,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 27.612 seconds)
+   **Total running time of the script:** (0 minutes 16.419 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_06-annealed-plug-and-play.py:

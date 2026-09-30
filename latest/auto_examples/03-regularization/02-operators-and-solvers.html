@@ -67,7 +67,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Non-Cartesian imaging" href="../04-non-cartesian/index.html" />
+    <link rel="next" title="Trajectories and transforms" href="../04-non-cartesian/01-trajectories-and-transforms.html" />
     <link rel="prev" title="Regularized reconstruction" href="01-regularized-reconstruction.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -501,19 +521,23 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-03-regularization-02-operators-and-solvers-py"></span><h1>Operators and solvers<a class="headerlink" href="#operators-and-solvers" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/03-regularization/02-operators-and-solvers.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>The same reconstruction written as an encoding operator and a solver rather
-than as a call to a BART application.</p>
+<p>This lesson rebuilds the reconstruction of the previous lessons from its
+parts – the encoding operator, the regularization term and the iterative
+algorithm – instead of calling a BART application, and shows that the
+result is identical.</p>
 <p><a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> builds three objects and runs BART’s iteration
-with them: the encoding operator, the regularization terms, and the algorithm.
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code> and <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> expose those three separately,
-for the reconstructions BART has no application for: an encoding with an extra
-factor in it, a solver reached from an outer loop, an operator defined in
-Python.</p>
-<p>This example builds the encoding of <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>, checks it
-against the definition of an adjoint, solves with it, and compares the result
-with the application. The phantom, the coil sensitivities and the sampling are
-that example’s; the cell that builds them is hidden on this page and present in
-the script this page can be downloaded as.</p>
+with them: the SENSE encoding operator <span class="math notranslate nohighlight">\(A = PFS\)</span>, the regularization
+terms, and the algorithm. Building them separately with <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code>
+and <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> is what a reconstruction BART has no application for
+requires: an encoding with an additional factor, such as an off-resonance or
+motion-induced phase, a solver called from an outer loop, an operator defined
+in Python, or a gradient with respect to the data for training a network.</p>
+<p>The example builds the Cartesian SENSE encoding of
+<a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>, checks it against the definition
+of the adjoint, solves with it, and compares the result with the application.
+The phantom, the coil sensitivities and the sampling are that example’s; the
+cell that builds them is hidden on this page and present in the script this
+page can be downloaded as.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
 <li><p>Build <a class="reference internal" href="../../generated/bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.linop.CartesianSense</span></code></a> and read the plan it was
@@ -615,6 +639,11 @@ the same bits.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>identical to pics: True
 </pre></div>
 </div>
+<img src="../../_images/sphx_glr_02-operators-and-solvers_001.png" srcset="../../_images/sphx_glr_02-operators-and-solvers_001.png" alt="reference, adjoint, $A^H y$, FISTA, wavelet, |error|, FISTA" class = "sphx-glr-single-img"/><p>The adjoint of the encoding is not its inverse: <span class="math notranslate nohighlight">\(A^H y\)</span> is the
+sensitivity-weighted coil combination of the zero-filled k-space, and
+carries the aliasing of the undersampling and the shading of
+<span class="math notranslate nohighlight">\(\sum_c |S_c|^2\)</span>, which the solve removes. The error of the solution,
+at a tenth of the image peak, is concentrated at the tissue boundaries.</p>
 </section>
 <section id="operator-algebra">
 <h2>Operator algebra<a class="headerlink" href="#operator-algebra" title="Link to this heading">#</a></h2>
@@ -665,14 +694,11 @@ the solvers.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>relative difference from 2 A^H (Ax - y): 2.05e-07
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_02-operators-and-solvers_001.png" srcset="../../_images/sphx_glr_02-operators-and-solvers_001.png" alt="phantom, adjoint reconstruction, FISTA, wavelet penalty" class = "sphx-glr-single-img"/><p>The adjoint of the encoding is not its inverse: <span class="math notranslate nohighlight">\(A^H y\)</span> is the coil
-combination of the zero-filled k-space, and carries the aliasing of the
-undersampling, which the solve removes.</p>
 <p>The regularization terms are the subject of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code>, and the
 iterations of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>;
 <a class="reference internal" href="../../explanation/inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a> states which algorithm applies to
 which problem.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.510 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.016 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-regularization-02-operators-and-solvers-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/59501848c9287ac4c5dca17502df2caa/02-operators-and-solvers.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-operators-and-solvers.ipynb</span></code></a></p>
@@ -709,11 +735,11 @@ which problem.</p>
       </div>
     </a>
     <a class="right-next"
-       href="../04-non-cartesian/index.html"
+       href="../04-non-cartesian/01-trajectories-and-transforms.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Non-Cartesian imaging</p>
+        <p class="prev-next-title">Trajectories and transforms</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

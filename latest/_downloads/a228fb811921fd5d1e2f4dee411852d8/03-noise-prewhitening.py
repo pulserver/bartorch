@@ -3,22 +3,30 @@
 Noise prewhitening
 ==================
 
-The effect of channel-noise correlation on a SENSE reconstruction, and its
-removal by prewhitening with a noise measurement.
+This lesson measures how correlated noise between receive channels lowers
+the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it
+prewhitening with a noise-only acquisition recovers.
 
-The thermal noise of a receive array is correlated between channels and
-differs in level from one channel to another.  Least squares is the
-maximum-likelihood estimator only for white noise, so the data are first
-transformed by a whitening matrix :math:`W` with :math:`W \\Psi W^H = I`,
-:math:`\\Psi` being the channel noise covariance estimated from a
-noise-only acquisition [#roemer]_ [#pruessmann]_.  ESPIRiT then calibrates
-the sensitivities of the whitened channels, and the reconstruction proceeds
-unchanged.
+The thermal noise of a receive array is correlated between channels, through
+mutual inductance between the coil elements and shared noise sources in the
+sample, and its level differs from one channel to another, through the
+elements' size, loading and preamplifier gain. Least squares is the
+maximum-likelihood estimator only for white noise, i.e. for a channel noise
+covariance proportional to the identity. A reconstruction that ignores the
+covariance :math:`\\Psi` weights every channel equally and does not combine
+them with the optimal SNR [#roemer]_. Prewhitening transforms the data by a
+matrix :math:`W` with :math:`W \\Psi W^H = I`, which makes the channel noise
+white; the sensitivities are then calibrated on, and the SENSE reconstruction
+run on, the whitened channels unchanged [#pruessmann]_. :math:`\\Psi` is
+estimated from a noise scan, an acquisition with the RF transmitter off that
+most vendors run before every protocol.
 
-The signal-to-noise ratio of the two reconstructions is measured by the
-pseudo-replica method [#robson]_: the same reconstruction is repeated on
-independent noise realizations added to one noise-free acquisition, and the
-standard deviation across repetitions is the noise of each voxel.
+The SNR of the two reconstructions is measured by the pseudo-replica method
+[#robson]_: the same reconstruction is repeated on independent noise
+realizations added to one noise-free acquisition, and the standard deviation
+across repetitions is the noise of each voxel. This is how SNR and g-factor
+maps are obtained for iterative reconstructions, for which no closed-form
+noise propagation exists.
 
 The phantom and the coil sensitivities are built as in
 :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on this page
@@ -28,8 +36,8 @@ and present in the script this page can be downloaded as.
 
 - Estimate the channel noise covariance from a noise scan and whiten the data
   with :func:`bartorch.tools.whiten`.
-- Measure a signal-to-noise ratio map by the pseudo-replica method.
-- Quantify the change in SNR that prewhitening gives a SENSE reconstruction.
+- Measure an SNR map by the pseudo-replica method.
+- Quantify the SNR gain that prewhitening gives a SENSE reconstruction.
 
 It follows :doc:`02-nonlinear-inversion`. The next section starts with
 :doc:`../03-regularization/01-regularized-reconstruction`.
@@ -41,6 +49,8 @@ It follows :doc:`02-nonlinear-inversion`. The next section starts with
 import matplotlib.pyplot as plt
 from cmap import Colormap
 from matplotlib.colors import ListedColormap
+
+WIDTH = 8.0  # inches, the width of the documentation column
 
 # Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
@@ -59,28 +69,13 @@ STYLE = {
     "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
 }
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 110,
-        "savefig.dpi": 110,
-        "font.size": 11,
-        "axes.titlesize": 11,
-        "figure.constrained_layout.use": True,
-    }
-)
 
-PAGE_WIDTH = 8.0  # inches, the width of the documentation column
-
-
-def panels(rows, columns, height=1.0):
-    """A grid of square image panels filling the documentation column."""
-    side = PAGE_WIDTH / columns
-    figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(PAGE_WIDTH, rows * side * height + 0.4)
-    )
-    for axis in axes.ravel():
-        axis.set_xticks([])
-        axis.set_yticks([])
+def panels(columns, rows=1, width=WIDTH):
+    """A row (or grid) of frameless square image panels."""
+    side = width / columns
+    figure, axes = plt.subplots(rows, columns, squeeze=False, figsize=(width, rows * side + 0.5))
+    for axis in axes.flat:
+        axis.set_axis_off()
     return figure, axes
 
 
@@ -99,10 +94,17 @@ def parameter(axis, values, name, title=None):
     return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
 
 
+def scalebar(figure, axes, handle=None, label=None, name=None):
+    """One colorbar for a group of panels, so none gives up width to its own."""
+    if name is not None:
+        cmap, limits, label = STYLE[name]
+        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
+
+
 def domain(axis, values, title=None):
     """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness, so an unsupported corner reads as background
-    rather than as a phase."""
+    magnitude in brightness."""
     values = values.detach().cpu()
     colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
     magnitude = values.abs().numpy()
@@ -110,15 +112,6 @@ def domain(axis, values, title=None):
     axis.imshow(colours * magnitude[..., None])
     if title is not None:
         axis.set_title(title)
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    bar = figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-    return bar
 
 
 def phase_bar(figure, axes):
@@ -131,6 +124,15 @@ def phase_bar(figure, axes):
     )
     bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
     bar.set_label("phase [rad]")
+
+
+def errors(figure, axes, estimates, reference, scale):
+    """|estimate - reference| relative to the reference's peak, on one scale."""
+    peak = float(reference.abs().max())
+    for axis, estimate in zip(axes, estimates):
+        difference = (scaled(estimate, reference) - reference.abs()).abs() / peak
+        handle = show(axis, difference, cmap="magma", vmax=scale)
+    return figure.colorbar(handle, ax=axes, fraction=0.046, label="|error| / peak")
 
 
 def scaled(estimate, reference):
@@ -230,17 +232,17 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 # Correlated channel noise
 # ------------------------
 #
-# The noise covariance used for the simulation couples neighbouring channels
-# by a factor falling as :math:`0.5^{|i-j|}` and gives the channels standard
-# deviations between 0.8 and 1.25 of a common level.  A noise scan -- an
-# acquisition with the RF transmitter off -- measures the same channels
-# without signal; its covariance is the estimate of :math:`\Psi` that
-# :func:`bartorch.tools.whiten` inverts.
+# The noise covariance of the simulation couples the channels by a
+# correlation coefficient falling as :math:`0.5^{|i-j|}` with the distance
+# between their indices, and gives the channels noise standard deviations
+# between 0.6 and 1.6 times a common level. The noise scan measures the same
+# channels without signal; its sample covariance is the estimate of
+# :math:`\Psi` that :func:`bartorch.tools.whiten` inverts.
 
 SIGMA = 0.01  # noise level, relative to the image's peak
 
 channels = torch.arange(COILS)
-levels = torch.linspace(0.8, 1.25, COILS)
+levels = torch.linspace(0.6, 1.6, COILS)
 correlation = 0.5 ** (channels[:, None] - channels[None, :]).abs().float()
 covariance = levels[:, None] * correlation * levels[None, :]
 mixing = torch.linalg.cholesky(covariance).to(torch.complex64)
@@ -258,9 +260,10 @@ noise_scan = channel_noise((SIZE, SIZE))[:, None]
 
 # %%
 #
-# The whitening matrix maps the measured covariance to the identity.  The
-# measure below is the mean magnitude of the off-diagonal covariance entries,
-# relative to the mean diagonal entry: zero for uncorrelated channels.
+# The whitening matrix maps the measured covariance to the identity. The
+# measure printed below is the mean magnitude of the off-diagonal covariance
+# entries relative to the mean diagonal entry, which is zero for
+# uncorrelated channels.
 
 
 def channel_covariance(samples):
@@ -283,9 +286,9 @@ print(f"                         {off_diagonal(whitened):.3f} after whitening")
 # %%
 
 # sphinx_gallery_start_ignore
-figure, axes = plt.subplots(1, 2, figsize=(PAGE_WIDTH * 0.72, PAGE_WIDTH * 0.36))
+figure, axes = plt.subplots(1, 2, figsize=(0.75 * WIDTH, 0.36 * WIDTH))
 for axis, values, title in (
-    (axes[0], measured, "measured"),
+    (axes[0], measured, "noise covariance, measured"),
     (axes[1], whitened, "after whitening"),
 ):
     handle = axis.imshow(
@@ -302,14 +305,18 @@ plt.show()
 
 # %%
 #
+# The measured covariance has a strong diagonal whose entries grow with the
+# channel index, the unequal noise levels, and off-diagonal bands, the
+# correlation. After whitening it is the identity.
+#
 # Acquisition and calibration
 # ---------------------------
 #
-# Every second phase encode is acquired, with 24 central lines kept for
-# calibration.  Each pseudo-replica adds a new noise realization to the same
-# noise-free k-space.  The sensitivities are calibrated once per pipeline,
-# from the first replica: from the channels as measured, and from the
-# whitened channels.
+# Every second phase encode is acquired (:math:`R = 2`), with 24 central lines
+# kept as the ACS region. Each pseudo-replica adds a new noise realization to
+# the same noise-free k-space. The sensitivities are calibrated once per
+# pipeline, from the first replica: from the channels as measured, and from
+# the whitened channels.
 
 CALIBRATION = 24
 REPLICAS = 32
@@ -350,9 +357,9 @@ plain, prewhitened = torch.stack(plain), torch.stack(prewhitened)
 
 # %%
 #
-# The signal-to-noise ratio of a voxel is the magnitude of the mean
-# reconstruction over its standard deviation across replicas.  Both are
-# reported over the white matter, where the phantom is homogeneous.
+# The SNR of a voxel is the magnitude of the mean reconstruction over the
+# standard deviation across replicas. Both are reported over the white
+# matter, where the phantom is homogeneous.
 
 white_matter = memberships[CLASS["WM"]] > 0.8
 
@@ -373,10 +380,9 @@ print(f"SNR ratio, prewhitened over as measured: {float(gain[white_matter].media
 
 # sphinx_gallery_start_ignore
 support = (image.abs() > 0.05 * float(image.abs().max())).numpy()
-figure, axes = panels(1, 3)
-shared = max(
-    float(snr_map(plain)[white_matter].max()), float(snr_map(prewhitened)[white_matter].max())
-)
+shared = float(snr_map(prewhitened)[white_matter].quantile(0.99))
+
+figure, axes = panels(2, width=0.75 * WIDTH)
 for axis, values, title in (
     (axes[0, 0], snr_map(plain), "SNR, as measured"),
     (axes[0, 1], snr_map(prewhitened), "SNR, prewhitened"),
@@ -385,21 +391,39 @@ for axis, values, title in (
         np.where(support, values.numpy(), np.nan), cmap="viridis", vmin=0.0, vmax=shared
     )
     axis.set_title(title)
-figure.colorbar(handle, ax=axes[0, :2], fraction=0.046, label="SNR")
-ratio = axes[0, 2].imshow(
+figure.colorbar(handle, ax=axes[0], fraction=0.046, label="SNR")
+plt.show()
+
+figure, axes = plt.subplots(
+    1, 2, figsize=(WIDTH, 0.42 * WIDTH), width_ratios=(1, 1.3), squeeze=False
+)
+axes[0, 0].set_axis_off()
+ratio = axes[0, 0].imshow(
     np.where(support, gain.numpy(), np.nan), cmap="RdBu_r", vmin=0.5, vmax=1.5
 )
-axes[0, 2].set_title("SNR ratio")
-figure.colorbar(ratio, ax=axes[0, 2], fraction=0.046, label="prewhitened / as measured")
+axes[0, 0].set_title("SNR ratio, prewhitened / as measured")
+figure.colorbar(ratio, ax=axes[0, 0], fraction=0.046)
+bins = np.linspace(0.0, shared, 40)
+for replicas, label in ((plain, "as measured"), (prewhitened, "prewhitened")):
+    axes[0, 1].hist(snr_map(replicas)[white_matter].numpy(), bins=bins, alpha=0.6, label=label)
+axes[0, 1].set_xlabel("SNR in white matter")
+axes[0, 1].set_ylabel("voxels")
+axes[0, 1].legend()
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# With this covariance, prewhitening raises the white-matter SNR by the
-# ratio printed above.  The size of the gain depends on the array's noise
-# correlation and on the spread of the channel noise levels; it is measured
-# here for one simulated covariance.
+# Prewhitening raises the SNR throughout the head, and the white-matter
+# histogram shifts by the ratio printed above. The gain varies in space: it is
+# largest in the posterior half of the head, where the channels with the
+# lowest noise level (the first channels here) are most sensitive. Without
+# whitening the least-squares fit weights those channels no more than the
+# noisiest ones; after whitening each channel enters with the weight its noise
+# level warrants. The size of the
+# gain depends on the array's noise correlation and on the spread of its
+# channel noise levels, and is measured here for one simulated covariance;
+# with uncorrelated channels of equal noise level it is one.
 #
 # References
 # ----------

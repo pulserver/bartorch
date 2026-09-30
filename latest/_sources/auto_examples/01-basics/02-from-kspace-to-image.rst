@@ -22,45 +22,51 @@
 From k-space to image
 =====================
 
-Reconstruction of an undersampled Cartesian acquisition, from the measured
-k-space to a coil-combined image.
+This lesson reconstructs an undersampled Cartesian brain acquisition from its
+multichannel k-space to a coil-combined image, and shows what each step of a
+parallel-imaging and compressed-sensing pipeline contributes. Scan time in
+Cartesian MRI is proportional to the number of phase-encoding lines; skipping
+lines shortens the scan by the acceleration factor :math:`R`, but violates the
+Nyquist criterion and folds the image onto itself. Recovering an unaliased
+image from such data is what the receive coil array, and prior knowledge of
+the image, are used for.
 
 The acquisition is simulated from a BrainWeb tissue segmentation and the eight
-channels of BART's head coil model, sampled at a third of the Nyquist rate
-along the phase-encode direction. The reconstruction consists of channel
-compression, sensitivity calibration by ESPIRiT, and a regularized
-least-squares fit of the SENSE model
+channels of BART's head-coil model, with one line in three acquired along the
+phase-encoding direction. The pipeline consists of coil compression,
+sensitivity calibration by ESPIRiT, and a regularized least-squares fit of the
+SENSE forward model
 
 .. math::
 
    y = P F S x + \varepsilon,
 
-with :math:`S` the coil sensitivities, :math:`F` the Fourier transform and
-:math:`P` the sampling operator. :doc:`../../explanation/encoding` states the
-model and :doc:`../../explanation/inverse-problems` the estimator.
+with :math:`S` the coil sensitivities, :math:`F` the Fourier transform,
+:math:`P` the sampling operator that keeps the acquired phase encodes, and
+:math:`\varepsilon` complex Gaussian noise. :doc:`../../explanation/encoding`
+states the model and :doc:`../../explanation/inverse-problems` the estimator.
 
-Shapes here are C order, so a Cartesian k-space is ``(coils, z, y, x)`` and an
-axis argument indexes that shape; see :doc:`../../guides/user/conventions`.
-
-The lesson runs the Cartesian pipeline once, from simulated k-space to a
-reconstructed image; the sections after it examine calibration,
-regularization and the operator form of each step in turn. It builds on the
-conventions of :doc:`01-tensors-and-commands`.
+Shapes are C order, so a Cartesian k-space is ``(coils, z, y, x)`` with the
+readout along ``x`` and the phase encoding along ``y``; see
+:doc:`../../guides/user/conventions`.
 
 **Learning objectives**
 
 - Simulate a multichannel Cartesian acquisition from a tissue segmentation.
 - Undersample the phase-encoding direction with a variable-density pattern
-  around a fully sampled calibration region.
+  around a fully sampled autocalibration (ACS) region.
 - Compress the channels with :func:`bartorch.tools.cc` and estimate their
   sensitivities with :func:`bartorch.tools.ecalib`.
-- Reconstruct with :func:`bartorch.apps.pics`, with and without a sparsity
-  penalty, and quantify the result by NRMSE and SSIM.
+- Reconstruct with :func:`bartorch.apps.pics`, with a Tikhonov and with a
+  wavelet sparsity penalty, and compare the results by error maps, NRMSE and
+  SSIM.
 
-The next lesson, :doc:`../02-parallel-imaging/01-coil-calibration`, compares
-sensitivity estimators.
+It builds on the conventions of :doc:`01-tensors-and-commands`. The sections
+after it examine calibration, regularization and the operator form of each
+step in turn; the next lesson, :doc:`../02-parallel-imaging/01-coil-calibration`,
+compares sensitivity estimators.
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-162
+.. GENERATED FROM PYTHON SOURCE LINES 52-162
 
 .. code-block:: Python
 
@@ -118,6 +124,173 @@ drawn from its first row down, so flipping it puts anterior at the top.
 
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    Downloading tissues:   0%|          | 0/10 [00:00<?, ?it/s]
+
+    Downloading phantom_1.0mm_normal_bck: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_bck: 1.00kB [00:00, 4.72kB/s]
+
+    Downloading phantom_1.0mm_normal_bck: 40.1kB [00:00, 140kB/s] 
+
+    Downloading phantom_1.0mm_normal_bck: 185kB [00:00, 515kB/s] 
+
+    Downloading phantom_1.0mm_normal_bck: 448kB [00:00, 1.03MB/s]
+
+    Downloading phantom_1.0mm_normal_bck: 944kB [00:00, 1.93MB/s]
+
+    Downloading phantom_1.0mm_normal_bck: 1.41MB [00:00, 2.62MB/s]
+
+    Downloading phantom_1.0mm_normal_bck: 1.67MB [00:00, 2.65MB/s]
+
+    Downloading phantom_1.0mm_normal_bck: 1.94MB [00:01, 2.45MB/s]
+
+    Downloading phantom_1.0mm_normal_bck: 2.18MB [00:01, 2.36MB/s]
+
+                                                                  
+    Downloading tissues:  10%|█         | 1/10 [00:02<00:20,  2.23s/it]
+
+    Downloading phantom_1.0mm_normal_csf: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_csf: 1.00kB [00:00, 7.95kB/s]
+
+    Downloading phantom_1.0mm_normal_csf: 40.8kB [00:00, 181kB/s] 
+
+    Downloading phantom_1.0mm_normal_csf: 185kB [00:00, 590kB/s] 
+
+    Downloading phantom_1.0mm_normal_csf: 465kB [00:00, 1.18MB/s]
+
+                                                                 
+    Downloading tissues:  20%|██        | 2/10 [00:03<00:13,  1.74s/it]
+
+    Downloading phantom_1.0mm_normal_gry: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_gry: 1.00kB [00:00, 7.47kB/s]
+
+    Downloading phantom_1.0mm_normal_gry: 40.8kB [00:00, 176kB/s] 
+
+    Downloading phantom_1.0mm_normal_gry: 177kB [00:00, 553kB/s] 
+
+    Downloading phantom_1.0mm_normal_gry: 449kB [00:00, 1.12MB/s]
+
+    Downloading phantom_1.0mm_normal_gry: 896kB [00:00, 1.90MB/s]
+
+                                                                 
+    Downloading tissues:  30%|███       | 3/10 [00:05<00:11,  1.59s/it]
+
+    Downloading phantom_1.0mm_normal_wht: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_wht: 1.00kB [00:00, 9.11kB/s]
+
+    Downloading phantom_1.0mm_normal_wht: 40.8kB [00:00, 195kB/s] 
+
+    Downloading phantom_1.0mm_normal_wht: 185kB [00:00, 625kB/s] 
+
+    Downloading phantom_1.0mm_normal_wht: 465kB [00:00, 1.24MB/s]
+
+                                                                 
+    Downloading tissues:  40%|████      | 4/10 [00:06<00:08,  1.43s/it]
+
+    Downloading phantom_1.0mm_normal_fat: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_fat: 1.00kB [00:00, 10.2kB/s]
+
+    Downloading phantom_1.0mm_normal_fat: 40.8kB [00:00, 199kB/s] 
+
+    Downloading phantom_1.0mm_normal_fat: 201kB [00:00, 679kB/s] 
+
+    Downloading phantom_1.0mm_normal_fat: 505kB [00:00, 1.33MB/s]
+
+                                                                 
+    Downloading tissues:  50%|█████     | 5/10 [00:07<00:06,  1.31s/it]
+
+    Downloading phantom_1.0mm_normal_m-s: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_m-s: 1.00kB [00:00, 9.51kB/s]
+
+    Downloading phantom_1.0mm_normal_m-s: 40.1kB [00:00, 190kB/s] 
+
+    Downloading phantom_1.0mm_normal_m-s: 199kB [00:00, 662kB/s] 
+
+    Downloading phantom_1.0mm_normal_m-s: 425kB [00:00, 1.16MB/s]
+
+    Downloading phantom_1.0mm_normal_m-s: 825kB [00:00, 2.06MB/s]
+
+    Downloading phantom_1.0mm_normal_m-s: 1.24MB [00:00, 2.77MB/s]
+
+    Downloading phantom_1.0mm_normal_m-s: 2.25MB [00:00, 5.06MB/s]
+
+                                                                  
+    Downloading tissues:  60%|██████    | 6/10 [00:08<00:05,  1.39s/it]
+
+    Downloading phantom_1.0mm_normal_skn: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_skn: 1.00kB [00:00, 6.08kB/s]
+
+    Downloading phantom_1.0mm_normal_skn: 40.1kB [00:00, 158kB/s] 
+
+    Downloading phantom_1.0mm_normal_skn: 183kB [00:00, 546kB/s] 
+
+    Downloading phantom_1.0mm_normal_skn: 465kB [00:00, 1.13MB/s]
+
+    Downloading phantom_1.0mm_normal_skn: 0.99MB [00:00, 2.28MB/s]
+
+    Downloading phantom_1.0mm_normal_skn: 1.83MB [00:00, 4.03MB/s]
+
+    Downloading phantom_1.0mm_normal_skn: 2.26MB [00:00, 4.00MB/s]
+
+    Downloading phantom_1.0mm_normal_skn: 2.67MB [00:01, 3.71MB/s]
+
+    Downloading phantom_1.0mm_normal_skn: 3.05MB [00:01, 3.26MB/s]
+
+                                                                  
+    Downloading tissues:  70%|███████   | 7/10 [00:10<00:04,  1.57s/it]
+
+    Downloading phantom_1.0mm_normal_skl: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_skl: 8.81kB [00:00, 56.9kB/s]
+
+    Downloading phantom_1.0mm_normal_skl: 105kB [00:00, 418kB/s]  
+
+    Downloading phantom_1.0mm_normal_skl: 304kB [00:00, 882kB/s]
+
+    Downloading phantom_1.0mm_normal_skl: 615kB [00:00, 1.42MB/s]
+
+                                                                 
+    Downloading tissues:  80%|████████  | 8/10 [00:11<00:02,  1.42s/it]
+
+    Downloading phantom_1.0mm_normal_gli: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_gli: 1.00kB [00:00, 8.13kB/s]
+
+                                                                  
+    Downloading tissues:  90%|█████████ | 9/10 [00:12<00:01,  1.21s/it]
+
+    Downloading phantom_1.0mm_normal_mit: 0.00B [00:00, ?B/s]
+
+    Downloading phantom_1.0mm_normal_mit: 1.00kB [00:00, 7.40kB/s]
+
+    Downloading phantom_1.0mm_normal_mit: 40.1kB [00:00, 177kB/s] 
+
+    Downloading phantom_1.0mm_normal_mit: 183kB [00:00, 592kB/s] 
+
+    Downloading phantom_1.0mm_normal_mit: 489kB [00:00, 1.28MB/s]
+
+    Downloading phantom_1.0mm_normal_mit: 1.02MB [00:00, 2.36MB/s]
+
+    Downloading phantom_1.0mm_normal_mit: 1.49MB [00:00, 3.07MB/s]
+
+    Downloading phantom_1.0mm_normal_mit: 1.80MB [00:00, 3.11MB/s]
+
+    Downloading phantom_1.0mm_normal_mit: 2.11MB [00:00, 3.06MB/s]
+
+                                                                  
+    Downloading tissues: 100%|██████████| 10/10 [00:14<00:00,  1.35s/it]
+                                                                        
 
 
 
@@ -189,17 +362,21 @@ bright, cerebrospinal fluid dark, subcutaneous fat brightest of all.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 250-257
+.. GENERATED FROM PYTHON SOURCE LINES 250-261
 
 Coils
 -----
 
-The sensitivities are BART's analytical head coil, evaluated on the image
-grid that :func:`bartorch.tools.grid` describes. Dividing by the root sum of
-squares over the channels makes the combination of the coil images the image
-itself, so a reconstruction can be compared against it directly.
+Each receive channel measures the object weighted by its complex sensitivity
+profile, :math:`x_c = S_c x`. The sensitivities here are BART's analytical
+head coil, evaluated on the image grid that :func:`bartorch.tools.grid`
+describes. Dividing them by their root sum of squares over the channels
+normalizes :math:`\sum_c |S_c|^2` to one, so that the optimal coil
+combination of the coil images is the image itself and a reconstruction can
+be compared against it directly. Complex Gaussian noise is then added to
+every k-space sample, as thermal noise is in the receiver chain.
 
-.. GENERATED FROM PYTHON SOURCE LINES 258-266
+.. GENERATED FROM PYTHON SOURCE LINES 262-270
 
 .. code-block:: Python
 
@@ -209,7 +386,7 @@ itself, so a reconstruction can be compared against it directly.
 
     coil_images = sensitivities * image
     kspace = bartorch.fft(coil_images, axes=(-2, -1), unitary=True)
-    kspace = bt.noise(kspace, n=1e-5, s=42)
+    kspace = bt.noise(kspace, n=1e-4, s=42)
 
 
 
@@ -218,7 +395,7 @@ itself, so a reconstruction can be compared against it directly.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 267-287
+.. GENERATED FROM PYTHON SOURCE LINES 271-291
 
 
 
@@ -229,14 +406,14 @@ itself, so a reconstruction can be compared against it directly.
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_001.png
-         :alt: $T_1$-weighted phantom, $T_1$, $T_2$
+         :alt: $T_1$-weighted image, $T_1$ map, $T_2$ map
          :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_002.png
-         :alt: coil sensitivities: colour is phase, brightness is magnitude, channel 0, channel 1, channel 2, channel 3
+         :alt: coil sensitivities: colour is phase, brightness is magnitude, channel 0, channel 2, channel 4, channel 6
          :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_002.png
          :class: sphx-glr-multi-img
 
@@ -244,25 +421,28 @@ itself, so a reconstruction can be compared against it directly.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 288-303
+.. GENERATED FROM PYTHON SOURCE LINES 292-310
 
 The relaxation maps are drawn with the perceptually uniform colormaps
 recommended for relaxometry [#fuderer]_ -- lipari for :math:`T_1`, navia for
-:math:`T_2` -- so that one is not read as the other, and with a
-window that stops short of cerebrospinal fluid, which is far enough from the
-rest to take the whole scale. The sensitivities are complex, and are drawn
-the way a sensitivity is read: a cyclic colormap for the phase, brightness
-for the magnitude.
+:math:`T_2` -- and with a window that stops short of cerebrospinal fluid.
+Each sensitivity is bright near its coil element and falls off across the
+head; its phase varies smoothly. These spatial variations are the extra
+encoding that parallel imaging uses to separate aliased voxels.
 
 Sampling
 --------
 
-The readout is fully sampled and the phase encodes are drawn at random from a
-variable density, with a 24-line calibration region at the centre kept in
-full. ESPIRiT reads its calibration matrix from that region, so an
-acquisition that omitted it would need a separate calibration scan.
+The readout is fully sampled, since it costs no scan time, and a subset of
+the phase encodes is acquired. The lines are drawn at random from a
+variable density that is highest at the k-space centre, where most of the
+signal energy is, with a block of 24 central lines, the autocalibration
+signal (ACS) region, acquired in full. ESPIRiT reads its calibration matrix
+from the ACS region, so an acquisition without one would need a separate
+calibration scan. The pattern is a column vector along the phase-encoding
+direction: it broadcasts over the readout and over the channels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 304-327
+.. GENERATED FROM PYTHON SOURCE LINES 311-332
 
 .. code-block:: Python
 
@@ -282,12 +462,10 @@ acquisition that omitted it would need a separate calibration scan.
     lines = centre.clone()
     lines[drawn] = 1.0
 
-    # A pattern broadcasts over one channel's samples, so a column of it
-    # undersamples the phase-encode axis for every channel.
     pattern = lines.reshape(SIZE, 1).to(torch.complex64)
     measured = kspace[:, None] * pattern
 
-    print(f"{float(lines.mean()):.0%} of the phase encodes acquired")
+    print(f"{int(lines.sum())} of {SIZE} phase encodes acquired, R = {SIZE / lines.sum():.1f}")
 
 
 
@@ -297,12 +475,30 @@ acquisition that omitted it would need a separate calibration scan.
 
  .. code-block:: none
 
-    33% of the phase encodes acquired
+    63 of 192 phase encodes acquired, R = 3.0
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 328-338
+.. GENERATED FROM PYTHON SOURCE LINES 333-354
+
+
+
+
+.. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_003.png
+   :alt: sampling pattern, acquired k-space, channel 0
+   :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_003.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 355-369
+
+In the pattern (readout horizontal, phase encoding vertical) every acquired
+phase encode is a full line; the lines cluster towards the centre and the
+ACS band is dense.
 
 Channel compression
 -------------------
@@ -310,12 +506,12 @@ Channel compression
 Eight channels carry less independent information than eight images: the
 sensitivities overlap, and the singular value spectrum of the calibration
 matrix falls off. :func:`bartorch.tools.cc` returns the matrix that projects
-the channels onto their leading singular vectors [#huangcc]_, and
-:func:`bartorch.tools.ccapply` applies it. Everything downstream --
-calibration, the encoding operator, every iteration -- then costs six
-channels rather than eight.
+the channels onto their leading singular vectors [#huangcc]_, the virtual
+coils, and :func:`bartorch.tools.ccapply` applies it. Calibration, the
+encoding operator and every iteration then cost six channels rather than
+eight, at a negligible loss of the encoding capacity of the array.
 
-.. GENERATED FROM PYTHON SOURCE LINES 339-345
+.. GENERATED FROM PYTHON SOURCE LINES 370-376
 
 .. code-block:: Python
 
@@ -332,17 +528,20 @@ channels rather than eight.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 346-353
+.. GENERATED FROM PYTHON SOURCE LINES 377-387
 
 Sensitivity calibration
 -----------------------
 
-ESPIRiT [#espirit]_ estimates the sensitivities as the leading eigenvector, per voxel, of
-an operator built from the calibration region. ``crop`` discards the voxels
-whose eigenvalue falls below it, and so keeps the maps from being
-extrapolated into the background.
+ESPIRiT [#espirit]_ estimates the sensitivities from the ACS region alone:
+it builds a calibration matrix from all k-space neighbourhoods (kernels) in
+the region, and obtains the sensitivities at each voxel as the eigenvector
+of an operator derived from that matrix whose eigenvalue is one. Outside the
+object no eigenvalue is close to one; ``crop`` sets the maps to zero where
+the eigenvalue falls below it, which keeps the background out of the
+reconstruction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 354-357
+.. GENERATED FROM PYTHON SOURCE LINES 388-391
 
 .. code-block:: Python
 
@@ -356,32 +555,39 @@ extrapolated into the background.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 358-368
+.. GENERATED FROM PYTHON SOURCE LINES 392-409
 
 Reconstruction
 --------------
 
-:func:`bartorch.apps.pics` solves the regularized least-squares problem. A
-Tikhonov weight alone gives the conjugate-gradient SENSE reconstruction
-[#sense]_; an :math:`\ell_1` penalty on the wavelet coefficients is the
-compressed-sensing reconstruction [#lustig]_ of the same data, solved by
-FISTA [#beck]_. Both are compared against
-the root sum of squares of the zero-filled channel images, which uses no
-model of the encoding.
+Three reconstructions of the same data are compared.
 
-.. GENERATED FROM PYTHON SOURCE LINES 369-382
+- The **zero-filled** reconstruction sets the missing phase encodes to zero,
+  inverse-transforms each channel and combines them by root sum of squares.
+  It uses no model of the encoding, so every missing line leaves aliasing.
+- **SENSE** [#sense]_ solves :math:`\min_x \|PFSx - y\|_2^2 +
+  \lambda\|x\|_2^2` by conjugate gradients. The sensitivities unfold the
+  aliasing, but the inversion amplifies the noise by the g-factor, which is
+  highest where the coils cannot distinguish aliased voxels.
+- **Compressed sensing** [#lustig]_ replaces the Tikhonov term by an
+  :math:`\ell_1` penalty on the wavelet coefficients, solved by FISTA
+  [#beck]_. The random undersampling makes the aliasing incoherent, i.e.
+  noise-like in the wavelet domain, and the sparsity penalty removes it
+  together with the amplified noise.
+
+.. GENERATED FROM PYTHON SOURCE LINES 410-423
 
 .. code-block:: Python
 
 
     channel_images = bartorch.ifft(compressed[:, 0], axes=(-2, -1), unitary=True)
-    gridded = bartorch.rss(channel_images, axes=(0,))
+    zero_filled = bartorch.rss(channel_images, axes=(0,))
 
     sense = apps.pics(compressed, maps, l2=0.001, maxiter=60)
     wavelet = apps.pics(
         compressed,
         maps,
-        regularizers=priors.Wavelet((-1, -2), 0.002),
+        regularizers=priors.Wavelet((-1, -2), 0.004),
         solver="fista",
         maxiter=100,
     )
@@ -393,7 +599,7 @@ model of the encoding.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 383-389
+.. GENERATED FROM PYTHON SOURCE LINES 424-430
 
 The sensitivities ESPIRiT estimates and the ones the acquisition was
 simulated with differ by a phase that varies from voxel to voxel, so the
@@ -402,19 +608,16 @@ reconstructed image does too, and the comparison is between magnitudes.
 :func:`bartorch.tools.nrmse` is called with ``scaled=True``, which fits a
 global factor before comparing.
 
-.. GENERATED FROM PYTHON SOURCE LINES 390-400
+.. GENERATED FROM PYTHON SOURCE LINES 431-438
 
 .. code-block:: Python
 
 
-    for name, estimate in (
-        ("root sum of squares", gridded),
-        ("SENSE", sense),
-        ("wavelet", wavelet),
-    ):
+    results = {"zero-filled": zero_filled, "SENSE": sense, "wavelet CS": wavelet}
+    for name, estimate in results.items():
         error = bt.nrmse(image.abs(), estimate.abs(), scaled=True)
         similarity = bt.ssim(image.abs(), scaled(estimate, image))
-        print(f"{name:>20}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
+        print(f"{name:>12}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
 
 
 
@@ -424,44 +627,64 @@ global factor before comparing.
 
  .. code-block:: none
 
-     root sum of squares  NRMSE 0.126  SSIM 0.693
-                   SENSE  NRMSE 0.055  SSIM 0.847
-                 wavelet  NRMSE 0.032  SSIM 0.977
+     zero-filled  NRMSE 0.129  SSIM 0.541
+           SENSE  NRMSE 0.101  SSIM 0.737
+      wavelet CS  NRMSE 0.044  SSIM 0.926
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 401-423
+.. GENERATED FROM PYTHON SOURCE LINES 439-465
 
 
 
 
-.. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_003.png
-   :alt: 3x undersampled, 6 virtual channels, phantom, root sum of squares, SENSE, wavelet
-   :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_003.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_004.png
+         :alt: R = 3.0, 6 virtual channels, reference, zero-filled, SENSE, wavelet CS
+         :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_004.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_005.png
+         :alt: error magnitude, zero-filled, SENSE, wavelet CS
+         :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_005.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_006.png
+         :alt: enlarged: posterior brain, reference, zero-filled, SENSE, wavelet CS
+         :srcset: /auto_examples/01-basics/images/sphx_glr_02-from-kspace-to-image_006.png
+         :class: sphx-glr-multi-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 424-437
+.. GENERATED FROM PYTHON SOURCE LINES 466-480
 
-The root sum of squares carries the aliasing of the missing phase encodes.
-The Tikhonov-regularized SENSE fit removes the coherent aliasing but leaves
-noise amplification and incoherent residual artefacts of the variable-density
-random sampling.  The wavelet :math:`\ell_1` penalty reduces both, which the
-NRMSE printed above quantifies.
+The zero-filled image carries the aliasing of the missing phase encodes as
+vertical ghosting of the whole head. SENSE removes the coherent aliasing, but
+its error map shows noise amplified in the centre of the head, where the
+coil sensitivities are least distinct, and incoherent residual artefacts of
+the random sampling. The wavelet penalty suppresses both; in the enlarged
+region the cortical folding and the ventricle boundaries are sharper and the
+background of the brain is smooth. The NRMSE and SSIM printed above
+quantify the same ordering.
 
-How much it removes depends on its weight, which is chosen here and not
-estimated: a larger one removes more noise and more texture with it.
+How much the penalty removes depends on its weight, which is chosen here and
+not estimated: a larger weight removes more noise and more fine texture with
+it. :doc:`../02-parallel-imaging/01-coil-calibration` compares sensitivity
+estimators, and :doc:`../03-regularization/01-regularized-reconstruction`
+varies the weight.
 
-The sensitivities and the regularization weight were fixed here. The next
-lesson, :doc:`../02-parallel-imaging/01-coil-calibration`, compares
-sensitivity estimators, and
-:doc:`../03-regularization/01-regularized-reconstruction` varies the weight.
-
-.. GENERATED FROM PYTHON SOURCE LINES 440-473
+.. GENERATED FROM PYTHON SOURCE LINES 483-516
 
 References
 ----------
@@ -500,7 +723,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.217 seconds)
+   **Total running time of the script:** (0 minutes 16.922 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_02-from-kspace-to-image.py:

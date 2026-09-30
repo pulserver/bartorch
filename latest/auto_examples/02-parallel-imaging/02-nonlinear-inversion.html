@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01-basics/index.html">Basics</a></li>
-<li class="toctree-l2 current active"><a class="reference internal" href="index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -477,7 +497,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-application">The application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#joint-reconstruction">Joint reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-model-and-the-solver">The model and the solver</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
@@ -500,29 +520,29 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-02-parallel-imaging-02-nonlinear-inversion-py"></span><h1>Nonlinear inversion<a class="headerlink" href="#nonlinear-inversion" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/02-parallel-imaging/02-nonlinear-inversion.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>Estimating the image and the coil sensitivities together, from undersampled
-data whose fully sampled central region is too small for a separate
-calibration.</p>
-<p>ESPIRiT <a class="footnote-reference brackets" href="#espirit" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> estimates the sensitivities from a fully sampled region at
-the centre of k-space, and a linear reconstruction then uses them as known.
-Where the acquisition provides no such region, the sensitivities are unknowns
-like the image,
-and the forward model</p>
+<p>This lesson reconstructs an image and the coil sensitivities together from
+undersampled data whose fully sampled central region is too small for a
+separate calibration, and then writes the same reconstruction out as a
+nonlinear operator and a Gauss-Newton solver.</p>
+<p>ESPIRiT <a class="footnote-reference brackets" href="#espirit" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> estimates the sensitivities from the autocalibration
+(ACS) region at the centre of k-space, and a linear SENSE reconstruction then
+treats them as known. When the ACS region is small, or absent, as in many
+real-time, non-Cartesian and highly accelerated protocols, the sensitivities
+are unknowns like the image, and the forward model</p>
 <div class="math notranslate nohighlight">
 \[y_c = P F (S_c \cdot x)\]</div>
-<p>is bilinear rather than linear: it is a product of two unknowns. Nonlinear
-inversion (<code class="docutils literal notranslate"><span class="pre">nlinv</span></code>) <a class="footnote-reference brackets" href="#nlinv" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> solves it by iteratively regularized
-Gauss-Newton <a class="footnote-reference brackets" href="#bakushinsky" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, and
-the smoothness of the sensitivities, which constrains the factorization,
-enters as a weighting inside the model rather than as a penalty beside it.</p>
+<p>becomes bilinear: it is a product of two unknowns. Nonlinear inversion
+(NLINV) <a class="footnote-reference brackets" href="#nlinv" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> solves it by the iteratively regularized Gauss-Newton
+method (IRGNM) <a class="footnote-reference brackets" href="#bakushinsky" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, with the smoothness of the sensitivities, which
+resolves the ambiguity of the factorization, built into the model as a
+weighting of their k-space coefficients rather than added as a penalty.</p>
 <p>The phantom and the coil sensitivities are built as in
 <a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
 <li><p>Reconstruct an image and its sensitivities jointly with
-<a class="reference internal" href="../../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.nlinv()</span></code></a> from a calibration region too small for
-ESPIRiT.</p></li>
+<a class="reference internal" href="../../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.nlinv()</span></code></a> from an ACS region too small for ESPIRiT.</p></li>
 <li><p>State the ambiguity of the bilinear factorization and the role of the
 Sobolev weighting of the sensitivities.</p></li>
 <li><p>Write the same reconstruction as <a class="reference internal" href="../../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.NonlinearSense</span></code></a>
@@ -530,7 +550,7 @@ under <a class="reference internal" href="../../generated/bartorch.nlop.IRGNM.ht
 </ul>
 <p>It follows <a class="reference internal" href="01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a>, which used <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> as a calibration
 step. The next lesson, <a class="reference internal" href="03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a>, turns to the noise model
-of the channels.</p>
+of the receive channels.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
 </span><span class="w">
@@ -559,58 +579,67 @@ of the channels.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>32% of the phase encodes, 6 of them at the centre
 </pre></div>
 </div>
-<p>Six central lines locate the centre of k-space. With ESPIRiT’s default
-kernel of six points, a calibration region of six lines leaves a single
-kernel position along the phase-encoding axis, too few rows for the
-calibration matrix of <a class="reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ecalib()</span></code></a>.</p>
-<section id="the-application">
-<h2>The application<a class="headerlink" href="#the-application" title="Link to this heading">#</a></h2>
+<p>Six central lines locate the k-space centre but do not calibrate anything
+on their own. With ESPIRiT’s default kernel of six points, a six-line ACS
+region leaves a single kernel position along the phase-encoding axis, too
+few rows for the calibration matrix of <a class="reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ecalib()</span></code></a>.</p>
+<section id="joint-reconstruction">
+<h2>Joint reconstruction<a class="headerlink" href="#joint-reconstruction" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="../../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.nlinv()</span></code></a> takes the k-space and returns the image and,
 when asked, the sensitivities it estimated along the way. Its iteration count
-is Gauss-Newton steps rather than linear iterations, and it is a
-regularization parameter rather than a convergence threshold: the
+is a number of Gauss-Newton steps rather than of linear iterations, and it
+acts as a regularization parameter rather than a convergence threshold: the
 regularization weight is halved after every step, so stopping early leaves a
 smoother image and running longer eventually lets the noise in. Eight steps
 is BART’s default; twelve are used here.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">STEPS</span> <span class="o">=</span> <span class="mi">12</span><span class="w">
 </span><span class="w">
 </span><span class="n">reconstruction</span><span class="p">,</span> <span class="n">estimated</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><span class="n">bt</span><span class="o">.</span><span class="n">nlinv</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">STEPS</span><span class="p">,</span> <span class="n">return_sensitivities</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">zero_filled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.ifft.html#bartorch.ifft" title="bartorch.ifft"><span class="n">bartorch</span><span class="o">.</span><span class="n">ifft</span></a><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">NRMSE </span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">reconstruction</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">NRMSE, zero-filled </span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">zero_filled</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">NRMSE, nlinv       </span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">reconstruction</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>NRMSE 0.078
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>NRMSE, zero-filled 0.209
+NRMSE, nlinv       0.078
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_001.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_001.png" alt="phantom, nlinv, root sum of squares of the maps" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_002.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_002.png" alt="channel 0, channel 1, channel 2, channel 3" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_001.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_001.png" alt="R = 3.1, 6 central lines, reference, zero-filled, nlinv, |error|, nlinv" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_002.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_002.png" alt="sensitivities, simulated, channel 0, channel 2, channel 4, channel 6" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-nonlinear-inversion_003.png" srcset="../../_images/sphx_glr_02-nonlinear-inversion_003.png" alt="sensitivities, estimated by nlinv, channel 0, channel 2, channel 4, channel 6" class = "sphx-glr-multi-img"/></li>
 </ul>
+<p>From a third of the phase encodes and six central lines, nonlinear inversion
+removes the aliasing of the zero-filled image; its error is concentrated at
+tissue boundaries and in the noise-like residue of the random sampling.</p>
 <p>The estimated sensitivities are smooth by construction rather than by
-agreement with the data: the coil unknown is
-not the sensitivity map but its k-space representation
-<span class="math notranslate nohighlight">\(\hat{s}\)</span>, and the map follows as
-<span class="math notranslate nohighlight">\(S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2} \hat{s}]\)</span>. A step in the
-unknown is therefore a smooth change in the map by construction, and the
-joint problem needs no separate penalty on the coils. The pair is determined
-only up to a common factor: multiplying every map by a nonzero function
-<span class="math notranslate nohighlight">\(\gamma(r)\)</span> and dividing the image by it leaves the data unchanged
-(<a class="reference internal" href="../../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a>). The smoothness weighting restricts
-<span class="math notranslate nohighlight">\(\gamma\)</span> to smooth functions, which is why the two rows above are drawn
-on their own scales and why a nonlinear inversion is reported after
-normalizing by the root sum of squares of the maps. Outside the object
-neither factor is determined at all – their product is zero for any pair –
-so what is drawn there follows from the initialization and the weighting.</p>
+agreement with the data: the coil unknown is not the sensitivity map but its
+k-space representation <span class="math notranslate nohighlight">\(\hat{s}\)</span>, and the map follows as
+<span class="math notranslate nohighlight">\(S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2} \hat{s}]\)</span>, a Sobolev-norm
+weighting that suppresses high spatial frequencies. A Gauss-Newton step in
+the unknown is therefore a smooth change of the map, and the joint problem
+needs no separate penalty on the coils.</p>
+<p>The pair is determined only up to a common factor: multiplying every map by
+a nonzero function <span class="math notranslate nohighlight">\(\gamma(r)\)</span> and dividing the image by it leaves the
+data unchanged (<a class="reference internal" href="../../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a>). The weighting restricts
+<span class="math notranslate nohighlight">\(\gamma\)</span> to smooth functions, so the estimated maps match the simulated
+ones up to a smooth common magnitude and phase, which is why each is drawn
+on its own scale and why an <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> image is reported after multiplication
+by the root sum of squares of the maps. Outside the object neither factor is
+determined at all – their product is zero for any pair – so the maps there
+follow from the initialization and the weighting.</p>
 </section>
 <section id="the-model-and-the-solver">
 <h2>The model and the solver<a class="headerlink" href="#the-model-and-the-solver" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="../../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.NonlinearSense</span></code></a> is that forward model as a nonlinear
-operator with two inputs, and <a class="reference internal" href="../../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a> is the
-Gauss-Newton loop over it. Each step linearizes the model at the current
-point <span class="math notranslate nohighlight">\(x_k\)</span> and solves</p>
+operator with two inputs, the image and the coil coefficients, and
+<a class="reference internal" href="../../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a> is the Gauss-Newton loop over it. Each step
+linearizes the model at the current estimate <span class="math notranslate nohighlight">\(x_k\)</span> and solves</p>
 <div class="math notranslate nohighlight">
 \[\min_x \, \| DF_{x_k} (x - x_k) - (y - F(x_k)) \|^2
 + \alpha_k \| x - x_{\mathrm{ref}} \|^2,\]</div>
-<p>with <span class="math notranslate nohighlight">\(x_{\mathrm{ref}}\)</span> zero unless one is given and <span class="math notranslate nohighlight">\(\alpha_k\)</span>
+<p>with <span class="math notranslate nohighlight">\(DF_{x_k}\)</span> the derivative of the forward model,
+<span class="math notranslate nohighlight">\(x_{\mathrm{ref}}\)</span> zero unless one is given, and <span class="math notranslate nohighlight">\(\alpha_k\)</span>
 halved after every step, so the first steps are heavily regularized and the
 later ones are not.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-nlop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><span class="n">model</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-nlop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><span class="n">nlop</span><span class="o">.</span><span class="n">NonlinearSense</span></a><span class="p">(</span><span class="w">
@@ -622,9 +651,9 @@ later ones are not.</p>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">nlinv</span></code> scales the data by <code class="docutils literal notranslate"><span class="pre">100</span> <span class="pre">/</span> <span class="pre">||y||</span></code> before it starts, which fixes
-the meaning of <span class="math notranslate nohighlight">\(\alpha\)</span>, and takes its conjugate gradients to a hundred
-iterations or a tolerance of a tenth. Given the same three settings the loop
-written here is the application.</p>
+the meaning of <span class="math notranslate nohighlight">\(\alpha\)</span>, and runs the conjugate gradients of each step
+to a hundred iterations or a relative tolerance of a tenth. Given the same
+three settings, the loop written here is the application.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">data</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-nlop sphx-glr-backref-type-py-method reference internal" href="../../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense.prepare" title="bartorch.nlop.NonlinearSense.prepare"><span class="n">model</span><span class="o">.</span><span class="n">prepare</span></a><span class="p">(</span><span class="n">measured</span> <span class="o">*</span> <span class="p">(</span><span class="mf">100.0</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">vector_norm</span><span class="p">(</span><span class="n">measured</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="n">fitted</span><span class="p">,</span> <span class="n">coefficients</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-nlop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><span class="n">nlop</span><span class="o">.</span><span class="n">IRGNM</span></a><span class="p">(</span><span class="n">iterations</span><span class="o">=</span><span class="n">STEPS</span><span class="p">,</span> <span class="n">cg_maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cg_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-nlop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><span class="n">model</span></a><span class="p">)</span><span class="w">
 </span><span class="w">
@@ -642,11 +671,11 @@ NRMSE 0.078
 </pre></div>
 </div>
 <p>The two agree to single-precision round-off rather than to the last bit,
-because the scaling above is computed here and inside the application by
+because the data scaling is computed here and inside the application by
 different expressions.</p>
-<p>What the operator layer adds is everything around the step. The linearized
-problem can go to a solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> instead of the
-conjugate gradients inside the library (<code class="docutils literal notranslate"><span class="pre">inner=optim.CG()</span></code> is the same
+<p>What the operator form adds is access to everything around the step. The
+linearized problem can go to a solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> instead of
+the conjugate gradients inside the library (<code class="docutils literal notranslate"><span class="pre">inner=optim.CG()</span></code> is the same
 method written out, and a regularized solver makes the step a regularized
 one), the loop can be unrolled as <a class="reference internal" href="../../generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNMBlock</span></code></a>, and a
 Gauss-Newton step is differentiable with respect to the data, the iterate,
@@ -679,7 +708,7 @@ Inverse Problems.</em> Springer (2004).
 <a class="reference external" href="https://doi.org/10.1007/978-1-4020-3122-9">https://doi.org/10.1007/978-1-4020-3122-9</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.222 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.529 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-parallel-imaging-02-nonlinear-inversion-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/2a7ee1ff47c6d5e99d66921f3d0a10a5/02-nonlinear-inversion.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-nonlinear-inversion.ipynb</span></code></a></p>
@@ -742,7 +771,7 @@ Inverse Problems.</em> Springer (2004).
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-application">The application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#joint-reconstruction">Joint reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-model-and-the-solver">The model and the solver</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>

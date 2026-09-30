@@ -201,7 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/conventions.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/conventions.html">Preparing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/security.html">Security</a></li>
@@ -223,6 +223,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
@@ -232,13 +233,32 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -477,6 +497,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acquisition-and-reconstruction">Acquisition and reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arrays">Arrays</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operators">Operators</a></li>
@@ -497,7 +518,53 @@
   <section class="tex2jax_ignore mathjax_ignore" id="terminology-and-conventions">
 <h1>Terminology and conventions<a class="headerlink" href="#terminology-and-conventions" title="Link to this heading">#</a></h1>
 <p>The vocabulary used in code, docstrings and documentation.  Definitions and
-derivations are in <a class="reference internal" href="../../explanation/index.html"><span class="doc">Explanation</span></a>; this page fixes the terms.</p>
+derivations are in <a class="reference internal" href="../../explanation/index.html"><span class="doc">Explanation</span></a>; this page fixes the terms.
+The readers are MR scientists, so an established MR term is used rather than a
+description of what it denotes: <em>coil sensitivity maps</em>, not “the coils’
+weights”; <em>autocalibration region</em>, not “the fully sampled middle”.</p>
+<section id="acquisition-and-reconstruction">
+<h2>Acquisition and reconstruction<a class="headerlink" href="#acquisition-and-reconstruction" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Term</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Readout, frequency-encoding direction</p></td>
+<td><p>The k-space direction sampled during one ADC window; the last tensor axis of Cartesian k-space.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Phase-encoding direction</p></td>
+<td><p>A k-space direction stepped between readouts; <code class="docutils literal notranslate"><span class="pre">y</span></code>, and <code class="docutils literal notranslate"><span class="pre">z</span></code> in 3D.</p></td>
+</tr>
+<tr class="row-even"><td><p>Acceleration factor <span class="math notranslate nohighlight">\(R\)</span></p></td>
+<td><p>The ratio of the phase encodes of a fully sampled acquisition to those acquired.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Autocalibration (ACS) region</p></td>
+<td><p>The fully sampled block at the centre of k-space from which coil sensitivity maps are estimated.</p></td>
+</tr>
+<tr class="row-even"><td><p>Coil sensitivity maps</p></td>
+<td><p>The complex receive sensitivities <span class="math notranslate nohighlight">\(S_c(r)\)</span> of the channels of an array.</p></td>
+</tr>
+<tr class="row-odd"><td><p>SENSE</p></td>
+<td><p>The encoding model <span class="math notranslate nohighlight">\(A = PFS\)</span> and its least-squares or regularized inversion.</p></td>
+</tr>
+<tr class="row-even"><td><p>g-factor</p></td>
+<td><p>The voxel-wise noise amplification of a parallel-imaging reconstruction beyond the <span class="math notranslate nohighlight">\(\sqrt{R}\)</span> loss of the shorter acquisition.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Density compensation</p></td>
+<td><p>Weighting of non-Cartesian samples by the inverse of the local sampling density.</p></td>
+</tr>
+<tr class="row-even"><td><p>Off-resonance, <span class="math notranslate nohighlight">\(B_0\)</span> inhomogeneity</p></td>
+<td><p>A deviation of the precession frequency from the reference frequency, in hertz; its map is the field map.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Signal model</p></td>
+<td><p>The dependence of the signal of a voxel on tissue parameters such as <span class="math notranslate nohighlight">\(T_1\)</span> and <span class="math notranslate nohighlight">\(T_2\)</span> and on the sequence.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="arrays">
 <h2>Arrays<a class="headerlink" href="#arrays" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -551,7 +618,7 @@ derivations are in <a class="reference internal" href="../../explanation/index.h
 <td><p>A binary mask on the Cartesian grid, one where a sample was acquired.</p></td>
 </tr>
 <tr class="row-odd"><td><p>Density weights</p></td>
-<td><p>A diagonal in k-space applied to the samples of a non-Cartesian transform, on the forward pass and conjugated on the adjoint.</p></td>
+<td><p>Density-compensation or data weights as a diagonal in k-space applied to the samples of a non-Cartesian transform, on the forward pass and conjugated on the adjoint.</p></td>
 </tr>
 <tr class="row-even"><td><p>Subspace basis</p></td>
 <td><p>A matrix <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code> mapping coefficients to the frames of a signal series.</p></td>
@@ -729,6 +796,7 @@ guarantee.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acquisition-and-reconstruction">Acquisition and reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arrays">Arrays</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operators">Operators</a></li>
