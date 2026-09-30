@@ -6,6 +6,7 @@
 - A C-order tensor of shape `(a, b, c)` and a BART array of dimensions `[c, b, a]` occupy the same memory, so bartorch reverses the shape at the boundary and copies nothing: BART's readout dimension is the last tensor axis and its coil dimension the fourth from last.
 - BART's commands keep BART's positional dimensions; the MRI operators of {mod}`bartorch.linop` use a compact layout of batch axes, coils and encoding axes in front of the spatial axes.
 - Axis arguments are tensor axis indices, never BART bitmasks or dimension numbers.
+- Image geometry is a `(4, 4)` affine from voxel indices `(x, y, z)`, the last three tensor axes reversed, to RAS millimetres, as in NIfTI.
 - Trajectories are in grid units, multiples of $1/\mathrm{FOV}$, so that a fully sampled readout of $N$ samples spans $-N/2$ to $N/2$; a trajectory in cycles or radians per metre, in fractions of the sampling bandwidth or in radians is rescaled into them.
 - {func}`bartorch.fft` is centred and unnormalized in both directions unless asked otherwise; {class}`bartorch.linop.FFT` is centred and unitary; the NUFFT carries a $1/\sqrt{N}$ scaling and a negative exponent in its forward transform.
 ```
@@ -138,6 +139,26 @@ zero throughout makes the transform two-dimensional; {class}`bartorch.linop.NUFF
 and {class}`bartorch.linop.NoncartesianSense` also accept two components,
 $k_x, k_y$.
 {func}`bartorch.tools.traj` generates trajectories in grid units.
+
+## Image geometry
+
+Where an image lies in the scanner is a `(4, 4)` affine matrix $A$ mapping a
+voxel index to a position, $(p, 1)^T = A\,(i_x, i_y, i_z, 1)^T$, with
+$i_x$, $i_y$, $i_z$ the last, second-to-last and third-to-last axes of the
+image tensor.  Positions are in millimetres in RAS coordinates, which increase
+towards the subject's right, anterior and superior; this is the convention of
+NIfTI and of `nibabel` and `torchio`.  The columns of $A$ are the steps
+between neighbouring voxels, so their norms are the voxel sizes, and its last
+column is the position of the first voxel.
+
+MRD and DICOM state positions in the patient coordinate system, LPS, which
+differs from RAS in the sign of the first two coordinates.  In MRD the readout
+direction is $x$, the phase-encoding direction $y$, and an acquisition's
+`position` is the centre of the field of view; in DICOM
+`ImageOrientationPatient` gives the directions of increasing column and row
+index and `ImagePositionPatient` the centre of the first pixel.  The readers
+and writers of {mod}`bartorch.io` convert between these and the affine, so an
+image read from DICOM and written to NIfTI keeps its position.
 
 ## Fourier transform conventions
 

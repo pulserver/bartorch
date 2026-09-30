@@ -44,7 +44,7 @@ with a leading underscore.  `tests/test_namespace.py` holds this.
 | `learning/`, `interop.py` | Unrolled iterations and channel conversions, and the DeepInverse adapter |
 | `tools/` | BART's remaining commands in five sections, and corrections and rigid motion in `tools/_correct/` and `tools/_motion/` |
 | `cli/` | The `bartorch` command line: `_argv.py` reads a `bart` command line, `_apps.py` routes it to an app |
-| `io.py` | CFL files |
+| `io/` | CFL files, ISMRMRD raw data, DICOM and NIfTI images (`io` extra) |
 | `_abi.py`, `_lib.py`, `_marshal.py`, `_buffer.py` | The ctypes signatures, loading the library, the form of an ABI argument, and a tensor over one of BART's buffers |
 | `_dispatch.py`, `_operator.py`, `_grid.py` | Running a command on tensors, what every operator shares, and what the operations on a grid share |
 | `_backend.py`, `_finufft.py`, `_cuda.py` | The BLAS, LAPACK and FFT sources, and the controls of the NUFFT substitution and of the device |

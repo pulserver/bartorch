@@ -296,6 +296,41 @@ def test_a_voxel_with_no_signal_keeps_the_value_it_started_from():
     assert torch.allclose(fitted[1:], t2[1:], rtol=1e-3)
 
 
+def test_mobafit_answers_the_same_decay_whatever_units_the_images_are_in():
+    """Images in a scanner's arbitrary units fit to the T2 of the same images
+    at unit peak, and the amplitude comes back in the units it went in."""
+    from bartorch import nlop
+
+    t2 = _two_halves(60.0, 110.0)
+    images = torch.exp(-torch.tensor(ECHO_TIMES)[:, None, None] / t2).to(torch.complex64)
+    model = nlop.MultiEcho(ECHO_TIMES, (FIT_SIZE, FIT_SIZE))
+
+    unit = apps.mobafit(images, model, T2=80.0)
+    for scale in (1e3, 1e-3):
+        scaled = apps.mobafit(images * scale, model, T2=80.0)
+        torch.testing.assert_close(scaled["T2"], unit["T2"], rtol=1e-4, atol=0.0)
+        torch.testing.assert_close(
+            scaled["amplitude"] / scale, unit["amplitude"], rtol=1e-4, atol=1e-6
+        )
+        torch.testing.assert_close(scaled["T2"], t2, rtol=1e-3, atol=0.0)
+
+
+def test_an_amplitude_given_in_the_images_units_starts_the_fit_where_it_would_at_unit_peak():
+    """A start of 1000 on images at a peak of 1000 is a start of one on the
+    same images at unit peak, so even one step lands in the same place."""
+    from bartorch import nlop
+
+    t2 = _two_halves(60.0, 110.0)
+    images = torch.exp(-torch.tensor(ECHO_TIMES)[:, None, None] / t2).to(torch.complex64)
+    model = nlop.MultiEcho(ECHO_TIMES, (FIT_SIZE, FIT_SIZE))
+
+    unit = apps.mobafit(images, model, iterations=1, T2=40.0, amplitude=1.0)
+    scaled = apps.mobafit(1e3 * images, model, iterations=1, T2=40.0, amplitude=1e3)
+
+    torch.testing.assert_close(scaled["T2"], unit["T2"], rtol=1e-4, atol=0.0)
+    torch.testing.assert_close(scaled["amplitude"], 1e3 * unit["amplitude"], rtol=1e-4, atol=1e-3)
+
+
 def test_the_fit_is_taken_from_where_it_is_started():
     """The starting maps reach the loop: a fit stopped after one step is still
     near where it began, and a different beginning is a different answer."""
