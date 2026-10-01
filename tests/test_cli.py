@@ -641,17 +641,6 @@ def test_a_moba_inversion_recovery_the_app_cannot_express_goes_to_the_command(
     assert route("moba", [*flags, *other, "k", "ti", "x"]) == ("command", None)
 
 
-def _plays_barts_trains() -> bool:
-    import torchsim.simulators
-
-    return hasattr(torchsim.simulators, "FLASHSimulator")
-
-
-bloch_trains = pytest.mark.skipif(
-    not _plays_barts_trains(), reason="this TorchSim does not play BART's sim sequences"
-)
-
-
 def _run(*line: str) -> None:
     code, _, err = run_command(list(line))
     assert code == 0, err
@@ -680,7 +669,6 @@ def _nrmse(ours: np.ndarray, reference: np.ndarray) -> float:
     return float(np.linalg.norm(ours - reference) / np.linalg.norm(reference))
 
 
-@bloch_trains
 def test_moba_bloch_writes_the_commands_maps_on_barts_own_case(tmp_path, monkeypatch):
     """``moba --bloch`` on BART's IR-FLASH test case: ``(R1, M0, R2, B1)`` from
     a Look-Locker recovery made with a flip angle of 8 degrees and fitted with
@@ -719,7 +707,6 @@ def test_moba_bloch_writes_the_commands_maps_on_barts_own_case(tmp_path, monkeyp
     assert _nrmse(product, reference) < 5e-3
 
 
-@bloch_trains
 @pytest.mark.parametrize(
     "other",
     [
@@ -743,7 +730,6 @@ def test_a_moba_bloch_the_app_cannot_express_goes_to_the_command(other, tmp_path
     assert route("moba", [*flags, "k", "ti", "x"]) == ("command", None)
 
 
-@bloch_trains
 @pytest.mark.parametrize(
     "seq",
     [
@@ -776,7 +762,6 @@ def test_a_moba_bloch_train_the_app_does_not_play_goes_to_the_command(seq, tmp_p
     assert route("moba", [*flags, "k", "ti", "x"]) == ("command", None)
 
 
-@bloch_trains
 def test_a_moba_bloch_b1_map_rides_along_a_held_b1(tmp_path, monkeypatch):
     """``b1map`` is what the command's B1 multiplies, held where ``pscale`` holds
     it; the map written is the held offset alone, ``1 + pinit[3]``."""

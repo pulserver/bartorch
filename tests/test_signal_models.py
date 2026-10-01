@@ -12,13 +12,9 @@ magnetization; TorchSim's carry the readout's ``sin(flip)``.
 import numpy as np
 import pytest
 import torch
+from torchsim import simulators
 
 from bartorch import _call
-
-torchsim = pytest.importorskip("torchsim")
-simulators = pytest.importorskip("torchsim.simulators")
-if not hasattr(simulators, "MultiGradientEchoSimulator"):
-    pytest.skip("this TorchSim has no closed forms for BART's models", allow_module_level=True)
 
 #: Both commands are private: what they return is a curve, not a model a fit
 #: can be built on.  They are reachable for exactly this.

@@ -26,13 +26,9 @@ import math
 
 import pytest
 import torch
+from torchsim import simulators
 
 from bartorch import _dispatch
-
-torchsim = pytest.importorskip("torchsim")
-simulators = pytest.importorskip("torchsim.simulators")
-if not hasattr(simulators, "StimulatedEchoSimulator"):
-    pytest.skip("this TorchSim does not play BART's epg sequences", allow_module_level=True)
 
 T1_S, T2_S, B1, OFF_HZ = 0.8, 0.05, 0.9, 17.0
 TR_S, TE_S, FLIP = 0.005, 0.01, 30.0

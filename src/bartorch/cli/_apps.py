@@ -724,12 +724,9 @@ def _bloch_train(values: list[str], contrasts: int):
     ------
     Unsupported
         A balanced SSFP train, a slice profile, averaged spins or spokes,
-        timing TorchSim's train does not take, or a TorchSim without the train.
+        or timing TorchSim's train does not take.
     """
-    try:
-        from torchsim.simulators import FLASHSimulator
-    except ImportError:
-        raise Unsupported("this TorchSim does not play BART's sim sequences") from None
+    from torchsim.simulators import FLASHSimulator
 
     numbers = dict.fromkeys(_BLOCH_SEQUENCE, float) | {"Nrep": int, "off": float}
     counts = {"Nspins": int, "av-spokes": int}

@@ -22,13 +22,9 @@ import math
 
 import pytest
 import torch
+from torchsim import simulators
 
 from bartorch import _call
-
-torchsim = pytest.importorskip("torchsim")
-simulators = pytest.importorskip("torchsim.simulators")
-if not hasattr(simulators, "CESTSimulator"):
-    pytest.skip("this TorchSim does not play BART's sim sequences", allow_module_level=True)
 
 #: `sim` is private: what it returns is a curve, not a model a fit can be built
 #: on.  It is reachable for exactly this.
