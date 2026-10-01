@@ -82,6 +82,7 @@ bartorch.linop
    Matrix
    Convolve
    Gradient
+   Sobolev
    concatenate
    stack
    hstack

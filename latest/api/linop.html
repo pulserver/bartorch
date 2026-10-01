@@ -521,7 +521,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mri-encoding-operators">MRI encoding operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-class">Operator class</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#elementary-operators">Elementary operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-convolution-and-finite-difference-operators">Matrix, convolution and finite-difference operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-convolution-finite-difference-and-smoothing-operators">Matrix, convolution, finite-difference and smoothing operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stacking-and-block-composition">Stacking and block composition</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shape-and-indexing-operators">Shape and indexing operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#user-defined-operators">User-defined operators</a></li>
@@ -657,8 +657,8 @@ implement and <a class="reference internal" href="../explanation/differentiation
 </table>
 </div>
 </section>
-<section id="matrix-convolution-and-finite-difference-operators">
-<h2>Matrix, convolution and finite-difference operators<a class="headerlink" href="#matrix-convolution-and-finite-difference-operators" title="Link to this heading">#</a></h2>
+<section id="matrix-convolution-finite-difference-and-smoothing-operators">
+<h2>Matrix, convolution, finite-difference and smoothing operators<a class="headerlink" href="#matrix-convolution-finite-difference-and-smoothing-operators" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Object</p></th>
@@ -674,6 +674,9 @@ implement and <a class="reference internal" href="../explanation/differentiation
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.linop.Gradient.html#bartorch.linop.Gradient" title="bartorch.linop.Gradient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gradient</span></code></a></p></td>
 <td><p>Forward finite differences with circular boundary, stacked on a new leading axis</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.linop.Sobolev.html#bartorch.linop.Sobolev" title="bartorch.linop.Sobolev"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sobolev</span></code></a></p></td>
+<td><p>A smooth image from k-space coefficients under a Sobolev weighting, as NLINV and <code class="docutils literal notranslate"><span class="pre">moba</span></code> fit coils and field maps</p></td>
 </tr>
 </tbody>
 </table>
@@ -821,7 +824,7 @@ defines <code class="docutils literal notranslate"><span class="pre">forward</sp
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mri-encoding-operators">MRI encoding operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-class">Operator class</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#elementary-operators">Elementary operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-convolution-and-finite-difference-operators">Matrix, convolution and finite-difference operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-convolution-finite-difference-and-smoothing-operators">Matrix, convolution, finite-difference and smoothing operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stacking-and-block-composition">Stacking and block composition</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shape-and-indexing-operators">Shape and indexing operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#user-defined-operators">User-defined operators</a></li>

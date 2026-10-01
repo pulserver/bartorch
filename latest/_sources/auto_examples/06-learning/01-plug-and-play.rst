@@ -216,7 +216,7 @@ is trained here. Each iteration costs one application of the network.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<04:21, 499kB/s]     17%|█▋        | 20.8M/125M [00:00<00:01, 76.5MB/s]     27%|██▋       | 33.0M/125M [00:00<00:01, 74.8MB/s]     42%|████▏     | 51.9M/125M [00:00<00:00, 109MB/s]      52%|█████▏    | 65.2M/125M [00:00<00:00, 72.5MB/s]     71%|███████   | 88.1M/125M [00:01<00:00, 106MB/s]      82%|████████▏ | 103M/125M [00:01<00:00, 75.9MB/s]     97%|█████████▋| 120M/125M [00:01<00:00, 94.4MB/s]    100%|██████████| 125M/125M [00:01<00:00, 83.4MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<04:40, 465kB/s]      1%|          | 1.25M/125M [00:00<00:30, 4.27MB/s]      6%|▋         | 7.88M/125M [00:00<00:04, 25.4MB/s]     31%|███       | 38.4M/125M [00:00<00:00, 119MB/s]      46%|████▋     | 57.8M/125M [00:00<00:00, 144MB/s]     59%|█████▉    | 73.8M/125M [00:00<00:00, 105MB/s]     69%|██████▉   | 86.5M/125M [00:01<00:00, 106MB/s]     80%|████████  | 99.6M/125M [00:01<00:00, 106MB/s]     93%|█████████▎| 116M/125M [00:01<00:00, 122MB/s]     100%|██████████| 125M/125M [00:01<00:00, 93.1MB/s]
          zero-filled  NRMSE 0.199  SSIM 0.482
      total variation  NRMSE 0.161  SSIM 0.754
         DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -377,7 +377,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 50.024 seconds)
+   **Total running time of the script:** (0 minutes 50.304 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>apps.moba &#8212; bartorch</title>
+    <title>linop.Sobolev &#8212; bartorch</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.apps.moba';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.linop.Sobolev';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
@@ -61,7 +61,7 @@
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/generated/bartorch.apps.moba.html" />
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/generated/bartorch.linop.Sobolev.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -374,7 +374,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/generated/bartorch.apps.moba.rst" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/generated/bartorch.linop.Sobolev.rst" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -391,7 +391,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fgenerated/bartorch.apps.moba.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fgenerated/bartorch.linop.Sobolev.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -421,7 +421,7 @@
       
       
       
-      <li><a href="../_sources/generated/bartorch.apps.moba.rst" target="_blank"
+      <li><a href="../_sources/generated/bartorch.linop.Sobolev.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -504,7 +504,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>apps.moba</h1>
+    <h1>linop.Sobolev</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -514,8 +514,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.moba"><code class="docutils literal notranslate"><span class="pre">moba()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-moba">Examples using <code class="docutils literal notranslate"><span class="pre">moba</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.linop.Sobolev"><code class="docutils literal notranslate"><span class="pre">Sobolev</span></code></a></li>
 </ul>
             </nav>
         </div>
@@ -527,122 +526,41 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="apps-moba">
-<h1>apps.moba<a class="headerlink" href="#apps-moba" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="bartorch.apps.moba">
-<span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">moba</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.moba" title="Link to this definition">#</a></dt>
-<dd><p>Fit a signal model to k-space: parameter maps straight from the samples.</p>
-<p>The method of the <code class="docutils literal notranslate"><span class="pre">moba</span></code> command, assembled here: the signal model
-inside the encoding, <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">P</span> <span class="pre">F</span> <span class="pre">(S</span> <span class="pre">.</span> <span class="pre">M(theta))</span></code>, fitted to the k-space by
-the Gauss-Newton loop of <a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a>, and the fitted
-variables read back into their own units.  Without <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> the
-coils are a second unknown, estimated jointly with the maps as the command
-estimates them: a k-space representation under the Sobolev weighting of
-<a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a>, shared by every contrast.</p>
-<p>The model is TorchSim’s rather than BART’s – a
-<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a> – so this does not reproduce the
-command’s coefficients.  It solves the same problem with the same method
-and answers in named maps.</p>
+  <section id="linop-sobolev">
+<h1>linop.Sobolev<a class="headerlink" href="#linop-sobolev" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="bartorch.linop.Sobolev">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">Sobolev</span></span><a class="headerlink" href="#bartorch.linop.Sobolev" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
+<p>A smooth image from weighted k-space coefficients, BART’s <code class="docutils literal notranslate"><span class="pre">linop_noir_weights</span></code>.</p>
+<p>The coefficients are multiplied by <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code> and taken
+onto the grid by the centred unitary inverse FFT along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">k_i</span></code> is the frequency index along axis <code class="docutils literal notranslate"><span class="pre">i</span></code>, from <code class="docutils literal notranslate"><span class="pre">-n_i</span> <span class="pre">//</span> <span class="pre">2</span></code>,
+divided by <code class="docutils literal notranslate"><span class="pre">n_i</span></code>.  Solving for the coefficients rather than the image
+weights the penalty on each frequency by the inverse square of its weight:
+the Sobolev norm NLINV puts on coil sensitivities and <code class="docutils literal notranslate"><span class="pre">moba</span></code> on B1 and B0
+maps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Samples, <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">coils,</span> <span class="pre">*samples)</span></code>, C order: <code class="docutils literal notranslate"><span class="pre">*samples</span></code> is the
-voxel shape on a grid, and the trajectory’s sample axes off it –
-<code class="docutils literal notranslate"><span class="pre">traj.shape[:-1]</span></code>, without a leading contrast axis the trajectory
-may carry.  Contrasts are in the order the model’s acquisition lists
-them.</p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><em>bartorch.nlop.SignalModel</em></a>) – The signal model, on the voxel shape of the image – <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> or
-<code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
-<li><p><strong>sensitivities</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Coil sensitivities, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*voxels)</span></code>, shared by the contrasts.
-Estimated jointly with the maps when not given.</p></li>
-<li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Non-Cartesian trajectory <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in grid units, shared by
-the contrasts or with a leading contrast axis.  Requires
-<code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>.</p></li>
-<li><p><strong>pattern</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Sampling pattern or weights, broadcastable against <code class="docutils literal notranslate"><span class="pre">kspace</span></code>, with one
-entry along the coil axis; it may differ between contrasts.  On a grid
-it is read off <code class="docutils literal notranslate"><span class="pre">kspace</span></code> when not given: one wherever a coil has a
-sample.</p></li>
-<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=20</em>) – Gauss-Newton steps.  The command takes eight over its own scaled
-coefficients; twenty are what a bounded parameterisation needs.</p></li>
-<li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=50</em>) – Conjugate-gradient steps per linearized problem.</p></li>
-<li><p><strong>inner</strong> (<em>solver</em><em>, </em><em>default=None</em>) – A configured solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> for the linearized
-problem, whose regularizers then penalize the maps; only with
-<code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>, where the maps are the only unknown.  The default
-is plain conjugate gradients.</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Initial Tikhonov weight on the Gauss-Newton step.</p></li>
-<li><p><strong>alpha_min</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – What that weight decays towards.</p></li>
-<li><p><strong>redu</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – Factor the weight is divided by after each step.</p></li>
-<li><p><strong>sobolev</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>880.0</em><em>, </em><em>32.0</em><em>)</em>) – <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> of the coil weighting <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code> when the
-coils are estimated; the command’s defaults.</p></li>
-<li><p><strong>smooth</strong> (<em>dict</em><em> of </em><em>str to tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – Properties fitted as smooth maps, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">(a,</span> <span class="pre">b)}</span></code>: each is solved
-for as k-space coefficients under the weighting <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code>
-of <a class="reference internal" href="bartorch.linop.Sobolev.html#bartorch.linop.Sobolev" title="bartorch.linop.Sobolev"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sobolev</span></code></a>, as the command solves for its B1
-and B0 maps.  The weighting acts on the model’s variable for the
-property, which for a bounded one is its transformed value.  A start or
-reference map for a smooth property is taken through the weighting’s
-adjoint and back, which leaves a constant as it is and smooths
-anything else.</p></li>
-<li><p><strong>start</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Maps to start from, of the model’s input shape, in the units the solve
-works in – with the amplitude divided by <code class="docutils literal notranslate"><span class="pre">scaling</span></code>.  Built from
-<code class="docutils literal notranslate"><span class="pre">**values</span></code> when it is not given.</p></li>
-<li><p><strong>reference</strong> (<em>dict</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – Maps each Gauss-Newton step is regularized towards, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">value}</span></code>
-in each property’s own units as <code class="docutils literal notranslate"><span class="pre">**values</span></code> takes them, with an
-amplitude in the data’s units; a name left out takes the model’s
-default.  The start when not given.  A value outside the model’s bounds
-is clamped to them, so a limit such as a vanishing rate is approached
-from inside.</p></li>
-<li><p><strong>scaling</strong> (<em>float</em><em>, </em><em>default=None</em>) – The factor the data is divided by for the solve; the fitted amplitude
-is multiplied by it again.  Estimated when not given, by the rule of
-<a class="reference internal" href="bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> applied to least-squares contrast
-images with known coils and zero-filled coil images without, which makes
-<code class="docutils literal notranslate"><span class="pre">alpha</span></code> and the start independent of the data’s overall scale.  A
-model without an amplitude is fitted to the data as it stands.</p></li>
-<li><p><strong>return_sensitivities</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the estimated sensitivities; only when they are estimated.</p></li>
-<li><p><strong>**values</strong> – Starting values per unknown, in that property’s own units, as
-<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them; an amplitude
-in the data’s units.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The grid, C order.  The coefficients have the same shape.</p></li>
+<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – The axes weighted and transformed.</p></li>
+<li><p><strong>a</strong> (<em>float</em>) – Width and order of the weighting.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – Width and order of the weighting.</p></li>
+<li><p><strong>c</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The weight at the centre of k-space.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>dict of str to torch.Tensor</em> – The fitted maps in their own units, by the name each unknown carries.
-With estimated coils the amplitude and the sensitivities share one
-complex scale between them, which the data does not fix.</p></li>
-<li><p><em>torch.Tensor</em> – With <code class="docutils literal notranslate"><span class="pre">return_sensitivities</span></code>: the sensitivities, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*voxels)</span></code>.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">inner</span></code>, <code class="docutils literal notranslate"><span class="pre">traj</span></code> or <code class="docutils literal notranslate"><span class="pre">return_sensitivities</span></code> without
-    <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>, a <code class="docutils literal notranslate"><span class="pre">kspace</span></code> the encoding’s samples are not, or a
-    <code class="docutils literal notranslate"><span class="pre">smooth</span></code> property the model does not solve for.</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>Each step is regularized towards <code class="docutils literal notranslate"><span class="pre">reference</span></code> – by default the maps
-towards where they started, the coil coefficients towards zero – where the command
-regularizes towards zero.  Zero in TorchSim’s parameterisation is the
-middle of each bound and no amplitude, not a plausible map, and the coils start
-at zero, as the command starts them: at that point the data has no
-derivative by the maps, so a first step centred on zero would take the
-maps to the middle of their bounds and leave the data with no derivative
-by the coils.  The weight decays by <code class="docutils literal notranslate"><span class="pre">redu</span></code> each step, and the start’s
-influence with it.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="n">nlop</span><span class="o">.</span><span class="n">MultiEcho</span><span class="p">([</span><span class="mf">12.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">echo</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">echo</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)],</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">maps</span> <span class="o">=</span> <span class="n">moba</span><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">sensitivities</span><span class="p">,</span> <span class="n">T2</span><span class="o">=</span><span class="mf">80.0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">maps</span><span class="p">,</span> <span class="n">sensitivities</span> <span class="o">=</span> <span class="n">moba</span><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">return_sensitivities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">T2</span><span class="o">=</span><span class="mf">80.0</span><span class="p">)</span>
+<p>A map on a 64x64 grid under <code class="docutils literal notranslate"><span class="pre">moba</span></code>’s B1 weighting, started from a
+constant:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">Real</span><span class="p">((</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">))</span> <span class="o">@</span> <span class="n">Sobolev</span><span class="p">((</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">440.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">H</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<section id="examples-using-moba">
-<h2>Examples using <code class="docutils literal notranslate"><span class="pre">moba</span></code><a class="headerlink" href="#examples-using-moba" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first."><img alt="" src="../_images/sphx_glr_02-quantitative-models_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
-</div></div></section>
+<p>Also has the methods and properties of <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a>.</p>
 </section>
 
 
@@ -674,8 +592,7 @@ influence with it.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.moba"><code class="docutils literal notranslate"><span class="pre">moba()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-moba">Examples using <code class="docutils literal notranslate"><span class="pre">moba</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.linop.Sobolev"><code class="docutils literal notranslate"><span class="pre">Sobolev</span></code></a></li>
 </ul>
   </nav></div>
 

@@ -20,11 +20,14 @@ Either route writes the output files of the BART command, in its array layout
 and units.  A `pics` command line routed to the app writes the same values
 bit for bit.  `mobafit` and `moba` are routed for the models whose parameters
 the TorchSim model of the app represents exactly -- `-T`, `-I`, `-L`, `-D`,
-`-M` with `--init`, and `-G` with `-m 0`, `1`, `3` or `4` for `mobafit`, and
-`-T` and `-L` with `-l2` on a Cartesian grid for `moba` -- and the fitted maps
-are converted to BART's coefficients: relaxation rates in 1/s for times in
-seconds, off-resonance in Hz, water and fat as complex amplitudes, stacked
-along `COEFF_DIM`.  Their values agree with the
+`-M` with `--init`, and `-G` with `-m 0`, `1`, `3` or `4` for `mobafit`; and
+for `moba` on a Cartesian grid, `-G` with the same models and without `-r`,
+and with `-l2` `-T`, `-L`, `-P`, `-D` with `-m 6` or `7`, and `--bloch` with a
+FLASH or IR-FLASH train -- and the fitted maps are converted to BART's
+coefficients: relaxation rates in 1/s for times in seconds, off-resonance in
+Hz, water and fat as complex amplitudes, stacked along `COEFF_DIM`.  The B1
+map of `-P` and `--bloch` and the B0 map of `-G` and `-D` are kept smooth by
+the Sobolev weighting the command applies to them.  Their values agree with the
 BART command to the accuracy of the fit, since the two minimize the same
 objective in different parameterizations.  `-i`, which counts Gauss-Newton
 steps in BART's parameterization, sends either command to BART.
