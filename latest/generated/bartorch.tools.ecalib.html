@@ -536,7 +536,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Fully sampled calibration data, or k-space with a sampled centre.</p></li>
+<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Fully sampled calibration data, or k-space with a sampled centre,
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> for one slice.</p></li>
 <li><p><strong>maps</strong> (<em>int</em><em>, </em><em>default=None</em>) – How many sets of sensitivities to produce (<code class="docutils literal notranslate"><span class="pre">-m</span></code>).</p></li>
 <li><p><strong>calib_size</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – The calibration region’s size (<code class="docutils literal notranslate"><span class="pre">-r</span></code>), the same on every axis or one
 per axis.</p></li>
@@ -552,7 +553,8 @@ step is split along, takes an axis of <code class="docutils literal notranslate"
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The sensitivities, and the eigenvalues when asked for.</p>
+<dd class="field-even"><p>The sensitivities, and the eigenvalues when asked for, without a <code class="docutils literal notranslate"><span class="pre">z</span></code>
+axis when <code class="docutils literal notranslate"><span class="pre">kspace</span></code> has none.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor or tuple of torch.Tensor</p>

@@ -815,9 +815,9 @@ reconstruction that produced it.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:15 • 0:00:00 0.75it/s loss: 0.000 psnr:
-                                                               32.696 ssim:
-                                                               0.885
+Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:08 • 0:00:00 1.47it/s loss: 0.000 psnr:
+                                                               32.724 ssim:
+                                                               0.889
 rho ended at 0.027
 </pre></div>
 </div>
@@ -863,7 +863,7 @@ five.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>      adjoint   PSNR 23.71 dB   SSIM 0.679
      CG SENSE   PSNR 29.69 dB   SSIM 0.681
 ADMM, wavelet   PSNR 31.64 dB   SSIM 0.898
-    MoDL, K=5   PSNR 32.70 dB   SSIM 0.884
+    MoDL, K=5   PSNR 32.73 dB   SSIM 0.888
 </pre></div>
 </div>
 <p>The table is not a comparison of methods. Fifteen epochs over twenty-four
@@ -931,7 +931,7 @@ through all of them.</p>
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">rho</span><span class="s2">'</span><span class="s2">s gradient: </span><span class="si">{</span><span class="n">made</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> recorded, </span><span class="si">{</span><span class="n">made</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> recomputed</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rho's gradient: 0.000585573 recorded, 0.000585573 recomputed
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rho's gradient: 0.000277808 recorded, 0.000277808 recomputed
 </pre></div>
 </div>
 <p>A third alternative is not to unroll. <a class="reference internal" href="../../generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a>
@@ -976,7 +976,7 @@ Information Processing Systems</em> 32:688-699 (2019).
 <a class="reference external" href="https://arxiv.org/abs/1909.01377">https://arxiv.org/abs/1909.01377</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 45.272 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 25.384 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-02-modl-with-admm-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/42594de98a240394ccc806510fa4d388/02-modl-with-admm.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-modl-with-admm.ipynb</span></code></a></p>

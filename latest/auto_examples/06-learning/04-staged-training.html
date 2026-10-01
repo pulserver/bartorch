@@ -840,11 +840,11 @@ the magnitude over the eight validation slices of subject 4.</p>
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">learned step: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">block</span></a><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>               untrained   PSNR 26.45 dB   SSIM 0.654
-     denoiser pretrained   PSNR 26.32 dB   SSIM 0.913
-                  greedy   PSNR 28.16 dB   SSIM 0.795
-              end to end   PSNR 29.06 dB   SSIM 0.839
+     denoiser pretrained   PSNR 27.34 dB   SSIM 0.928
+                  greedy   PSNR 27.72 dB   SSIM 0.737
+              end to end   PSNR 28.93 dB   SSIM 0.812
  CG SENSE, 20 iterations   PSNR 24.30 dB   SSIM 0.558
-learned step: 1.139
+learned step: 1.153
 </pre></div>
 </div>
 <p>Each stage starts from the weights the previous one left, and each raises
@@ -860,7 +860,7 @@ network removes both; its error concentrates at tissue boundaries, where it
 slightly smooths the cortex.</p>
 <ul class="sphx-glr-horizontal">
 <li><img src="../../_images/sphx_glr_04-staged-training_001.png" srcset="../../_images/sphx_glr_04-staged-training_001.png" alt="reference, CG-SENSE, unrolled, staged" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_04-staged-training_002.png" srcset="../../_images/sphx_glr_04-staged-training_002.png" alt="CG-SENSE NRMSE 0.137, unrolled, staged NRMSE 0.081" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_04-staged-training_002.png" srcset="../../_images/sphx_glr_04-staged-training_002.png" alt="CG-SENSE NRMSE 0.137, unrolled, staged NRMSE 0.082" class = "sphx-glr-multi-img"/></li>
 </ul>
 </section>
 <section id="storing-the-weights">
@@ -883,7 +883,7 @@ casts them back to the network’s precision.</p>
 </span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">restored</span></a><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">compact</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">restored: PSNR </span><span class="si">{</span><span class="n">quality</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">restored</span></a><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>restored: PSNR 29.06 dB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>restored: PSNR 28.94 dB
 </pre></div>
 </div>
 </section>
@@ -905,7 +905,7 @@ reconstruction. <em>MICCAI</em> 2021, LNCS 12906:461-470.
 <a class="reference external" href="https://doi.org/10.1007/978-3-030-87231-1_45">https://doi.org/10.1007/978-3-030-87231-1_45</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 26.287 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 21.006 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-04-staged-training-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/36c9dd0485a7810bbc308e2af6c91c00/04-staged-training.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">04-staged-training.ipynb</span></code></a></p>
