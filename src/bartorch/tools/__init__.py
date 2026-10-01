@@ -34,3 +34,21 @@ __all__ = sorted(
     {*_simulate.__all__, *_sampling.__all__, *_calib.__all__, *_process.__all__}
     | {*_lowrank.__all__, *_correct.__all__, *_motion.__all__}
 )
+
+
+def __getattr__(name: str):
+    # A BART command reached here by its name says where bartorch exposes it.
+    from bartorch._coverage import PRIVATE, curated_wrappers
+
+    if name in PRIVATE:
+        raise AttributeError(f"bartorch.tools has no {name!r}: {PRIVATE[name]}")
+    found = curated_wrappers().get(name, ())
+    places = sorted(
+        {
+            ".".join(p for p in w.__module__.split(".") if not p.startswith("_")) + f".{w.__name__}"
+            for w in found
+        }
+    )
+    if places:
+        raise AttributeError(f"bartorch.tools has no {name!r}; use {', '.join(places)}")
+    raise AttributeError(f"module 'bartorch.tools' has no attribute {name!r}")

@@ -30,7 +30,8 @@ def ecalib(
     Parameters
     ----------
     kspace : torch.Tensor
-        Fully sampled calibration data, or k-space with a sampled centre.
+        Fully sampled calibration data, or k-space with a sampled centre,
+        ``(coils, z, y, x)``, or ``(coils, y, x)`` for one slice.
     maps : int, default=None
         How many sets of sensitivities to produce (``-m``).
     calib_size : int or tuple of int, default=None
@@ -56,7 +57,8 @@ def ecalib(
     Returns
     -------
     torch.Tensor or tuple of torch.Tensor
-        The sensitivities, and the eigenvalues when asked for.
+        The sensitivities, and the eigenvalues when asked for, without a ``z``
+        axis when ``kspace`` has none.
 
     Examples
     --------
@@ -81,7 +83,15 @@ def ecalib(
         flags["S"] = True
     if intensity_correction:
         flags["I"] = True
-    return dispatch("ecalib", [kspace], None, _n_out=2 if return_eigenvalues else 1, **flags)
+    planar = kspace.ndim == 3
+    if planar:
+        kspace = kspace.unsqueeze(1)
+    found = dispatch("ecalib", [kspace], None, _n_out=2 if return_eigenvalues else 1, **flags)
+    if not planar:
+        return found
+    if return_eigenvalues:
+        return tuple(out.squeeze(-3) for out in found)
+    return found.squeeze(-3)
 
 
 @curated("caldir")

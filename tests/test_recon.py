@@ -83,3 +83,11 @@ def test_whitening_makes_noise_covariance_the_identity():
     w = white.reshape(ncoils, nsamples).numpy()
     cov = (w @ w.conj().T) / nsamples
     np.testing.assert_allclose(cov, np.eye(ncoils), atol=0.1)
+
+
+def test_ecalib_of_one_slice_without_a_z_axis_gives_that_slice_s_maps():
+    kspace = bt.phantom(64, coils=4, kspace=True)
+
+    np.testing.assert_array_equal(
+        bt.ecalib(kspace[:, 0], maps=1).numpy(), bt.ecalib(kspace, maps=1)[:, 0].numpy()
+    )

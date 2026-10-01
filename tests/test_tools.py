@@ -345,3 +345,9 @@ def test_a_tool_resolves_a_conjugated_view_before_reading_it():
         bartorch.flip(x.conj(), axes=-1), bartorch.flip(x.conj().resolve_conj(), axes=-1)
     )
     assert not torch.allclose(bartorch.flip(x.conj(), axes=-1), bartorch.flip(x, axes=-1))
+
+
+@pytest.mark.parametrize(("command", "where"), [("pics", "bartorch.apps"), ("fft", "bartorch.fft")])
+def test_a_bart_command_missing_from_tools_says_where_it_is(command, where):
+    with pytest.raises(AttributeError, match=re.escape(where)):
+        getattr(bt, command)
