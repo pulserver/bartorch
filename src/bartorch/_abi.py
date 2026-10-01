@@ -213,6 +213,7 @@ SYMBOLS = (
     "bartorch_linop_null",
     "bartorch_linop_maxeigen",
     "bartorch_linop_zreal",
+    "bartorch_linop_sobolev",
     "bartorch_linop_rdiag",
     "bartorch_linop_matrix",
     "bartorch_linop_conv",
@@ -614,6 +615,15 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
     lib.bartorch_linop_maxeigen.argtypes = [ctypes.c_void_p]
     lib.bartorch_linop_zreal.restype = ctypes.c_void_p
     lib.bartorch_linop_zreal.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int64)]
+    lib.bartorch_linop_sobolev.restype = ctypes.c_void_p
+    lib.bartorch_linop_sobolev.argtypes = [
+        ctypes.c_int,
+        ctypes.POINTER(ctypes.c_int64),
+        ctypes.c_uint64,
+        ctypes.c_double,
+        ctypes.c_double,
+        ctypes.c_double,
+    ]
     lib.bartorch_linop_rdiag.restype = ctypes.c_void_p
     lib.bartorch_linop_rdiag.argtypes = [
         ctypes.c_int,

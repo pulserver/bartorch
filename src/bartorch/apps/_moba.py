@@ -97,6 +97,34 @@ def _inside(model: nlop.SignalModel, named: dict[str, Any]) -> dict[str, Any]:
     return clamped
 
 
+def _smoothing(model: nlop.SignalModel, smooth) -> linop.LinearOperator | None:
+    """The model's input from the variables solved for: the smooth properties
+    through the Sobolev weighting, the rest as they are."""
+    if not smooth:
+        return None
+    names = model.names
+    missing = [name for name in smooth if name not in names]
+    if missing:
+        raise ValueError(f"smooth names {missing}, which the model does not solve for: {names}")
+    voxels = tuple(model.voxels)
+    axes = tuple(range(1, 1 + len(voxels)))
+    parts: list[linop.LinearOperator] = []
+    run = 0
+    for name in names:
+        if name not in smooth:
+            run += 1
+            continue
+        if run:
+            parts.append(linop.Identity((run, *voxels)))
+            run = 0
+        a, b = smooth[name]
+        shape = (1, *voxels)
+        parts.append(linop.Real(shape) @ linop.Sobolev(shape, axes, a, b))
+    if run:
+        parts.append(linop.Identity((run, *voxels)))
+    return linop.block_diag(parts)
+
+
 def _given(kspace, sensitivities, model, traj, pattern):
     """The linear encoding over known sensitivities, and the data in its layout."""
     voxels, contrasts = model.voxels, model.contrasts
@@ -146,6 +174,7 @@ def moba(
     alpha_min: float = 0.0,
     redu: float = 2.0,
     sobolev: tuple[float, float] = _SOBOLEV,
+    smooth: dict[str, tuple[float, float]] | None = None,
     start: torch.Tensor | None = None,
     reference: dict[str, Any] | None = None,
     scaling: float | None = None,
@@ -209,6 +238,15 @@ def moba(
     sobolev : tuple of float, default=(880.0, 32.0)
         ``(a, b)`` of the coil weighting ``(1 + a |k|^2)^(-b/2)`` when the
         coils are estimated; the command's defaults.
+    smooth : dict of str to tuple of float, default=None
+        Properties fitted as smooth maps, ``{name: (a, b)}``: each is solved
+        for as k-space coefficients under the weighting ``(1 + a |k|^2)^(-b/2)``
+        of :class:`~bartorch.linop.Sobolev`, as the command solves for its B1
+        and B0 maps.  The weighting acts on the model's variable for the
+        property, which for a bounded one is its transformed value.  A start or
+        reference map for a smooth property is taken through the weighting's
+        adjoint and back, which leaves a constant as it is and smooths
+        anything else.
     start : torch.Tensor, default=None
         Maps to start from, of the model's input shape, in the units the solve
         works in -- with the amplitude divided by ``scaling``.  Built from
@@ -247,7 +285,8 @@ def moba(
     ------
     ValueError
         ``inner``, ``traj`` or ``return_sensitivities`` without
-        ``sensitivities``, or a ``kspace`` the encoding's samples are not.
+        ``sensitivities``, a ``kspace`` the encoding's samples are not, or a
+        ``smooth`` property the model does not solve for.
 
     Notes
     -----
@@ -268,6 +307,11 @@ def moba(
     >>> maps, sensitivities = moba(kspace, M, return_sensitivities=True, T2=80.0)
     """
     kspace = torch.as_tensor(kspace)
+    S = _smoothing(model, smooth)
+    solved = model if S is None else model @ S
+
+    def lifted(x: torch.Tensor) -> torch.Tensor:
+        return x if S is None else S.H(x)
 
     def fit(F, data, images, coefficients=None):
         scale = _scale(model, images) if scaling is None else float(scaling)
@@ -278,8 +322,8 @@ def moba(
                 **(named if amplitude is None else {**named, "amplitude": amplitude / scale})
             )
 
-        x0 = packed(values) if start is None else start
-        xref = x0 if reference is None else packed(_inside(model, reference))
+        x0 = lifted(packed(values) if start is None else start)
+        xref = x0 if reference is None else lifted(packed(_inside(model, reference)))
         solver = nlop.IRGNM(
             iterations=iterations,
             alpha=alpha,
@@ -294,7 +338,7 @@ def moba(
             fitted, coefficients = solver(
                 data * (1.0 / scale), F, x0=(x0, coefficients), xref=(xref, coefficients)
             )
-        maps = model.split(fitted)
+        maps = model.split(fitted if S is None else S(fitted))
         if "amplitude" in maps:
             maps["amplitude"] = maps["amplitude"] * scale
         return maps, coefficients
@@ -303,7 +347,7 @@ def moba(
         if return_sensitivities:
             raise ValueError("return_sensitivities returns estimated sensitivities, not given ones")
         A, data = _given(kspace, sensitivities, model, traj, pattern)
-        return fit(A @ model, data, lambda: optim.CG(maxiter=_SCALE_CG_MAXITER)(data, A))[0]
+        return fit(A @ solved, data, lambda: optim.CG(maxiter=_SCALE_CG_MAXITER)(data, A))[0]
 
     if traj is not None:
         raise ValueError(
@@ -336,7 +380,7 @@ def moba(
     # A binary pattern on a grid makes the zero-filled coil images the
     # least-squares ones.
     maps, coefficients = fit(
-        _joint(sense, model),
+        _joint(sense, solved),
         data,
         lambda: sense.transform.adjoint(data),
         torch.zeros(sense.ishapes[1], dtype=torch.complex64),

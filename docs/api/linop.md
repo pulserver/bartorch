@@ -50,13 +50,14 @@ implement and {doc}`../explanation/differentiation` their autograd behaviour.
 | {obj}`~bartorch.linop.NUFFT` | Non-uniform Fourier transform along a trajectory, with optional weights and basis |
 | {obj}`~bartorch.linop.MultiplySum` | Multiplication by a tensor followed by summation over axes absent from the codomain |
 
-## Matrix, convolution and finite-difference operators
+## Matrix, convolution, finite-difference and smoothing operators
 
 | Object | Description |
 | --- | --- |
 | {obj}`~bartorch.linop.Matrix` | Multiplication by a matrix along one axis |
 | {obj}`~bartorch.linop.Convolve` | Convolution with a fixed kernel |
 | {obj}`~bartorch.linop.Gradient` | Forward finite differences with circular boundary, stacked on a new leading axis |
+| {obj}`~bartorch.linop.Sobolev` | A smooth image from k-space coefficients under a Sobolev weighting, as NLINV and `moba` fit coils and field maps |
 
 ## Stacking and block composition
 

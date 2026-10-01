@@ -32,7 +32,7 @@ from bartorch.linop._shape import (
     Sum,
     Transpose,
 )
-from bartorch.linop._signal import Convolve, Gradient, Matrix
+from bartorch.linop._signal import Convolve, Gradient, Matrix, Sobolev
 
 __all__ = [
     "block",
@@ -66,6 +66,7 @@ __all__ = [
     "Resize",
     "Roll",
     "ScaledSum",
+    "Sobolev",
     "Sum",
     "Transpose",
     "WaveSense",

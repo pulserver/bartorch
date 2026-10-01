@@ -421,6 +421,7 @@ BARTORCH_API bartorch_linop* bartorch_linop_identity(int N, const int64_t* dims)
 BARTORCH_API bartorch_linop* bartorch_linop_null(int NO, const int64_t* odims, int NI, const int64_t* idims);
 BARTORCH_API double bartorch_linop_maxeigen(const bartorch_linop* a);
 BARTORCH_API bartorch_linop* bartorch_linop_zreal(int N, const int64_t* dims);
+BARTORCH_API bartorch_linop* bartorch_linop_sobolev(int N, const int64_t* dims, uint64_t flags, double a, double b, double c);
 BARTORCH_API bartorch_linop* bartorch_linop_rdiag(int N, const int64_t* dims, uint64_t flags, const void* diag);
 BARTORCH_API bartorch_linop* bartorch_linop_matrix(int N, const int64_t* odims, const int64_t* idims, const int64_t* mdims, const void* matrix);
 BARTORCH_API bartorch_linop* bartorch_linop_conv(int N, uint64_t flags, int ctype, int cmode, const int64_t* odims, const int64_t* idims, const int64_t* kdims, const void* kernel);

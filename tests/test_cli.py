@@ -398,7 +398,9 @@ def _disc_and_coils():
     return support, amplitude, coils
 
 
-def _moba_kspace(times: np.ndarray, images: np.ndarray, coils: np.ndarray) -> None:
+def _moba_kspace(
+    times: np.ndarray, images: np.ndarray, coils: np.ndarray, undersampled: bool = True
+) -> None:
     """``images`` of shape ``(x, y, contrasts)``, as ``k`` and ``t``."""
     coil_images = images[:, :, None, :] * coils[..., None]
     kspace = np.fft.fftshift(
@@ -406,7 +408,7 @@ def _moba_kspace(times: np.ndarray, images: np.ndarray, coils: np.ndarray) -> No
         axes=(0, 1),
     )
     generator = np.random.default_rng(0)
-    for contrast in range(len(times)):
+    for contrast in range(len(times) if undersampled else 0):
         lines = np.zeros(MOBA)
         lines[generator.permutation(MOBA)[: MOBA // 2]] = 1
         lines[MOBA // 2 - 3 : MOBA // 2 + 3] = 1
@@ -478,14 +480,331 @@ def test_moba_look_locker_fits_the_recovery_it_was_made_from(tmp_path, monkeypat
     assert abs(np.median(ratio.real) - 1.25) < 0.01
 
 
+def test_moba_look_locker_with_a_smooth_flip_angle_writes_the_commands_maps(tmp_path, monkeypatch):
+    """``moba -P``: ``(M0, R1, FA)`` with the flip angle's efficiency fitted as
+    a smooth map, against the command with the flags BART's own tests give it.
+    Measured on this phantom: R1 6.2e-04 from the command's at the median and
+    4.4e-03 at most, the flip angle 4.4e-03 and 7.2e-03, both about the
+    command's own distance from the truth, and the product of amplitude and
+    sensitivities 1.3e-03 from the command's."""
+    monkeypatch.chdir(tmp_path)
+    support, amplitude, coils = _disc_and_coils()
+    repetition, flip = 0.005, 8.0
+    times = repetition * np.arange(0, 300, 10)
+    rate = 1 / MOBA_T1
+    angle = np.deg2rad(flip)
+    apparent = rate - np.log(np.cos(angle)) / repetition
+    steady = (rate / apparent)[..., None]
+    images = (amplitude * np.sin(angle))[..., None] * (
+        steady - (1 + steady) * np.exp(-times * apparent[..., None])
+    )
+    _moba_kspace(times, images, coils, undersampled=False)
+    flags = [
+        "-P",
+        "-l2",
+        f"--seq=TR={repetition},FA={flip}",
+        "-R3",
+        "-j0.001",
+        "--scale_data=5000",
+        "--scale_psf=1000",
+        "--normalize_scaling",
+        "--other=b1-sobolev-a=44,b1-sobolev-b=10",
+    ]
+    where, plan = route("moba", [*flags, "k", "t", "x", "s"])
+    assert where == "app" and plan["call"].keywords["smooth"] == {"B1": (44.0, 10.0)}
+
+    assert main(["moba", *flags, "k", "t", "app", "app_sens"]) == 0
+    code, _, failure = run_command(["moba", *flags, "k", "t", "cmd", "cmd_sens"])
+    assert code == 0, failure
+
+    ours, theirs = readcfl("app"), readcfl("cmd")
+    assert ours.shape == theirs.shape == (MOBA, MOBA, 1, 1, 1, 1, 3)
+    for index, truth in ((1, rate), (2, np.full_like(rate, flip))):
+        fitted = ours[..., index].squeeze().real
+        command = theirs[..., index].squeeze().real
+        against_command = np.abs(fitted - command)[support] / command[support]
+        against_truth = np.abs(fitted - truth)[support] / truth[support]
+        assert np.median(against_command) < 5e-3 and against_command.max() < 2e-2
+        assert np.median(against_truth) < 1e-2 and against_truth.max() < 3e-2
+
+    def product(maps, sensitivities):
+        return (maps[..., 0].squeeze()[..., None] * sensitivities.squeeze())[support]
+
+    ours_product = product(ours, readcfl("app_sens"))
+    theirs_product = product(theirs, readcfl("cmd_sens"))
+    assert np.linalg.norm(ours_product - theirs_product) < 0.01 * np.linalg.norm(theirs_product)
+
+
+def test_moba_water_and_fat_fits_the_echoes_they_were_made_from(tmp_path, monkeypatch):
+    """``moba -G``: ``(W, F, R2*, fB0)`` with fB0 fitted as a smooth map.  The
+    command itself does not converge on this phantom without the parameter
+    scaling of ``--other pscale`` and the proximal iteration of ``-r``, which
+    the app does not take, so the fit is held to the echoes alone.  The
+    amplitudes are in the units of the coil images the command scales to a norm
+    of a hundred; combined with the coils the k-space was made with, since the
+    smooth estimated coils share each voxel's scale with them.  Measured: R2*
+    4.6e-05 from the truth at most, fB0 6.7e-06 Hz, F / W 1.4e-06, and the
+    combined water 5.7e-03 at the median and 1.6e-02 at most."""
+    monkeypatch.chdir(tmp_path)
+    support, _, coils = _disc_and_coils()
+    x, y = np.meshgrid(np.linspace(-1, 1, MOBA), np.linspace(-1, 1, MOBA), indexing="ij")
+    times = 1.1e-3 * (np.arange(8) + 1)
+    peaks = [(-3.80, 0.086), (-3.40, 0.537), (-2.60, 0.165), (-1.94, 0.046), (-0.39, 0.052)]
+    peaks.append((0.60, 0.114))
+    fat_signal = sum(a * np.exp(2j * np.pi * 42.57747892 * 3.0 * ppm * times) for ppm, a in peaks)
+    water = support * np.where(x < 0, 0.8, 0.5)
+    fat = support * np.where(y < 0, 0.2, 0.5)
+    rate = np.where(x < 0, 30.0, 50.0)
+    frequency = 15.0
+    images = (water[..., None] + fat[..., None] * fat_signal) * np.exp(
+        (2j * np.pi * frequency - rate[..., None]) * times
+    )
+    _moba_kspace(times, images, coils, undersampled=False)
+    where, plan = route("moba", ["-G", "k", "t", "x", "s"])
+    assert where == "app" and plan["call"].keywords["smooth"] == {"B0": (222.0, 32.0)}
+
+    assert main(["moba", "-G", "k", "t", "app", "app_sens"]) == 0
+    ours = readcfl("app")
+    assert ours.shape == (MOBA, MOBA, 1, 1, 1, 1, 4)
+    assert readcfl("app_sens").shape == (MOBA, MOBA, 1, MOBA_COILS)
+
+    fitted_rate = ours[..., 2].squeeze().real
+    assert (np.abs(fitted_rate - rate)[support] / rate[support]).max() < 1e-3
+    assert np.abs(ours[..., 3].squeeze().real - frequency)[support].max() < 0.01
+    fitted_water, fitted_fat = ours[..., 0].squeeze(), ours[..., 1].squeeze()
+    ratio = fitted_fat[support] / fitted_water[support]
+    assert np.abs(ratio - fat[support] / water[support]).max() < 1e-4
+
+    scale = 100 / np.linalg.norm(readcfl("k"))
+    product = fitted_water[..., None] * readcfl("app_sens").squeeze()
+    combined = (coils.conj() * product).sum(-1) / (np.abs(coils) ** 2).sum(-1)
+    error = np.abs(combined / scale - water)[support] / water[support]
+    assert np.median(error) < 0.01 and error.max() < 0.03
+
+
+def test_moba_inversion_recovery_echoes_fit_what_they_were_made_from(tmp_path, monkeypatch):
+    """``moba -D -m 6``: ``(Ms, M0, R1*, R2*, fB0)`` from an echo train after
+    each of several inversion times, the inversion times along ``TE_DIM`` and
+    the echoes along ``CSHIFT_DIM``.  The command does not converge on this
+    phantom without its parameter scaling, so the fit is held to the signal
+    alone.  Measured: R1 4e-04 from the truth at most, R2* 2e-03, fB0 1e-03 Hz,
+    and M0 / Ms 4e-04 from the inversion's 0.9."""
+    monkeypatch.chdir(tmp_path)
+    support, amplitude, coils = _disc_and_coils()
+    x, _ = np.meshgrid(np.linspace(-1, 1, MOBA), np.linspace(-1, 1, MOBA), indexing="ij")
+    inversions = np.array([0.05, 0.2, 0.5, 1.0, 1.8, 3.0])
+    echoes = 1.6e-3 * (np.arange(4) + 1)
+    efficiency, frequency = 0.9, 15.0
+    rate = np.where(x < 0, 30.0, 50.0)
+    recovery = 1 - (1 + efficiency) * np.exp(-inversions / MOBA_T1[..., None])
+    train = np.exp((2j * np.pi * frequency - rate[..., None]) * echoes)
+    images = amplitude[..., None, None] * recovery[..., :, None] * train[..., None, :]
+    coil_images = images[:, :, None] * coils[..., None, None]
+    kspace = np.fft.fftshift(
+        np.fft.fft2(np.fft.ifftshift(coil_images, axes=(0, 1)), axes=(0, 1), norm="ortho"),
+        axes=(0, 1),
+    )
+    shape = (MOBA, MOBA, 1, MOBA_COILS, 1, len(inversions), 1, 1, 1, len(echoes))
+    writecfl("k", kspace.astype(np.complex64).reshape(shape))
+    writecfl("ti", inversions.astype(np.complex64).reshape((1,) * 5 + (-1,)))
+    writecfl("te", echoes.astype(np.complex64).reshape((1,) * 9 + (-1,)))
+    flags = ["-D", "-m", "6", "-l2", "--other=echo=te"]
+    assert route("moba", [*flags, "k", "ti", "x"])[0] == "app"
+
+    assert main(["moba", *flags, "k", "ti", "app"]) == 0
+    ours = readcfl("app")
+    assert ours.shape == (MOBA, MOBA, 1, 1, 1, 1, 5)
+
+    fitted = ours.squeeze().real
+    assert (np.abs(fitted[..., 2] - 1 / MOBA_T1)[support] * MOBA_T1[support]).max() < 5e-3
+    assert (np.abs(fitted[..., 3] - rate)[support] / rate[support]).max() < 1e-2
+    assert np.abs(fitted[..., 4] - frequency)[support].max() < 0.01
+    ratio = (ours[..., 1] / ours[..., 0]).squeeze()[support]
+    assert np.abs(ratio - efficiency).max() < 5e-3
+
+
+@pytest.mark.parametrize(
+    ("flags", "echo"),
+    [(["-D", "-m", "6", "-l2"], None), (["-D", "-m", "1", "-l2"], "te"), (["-D", "-m", "6"], "te")],
+    ids=["no echo times", "-m 1", "default l1"],
+)
+def test_a_moba_inversion_recovery_the_app_cannot_express_goes_to_the_command(
+    flags, echo, tmp_path, monkeypatch
+):
+    """Without echo times the command names what is missing; ``-m`` below six
+    is a gradient-echo model on another layout."""
+    monkeypatch.chdir(tmp_path)
+    writecfl("k", np.ones((MOBA, MOBA, 1, MOBA_COILS, 1, 3, 1, 1, 1, 2), dtype=np.complex64))
+    writecfl("ti", np.ones((1, 1, 1, 1, 1, 3), dtype=np.complex64))
+    writecfl("te", np.ones((1,) * 9 + (2,), dtype=np.complex64))
+    other = [] if echo is None else [f"--other=echo={echo}"]
+    assert route("moba", [*flags, *other, "k", "ti", "x"]) == ("command", None)
+
+
+def _plays_barts_trains() -> bool:
+    import torchsim.simulators
+
+    return hasattr(torchsim.simulators, "FLASHSimulator")
+
+
+bloch_trains = pytest.mark.skipif(
+    not _plays_barts_trains(), reason="this TorchSim does not play BART's sim sequences"
+)
+
+
+def _run(*line: str) -> None:
+    code, _, err = run_command(list(line))
+    assert code == 0, err
+
+
+#: BART's own test-moba-bloch-irflash-psf, with -l2 for the command's default
+#: wavelet term and without the step counts the app does not take.
+_IR_FLASH = [
+    "--bloch",
+    "--sim",
+    "STM",
+    "--seq",
+    "IR-FLASH,TR=0.005,TE=0.003,FA=6,Trf=0.00001,BWTP=4,pinv,ipl=0,ppl=0",
+    "--other",
+    "pscale=1:1:1:1,pinit=3:1:1:0",
+    "-l2",
+    "-R3",
+    "-j0.001",
+    "--scale_data=5000.",
+    "--scale_psf=1000.",
+    "--normalize_scaling",
+]
+
+
+def _nrmse(ours: np.ndarray, reference: np.ndarray) -> float:
+    return float(np.linalg.norm(ours - reference) / np.linalg.norm(reference))
+
+
+@bloch_trains
+def test_moba_bloch_writes_the_commands_maps_on_barts_own_case(tmp_path, monkeypatch):
+    """``moba --bloch`` on BART's IR-FLASH test case: ``(R1, M0, R2, B1)`` from
+    a Look-Locker recovery made with a flip angle of 8 degrees and fitted with
+    6, so B1 is 4 / 3, fitted as a smooth map.  R2 is held at ``pinit``, as the
+    command holds it for IR-FLASH, and written as it.  The data was made with
+    an R2 of 0.01 1/s rather than the 1 held, so both routes stand a little off
+    the truth, and by the same amount.  Measured: R1 and B1 within 2e-03 of the
+    command's, M0 times the coils within 1.3e-03, and R1 and B1 1.8e-02 and
+    1.0e-02 from the truth, against the command's 1.7e-02 and 9.0e-03."""
+    monkeypatch.chdir(tmp_path)
+    _run("phantom", "-x16", "-c", "circ")
+    signal = ["-I", "-F", "-r0.005", "-f8", "-n100", "--short-TR-LL-approx"]
+    _run("signal", *signal, "-1", "1.25:1.25:1", "-2", "100:100:1", "signal")
+    _run("fmac", "circ", "signal", "image")
+    _run("fft", "3", "image", "k")
+    _run("index", "5", "100", "index")
+    _run("scale", "0.005", "index", "ti")
+    where, plan = route("moba", [*_IR_FLASH, "k", "ti", "x"])
+    assert where == "app" and plan["call"].keywords["smooth"] == {"B1": (440.0, 20.0)}
+
+    assert main(["moba", *_IR_FLASH, "k", "ti", "app", "app_sens"]) == 0
+    _run("moba", *_IR_FLASH, "k", "ti", "cmd", "cmd_sens")
+    ours, theirs = readcfl("app"), readcfl("cmd")
+    assert ours.shape == theirs.shape == (16, 16, 1, 1, 1, 1, 4)
+    ours, theirs = ours.squeeze(), theirs.squeeze()
+    circ = readcfl("circ").squeeze().real
+    inside = circ > 0.5
+
+    assert np.all(ours[..., 2] == 1)
+    for index, truth, command, against_truth in ((0, 0.8, 5e-3, 2.5e-2), (3, 4 / 3, 5e-3, 1.5e-2)):
+        fitted = ours[..., index].real * circ
+        assert _nrmse(fitted, theirs[..., index].real * circ) < command
+        assert _nrmse(fitted, truth * circ) < against_truth
+    product = (ours[..., 1, None] * readcfl("app_sens").squeeze())[inside]
+    reference = (theirs[..., 1, None] * readcfl("cmd_sens").squeeze())[inside]
+    assert _nrmse(product, reference) < 5e-3
+
+
+@bloch_trains
+@pytest.mark.parametrize(
+    "other",
+    [
+        "pscale=0:1:1:1",
+        "pscale=1:0:1:1",
+        "b0map=field",
+        "b1map=field",
+        "pinit=3:1:1:0.1,b1-sobolev-a=0",
+    ],
+    ids=["R1 held", "M0 held", "a B0 map", "a B1 map beside a fitted B1", "B1 start as k-space"],
+)
+def test_a_moba_bloch_the_app_cannot_express_goes_to_the_command(other, tmp_path, monkeypatch):
+    """A held R1 or M0; an off-resonance map, which turns the sample off the
+    axis the amplitude is read along; a B1 map beside a fitted B1; and a B1
+    start without its Sobolev weighting, which the command takes as k-space."""
+    monkeypatch.chdir(tmp_path)
+    writecfl("k", np.ones((MOBA, MOBA, 1, MOBA_COILS, 1, 10), dtype=np.complex64))
+    writecfl("ti", np.ones((1, 1, 1, 1, 1, 10), dtype=np.complex64))
+    writecfl("field", np.ones((MOBA, MOBA), dtype=np.complex64))
+    flags = [*_IR_FLASH[:5], "--other", other, "-l2"]
+    assert route("moba", [*flags, "k", "ti", "x"]) == ("command", None)
+
+
+@bloch_trains
+@pytest.mark.parametrize(
+    "seq",
+    [
+        "IR-FLASH,TR=0.005,TE=0.003,FA=6,Trf=0.00001,Nspins=10",
+        "IR-FLASH,TR=0.005,TE=0.003,FA=6,Trf=0.00001,av-spokes=2",
+        "IR-FLASH,TR=0.005,TE=0.003,FA=6,Trf=0.00001,slice-thickness=0.002",
+        "IR-FLASH,TR=0.005,TE=0.00001,FA=6,Trf=0.001",
+        "IR-BSSFP,TR=0.0045,TE=0.00225,FA=45,Trf=0.00001,pinv,ipl=0,ppl=0.00225",
+        "BSSFP,TR=0.0045,TE=0.00225,FA=45,Trf=0.00001",
+        "TR=0.0045,TE=0.00225,FA=45,Trf=0.00001",
+    ],
+    ids=[
+        "spins",
+        "averaged spokes",
+        "slice profile",
+        "TE inside the pulse",
+        "IR-bSSFP",
+        "bSSFP",
+        "the command's default train",
+    ],
+)
+def test_a_moba_bloch_train_the_app_does_not_play_goes_to_the_command(seq, tmp_path, monkeypatch):
+    """A slice profile, spins or spokes averaged, and a balanced SSFP train,
+    which is the command's default: on BART's own IR-bSSFP case the app's T1
+    and T2 have not settled after twenty steps from the command's start."""
+    monkeypatch.chdir(tmp_path)
+    writecfl("k", np.ones((MOBA, MOBA, 1, MOBA_COILS, 1, 10), dtype=np.complex64))
+    writecfl("ti", np.ones((1, 1, 1, 1, 1, 10), dtype=np.complex64))
+    flags = ["--bloch", "--seq", seq, "--other", "pinit=3:1:1:0", "-l2"]
+    assert route("moba", [*flags, "k", "ti", "x"]) == ("command", None)
+
+
+@bloch_trains
+def test_a_moba_bloch_b1_map_rides_along_a_held_b1(tmp_path, monkeypatch):
+    """``b1map`` is what the command's B1 multiplies, held where ``pscale`` holds
+    it; the map written is the held offset alone, ``1 + pinit[3]``."""
+    monkeypatch.chdir(tmp_path)
+    writecfl("k", np.ones((MOBA, MOBA, 1, MOBA_COILS, 1, 10), dtype=np.complex64))
+    writecfl("ti", np.ones((1, 1, 1, 1, 1, 10), dtype=np.complex64))
+    writecfl("field", np.full((MOBA, MOBA), 0.8, dtype=np.complex64))
+    flags = [*_IR_FLASH[:5], "--other", "pscale=1:1:1:0,pinit=3:1:1:0,b1map=field", "-l2"]
+    where, plan = route("moba", [*flags, "k", "ti", "x"])
+    assert where == "app" and "smooth" not in plan["call"].keywords
+
+
 @pytest.mark.parametrize(
     "flags",
-    [["-T"], ["-T", "-l1"], ["-T", "-l2", "-i", "8"], ["-T", "-l2", "-C", "50"], ["-G", "-l2"]],
-    ids=["default l1", "-l1", "-i", "-C", "-G"],
+    [
+        ["-T"],
+        ["-T", "-l1"],
+        ["-T", "-l2", "-i", "8"],
+        ["-T", "-l2", "-C", "50"],
+        ["-G", "-m", "2"],
+        ["-G", "-r", "2"],
+    ],
+    ids=["default l1", "-l1", "-i", "-C", "-G separate decays", "-G -r"],
 )
 def test_a_moba_the_app_cannot_express_goes_to_the_command(flags, tmp_path, monkeypatch):
     """The wavelet term on the maps, BART's step counts over its own
-    coefficients and its inner iteration, and the gradient-echo models."""
+    coefficients and its inner iteration, the separate water and fat decays,
+    and the proximal iteration ``-r`` puts around the gradient-echo fit."""
     monkeypatch.chdir(tmp_path)
     support, amplitude, coils = _disc_and_coils()
     images = amplitude[..., None] * np.exp(-ECHO_TIMES[:6] / MOBA_T2[..., None])

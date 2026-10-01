@@ -147,6 +147,40 @@ def test_naming_an_axis_twice_is_refused():
         linop.Gradient((4, 5), axes=(0, 0))
 
 
+# --- Sobolev -----------------------------------------------------------------
+
+
+def _weighted_inverse(z, axes, a, b, c=1.0):
+    """``c (1 + a |k|^2)^(-b/2)`` over the centred frequencies, then the centred inverse FFT."""
+    k2 = torch.zeros(z.shape)
+    for axis in axes:
+        n = z.shape[axis]
+        k = (torch.arange(n) - n // 2) / n
+        k2 = k2 + k.reshape([-1 if i == axis else 1 for i in range(z.ndim)]) ** 2
+    weighted = c * (1 + a * k2) ** (-b / 2) * z
+    shifted = torch.fft.ifftshift(weighted, dim=axes)
+    return torch.fft.fftshift(torch.fft.ifftn(shifted, dim=axes, norm="ortho"), dim=axes)
+
+
+@pytest.mark.parametrize(
+    ("shape", "axes"), [((16, 16), (0, 1)), ((15, 12), (0, 1)), ((3, 8, 10), (1, 2))]
+)
+def test_the_sobolev_weighting_is_the_weighted_centred_inverse_transform(shape, axes):
+    z = _rand(*shape)
+    got = linop.Sobolev(shape, axes, 440.0, 20.0, c=2.0)(z)
+    torch.testing.assert_close(
+        got, _weighted_inverse(z, axes, 440.0, 20.0, 2.0), rtol=1e-4, atol=1e-5
+    )
+
+
+def test_the_sobolev_adjoint_of_a_constant_map_is_its_own_coefficients():
+    """With unit weight at the centre a constant passes through both ways, which
+    is how a smooth map is started from a value."""
+    W = linop.Real((12, 10)) @ linop.Sobolev((12, 10), (0, 1), 222.0, 32.0)
+    constant = torch.full((12, 10), 0.7, dtype=torch.complex64)
+    torch.testing.assert_close(W(W.H(constant)), constant, rtol=1e-5, atol=1e-6)
+
+
 # --- ComponentDiagonal -------------------------------------------------------
 
 
@@ -195,6 +229,7 @@ def _complex_linear():
         linop.Convolve(_rand(3), (8,), axes=0, mode="full"),
         linop.Gradient((4, 5), axes=0),
         linop.Gradient((4, 5), axes=(0, 1)),
+        linop.Sobolev((6, 7), (0, 1), 100.0, 8.0),
     ]
 
 

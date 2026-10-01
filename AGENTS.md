@@ -952,6 +952,25 @@ Measured on the test phantoms, `mobafit` agrees with the command to 1e-05 of
 each coefficient's peak and `moba -T -l2` to 5e-03 in R2, and both with the
 rates the data was made from.  `cli.route` is what says which route ran.
 
+`moba`'s `-P`, `-G`, `-D` and `--bloch` each carry a map the command keeps
+smooth -- B1 for `-P` and `--bloch`, B0 for `-G` and `-D` -- and the app keeps
+it smooth the same way: the map is the Sobolev weighting of a variable,
+`linop.Sobolev` over `linop_noir_weights_create` with the command's own `a`
+and `b`, passed as `apps.moba(smooth=...)`.  `-P` is the Look-Locker model in
+the flip angle, `-G` TorchSim's water and fat multi-echo model over the coil
+images the command scales to a norm of a hundred, `moba -D` an echo train
+after each inversion time -- the inversions along `TE_DIM`, the echoes along
+`CSHIFT_DIM` -- as TorchSim's inversion-recovery multi-gradient-echo model,
+and `--bloch` TorchSim's FLASH simulator, after an inversion or not, in
+`(R1, M0, R2, B1)`.  `-P` agrees with the command to 4.4e-03 in the flip angle
+and `--bloch` to 2e-03 in R1 and B1 on BART's own IR-FLASH test case; `-G` and
+`-D` are held to the rates the data was made from, R2* to 1e-03 and B0 to
+0.01 Hz, because the command does not converge on those phantoms without its
+parameter scaling.  With the coils estimated, only an amplitude times the coils
+is determined, and the two routes split it differently by a smooth factor the
+coils absorb; so a test holds the product, or the amplitude combined with the
+coils the data was made with.
+
 What a route cannot express exactly goes to BART: an argument the reader does
 not express sends the whole command line there rather than being ignored,
 because the command declared it.  That includes `-i`, which counts
@@ -960,8 +979,11 @@ short; `moba`'s `-C`, which counts FISTA iterations rather than conjugate
 gradients; `moba`'s default `-l1`, a wavelet term on the maps the app does not
 carry; `mobafit`'s separate water and fat decays (`-m 2`), whose two rates the
 bounded fit does not separate, its phase and simulation models, and `-M`
-without a start; `moba`'s gradient-echo and simulation models; and anything
-off a grid.
+without a start; `moba -G -m 2` and `-G -r`, and `moba -D` below `-m 6`, which
+is a gradient-echo model on another layout; a `--bloch` balanced SSFP train,
+whose T1 and T2 overshoot from the command's start on BART's own IR-bSSFP test
+case and have not settled after twenty steps, and a `--bloch` B0 map, slice
+profile, spin or spoke average, or held R1 or M0; and anything off a grid.
 
 An input file that is not there is the one thing the command line names itself.
 An app reads its inputs in Python, where a missing one is an exception rather
