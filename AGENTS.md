@@ -1010,9 +1010,10 @@ model -- a forward it can differentiate, with bounds and a starting state --
 which is what `nlop`'s `SignalModel` is over a TorchSim simulator.  The
 commands stay reachable through `_call.build` so a test can pin TorchSim's
 physics against BART's: its closed forms in `tests/test_signal_models.py` and
-`tests/test_nlop_torchsim.py`, and its Bloch simulation -- FLASH, balanced
+`tests/test_nlop_torchsim.py`, its Bloch simulation -- FLASH, balanced
 SSFP, each after an inversion, and CEST, over up to five pools -- in
-`tests/test_sim_torchsim.py`.
+`tests/test_sim_torchsim.py`, and its extended phase graphs -- every sequence
+`epg` plays, with the derivatives it returns -- in `tests/test_epg_torchsim.py`.
 
 `optim.POCS` is the other iteration that is not a least-squares solve: one
 sweep of a list of projections, applied in turn and in place, which is the
