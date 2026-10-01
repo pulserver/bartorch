@@ -201,6 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -724,7 +725,7 @@ and are scored against its reference.</p>
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">SSIM </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">ssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>             supervised   PSNR 30.20 dB   SSIM 0.945
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>             supervised   PSNR 30.16 dB   SSIM 0.950
         self-supervised   PSNR 28.59 dB   SSIM 0.726
 CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 </pre></div>
@@ -743,7 +744,7 @@ acquired are the ones it cannot score against.</p>
 <ul class="sphx-glr-horizontal">
 <li><img src="../../_images/sphx_glr_05-self-supervised-training_002.png" srcset="../../_images/sphx_glr_05-self-supervised-training_002.png" alt="reference, CG-SENSE, supervised, self-supervised" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_05-self-supervised-training_003.png" srcset="../../_images/sphx_glr_05-self-supervised-training_003.png" alt="reference, enlarged, CG-SENSE, enlarged, supervised, enlarged, self-supervised, enlarged" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_05-self-supervised-training_004.png" srcset="../../_images/sphx_glr_05-self-supervised-training_004.png" alt="CG-SENSE NRMSE 0.124, supervised NRMSE 0.063, self-supervised NRMSE 0.076" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_05-self-supervised-training_004.png" srcset="../../_images/sphx_glr_05-self-supervised-training_004.png" alt="CG-SENSE NRMSE 0.124, supervised NRMSE 0.064, self-supervised NRMSE 0.076" class = "sphx-glr-multi-img"/></li>
 </ul>
 </section>
 <section id="references">
@@ -764,7 +765,7 @@ networks in highly accelerated magnetic resonance imaging. <em>NMR Biomed</em>
 35(12):e4798 (2022). <a class="reference external" href="https://doi.org/10.1002/nbm.4798">https://doi.org/10.1002/nbm.4798</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 13.573 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 3.942 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-05-self-supervised-training-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/1963a7acb99a6101aa402348958782b3/05-self-supervised-training.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">05-self-supervised-training.ipynb</span></code></a></p>

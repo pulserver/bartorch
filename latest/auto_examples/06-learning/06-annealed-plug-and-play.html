@@ -201,6 +201,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
@@ -684,8 +685,8 @@ coil sensitivities, sampling pattern or k-space enter the training.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-sigma 0.01: noisy 41.46 dB, denoised 41.45 dB
-sigma 0.05: noisy 27.17 dB, denoised 27.17 dB
+sigma 0.01: noisy 41.46 dB, denoised 41.13 dB
+sigma 0.05: noisy 27.17 dB, denoised 27.16 dB
 sigma 0.10: noisy 21.06 dB, denoised 21.06 dB
 </pre></div>
 </div>
@@ -729,9 +730,9 @@ same <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
 </span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">images</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;24</span><span class="si">}</span><span class="s2">   PSNR </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" alt="06 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 27.02 dB
+<img src="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_06-annealed-plug-and-play_001.png" alt="06 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 27.01 dB
             fixed, 0.03   PSNR 27.14 dB
-            fixed, 0.01   PSNR 27.50 dB
+            fixed, 0.01   PSNR 27.48 dB
 CG SENSE, 20 iterations   PSNR 24.21 dB
 </pre></div>
 </div>
@@ -788,7 +789,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 22.277 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 38.922 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-06-annealed-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/f85ca2cb046983232a70360ddf416bbb/06-annealed-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">06-annealed-plug-and-play.ipynb</span></code></a></p>
