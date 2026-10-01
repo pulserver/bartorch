@@ -34,6 +34,7 @@
 
 #include "noir/model2.h"
 #include "noir/model_net.h"
+#include "noir/utils.h"
 
 #include "nlops/cast.h"
 #include "nlops/chain.h"
@@ -824,6 +825,24 @@ bartorch_linop* bartorch_linop_zreal(int N, const int64_t* dims)
 {
 	struct linop_flagged_args a = { N, dims, 0, NULL, NULL };
 	return (0 == guarded(linop_zreal_worker, &a)) ? a.result : NULL;
+}
+
+struct linop_sobolev_args { int N; const bart_dim_t* dims; bart_flags_t flags; double a; double b; double c; bartorch_linop* result; };
+
+static int linop_sobolev_worker(void* p)
+{
+	struct linop_sobolev_args* a = p;
+	a->result = wrap_linop(linop_noir_weights_create(a->N, a->dims, a->dims, NULL, a->flags, 1., a->a, a->b, a->c));
+	return 0;
+}
+
+/* noir's weighting of a map held as its k-space: c (1 + a |k|^2)^(-b/2), with k
+ * in cycles per field of view over the grid, and the centred inverse transform
+ * onto the grid. */
+bartorch_linop* bartorch_linop_sobolev(int N, const int64_t* dims, uint64_t flags, double a, double b, double c)
+{
+	struct linop_sobolev_args args = { N, dims, flags, a, b, c, NULL };
+	return (0 == guarded(linop_sobolev_worker, &args)) ? args.result : NULL;
 }
 
 static int linop_sum_worker(void* p)

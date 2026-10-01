@@ -14,7 +14,7 @@ from bartorch._lib import DIMS, library
 from bartorch._operator import Built, Shape, as_operand, axes_flags, dims
 from bartorch.linop._base import LinearOperator
 
-__all__ = ["Convolve", "Gradient", "Matrix"]
+__all__ = ["Convolve", "Gradient", "Matrix", "Sobolev"]
 
 #: numpy's names for what BART calls CONV_CYCLIC, TRUNCATED, VALID and EXTENDED.
 _CONV_TYPE = {"wrap": 0, "same": 1, "valid": 2, "full": 3}
@@ -223,3 +223,53 @@ def Gradient(shape: Shape, axes) -> LinearOperator:  # noqa: N802  (it is a cons
     if len(chosen) > 1:
         out = Flip(oshape, axes=0) @ out
     return out
+
+
+class Sobolev(LinearOperator):
+    """A smooth image from weighted k-space coefficients, BART's ``linop_noir_weights``.
+
+    The coefficients are multiplied by ``c (1 + a |k|^2)^(-b/2)`` and taken
+    onto the grid by the centred unitary inverse FFT along ``axes``, where
+    ``k_i`` is the frequency index along axis ``i``, from ``-n_i // 2``,
+    divided by ``n_i``.  Solving for the coefficients rather than the image
+    weights the penalty on each frequency by the inverse square of its weight:
+    the Sobolev norm NLINV puts on coil sensitivities and ``moba`` on B1 and B0
+    maps.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        The grid, C order.  The coefficients have the same shape.
+    axes : int or tuple of int
+        The axes weighted and transformed.
+    a, b : float
+        Width and order of the weighting.
+    c : float, default=1.0
+        The weight at the centre of k-space.
+
+    Examples
+    --------
+    A map on a 64x64 grid under ``moba``'s B1 weighting, started from a
+    constant:
+
+    >>> W = Real((64, 64)) @ Sobolev((64, 64), (0, 1), 440.0, 20.0)
+    >>> coefficients = W.H(torch.ones(64, 64, dtype=torch.complex64))
+    """
+
+    def __init__(self, shape: Shape, axes, a: float, b: float, c: float = 1.0):
+        self._shape = tuple(shape)
+        self.axes = axes
+        self.a, self.b, self.c = float(a), float(b), float(c)
+        super().__init__()
+
+    def _create(self) -> Built:
+        ptr = self._under_lock(
+            library().bartorch_linop_sobolev,
+            DIMS,
+            dims(self._shape),
+            axes_flags(self.axes, len(self._shape)),
+            self.a,
+            self.b,
+            self.c,
+        )
+        return Built(ptr, self._shape, self._shape)
