@@ -170,7 +170,14 @@ def _toctree(page: Path) -> list[str]:
 def test_the_user_guide_holds_installation_and_support_pages_only():
     """Concepts and conventions are explanation pages, not user-guide pages."""
     user = DOCS / "guides" / "user"
-    pages = ["prerequisites", "installation", "issues", "discussions", "security"]
+    pages = [
+        "prerequisites",
+        "installation",
+        "from-bart-sigpy",
+        "issues",
+        "discussions",
+        "security",
+    ]
     assert _toctree(user / "index.md") == pages
     assert sorted(p.stem for p in user.glob("*.md")) == sorted([*pages, "index"])
 

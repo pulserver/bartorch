@@ -12,6 +12,7 @@ array layout, trajectory units and Fourier-transform conventions are stated in
 | --- | --- |
 | {doc}`prerequisites` | Python and PyTorch requirements, supported platforms, and the optional extras |
 | {doc}`installation` | Installing PyTorch and bartorch, extras, source builds, CUDA and the command line |
+| {doc}`from-bart-sigpy` | BART commands and sigpy calls, and their equivalents here |
 | {doc}`issues` | What a bug report or a numerical discrepancy report contains |
 | {doc}`discussions` | Where questions and proposals go |
 | {doc}`security` | Reporting a vulnerability privately |
@@ -21,6 +22,7 @@ array layout, trajectory units and Fourier-transform conventions are stated in
 
 prerequisites
 installation
+from-bart-sigpy
 issues
 discussions
 security
