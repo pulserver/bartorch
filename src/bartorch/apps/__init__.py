@@ -15,7 +15,8 @@ from __future__ import annotations
 
 from bartorch.apps._moba import moba
 from bartorch.apps._mobafit import mobafit
+from bartorch.apps._nlinv_pics import nlinv_pics
 from bartorch.apps._pics import pics
 from bartorch.apps._pocsense import pocsense
 
-__all__ = ["moba", "mobafit", "pics", "pocsense"]
+__all__ = ["moba", "mobafit", "nlinv_pics", "pics", "pocsense"]
