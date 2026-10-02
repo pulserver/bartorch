@@ -760,7 +760,7 @@ def test_nlinv_pics_returns_the_object_along_a_trajectory():
 
 @pytest.mark.parametrize("first, last", [(0, 15), (0, 23), (8, 31), (16, 31)])
 def test_partial_fourier_is_the_side_sampled_beyond_the_widest_gap(first, last):
-    from bartorch.apps._nlinv_pics import _partial_fourier
+    from bartorch.apps._partial_fourier import _partial_fourier
 
     sampled = np.zeros((32, 4), dtype=bool)
     sampled[first : last + 1] = True
@@ -774,7 +774,7 @@ def test_partial_fourier_is_the_side_sampled_beyond_the_widest_gap(first, last):
 
 
 def test_undersampling_alone_is_not_partial_fourier():
-    from bartorch.apps._nlinv_pics import _partial_fourier
+    from bartorch.apps._partial_fourier import _partial_fourier
 
     sampled = np.zeros((32, 4), dtype=bool)
     sampled[::3] = True
@@ -814,3 +814,173 @@ def test_nlinv_pics_takes_one_coil_along_a_trajectory():
     )
     measured = bt.noise(encoding(truth), n=1e-6, s=7).reshape(1, size, size)
     assert _relative_error(apps.nlinv_pics(measured, traj=traj), truth) < 0.4
+
+
+# --- the apps nlinv_pics is composed of ------------------------------------
+#
+# `nlinv_pics` is `nlinv_maps`, `pics` and `partial_fourier` in sequence.
+# `nlinv_maps` and `partial_fourier` are pinned against what they are defined
+# to give -- a unit root sum of squares, the object a real-valued image was
+# made from -- and `nlinv_pics` against the three written out, with every
+# argument that it forwards set away from its default.
+
+
+def _acquired(kspace: torch.Tensor, keep: slice) -> torch.Tensor:
+    """``kspace`` with only the lines ``keep`` of its first encoded axis acquired."""
+    partial = torch.zeros_like(kspace)
+    partial[:, keep] = kspace[:, keep]
+    return partial
+
+
+@pytest.mark.parametrize("keep", [slice(0, 18), slice(6, SIZE)], ids=["low", "high"])
+def test_nlinv_pics_is_nlinv_maps_then_pics_then_partial_fourier(keep):
+    sens, truth = _cartesian_object()
+    partial = _acquired(bartorch.fft(sens * truth, (-1, -2)), keep)
+    sampled = partial.abs().sum(dim=0) > 0
+
+    maps = apps.nlinv_maps(partial, size=16)
+    image = apps.pics(
+        partial[:, None], maps[:, None], regularizers=priors.Wavelet((-1, -2), 0.01), maxiter=10
+    )
+    composed = apps.partial_fourier(image.reshape(SIZE, SIZE), sampled)
+
+    ours = apps.nlinv_pics(partial, wavelet=0.01, iterations=10, size=16)
+    assert torch.equal(ours, composed)
+
+
+def test_nlinv_pics_is_nlinv_maps_then_pics_then_partial_fourier_for_a_volume():
+    partial = _acquired(bt.phantom((12, 12, 12), coils=COILS, kspace=True), slice(4, 12))
+    sampled = partial.abs().sum(dim=0) > 0
+
+    maps = apps.nlinv_maps(partial, size=8)
+    image = apps.pics(partial, maps, regularizers=priors.Wavelet((-1, -2, -3), 0.01), maxiter=10)
+    composed = apps.partial_fourier(image.reshape(sampled.shape), sampled)
+
+    ours = apps.nlinv_pics(partial, wavelet=0.01, iterations=10, size=8)
+    assert torch.equal(ours, composed)
+
+
+def test_nlinv_pics_is_nlinv_maps_then_pics_along_a_trajectory():
+    """To round-off rather than the bits, as for ``pics`` itself: a second call
+    of the same function differs by thread order and, under ``eigen_step``, by
+    the start of BART's power iteration.  The tolerance is 1e-4 of the peak,
+    below the 4e-3 by which a ``radius`` that is not forwarded changes the
+    image."""
+    traj, _, measured = _radial()
+
+    maps = apps.nlinv_maps(measured, traj, radius=8.0)
+    composed = apps.pics(
+        measured,
+        maps,
+        traj=traj,
+        regularizers=priors.Wavelet((-1, -2), 0.01),
+        maxiter=10,
+        eigen_step=True,
+    ).reshape(maps.shape[-2:])
+
+    ours = apps.nlinv_pics(measured, traj=traj, wavelet=0.01, iterations=10, radius=8.0)
+    assert float((ours - composed).abs().max()) < 1e-4 * float(composed.abs().max())
+
+
+# --- nlinv_maps ------------------------------------------------------------
+
+#: What ``nlinv_maps`` takes, with the shape of the maps it gives for each.
+_MAPS_INPUTS = [
+    ("slice", (COILS, SIZE, SIZE)),
+    ("volume", (COILS, 12, 12, 12)),
+    ("trajectory", (COILS, 32, 32)),
+]
+
+
+def _coil_data(kind: str) -> tuple[torch.Tensor, torch.Tensor | None]:
+    """k-space of ``COILS`` coils in one of the forms ``nlinv_maps`` takes, and its trajectory."""
+    if kind == "volume":
+        return bt.phantom((12, 12, 12), coils=COILS, kspace=True), None
+    if kind == "trajectory":
+        traj, _, measured = _radial()
+        return measured, traj
+    sens, truth = _cartesian_object()
+    return bartorch.fft(sens * truth, (-1, -2)), None
+
+
+@pytest.mark.parametrize(("kind", "shape"), _MAPS_INPUTS)
+def test_nlinv_maps_have_unit_root_sum_of_squares_over_the_coils(kind, shape):
+    kspace, traj = _coil_data(kind)
+    maps = apps.nlinv_maps(kspace, traj)
+    assert maps.shape == shape
+    rss = maps.abs().square().sum(dim=0).sqrt()
+    assert torch.allclose(rss, torch.ones_like(rss), atol=1e-5)
+
+
+@pytest.mark.parametrize(("kind", "shape"), _MAPS_INPUTS)
+def test_nlinv_maps_of_one_coil_are_ones(kind, shape):
+    kspace, traj = _coil_data(kind)
+    maps = apps.nlinv_maps(kspace[:1], traj)
+    assert maps.shape == (1, *shape[1:])
+    assert torch.equal(maps, torch.ones_like(maps))
+
+
+# --- partial_fourier -------------------------------------------------------
+
+
+def _smooth_object(size: int = SIZE) -> torch.Tensor:
+    """A real-valued, positive image: three Gaussians a few voxels wide, clear of the edges."""
+    axis = torch.arange(size, dtype=torch.float32)
+    y, x = torch.meshgrid(axis, axis, indexing="ij")
+    image = torch.zeros(size, size)
+    for centre_y, centre_x, amplitude, width in (
+        (0.50, 0.50, 1.0, 2.0),
+        (0.35, 0.62, 0.7, 1.4),
+        (0.66, 0.38, 0.5, 1.2),
+    ):
+        distance = (y - centre_y * size) ** 2 + (x - centre_x * size) ** 2
+        image += amplitude * torch.exp(-distance / (2 * width**2))
+    return image.to(torch.complex64)
+
+
+def _distance(image: torch.Tensor, truth: torch.Tensor) -> float:
+    return float((image - truth).norm() / truth.norm())
+
+
+@pytest.mark.parametrize("axis", [0, 1])
+@pytest.mark.parametrize("keep", [slice(0, 14), slice(10, SIZE)], ids=["low", "high"])
+def test_partial_fourier_recovers_a_real_object_from_one_side_of_k_space(axis, keep):
+    """The k-space of a real-valued object is Hermitian, so 14 of 24 lines taken
+    from either end determine the rest.  The completed image is within 1e-2 of
+    the object in relative L2 norm; the zero-filled image is outside 0.1, so
+    the tolerance separates the two."""
+    truth = _smooth_object()
+    sampled = torch.zeros(SIZE, SIZE, dtype=torch.bool)
+    sampled[(slice(None),) * axis + (keep,)] = True
+    kspace = bartorch.fft(truth, (-1, -2), unitary=True) * sampled
+    zero_filled = bartorch.fft(kspace, (-1, -2), inverse=True, unitary=True)
+
+    completed = apps.partial_fourier(zero_filled, sampled)
+
+    assert completed.shape == truth.shape
+    assert _distance(completed, truth) < 1e-2
+    assert _distance(zero_filled, truth) > 0.1
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        (slice(None), slice(None)),
+        (slice(None, None, 3), slice(None)),
+        (slice(None, None, 3), slice(None, None, 2)),
+    ],
+    ids=["fully sampled", "every third line", "both axes undersampled"],
+)
+def test_partial_fourier_leaves_an_image_with_no_one_sided_axis_unchanged(lines):
+    image = torch.randn(
+        SIZE, SIZE, dtype=torch.complex64, generator=torch.Generator().manual_seed(0)
+    )
+    sampled = torch.zeros(SIZE, SIZE, dtype=torch.bool)
+    sampled[lines] = True
+    assert torch.equal(apps.partial_fourier(image, sampled), image)
+
+
+def test_partial_fourier_refuses_a_mask_of_another_shape():
+    image = torch.zeros(SIZE, SIZE, dtype=torch.complex64)
+    with pytest.raises(ValueError, match="sampled has shape"):
+        apps.partial_fourier(image, torch.ones(SIZE, dtype=torch.bool))
