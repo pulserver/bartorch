@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.tools.whiten';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -533,26 +535,49 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.tools.whiten">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">whiten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.whiten" title="Link to this definition">#</a></dt>
-<dd><p>Apply multi-channel noise pre-whitening on &lt;input&gt; using noise data &lt;ndata&gt;. Optionally output whitening matrix and noise covariance matrix</p>
-<p>Runs <code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">whiten</span></code>.</p>
+<dd><p>Noise prewhitening of multi-channel data with a noise-only measurement.</p>
+<p>Multiplies the channels of <code class="docutils literal notranslate"><span class="pre">input</span></code> by <span class="math notranslate nohighlight">\(W = L^{-1}\)</span>, where <span class="math notranslate nohighlight">\(L\)</span>
+is the lower triangular Cholesky factor of the channel noise covariance
+<span class="math notranslate nohighlight">\(\Psi = L L^H\)</span> estimated from <code class="docutils literal notranslate"><span class="pre">ndata</span></code>, so that
+<span class="math notranslate nohighlight">\(W \Psi W^H = I\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Input array.</p></li>
-<li><p><strong>ndata</strong> (<em>torch.Tensor</em>) – Input array.</p></li>
-<li><p><strong>o</strong> (<em>torch.Tensor</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – use external whitening matrix &lt;optmat_in&gt;  (<code class="docutils literal notranslate"><span class="pre">-o</span></code>)</p></li>
-<li><p><strong>c</strong> (<em>torch.Tensor</em><em> | </em><em>None</em><em>, </em><em>default=None</em>) – use external noise covariance matrix &lt;covar_in&gt;  (<code class="docutils literal notranslate"><span class="pre">-c</span></code>)</p></li>
-<li><p><strong>n</strong> (<em>bool</em><em>, </em><em>default=False</em>) – normalize variance to 1 using noise data &lt;ndata&gt;  (<code class="docutils literal notranslate"><span class="pre">-n</span></code>)</p></li>
-<li><p><strong>**extra</strong> (<em>Any</em>) – Further BART flags, passed through by name.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Data to whiten, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>: the channels are axis <code class="docutils literal notranslate"><span class="pre">-4</span></code>, and
+one slice has a <code class="docutils literal notranslate"><span class="pre">z</span></code> axis of length one.</p></li>
+<li><p><strong>ndata</strong> (<em>torch.Tensor</em>) – Noise-only measurement of the same channels in the same layout.  Every
+axis but the channel axis indexes noise samples.</p></li>
+<li><p><strong>return_matrix</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the whitening matrix <span class="math notranslate nohighlight">\(W\)</span>, BART’s optional second
+output.</p></li>
+<li><p><strong>return_covariance</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the noise covariance, BART’s optional third output.</p></li>
+<li><p><strong>**extra</strong> – Further BART <code class="docutils literal notranslate"><span class="pre">whiten</span></code> options, by name.  <code class="docutils literal notranslate"><span class="pre">o</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span></code> take a
+whitening matrix and a noise covariance in the layout returned here, to
+use in place of the ones estimated from <code class="docutils literal notranslate"><span class="pre">ndata</span></code>; <code class="docutils literal notranslate"><span class="pre">n</span></code> normalizes the
+variance to one using <code class="docutils literal notranslate"><span class="pre">ndata</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>output</p>
+<dd class="field-even"><p>The whitened data, in the shape of <code class="docutils literal notranslate"><span class="pre">input</span></code>; then, when asked for, the
+whitening matrix and the noise covariance, in that order, each
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">coils,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1)</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
+<dd class="field-odd"><p>torch.Tensor or tuple of torch.Tensor</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>The covariance is <span class="math notranslate nohighlight">\(\Psi = (K - 1)^{-1} \sum_k n_k n_k^H\)</span> over the
+<span class="math notranslate nohighlight">\(K\)</span> samples of <code class="docutils literal notranslate"><span class="pre">ndata</span></code>, <span class="math notranslate nohighlight">\(n_k\)</span> being the channel vector of the
+<span class="math notranslate nohighlight">\(k\)</span>-th, with no mean removed, so that <code class="docutils literal notranslate"><span class="pre">ndata</span></code> is taken to be
+zero-mean.  The returned matrix is <span class="math notranslate nohighlight">\(W\)</span>, acting on the channel vector
+from the left, and the returned covariance is the transpose
+<span class="math notranslate nohighlight">\(\Psi^T = \overline{\Psi}\)</span>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">white</span> <span class="o">=</span> <span class="n">whiten</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">white</span><span class="p">,</span> <span class="n">matrix</span> <span class="o">=</span> <span class="n">whiten</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">noise</span><span class="p">,</span> <span class="n">return_matrix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">other</span> <span class="o">=</span> <span class="n">whiten</span><span class="p">(</span><span class="n">more_data</span><span class="p">,</span> <span class="n">noise</span><span class="p">,</span> <span class="n">o</span><span class="o">=</span><span class="n">matrix</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <section id="examples-using-whiten">

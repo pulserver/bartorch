@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**01:45.740** total execution time for 3 files **from auto_examples/05-model-based**:
+**01:13.478** total execution time for 3 files **from auto_examples/05-model-based**:
 
 .. container::
 
@@ -33,11 +33,11 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_05-model-based_03-maps-from-scanner-images.py` (``03-maps-from-scanner-images.py``)
-     - 00:51.041
+     - 00:37.694
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05-model-based_02-quantitative-models.py` (``02-quantitative-models.py``)
-     - 00:38.438
+     - 00:24.581
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05-model-based_01-subspace-t1-mapping.py` (``01-subspace-t1-mapping.py``)
-     - 00:16.260
+     - 00:11.203
      - 0.0

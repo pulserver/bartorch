@@ -290,7 +290,7 @@ over voxels and subjects drawn alike, not voxel by voxel.
 
  .. code-block:: none
 
-             dropout: factor   8.58, coverage 0.906 (asked 0.9), correlation of error and spread 0.26
+             dropout: factor   8.57, coverage 0.906 (asked 0.9), correlation of error and spread 0.26
      k-space subsets: factor   3.82, coverage 0.897 (asked 0.9), correlation of error and spread 0.23
 
 
@@ -347,7 +347,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 40.579 seconds)
+   **Total running time of the script:** (1 minutes 11.981 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_07-uncertainty.py:
