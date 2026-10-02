@@ -779,3 +779,38 @@ def test_undersampling_alone_is_not_partial_fourier():
     sampled = np.zeros((32, 4), dtype=bool)
     sampled[::3] = True
     assert _partial_fourier(sampled, axis=0) == (1.0, False)
+
+
+def _cartesian_object():
+    sens = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+    sens = sens / bartorch.rss(sens, axes=(0,), keepdim=True)
+    truth = torch.as_tensor(bt.phantom(SIZE)).to(torch.complex64)
+    return sens, truth
+
+
+@pytest.mark.parametrize("keep", [slice(0, 18), slice(6, SIZE)])
+def test_nlinv_pics_completes_the_side_of_k_space_that_was_not_acquired(keep):
+    sens, truth = _cartesian_object()
+    kspace = bartorch.fft(sens * truth, (-1, -2))
+    partial = torch.zeros_like(kspace)
+    partial[:, keep] = kspace[:, keep]
+    image = apps.nlinv_pics(partial)
+    assert image.shape == truth.shape
+    assert _relative_error(image, truth) < 0.3
+
+
+def test_nlinv_pics_takes_one_coil_with_unit_sensitivity():
+    _, truth = _cartesian_object()
+    kspace = bartorch.fft(truth, (-1, -2)).reshape(1, SIZE, SIZE)
+    assert _relative_error(apps.nlinv_pics(kspace), truth) < 0.2
+
+
+def test_nlinv_pics_takes_one_coil_along_a_trajectory():
+    size = 32
+    traj = bt.traj(readout=size, spokes=size, radial=True, golden=True)
+    truth = torch.as_tensor(bt.phantom(size)).to(torch.complex64)
+    encoding = linop.NoncartesianSense(
+        torch.ones(1, size, size, dtype=torch.complex64), (size, size), traj=traj
+    )
+    measured = bt.noise(encoding(truth), n=1e-6, s=7).reshape(1, size, size)
+    assert _relative_error(apps.nlinv_pics(measured, traj=traj), truth) < 0.4
