@@ -1,0 +1,893 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Uncertainty estimation &#8212; bartorch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../_static/documentation_options.js?v=113287e0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=a5fa425f"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/06-learning/07-uncertainty';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.5';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/auto_examples/06-learning/07-uncertainty.html" />
+    <link rel="icon" href="../../_static/bartorch-mark.svg"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tours" href="../07-tours/index.html" />
+    <link rel="prev" title="Annealed plug-and-play" href="06-annealed-plug-and-play.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="v0.0.5" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/bartorch-mark.svg" class="logo__image only-light" alt="bartorch"/>
+    <img src="../../_static/bartorch-mark-dark.svg" class="logo__image only-dark pst-js-only" alt="bartorch"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Homepage
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/prerequisites.html">Development prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/workflow.html">Development workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/style.html">Coding style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/documentation.html">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/terminology.html">Terminology and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/pull-requests.html">Pull requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/code-of-conduct.html">Code of conduct</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Nonlinear forward models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Learned regularization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="01-plug-and-play.html">Plug-and-play denoisers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/functions.html">Array functions and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/tools.html">BART commands as functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/linop.html">Linear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/nlop.html">Nonlinear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/optim.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/priors.html">Regularization and denoising</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/apps.html">Reconstruction pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/learning.html">Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/interop.html">Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/io.html">File I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/cli.html">Command line</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../misc/index.html">Miscellaneous</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../misc/license.html">License and third-party notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../misc/related_projects.html">Related projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../misc/contributors.html">Contributors and citation</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/auto_examples/06-learning/07-uncertainty.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fauto_examples/06-learning/07-uncertainty.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/auto_examples/06-learning/07-uncertainty.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Uncertainty estimation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-network-with-dropout">A network with dropout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-spreads">Two spreads</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibration">Calibration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-06-learning-07-uncertainty-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="uncertainty-estimation">
+<span id="sphx-glr-auto-examples-06-learning-07-uncertainty-py"></span><h1>Uncertainty estimation<a class="headerlink" href="#uncertainty-estimation" title="Link to this heading">#</a></h1>
+<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/v0.0.5/_colab/06-learning/07-uncertainty.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
+</a>
+<p><strong>Aim.</strong> Attach a voxel-wise error bar to a learned reconstruction of
+undersampled data, calibrated so that it contains the true error in a stated
+fraction of voxels, and see where in the head the reconstruction is least
+certain.</p>
+<p>A learned reconstruction returns an image without saying where it may be
+wrong. Where the undersampling leaves the image underdetermined, the network
+fills in what its training data suggest, and a hallucinated structure looks
+like real anatomy. An uncertainty map is obtained by randomizing the
+reconstruction and repeating it: leaving dropout active in the network (Monte
+Carlo dropout <a class="footnote-reference brackets" href="#gal" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>), reconstructing from random subsets of the acquired
+phase encodes, or shifting a patch grid. Each spread measures one source of
+variability, and none is the error itself. Split conformal calibration
+<a class="footnote-reference brackets" href="#angelopoulos" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> relates the spread to the error on held-out slices with
+fully sampled references: it finds the factor by which the spread must be
+multiplied for the interval to contain the error at a chosen rate, a
+guarantee that holds whatever the spread measures.</p>
+<p><strong>Learning objectives</strong></p>
+<ul class="simple">
+<li><p>Obtain a spread from Monte Carlo dropout and from k-space subsets with
+<a class="reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.learning.moments()</span></code></a>.</p></li>
+<li><p>Calibrate it to a coverage with <a class="reference internal" href="../../generated/bartorch.learning.calibrate.html#bartorch.learning.calibrate" title="bartorch.learning.calibrate"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.learning.calibrate()</span></code></a>, and
+check the coverage on other slices.</p></li>
+<li><p>Compare the calibrated interval with the error made.</p></li>
+</ul>
+<p>It follows <a class="reference internal" href="06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a>. This lesson ends the course; the
+standalone examples of <a class="reference internal" href="../07-tours/index.html"><span class="doc">Tours</span></a> apply the package to
+individual problems.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">lightning</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mri</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="nn">.</span><span class="nn">utils</span><span class="nn">.</span><span class="nn">data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">learning</span><span class="p">,</span> <span class="n">linop</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">priors</span><span class="w">
+</span><span class="w">
+</span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">96</span><span class="w">
+</span><span class="n">COILS</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
+</span><span class="n">ITERATIONS</span> <span class="o">=</span> <span class="mi">4</span><span class="w">
+</span><span class="n">ACCELERATION</span> <span class="o">=</span> <span class="mi">4</span><span class="w">
+</span><span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
+</span><span class="n">DROPOUT</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="w">
+</span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<section id="data">
+<h2>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h2>
+<p>The slices, coils and fourfold undersampling of <a class="reference internal" href="04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a>,
+with sixteen slices of subject 4: the first eight to calibrate on, the last
+eight to check the calibration on.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">train_images</span> <span class="o">=</span> <span class="n">brain_slices</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span><span class="w">
+</span><span class="n">valid_images</span> <span class="o">=</span> <span class="n">brain_slices</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">sensitivities</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><span class="n">bt</span><span class="o">.</span><span class="n">coils</span></a><span class="p">(</span><span class="n">t</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><span class="n">bt</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">D</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">COILS</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">sensitivities</span> <span class="o">=</span> <span class="n">sensitivities</span> <span class="o">/</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">density</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">SIZE</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span><span class="p">)</span> <span class="o">*</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span><span class="w">
+</span><span class="n">lines</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">density</span> <span class="o">/</span> <span class="n">density</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="w">
+</span>    <span class="n">SIZE</span> <span class="o">/</span> <span class="n">ACCELERATION</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="n">lines</span><span class="p">[</span><span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">4</span> <span class="p">:</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
+</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">A</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">CartesianSense</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span><span class="w">
+</span><span class="n">NOISE</span> <span class="o">=</span> <span class="mf">0.02</span><span class="w">
+</span><span class="w">
+</span><span class="n">generator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">
+</span><span class="n">kspace</span> <span class="o">=</span> <span class="p">{</span><span class="w">
+</span>    <span class="n">part</span><span class="p">:</span> <span class="p">[</span><span class="w">
+</span>        <span class="n">A</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">NOISE</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">oshape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span><span class="w">
+</span>        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">images</span><span class="w">
+</span>    <span class="p">]</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">images</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">train</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">train_images</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">valid</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">valid_images</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="a-network-with-dropout">
+<h2>A network with dropout<a class="headerlink" href="#a-network-with-dropout" title="Link to this heading">#</a></h2>
+<p>The iteration-conditioned unrolled network of <a class="reference internal" href="04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a>,
+with dropout in every residual block of its U-Net, trained end to end
+against references. Dropout is a regularizer during training; left active
+at inference it makes each reconstruction one draw from a family of
+networks.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">network</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">learning</span><span class="o">.</span><span class="n">UNet</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">widths</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">DROPOUT</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">prior</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><span class="n">learning</span><span class="o">.</span><span class="n">ComplexNet</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><span class="n">network</span></a><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">block</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">optim</span><span class="o">.</span><span class="n">ISTBlock</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><span class="n">prior</span></a><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">block</span></a><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">model</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">learning</span><span class="o">.</span><span class="n">Unrolled</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><span class="n">block</span></a><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">items</span> <span class="o">=</span> <span class="p">{</span><span class="w">
+</span>    <span class="n">part</span><span class="p">:</span> <span class="p">[</span><span class="p">{</span><span class="s2">&quot;</span><span class="s2">y</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">A</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">target</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">}</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">kspace</span><span class="p">[</span><span class="n">part</span><span class="p">]</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">images</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">train</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">train_images</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">valid</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">valid_images</span><span class="p">[</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="n">trainer</span> <span class="o">=</span> <span class="n">lightning</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="w">
+</span>    <span class="n">max_epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span><span class="w">
+</span>    <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">cpu</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
+</span>    <span class="n">logger</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span>    <span class="n">enable_checkpointing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span>    <span class="n">enable_model_summary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span>    <span class="n">enable_progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.learning.Reconstruction.html#bartorch.learning.Reconstruction" title="bartorch.learning.Reconstruction"><span class="n">learning</span><span class="o">.</span><span class="n">Reconstruction</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">model</span></a><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">end-to-end</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="n">DataLoader</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">train</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="n">DataLoader</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">valid</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+</pre></div>
+</div>
+</section>
+<section id="two-spreads">
+<h2>Two spreads<a class="headerlink" href="#two-spreads" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">moments()</span></code></a> calls a randomized reconstruction a
+number of times and returns the voxel-wise mean and variance. The first
+reconstruction leaves the dropout modules in training mode and everything
+else in evaluation mode. The second keeps the network deterministic and
+reconstructs each time from a random eighty per cent of the acquired lines,
+drawn by <a class="reference internal" href="../../generated/bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a>, which measures how much the image
+depends on individual samples.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">model</span></a><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">dropouts</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">model</span></a><span class="o">.</span><span class="n">modules</span><span class="p">(</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span><span class="n">acquired</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">with_dropout</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">dropouts</span><span class="p">:</span><span class="w">
+</span>        <span class="n">module</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="k">try</span><span class="p">:</span><span class="w">
+</span>        <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">model</span></a><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span><span class="w">
+</span>    <span class="k">finally</span><span class="p">:</span><span class="w">
+</span>        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">dropouts</span><span class="p">:</span><span class="w">
+</span>            <span class="n">module</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="k">def</span><span class="w"> </span><span class="nf">from_a_subset</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">keep</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><span class="n">learning</span><span class="o">.</span><span class="n">split</span></a><span class="p">(</span><span class="n">acquired</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">subset</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">CartesianSense</span></a><span class="p">(</span><span class="w">
+</span>        <span class="n">sensitivities</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="p">(</span><span class="n">pattern</span> <span class="o">*</span> <span class="n">keep</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">model</span></a><span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">keep</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="n">spreads</span> <span class="o">=</span> <span class="p">{</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">reconstruct</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">dropout</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">with_dropout</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">k-space subsets</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">from_a_subset</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">means</span><span class="p">,</span> <span class="n">deviations</span> <span class="o">=</span> <span class="p">[</span><span class="p">]</span><span class="p">,</span> <span class="p">[</span><span class="p">]</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">kspace</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">valid</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">:</span><span class="w">
+</span>        <span class="n">mean</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.learning.moments.html#bartorch.learning.moments" title="bartorch.learning.moments"><span class="n">learning</span><span class="o">.</span><span class="n">moments</span></a><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="w">
+</span>        <span class="n">means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span><span class="w">
+</span>        <span class="n">deviations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variance</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">spreads</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">means</span><span class="p">)</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">deviations</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">truth</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">valid_images</span><span class="p">)</span><span class="w">
+</span><span class="n">head</span> <span class="o">=</span> <span class="n">truth</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="calibration">
+<h2>Calibration<a class="headerlink" href="#calibration" title="Link to this heading">#</a></h2>
+<p>On the first eight slices, whose references are known, the factor that makes
+<code class="docutils literal notranslate"><span class="pre">|error|</span> <span class="pre">&lt;=</span> <span class="pre">factor</span> <span class="pre">*</span> <span class="pre">spread</span></code> hold for ninety per cent of the voxels in the
+head is found with <a class="reference internal" href="../../generated/bartorch.learning.calibrate.html#bartorch.learning.calibrate" title="bartorch.learning.calibrate"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibrate()</span></code></a>. On the other eight
+the fraction of voxels whose error falls within <code class="docutils literal notranslate"><span class="pre">factor</span> <span class="pre">*</span> <span class="pre">spread</span></code> is
+measured. Split conformal calibration guarantees that fraction on average
+over voxels and subjects drawn alike, not voxel by voxel.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">COVERAGE</span> <span class="o">=</span> <span class="mf">0.9</span><span class="w">
+</span><span class="n">calibration</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">deviation</span><span class="p">)</span> <span class="ow">in</span> <span class="n">spreads</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">error</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">factor</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.learning.calibrate.html#bartorch.learning.calibrate" title="bartorch.learning.calibrate"><span class="n">learning</span><span class="o">.</span><span class="n">calibrate</span></a><span class="p">(</span><span class="w">
+</span>        <span class="n">error</span><span class="p">[</span><span class="n">calibration</span><span class="p">]</span><span class="p">[</span><span class="n">head</span><span class="p">[</span><span class="n">calibration</span><span class="p">]</span><span class="p">]</span><span class="p">,</span> <span class="n">deviation</span><span class="p">[</span><span class="n">calibration</span><span class="p">]</span><span class="p">[</span><span class="n">head</span><span class="p">[</span><span class="n">calibration</span><span class="p">]</span><span class="p">]</span><span class="p">,</span> <span class="n">COVERAGE</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span>    <span class="n">inside</span> <span class="o">=</span> <span class="n">error</span><span class="p">[</span><span class="n">test</span><span class="p">]</span> <span class="o">&lt;</span><span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">deviation</span><span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="w">
+</span>    <span class="n">correlation</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="w">
+</span>        <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">[</span><span class="n">error</span><span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="p">[</span><span class="n">head</span><span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="p">]</span><span class="p">,</span> <span class="n">deviation</span><span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="p">[</span><span class="n">head</span><span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span>    <span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;16</span><span class="si">}</span><span class="s2">: factor </span><span class="si">{</span><span class="n">factor</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2">, coverage </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">inside</span><span class="p">[</span><span class="n">head</span><span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="p">]</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2"> (asked </span><span class="si">{</span><span class="n">COVERAGE</span><span class="si">}</span><span class="s2">), correlation of error and spread </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">correlation</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>        dropout: factor   8.58, coverage 0.906 (asked 0.9), correlation of error and spread 0.26
+k-space subsets: factor   3.82, coverage 0.897 (asked 0.9), correlation of error and spread 0.23
+</pre></div>
+</div>
+<p>The coverage on the test slices is close to the one asked for, for both
+spreads, although their factors differ: the calibration absorbs whatever
+scale the spread has. What differs between them is how well the spread
+follows the error voxel by voxel, which the correlation measures and the
+maps below show. A spread that is large where the error is large gives
+narrow intervals where the reconstruction is reliable and wide ones where it
+is not; a spread unrelated to the error gives intervals of the right average
+width in the wrong places.</p>
+<p>The two spreads measure different things, and the maps show it. The
+dropout interval is diffuse over the brain and follows neither its anatomy
+nor the error. The k-space-subset interval is largest at the scalp and in
+horizontal bands, the pattern of aliasing along the phase-encode direction
+(vertical): removing lines moves the aliasing, and that is the variability
+it records. The error itself is concentrated in the cortex. Both correlations
+are weak, so the intervals are wider than the error over much of the white
+matter and narrower than it in parts of the cortex. The coverage is met on
+average over voxels, as the calibration guarantees, not voxel by voxel.</p>
+<img src="../../_images/sphx_glr_07-uncertainty_001.png" srcset="../../_images/sphx_glr_07-uncertainty_001.png" alt="dropout mean, |error|, 90% interval, dropout, 90% interval, k-space subsets" class = "sphx-glr-single-img"/></section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="gal" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Gal Y, Ghahramani Z. Dropout as a Bayesian approximation:
+representing model uncertainty in deep learning. <em>Proc Int Conf Mach
+Learn</em> 48:1050-1059 (2016). <a class="reference external" href="https://proceedings.mlr.press/v48/gal16.html">https://proceedings.mlr.press/v48/gal16.html</a></p>
+</aside>
+<aside class="footnote brackets" id="angelopoulos" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Angelopoulos AN, Bates S. Conformal prediction: a gentle
+introduction. <em>Found Trends Mach Learn</em> 16(4):494-591 (2023).
+<a class="reference external" href="https://doi.org/10.1561/2200000101">https://doi.org/10.1561/2200000101</a></p>
+</aside>
+</aside>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 37.073 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-07-uncertainty-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/ae5ff163d45fe42ba534a91e1ecb0d8e/07-uncertainty.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">07-uncertainty.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/2b28f4d2ca9e81b8918c3f6495e6f10e/07-uncertainty.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">07-uncertainty.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/a56d3acc3e6ae8e724c0bcac1eac3c07/07-uncertainty.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">07-uncertainty.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="06-annealed-plug-and-play.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Annealed plug-and-play</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../07-tours/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Tours</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-network-with-dropout">A network with dropout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-spreads">Two spreads</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibration">Calibration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By bartorch contributors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024–2026, bartorch contributors.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
