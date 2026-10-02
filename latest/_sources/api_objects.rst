@@ -231,6 +231,8 @@ bartorch.apps
 
    pics
    nlinv_pics
+   nlinv_maps
+   partial_fourier
    pocsense
    mobafit
    moba

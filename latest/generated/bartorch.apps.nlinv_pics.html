@@ -533,13 +533,11 @@
 <dt class="sig sig-object py" id="bartorch.apps.nlinv_pics">
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">nlinv_pics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.nlinv_pics" title="Link to this definition">#</a></dt>
 <dd><p>Wavelet-regularized SENSE reconstruction with coil sensitivities fitted to the data.</p>
-<p>The sensitivities are one set from <code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">nlinv</span> <span class="pre">-m</span> <span class="pre">1</span></code> on the
-low-resolution centre of k-space, normalised to unit root sum of squares
-(unit sensitivity for one coil). The image minimises
-<code class="docutils literal notranslate"><span class="pre">|P</span> <span class="pre">F</span> <span class="pre">S</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">y|^2</span> <span class="pre">+</span> <span class="pre">lambda</span> <span class="pre">|W</span> <span class="pre">x|_1</span></code> (<code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">pics</span> <span class="pre">-R</span> <span class="pre">W</span></code>).</p>
-<p>A Cartesian axis sampled on one side only, by more lines than the widest
-gap between sampled lines, is partial Fourier, and the image is completed
-along it by <code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">homodyne</span> <span class="pre">-I</span> <span class="pre">-C</span></code>. Unsampled k-space is zero.</p>
+<p>The sensitivities are those of <a class="reference internal" href="bartorch.apps.nlinv_maps.html#bartorch.apps.nlinv_maps" title="bartorch.apps.nlinv_maps"><code class="xref py py-func docutils literal notranslate"><span class="pre">nlinv_maps()</span></code></a>. The image is the
+<a class="reference internal" href="bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">pics()</span></code></a> minimizer of <code class="docutils literal notranslate"><span class="pre">|P</span> <span class="pre">F</span> <span class="pre">S</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">y|^2</span> <span class="pre">+</span> <span class="pre">lambda</span> <span class="pre">|W</span> <span class="pre">x|_1</span></code>
+(<code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">pics</span> <span class="pre">-R</span> <span class="pre">W</span></code>). For Cartesian data, an axis acquired on one side
+only is then completed by <a class="reference internal" href="bartorch.apps.partial_fourier.html#bartorch.apps.partial_fourier" title="bartorch.apps.partial_fourier"><code class="xref py py-func docutils literal notranslate"><span class="pre">partial_fourier()</span></code></a>. Unsampled k-space is
+zero: the sampling mask is the support of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

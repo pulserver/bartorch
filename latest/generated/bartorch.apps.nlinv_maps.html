@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reconstruction pipelines &#8212; bartorch</title>
+    <title>apps.nlinv_maps &#8212; bartorch</title>
   
   
   
@@ -52,7 +52,7 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/apps';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.apps.nlinv_maps';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
@@ -61,12 +61,10 @@
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/api/apps.html" />
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/generated/bartorch.apps.nlinv_maps.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Learning" href="learning.html" />
-    <link rel="prev" title="Regularization and denoising" href="priors.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -195,7 +193,7 @@
                 </a>
             </li>
         </ul>
-        <ul class="current nav bd-sidenav">
+        <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
@@ -281,18 +279,18 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="functions.html">Array functions and settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tools.html">BART commands as functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="linop.html">Linear operators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nlop.html">Nonlinear operators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="optim.html">Optimization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="priors.html">Regularization and denoising</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Reconstruction pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="learning.html">Learning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interop.html">Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="io.html">File I/O</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/functions.html">Array functions and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">BART commands as functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/linop.html">Linear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/nlop.html">Nonlinear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/optim.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/priors.html">Regularization and denoising</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apps.html">Reconstruction pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/learning.html">Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interop.html">Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/io.html">File I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cli.html">Command line</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../misc/index.html">Miscellaneous</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -377,7 +375,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/api/apps.md" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/generated/bartorch.apps.nlinv_maps.rst" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -394,7 +392,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fapi/apps.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fgenerated/bartorch.apps.nlinv_maps.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -424,7 +422,7 @@
       
       
       
-      <li><a href="../_sources/api/apps.md" target="_blank"
+      <li><a href="../_sources/generated/bartorch.apps.nlinv_maps.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -434,7 +432,7 @@
 <span class="btn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="btn__text-container">.md</span>
+<span class="btn__text-container">.rst</span>
 </a>
 </li>
       
@@ -494,7 +492,9 @@
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -505,11 +505,19 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Reconstruction pipelines</h1>
+    <h1>apps.nlinv_maps</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.nlinv_maps"><code class="docutils literal notranslate"><span class="pre">nlinv_maps()</span></code></a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -519,58 +527,37 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="reconstruction-pipelines">
-<h1>Reconstruction pipelines<a class="headerlink" href="#reconstruction-pipelines" title="Link to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">bartorch.apps</span></code> contains selected BART reconstruction applications
-re-expressed with this package’s operators and solvers.  An app takes tensors
-and Python arguments, performs the application’s preprocessing — sampling
-pattern, modulation into BART’s uncentred convention, data scaling — in Python,
-and then runs an encoding from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code> under a solver from
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> or <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.nlop</span></code>.  The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> command line
-runs an app in place of the BART command where one exists and expresses
-every option given.  The BART commands themselves are not public; the table
-states how each app relates to its command.
-<a class="reference internal" href="../explanation/execution-model.html"><span class="doc">Interfaces and execution</span></a> compares apps with the composable
-interface they are assembled from.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Object</p></th>
-<th class="head"><p>BART command</p></th>
-<th class="head"><p>Relation to the command</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pics</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">pics</span></code></p></td>
-<td><p>Identical output on a Cartesian grid; agrees to floating-point round-off along a trajectory</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.apps.nlinv_pics.html#bartorch.apps.nlinv_pics" title="bartorch.apps.nlinv_pics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlinv_pics</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">nlinv</span></code>, <code class="docutils literal notranslate"><span class="pre">pics</span></code>, <code class="docutils literal notranslate"><span class="pre">homodyne</span></code></p></td>
-<td><p><a class="reference internal" href="../generated/bartorch.apps.nlinv_maps.html#bartorch.apps.nlinv_maps" title="bartorch.apps.nlinv_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlinv_maps</span></code></a>, then a wavelet <code class="docutils literal notranslate"><span class="pre">pics</span></code> solve, then, for Cartesian k-space only, <a class="reference internal" href="../generated/bartorch.apps.partial_fourier.html#bartorch.apps.partial_fourier" title="bartorch.apps.partial_fourier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fourier</span></code></a>; Cartesian or along a trajectory</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.apps.nlinv_maps.html#bartorch.apps.nlinv_maps" title="bartorch.apps.nlinv_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlinv_maps</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">nlinv</span></code></p></td>
-<td><p>One set of coil sensitivity maps from <code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">-m</span> <span class="pre">1</span></code> on the low-resolution centre of k-space, normalized to unit root sum of squares; Cartesian or along a trajectory</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.apps.partial_fourier.html#bartorch.apps.partial_fourier" title="bartorch.apps.partial_fourier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fourier</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">homodyne</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">homodyne</span> <span class="pre">-I</span> <span class="pre">-C</span></code> along each axis acquired on one side of k-space only, the side and the acquired fraction read from the sampling mask</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.apps.pocsense.html#bartorch.apps.pocsense" title="bartorch.apps.pocsense"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocsense</span></code></a></p></td>
-<td><p>none</p></td>
-<td><p>The POCSENSE projections swept by BART’s <code class="docutils literal notranslate"><span class="pre">pocs</span></code> iteration</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.apps.mobafit.html#bartorch.apps.mobafit" title="bartorch.apps.mobafit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mobafit</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">mobafit</span></code></p></td>
-<td><p>Same Gauss-Newton method over a TorchSim model; returns named parameter maps in physical units</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.apps.moba.html#bartorch.apps.moba" title="bartorch.apps.moba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moba</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">moba</span></code></p></td>
-<td><p>Same Gauss-Newton method over a TorchSim model inside the encoding, with the coils known or estimated jointly under Sobolev weighting; returns named parameter maps in physical units, not held to the command’s output</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+  <section id="apps-nlinv-maps">
+<h1>apps.nlinv_maps<a class="headerlink" href="#apps-nlinv-maps" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="bartorch.apps.nlinv_maps">
+<span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">nlinv_maps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.nlinv_maps" title="Link to this definition">#</a></dt>
+<dd><p>Coil sensitivity maps fitted to the low-resolution centre of k-space.</p>
+<p>One set of maps from <code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">nlinv</span> <span class="pre">-m</span> <span class="pre">1</span></code>, normalized to unit root sum of
+squares over the coils (unit sensitivity for one coil).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Complex k-space. Cartesian: <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code> on the
+reconstruction grid. Non-Cartesian: <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">shots,</span> <span class="pre">samples)</span></code>.</p></li>
+<li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(shots,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in units of the image grid; <code class="docutils literal notranslate"><span class="pre">None</span></code>
+for Cartesian data.</p></li>
+<li><p><strong>size</strong> (<em>int</em><em>, </em><em>default=24</em>) – Cartesian: lines of every encoded axis, around the centre, the maps
+are fitted to.</p></li>
+<li><p><strong>radius</strong> (<em>float</em><em>, </em><em>default=12.0</em>) – Non-Cartesian: distance from the k-space centre, in grid units, within
+which samples are fitted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complex maps <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>: the shape of <code class="docutils literal notranslate"><span class="pre">kspace</span></code> for
+Cartesian data, the trajectory’s image grid for non-Cartesian data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -584,30 +571,29 @@ interface they are assembled from.</p>
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="priors.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Regularization and denoising</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="learning.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Learning</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.apps.nlinv_maps"><code class="docutils literal notranslate"><span class="pre">nlinv_maps()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
