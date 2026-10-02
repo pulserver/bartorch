@@ -8,7 +8,7 @@ from bartorch import _call
 from bartorch._call import curated
 from bartorch._dispatch import dispatch
 
-__all__ = ["caldir", "ecalib", "nlinv"]
+__all__ = ["caldir", "ecalib", "nlinv", "whiten"]
 
 
 @curated("ecalib")
@@ -188,6 +188,73 @@ def nlinv(
     return dispatch("nlinv", [kspace], None, _n_out=2 if return_sensitivities else 1, **flags)
 
 
+@curated("whiten")
+def whiten(
+    input: torch.Tensor,
+    ndata: torch.Tensor,
+    *,
+    return_matrix: bool = False,
+    return_covariance: bool = False,
+    **extra,
+) -> torch.Tensor | tuple[torch.Tensor, ...]:
+    r"""Noise prewhitening of multi-channel data with a noise-only measurement.
+
+    Multiplies the channels of ``input`` by :math:`W = L^{-1}`, where :math:`L`
+    is the lower triangular Cholesky factor of the channel noise covariance
+    :math:`\Psi = L L^H` estimated from ``ndata``, so that
+    :math:`W \Psi W^H = I`.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Data to whiten, ``(coils, z, y, x)``: the channels are axis ``-4``, and
+        one slice has a ``z`` axis of length one.
+    ndata : torch.Tensor
+        Noise-only measurement of the same channels in the same layout.  Every
+        axis but the channel axis indexes noise samples.
+    return_matrix : bool, default=False
+        Also return the whitening matrix :math:`W`, BART's optional second
+        output.
+    return_covariance : bool, default=False
+        Also return the noise covariance, BART's optional third output.
+    **extra
+        Further BART ``whiten`` options, by name.  ``o`` and ``c`` take a
+        whitening matrix and a noise covariance in the layout returned here, to
+        use in place of the ones estimated from ``ndata``; ``n`` normalizes the
+        variance to one using ``ndata``.
+
+    Returns
+    -------
+    torch.Tensor or tuple of torch.Tensor
+        The whitened data, in the shape of ``input``; then, when asked for, the
+        whitening matrix and the noise covariance, in that order, each
+        ``(coils, coils, 1, 1, 1)``.
+
+    Notes
+    -----
+    The covariance is :math:`\Psi = (K - 1)^{-1} \sum_k n_k n_k^H` over the
+    :math:`K` samples of ``ndata``, :math:`n_k` being the channel vector of the
+    :math:`k`-th, with no mean removed, so that ``ndata`` is taken to be
+    zero-mean.  The returned matrix is :math:`W`, acting on the channel vector
+    from the left, and the returned covariance is the transpose
+    :math:`\Psi^T = \overline{\Psi}`.
+
+    Examples
+    --------
+    >>> white = whiten(data, noise)
+    >>> white, matrix = whiten(data, noise, return_matrix=True)
+    >>> other = whiten(more_data, noise, o=matrix)
+    """
+    # BART's outputs are positional: the covariance is the third, so asking for
+    # it alone still takes the matrix's slot, which is dropped from the result.
+    n_out = 3 if return_covariance else 2 if return_matrix else 1
+    found = dispatch("whiten", [input, ndata], None, _n_out=n_out, **extra)
+    if n_out == 1:
+        return found
+    white, matrix, *covariance = found
+    return (white, *([matrix] if return_matrix else []), *covariance)
+
+
 #: Commands in this section without a hand-written wrapper, built from the catalogue.
 _DERIVED = (
     "calmat",
@@ -199,7 +266,6 @@ _DERIVED = (
     "phasepole",
     "rovir",
     "walsh",
-    "whiten",
 )
 
 for _name in _DERIVED:

@@ -60,7 +60,7 @@ functions and classes with no BART command behind them.
 | {obj}`~bartorch.tools.cc` | Coil compression matrix (SVD, geometric or ESPIRiT) |
 | {obj}`~bartorch.tools.ccapply` | Application of a coil compression matrix |
 | {obj}`~bartorch.tools.rovir` | Coil compression by region-optimized virtual coils (ROVir) |
-| {obj}`~bartorch.tools.whiten` | Noise prewhitening from a noise measurement |
+| {obj}`~bartorch.tools.whiten` | Noise prewhitening from a noise measurement, optionally returning the whitening matrix and the noise covariance (wrapped) |
 | {obj}`~bartorch.tools.estvar` | Noise variance of white Gaussian noise |
 | {obj}`~bartorch.tools.phasepole` | Detection of phase poles in sensitivities |
 
