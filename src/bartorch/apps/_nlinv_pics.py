@@ -47,7 +47,7 @@ def _cartesian_maps(volume: torch.Tensor, size: int) -> torch.Tensor:
 
 
 def _radial_maps(kspace: torch.Tensor, traj: torch.Tensor, radius: float) -> torch.Tensor:
-    """Sensitivities of ``(coils, shots, samples)`` k-space fitted within ``radius`` of the centre."""
+    """Sensitivities of non-Cartesian k-space, fitted to the samples within ``radius``."""
     if kspace.shape[0] == 1:
         size = [int(n) for n in tools.estdims(traj.real.cpu()).split()]
         return torch.ones((1, size[1], size[0]), dtype=kspace.dtype, device=kspace.device)
