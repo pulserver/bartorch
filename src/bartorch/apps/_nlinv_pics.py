@@ -80,20 +80,20 @@ def nlinv_pics(
 
     Parameters
     ----------
-    kspace
+    kspace : torch.Tensor
         Complex k-space. Cartesian: ``(coils, [z,] y, x)`` on the
         reconstruction grid. Non-Cartesian: ``(coils, shots, samples)``.
-    traj
+    traj : torch.Tensor, default=None
         Trajectory ``(shots, samples, 3)`` in units of the image grid; ``None``
         for Cartesian data.
-    wavelet
+    wavelet : float, default=0.005
         ``lambda``, relative to the data scaling ``pics`` estimates.
-    iterations
+    iterations : int, default=30
         Iterations of the solve.
-    size
+    size : int, default=24
         Cartesian: lines of every encoded axis, around the centre, the
         sensitivities are fitted to.
-    radius
+    radius : float, default=12.0
         Non-Cartesian: distance from the k-space centre, in grid units, within
         which samples are fitted.
 
