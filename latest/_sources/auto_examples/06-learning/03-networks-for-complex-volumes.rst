@@ -411,7 +411,7 @@ cycle. This factorization costs few weights beyond the spatial network.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (16 minutes 55.423 seconds)
+   **Total running time of the script:** (12 minutes 12.051 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_03-networks-for-complex-volumes.py:

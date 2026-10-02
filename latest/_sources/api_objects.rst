@@ -230,6 +230,7 @@ bartorch.apps
    :nosignatures:
 
    pics
+   nlinv_pics
    pocsense
    mobafit
    moba
