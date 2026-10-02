@@ -7,6 +7,7 @@ twice, once by BART and once by this package.
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 import torch
 
@@ -726,3 +727,90 @@ def test_a_projection_has_to_be_one():
 
     with pytest.raises(TypeError, match="callable on a tensor"):
         optim.POCSBlock([3])
+
+
+# --- nlinv_pics ------------------------------------------------------------
+#
+# Pinned against the object the data was made from, not against BART.
+
+
+def _relative_error(image: torch.Tensor, truth: torch.Tensor) -> float:
+    image, truth = image.abs(), truth.abs()
+    image = image * (truth.norm() / image.norm())
+    return float((image - truth).norm() / truth.norm())
+
+
+def test_nlinv_pics_returns_the_object_behind_cartesian_coils():
+    sens = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+    sens = sens / bartorch.rss(sens, axes=(0,), keepdim=True)
+    truth = torch.as_tensor(bt.phantom(SIZE)).to(torch.complex64)
+    kspace = bartorch.fft(sens * truth, (-1, -2))
+    assert _relative_error(apps.nlinv_pics(kspace), truth) < 0.2
+
+
+def test_nlinv_pics_returns_the_object_along_a_trajectory():
+    size = 32
+    traj, _, measured = _radial(size=size)
+    truth = torch.as_tensor(bt.phantom(size)).to(torch.complex64)
+    image = apps.nlinv_pics(measured, traj=traj)
+    assert image.shape == truth.shape
+    # 32 spokes limit the error: pics with the true maps is 0.26 on this data.
+    assert _relative_error(image, truth) < 0.3
+
+
+@pytest.mark.parametrize("first, last", [(0, 15), (0, 23), (8, 31), (16, 31)])
+def test_partial_fourier_is_the_side_sampled_beyond_the_widest_gap(first, last):
+    from bartorch.apps._nlinv_pics import _partial_fourier
+
+    sampled = np.zeros((32, 4), dtype=bool)
+    sampled[first : last + 1] = True
+    fraction, high = _partial_fourier(sampled, axis=0)
+    missing = max(first, 31 - last)
+    if missing == 0:
+        assert (fraction, high) == (1.0, False)
+    else:
+        assert fraction == pytest.approx((32 - missing) / 32)
+        assert high == (first > 31 - last)
+
+
+def test_undersampling_alone_is_not_partial_fourier():
+    from bartorch.apps._nlinv_pics import _partial_fourier
+
+    sampled = np.zeros((32, 4), dtype=bool)
+    sampled[::3] = True
+    assert _partial_fourier(sampled, axis=0) == (1.0, False)
+
+
+def _cartesian_object():
+    sens = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+    sens = sens / bartorch.rss(sens, axes=(0,), keepdim=True)
+    truth = torch.as_tensor(bt.phantom(SIZE)).to(torch.complex64)
+    return sens, truth
+
+
+@pytest.mark.parametrize("keep", [slice(0, 18), slice(6, SIZE)])
+def test_nlinv_pics_completes_the_side_of_k_space_that_was_not_acquired(keep):
+    sens, truth = _cartesian_object()
+    kspace = bartorch.fft(sens * truth, (-1, -2))
+    partial = torch.zeros_like(kspace)
+    partial[:, keep] = kspace[:, keep]
+    image = apps.nlinv_pics(partial)
+    assert image.shape == truth.shape
+    assert _relative_error(image, truth) < 0.3
+
+
+def test_nlinv_pics_takes_one_coil_with_unit_sensitivity():
+    _, truth = _cartesian_object()
+    kspace = bartorch.fft(truth, (-1, -2)).reshape(1, SIZE, SIZE)
+    assert _relative_error(apps.nlinv_pics(kspace), truth) < 0.2
+
+
+def test_nlinv_pics_takes_one_coil_along_a_trajectory():
+    size = 32
+    traj = bt.traj(readout=size, spokes=size, radial=True, golden=True)
+    truth = torch.as_tensor(bt.phantom(size)).to(torch.complex64)
+    encoding = linop.NoncartesianSense(
+        torch.ones(1, size, size, dtype=torch.complex64), (size, size), traj=traj
+    )
+    measured = bt.noise(encoding(truth), n=1e-6, s=7).reshape(1, size, size)
+    assert _relative_error(apps.nlinv_pics(measured, traj=traj), truth) < 0.4
