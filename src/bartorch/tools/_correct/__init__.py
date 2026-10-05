@@ -18,6 +18,7 @@ from bartorch.tools._correct._gradunwarp import (
     GradientCoefficients,
     Gradunwarp,
 )
+from bartorch.tools._correct._reslice import reslice
 from bartorch.tools._correct._spiral import ReadoutTiming, SpiralTransfer, deblur, fit_transfer
 from bartorch.tools._correct._susceptibility import SusceptibilityCorrection, correct_susceptibility
 
@@ -36,4 +37,5 @@ __all__ = [
     "estimate_epi_phase",
     "field_map_from_phase",
     "fit_transfer",
+    "reslice",
 ]

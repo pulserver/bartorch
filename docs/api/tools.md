@@ -104,6 +104,7 @@ when {obj}`~bartorch.tools.correct_susceptibility` is called
 | {obj}`~bartorch.tools.estimate_epi_phase` | Odd/even phase of an EPI readout, fitted to a three-line navigator |
 | {obj}`~bartorch.tools.correct_lines` | Reversal of EPI lines into forward readout order, with the odd/even phase removed |
 | {obj}`~bartorch.tools.bias_field_correct` | Receive-field (bias) correction by N4 |
+| {obj}`~bartorch.tools.reslice` | Resampling of an image onto another prescription's grid from header geometry |
 | {obj}`~bartorch.tools.GradientCoefficients` | Spherical-harmonic coefficient table of a gradient coil |
 | {obj}`~bartorch.tools.CoefficientAccessor` | Protocol for a coefficient table that is not a file |
 | {obj}`~bartorch.tools.Gradunwarp` | Gradient nonlinearity correction of images from a coefficient table |

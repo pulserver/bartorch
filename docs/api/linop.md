@@ -30,6 +30,13 @@ implement and {doc}`../explanation/differentiation` their autograd behaviour.
 | {obj}`~bartorch.linop.WaveSense` | Wave-encoded FFT | Wave-CAIPI and Wave-Shuffling encoding |
 | {obj}`~bartorch.linop.FieldCorrected` | Any of the above | Off-resonance correction by time segmentation, $\sum_l \operatorname{diag}(b_l)\,E\,\operatorname{diag}(c_l)$ |
 
+## Wave calibration
+
+| Object | Description |
+| --- | --- |
+| {obj}`~bartorch.linop.wave_psf` | The wave point-spread function `WaveSense` takes, from the wave's phase-encode trajectory |
+| {obj}`~bartorch.linop.wave_calibrate` | Gradient amplitude and delay of the wave, fitted to a wave-free calibration region |
+
 ## Operator class
 
 | Object | Description |

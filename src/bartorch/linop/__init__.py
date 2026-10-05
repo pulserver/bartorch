@@ -33,6 +33,7 @@ from bartorch.linop._shape import (
     Transpose,
 )
 from bartorch.linop._signal import Convolve, Gradient, Matrix, Sobolev
+from bartorch.linop._wave import wave_calibrate, wave_psf
 
 __all__ = [
     "block",
@@ -40,6 +41,8 @@ __all__ = [
     "concatenate",
     "hstack",
     "stack",
+    "wave_calibrate",
+    "wave_psf",
     "CartesianSense",
     "ComponentDiagonal",
     "Conj",
