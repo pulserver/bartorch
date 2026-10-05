@@ -239,7 +239,6 @@
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Parallel imaging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="01-coil-calibration.html">Coil sensitivity calibration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="03-noise-prewhitening.html">Noise prewhitening</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -250,26 +249,18 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -277,6 +268,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/04-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/05-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
 </ul>
@@ -524,12 +530,12 @@
 <p>Parallel imaging recovers an image from k-space undersampled along the
 phase-encoding directions by exploiting the spatial sensitivities of a receive
 array.  A SENSE reconstruction is only as accurate as its coil sensitivity
-maps, and it propagates the thermal noise of the channels, amplified by the
-g-factor.  This section treats both: sensitivity estimation from the
-autocalibration (ACS) region, by direct division and by ESPIRiT; joint
-estimation of image and sensitivities by nonlinear inversion when the ACS
-region is too small for a separate calibration; and prewhitening of correlated
-channel noise, evaluated by the SNR of the reconstruction.
+maps.  This section treats their estimation from the autocalibration (ACS)
+region, by direct division and by ESPIRiT, and the joint estimation of image
+and sensitivities by nonlinear inversion when the ACS region is too small for a
+separate calibration.  The prewhitening of correlated channel noise, a
+correction applied before this estimation, is the tour
+<a class="reference internal" href="../07-tours/08-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a>.
 <a class="reference internal" href="../../explanation/encoding.html"><span class="doc">The MRI encoding operator</span></a> derives the SENSE model and
 <a class="reference internal" href="../../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> the joint estimation.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson compares three ways of estimating the receive sensitivities of a coil array from the undersampled acquisition itself, and shows how the size of the fully sampled calibration region decides which of them can be used. A SENSE reconstruction [#sense]_ inverts"><img alt="" src="../../_images/sphx_glr_01-coil-calibration_thumb.png" />
@@ -538,9 +544,6 @@ channel noise, evaluated by the SNR of the reconstruction.
 </div><div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an image and the coil sensitivities together from undersampled data whose fully sampled central region is too small for a separate calibration, and then writes the same reconstruction out as a nonlinear operator and a Gauss-Newton solver."><img alt="" src="../../_images/sphx_glr_02-nonlinear-inversion_thumb.png" />
 <p><a class="reference internal" href="02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p>
   <div class="sphx-glr-thumbnail-title">Nonlinear inversion</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers."><img alt="" src="../../_images/sphx_glr_03-noise-prewhitening_thumb.png" />
-<p><a class="reference internal" href="03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
 </section>

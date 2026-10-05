@@ -19,6 +19,8 @@ nodding and drifting head over a 12 s scan with a constant-velocity extended
 Kalman filter, as in PROMO [#promo]_, which tracks the head with three
 orthogonal spiral navigators.
 
+**Prerequisites.** :doc:`../04-non-cartesian/01-trajectories-and-transforms`.
+
 **Learning objectives**
 
 * Relate each 2D navigator plane to the three degrees of freedom it measures,

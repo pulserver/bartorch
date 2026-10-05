@@ -67,7 +67,7 @@ It follows :doc:`../03-regularization/02-operators-and-solvers`. The next
 lesson, :doc:`02-radial-sense`, reconstructs an undersampled radial
 acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-229
+.. GENERATED FROM PYTHON SOURCE LINES 53-200
 
 .. code-block:: Python
 
@@ -95,7 +95,7 @@ acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 230-247
+.. GENERATED FROM PYTHON SOURCE LINES 201-218
 
 Trajectories
 ------------
@@ -113,9 +113,9 @@ which tiles k-space uniformly for one frame, or by the golden angle, which
 tiles it approximately uniformly for *any* number of consecutive spokes
 [#winkelmann]_. Only
 the second lets an acquisition be cut into frames after it was measured, as
-:doc:`03-dynamic-golden-angle` does.
+:doc:`../08-workflows/01-dynamic-golden-angle` does.
 
-.. GENERATED FROM PYTHON SOURCE LINES 248-256
+.. GENERATED FROM PYTHON SOURCE LINES 219-227
 
 .. code-block:: Python
 
@@ -140,7 +140,7 @@ the second lets an acquisition be cut into frames after it was measured, as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-276
+.. GENERATED FROM PYTHON SOURCE LINES 228-247
 
 
 
@@ -154,7 +154,7 @@ the second lets an acquisition be cut into frames after it was measured, as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 277-285
+.. GENERATED FROM PYTHON SOURCE LINES 248-256
 
 The transform
 -------------
@@ -165,7 +165,7 @@ acquisition would measure are the transform of the image; below they are
 checked against the sum that defines them, evaluated in double precision over
 one spoke, which is a reference outside BART and outside FINUFFT.
 
-.. GENERATED FROM PYTHON SOURCE LINES 286-308
+.. GENERATED FROM PYTHON SOURCE LINES 257-279
 
 .. code-block:: Python
 
@@ -205,7 +205,7 @@ one spoke, which is a reference outside BART and outside FINUFFT.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 309-324
+.. GENERATED FROM PYTHON SOURCE LINES 280-295
 
 The transform is planned to a tolerance rather than computed exactly, and the
 difference above is within the tolerance it was planned with: a thousandth by
@@ -223,7 +223,7 @@ and the adjoint overweights low frequencies. The weight that compensates for
 it is the inverse sampling density [#pipe]_, which for radial sampling is
 proportional to the distance from the centre.
 
-.. GENERATED FROM PYTHON SOURCE LINES 325-332
+.. GENERATED FROM PYTHON SOURCE LINES 296-303
 
 .. code-block:: Python
 
@@ -241,7 +241,7 @@ proportional to the distance from the centre.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 333-344
+.. GENERATED FROM PYTHON SOURCE LINES 304-315
 
 
 
@@ -255,7 +255,7 @@ proportional to the distance from the centre.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-362
+.. GENERATED FROM PYTHON SOURCE LINES 316-333
 
 The uncompensated adjoint is the image convolved with the point spread
 function, the inverse Fourier transform of the sampling density; the density
@@ -275,7 +275,7 @@ with the same non-uniform transforms, and returns weights for each sample.
 It takes the coordinates as ``(..., samples, 2)``, so the spokes are
 flattened into one list of samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 363-371
+.. GENERATED FROM PYTHON SOURCE LINES 334-342
 
 .. code-block:: Python
 
@@ -301,7 +301,7 @@ flattened into one list of samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 372-379
+.. GENERATED FROM PYTHON SOURCE LINES 343-350
 
 For a radial trajectory the two weightings give similar errors, both of
 which include the k-space corners the disc does not cover. The estimate
@@ -311,7 +311,7 @@ Archimedean spiral: sixteen interleaves reaching :math:`\pm n/2`, with
 :math:`n / 32` turns each so that adjacent turns are one grid unit apart,
 the radial Nyquist spacing, and 1024 samples per interleaf.
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-411
+.. GENERATED FROM PYTHON SOURCE LINES 351-382
 
 .. code-block:: Python
 
@@ -360,7 +360,7 @@ the radial Nyquist spacing, and 1024 samples per interleaf.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 412-435
+.. GENERATED FROM PYTHON SOURCE LINES 383-406
 
 
 
@@ -386,7 +386,7 @@ the radial Nyquist spacing, and 1024 samples per interleaf.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 436-454
+.. GENERATED FROM PYTHON SOURCE LINES 407-425
 
 The estimated weight of an Archimedean spiral grows with the radius: the
 interleaves are separated by a constant distance while the arc length
@@ -407,7 +407,7 @@ weights and a subspace basis where there are any, because its normal operator
 spread function on a doubled grid rather than a transform each way
 [#fessler2005]_, which is what a solver applies once per iteration.
 
-.. GENERATED FROM PYTHON SOURCE LINES 455-473
+.. GENERATED FROM PYTHON SOURCE LINES 426-444
 
 .. code-block:: Python
 
@@ -437,14 +437,14 @@ spread function on a doubled grid rather than a transform each way
 
  .. code-block:: none
 
-    A^H A as a convolution      0.5 ms
+    A^H A as a convolution      0.9 ms
     A^H A as two transforms     0.8 ms
     relative difference      2.7e-03
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 474-480
+.. GENERATED FROM PYTHON SOURCE LINES 445-451
 
 The two agree to a small multiple of the transform's tolerance.
 
@@ -453,7 +453,7 @@ the aliasing the trajectory produces: for a fully sampled radial trajectory
 it is a central peak with a low, broad skirt, and undersampling raises the
 skirt into the streaks a radial reconstruction is known for.
 
-.. GENERATED FROM PYTHON SOURCE LINES 481-485
+.. GENERATED FROM PYTHON SOURCE LINES 452-456
 
 .. code-block:: Python
 
@@ -468,7 +468,7 @@ skirt into the streaks a radial reconstruction is known for.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 486-503
+.. GENERATED FROM PYTHON SOURCE LINES 457-474
 
 
 
@@ -482,13 +482,13 @@ skirt into the streaks a radial reconstruction is known for.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 504-507
+.. GENERATED FROM PYTHON SOURCE LINES 475-478
 
 A reconstruction that uses all of this -- the transform, the weights, the
 sensitivities and the normal operator -- is
 :doc:`02-radial-sense`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 510-531
+.. GENERATED FROM PYTHON SOURCE LINES 481-502
 
 References
 ----------
@@ -515,7 +515,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.067 seconds)
+   **Total running time of the script:** (0 minutes 1.039 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py:

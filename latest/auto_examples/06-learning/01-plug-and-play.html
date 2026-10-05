@@ -241,7 +241,6 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -252,26 +251,18 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Learned regularization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Plug-and-play denoisers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l3"><a class="reference internal" href="03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l3"><a class="reference internal" href="07-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -279,6 +270,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/04-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/05-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
 </ul>
@@ -581,7 +587,7 @@ in the images, the error maps and an enlarged region.</p></li>
 <li><p>Vary the denoiser’s noise level and recognize under- and
 over-regularization.</p></li>
 </ul>
-<p>It follows <a class="reference internal" href="../05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>. The next lesson,
+<p>It follows <a class="reference internal" href="../05-model-based/01-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>. The next lesson,
 <a class="reference internal" href="02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a>, trains the denoiser through the iteration.</p>
 <p>The pretrained weights, about 125 MB, are downloaded on the first call. The
 network runs once per iteration, which dominates the run time of this example
@@ -671,26 +677,21 @@ is trained here. Each iteration costs one application of the network.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
 
   0%|          | 0.00/125M [00:00&lt;?, ?B/s]
-  0%|          | 128k/125M [00:00&lt;06:17, 345kB/s]
-  1%|          | 768k/125M [00:00&lt;01:04, 2.02MB/s]
-  2%|▏         | 2.50M/125M [00:00&lt;00:19, 6.40MB/s]
-  7%|▋         | 8.88M/125M [00:00&lt;00:05, 23.2MB/s]
- 23%|██▎       | 28.1M/125M [00:00&lt;00:01, 73.6MB/s]
- 30%|██▉       | 36.9M/125M [00:00&lt;00:01, 73.3MB/s]
- 36%|███▌      | 45.0M/125M [00:01&lt;00:01, 68.4MB/s]
- 42%|████▏     | 52.4M/125M [00:01&lt;00:01, 68.2MB/s]
- 48%|████▊     | 59.5M/125M [00:01&lt;00:01, 65.2MB/s]
- 53%|█████▎    | 66.1M/125M [00:01&lt;00:01, 47.3MB/s]
- 58%|█████▊    | 71.8M/125M [00:01&lt;00:01, 49.6MB/s]
- 64%|██████▍   | 79.8M/125M [00:01&lt;00:00, 57.4MB/s]
- 69%|██████▉   | 86.1M/125M [00:01&lt;00:00, 59.7MB/s]
- 74%|███████▍  | 92.4M/125M [00:02&lt;00:00, 55.4MB/s]
- 79%|███████▉  | 98.1M/125M [00:02&lt;00:00, 54.1MB/s]
- 84%|████████▍ | 105M/125M [00:02&lt;00:00, 57.4MB/s]
- 89%|████████▉ | 111M/125M [00:02&lt;00:00, 54.9MB/s]
- 93%|█████████▎| 116M/125M [00:02&lt;00:00, 54.6MB/s]
- 99%|█████████▉| 124M/125M [00:02&lt;00:00, 60.0MB/s]
-100%|██████████| 125M/125M [00:02&lt;00:00, 50.5MB/s]
+  0%|          | 128k/125M [00:00&lt;06:52, 316kB/s]
+  1%|          | 640k/125M [00:00&lt;01:24, 1.53MB/s]
+  2%|▏         | 1.88M/125M [00:00&lt;00:28, 4.53MB/s]
+  4%|▍         | 5.00M/125M [00:00&lt;00:10, 12.1MB/s]
+ 11%|█         | 14.0M/125M [00:00&lt;00:03, 34.8MB/s]
+ 29%|██▉       | 35.9M/125M [00:00&lt;00:01, 81.2MB/s]
+ 39%|███▉      | 48.6M/125M [00:01&lt;00:00, 95.2MB/s]
+ 47%|████▋     | 58.4M/125M [00:01&lt;00:00, 79.7MB/s]
+ 54%|█████▎    | 66.8M/125M [00:01&lt;00:00, 69.3MB/s]
+ 63%|██████▎   | 78.8M/125M [00:01&lt;00:00, 82.2MB/s]
+ 70%|███████   | 87.5M/125M [00:01&lt;00:00, 78.3MB/s]
+ 78%|███████▊  | 97.4M/125M [00:01&lt;00:00, 84.2MB/s]
+ 85%|████████▌ | 106M/125M [00:01&lt;00:00, 79.4MB/s]
+ 94%|█████████▍| 118M/125M [00:02&lt;00:00, 81.5MB/s]
+100%|██████████| 125M/125M [00:02&lt;00:00, 59.8MB/s]
      zero-filled  NRMSE 0.199  SSIM 0.482
  total variation  NRMSE 0.161  SSIM 0.754
     DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -786,7 +787,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 27.081 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 40.930 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-01-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/51d621c9981b908bc0655f32fc40806e/01-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-plug-and-play.ipynb</span></code></a></p>

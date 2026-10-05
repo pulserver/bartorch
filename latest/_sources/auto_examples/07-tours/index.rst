@@ -2,19 +2,20 @@
 
 .. _sphx_glr_auto_examples_07-tours:
 
-Tours
------
+Tours: acquisition and corrections
+----------------------------------
 
 Corrections applied to the data before reconstruction or to the image after
 it, each shown on its own and independent of the course: removal of readout
 oversampling and apodization, EPI Nyquist-ghost correction and regridding of
 ramp-sampled readouts, receive bias-field correction, correction of the
 geometric distortion caused by gradient nonlinearity, off-resonance deblurring
-of spiral images, rigid head-motion tracking from navigators, and correction
-of susceptibility distortion in EPI.  The first six tours simulate the
-artefact from a known ground truth, so that the correction is evaluated
-against it; the seventh corrects measured data and evaluates the correction
-against an independent field map.
+of spiral images, rigid head-motion tracking from navigators, correction of
+susceptibility distortion in EPI, and prewhitening of correlated channel
+noise.  The first six tours and the last simulate the artefact or the noise
+from a known ground truth, so that the correction is evaluated against it; the
+seventh corrects measured data and evaluates the correction against an
+independent field map.
 
 The first tour removes readout oversampling and compares Fermi and Hann
 apodization by their Gibbs ringing and resolution. The second corrects the
@@ -26,7 +27,9 @@ coefficients. The fifth deblurs a spiral image off resonance by
 multifrequency interpolation and by a time-segmented reconstruction. The
 sixth measures rigid head motion from three orthogonal navigator planes and
 filters it across a scan. The seventh corrects the susceptibility distortion
-of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro.
+of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro. The
+eighth measures the signal-to-noise ratio gained by prewhitening a SENSE
+reconstruction with a noise-only acquisition.
 
 The section additionally requires the following packages, and the seventh tour
 downloads about 2 MB of data into ``~/.cache/bartorch-examples``::
@@ -164,6 +167,23 @@ downloads about 2 MB of data into ``~/.cache/bartorch-examples``::
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07-tours/images/thumb/sphx_glr_08-noise-prewhitening_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07-tours/08-noise-prewhitening`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -181,4 +201,5 @@ downloads about 2 MB of data into ``~/.cache/bartorch-examples``::
    /auto_examples/07-tours/05-spiral-deblurring
    /auto_examples/07-tours/06-navigator-motion
    /auto_examples/07-tours/07-epi-susceptibility-distortion
+   /auto_examples/07-tours/08-noise-prewhitening
 

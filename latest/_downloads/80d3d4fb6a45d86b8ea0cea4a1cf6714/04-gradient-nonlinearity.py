@@ -19,6 +19,8 @@ view with a coil described by third-order harmonics, and corrects it with
 :class:`bartorch.tools.Gradunwarp`. The coefficients describe a generic
 coil, defined in the code; no manufacturer's table is used.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Describe a gradient coil's nonlinearity by its spherical-harmonic

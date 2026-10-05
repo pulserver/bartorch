@@ -67,9 +67,11 @@ this page and present in the script this page can be downloaded as.
   operator.
 
 It follows :doc:`01-trajectories-and-transforms`. The next lesson,
-:doc:`03-dynamic-golden-angle`, adds a time axis.
+:doc:`../05-model-based/01-quantitative-models`, fits a signal model to the
+data. The Tour :doc:`../08-workflows/01-dynamic-golden-angle` adds a time axis
+to this encoding.
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-242
+.. GENERATED FROM PYTHON SOURCE LINES 57-216
 
 .. code-block:: Python
 
@@ -102,7 +104,7 @@ It follows :doc:`01-trajectories-and-transforms`. The next lesson,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 243-257
+.. GENERATED FROM PYTHON SOURCE LINES 217-231
 
 Acquisition
 -----------
@@ -112,14 +114,14 @@ Forty-eight golden-angle spokes of 192 samples each, across a 192 matrix:
 at the Nyquist rate, so the acquisition is undersampled by a factor of about
 6.3. Successive spokes are rotated by the golden angle, 111.25 degrees, so
 any contiguous subset of them covers k-space nearly uniformly
-[#winkelmann]_; :doc:`03-dynamic-golden-angle` relies on that property.
+[#winkelmann]_; :doc:`../08-workflows/01-dynamic-golden-angle` relies on that property.
 
 :class:`bartorch.linop.NoncartesianSense` maps an image to the samples of
 every channel along the trajectory. The measurement is that operator applied
 to the phantom, with complex Gaussian noise of variance :math:`10^{-4}` per
 sample added, as in the Cartesian lessons.
 
-.. GENERATED FROM PYTHON SOURCE LINES 258-267
+.. GENERATED FROM PYTHON SOURCE LINES 232-241
 
 .. code-block:: Python
 
@@ -146,12 +148,15 @@ sample added, as in the Cartesian lessons.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-288
+.. GENERATED FROM PYTHON SOURCE LINES 242-265
 
-The operator's samples are ``(coils, spokes, samples)``. BART's applications
-carry non-Cartesian k-space in their own layout, ``(coils, spokes, samples,
-1)``, whose trailing axis is the readout dimension of a Cartesian
-acquisition, so an application is given ``measured[..., None]``.
+The operator's samples are ``(coils, spokes, samples)`` along a trajectory
+``(spokes, samples, 3)`` whose ``kz`` component is zero, which makes the
+transform two-dimensional. :func:`bartorch.apps.pics` takes that layout.
+BART's commands, :func:`bartorch.tools.ncalib` and
+:func:`bartorch.nufft_adjoint` among them, carry non-Cartesian k-space as
+``(coils, spokes, samples, 1)``, whose trailing axis is the readout dimension
+of a Cartesian acquisition, so they are given ``measured[..., None]``.
 
 Sensitivity calibration
 -----------------------
@@ -169,7 +174,7 @@ maps whose root sum of squares varies across the field of view leave its
 reciprocal in the image as a smooth intensity shading. ESPIRiT maps are
 normalized by construction; nonlinear inversion maps are not.
 
-.. GENERATED FROM PYTHON SOURCE LINES 289-303
+.. GENERATED FROM PYTHON SOURCE LINES 266-280
 
 .. code-block:: Python
 
@@ -189,7 +194,7 @@ normalized by construction; nonlinear inversion maps are not.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 304-318
+.. GENERATED FROM PYTHON SOURCE LINES 281-295
 
 The estimated maps reproduce the magnitude and phase of the simulated ones
 over the head. They are smoother, because nonlinear inversion penalizes the
@@ -206,7 +211,7 @@ adjoint NUFFT, and the channels are combined by root sum of squares. It uses
 no model of the coil encoding, so the missing spokes appear in it as the
 streaks the point spread function of the trajectory predicts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 319-326
+.. GENERATED FROM PYTHON SOURCE LINES 296-303
 
 .. code-block:: Python
 
@@ -224,7 +229,7 @@ streaks the point spread function of the trajectory predicts.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 327-338
+.. GENERATED FROM PYTHON SOURCE LINES 304-315
 
 Iterative SENSE
 ---------------
@@ -238,7 +243,7 @@ number of iterations acts as the regularization. A total-variation penalty
 variation, the anatomy a small one. ADMM is the algorithm ``pics`` selects
 for this penalty.
 
-.. GENERATED FROM PYTHON SOURCE LINES 339-356
+.. GENERATED FROM PYTHON SOURCE LINES 316-333
 
 .. code-block:: Python
 
@@ -267,15 +272,15 @@ for this penalty.
 
  .. code-block:: none
 
-    pics: 0.55 s
+    pics: 0.84 s
         gridding  NRMSE 0.324  SSIM 0.418
-        CG-SENSE  NRMSE 0.087  SSIM 0.566
-      SENSE + TV  NRMSE 0.085  SSIM 0.858
+        CG-SENSE  NRMSE 0.087  SSIM 0.565
+      SENSE + TV  NRMSE 0.084  SSIM 0.863
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 357-384
+.. GENERATED FROM PYTHON SOURCE LINES 334-361
 
 
 
@@ -308,7 +313,7 @@ for this penalty.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 385-406
+.. GENERATED FROM PYTHON SOURCE LINES 362-383
 
 Gridding shows the streaks of radial undersampling over the whole field of
 view, superimposed on an image that is otherwise sharp: the low spatial
@@ -332,7 +337,7 @@ estimates the scale from the adjoint reconstruction and therefore needs the
 operator, which :func:`bartorch.optim.data_scaling` takes. The encoding is
 the operator built above, now over the estimated sensitivities.
 
-.. GENERATED FROM PYTHON SOURCE LINES 407-418
+.. GENERATED FROM PYTHON SOURCE LINES 384-395
 
 .. code-block:: Python
 
@@ -355,13 +360,13 @@ the operator built above, now over the estimated sensitivities.
 
  .. code-block:: none
 
-    operator and solver: 0.62 s
+    operator and solver: 0.80 s
     relative difference from pics: 0.0e+00
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 419-434
+.. GENERATED FROM PYTHON SOURCE LINES 396-411
 
 The two run the same iteration over the same operator. The NUFFT spreads
 samples onto the grid over several threads and sums in the order they
@@ -379,7 +384,7 @@ operator uses the convolution by default, and ``toeplitz=False`` requests the
 transform pair. The two differ by the tolerance of the transforms, and the
 iterations carry that difference into the reconstructions.
 
-.. GENERATED FROM PYTHON SOURCE LINES 435-443
+.. GENERATED FROM PYTHON SOURCE LINES 412-420
 
 .. code-block:: Python
 
@@ -405,7 +410,7 @@ iterations carry that difference into the reconstructions.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 444-451
+.. GENERATED FROM PYTHON SOURCE LINES 421-428
 
 The convolution costs an FFT, a pointwise multiplication and an inverse FFT
 on the doubled grid per coil, independent of the number of samples; the pair
@@ -415,7 +420,7 @@ points, and the pair is not the slower of the two; as the number of samples
 grows, with more spokes or with the frames of a dynamic series sharing one
 normal operator, the convolution becomes the cheaper.
 
-.. GENERATED FROM PYTHON SOURCE LINES 454-479
+.. GENERATED FROM PYTHON SOURCE LINES 431-456
 
 References
 ----------
@@ -446,7 +451,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.361 seconds)
+   **Total running time of the script:** (0 minutes 4.164 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_02-radial-sense.py:

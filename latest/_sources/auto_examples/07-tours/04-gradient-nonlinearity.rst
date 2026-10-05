@@ -38,6 +38,8 @@ view with a coil described by third-order harmonics, and corrects it with
 :class:`bartorch.tools.Gradunwarp`. The coefficients describe a generic
 coil, defined in the code; no manufacturer's table is used.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Describe a gradient coil's nonlinearity by its spherical-harmonic
@@ -49,7 +51,7 @@ coil, defined in the code; no manufacturer's table is used.
 * Place an image in scanner coordinates by its orientation and field of
   view.
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-55
+.. GENERATED FROM PYTHON SOURCE LINES 37-57
 
 .. code-block:: Python
 
@@ -67,7 +69,7 @@ coil, defined in the code; no manufacturer's table is used.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-74
+.. GENERATED FROM PYTHON SOURCE LINES 58-76
 
 The coil
 --------
@@ -88,7 +90,7 @@ terms decide where the image is compressed and where it is stretched. The
 :math:`z` gradient of a short whole-body coil is usually the least linear,
 and is given the largest term here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-86
+.. GENERATED FROM PYTHON SOURCE LINES 77-88
 
 .. code-block:: Python
 
@@ -110,7 +112,7 @@ and is given the largest term here.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-97
+.. GENERATED FROM PYTHON SOURCE LINES 89-99
 
 The slice
 ---------
@@ -123,7 +125,7 @@ for each array axis, the scanner direction along which it increases.
 of the corrected grid; its ``source_grid`` is the index into the acquired
 image at which each voxel was encoded.
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-117
+.. GENERATED FROM PYTHON SOURCE LINES 100-119
 
 .. code-block:: Python
 
@@ -161,7 +163,7 @@ image at which each voxel was encoded.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-128
+.. GENERATED FROM PYTHON SOURCE LINES 120-130
 
 The acquisition
 ---------------
@@ -174,7 +176,7 @@ found by fixed-point iteration. Its intensity is divided by the Jacobian
 determinant of the mapping: a voxel whose volume the nonlinearity enlarges
 collects the signal of a larger region.
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-155
+.. GENERATED FROM PYTHON SOURCE LINES 131-157
 
 .. code-block:: Python
 
@@ -211,7 +213,7 @@ collects the signal of a larger region.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 156-162
+.. GENERATED FROM PYTHON SOURCE LINES 158-164
 
 Correction
 ----------
@@ -220,7 +222,7 @@ The correction resamples the acquired image at the source grid by cubic
 B-spline interpolation and multiplies it by the Jacobian determinant, which
 restores the intensity. ``jacobian=False`` corrects the geometry only.
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-178
+.. GENERATED FROM PYTHON SOURCE LINES 165-180
 
 .. code-block:: Python
 
@@ -254,7 +256,7 @@ restores the intensity. ``jacobian=False`` corrects the geometry only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-272
+.. GENERATED FROM PYTHON SOURCE LINES 181-274
 
 
 
@@ -301,7 +303,7 @@ restores the intensity. ``jacobian=False`` corrects the geometry only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 273-301
+.. GENERATED FROM PYTHON SOURCE LINES 275-303
 
 The displacement grows with the cube of the distance from isocentre: the
 centre of the field of view is unaffected, and at 200 mm the grid lines are
@@ -335,7 +337,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.960 seconds)
+   **Total running time of the script:** (0 minutes 1.000 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_04-gradient-nonlinearity.py:

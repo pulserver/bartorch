@@ -39,6 +39,8 @@ corrected image with the delay-free image. It then resamples a ramp-sampled
 readout onto a uniform :math:`k_x` grid and compares the result with linear
 interpolation.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Relate an ADC delay to a linear phase in hybrid space and to the Nyquist
@@ -51,7 +53,7 @@ interpolation.
   :func:`~bartorch.tools.epi_ramp_operator`, and check the sampling condition
   under which the resampling is exact.
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-60
+.. GENERATED FROM PYTHON SOURCE LINES 39-62
 
 .. code-block:: Python
 
@@ -71,7 +73,7 @@ interpolation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-78
+.. GENERATED FROM PYTHON SOURCE LINES 63-80
 
 The Nyquist ghost
 -----------------
@@ -91,7 +93,7 @@ Forward lines carry :math:`+(\pi \delta u + \phi_0)` and reversed lines
 :math:`-(\pi \delta u + \phi_0)`. A reversed line is stored in the order it
 was digitised, that is flipped along the readout.
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-99
+.. GENERATED FROM PYTHON SOURCE LINES 81-101
 
 .. code-block:: Python
 
@@ -122,7 +124,7 @@ was digitised, that is flipped along the readout.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 100-109
+.. GENERATED FROM PYTHON SOURCE LINES 102-111
 
 The navigator
 -------------
@@ -134,7 +136,7 @@ the mean of its two neighbours is the odd/even phase alone.
 weighted by the signal magnitude and summed over coils. The reversed
 navigator line is passed already flipped into readout order.
 
-.. GENERATED FROM PYTHON SOURCE LINES 110-118
+.. GENERATED FROM PYTHON SOURCE LINES 112-120
 
 .. code-block:: Python
 
@@ -160,7 +162,7 @@ navigator line is passed already flipped into readout order.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 119-127
+.. GENERATED FROM PYTHON SOURCE LINES 121-129
 
 The fitted phase is twice the impressed one, because the navigator measures
 the difference between a forward and a reversed line. The correction is
@@ -171,7 +173,7 @@ change the magnitude image.
 The ghost is measured by the ghost-to-signal ratio: the mean signal outside
 the object divided by the mean signal inside it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 128-157
+.. GENERATED FROM PYTHON SOURCE LINES 130-159
 
 .. code-block:: Python
 
@@ -214,12 +216,12 @@ the object divided by the mean signal inside it.
 
       delay-free: ghost-to-signal  1.38 %, NRMSE 0.0e+00
     flipped only: ghost-to-signal 18.22 %, NRMSE 3.2e-01
-       corrected: ghost-to-signal  1.38 %, NRMSE 1.4e-07
+       corrected: ghost-to-signal  1.38 %, NRMSE 1.1e-07
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 158-195
+.. GENERATED FROM PYTHON SOURCE LINES 160-197
 
 
 
@@ -245,7 +247,7 @@ the object divided by the mean signal inside it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 196-222
+.. GENERATED FROM PYTHON SOURCE LINES 198-224
 
 The images are displayed from zero to 30 % of the peak, with the
 phase-encoding direction vertical. Without the phase correction the ghost
@@ -274,7 +276,7 @@ The readout gradient is a trapezoid whose ramps each take 30 % of the ADC
 window, sampled with 160 samples, for a one-dimensional object of 64 pixels;
 positions are in cycles per pixel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 223-247
+.. GENERATED FROM PYTHON SOURCE LINES 225-249
 
 .. code-block:: Python
 
@@ -309,13 +311,13 @@ positions are in cycles per pixel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 248-251
+.. GENERATED FROM PYTHON SOURCE LINES 250-253
 
 Linear interpolation between neighbouring samples is the comparison. Both
 are assessed on the image profile, the inverse transform of the uniform
 samples.
 
-.. GENERATED FROM PYTHON SOURCE LINES 252-268
+.. GENERATED FROM PYTHON SOURCE LINES 254-270
 
 .. code-block:: Python
 
@@ -350,7 +352,7 @@ samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 269-306
+.. GENERATED FROM PYTHON SOURCE LINES 271-308
 
 
 
@@ -376,7 +378,7 @@ samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 307-323
+.. GENERATED FROM PYTHON SOURCE LINES 309-325
 
 The band-limited resampling reproduces the profile of a uniformly sampled
 readout to the precision of the operator, which is returned in single
@@ -398,7 +400,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.761 seconds)
+   **Total running time of the script:** (0 minutes 2.071 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py:

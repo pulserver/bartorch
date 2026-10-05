@@ -61,7 +61,7 @@ The previous lessons, :doc:`../01-basics/02-from-kspace-to-image` and
 weight. The next lesson, :doc:`02-operators-and-solvers`, assembles the same
 reconstruction from an operator, a term and a solver.
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-165
+.. GENERATED FROM PYTHON SOURCE LINES 47-136
 
 .. code-block:: Python
 
@@ -90,14 +90,14 @@ reconstruction from an operator, a term and a solver.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-170
+.. GENERATED FROM PYTHON SOURCE LINES 137-141
 
 The phantom is the BrainWeb [#brainweb]_ slice of
 :doc:`../01-basics/02-from-kspace-to-image`, with the same eight-channel
 sensitivities; the cell that builds both is hidden on this page and present in
 the script this page can be downloaded as.
 
-.. GENERATED FROM PYTHON SOURCE LINES 171-242
+.. GENERATED FROM PYTHON SOURCE LINES 142-213
 
 
 
@@ -106,7 +106,7 @@ the script this page can be downloaded as.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 243-253
+.. GENERATED FROM PYTHON SOURCE LINES 214-224
 
 Acquisition
 -----------
@@ -119,7 +119,7 @@ stronger than in that lesson: complex Gaussian noise of variance
 peak is one. At this level noise amplification, and not only aliasing,
 determines the error of an unregularized reconstruction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-271
+.. GENERATED FROM PYTHON SOURCE LINES 225-242
 
 .. code-block:: Python
 
@@ -147,7 +147,7 @@ determines the error of an unregularized reconstruction.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 272-290
+.. GENERATED FROM PYTHON SOURCE LINES 243-261
 
 Three terms
 -----------
@@ -168,7 +168,7 @@ data divided by the scaling :func:`bartorch.optim.data_scaling` estimates,
 which ``pics`` applies, so the same weight means the same thing for data of
 a different overall scale.
 
-.. GENERATED FROM PYTHON SOURCE LINES 291-325
+.. GENERATED FROM PYTHON SOURCE LINES 262-296
 
 .. code-block:: Python
 
@@ -221,7 +221,7 @@ a different overall scale.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 326-352
+.. GENERATED FROM PYTHON SOURCE LINES 297-323
 
 
 
@@ -254,7 +254,7 @@ a different overall scale.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 353-373
+.. GENERATED FROM PYTHON SOURCE LINES 324-344
 
 The Tikhonov reconstruction retains amplified noise and the incoherent
 aliasing of the random sampling across the whole head: a quadratic penalty
@@ -277,7 +277,7 @@ for each term. It is possible here because the phantom is known; for
 measured data the weight is chosen by a criterion that does not require the
 reference, or fixed once for a protocol.
 
-.. GENERATED FROM PYTHON SOURCE LINES 374-395
+.. GENERATED FROM PYTHON SOURCE LINES 345-366
 
 
 
@@ -303,7 +303,7 @@ reference, or fixed once for a protocol.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 396-412
+.. GENERATED FROM PYTHON SOURCE LINES 367-383
 
 Each curve has an interior minimum. The weights of the Tikhonov term and of
 the two :math:`\ell_1` terms are not comparable with each other, because the
@@ -322,7 +322,7 @@ Combining terms
 variable once per term with a nontrivial transform, so it accepts any
 combination; FISTA accepts only terms whose transform is the identity.
 
-.. GENERATED FROM PYTHON SOURCE LINES 413-426
+.. GENERATED FROM PYTHON SOURCE LINES 384-397
 
 .. code-block:: Python
 
@@ -352,7 +352,7 @@ combination; FISTA accepts only terms whose transform is the identity.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 427-435
+.. GENERATED FROM PYTHON SOURCE LINES 398-406
 
 With each weight halved the sum reaches an error comparable to either term
 alone. Whether a combination improves on its parts depends on the image and
@@ -363,7 +363,7 @@ than assumed.
 terms and the iteration -- and runs BART's solver on them. The next lesson,
 :doc:`02-operators-and-solvers`, builds them separately.
 
-.. GENERATED FROM PYTHON SOURCE LINES 438-461
+.. GENERATED FROM PYTHON SOURCE LINES 409-432
 
 References
 ----------
@@ -392,7 +392,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.017 seconds)
+   **Total running time of the script:** (0 minutes 8.731 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_01-regularized-reconstruction.py:

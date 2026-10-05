@@ -10,10 +10,10 @@ Fourier transform is a non-uniform FFT (NUFFT), their adjoint approximates an
 inverse only after density compensation, and the normal operator of an
 iterative reconstruction becomes a convolution with the point spread function
 of the trajectory.  This section introduces trajectories, the NUFFT, density
-compensation and the point spread function; reconstructs an undersampled
+compensation and the point spread function, and reconstructs an undersampled
 golden-angle radial acquisition by non-Cartesian SENSE, with coil sensitivities
-estimated from the radial data; and reconstructs a continuous golden-angle
-acquisition as a time series with a temporal regularizer.
+estimated from the radial data.  The extension to a time series with a temporal
+regularizer is the tour :doc:`/auto_examples/08-workflows/01-dynamic-golden-angle`.
 :doc:`/explanation/non-cartesian` defines the transform and its accuracy.
 
 
@@ -62,23 +62,6 @@ acquisition as a time series with a temporal regularizer.
     </div>
 
 
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, cut into frames of thirteen spokes each. Each frame on its own is undersampled fifteenfold and cannot be reconstructed; the series can, because consecutive frames are strongly correlated, and a total-variation penalty along the time axis states that correlation. The lesson compares frame-by-frame gridding with this joint reconstruction on the images and on the time-intensity curve a perfusion analysis would use.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04-non-cartesian/images/thumb/sphx_glr_03-dynamic-golden-angle_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04-non-cartesian/03-dynamic-golden-angle`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
-    </div>
-
-
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -91,5 +74,4 @@ acquisition as a time series with a temporal regularizer.
 
    /auto_examples/04-non-cartesian/01-trajectories-and-transforms
    /auto_examples/04-non-cartesian/02-radial-sense
-   /auto_examples/04-non-cartesian/03-dynamic-golden-angle
 

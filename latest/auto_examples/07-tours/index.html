@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tours &#8212; bartorch</title>
+    <title>Tours: acquisition and corrections &#8212; bartorch</title>
   
   
   
@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Readout oversampling and apodization" href="01-readout-oversampling-and-apodization.html" />
-    <link rel="prev" title="Uncertainty estimation" href="../06-learning/07-uncertainty.html" />
+    <link rel="prev" title="MoDL, on BART’s ADMM" href="../06-learning/02-modl-with-admm.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -239,7 +239,6 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -250,26 +249,18 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Tours</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Tours: acquisition and corrections</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="03-bias-field.html">Receive bias field</a></li>
@@ -277,6 +268,21 @@
 <li class="toctree-l3"><a class="reference internal" href="05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="08-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/04-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/05-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
 </ul>
@@ -505,7 +511,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Tours</h1>
+    <h1>Tours: acquisition and corrections</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -519,18 +525,19 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="tours">
-<span id="sphx-glr-auto-examples-07-tours"></span><h1>Tours<a class="headerlink" href="#tours" title="Link to this heading">#</a></h1>
+  <section id="tours-acquisition-and-corrections">
+<span id="sphx-glr-auto-examples-07-tours"></span><h1>Tours: acquisition and corrections<a class="headerlink" href="#tours-acquisition-and-corrections" title="Link to this heading">#</a></h1>
 <p>Corrections applied to the data before reconstruction or to the image after
 it, each shown on its own and independent of the course: removal of readout
 oversampling and apodization, EPI Nyquist-ghost correction and regridding of
 ramp-sampled readouts, receive bias-field correction, correction of the
 geometric distortion caused by gradient nonlinearity, off-resonance deblurring
-of spiral images, rigid head-motion tracking from navigators, and correction
-of susceptibility distortion in EPI.  The first six tours simulate the
-artefact from a known ground truth, so that the correction is evaluated
-against it; the seventh corrects measured data and evaluates the correction
-against an independent field map.</p>
+of spiral images, rigid head-motion tracking from navigators, correction of
+susceptibility distortion in EPI, and prewhitening of correlated channel
+noise.  The first six tours and the last simulate the artefact or the noise
+from a known ground truth, so that the correction is evaluated against it; the
+seventh corrects measured data and evaluates the correction against an
+independent field map.</p>
 <p>The first tour removes readout oversampling and compares Fermi and Hann
 apodization by their Gibbs ringing and resolution. The second corrects the
 Nyquist ghost of an EPI train from a three-line navigator and resamples a
@@ -541,7 +548,9 @@ coefficients. The fifth deblurs a spiral image off resonance by
 multifrequency interpolation and by a time-segmented reconstruction. The
 sixth measures rigid head motion from three orthogonal navigator planes and
 filters it across a scan. The seventh corrects the susceptibility distortion
-of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro.</p>
+of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro. The
+eighth measures the signal-to-noise ratio gained by prewhitening a SENSE
+reconstruction with a noise-only acquisition.</p>
 <p>The section additionally requires the following packages, and the seventh tour
 downloads about 2 MB of data into <code class="docutils literal notranslate"><span class="pre">~/.cache/bartorch-examples</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">SimpleITK</span> <span class="n">PyHySCO</span>
@@ -568,6 +577,9 @@ downloads about 2 MB of data into <code class="docutils literal notranslate"><sp
 </div><div class="sphx-glr-thumbcontainer" tooltip="In an echo-planar image, the phase-encoding direction is sampled at the echo spacing rather than the dwell time, so its bandwidth per pixel is a few tens of hertz. A spin off resonance by \Delta f is displaced along the phase-encoding axis by \Delta f divided by that bandwidth, which near the frontal sinus and the petrous bone amounts to several millimetres at 3 T: the orbitofrontal cortex and the temporal poles are compressed or stretched, and signal piles up where neighbouring voxels are displaced onto the same location."><img alt="" src="../../_images/sphx_glr_07-epi-susceptibility-distortion_thumb.png" />
 <p><a class="reference internal" href="07-epi-susceptibility-distortion.html"><span class="doc">Susceptibility distortion in EPI</span></a></p>
   <div class="sphx-glr-thumbnail-title">Susceptibility distortion in EPI</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="This example measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers."><img alt="" src="../../_images/sphx_glr_08-noise-prewhitening_thumb.png" />
+<p><a class="reference internal" href="08-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
 </section>
@@ -584,12 +596,12 @@ downloads about 2 MB of data into <code class="docutils literal notranslate"><sp
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../06-learning/07-uncertainty.html"
+       href="../06-learning/02-modl-with-admm.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Uncertainty estimation</p>
+        <p class="prev-next-title">MoDL, on BART’s ADMM</p>
       </div>
     </a>
     <a class="right-next"

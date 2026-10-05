@@ -241,7 +241,6 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -252,26 +251,18 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06-learning/03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06-learning/04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06-learning/05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06-learning/06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06-learning/07-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -279,6 +270,21 @@
 <li class="toctree-l3"><a class="reference internal" href="07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/04-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/05-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
 </ul>
@@ -519,13 +525,17 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#course">Course</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">Basics</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-imaging">Parallel imaging</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization">Regularization</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-imaging">Non-Cartesian imaging</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-based-reconstruction">Model-based reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learned-regularization">Learned regularization</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-acquisition-and-corrections">Tours: acquisition and corrections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-dynamic-and-quantitative-workflows">Tours: dynamic and quantitative workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-learning-workflows">Tours: learning workflows</a></li>
 </ul>
             </nav>
         </div>
@@ -540,11 +550,17 @@
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <p>Reconstructions executed when the documentation is built, so every figure and
-printed number on these pages is produced by the code shown.  The first six
-sections are a course read in order: each lesson states its aim and builds on
-the lessons before it.  The tours are standalone.  Every page can be
+printed number on these pages is produced by the code shown.  Every page can be
 downloaded as a Python script or a notebook, or opened in Colab.  The concepts
 are in <a class="reference internal" href="../explanation/index.html"><span class="doc">Explanation</span></a>, and the interfaces in <a class="reference internal" href="../api/index.html"><span class="doc">API reference</span></a>.</p>
+<p>The Course is the shortest coherent path that gives a new user the framework’s
+core mental model and enough practical competence to work independently.  Tours
+are useful applications, advanced branches or specialised workflows that are
+not necessary for that core competence.</p>
+<section id="course">
+<h2>Course<a class="headerlink" href="#course" title="Link to this heading">#</a></h2>
+<p>The first six sections are the course, read in order.  Each lesson states its
+aim and learning objectives and links to the lesson before and after it.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 30.0%" />
@@ -560,22 +576,47 @@ are in <a class="reference internal" href="../explanation/index.html"><span clas
 <td><p>Tensors and BART’s dimensions, and a first reconstruction from undersampled Cartesian k-space</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="02-parallel-imaging/index.html"><span class="doc">Parallel imaging</span></a></p></td>
-<td><p>Coil sensitivity estimation, nonlinear inversion, and noise prewhitening</p></td>
+<td><p>Coil sensitivity estimation and nonlinear inversion</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="03-regularization/index.html"><span class="doc">Regularization</span></a></p></td>
 <td><p>Tikhonov, wavelet and total-variation penalties, and the operator-and-solver form</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="04-non-cartesian/index.html"><span class="doc">Non-Cartesian imaging</span></a></p></td>
-<td><p>The NUFFT, density compensation, radial SENSE and dynamic golden-angle imaging</p></td>
+<td><p>The NUFFT, density compensation and radial SENSE</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="05-model-based/index.html"><span class="doc">Model-based reconstruction</span></a></p></td>
-<td><p>Subspace <span class="math notranslate nohighlight">\(T_1\)</span> mapping, <span class="math notranslate nohighlight">\(T_2\)</span> estimation through a signal model, and maps from DICOM images</p></td>
+<td><p><span class="math notranslate nohighlight">\(T_2\)</span> estimation through a signal model fitted directly to k-space</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="06-learning/index.html"><span class="doc">Learned regularization</span></a></p></td>
-<td><p>Plug-and-play, unrolled and self-supervised networks, and uncertainty</p></td>
+<td><p>Plug-and-play reconstruction and an unrolled network trained through ADMM</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="07-tours/index.html"><span class="doc">Tours</span></a></p></td>
-<td><p>Corrections applied before and after a reconstruction</p></td>
+</tbody>
+</table>
+</div>
+</section>
+<section id="tours">
+<h2>Tours<a class="headerlink" href="#tours" title="Link to this heading">#</a></h2>
+<p>The tours are standalone.  Each opens with its objective and the course
+lessons it assumes, and has no previous or next page.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Subject</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="07-tours/index.html"><span class="doc">Tours: acquisition and corrections</span></a></p></td>
+<td><p>Corrections applied before and after a reconstruction, and prewhitening of channel noise</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="08-workflows/index.html"><span class="doc">Tours: dynamic and quantitative workflows</span></a></p></td>
+<td><p>Dynamic golden-angle imaging, subspace <span class="math notranslate nohighlight">\(T_1\)</span> mapping and maps from DICOM images</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="09-learning-workflows/index.html"><span class="doc">Tours: learning workflows</span></a></p></td>
+<td><p>Networks for complex volumes, staged and self-supervised training, annealed plug-and-play and uncertainty</p></td>
 </tr>
 </tbody>
 </table>
@@ -586,10 +627,11 @@ BrainWeb phantoms several examples build their images from, and
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s1">'bartorch[io]'</span> <span class="n">brainweb</span><span class="o">-</span><span class="n">dl</span> <span class="n">matplotlib</span> <span class="n">cmap</span>
 </pre></div>
 </div>
-<p>The learned-regularization section additionally requires <code class="docutils literal notranslate"><span class="pre">lightning</span></code>,
-<code class="docutils literal notranslate"><span class="pre">torchio</span></code>, <code class="docutils literal notranslate"><span class="pre">monai</span></code> and <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>, and the tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</span></code> and
-<code class="docutils literal notranslate"><span class="pre">PyHySCO</span></code>; each section page names what it needs.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"></div><section id="basics">
+<p>The learned-regularization lessons and tours additionally require <code class="docutils literal notranslate"><span class="pre">lightning</span></code>,
+<code class="docutils literal notranslate"><span class="pre">torchio</span></code>, <code class="docutils literal notranslate"><span class="pre">monai</span></code> and <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>, and the corrections tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</span></code>
+and <code class="docutils literal notranslate"><span class="pre">PyHySCO</span></code>; each section page names what it needs.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"></div></section>
+<section id="basics">
 <h2>Basics<a class="headerlink" href="#basics" title="Link to this heading">#</a></h2>
 <p>The course starts from the data a scanner delivers, multichannel k-space, and
 reconstructs an image from it.  The first lesson relates PyTorch tensors to
@@ -612,12 +654,12 @@ conventions are stated in <a class="reference internal" href="../explanation/dat
 <p>Parallel imaging recovers an image from k-space undersampled along the
 phase-encoding directions by exploiting the spatial sensitivities of a receive
 array.  A SENSE reconstruction is only as accurate as its coil sensitivity
-maps, and it propagates the thermal noise of the channels, amplified by the
-g-factor.  This section treats both: sensitivity estimation from the
-autocalibration (ACS) region, by direct division and by ESPIRiT; joint
-estimation of image and sensitivities by nonlinear inversion when the ACS
-region is too small for a separate calibration; and prewhitening of correlated
-channel noise, evaluated by the SNR of the reconstruction.
+maps.  This section treats their estimation from the autocalibration (ACS)
+region, by direct division and by ESPIRiT, and the joint estimation of image
+and sensitivities by nonlinear inversion when the ACS region is too small for a
+separate calibration.  The prewhitening of correlated channel noise, a
+correction applied before this estimation, is the tour
+<a class="reference internal" href="07-tours/08-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a>.
 <a class="reference internal" href="../explanation/encoding.html"><span class="doc">The MRI encoding operator</span></a> derives the SENSE model and
 <a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> the joint estimation.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson compares three ways of estimating the receive sensitivities of a coil array from the undersampled acquisition itself, and shows how the size of the fully sampled calibration region decides which of them can be used. A SENSE reconstruction [#sense]_ inverts"><img alt="" src="../_images/sphx_glr_01-coil-calibration_thumb.png" />
@@ -626,9 +668,6 @@ channel noise, evaluated by the SNR of the reconstruction.
 </div><div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an image and the coil sensitivities together from undersampled data whose fully sampled central region is too small for a separate calibration, and then writes the same reconstruction out as a nonlinear operator and a Gauss-Newton solver."><img alt="" src="../_images/sphx_glr_02-nonlinear-inversion_thumb.png" />
 <p><a class="reference internal" href="02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">Nonlinear inversion</span></a></p>
   <div class="sphx-glr-thumbnail-title">Nonlinear inversion</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers."><img alt="" src="../_images/sphx_glr_03-noise-prewhitening_thumb.png" />
-<p><a class="reference internal" href="02-parallel-imaging/03-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
 </div></div></section>
 <section id="regularization">
 <h2>Regularization<a class="headerlink" href="#regularization" title="Link to this heading">#</a></h2>
@@ -656,10 +695,10 @@ Fourier transform is a non-uniform FFT (NUFFT), their adjoint approximates an
 inverse only after density compensation, and the normal operator of an
 iterative reconstruction becomes a convolution with the point spread function
 of the trajectory.  This section introduces trajectories, the NUFFT, density
-compensation and the point spread function; reconstructs an undersampled
+compensation and the point spread function, and reconstructs an undersampled
 golden-angle radial acquisition by non-Cartesian SENSE, with coil sensitivities
-estimated from the radial data; and reconstructs a continuous golden-angle
-acquisition as a time series with a temporal regularizer.
+estimated from the radial data.  The extension to a time series with a temporal
+regularizer is the tour <a class="reference internal" href="08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a>.
 <a class="reference internal" href="../explanation/non-cartesian.html"><span class="doc">Non-Cartesian sampling</span></a> defines the transform and its accuracy.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson introduces the building blocks of non-Cartesian reconstruction: radial, golden-angle and spiral trajectories, the non-uniform fast Fourier transform (NUFFT) that samples an image along them, the density compensation that an adjoint (gridding) reconstruction needs, and the point spread function (PSF) that describes the undersampling artefacts."><img alt="" src="../_images/sphx_glr_01-trajectories-and-transforms_thumb.png" />
 <p><a class="reference internal" href="04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a></p>
@@ -667,9 +706,6 @@ acquisition as a time series with a temporal regularizer.
 </div><div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an undersampled golden-angle radial acquisition with eight receive coils: the density-compensated gridding reconstruction first, then an iterative SENSE reconstruction with coil sensitivities estimated from the radial data themselves, with and without a total-variation penalty. The aim is to see which of the streak artefacts of radial undersampling the coil encoding removes, which the regularization removes, and what each costs."><img alt="" src="../_images/sphx_glr_02-radial-sense_thumb.png" />
 <p><a class="reference internal" href="04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p>
   <div class="sphx-glr-thumbnail-title">Radial SENSE reconstruction</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, cut into frames of thirteen spokes each. Each frame on its own is undersampled fifteenfold and cannot be reconstructed; the series can, because consecutive frames are strongly correlated, and a total-variation penalty along the time axis states that correlation. The lesson compares frame-by-frame gridding with this joint reconstruction on the images and on the time-intensity curve a perfusion analysis would use."><img alt="" src="../_images/sphx_glr_03-dynamic-golden-angle_thumb.png" />
-<p><a class="reference internal" href="04-non-cartesian/03-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
 </div></div></section>
 <section id="model-based-reconstruction">
 <h2>Model-based reconstruction<a class="headerlink" href="#model-based-reconstruction" title="Link to this heading">#</a></h2>
@@ -678,35 +714,29 @@ acquisition as a time series with a temporal regularizer.
 Reconstructing each contrast separately and fitting a signal model afterwards
 ignores the relation between the contrasts that the signal model states.  A
 model-based reconstruction places that relation in the forward operator, so
-that every contrast constrains the same unknowns.  This section treats the two
-standard formulations: a linear subspace model, in which inversion-recovery
-signal curves are represented by a few temporal basis functions and
-<span class="math notranslate nohighlight">\(T_1\)</span> is fitted to the coefficient maps, and a nonlinear signal model,
-through which <span class="math notranslate nohighlight">\(T_2\)</span> maps are estimated directly from multi-echo k-space.
-<a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> compares the two with reconstruction followed by
-a voxel-wise fit.  The last lesson fits a signal model to magnitude
-images read from DICOM, as a scanner exports them, and writes the map back.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke. The aim is to show how a signal model turns a hopelessly undersampled time series into a well-posed reconstruction: the recovery curves of all plausible T_1 values span a subspace of low dimension, and reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude."><img alt="" src="../_images/sphx_glr_01-subspace-t1-mapping_thumb.png" />
-<p><a class="reference internal" href="05-model-based/01-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first."><img alt="" src="../_images/sphx_glr_02-quantitative-models_thumb.png" />
-<p><a class="reference internal" href="05-model-based/02-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
+that every contrast constrains the same unknowns.  This section fits a
+nonlinear signal model directly to multi-echo k-space to estimate <span class="math notranslate nohighlight">\(T_2\)</span>
+maps, and compares the result with a voxel-wise fit of reconstructed images.
+The linear subspace formulation and the fit to DICOM images are the tours
+<a class="reference internal" href="08-workflows/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a> and
+<a class="reference internal" href="08-workflows/03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a>.
+<a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> compares the formulations with reconstruction
+followed by a voxel-wise fit.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
+<p><a class="reference internal" href="05-model-based/01-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
   <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from the magnitude images a scanner exports, without access to the raw data: a multi-echo spin-echo series is read from DICOM, the decay is fitted voxel by voxel, and the map is written back as a DICOM series of the same study and as a NIfTI volume. The aim is to show the geometry and the acquisition timings passing from the scanner&#x27;s files to the fit and on to the output unchanged, so that the map overlays the images it was computed from."><img alt="" src="../_images/sphx_glr_03-maps-from-scanner-images_thumb.png" />
-<p><a class="reference internal" href="05-model-based/03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
 </div></div></section>
 <section id="learned-regularization">
 <h2>Learned regularization<a class="headerlink" href="#learned-regularization" title="Link to this heading">#</a></h2>
 <p>A learned reconstruction replaces the hand-specified regularization term by a
 neural network and keeps the encoding operator and the data consistency of the
-iterative reconstruction.  This section starts with plug-and-play
-reconstruction, in which a pretrained denoiser takes the place of the proximal
-operator of ADMM and FISTA without any training, and proceeds to an unrolled
-network trained through BART’s ADMM (MoDL); networks for complex
-multi-contrast volumes, applied patch by patch; staged and self-supervised
-training of an unrolled network; plug-and-play with an annealed noise level;
-and calibrated voxel-wise uncertainty.
+iterative reconstruction.  This section covers the two ways a network enters
+BART’s iterations: plug-and-play reconstruction, in which a pretrained denoiser
+takes the place of the proximal operator of ADMM and FISTA without any
+training, and an unrolled network trained through BART’s ADMM (MoDL).
+Networks for complex volumes, staged and self-supervised training, annealed
+plug-and-play and uncertainty are the tours of
+<a class="reference internal" href="09-learning-workflows/index.html"><span class="doc">Tours: learning workflows</span></a>.
 <a class="reference internal" href="../explanation/learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a> describes where a network enters a
 reconstruction.</p>
 <p>The section additionally requires:</p>
@@ -720,34 +750,20 @@ reconstruction.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="This lesson trains an unrolled reconstruction network for undersampled Cartesian SENSE: a small convolutional denoiser placed in the proximal step of BART&#x27;s alternating-direction iteration, with the whole iteration trained end to end against fully sampled images. The aim is to show how a learned regularizer is combined with the physical encoding model -- coil sensitivities, Fourier transform and sampling pattern -- so that the network only has to remove what the data leave undetermined, and how such a network is trained with standard tools."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
 <p><a class="reference internal" href="06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
   <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train a 3D convolutional denoiser on patches of a complex, multi-contrast brain volume, apply it to a whole volume of another subject patch by patch, as it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no visible seams."><img alt="" src="../_images/sphx_glr_03-networks-for-complex-volumes_thumb.png" />
-<p><a class="reference internal" href="06-learning/03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Networks for complex volumes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration."><img alt="" src="../_images/sphx_glr_04-staged-training_thumb.png" />
-<p><a class="reference internal" href="06-learning/04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 04-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains."><img alt="" src="../_images/sphx_glr_05-self-supervised-training_thumb.png" />
-<p><a class="reference internal" href="06-learning/05-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Training without a reference</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_06-annealed-plug-and-play_thumb.png" />
-<p><a class="reference internal" href="06-learning/06-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain."><img alt="" src="../_images/sphx_glr_07-uncertainty_thumb.png" />
-<p><a class="reference internal" href="06-learning/07-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
 </div></div></section>
-<section id="tours">
-<h2>Tours<a class="headerlink" href="#tours" title="Link to this heading">#</a></h2>
+<section id="tours-acquisition-and-corrections">
+<h2>Tours: acquisition and corrections<a class="headerlink" href="#tours-acquisition-and-corrections" title="Link to this heading">#</a></h2>
 <p>Corrections applied to the data before reconstruction or to the image after
 it, each shown on its own and independent of the course: removal of readout
 oversampling and apodization, EPI Nyquist-ghost correction and regridding of
 ramp-sampled readouts, receive bias-field correction, correction of the
 geometric distortion caused by gradient nonlinearity, off-resonance deblurring
-of spiral images, rigid head-motion tracking from navigators, and correction
-of susceptibility distortion in EPI.  The first six tours simulate the
-artefact from a known ground truth, so that the correction is evaluated
-against it; the seventh corrects measured data and evaluates the correction
-against an independent field map.</p>
+of spiral images, rigid head-motion tracking from navigators, correction of
+susceptibility distortion in EPI, and prewhitening of correlated channel
+noise.  The first six tours and the last simulate the artefact or the noise
+from a known ground truth, so that the correction is evaluated against it; the
+seventh corrects measured data and evaluates the correction against an
+independent field map.</p>
 <p>The first tour removes readout oversampling and compares Fermi and Hann
 apodization by their Gibbs ringing and resolution. The second corrects the
 Nyquist ghost of an EPI train from a three-line navigator and resamples a
@@ -758,7 +774,9 @@ coefficients. The fifth deblurs a spiral image off resonance by
 multifrequency interpolation and by a time-segmented reconstruction. The
 sixth measures rigid head motion from three orthogonal navigator planes and
 filters it across a scan. The seventh corrects the susceptibility distortion
-of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro.</p>
+of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro. The
+eighth measures the signal-to-noise ratio gained by prewhitening a SENSE
+reconstruction with a noise-only acquisition.</p>
 <p>The section additionally requires the following packages, and the seventh tour
 downloads about 2 MB of data into <code class="docutils literal notranslate"><span class="pre">~/.cache/bartorch-examples</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">SimpleITK</span> <span class="n">PyHySCO</span>
@@ -785,6 +803,61 @@ downloads about 2 MB of data into <code class="docutils literal notranslate"><sp
 </div><div class="sphx-glr-thumbcontainer" tooltip="In an echo-planar image, the phase-encoding direction is sampled at the echo spacing rather than the dwell time, so its bandwidth per pixel is a few tens of hertz. A spin off resonance by \Delta f is displaced along the phase-encoding axis by \Delta f divided by that bandwidth, which near the frontal sinus and the petrous bone amounts to several millimetres at 3 T: the orbitofrontal cortex and the temporal poles are compressed or stretched, and signal piles up where neighbouring voxels are displaced onto the same location."><img alt="" src="../_images/sphx_glr_07-epi-susceptibility-distortion_thumb.png" />
 <p><a class="reference internal" href="07-tours/07-epi-susceptibility-distortion.html"><span class="doc">Susceptibility distortion in EPI</span></a></p>
   <div class="sphx-glr-thumbnail-title">Susceptibility distortion in EPI</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="This example measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers."><img alt="" src="../_images/sphx_glr_08-noise-prewhitening_thumb.png" />
+<p><a class="reference internal" href="07-tours/08-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
+</div></div></section>
+<section id="tours-dynamic-and-quantitative-workflows">
+<h2>Tours: dynamic and quantitative workflows<a class="headerlink" href="#tours-dynamic-and-quantitative-workflows" title="Link to this heading">#</a></h2>
+<p>Applications of the course’s encodings to a time series and to quantitative
+mapping, each shown on its own.  The first reconstructs a dynamic
+contrast-enhanced series from one continuous golden-angle radial acquisition
+with a total-variation penalty along time.  The second estimates a
+<span class="math notranslate nohighlight">\(T_1\)</span> map from a single continuous inversion-recovery acquisition by
+reconstructing the coefficients of a linear subspace of the signal curves.  The
+third fits a <span class="math notranslate nohighlight">\(T_2\)</span> decay to magnitude images read from DICOM, as a
+scanner exports them, and writes the map back.
+<a class="reference internal" href="../explanation/non-cartesian.html"><span class="doc">Non-Cartesian sampling</span></a> and <a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Nonlinear forward models</span></a> give the
+background.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This example reconstructs a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, cut into frames of thirteen spokes each. Each frame on its own is undersampled fifteenfold and cannot be reconstructed; the series can, because consecutive frames are strongly correlated, and a total-variation penalty along the time axis states that correlation. The example compares frame-by-frame gridding with this joint reconstruction on the images and on the time-intensity curve a perfusion analysis would use."><img alt="" src="../_images/sphx_glr_01-dynamic-golden-angle_thumb.png" />
+<p><a class="reference internal" href="08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="This example estimates a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke. The aim is to show how a signal model turns a hopelessly undersampled time series into a well-posed reconstruction: the recovery curves of all plausible T_1 values span a subspace of low dimension, and reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude."><img alt="" src="../_images/sphx_glr_02-subspace-t1-mapping_thumb.png" />
+<p><a class="reference internal" href="08-workflows/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="This example estimates a T_2 map from the magnitude images a scanner exports, without access to the raw data: a multi-echo spin-echo series is read from DICOM, the decay is fitted voxel by voxel, and the map is written back as a DICOM series of the same study and as a NIfTI volume. The aim is to show the geometry and the acquisition timings passing from the scanner&#x27;s files to the fit and on to the output unchanged, so that the map overlays the images it was computed from."><img alt="" src="../_images/sphx_glr_03-maps-from-scanner-images_thumb.png" />
+<p><a class="reference internal" href="08-workflows/03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
+</div></div></section>
+<section id="tours-learning-workflows">
+<h2>Tours: learning workflows<a class="headerlink" href="#tours-learning-workflows" title="Link to this heading">#</a></h2>
+<p>Training strategies and uses of a learned regularizer that follow from the two
+lessons of <a class="reference internal" href="06-learning/index.html"><span class="doc">Learned regularization</span></a>: networks for complex
+multi-contrast volumes applied patch by patch, staged training of an unrolled
+network within the memory of one iteration, self-supervised training from
+undersampled data alone, plug-and-play with an annealed noise level, and
+calibrated voxel-wise uncertainty.
+<a class="reference internal" href="../explanation/learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a> describes where a network enters a
+reconstruction.</p>
+<p>The section additionally requires:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">lightning</span> <span class="n">torchio</span> <span class="n">monai</span> <span class="n">deepinv</span>
+</pre></div>
+</div>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train a 3D convolutional denoiser on patches of a complex, multi-contrast brain volume, apply it to a whole volume of another subject patch by patch, as it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no visible seams."><img alt="" src="../_images/sphx_glr_01-networks-for-complex-volumes_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/01-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Networks for complex volumes</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration."><img alt="" src="../_images/sphx_glr_02-staged-training_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/02-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 02-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains."><img alt="" src="../_images/sphx_glr_03-self-supervised-training_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/03-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Training without a reference</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_04-annealed-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/04-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain."><img alt="" src="../_images/sphx_glr_05-uncertainty_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/05-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -838,13 +911,17 @@ downloads about 2 MB of data into <code class="docutils literal notranslate"><sp
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#course">Course</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">Basics</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-imaging">Parallel imaging</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization">Regularization</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-imaging">Non-Cartesian imaging</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-based-reconstruction">Model-based reconstruction</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learned-regularization">Learned regularization</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours">Tours</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-acquisition-and-corrections">Tours: acquisition and corrections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-dynamic-and-quantitative-workflows">Tours: dynamic and quantitative workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-learning-workflows">Tours: learning workflows</a></li>
 </ul>
   </nav></div>
 

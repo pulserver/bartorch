@@ -72,10 +72,11 @@ parameter of the block and is trained with the network's weights.
   per-iteration training.
 
 It follows :doc:`01-plug-and-play`, which used a pretrained denoiser without
-training. The next lesson, :doc:`03-networks-for-complex-volumes`, builds
-networks for complex multi-channel volumes.
+training. This lesson ends the course; the Tours of
+:doc:`../09-learning-workflows/index` extend it to complex volumes, staged and
+self-supervised training, annealed plug-and-play and uncertainty.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-199
+.. GENERATED FROM PYTHON SOURCE LINES 62-171
 
 .. code-block:: Python
 
@@ -111,7 +112,7 @@ networks for complex multi-channel volumes.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 200-213
+.. GENERATED FROM PYTHON SOURCE LINES 172-185
 
 Images
 ------
@@ -127,7 +128,7 @@ One subject, twenty-four slices and a single sampling pattern constitute a
 phantom. The weights obtained below are not expected to generalize, and the
 page demonstrates the construction rather than a trained model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 214-275
+.. GENERATED FROM PYTHON SOURCE LINES 186-247
 
 .. code-block:: Python
 
@@ -150,7 +151,7 @@ page demonstrates the construction rather than a trained model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-284
+.. GENERATED FROM PYTHON SOURCE LINES 248-256
 
 Acquisition
 -----------
@@ -161,7 +162,7 @@ pattern is shared by every slice, so a single operator serves the whole
 dataset; a pattern that differs between items requires one operator per
 item.
 
-.. GENERATED FROM PYTHON SOURCE LINES 285-303
+.. GENERATED FROM PYTHON SOURCE LINES 257-275
 
 .. code-block:: Python
 
@@ -197,7 +198,7 @@ item.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 304-309
+.. GENERATED FROM PYTHON SOURCE LINES 276-281
 
 The measured k-space of a slice is :math:`A x` with additive complex
 Gaussian noise. An operator is constructed for a single image, so a batch is
@@ -205,7 +206,7 @@ applied item by item; the iteration blocks in :mod:`bartorch.optim` do the
 same internally, and the network below therefore accepts a batch where the
 operator does not.
 
-.. GENERATED FROM PYTHON SOURCE LINES 310-322
+.. GENERATED FROM PYTHON SOURCE LINES 282-294
 
 .. code-block:: Python
 
@@ -228,7 +229,7 @@ operator does not.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 323-339
+.. GENERATED FROM PYTHON SOURCE LINES 295-311
 
 Dataset
 -------
@@ -247,7 +248,7 @@ the transform is a flip and a rotation of at most eight degrees, which
 preserve the tissue statistics the denoiser is trained on while varying the
 orientation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 340-371
+.. GENERATED FROM PYTHON SOURCE LINES 312-343
 
 .. code-block:: Python
 
@@ -289,7 +290,7 @@ orientation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 372-392
+.. GENERATED FROM PYTHON SOURCE LINES 344-364
 
 Network
 -------
@@ -312,7 +313,7 @@ Three objects:
 ``alpha=1.0`` disables BART's over-relaxation, so that the step is the
 iteration written above; ``cg_maxiter`` is the x-update budget, MoDL's ten.
 
-.. GENERATED FROM PYTHON SOURCE LINES 393-411
+.. GENERATED FROM PYTHON SOURCE LINES 365-383
 
 .. code-block:: Python
 
@@ -348,7 +349,7 @@ iteration written above; ``cg_maxiter`` is the x-update budget, MoDL's ten.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 412-419
+.. GENERATED FROM PYTHON SOURCE LINES 384-391
 
 Training
 --------
@@ -358,7 +359,7 @@ forward pass, a loss against the fully sampled image, and metrics from
 ``monai``. The loss is taken on a tensor and requires nothing of the
 reconstruction that produced it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 420-464
+.. GENERATED FROM PYTHON SOURCE LINES 392-436
 
 .. code-block:: Python
 
@@ -417,15 +418,15 @@ reconstruction that produced it.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:08 • 0:00:00 1.43it/s loss: 0.000 psnr:
-                                                                   32.724 ssim:     
-                                                                   0.889            
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:12 • 0:00:00 0.96it/s loss: 0.000 psnr:
+                                                                   32.748 ssim:     
+                                                                   0.890            
     rho ended at 0.027
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 465-473
+.. GENERATED FROM PYTHON SOURCE LINES 437-445
 
 Results
 -------
@@ -436,7 +437,7 @@ minimizes the data term alone; and the same ADMM iteration with a wavelet
 penalty in place of the denoiser, run for fifty iterations rather than
 five.
 
-.. GENERATED FROM PYTHON SOURCE LINES 474-506
+.. GENERATED FROM PYTHON SOURCE LINES 446-478
 
 .. code-block:: Python
 
@@ -483,12 +484,12 @@ five.
              adjoint   PSNR 23.71 dB   SSIM 0.679
             CG SENSE   PSNR 29.69 dB   SSIM 0.681
        ADMM, wavelet   PSNR 31.64 dB   SSIM 0.898
-           MoDL, K=5   PSNR 32.73 dB   SSIM 0.888
+           MoDL, K=5   PSNR 32.75 dB   SSIM 0.889
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 507-513
+.. GENERATED FROM PYTHON SOURCE LINES 479-485
 
 The table is not a comparison of methods. Fifteen epochs over twenty-four
 slices of one subject, set against a wavelet penalty of fifty iterations with
@@ -497,7 +498,7 @@ data. A quantitative comparison would
 require many subjects, validation on subjects excluded from training, and a
 fixed reconstruction time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 516-544
+.. GENERATED FROM PYTHON SOURCE LINES 488-516
 
 
 
@@ -530,7 +531,7 @@ fixed reconstruction time.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 545-554
+.. GENERATED FROM PYTHON SOURCE LINES 517-526
 
 The adjoint shows the aliasing of the random undersampling and the noise.
 CG-SENSE removes most of the aliasing and amplifies the noise, most visibly
@@ -542,7 +543,7 @@ The network sees the data only through the x-update of each iteration,
 which holds the image to the measured k-space, so what it contributes is
 limited to what the undersampling and the noise leave undetermined.
 
-.. GENERATED FROM PYTHON SOURCE LINES 557-587
+.. GENERATED FROM PYTHON SOURCE LINES 529-560
 
 Differentiating a deeper stack
 ------------------------------
@@ -569,20 +570,21 @@ which changes the forward value
 Pretraining the denoiser in isolation, then greedy per-iteration training,
 then end-to-end fine-tuning with checkpointing, is the staged schedule
 reported for a fully three-dimensional unrolled reconstruction [#urman]_,
-and the subject of :doc:`04-staged-training`. Greedy training does not apply
+and the subject of :doc:`../09-learning-workflows/02-staged-training`.
+Greedy training does not apply
 to the ADMM step: its image is the x-update, which depends on the denoiser
 only through the previous iteration's auxiliary variable, and a detached
-start removes that dependence. The staged lesson uses a proximal-gradient
+start removes that dependence. The staged-training example uses a proximal-gradient
 step, whose image is the denoiser's output.
 
-.. GENERATED FROM PYTHON SOURCE LINES 590-594
+.. GENERATED FROM PYTHON SOURCE LINES 563-567
 
 The gradient of ``rho`` with checkpointing is compared below with the
 gradient recorded over the whole stack. ``rho`` enters every iteration and
 the conjugate-gradient solve of each x-update, so its gradient propagates
 through all of them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 595-608
+.. GENERATED FROM PYTHON SOURCE LINES 568-581
 
 .. code-block:: Python
 
@@ -607,12 +609,12 @@ through all of them.
 
  .. code-block:: none
 
-    rho's gradient: 0.000277808 recorded, 0.000277808 recomputed
+    rho's gradient: 0.000688128 recorded, 0.000688128 recomputed
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 609-614
+.. GENERATED FROM PYTHON SOURCE LINES 582-587
 
 A third alternative is not to unroll. :class:`bartorch.optim.FixedPoint`
 drives the block to its fixed point and differentiates there by solving the
@@ -620,7 +622,7 @@ adjoint fixed-point equation, so that its memory is that of a single step
 irrespective of the iteration count. This is a deep-equilibrium model [#deq]_, of
 which the stack above is the truncated form.
 
-.. GENERATED FROM PYTHON SOURCE LINES 617-641
+.. GENERATED FROM PYTHON SOURCE LINES 590-614
 
 References
 ----------
@@ -650,7 +652,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 29.505 seconds)
+   **Total running time of the script:** (3 minutes 42.017 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:

@@ -37,6 +37,8 @@ window and a Hann window, and measures the ringing and the resolution of each.
 The k-space is evaluated analytically at the sample positions, so its
 truncation and its oversampling are those of a continuous object.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Remove readout oversampling in the image domain with
@@ -49,7 +51,7 @@ truncation and its oversampling are those of a continuous object.
 * Choose between the radial and the separable extension of a window over
   k-space.
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-59
+.. GENERATED FROM PYTHON SOURCE LINES 37-61
 
 .. code-block:: Python
 
@@ -68,7 +70,7 @@ truncation and its oversampling are those of a continuous object.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-72
+.. GENERATED FROM PYTHON SOURCE LINES 62-74
 
 Readout oversampling
 --------------------
@@ -83,7 +85,7 @@ The acquisition has 128 phase-encoding lines and 256 readout samples at
 half the phase-encoding spacing, in the grid units of a 128 matrix. The
 first trajectory component is :math:`k_x`, along the last image axis.
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-82
+.. GENERATED FROM PYTHON SOURCE LINES 75-84
 
 .. code-block:: Python
 
@@ -103,7 +105,7 @@ first trajectory component is :math:`k_x`, along the last image axis.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-91
+.. GENERATED FROM PYTHON SOURCE LINES 85-93
 
 :func:`bartorch.remove_readout_oversampling` transforms the readout to the
 image domain, crops the field of view to the prescribed matrix and
@@ -114,7 +116,7 @@ crop uses the unitary transform, whose normalization depends on the number
 of samples, so the two differ by the factor :math:`\sqrt{2}` between the
 transform lengths.
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-108
+.. GENERATED FROM PYTHON SOURCE LINES 94-110
 
 .. code-block:: Python
 
@@ -147,7 +149,7 @@ transform lengths.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-126
+.. GENERATED FROM PYTHON SOURCE LINES 111-128
 
 
 
@@ -173,7 +175,7 @@ transform lengths.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-147
+.. GENERATED FROM PYTHON SOURCE LINES 129-149
 
 The image-domain crop reproduces the acquisition without oversampling to the
 part of the truncation ringing that extends past the prescribed field of
@@ -196,7 +198,7 @@ The phantom is acquired on a 64 matrix and reconstructed on a 128 grid by
 zero-filling, which interpolates the image and makes the ringing visible
 between the pixels of the acquired grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 148-158
+.. GENERATED FROM PYTHON SOURCE LINES 150-160
 
 .. code-block:: Python
 
@@ -217,7 +219,7 @@ between the pixels of the acquired grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-166
+.. GENERATED FROM PYTHON SOURCE LINES 161-168
 
 :func:`bartorch.fermi_window` sets the radius of the half height and the
 width of the transition separately, and keeps a wide passband.
@@ -227,7 +229,7 @@ finer than the acquired one: the side lobes of an unwindowed acquisition
 have their zeros at the pixels of the acquired grid, so a point spread
 function read off that grid shows none.
 
-.. GENERATED FROM PYTHON SOURCE LINES 167-187
+.. GENERATED FROM PYTHON SOURCE LINES 169-189
 
 .. code-block:: Python
 
@@ -258,7 +260,7 @@ function read off that grid shows none.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 188-193
+.. GENERATED FROM PYTHON SOURCE LINES 190-195
 
 :func:`bartorch.apodize` multiplies k-space by either window over the axes
 it names. The ringing is measured as the standard deviation of the image
@@ -266,7 +268,7 @@ over the parenchyma within six pixels of the skull, where the object is
 uniform, and the resolution as the full width at half maximum of the point
 spread function, in pixels of the acquired grid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 194-217
+.. GENERATED FROM PYTHON SOURCE LINES 196-219
 
 .. code-block:: Python
 
@@ -309,7 +311,7 @@ spread function, in pixels of the acquired grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 218-248
+.. GENERATED FROM PYTHON SOURCE LINES 220-250
 
 
 
@@ -335,7 +337,7 @@ spread function, in pixels of the acquired grid.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-271
+.. GENERATED FROM PYTHON SOURCE LINES 251-273
 
 The zoomed panels show the left edge of the skull, displayed from zero to
 half the skull intensity. Without a window the ringing is visible as bands
@@ -360,7 +362,7 @@ the one-dimensional kernel at :math:`1/\sqrt{d}` along each of :math:`d`
 axes. The one-dimensional kernel at :math:`u` is the window at the centre of
 a grid with its radius moved to :math:`1 - u`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 272-284
+.. GENERATED FROM PYTHON SOURCE LINES 274-286
 
 .. code-block:: Python
 
@@ -390,7 +392,7 @@ a grid with its radius moved to :math:`1 - u`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 285-310
+.. GENERATED FROM PYTHON SOURCE LINES 287-312
 
 
 
@@ -416,7 +418,7 @@ a grid with its radius moved to :math:`1 - u`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 311-323
+.. GENERATED FROM PYTHON SOURCE LINES 313-325
 
 The radial window has the more isotropic point spread function and the
 higher signal-to-noise ratio; the separable one the better resolution along
@@ -434,7 +436,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.814 seconds)
+   **Total running time of the script:** (0 minutes 0.819 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_01-readout-oversampling-and-apodization.py:

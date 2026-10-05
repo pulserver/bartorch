@@ -126,8 +126,8 @@ partial volume of two tissues or an imperfect refocusing, becomes a bias in
 the maps.  A subspace reconstruction restricts the signal to a basis derived
 from a dictionary of simulated signals, keeps a linear forward model, and
 defers the nonlinear estimation of the parameters to a separate step.
-{doc}`../auto_examples/05-model-based/01-subspace-t1-mapping` and
-{doc}`../auto_examples/05-model-based/02-quantitative-models` apply the
+{doc}`../auto_examples/08-workflows/02-subspace-t1-mapping` and
+{doc}`../auto_examples/05-model-based/01-quantitative-models` apply the
 second and third routes.
 
 ## Signal models and their derivatives

@@ -4,11 +4,20 @@ Examples
 ========
 
 Reconstructions executed when the documentation is built, so every figure and
-printed number on these pages is produced by the code shown.  The first six
-sections are a course read in order: each lesson states its aim and builds on
-the lessons before it.  The tours are standalone.  Every page can be
+printed number on these pages is produced by the code shown.  Every page can be
 downloaded as a Python script or a notebook, or opened in Colab.  The concepts
 are in :doc:`/explanation/index`, and the interfaces in :doc:`/api/index`.
+
+The Course is the shortest coherent path that gives a new user the framework's
+core mental model and enough practical competence to work independently.  Tours
+are useful applications, advanced branches or specialised workflows that are
+not necessary for that core competence.
+
+Course
+------
+
+The first six sections are the course, read in order.  Each lesson states its
+aim and learning objectives and links to the lesson before and after it.
 
 .. list-table::
    :header-rows: 1
@@ -19,17 +28,34 @@ are in :doc:`/explanation/index`, and the interfaces in :doc:`/api/index`.
    * - :doc:`01-basics/index`
      - Tensors and BART's dimensions, and a first reconstruction from undersampled Cartesian k-space
    * - :doc:`02-parallel-imaging/index`
-     - Coil sensitivity estimation, nonlinear inversion, and noise prewhitening
+     - Coil sensitivity estimation and nonlinear inversion
    * - :doc:`03-regularization/index`
      - Tikhonov, wavelet and total-variation penalties, and the operator-and-solver form
    * - :doc:`04-non-cartesian/index`
-     - The NUFFT, density compensation, radial SENSE and dynamic golden-angle imaging
+     - The NUFFT, density compensation and radial SENSE
    * - :doc:`05-model-based/index`
-     - Subspace :math:`T_1` mapping, :math:`T_2` estimation through a signal model, and maps from DICOM images
+     - :math:`T_2` estimation through a signal model fitted directly to k-space
    * - :doc:`06-learning/index`
-     - Plug-and-play, unrolled and self-supervised networks, and uncertainty
+     - Plug-and-play reconstruction and an unrolled network trained through ADMM
+
+Tours
+-----
+
+The tours are standalone.  Each opens with its objective and the course
+lessons it assumes, and has no previous or next page.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Section
+     - Subject
    * - :doc:`07-tours/index`
-     - Corrections applied before and after a reconstruction
+     - Corrections applied before and after a reconstruction, and prewhitening of channel noise
+   * - :doc:`08-workflows/index`
+     - Dynamic golden-angle imaging, subspace :math:`T_1` mapping and maps from DICOM images
+   * - :doc:`09-learning-workflows/index`
+     - Networks for complex volumes, staged and self-supervised training, annealed plug-and-play and uncertainty
 
 The scripts need a built ``bartorch`` with its ``io`` extra, ``brainweb-dl``, which downloads the
 BrainWeb phantoms several examples build their images from, and
@@ -37,9 +63,9 @@ BrainWeb phantoms several examples build their images from, and
 
     pip install 'bartorch[io]' brainweb-dl matplotlib cmap
 
-The learned-regularization section additionally requires ``lightning``,
-``torchio``, ``monai`` and ``deepinv``, and the tours ``SimpleITK`` and
-``PyHySCO``; each section page names what it needs.
+The learned-regularization lessons and tours additionally require ``lightning``,
+``torchio``, ``monai`` and ``deepinv``, and the corrections tours ``SimpleITK``
+and ``PyHySCO``; each section page names what it needs.
 
 
 .. raw:: html
@@ -130,12 +156,12 @@ Parallel imaging
 Parallel imaging recovers an image from k-space undersampled along the
 phase-encoding directions by exploiting the spatial sensitivities of a receive
 array.  A SENSE reconstruction is only as accurate as its coil sensitivity
-maps, and it propagates the thermal noise of the channels, amplified by the
-g-factor.  This section treats both: sensitivity estimation from the
-autocalibration (ACS) region, by direct division and by ESPIRiT; joint
-estimation of image and sensitivities by nonlinear inversion when the ACS
-region is too small for a separate calibration; and prewhitening of correlated
-channel noise, evaluated by the SNR of the reconstruction.
+maps.  This section treats their estimation from the autocalibration (ACS)
+region, by direct division and by ESPIRiT, and the joint estimation of image
+and sensitivities by nonlinear inversion when the ACS region is too small for a
+separate calibration.  The prewhitening of correlated channel noise, a
+correction applied before this estimation, is the tour
+:doc:`/auto_examples/07-tours/08-noise-prewhitening`.
 :doc:`/explanation/encoding` derives the SENSE model and
 :doc:`/explanation/nonlinear` the joint estimation.
 
@@ -182,23 +208,6 @@ channel noise, evaluated by the SNR of the reconstruction.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Nonlinear inversion</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02-parallel-imaging/images/thumb/sphx_glr_03-noise-prewhitening_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02-parallel-imaging/03-noise-prewhitening`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
     </div>
 
 
@@ -282,10 +291,10 @@ Fourier transform is a non-uniform FFT (NUFFT), their adjoint approximates an
 inverse only after density compensation, and the normal operator of an
 iterative reconstruction becomes a convolution with the point spread function
 of the trajectory.  This section introduces trajectories, the NUFFT, density
-compensation and the point spread function; reconstructs an undersampled
+compensation and the point spread function, and reconstructs an undersampled
 golden-angle radial acquisition by non-Cartesian SENSE, with coil sensitivities
-estimated from the radial data; and reconstructs a continuous golden-angle
-acquisition as a time series with a temporal regularizer.
+estimated from the radial data.  The extension to a time series with a temporal
+regularizer is the tour :doc:`/auto_examples/08-workflows/01-dynamic-golden-angle`.
 :doc:`/explanation/non-cartesian` defines the transform and its accuracy.
 
 
@@ -334,23 +343,6 @@ acquisition as a time series with a temporal regularizer.
     </div>
 
 
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, cut into frames of thirteen spokes each. Each frame on its own is undersampled fifteenfold and cannot be reconstructed; the series can, because consecutive frames are strongly correlated, and a total-variation penalty along the time axis states that correlation. The lesson compares frame-by-frame gridding with this joint reconstruction on the images and on the time-intensity curve a perfusion analysis would use.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04-non-cartesian/images/thumb/sphx_glr_03-dynamic-golden-angle_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04-non-cartesian/03-dynamic-golden-angle`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
-    </div>
-
-
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -365,14 +357,14 @@ Quantitative MRI estimates tissue parameters such as :math:`T_1` and
 Reconstructing each contrast separately and fitting a signal model afterwards
 ignores the relation between the contrasts that the signal model states.  A
 model-based reconstruction places that relation in the forward operator, so
-that every contrast constrains the same unknowns.  This section treats the two
-standard formulations: a linear subspace model, in which inversion-recovery
-signal curves are represented by a few temporal basis functions and
-:math:`T_1` is fitted to the coefficient maps, and a nonlinear signal model,
-through which :math:`T_2` maps are estimated directly from multi-echo k-space.
-:doc:`/explanation/nonlinear` compares the two with reconstruction followed by
-a voxel-wise fit.  The last lesson fits a signal model to magnitude
-images read from DICOM, as a scanner exports them, and writes the map back.
+that every contrast constrains the same unknowns.  This section fits a
+nonlinear signal model directly to multi-echo k-space to estimate :math:`T_2`
+maps, and compares the result with a voxel-wise fit of reconstructed images.
+The linear subspace formulation and the fit to DICOM images are the tours
+:doc:`/auto_examples/08-workflows/02-subspace-t1-mapping` and
+:doc:`/auto_examples/08-workflows/03-maps-from-scanner-images`.
+:doc:`/explanation/nonlinear` compares the formulations with reconstruction
+followed by a voxel-wise fit.
 
 
 .. raw:: html
@@ -388,52 +380,18 @@ images read from DICOM, as a scanner exports them, and writes the map back.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke. The aim is to show how a signal model turns a hopelessly undersampled time series into a well-posed reconstruction: the recovery curves of all plausible T_1 values span a subspace of low dimension, and reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude.">
-
-.. only:: html
-
-  .. image:: /auto_examples/05-model-based/images/thumb/sphx_glr_01-subspace-t1-mapping_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/05-model-based/01-subspace-t1-mapping`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
-    </div>
-
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first.">
 
 .. only:: html
 
-  .. image:: /auto_examples/05-model-based/images/thumb/sphx_glr_02-quantitative-models_thumb.png
+  .. image:: /auto_examples/05-model-based/images/thumb/sphx_glr_01-quantitative-models_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05-model-based/02-quantitative-models`
+  :doc:`/auto_examples/05-model-based/01-quantitative-models`
 
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from the magnitude images a scanner exports, without access to the raw data: a multi-echo spin-echo series is read from DICOM, the decay is fitted voxel by voxel, and the map is written back as a DICOM series of the same study and as a NIfTI volume. The aim is to show the geometry and the acquisition timings passing from the scanner&#x27;s files to the fit and on to the output unchanged, so that the map overlays the images it was computed from.">
-
-.. only:: html
-
-  .. image:: /auto_examples/05-model-based/images/thumb/sphx_glr_03-maps-from-scanner-images_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/05-model-based/03-maps-from-scanner-images`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
     </div>
 
 
@@ -448,13 +406,13 @@ Learned regularization
 
 A learned reconstruction replaces the hand-specified regularization term by a
 neural network and keeps the encoding operator and the data consistency of the
-iterative reconstruction.  This section starts with plug-and-play
-reconstruction, in which a pretrained denoiser takes the place of the proximal
-operator of ADMM and FISTA without any training, and proceeds to an unrolled
-network trained through BART's ADMM (MoDL); networks for complex
-multi-contrast volumes, applied patch by patch; staged and self-supervised
-training of an unrolled network; plug-and-play with an annealed noise level;
-and calibrated voxel-wise uncertainty.
+iterative reconstruction.  This section covers the two ways a network enters
+BART's iterations: plug-and-play reconstruction, in which a pretrained denoiser
+takes the place of the proximal operator of ADMM and FISTA without any
+training, and an unrolled network trained through BART's ADMM (MoDL).
+Networks for complex volumes, staged and self-supervised training, annealed
+plug-and-play and uncertainty are the tours of
+:doc:`/auto_examples/09-learning-workflows/index`.
 :doc:`/explanation/learned-reconstruction` describes where a network enters a
 reconstruction.
 
@@ -510,110 +468,26 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
     </div>
 
 
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train a 3D convolutional denoiser on patches of a complex, multi-contrast brain volume, apply it to a whole volume of another subject patch by patch, as it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no visible seams.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06-learning/images/thumb/sphx_glr_03-networks-for-complex-volumes_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06-learning/03-networks-for-complex-volumes`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Networks for complex volumes</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06-learning/images/thumb/sphx_glr_04-staged-training_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06-learning/04-staged-training`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 04-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06-learning/images/thumb/sphx_glr_05-self-supervised-training_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06-learning/05-self-supervised-training`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Training without a reference</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06-learning/images/thumb/sphx_glr_06-annealed-plug-and-play_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06-learning/06-annealed-plug-and-play`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06-learning/images/thumb/sphx_glr_07-uncertainty_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06-learning/07-uncertainty`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
-    </div>
-
-
 .. thumbnail-parent-div-close
 
 .. raw:: html
 
     </div>
 
-Tours
------
+Tours: acquisition and corrections
+----------------------------------
 
 Corrections applied to the data before reconstruction or to the image after
 it, each shown on its own and independent of the course: removal of readout
 oversampling and apodization, EPI Nyquist-ghost correction and regridding of
 ramp-sampled readouts, receive bias-field correction, correction of the
 geometric distortion caused by gradient nonlinearity, off-resonance deblurring
-of spiral images, rigid head-motion tracking from navigators, and correction
-of susceptibility distortion in EPI.  The first six tours simulate the
-artefact from a known ground truth, so that the correction is evaluated
-against it; the seventh corrects measured data and evaluates the correction
-against an independent field map.
+of spiral images, rigid head-motion tracking from navigators, correction of
+susceptibility distortion in EPI, and prewhitening of correlated channel
+noise.  The first six tours and the last simulate the artefact or the noise
+from a known ground truth, so that the correction is evaluated against it; the
+seventh corrects measured data and evaluates the correction against an
+independent field map.
 
 The first tour removes readout oversampling and compares Fermi and Hann
 apodization by their Gibbs ringing and resolution. The second corrects the
@@ -625,7 +499,9 @@ coefficients. The fifth deblurs a spiral image off resonance by
 multifrequency interpolation and by a time-segmented reconstruction. The
 sixth measures rigid head motion from three orthogonal navigator planes and
 filters it across a scan. The seventh corrects the susceptibility distortion
-of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro.
+of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro. The
+eighth measures the signal-to-noise ratio gained by prewhitening a SENSE
+reconstruction with a noise-only acquisition.
 
 The section additionally requires the following packages, and the seventh tour
 downloads about 2 MB of data into ``~/.cache/bartorch-examples``::
@@ -763,6 +639,225 @@ downloads about 2 MB of data into ``~/.cache/bartorch-examples``::
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example measures how correlated noise between receive channels lowers the signal-to-noise ratio (SNR) of a SENSE reconstruction, and how much of it prewhitening with a noise-only acquisition recovers.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07-tours/images/thumb/sphx_glr_08-noise-prewhitening_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07-tours/08-noise-prewhitening`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Tours: dynamic and quantitative workflows
+-----------------------------------------
+
+Applications of the course's encodings to a time series and to quantitative
+mapping, each shown on its own.  The first reconstructs a dynamic
+contrast-enhanced series from one continuous golden-angle radial acquisition
+with a total-variation penalty along time.  The second estimates a
+:math:`T_1` map from a single continuous inversion-recovery acquisition by
+reconstructing the coefficients of a linear subspace of the signal curves.  The
+third fits a :math:`T_2` decay to magnitude images read from DICOM, as a
+scanner exports them, and writes the map back.
+:doc:`/explanation/non-cartesian` and :doc:`/explanation/nonlinear` give the
+background.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example reconstructs a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, cut into frames of thirteen spokes each. Each frame on its own is undersampled fifteenfold and cannot be reconstructed; the series can, because consecutive frames are strongly correlated, and a total-variation penalty along the time axis states that correlation. The example compares frame-by-frame gridding with this joint reconstruction on the images and on the time-intensity curve a perfusion analysis would use.">
+
+.. only:: html
+
+  .. image:: /auto_examples/08-workflows/images/thumb/sphx_glr_01-dynamic-golden-angle_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/08-workflows/01-dynamic-golden-angle`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example estimates a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke. The aim is to show how a signal model turns a hopelessly undersampled time series into a well-posed reconstruction: the recovery curves of all plausible T_1 values span a subspace of low dimension, and reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude.">
+
+.. only:: html
+
+  .. image:: /auto_examples/08-workflows/images/thumb/sphx_glr_02-subspace-t1-mapping_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/08-workflows/02-subspace-t1-mapping`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example estimates a T_2 map from the magnitude images a scanner exports, without access to the raw data: a multi-echo spin-echo series is read from DICOM, the decay is fitted voxel by voxel, and the map is written back as a DICOM series of the same study and as a NIfTI volume. The aim is to show the geometry and the acquisition timings passing from the scanner&#x27;s files to the fit and on to the output unchanged, so that the map overlays the images it was computed from.">
+
+.. only:: html
+
+  .. image:: /auto_examples/08-workflows/images/thumb/sphx_glr_03-maps-from-scanner-images_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/08-workflows/03-maps-from-scanner-images`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Tours: learning workflows
+-------------------------
+
+Training strategies and uses of a learned regularizer that follow from the two
+lessons of :doc:`/auto_examples/06-learning/index`: networks for complex
+multi-contrast volumes applied patch by patch, staged training of an unrolled
+network within the memory of one iteration, self-supervised training from
+undersampled data alone, plug-and-play with an annealed noise level, and
+calibrated voxel-wise uncertainty.
+:doc:`/explanation/learned-reconstruction` describes where a network enters a
+reconstruction.
+
+The section additionally requires::
+
+    pip install lightning torchio monai deepinv
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train a 3D convolutional denoiser on patches of a complex, multi-contrast brain volume, apply it to a whole volume of another subject patch by patch, as it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no visible seams.">
+
+.. only:: html
+
+  .. image:: /auto_examples/09-learning-workflows/images/thumb/sphx_glr_01-networks-for-complex-volumes_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/09-learning-workflows/01-networks-for-complex-volumes`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Networks for complex volumes</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration.">
+
+.. only:: html
+
+  .. image:: /auto_examples/09-learning-workflows/images/thumb/sphx_glr_02-staged-training_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/09-learning-workflows/02-staged-training`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 02-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains.">
+
+.. only:: html
+
+  .. image:: /auto_examples/09-learning-workflows/images/thumb/sphx_glr_03-self-supervised-training_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/09-learning-workflows/03-self-supervised-training`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Training without a reference</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down.">
+
+.. only:: html
+
+  .. image:: /auto_examples/09-learning-workflows/images/thumb/sphx_glr_04-annealed-plug-and-play_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/09-learning-workflows/04-annealed-plug-and-play`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain.">
+
+.. only:: html
+
+  .. image:: /auto_examples/09-learning-workflows/images/thumb/sphx_glr_05-uncertainty_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/09-learning-workflows/05-uncertainty`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -782,6 +877,8 @@ downloads about 2 MB of data into ``~/.cache/bartorch-examples``::
    /auto_examples/05-model-based/index.rst
    /auto_examples/06-learning/index.rst
    /auto_examples/07-tours/index.rst
+   /auto_examples/08-workflows/index.rst
+   /auto_examples/09-learning-workflows/index.rst
 
 
 

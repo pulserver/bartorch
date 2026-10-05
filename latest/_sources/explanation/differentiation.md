@@ -92,9 +92,8 @@ parameters makes it a trainable network, such as MoDL.[^modl]
 Checkpointing assumes that recomputing a step reproduces it.  A term that draws
 random shifts, such as a wavelet term with cycle spinning, draws new shifts on
 recomputation, so checkpointing is valid only for deterministic steps.
-Pretraining a denoiser, then training greedily per iteration, then fine-tuning
-end to end with checkpointing is a staged procedure reported for fully
-three-dimensional unrolled reconstruction.[^urman]
+The staged procedure that combines the settings is described in
+{doc}`learned-reconstruction`.
 
 ## Fixed-point differentiation
 
@@ -114,8 +113,6 @@ momentum, a moving ADMM penalty, adaptive or decaying primal-dual steps.
 [^pnp]: Venkatakrishnan SV, Bouman CA, Wohlberg B. Plug-and-play priors for model based reconstruction. *IEEE Global Conference on Signal and Information Processing* 945–948 (2013). [doi:10.1109/GlobalSIP.2013.6737048](https://doi.org/10.1109/GlobalSIP.2013.6737048)
 
 [^modl]: Aggarwal HK, Mani MP, Jacob M. MoDL: model-based deep learning architecture for inverse problems. *IEEE Trans Med Imaging* 38(2):394–405 (2019). [doi:10.1109/TMI.2018.2865356](https://doi.org/10.1109/TMI.2018.2865356)
-
-[^urman]: Urman Y, Nishimura M, Abraham DR, Cao X, Setsompop K. Fully 3D unrolled magnetic resonance fingerprinting reconstruction via staged pretraining and implicit gridding. *Magn Reson Med* 96(5):2516–2529 (2026). [doi:10.1002/mrm.70500](https://doi.org/10.1002/mrm.70500)
 
 [^deq]: Bai S, Kolter JZ, Koltun V. Deep equilibrium models. *Advances in Neural Information Processing Systems* 32:688–699 (2019). [arXiv:1909.01377](https://arxiv.org/abs/1909.01377)
 

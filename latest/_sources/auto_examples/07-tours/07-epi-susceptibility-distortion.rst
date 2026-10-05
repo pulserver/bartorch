@@ -41,6 +41,8 @@ published on OpenNeuro [#ds001600]_, with
 and compares the estimated displacement with the one predicted by a
 gradient-echo field map of the same subject.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Read a BIDS EPI series and its sidecar, and compute the bandwidth per pixel
@@ -54,7 +56,7 @@ gradient-echo field map of the same subject.
 * Assess the estimated displacement against an independent field map, and the
   correction by the agreement of the two corrected images.
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-74
+.. GENERATED FROM PYTHON SOURCE LINES 42-76
 
 .. code-block:: Python
 
@@ -74,7 +76,7 @@ gradient-echo field map of the same subject.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-86
+.. GENERATED FROM PYTHON SOURCE LINES 77-88
 
 The data
 --------
@@ -88,7 +90,7 @@ volumes; their mean is taken to raise the signal-to-noise ratio.
 x)`` and the affine from voxel indices ``(x, y, z)`` to RAS millimetres;
 the sidecars hold the timings of the readout.
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-105
+.. GENERATED FROM PYTHON SOURCE LINES 89-107
 
 .. code-block:: Python
 
@@ -126,7 +128,7 @@ the sidecars hold the timings of the readout.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-131
+.. GENERATED FROM PYTHON SOURCE LINES 108-133
 
 The voxel axis ``x`` points to the subject's left and ``y`` to anterior, so
 ``PhaseEncodingDirection`` ``j`` is posterior to anterior and ``j-`` anterior
@@ -154,7 +156,7 @@ for a positive :math:`\Delta f`, and reversing the blips reverses it. The
 readout, at a bandwidth per pixel of ``PixelBandwidth``, is displaced by a
 fraction of a voxel, which is neglected.
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-148
+.. GENERATED FROM PYTHON SOURCE LINES 134-150
 
 .. code-block:: Python
 
@@ -190,7 +192,7 @@ fraction of a voxel, which is neglected.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-159
+.. GENERATED FROM PYTHON SOURCE LINES 151-161
 
 Reference field map
 -------------------
@@ -203,7 +205,7 @@ smoothed as a complex exponential over one voxel. The displacement it
 predicts for the blip-up image is
 :math:`\Delta f / \mathrm{BW}_{PE}` voxels towards anterior.
 
-.. GENERATED FROM PYTHON SOURCE LINES 160-184
+.. GENERATED FROM PYTHON SOURCE LINES 162-186
 
 .. code-block:: Python
 
@@ -234,7 +236,7 @@ predicts for the blip-up image is
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-199
+.. GENERATED FROM PYTHON SOURCE LINES 187-201
 
 Correction from the reversed pair
 ---------------------------------
@@ -251,7 +253,7 @@ voxel size and the phase-encoding axis ``y``, and :math:`b` is returned in
 millimetres along the voxel axis ``y``, that is towards anterior, on the
 faces between voxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 200-215
+.. GENERATED FROM PYTHON SOURCE LINES 202-217
 
 .. code-block:: Python
 
@@ -267,7 +269,7 @@ faces between voxels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-223
+.. GENERATED FROM PYTHON SOURCE LINES 218-225
 
 The corrected pair
 ------------------
@@ -277,7 +279,7 @@ Their agreement is measured over the brain, where the corrected EPI and the
 field map's magnitude both have signal, as the correlation coefficient and
 as the root-mean-square difference relative to the mean image.
 
-.. GENERATED FROM PYTHON SOURCE LINES 224-239
+.. GENERATED FROM PYTHON SOURCE LINES 226-241
 
 .. code-block:: Python
 
@@ -310,7 +312,7 @@ as the root-mean-square difference relative to the mean image.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-307
+.. GENERATED FROM PYTHON SOURCE LINES 242-309
 
 
 
@@ -343,7 +345,7 @@ as the root-mean-square difference relative to the mean image.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 308-340
+.. GENERATED FROM PYTHON SOURCE LINES 310-342
 
 Slice 21 passes through the orbitofrontal cortex and slice 14 through the
 temporal poles and the cerebellum; the lower row of each figure enlarges the
@@ -378,7 +380,7 @@ correlation there measures noise. The field map was acquired with its own
 shim, so the two fields may also differ by a smooth field of first and
 second order.
 
-.. GENERATED FROM PYTHON SOURCE LINES 341-368
+.. GENERATED FROM PYTHON SOURCE LINES 343-370
 
 .. code-block:: Python
 
@@ -427,7 +429,7 @@ second order.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 369-407
+.. GENERATED FROM PYTHON SOURCE LINES 371-409
 
 
 
@@ -453,7 +455,7 @@ second order.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 408-436
+.. GENERATED FROM PYTHON SOURCE LINES 410-438
 
 The estimate follows the pattern of the field-map prediction: anterior
 displacement above the frontal sinus and in the cerebellum, posterior
@@ -487,7 +489,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.760 seconds)
+   **Total running time of the script:** (0 minutes 4.657 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_07-epi-susceptibility-distortion.py:

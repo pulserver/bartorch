@@ -38,6 +38,8 @@ nodding and drifting head over a 12 s scan with a constant-velocity extended
 Kalman filter, as in PROMO [#promo]_, which tracks the head with three
 orthogonal spiral navigators.
 
+**Prerequisites.** :doc:`../04-non-cartesian/01-trajectories-and-transforms`.
+
 **Learning objectives**
 
 * Relate each 2D navigator plane to the three degrees of freedom it measures,
@@ -50,7 +52,7 @@ orthogonal spiral navigators.
 * Set the filter's process and measurement noise against the precision of the
   navigator and the dynamics of the motion.
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-60
+.. GENERATED FROM PYTHON SOURCE LINES 38-62
 
 .. code-block:: Python
 
@@ -71,7 +73,7 @@ orthogonal spiral navigators.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-69
+.. GENERATED FROM PYTHON SOURCE LINES 63-71
 
 The head
 --------
@@ -82,7 +84,7 @@ axis 1 posterior to anterior (A/P) and axis 2 left to right (L/R). Poses are
 stated in that frame: a rotation vector in radians about the centre of the
 volume, printed in degrees, and a translation in millimetres.
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-90
+.. GENERATED FROM PYTHON SOURCE LINES 72-92
 
 .. code-block:: Python
 
@@ -106,7 +108,7 @@ volume, printed in degrees, and a translation in millimetres.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-105
+.. GENERATED FROM PYTHON SOURCE LINES 93-107
 
 The navigator
 -------------
@@ -123,7 +125,7 @@ plane by the density-compensated adjoint NUFFT, with weights from
 rows and columns; it is what relates each plane's in-plane measurement to
 the 3D pose.
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-146
+.. GENERATED FROM PYTHON SOURCE LINES 108-148
 
 .. code-block:: Python
 
@@ -174,7 +176,7 @@ the 3D pose.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-158
+.. GENERATED FROM PYTHON SOURCE LINES 149-160
 
 
 
@@ -188,7 +190,7 @@ the 3D pose.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-167
+.. GENERATED FROM PYTHON SOURCE LINES 161-169
 
 One pose
 --------
@@ -199,7 +201,7 @@ one relative to it. Each plane is registered in 2D by
 :class:`~bartorch.tools.RigidRegistration`; the pose is the
 least-squares solution over the three planes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-189
+.. GENERATED FROM PYTHON SOURCE LINES 170-191
 
 .. code-block:: Python
 
@@ -233,8 +235,8 @@ least-squares solution over the three planes.
  .. code-block:: none
 
                      truth  measured
-    rotation   S/I   1.15°     1.40°
-    rotation   A/P  -1.72°    -1.45°
+    rotation   S/I   1.15°     1.37°
+    rotation   A/P  -1.72°    -1.44°
     rotation   L/R   2.86°     2.51°
     shift      S/I   3.0 mm   3.37 mm
     shift      A/P  -2.0 mm  -2.66 mm
@@ -243,14 +245,14 @@ least-squares solution over the three planes.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 190-194
+.. GENERATED FROM PYTHON SOURCE LINES 192-196
 
 The measured pose is assessed on the navigator itself: the head moved by the
 measured pose, navigated again, is compared with the navigator after the
 motion. Without correction, the difference is that of the motion; with the
 measured pose, what remains is the error of the pose.
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-211
+.. GENERATED FROM PYTHON SOURCE LINES 197-213
 
 .. code-block:: Python
 
@@ -280,12 +282,12 @@ measured pose, what remains is the error of the pose.
 
        axial: NRMSE against the moved navigator, reference 0.335, measured pose 0.051
      coronal: NRMSE against the moved navigator, reference 0.332, measured pose 0.048
-    sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.066
+    sagittal: NRMSE against the moved navigator, reference 0.421, measured pose 0.065
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 212-229
+.. GENERATED FROM PYTHON SOURCE LINES 214-231
 
 
 
@@ -299,7 +301,7 @@ measured pose, what remains is the error of the pose.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 230-249
+.. GENERATED FROM PYTHON SOURCE LINES 232-251
 
 The residual error of the pose, a fraction of a degree and of a millimetre,
 has two sources: the navigator's 4 mm resolution, and the
@@ -321,7 +323,7 @@ rad²/s⁴ and mm²/s⁴; ``measurement_noise`` is the variance it assigns to ea
 measured coordinate. The trace is filtered with three values of
 ``process_noise``; the largest leaves the filter at the measurements.
 
-.. GENERATED FROM PYTHON SOURCE LINES 250-292
+.. GENERATED FROM PYTHON SOURCE LINES 252-294
 
 .. code-block:: Python
 
@@ -375,14 +377,14 @@ measured coordinate. The trace is filtered with three values of
 
  .. code-block:: none
 
-    process_noise 100    rms error: rotation S/I 0.48°, A/P 0.36°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
-    process_noise 0.001  rms error: rotation S/I 0.42°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
-    process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
+    process_noise 100    rms error: rotation S/I 0.48°, A/P 0.37°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
+    process_noise 0.001  rms error: rotation S/I 0.45°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
+    process_noise 0.0001 rms error: rotation S/I 0.42°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 293-313
+.. GENERATED FROM PYTHON SOURCE LINES 295-315
 
 
 
@@ -396,7 +398,7 @@ measured coordinate. The trace is filtered with three values of
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 314-339
+.. GENERATED FROM PYTHON SOURCE LINES 316-341
 
 A large ``process_noise`` leaves the filter at the measurements; a small one
 makes it trust its constant-velocity prediction, which smooths the
@@ -427,7 +429,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.614 seconds)
+   **Total running time of the script:** (0 minutes 4.668 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_06-navigator-motion.py:

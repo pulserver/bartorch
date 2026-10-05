@@ -57,10 +57,10 @@ this page and present in the script this page can be downloaded as.
   under :class:`bartorch.nlop.IRGNM`.
 
 It follows :doc:`01-coil-calibration`, which used ``nlinv`` as a calibration
-step. The next lesson, :doc:`03-noise-prewhitening`, turns to the noise model
-of the receive channels.
+step. The next lesson, :doc:`../03-regularization/01-regularized-reconstruction`,
+adds a prior on the image to the encoding that calibration provides.
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-246
+.. GENERATED FROM PYTHON SOURCE LINES 46-230
 
 .. code-block:: Python
 
@@ -103,7 +103,7 @@ of the receive channels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 247-262
+.. GENERATED FROM PYTHON SOURCE LINES 231-246
 
 Six central lines locate the k-space centre but do not calibrate anything
 on their own. With ESPIRiT's default kernel of six points, a six-line ACS
@@ -121,7 +121,7 @@ regularization weight is halved after every step, so stopping early leaves a
 smoother image and running longer eventually lets the noise in. Eight steps
 is BART's default; twelve are used here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 263-272
+.. GENERATED FROM PYTHON SOURCE LINES 247-256
 
 .. code-block:: Python
 
@@ -148,7 +148,7 @@ is BART's default; twelve are used here.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 273-329
+.. GENERATED FROM PYTHON SOURCE LINES 257-293
 
 
 
@@ -170,18 +170,11 @@ is BART's default; twelve are used here.
          :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_002.png
          :class: sphx-glr-multi-img
 
-    *
-
-      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_003.png
-         :alt: simulated, channel 2, simulated, channel 4, simulated, channel 6, nlinv, channel 2, nlinv, channel 4, nlinv, channel 6
-         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_003.png
-         :class: sphx-glr-multi-img
 
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 330-372
+.. GENERATED FROM PYTHON SOURCE LINES 294-336
 
 From a third of the phase encodes and six central lines, nonlinear inversion
 removes the aliasing of the zero-filled image; its error is concentrated at
@@ -199,8 +192,8 @@ The pair is determined only up to a common factor: multiplying every map by
 a nonzero function :math:`\gamma(r)` and dividing the image by it leaves the
 data unchanged (:doc:`../../explanation/nonlinear`). The weighting restricts
 :math:`\gamma` to smooth functions, so the estimated maps match the
-simulated ones up to a smooth common magnitude and phase. The figures above
-therefore show the estimated maps inside the head, divided by their root sum
+simulated ones up to a smooth common magnitude and phase. The figure above
+therefore shows the estimated maps inside the head, divided by their root sum
 of squares and with the phase of channel 0 subtracted, which removes that
 factor; so normalized, they reproduce the simulated maps. An ``nlinv`` image
 is reported after multiplication by the root sum of squares of the maps.
@@ -226,7 +219,7 @@ with :math:`DF_{x_k}` the derivative of the forward model,
 halved after every step, so the first steps are heavily regularized and the
 later ones are not.
 
-.. GENERATED FROM PYTHON SOURCE LINES 373-379
+.. GENERATED FROM PYTHON SOURCE LINES 337-343
 
 .. code-block:: Python
 
@@ -249,14 +242,14 @@ later ones are not.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-384
+.. GENERATED FROM PYTHON SOURCE LINES 344-348
 
 ``nlinv`` scales the data by ``100 / ||y||`` before it starts, which fixes
 the meaning of :math:`\alpha`, and runs the conjugate gradients of each step
 to a hundred iterations or a relative tolerance of a tenth. Given the same
 three settings, the loop written here is the application.
 
-.. GENERATED FROM PYTHON SOURCE LINES 385-398
+.. GENERATED FROM PYTHON SOURCE LINES 349-362
 
 .. code-block:: Python
 
@@ -287,7 +280,7 @@ three settings, the loop written here is the application.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 399-414
+.. GENERATED FROM PYTHON SOURCE LINES 363-378
 
 The two agree to single-precision round-off rather than to the last bit,
 because the data scaling is computed here and inside the application by
@@ -303,9 +296,9 @@ the regularization centre and :math:`\alpha`
 (:doc:`../../explanation/differentiation`).
 
 Reconstructing parameter maps rather than an image, by putting a signal model
-in front of the same encoding, is :doc:`../05-model-based/02-quantitative-models`.
+in front of the same encoding, is :doc:`../05-model-based/01-quantitative-models`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 417-433
+.. GENERATED FROM PYTHON SOURCE LINES 381-397
 
 References
 ----------
@@ -327,7 +320,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.714 seconds)
+   **Total running time of the script:** (0 minutes 3.376 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py:

@@ -67,7 +67,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Networks for complex volumes" href="03-networks-for-complex-volumes.html" />
+    <link rel="next" title="Tours: acquisition and corrections" href="../07-tours/index.html" />
     <link rel="prev" title="Plug-and-play denoisers" href="01-plug-and-play.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -241,7 +241,6 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/03-noise-prewhitening.html">Noise prewhitening</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -252,26 +251,18 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/03-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/02-quantitative-models.html">Parameter maps straight from k-space</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Learned regularization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="01-plug-and-play.html">Plug-and-play denoisers</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">MoDL, on BART’s ADMM</a></li>
-<li class="toctree-l3"><a class="reference internal" href="03-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04-staged-training.html">Staged training of an unrolled network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05-self-supervised-training.html">Training without a reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
-<li class="toctree-l3"><a class="reference internal" href="07-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -279,6 +270,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/04-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/05-uncertainty.html">Uncertainty estimation</a></li>
 </ul>
 </details></li>
 </ul>
@@ -588,8 +594,9 @@ end to end with <code class="docutils literal notranslate"><span class="pre">lig
 per-iteration training.</p></li>
 </ul>
 <p>It follows <a class="reference internal" href="01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a>, which used a pretrained denoiser without
-training. The next lesson, <a class="reference internal" href="03-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a>, builds
-networks for complex multi-channel volumes.</p>
+training. This lesson ends the course; the Tours of
+<a class="reference internal" href="../09-learning-workflows/index.html"><span class="doc">Tours: learning workflows</span></a> extend it to complex volumes, staged and
+self-supervised training, annealed plug-and-play and uncertainty.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
 </span><span class="w">
@@ -816,9 +823,9 @@ reconstruction that produced it.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:08 • 0:00:00 1.43it/s loss: 0.000 psnr:
-                                                               32.724 ssim:
-                                                               0.889
+Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:12 • 0:00:00 0.96it/s loss: 0.000 psnr:
+                                                               32.748 ssim:
+                                                               0.890
 rho ended at 0.027
 </pre></div>
 </div>
@@ -864,7 +871,7 @@ five.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>      adjoint   PSNR 23.71 dB   SSIM 0.679
      CG SENSE   PSNR 29.69 dB   SSIM 0.681
 ADMM, wavelet   PSNR 31.64 dB   SSIM 0.898
-    MoDL, K=5   PSNR 32.73 dB   SSIM 0.888
+    MoDL, K=5   PSNR 32.75 dB   SSIM 0.889
 </pre></div>
 </div>
 <p>The table is not a comparison of methods. Fifteen epochs over twenty-four
@@ -911,10 +918,11 @@ end-to-end one and each block is applied twice.</p></li>
 <p>Pretraining the denoiser in isolation, then greedy per-iteration training,
 then end-to-end fine-tuning with checkpointing, is the staged schedule
 reported for a fully three-dimensional unrolled reconstruction <a class="footnote-reference brackets" href="#urman" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>,
-and the subject of <a class="reference internal" href="04-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a>. Greedy training does not apply
+and the subject of <a class="reference internal" href="../09-learning-workflows/02-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a>.
+Greedy training does not apply
 to the ADMM step: its image is the x-update, which depends on the denoiser
 only through the previous iteration’s auxiliary variable, and a detached
-start removes that dependence. The staged lesson uses a proximal-gradient
+start removes that dependence. The staged-training example uses a proximal-gradient
 step, whose image is the denoiser’s output.</p>
 <p>The gradient of <code class="docutils literal notranslate"><span class="pre">rho</span></code> with checkpointing is compared below with the
 gradient recorded over the whole stack. <code class="docutils literal notranslate"><span class="pre">rho</span></code> enters every iteration and
@@ -932,7 +940,7 @@ through all of them.</p>
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">rho</span><span class="s2">'</span><span class="s2">s gradient: </span><span class="si">{</span><span class="n">made</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> recorded, </span><span class="si">{</span><span class="n">made</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> recomputed</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rho's gradient: 0.000277808 recorded, 0.000277808 recomputed
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>rho's gradient: 0.000688128 recorded, 0.000688128 recomputed
 </pre></div>
 </div>
 <p>A third alternative is not to unroll. <a class="reference internal" href="../../generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a>
@@ -977,7 +985,7 @@ Information Processing Systems</em> 32:688-699 (2019).
 <a class="reference external" href="https://arxiv.org/abs/1909.01377">https://arxiv.org/abs/1909.01377</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 29.505 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 42.017 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-02-modl-with-admm-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/42594de98a240394ccc806510fa4d388/02-modl-with-admm.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-modl-with-admm.ipynb</span></code></a></p>
@@ -1014,11 +1022,11 @@ Information Processing Systems</em> 32:688-699 (2019).
       </div>
     </a>
     <a class="right-next"
-       href="03-networks-for-complex-volumes.html"
+       href="../07-tours/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Networks for complex volumes</p>
+        <p class="prev-next-title">Tours: acquisition and corrections</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

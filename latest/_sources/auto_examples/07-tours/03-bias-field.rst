@@ -34,6 +34,8 @@ elements, estimates the field with N4 [#tustison]_ through
 :func:`bartorch.tools.bias_field_correct`, and compares the corrected image and
 the estimated field with the object and the true field.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Relate the shading of a root-sum-of-squares image to the receive
@@ -45,7 +47,7 @@ the estimated field with the object and the true field.
   of a field of large range, and a smooth intensity variation that belongs to
   the object.
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-71
+.. GENERATED FROM PYTHON SOURCE LINES 33-73
 
 .. code-block:: Python
 
@@ -63,7 +65,7 @@ the estimated field with the object and the true field.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-79
+.. GENERATED FROM PYTHON SOURCE LINES 74-81
 
 Object
 ------
@@ -73,7 +75,7 @@ through the lateral ventricles, 128 x 128 over a 220 mm field of view. The
 BrainWeb tissue model also gives the voxels that are at least 90 % white or
 grey matter, over which the uniformity of each class is measured.
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-86
+.. GENERATED FROM PYTHON SOURCE LINES 82-88
 
 .. code-block:: Python
 
@@ -87,7 +89,7 @@ grey matter, over which the uniformity of each class is measured.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-96
+.. GENERATED FROM PYTHON SOURCE LINES 89-98
 
 The shaded image
 ----------------
@@ -99,7 +101,7 @@ independent complex Gaussian noise; their root sum of squares is the object
 weighted by the bias field :math:`B = \sqrt{\sum_c |S_c|^2}`, and the noise
 adds a Rician floor in the background.
 
-.. GENERATED FROM PYTHON SOURCE LINES 97-112
+.. GENERATED FROM PYTHON SOURCE LINES 99-114
 
 .. code-block:: Python
 
@@ -131,7 +133,7 @@ adds a Rician floor in the background.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-128
+.. GENERATED FROM PYTHON SOURCE LINES 115-130
 
 N4 correction
 -------------
@@ -149,7 +151,7 @@ of 4 would leave a 32 x 32 grid of this 128 matrix; a factor of 2 keeps
 the standard deviation over the mean, which the object has too through
 partial volume at the class boundaries.
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-144
+.. GENERATED FROM PYTHON SOURCE LINES 131-146
 
 .. code-block:: Python
 
@@ -183,13 +185,13 @@ partial volume at the class boundaries.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-148
+.. GENERATED FROM PYTHON SOURCE LINES 147-150
 
 A multiplicative field is determined up to a constant factor, which the
 correction leaves in the image. The estimate is therefore compared with the
 true field after scaling both to unit mean over the brain.
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-163
+.. GENERATED FROM PYTHON SOURCE LINES 151-165
 
 .. code-block:: Python
 
@@ -220,7 +222,7 @@ true field after scaling both to unit mean over the brain.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 164-245
+.. GENERATED FROM PYTHON SOURCE LINES 166-247
 
 
 
@@ -260,7 +262,7 @@ true field after scaling both to unit mean over the brain.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 246-261
+.. GENERATED FROM PYTHON SOURCE LINES 248-263
 
 The images share one window, each scaled to its white-matter mean. In the
 shaded image the frontal lobes are darker than the occipital lobes: along
@@ -278,7 +280,7 @@ image. The alternatives compared here are a mask of the whole head, which
 adds the scalp and the skull, and a brain mask, such as a skull-stripping
 tool provides; the BrainWeb tissue model gives it here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-269
+.. GENERATED FROM PYTHON SOURCE LINES 264-271
 
 .. code-block:: Python
 
@@ -304,7 +306,7 @@ tool provides; the BrainWeb tissue model gives it here.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 270-279
+.. GENERATED FROM PYTHON SOURCE LINES 272-281
 
 N4 sharpens one histogram over the whole mask. The scalp and the skull add
 intensity classes of their own, and the fit over the head mask is the least
@@ -316,7 +318,7 @@ on the full grid. A field that is smooth on the scale of the head needs few
 grid points, and the cost of each N4 iteration falls with their number,
 until the shrunk image holds too few voxels of each tissue class.
 
-.. GENERATED FROM PYTHON SOURCE LINES 280-285
+.. GENERATED FROM PYTHON SOURCE LINES 282-287
 
 .. code-block:: Python
 
@@ -341,7 +343,7 @@ until the shrunk image holds too few voxels of each tissue class.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 286-292
+.. GENERATED FROM PYTHON SOURCE LINES 288-294
 
 What N4 does not recover
 ------------------------
@@ -350,7 +352,7 @@ The estimate degrades as the range of the field grows. With the four
 posterior elements alone the field falls steeply towards the frontal pole,
 and N4 overestimates it there.
 
-.. GENERATED FROM PYTHON SOURCE LINES 293-305
+.. GENERATED FROM PYTHON SOURCE LINES 295-307
 
 .. code-block:: Python
 
@@ -380,7 +382,7 @@ and N4 overestimates it there.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 306-319
+.. GENERATED FROM PYTHON SOURCE LINES 308-321
 
 
 
@@ -394,7 +396,7 @@ and N4 overestimates it there.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 320-344
+.. GENERATED FROM PYTHON SOURCE LINES 322-346
 
 The corrected frontal cortex remains darker than the occipital cortex,
 because the estimated field does not fall as far as the true one at the frontal pole. A
@@ -424,7 +426,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.391 seconds)
+   **Total running time of the script:** (0 minutes 3.425 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_03-bias-field.py:
