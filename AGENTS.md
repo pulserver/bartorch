@@ -1231,7 +1231,10 @@ used to be. Docstrings follow *Documentation* below.
 
 ## What is not done
 
-Tools with optional extra outputs.  BART's other operator constructors --
+Optional outputs of derived tools: a derived wrapper returns the outputs BART
+requires, and an output BART marks optional is returned only where a hand-written
+wrapper adds it (`return_eigenvalues`, `return_sensitivities`, `return_matrix`,
+`return_covariance`).  BART's other operator constructors --
 resize, transpose, sum, finite differences, wavelets, exponentials and the rest
 in `linops/` and `nlops/` -- which would let an application assembled here stay
 one BART operator.  `ictv`, which fails inside BART for every input

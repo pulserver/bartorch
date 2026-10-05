@@ -116,12 +116,16 @@ def pics(
         :mod:`bartorch.priors` terms.  Their axes index the image's shape.
     l2 : float, default=None
         Plain Tikhonov weight.
-    solver : {'cg', 'ist', 'fista', 'admm', 'pridu'}, default=None
+    solver : {'cg', 'ist', 'fista', 'admm', 'pridu', 'niht'}, default=None
         ``None`` chooses from the terms, as the application does.  IST and
         FISTA apply a term's proximal operator to the image, so a first term
         over a transform -- :class:`~bartorch.priors.FourierL1`,
         :class:`~bartorch.priors.Laplace` -- for which the application
         chooses FISTA is refused here; ``'admm'`` and ``'pridu'`` take it.
+        ``'niht'`` is the normalized iterative hard thresholding the
+        application chooses for the hard-thresholding terms
+        :class:`~bartorch.priors.WaveletNIHT` and
+        :class:`~bartorch.priors.ImageNIHT`.
     maxiter : int, default=None
         Iterations; BART's default is thirty.
     step : float, default=None

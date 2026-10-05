@@ -240,10 +240,13 @@ print(E.plan)
 
 # %%
 #
-# The operator's samples are ``(coils, spokes, samples)``. BART's applications
-# carry non-Cartesian k-space in their own layout, ``(coils, spokes, samples,
-# 1)``, whose trailing axis is the readout dimension of a Cartesian
-# acquisition, so an application is given ``measured[..., None]``.
+# The operator's samples are ``(coils, spokes, samples)`` along a trajectory
+# ``(spokes, samples, 3)`` whose ``kz`` component is zero, which makes the
+# transform two-dimensional. :func:`bartorch.apps.pics` takes that layout.
+# BART's commands, :func:`bartorch.tools.ncalib` and
+# :func:`bartorch.nufft_adjoint` among them, carry non-Cartesian k-space as
+# ``(coils, spokes, samples, 1)``, whose trailing axis is the readout dimension
+# of a Cartesian acquisition, so they are given ``measured[..., None]``.
 #
 # Sensitivity calibration
 # -----------------------

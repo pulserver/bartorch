@@ -296,13 +296,13 @@ trainer.fit(
 # :class:`~bartorch.learning.Patchwise` keeps the volume in host memory and
 # sends it to the network's device a few patches at a time, runs the network
 # there in mixed precision, and assembles the result on the host. On a GPU
-# only the network and ``batch`` patches are resident, so a volume larger than
-# the GPU memory -- a whole-brain fingerprinting series on a scanner's
-# 16 GB GPU -- is denoised by a network trained on patches of it. At
-# inference the copies of one group of patches overlap the computation on the
-# previous one. Here, on the host, the whole volume is also small enough to be
-# denoised in one call, which is the reference the patchwise result is
-# compared with.
+# only the network and one group of ``batch`` patches are resident -- two
+# groups at inference, where the copies of one group overlap the computation
+# on the previous one. A volume larger than the GPU memory, such as a
+# whole-brain fingerprinting series on a scanner's 16 GB GPU, is therefore
+# denoised by a network trained on patches of it. Here, on the host, the whole
+# volume is also small enough to be denoised in one call, which is the
+# reference the patchwise result is compared with.
 #
 # A U-Net is not translation invariant at a patch boundary: its receptive field
 # extends past the patch, where it sees zeros rather than the neighbouring

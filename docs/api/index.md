@@ -13,9 +13,9 @@ complete workflows in the {doc}`examples <../auto_examples/index>`.
 | {doc}`optim` | `bartorch.optim` | Iterative solvers, iteration blocks and data scaling |
 | {doc}`priors` | `bartorch.priors` | Regularization terms, plug-and-play priors and BART's denoisers |
 | {doc}`apps` | `bartorch.apps` | BART reconstruction pipelines assembled from operators and solvers |
-| {doc}`learning` | `bartorch.learning` | Unrolled iterations and real/complex channel conversions |
+| {doc}`learning` | `bartorch.learning` | Networks for complex images, unrolled iterations, patchwise execution, self-supervised splitting, uncertainty and training stages |
 | {doc}`interop` | `bartorch.interop` | DeepInverse physics adapter |
-| {doc}`io` | `bartorch.io` | CFL files |
+| {doc}`io` | `bartorch.io` | CFL files, ISMRMRD raw data, DICOM and NIfTI images |
 | {doc}`cli` | `bartorch.cli` | The `bartorch` command line |
 
 ```{toctree}

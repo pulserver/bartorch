@@ -27,7 +27,9 @@ class Patchwise(nn.Module):
     non-overlapping patches over its trailing ``len(patch)`` axes, which are
     copied to the device a few at a time, passed through the network under
     automatic mixed precision, and copied back into place.  What the device
-    holds at any moment is the network and ``batch`` patches, so a volume or
+    holds at any moment is the network and ``batch`` patches, or, while
+    ``overlap`` is in effect, two groups of ``batch`` patches and the outputs
+    not yet placed, so a volume or
     a time series of volumes larger than the device's memory goes through a
     network trained on patches of it.  The result is on the input's device,
     in single precision, and differentiable with respect to both the input
