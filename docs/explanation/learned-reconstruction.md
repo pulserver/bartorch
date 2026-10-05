@@ -82,7 +82,8 @@ at random at every call, so successive iterations place the seams differently.
 ## Training
 
 An unrolled network of many iterations records every iteration's activations
-during the backward pass.  Staged training bounds the memory:[^urman]
+during the backward pass ({doc}`differentiation` tabulates the memory of each
+setting).  Staged training bounds the memory:[^urman]
 
 1. The denoiser is trained alone, on pairs of an image and a degraded copy of
    it, with the iteration index it is to be used at.

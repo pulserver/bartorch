@@ -55,7 +55,7 @@ solver.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 from cmap import Colormap
-from matplotlib.colors import ListedColormap
+from gallery_style import domain, phase_bar
 
 WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 
@@ -63,10 +63,6 @@ WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
-# mygbm, turned so that zero phase is yellow and +/-pi is blue.
-MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
-PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
 
 # Colormap, window and unit per parameter.  Both relaxation windows stop short
 # of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
@@ -112,18 +108,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
 
 
-def phase_bar(figure, axes):
-    """The colour-to-phase key for the panels beside it."""
-    bar = figure.colorbar(
-        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
-        ax=axes,
-        fraction=0.046,
-        ticks=[-np.pi, 0.0, np.pi],
-    )
-    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
-    bar.set_label("phase [rad]")
-
-
 def errors(figure, axes, estimates, reference, scale):
     """|estimate - reference| relative to the reference's peak, on one scale."""
     peak = float(reference.abs().max())
@@ -140,7 +124,6 @@ def scaled(estimate, reference):
 
 
 # sphinx_gallery_end_ignore
-import numpy as np
 import torch
 
 import bartorch
@@ -228,28 +211,26 @@ print(
 
 # sphinx_gallery_start_ignore
 channel = 2
-figure, axes = panels(3, rows=2, bars=1)
+figure, axes = panels(3, bars=1)
 for column, (name, maps) in enumerate(
     (("caldir", direct), ("ESPIRiT", espirit), ("nlinv", nonlinear))
 ):
-    handle = show(axes[0, column], maps[channel, 0], f"{name}, channel {channel}", vmax=1.0)
-    show(axes[1, column], maps[channel, 0].angle().numpy(), cmap=PHASE, vmin=-np.pi, vmax=np.pi)
-scalebar(figure, axes[0, :], handle, "|sensitivity|")
-phase_bar(figure, axes[1, :])
+    domain(axes[0, column], maps[channel, 0], f"{name}, channel {channel}", ceiling=1.0)
+phase_bar(figure, axes)
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
 #
-# The figure shows the three estimates of one channel, magnitude above and
-# phase below. The phase of a sensitivity map is determined only up to a phase
-# common to all channels, which each estimator fixes differently; that common phase
-# passes into the phase of the reconstructed image and leaves its magnitude
-# unchanged. Up to it, the three estimates agree inside the object. They
-# differ outside it, where the data do not determine a sensitivity:
-# ``caldir`` divides noise by noise there and returns an arbitrary unit-modulus
-# value, ESPIRiT sets the maps to zero, and ``nlinv`` extrapolates the smooth
-# function its regularization favours.
+# The figure shows the three estimates of one channel, with the phase in
+# colour and the magnitude in brightness. The phase of a sensitivity map is
+# determined only up to a phase common to all channels, which each estimator
+# fixes differently; that common phase passes into the phase of the
+# reconstructed image and leaves its magnitude unchanged. Up to it, the three
+# estimates agree inside the object. They differ outside it, where the data do
+# not determine a sensitivity: ``caldir`` divides noise by noise there and
+# returns an arbitrary unit-modulus value, ESPIRiT sets the maps to zero, and
+# ``nlinv`` extrapolates the smooth function its regularization favours.
 #
 # Each set of sensitivities is given to :func:`bartorch.apps.pics` with the
 # same Tikhonov weight and number of conjugate-gradient iterations, so that

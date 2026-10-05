@@ -47,7 +47,7 @@ adds a prior on the image to the encoding that calibration provides.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 from cmap import Colormap
-from matplotlib.colors import ListedColormap
+from gallery_style import domain, phase_bar
 from scipy import ndimage
 
 WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
@@ -56,10 +56,6 @@ WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
-# mygbm, turned so that zero phase is yellow and +/-pi is blue.
-MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
-PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
 
 # Colormap, window and unit per parameter.  Both relaxation windows stop short
 # of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
@@ -103,18 +99,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-
-
-def phase_bar(figure, axes):
-    """The colour-to-phase key for the panels beside it."""
-    bar = figure.colorbar(
-        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
-        ax=axes,
-        fraction=0.046,
-        ticks=[-np.pi, 0.0, np.pi],
-    )
-    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
-    bar.set_label("phase [rad]")
 
 
 def errors(figure, axes, estimates, reference, scale):
@@ -301,27 +285,7 @@ channels = (2, 4, 6)
 figure, axes = panels(3, rows=2, bars=1)
 for row, (label, maps) in enumerate(pairs):
     for column, channel in enumerate(channels):
-        handle = show(
-            axes[row, column],
-            maps[channel],
-            f"{label}, channel {channel}",
-            vmax=1.0,
-            cmap="viridis",
-        )
-figure.colorbar(handle, ax=axes, fraction=0.046, label="|sensitivity|")
-plt.show()
-
-figure, axes = panels(3, rows=2, bars=1)
-for row, (label, maps) in enumerate(pairs):
-    for column, channel in enumerate(channels):
-        show(
-            axes[row, column],
-            np.ma.masked_where(~inside.numpy(), maps[channel].angle().numpy()),
-            f"{label}, channel {channel}",
-            cmap=PHASE,
-            vmin=-np.pi,
-            vmax=np.pi,
-        )
+        domain(axes[row, column], maps[channel], f"{label}, channel {channel}", ceiling=1.0)
 phase_bar(figure, axes)
 plt.show()
 # sphinx_gallery_end_ignore
@@ -344,8 +308,8 @@ plt.show()
 # a nonzero function :math:`\gamma(r)` and dividing the image by it leaves the
 # data unchanged (:doc:`../../explanation/nonlinear`). The weighting restricts
 # :math:`\gamma` to smooth functions, so the estimated maps match the
-# simulated ones up to a smooth common magnitude and phase. The figures above
-# therefore show the estimated maps inside the head, divided by their root sum
+# simulated ones up to a smooth common magnitude and phase. The figure above
+# therefore shows the estimated maps inside the head, divided by their root sum
 # of squares and with the phase of channel 0 subtracted, which removes that
 # factor; so normalized, they reproduce the simulated maps. An ``nlinv`` image
 # is reported after multiplication by the root sum of squares of the maps.

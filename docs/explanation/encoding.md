@@ -142,9 +142,9 @@ iteration.
 
 **Non-Cartesian sampling** (`"kernel"`).  The normal operator of the transform
 alone, $Q = \mathrm{NUFFT}^H W^H W\, \mathrm{NUFFT}$, is a convolution with the
-point spread function of the weighted trajectory, evaluated exactly on a grid
-doubled in each dimension ({doc}`non-cartesian`).[^fessler2005]  The full SENSE
-normal operator is
+point spread function of the weighted trajectory, which {doc}`non-cartesian`
+derives together with the storage of its transfer function.[^fessler2005]  The
+full SENSE normal operator is
 
 $$
 A^H A = \sum_c \overline{S_c}\; Q\; S_c ,
@@ -152,10 +152,9 @@ $$
 
 which is not translation invariant: the sensitivities vary in space, so only
 the transform's normal $Q$ is a convolution.  It is applied coil by coil as
-multiplication by $S_c$, zero-padding to the doubled grid, an FFT,
-multiplication by $\hat h$, an inverse FFT, cropping, and multiplication by
-$\overline{S_c}$.  With a subspace basis, $\hat h$ becomes a kernel over pairs
-of coefficients, as in the Cartesian case.
+multiplication by $S_c$, $Q$, and multiplication by $\overline{S_c}$.  With a
+subspace basis, the kernel of $Q$ is taken over pairs of coefficients, as in
+the Cartesian case.
 
 **Forward and adjoint** (`"applications"`).  bartorch builds no kernel for a
 contraction over terms — the segments of an off-resonance correction, the
