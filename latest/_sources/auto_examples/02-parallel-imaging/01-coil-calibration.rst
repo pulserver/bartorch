@@ -353,7 +353,7 @@ affects it only through the first Gauss-Newton steps.
     ESPIRiT: 0% of voxels with a sensitivity
           caldir  NRMSE 0.173
            nlinv  NRMSE 0.040
-     nlinv image  NRMSE 0.034
+     nlinv image  NRMSE 0.033
 
 
 
@@ -421,7 +421,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.715 seconds)
+   **Total running time of the script:** (0 minutes 3.593 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_01-coil-calibration.py:

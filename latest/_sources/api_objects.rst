@@ -69,6 +69,8 @@ bartorch.linop
    NoncartesianSense
    WaveSense
    FieldCorrected
+   wave_psf
+   wave_calibrate
    LinearOperator
    Identity
    Zero
@@ -296,6 +298,7 @@ bartorch.tools
    estimate_epi_phase
    correct_lines
    bias_field_correct
+   reslice
    GradientCoefficients
    CoefficientAccessor
    Gradunwarp

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:33.011** total execution time for 1 file **from auto_examples/05-model-based**:
+**00:21.048** total execution time for 1 file **from auto_examples/05-model-based**:
 
 .. container::
 
@@ -33,5 +33,5 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_05-model-based_01-quantitative-models.py` (``01-quantitative-models.py``)
-     - 00:33.011
+     - 00:21.048
      - 0.0

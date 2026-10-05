@@ -295,7 +295,7 @@ and are scored against its reference.
 
  .. code-block:: none
 
-                  supervised   PSNR 30.20 dB   SSIM 0.945
+                  supervised   PSNR 30.25 dB   SSIM 0.952
              self-supervised   PSNR 28.59 dB   SSIM 0.726
      CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 
@@ -342,7 +342,7 @@ acquired are the ones it cannot score against.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_03-self-supervised-training_004.png
-         :alt: CG-SENSE NRMSE 0.124, supervised NRMSE 0.063, self-supervised NRMSE 0.076
+         :alt: CG-SENSE NRMSE 0.124, supervised NRMSE 0.062, self-supervised NRMSE 0.076
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_03-self-supervised-training_004.png
          :class: sphx-glr-multi-img
 
@@ -368,7 +368,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 58.658 seconds)
+   **Total running time of the script:** (1 minutes 49.395 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_03-self-supervised-training.py:

@@ -693,6 +693,12 @@ the same objects in tables; this page generates the page of each.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.FieldCorrected.html#bartorch.linop.FieldCorrected" title="bartorch.linop.FieldCorrected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FieldCorrected</span></code></a></p></td>
 <td><p>Off-resonance-corrected encoding operator, by time segmentation.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.wave_psf.html#bartorch.linop.wave_psf" title="bartorch.linop.wave_psf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wave_psf</span></code></a></p></td>
+<td><p>Wave point-spread function from the wave's phase-encode trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.wave_calibrate.html#bartorch.linop.wave_calibrate" title="bartorch.linop.wave_calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wave_calibrate</span></code></a></p></td>
+<td><p>Fit the wave's gradient amplitude and delay to a wave-free calibration region.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p></td>
 <td><p>A linear map between two C-order shapes, with an adjoint.</p></td>
 </tr>
@@ -1242,49 +1248,52 @@ the same objects in tables; this page generates the page of each.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_field_correct</span></code></a></p></td>
 <td><p>Divide a magnitude image by its N4-estimated multiplicative bias field.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.GradientCoefficients.html#bartorch.tools.GradientCoefficients" title="bartorch.tools.GradientCoefficients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GradientCoefficients</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.reslice.html#bartorch.tools.reslice" title="bartorch.tools.reslice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reslice</span></code></a></p></td>
+<td><p>Resample an image onto the grid of another prescription from header geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.GradientCoefficients.html#bartorch.tools.GradientCoefficients" title="bartorch.tools.GradientCoefficients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GradientCoefficients</span></code></a></p></td>
 <td><p>Spherical-harmonic coefficients of a gradient coil's departure from linearity.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.CoefficientAccessor.html#bartorch.tools.CoefficientAccessor" title="bartorch.tools.CoefficientAccessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoefficientAccessor</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.CoefficientAccessor.html#bartorch.tools.CoefficientAccessor" title="bartorch.tools.CoefficientAccessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoefficientAccessor</span></code></a></p></td>
 <td><p>Source of a coefficient table that is not a file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.Gradunwarp.html#bartorch.tools.Gradunwarp" title="bartorch.tools.Gradunwarp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gradunwarp</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.Gradunwarp.html#bartorch.tools.Gradunwarp" title="bartorch.tools.Gradunwarp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gradunwarp</span></code></a></p></td>
 <td><p>Gradient nonlinearity correction of images from a coil's coefficient table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.field_map_from_phase.html#bartorch.tools.field_map_from_phase" title="bartorch.tools.field_map_from_phase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">field_map_from_phase</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.field_map_from_phase.html#bartorch.tools.field_map_from_phase" title="bartorch.tools.field_map_from_phase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">field_map_from_phase</span></code></a></p></td>
 <td><p>Off-resonance frequency from the phase of single-echo coil images.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.ReadoutTiming.html#bartorch.tools.ReadoutTiming" title="bartorch.tools.ReadoutTiming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReadoutTiming</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.ReadoutTiming.html#bartorch.tools.ReadoutTiming" title="bartorch.tools.ReadoutTiming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReadoutTiming</span></code></a></p></td>
 <td><p>Readout time of a spiral arm as a function of the squared k-space radius.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer" title="bartorch.tools.SpiralTransfer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpiralTransfer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer" title="bartorch.tools.SpiralTransfer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpiralTransfer</span></code></a></p></td>
 <td><p>Low-rank factorization of the off-resonance transfer of a spiral readout.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.fit_transfer.html#bartorch.tools.fit_transfer" title="bartorch.tools.fit_transfer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transfer</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.fit_transfer.html#bartorch.tools.fit_transfer" title="bartorch.tools.fit_transfer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transfer</span></code></a></p></td>
 <td><p>Fit a <a class="reference internal" href="generated/bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer" title="bartorch.tools.SpiralTransfer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpiralTransfer</span></code></a> to a readout's time map.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.deblur.html#bartorch.tools.deblur" title="bartorch.tools.deblur"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deblur</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.deblur.html#bartorch.tools.deblur" title="bartorch.tools.deblur"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deblur</span></code></a></p></td>
 <td><p>Remove off-resonance blur from a reconstructed spiral image.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_susceptibility</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_susceptibility</span></code></a></p></td>
 <td><p>Correct susceptibility distortion from a pair with reversed phase encoding.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SusceptibilityCorrection</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.SusceptibilityCorrection.html#bartorch.tools.SusceptibilityCorrection" title="bartorch.tools.SusceptibilityCorrection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SusceptibilityCorrection</span></code></a></p></td>
 <td><p>Result of <a class="reference internal" href="generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-func docutils literal notranslate"><span class="pre">correct_susceptibility()</span></code></a>, in the input's axis order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.reconstruct_navigator.html#bartorch.tools.reconstruct_navigator" title="bartorch.tools.reconstruct_navigator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct_navigator</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.reconstruct_navigator.html#bartorch.tools.reconstruct_navigator" title="bartorch.tools.reconstruct_navigator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct_navigator</span></code></a></p></td>
 <td><p>Magnitude images of a navigator's planes by density-compensated adjoint NUFFT.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.RigidRegistration.html#bartorch.tools.RigidRegistration" title="bartorch.tools.RigidRegistration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RigidRegistration</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.RigidRegistration.html#bartorch.tools.RigidRegistration" title="bartorch.tools.RigidRegistration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RigidRegistration</span></code></a></p></td>
 <td><p>Multi-resolution rigid registration of magnitude images with SimpleITK.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate" title="bartorch.tools.RigidMotionEstimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RigidMotionEstimate</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.RigidMotionEstimate.html#bartorch.tools.RigidMotionEstimate" title="bartorch.tools.RigidMotionEstimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RigidMotionEstimate</span></code></a></p></td>
 <td><p>A 2D or 3D rigid transform in SimpleITK physical coordinates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.RigidMotionEKF.html#bartorch.tools.RigidMotionEKF" title="bartorch.tools.RigidMotionEKF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RigidMotionEKF</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.RigidMotionEKF.html#bartorch.tools.RigidMotionEKF" title="bartorch.tools.RigidMotionEKF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RigidMotionEKF</span></code></a></p></td>
 <td><p>Constant-velocity extended Kalman filter over registered rigid poses.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker" title="bartorch.tools.NavigatorMotionTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NavigatorMotionTracker</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker" title="bartorch.tools.NavigatorMotionTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NavigatorMotionTracker</span></code></a></p></td>
 <td><p>Six-degree-of-freedom rigid pose from a navigator's 2D planes, filtered over time.</p></td>
 </tr>
 </tbody>

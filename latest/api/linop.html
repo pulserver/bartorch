@@ -526,6 +526,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mri-encoding-operators">MRI encoding operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wave-calibration">Wave calibration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-class">Operator class</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#elementary-operators">Elementary operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-convolution-finite-difference-and-smoothing-operators">Matrix, convolution, finite-difference and smoothing operators</a></li>
@@ -603,6 +604,25 @@ implement and <a class="reference internal" href="../explanation/differentiation
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.linop.FieldCorrected.html#bartorch.linop.FieldCorrected" title="bartorch.linop.FieldCorrected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FieldCorrected</span></code></a></p></td>
 <td><p>Any of the above</p></td>
 <td><p>Off-resonance correction by time segmentation, <span class="math notranslate nohighlight">\(\sum_l \operatorname{diag}(b_l)\,E\,\operatorname{diag}(c_l)\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="wave-calibration">
+<h2>Wave calibration<a class="headerlink" href="#wave-calibration" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Object</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.linop.wave_psf.html#bartorch.linop.wave_psf" title="bartorch.linop.wave_psf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wave_psf</span></code></a></p></td>
+<td><p>The wave point-spread function <code class="docutils literal notranslate"><span class="pre">WaveSense</span></code> takes, from the wave’s phase-encode trajectory</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.linop.wave_calibrate.html#bartorch.linop.wave_calibrate" title="bartorch.linop.wave_calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wave_calibrate</span></code></a></p></td>
+<td><p>Gradient amplitude and delay of the wave, fitted to a wave-free calibration region</p></td>
 </tr>
 </tbody>
 </table>
@@ -829,6 +849,7 @@ defines <code class="docutils literal notranslate"><span class="pre">forward</sp
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mri-encoding-operators">MRI encoding operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wave-calibration">Wave calibration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-class">Operator class</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#elementary-operators">Elementary operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-convolution-finite-difference-and-smoothing-operators">Matrix, convolution, finite-difference and smoothing operators</a></li>
