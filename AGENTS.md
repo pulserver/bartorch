@@ -939,13 +939,13 @@ files the command writes, in its layout and units.  `pics` is held to the
 bits: its app configures BART's own iteration over BART's own operators, and
 `tests/test_cli.py` holds six command lines through the app route against the
 same six through the command route with `numpy.array_equal`.  `mobafit` and
-`moba` are held to a tolerance, because their apps fit TorchSim's models in
-TorchSim's bounded parameterisation: the same minimum reached by a different
-path.  `cli/_apps.py` writes BART's closed forms in TorchSim's variables --
+`moba` are held to a tolerance, because their apps fit BlochSim's models in
+BlochSim's bounded parameterisation: the same minimum reached by a different
+path.  `cli/_apps.py` writes BART's closed forms in BlochSim's variables --
 `-T` `(M0, R2)` as a multi-echo decay, `-I` `(M0, R1, c)` and `-L`
 `(Mss, M0, R1s)` as an inversion recovery with its efficiency free, `-G`'s
 water and fat as a complex amplitude with a fat fraction and phase, `-D` as
-TorchSim's diffusion decay and `-M` as its Lorentzian lines -- and
+BlochSim's diffusion decay and `-M` as its Lorentzian lines -- and
 converts the named maps back into rates in 1/s from times in seconds, and
 `moba`'s amplitudes into the units of the data scaling the command applies.
 Measured on the test phantoms, `mobafit` agrees with the command to 1e-05 of
@@ -957,11 +957,11 @@ smooth -- B1 for `-P` and `--bloch`, B0 for `-G` and `-D` -- and the app keeps
 it smooth the same way: the map is the Sobolev weighting of a variable,
 `linop.Sobolev` over `linop_noir_weights_create` with the command's own `a`
 and `b`, passed as `apps.moba(smooth=...)`.  `-P` is the Look-Locker model in
-the flip angle, `-G` TorchSim's water and fat multi-echo model over the coil
+the flip angle, `-G` BlochSim's water and fat multi-echo model over the coil
 images the command scales to a norm of a hundred, `moba -D` an echo train
 after each inversion time -- the inversions along `TE_DIM`, the echoes along
-`CSHIFT_DIM` -- as TorchSim's inversion-recovery multi-gradient-echo model,
-and `--bloch` TorchSim's FLASH simulator, after an inversion or not, in
+`CSHIFT_DIM` -- as BlochSim's inversion-recovery multi-gradient-echo model,
+and `--bloch` BlochSim's FLASH simulator, after an inversion or not, in
 `(R1, M0, R2, B1)`.  `-P` agrees with the command to 4.4e-03 in the flip angle
 and `--bloch` to 2e-03 in R1 and B1 on BART's own IR-FLASH test case; `-G` and
 `-D` are held to the rates the data was made from, R2* to 1e-03 and B0 to
@@ -1003,17 +1003,17 @@ operators beside them. Anything else written here would be a second
 implementation that drifts, and a result that is nearly BART's is worth less
 than no result.
 
-Signal simulation is the exception in the other direction: it is TorchSim's,
+Signal simulation is the exception in the other direction: it is BlochSim's,
 not BART's.  `bloch`, `epg`, `sim`, `signal`, `mobasig`, `pulse` and `seq` are
 private, because what a command returns is a curve and what a fit needs is a
 model -- a forward it can differentiate, with bounds and a starting state --
-which is what `nlop`'s `SignalModel` is over a TorchSim simulator.  The
-commands stay reachable through `_call.build` so a test can pin TorchSim's
+which is what `nlop`'s `SignalModel` is over a BlochSim simulator.  The
+commands stay reachable through `_call.build` so a test can pin BlochSim's
 physics against BART's: its closed forms in `tests/test_signal_models.py` and
-`tests/test_nlop_torchsim.py`, its Bloch simulation -- FLASH, balanced
+`tests/test_nlop_blochsim.py`, its Bloch simulation -- FLASH, balanced
 SSFP, each after an inversion, and CEST, over up to five pools -- in
-`tests/test_sim_torchsim.py`, and its extended phase graphs -- every sequence
-`epg` plays, with the derivatives it returns -- in `tests/test_epg_torchsim.py`.
+`tests/test_sim_blochsim.py`, and its extended phase graphs -- every sequence
+`epg` plays, with the derivatives it returns -- in `tests/test_epg_blochsim.py`.
 
 `optim.POCS` is the other iteration that is not a least-squares solve: one
 sweep of a list of projections, applied in turn and in place, which is the
@@ -1035,7 +1035,7 @@ x86 one does not.
 
 `apps.mobafit` is where that decision shows on the surface: it is `mobafit`'s
 method -- the Gauss-Newton loop over the same linearized least-squares problem
--- over a model that is TorchSim's, so it answers in named maps in their own
+-- over a model that is BlochSim's, so it answers in named maps in their own
 units rather than in a stack of BART's coefficients, and it and `apps.moba`
 are the apps not held to their commands' bits.  Its default of twenty Gauss-Newton steps is what a
 bounded parameterisation needs: the command affords five because `--scale`

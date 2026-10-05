@@ -11,7 +11,7 @@ explicit at the native boundary.
 A wrapper around a BART command calls BART; it does not reimplement BART's
 computation in PyTorch, which is used for reshaping and marshalling around the
 call.  The exceptions are listed in `AGENTS.md`: the substitutions that are
-faster than BART, and signal simulation, which is TorchSim's.
+faster than BART, and signal simulation, which is BlochSim's.
 
 ## C
 

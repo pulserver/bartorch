@@ -6,7 +6,7 @@ answers what it answers, so a script that calls ``bart`` runs unchanged against
 read into a Python call and the app runs; everywhere else the command itself
 runs, in this process.  Either route writes the files the command writes, in
 its layout and units; ``pics`` answers the command's bits, and ``mobafit`` and
-``moba`` answer to the tolerance of a fit, because their apps fit TorchSim's
+``moba`` answer to the tolerance of a fit, because their apps fit BlochSim's
 models rather than BART's.
 
 An argument the reader does not express is not an error: the whole command line

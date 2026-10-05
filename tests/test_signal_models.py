@@ -1,18 +1,18 @@
-"""TorchSim's closed forms against the signal models BART computes.
+"""BlochSim's closed forms against the signal models BART computes.
 
 Every closed-form signal model BART ships -- the ``signal`` tool's and the
 nonlinear operators ``mobasig`` evaluates for ``mobafit`` and ``moba`` -- has a
-TorchSim simulator, and these tests hold each pair to single-precision
+BlochSim simulator, and these tests hold each pair to single-precision
 round-off.  The units are each library's own: BART takes seconds, rates in
-1/s and ``fB0`` in Hz with a positive phase, TorchSim milliseconds and ``B0``
+1/s and ``fB0`` in Hz with a positive phase, BlochSim milliseconds and ``B0``
 with the opposite sign.  BART's Look-Locker curves are the longitudinal
-magnetization; TorchSim's carry the readout's ``sin(flip)``.
+magnetization; BlochSim's carry the readout's ``sin(flip)``.
 """
 
 import numpy as np
 import pytest
 import torch
-from torchsim import simulators
+from blochsim import simulators
 
 from bartorch import _call
 

@@ -7,7 +7,7 @@ ignored.
 
 ``pics`` is held to BART's bits: its app configures BART's own iteration over
 BART's own operators.  ``mobafit`` and ``moba`` are held to a tolerance: their
-apps fit TorchSim's models, in TorchSim's bounded parameterisation, so they
+apps fit BlochSim's models, in BlochSim's bounded parameterisation, so they
 reach the minimum the command reaches by a different path and answer to
 round-off of the fit rather than to the bit.  Their adapters convert the named
 maps back into BART's coefficients -- rates in 1/s from times in seconds, the
@@ -118,8 +118,8 @@ def _pics(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
 
 # --- the signal models -----------------------------------------------------
 #
-# BART's closed-form models, each written in the variables of one TorchSim
-# model.  BART's times are in seconds and its rates in 1/s; TorchSim's times
+# BART's closed-form models, each written in the variables of one BlochSim
+# model.  BART's times are in seconds and its rates in 1/s; BlochSim's times
 # are in milliseconds.
 #
 #   T  (M0, R2)       M0 exp(-t R2)                  MultiEcho:  A exp(-t / T2)
@@ -206,11 +206,11 @@ def _coefficients(mode: str, maps: dict[str, torch.Tensor], scale: float = 1.0) 
 
 # --- water and fat -----------------------------------------------------------
 #
-# `-G` fits BART's multi-echo models in the variables of TorchSim's
+# `-G` fits BART's multi-echo models in the variables of BlochSim's
 # MultiGradientEchoSimulator.  BART's echo times are in seconds -- its fat
 # spectrum is -- so R2* comes back in 1/s and fB0 in Hz.
 #
-#   m  BART                        TorchSim
+#   m  BART                        BlochSim
 #   0  (W, F, fB0)                 fat_fraction, fat_phase, B0
 #   1  (W, F, R2*, fB0)            ... and T2star
 #   2  (W, R2*W, F, R2*F, fB0)     (goes to the command)
@@ -218,7 +218,7 @@ def _coefficients(mode: str, maps: dict[str, torch.Tensor], scale: float = 1.0) 
 #   4  (rho, fB0)                  B0
 #
 # with W = A (1 - f), F = A f exp(i phase), R2* = 1000 / T2star and
-# fB0 = -B0: the off-resonance turns the other way round in TorchSim.  A
+# fB0 = -B0: the off-resonance turns the other way round in BlochSim.  A
 # bounded T2* keeps each step physical; a thousand milliseconds is an R2* of
 # 1/s, below anything a gradient-echo train resolves.
 
@@ -235,7 +235,7 @@ _WATER_FAT_ITERATIONS = 60
 
 
 def _water_fat_model(times, voxels, which: int, field_strength: float, spectrum: str):
-    from torchsim.simulators import MultiGradientEchoSimulator
+    from blochsim.simulators import MultiGradientEchoSimulator
 
     from bartorch import nlop
 
@@ -313,15 +313,15 @@ def _water_fat_coefficients(which: int, maps: dict[str, torch.Tensor]) -> torch.
 
 # --- diffusion and Z-spectra ---------------------------------------------------
 #
-# `-D` is M0 exp(enc x) over an encoding with one column, which is -b: TorchSim's
+# `-D` is M0 exp(enc x) over an encoding with one column, which is -b: BlochSim's
 # DiffusionSimulator is M0 exp(-1e-3 b D), so b = -1000 enc and D is BART's
 # coefficient in whatever units the encoding's reciprocal carries.  `-M` is the
 # Lorentzian Z-spectrum over the offsets the encoding lists, (M0, then amplitude,
-# width and shift per pool), in the same order as TorchSim's properties.
+# width and shift per pool), in the same order as BlochSim's properties.
 
 
 def _diffusion_model(times, voxels):
-    from torchsim.simulators import DiffusionSimulator
+    from blochsim.simulators import DiffusionSimulator
 
     from bartorch import nlop
 
@@ -339,7 +339,7 @@ def _lorentzian_names(pools: int) -> tuple[str, ...]:
 
 
 def _lorentzian_model(offsets, voxels, pools: int):
-    from torchsim.simulators import LorentzianSimulator
+    from blochsim.simulators import LorentzianSimulator
 
     from bartorch import nlop
 
@@ -418,7 +418,7 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     """``mobafit``'s flags as :func:`bartorch.apps.mobafit` takes them.
 
     ``-i`` counts Gauss-Newton steps over BART's own coefficients, which
-    TorchSim's bounded parameterisation needs several times more of, so it is
+    BlochSim's bounded parameterisation needs several times more of, so it is
     not something the app takes; the app's own count applies.  ``--liniter``
     counts conjugate-gradient steps in both.  Without ``--init`` the app
     starts from its own values, since the command's start of zero is no
@@ -508,15 +508,15 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
 #
 # `-P` is the Look-Locker recovery in (M0, R1, alpha), with the apparent rate
 # R1s = R1 + alpha - ln(cos FA) / TR and the steady state M0 R1 / R1s, which
-# is TorchSim's short-TR Look-Locker in T1 and the flip angle's efficiency B1:
+# is BlochSim's short-TR Look-Locker in T1 and the flip angle's efficiency B1:
 # alpha is -ln(cos(B1 FA)) / TR + ln(cos FA) / TR, and BART's M0 carries the
-# sin(B1 FA) TorchSim's amplitude does not.  The command writes the effective
+# sin(B1 FA) BlochSim's amplitude does not.  The command writes the effective
 # flip angle in degrees in alpha's place, which is B1 FA.
 #
 # `-D` reads the inversion times along TE_DIM and the echo times, from
 # `--other echo`, along CSHIFT_DIM, and fits the inversion recovery ahead of
 # the echo train: `-m 6` (Ms, M0, R1*, R2*, fB0) for water and `-m 7` for
-# water and fat each with its own recovery, which are TorchSim's IR
+# water and fat each with its own recovery, which are BlochSim's IR
 # multi-gradient-echo model with Ms = A, M0 = A e and R1* = 1000 / T1 per
 # species, and R2* and fB0 as `-G` has them.
 #
@@ -557,7 +557,7 @@ def _suboptions(values: list[str], known: dict[str, Callable[[str], Any]]) -> di
 
 
 def _look_locker_model(times, voxels, repetition: float, flip: float):
-    from torchsim.simulators import LookLockerSimulator
+    from blochsim.simulators import LookLockerSimulator
 
     from bartorch import nlop
 
@@ -603,7 +603,7 @@ _INVERSION_WATER_FAT = {
 
 
 def _inversion_water_fat_model(inversions, echoes, voxels, which: int, field_strength, spectrum):
-    from torchsim.simulators import IRMultiGradientEchoSimulator
+    from blochsim.simulators import IRMultiGradientEchoSimulator
 
     from bartorch import nlop
 
@@ -663,12 +663,12 @@ def _inversion_water_fat_coefficients(which: int, maps, scale: float) -> torch.T
 
 
 # `--bloch` fits the command's Bloch simulation of a FLASH train, after an
-# inversion or not, in (R1, M0, R2, B1): TorchSim's FLASH simulator plays the
-# same train in T1, T2 and B1, and tests/test_sim_torchsim.py holds it to
+# inversion or not, in (R1, M0, R2, B1): BlochSim's FLASH simulator plays the
+# same train in T1, T2 and B1, and tests/test_sim_blochsim.py holds it to
 # `sim`.  The command multiplies the simulated sample by M0 / sin(FA), and
-# TorchSim's sample is the conjugate of BART's.  On resonance the sample lies
+# BlochSim's sample is the conjugate of BART's.  On resonance the sample lies
 # along y alone, where the conjugate is the negative, so M0 = -A sin(FA) for
-# TorchSim's amplitude A; an off-resonance map would turn it off that axis,
+# BlochSim's amplitude A; an off-resonance map would turn it off that axis,
 # so `b0map` goes to the command.  A zero in `pscale` holds a map at its start
 # -- the command holds R2 for IR-FLASH whatever `pscale` says -- and a held map
 # is written as its start, R2 = pinit[2] and B1 = 1 + pinit[3], which a
@@ -696,7 +696,7 @@ _BLOCH_SEQUENCE = {
 #: degrees (seq/pulse.c).
 _SECANT_PHASE = math.degrees(4.9 * math.log(14e-6))
 #: What the pulse is played sample by sample at, at most: the dwell of
-#: TorchSim's trains, in seconds.
+#: BlochSim's trains, in seconds.
 _DWELL = 1e-5
 #: `pinit` and `pscale` when not given (moba/moba.c).
 _BLOCH_START = (1.0, 1.0, 1.0, 1.0)
@@ -717,16 +717,16 @@ def _floats(text: str) -> tuple[float, ...]:
 
 
 def _bloch_train(values: list[str], contrasts: int):
-    """The command's ``--seq`` as TorchSim's FLASH simulator, whether it
+    """The command's ``--seq`` as BlochSim's FLASH simulator, whether it
     inverts, and the command's scaling ``a`` of the sample.
 
     Raises
     ------
     Unsupported
         A balanced SSFP train, a slice profile, averaged spins or spokes,
-        or timing TorchSim's train does not take.
+        or timing BlochSim's train does not take.
     """
-    from torchsim.simulators import FLASHSimulator
+    from blochsim.simulators import FLASHSimulator
 
     numbers = dict.fromkeys(_BLOCH_SEQUENCE, float) | {"Nrep": int, "off": float}
     counts = {"Nspins": int, "av-spokes": int}
@@ -740,7 +740,7 @@ def _bloch_train(values: list[str], contrasts: int):
     inverted = _BLOCH_TRAINS[trains[0]]
     seq = _BLOCH_SEQUENCE | {name: given[name] for name in _BLOCH_SEQUENCE if name in given}
     duration, echo, repetition = seq["Trf"], seq["TE"], seq["TR"]
-    # The command measures TE from the start of the pulse, TorchSim from its centre.
+    # The command measures TE from the start of the pulse, BlochSim from its centre.
     if not duration <= echo <= repetition or duration <= 0.0:
         raise Unsupported("TE ends inside the pulse or after the next one")
     samples = max(1, round(duration / _DWELL))
@@ -877,7 +877,7 @@ def _moba(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
         if a:
             smooth["B0"] = (a, b)
     if mode == "bloch":
-        # Either integration is the Bloch equations; TorchSim plays each pulse
+        # Either integration is the Bloch equations; BlochSim plays each pulse
         # sample by sample, exactly, whichever the command was asked for.
         _suboptions(options.pop("sim", []), _flags(("ODE", "STM")))
         known = {"pinit": _floats, "pscale": _floats, "b1map": str}

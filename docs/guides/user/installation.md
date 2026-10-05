@@ -15,7 +15,7 @@ python -m pip install bartorch
 ```
 
 This installs the wheel for the platform where one exists (see
-{doc}`prerequisites`) together with NumPy, SciPy, TorchSim and MRI-NUFFT.  A
+{doc}`prerequisites`) together with NumPy, SciPy, BlochSim and MRI-NUFFT.  A
 wheel contains the compiled library with BART and FINUFFT embedded; no BART or
 FINUFFT installation and no compiler are needed.  Optional components are installed as
 extras:

@@ -3,7 +3,7 @@
 A script that calls ``bart`` has to run against ``bartorch`` unchanged, so the
 question a test here answers is whether the app route writes what the command
 route writes, over the same argv and the same files: the same bits for
-``pics``, and for ``mobafit`` and ``moba``, whose apps fit TorchSim's models,
+``pics``, and for ``mobafit`` and ``moba``, whose apps fit BlochSim's models,
 the same files to a stated tolerance, both held to the rates the data was
 made from.
 """
@@ -225,7 +225,7 @@ def test_mobafit_writes_the_commands_coefficients_to_the_tolerance_of_a_fit(
     model, tmp_path, monkeypatch
 ):
     """``(M0, R2)``, ``(M0, R1, c)`` and ``(Mss, M0, R1s)`` in 1/s along
-    COEFF_DIM, from a TorchSim fit in milliseconds.  Measured: within 1e-05 of
+    COEFF_DIM, from a BlochSim fit in milliseconds.  Measured: within 1e-05 of
     each coefficient's peak against the command and against the series' own."""
     monkeypatch.chdir(tmp_path)
     flags, times, series, truth = _FITS[model]

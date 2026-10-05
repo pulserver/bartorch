@@ -28,7 +28,7 @@ BART's license:
 ## Dependencies
 
 The following are installed as separate packages, each under its own license,
-and are not redistributed by bartorch: PyTorch, NumPy, SciPy, TorchSim,
+and are not redistributed by bartorch: PyTorch, NumPy, SciPy, BlochSim,
 MRI-NUFFT, and the optional MKL, DeepInverse, SimpleITK and PyHySCO.  PyHySCO
 is GPL-3.0-only; it is installed only on request (the `pyhysco` extra) and
 imported only when {func}`bartorch.tools.correct_susceptibility` is called.

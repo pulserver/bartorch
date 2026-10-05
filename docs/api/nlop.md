@@ -32,15 +32,15 @@ Gauss-Newton steps enter autograd.
 ## Signal models
 
 Quantitative signal models evaluated by
-[TorchSim](https://github.com/FiRMLAB-Pisa/torchsim); each maps parameter maps
+[BlochSim](https://github.com/pulserver/blochsim); each maps parameter maps
 to one image per contrast.
 
 | Object | Unknowns | Signal |
 | --- | --- | --- |
-| {obj}`~bartorch.nlop.SignalModel` | Any TorchSim model's parameters | Base class: a TorchSim `ModelOperator` as a nonlinear operator |
+| {obj}`~bartorch.nlop.SignalModel` | Any BlochSim model's parameters | Base class: a BlochSim `ModelOperator` as a nonlinear operator |
 | {obj}`~bartorch.nlop.InversionRecovery` | $T_1$, optional complex amplitude | Inversion recovery at a series of inversion times |
 | {obj}`~bartorch.nlop.MultiEcho` | $T_2$ or $T_2^*$, optional complex amplitude | Mono-exponential decay at a series of echo times |
-| {obj}`~bartorch.nlop.Bloch` | Any simulated tissue property | Bloch simulation of a TorchSim sequence |
+| {obj}`~bartorch.nlop.Bloch` | Any simulated tissue property | Bloch simulation of a BlochSim sequence |
 
 ## Elementary operators
 

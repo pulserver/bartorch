@@ -54,7 +54,7 @@ bartorch's own executor built from BART's operators.
 - BART's regularization terms and its CG, IST, FISTA, ADMM and primal-dual
   iterations, as solvers and as differentiable iteration blocks.
 - Nonlinear operators, iteratively regularized Gauss-Newton, and quantitative
-  signal models from TorchSim.
+  signal models from BlochSim.
 - Adapters for unrolled networks, plug-and-play denoisers and DeepInverse.
 
 <p align="center">

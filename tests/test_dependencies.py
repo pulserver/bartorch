@@ -7,7 +7,7 @@ a NUFFT runs in an environment that has neither.
 deepinv is an extra: denoisers, losses and samplers come from it through
 `priors.ImplicitPrior` and `bartorch.interop`, and nothing else imports it.
 
-torchsim is a dependency because `nlop.SignalModel`
+blochsim is a dependency because `nlop.SignalModel`
 turns any of its simulators into a BART nonlinear operator, and
 `nlop.InversionRecovery`, `nlop.MultiEcho` and `nlop.Bloch` are `moba`'s
 families written on it, so every quantitative reconstruction here imports it.
@@ -52,22 +52,22 @@ def test_deepinv_is_an_extra_and_not_a_dependency():
     assert _requirements(project["optional-dependencies"]["deepinv"], "deepinv")
 
 
-def test_torchsim_is_a_dependency_and_not_an_extra():
+def test_blochsim_is_a_dependency_and_not_an_extra():
     """Every quantitative reconstruction here goes through it."""
     project = _pyproject()["project"]
-    assert _requirements(project["dependencies"], "torchsim"), (
-        "nlop.SignalModel turns a TorchSim simulator into a BART operator and "
-        "the moba families are written on it; torchsim belongs in dependencies, "
+    assert _requirements(project["dependencies"], "blochsim"), (
+        "nlop.SignalModel turns a BlochSim simulator into a BART operator and "
+        "the moba families are written on it; blochsim belongs in dependencies, "
         "not in optional-dependencies"
     )
-    assert "torchsim" not in project["optional-dependencies"], (
-        "an extra named torchsim says the signal models are optional, and they are not"
+    assert "blochsim" not in project["optional-dependencies"], (
+        "an extra named blochsim says the signal models are optional, and they are not"
     )
 
 
-def test_the_models_really_do_reach_torchsim():
+def test_the_models_really_do_reach_blochsim():
     """The claim the requirement rests on, rather than the requirement alone."""
-    from torchsim.recon import ModelOperator
+    from blochsim.recon import ModelOperator
 
     from bartorch import nlop
 

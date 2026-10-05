@@ -59,7 +59,7 @@ _ENCODING = (
     "bartorch._reference runs the command"
 )
 _SIMULATED = (
-    "a signal simulation, which torchsim does differentiably and bartorch.nlop drives; "
+    "a signal simulation, which blochsim does differentiably and bartorch.nlop drives; "
     "a curve from a command is a number, not a model a fit can be built on"
 )
 

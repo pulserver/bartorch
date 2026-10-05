@@ -119,7 +119,7 @@ def test_torch_function_becomes_a_bart_nonlinear_operator_with_a_correct_adjoint
 
 
 def test_gauss_newton_fits_a_mono_exponential_decay():
-    # A signal model as torchsim produces one: parameters (amplitude, rate)
+    # A signal model as blochsim produces one: parameters (amplitude, rate)
     # per voxel, echoes along the last axis.  The closed-form data is fitted
     # back to the parameters by BART's IRGNM through the torch derivative.
     nvox, nechoes = 5, 12

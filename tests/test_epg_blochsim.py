@@ -1,6 +1,6 @@
-"""TorchSim's simulators against the sequences BART's ``epg`` plays.
+"""BlochSim's simulators against the sequences BART's ``epg`` plays.
 
-BART's ``epg`` evolves the extended phase graph of six sequences, and TorchSim
+BART's ``epg`` evolves the extended phase graph of six sequences, and BlochSim
 plays each with one of its simulators: CPMG as ``FSESimulator``, fmSSFP as
 ``fmSSFPSimulator``, Hyperecho as ``HyperechoSimulator``, FLASH as
 ``FLASHSimulator`` with instantaneous pulses and the sample at the pulse,
@@ -9,12 +9,12 @@ bSSFP as ``TrueFISPSimulator`` with instantaneous pulses, and Spinecho as
 the two agree to single-precision round-off, derivatives included.
 
 The conventions differ, and are mapped here once.  BART takes seconds and an
-off-resonance of the opposite sign to TorchSim's ``B0``.  BART turns a sample
-forward by the receiver phase where TorchSim turns it back, so an RF-spoiled
-FLASH sample of BART's is TorchSim's times ``exp(2 i phi_n)``; its balanced
-trains are played about axes that make each sample ``i`` times TorchSim's.
+off-resonance of the opposite sign to BlochSim's ``B0``.  BART turns a sample
+forward by the receiver phase where BlochSim turns it back, so an RF-spoiled
+FLASH sample of BART's is BlochSim's times ``exp(2 i phi_n)``; its balanced
+trains are played about axes that make each sample ``i`` times BlochSim's.
 BART's Spinecho samples the spin echo of two pulses ``TE`` apart and the
-stimulated echo of a third ``TE`` after the spin echo, which TorchSim times as
+stimulated echo of a third ``TE`` after the spin echo, which BlochSim times as
 an echo time of ``2 TE`` and a mixing time of ``3 TE``.  BART's derivatives
 are ``T1 dS/dT1``, ``T2 dS/dT2``, ``B1^2 dS/dB1`` and ``dS/d(off)``: the B1
 term is relative twice, once where the pulse matrix is differentiated with
@@ -26,7 +26,7 @@ import math
 
 import pytest
 import torch
-from torchsim import simulators
+from blochsim import simulators
 
 from bartorch import _dispatch
 
@@ -39,7 +39,7 @@ TISSUE = {
     "B1": torch.tensor(B1),
     "B0": torch.tensor(-OFF_HZ),
 }
-#: BART's derivatives in TorchSim's, per unit of TorchSim's T1, T2, B1 and B0.
+#: BART's derivatives in BlochSim's, per unit of BlochSim's T1, T2, B1 and B0.
 DERIVATIVE_SCALE = torch.tensor([1e3 * T1_S, 1e3 * T2_S, B1 * B1, -1.0])[:, None]
 
 
@@ -60,7 +60,7 @@ def _spoiling_phase(shots, increment_deg=50.0):
     return torch.exp(2j * phase).to(torch.complex64)
 
 
-#: BART's options, TorchSim's simulator, and what TorchSim's sample is times
+#: BART's options, BlochSim's simulator, and what BlochSim's sample is times
 #: to be BART's.
 DIFFERENTIATED = {
     "CPMG": (
@@ -131,7 +131,7 @@ def _close(signal, expected, peak, tolerance=1e-5):
 
 
 @pytest.mark.parametrize("name", [*DIFFERENTIATED, *UNDIFFERENTIATED])
-def test_torchsim_plays_the_signal_bart_s_epg_plays(name):
+def test_blochsim_plays_the_signal_bart_s_epg_plays(name):
     sequence, options, simulator, factor = {**DIFFERENTIATED, **UNDIFFERENTIATED}[name]
     expected = _epg(sequence, **options)
     signal = factor * torch.as_tensor(simulator().simulate(**TISSUE))
@@ -139,7 +139,7 @@ def test_torchsim_plays_the_signal_bart_s_epg_plays(name):
 
 
 @pytest.mark.parametrize("name", list(DIFFERENTIATED))
-def test_torchsim_differentiates_the_signal_as_bart_s_epg_does(name):
+def test_blochsim_differentiates_the_signal_as_bart_s_epg_does(name):
     sequence, options, simulator, factor = DIFFERENTIATED[name]
     expected, derivatives = _epg(sequence, outputs=3, **options)
     _, jacobian = simulator().jacobian(["T1", "T2", "B1", "B0"], **TISSUE)
