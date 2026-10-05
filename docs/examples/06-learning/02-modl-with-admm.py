@@ -53,8 +53,9 @@ parameter of the block and is trained with the network's weights.
   per-iteration training.
 
 It follows :doc:`01-plug-and-play`, which used a pretrained denoiser without
-training. The next lesson, :doc:`03-networks-for-complex-volumes`, builds
-networks for complex multi-channel volumes.
+training. This lesson ends the course; the Tours of
+:doc:`../09-learning-workflows/index` extend it to complex volumes, staged and
+self-supervised training, annealed plug-and-play and uncertainty.
 """
 
 # %%
@@ -62,7 +63,6 @@ networks for complex multi-channel volumes.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 from cmap import Colormap
-from matplotlib.colors import ListedColormap
 from matplotlib.patches import Rectangle
 
 WIDTH = 7.8  # inches, the width of the documentation column
@@ -71,10 +71,6 @@ WIDTH = 7.8  # inches, the width of the documentation column
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
-# mygbm, turned so that zero phase is yellow and +/-pi is blue.
-MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
-PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
 
 # Colormap, window and unit per parameter.  Both relaxation windows stop short
 # of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
@@ -130,30 +126,6 @@ def outline(axis, crop):
             linewidth=1.5,
         )
     )
-
-
-def domain(axis, values, title=None):
-    """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness."""
-    values = values.detach().cpu()
-    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
-    magnitude = values.abs().numpy()
-    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
-    axis.imshow(colours * magnitude[..., None])
-    if title is not None:
-        axis.set_title(title)
-
-
-def phase_bar(figure, axes):
-    """The colour-to-phase key for the panels beside it."""
-    bar = figure.colorbar(
-        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
-        ax=axes,
-        fraction=0.046,
-        ticks=[-np.pi, 0.0, np.pi],
-    )
-    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
-    bar.set_label("phase [rad]")
 
 
 def errors(figure, axes, estimates, reference, scale):
@@ -580,10 +552,11 @@ plt.show()
 # Pretraining the denoiser in isolation, then greedy per-iteration training,
 # then end-to-end fine-tuning with checkpointing, is the staged schedule
 # reported for a fully three-dimensional unrolled reconstruction [#urman]_,
-# and the subject of :doc:`04-staged-training`. Greedy training does not apply
+# and the subject of :doc:`../09-learning-workflows/02-staged-training`.
+# Greedy training does not apply
 # to the ADMM step: its image is the x-update, which depends on the denoiser
 # only through the previous iteration's auxiliary variable, and a detached
-# start removes that dependence. The staged lesson uses a proximal-gradient
+# start removes that dependence. The staged-training example uses a proximal-gradient
 # step, whose image is the denoiser's output.
 
 # %%

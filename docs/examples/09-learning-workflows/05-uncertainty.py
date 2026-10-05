@@ -21,6 +21,9 @@ fully sampled references: it finds the factor by which the spread must be
 multiplied for the interval to contain the error at a chosen rate, a
 guarantee that holds whatever the spread measures.
 
+**Prerequisites.** :doc:`../06-learning/02-modl-with-admm` and
+:doc:`02-staged-training`.
+
 **Learning objectives**
 
 - Obtain a spread from Monte Carlo dropout and from k-space subsets with
@@ -28,10 +31,6 @@ guarantee that holds whatever the spread measures.
 - Calibrate it to a coverage with :func:`bartorch.learning.calibrate`, and
   check the coverage on other slices.
 - Compare the calibrated interval with the error made.
-
-It follows :doc:`06-annealed-plug-and-play`. This lesson ends the course; the
-standalone examples of :doc:`../07-tours/index` apply the package to
-individual problems.
 """
 # %%
 
@@ -148,7 +147,7 @@ _ = torch.manual_seed(0)
 # Data
 # ----
 #
-# The slices, coils and fourfold undersampling of :doc:`04-staged-training`,
+# The slices, coils and fourfold undersampling of :doc:`02-staged-training`,
 # with sixteen slices of subject 4: the first eight to calibrate on, the last
 # eight to check the calibration on.
 
@@ -234,7 +233,7 @@ kspace = {
 # A network with dropout
 # ----------------------
 #
-# The iteration-conditioned unrolled network of :doc:`04-staged-training`,
+# The iteration-conditioned unrolled network of :doc:`02-staged-training`,
 # with dropout in every residual block of its U-Net, trained end to end
 # against references. Dropout is a regularizer during training; left active
 # at inference it makes each reconstruction one draw from a family of

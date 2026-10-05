@@ -46,9 +46,13 @@ hidden on this page and present in the script this page can be downloaded as.
 - Explain, from the echo images and the error maps, why the model-based fit
   is more accurate at the same undersampling.
 
-It follows :doc:`01-subspace-t1-mapping`, and
-:doc:`03-maps-from-scanner-images` fits the same model to images read from
-DICOM.
+It follows :doc:`../04-non-cartesian/02-radial-sense`; the Gauss-Newton solver
+is that of :doc:`../02-parallel-imaging/02-nonlinear-inversion`. The next
+lesson, :doc:`../06-learning/01-plug-and-play`, replaces a specified
+regularizer with a learned denoiser. The Tours
+:doc:`../08-workflows/02-subspace-t1-mapping` and
+:doc:`../08-workflows/03-maps-from-scanner-images` apply a linear subspace
+model and the same signal model to DICOM images.
 """
 
 # %%
@@ -56,7 +60,6 @@ DICOM.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 from cmap import Colormap
-from matplotlib.colors import ListedColormap
 
 WIDTH = 7.8  # inches, the width of the documentation column
 
@@ -64,10 +67,6 @@ WIDTH = 7.8  # inches, the width of the documentation column
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
-# mygbm, turned so that zero phase is yellow and +/-pi is blue.
-MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
-PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
 
 # Colormap, window and unit per parameter.  Both relaxation windows stop short
 # of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
@@ -108,30 +107,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-
-
-def domain(axis, values, title=None):
-    """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness."""
-    values = values.detach().cpu()
-    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
-    magnitude = values.abs().numpy()
-    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
-    axis.imshow(colours * magnitude[..., None])
-    if title is not None:
-        axis.set_title(title)
-
-
-def phase_bar(figure, axes):
-    """The colour-to-phase key for the panels beside it."""
-    bar = figure.colorbar(
-        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
-        ax=axes,
-        fraction=0.046,
-        ticks=[-np.pi, 0.0, np.pi],
-    )
-    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
-    bar.set_label("phase [rad]")
 
 
 def errors(figure, axes, estimates, reference, scale):

@@ -211,6 +211,22 @@ def _gallery_sections() -> list[str]:
     raise AssertionError("docs/conf.py defines no GALLERY_SECTIONS")
 
 
+#: The gallery sections that are the course, read in order; the rest are Tours.
+COURSE_SECTIONS = 6
+
+
+def _landing_tables() -> tuple[list[str], list[str]]:
+    """The sections linked under the Course and under the Tours on the Examples page."""
+    root = (DOCS / "examples" / "README.rst").read_text(encoding="utf-8")
+    course, tours = root.split("\nTours\n-----\n")
+    assert "\nCourse\n------\n" in course
+
+    def linked(text):
+        return [line.split("`")[1] for line in text.splitlines() if ":doc:`0" in line]
+
+    return linked(course), linked(tours)
+
+
 def test_the_examples_page_is_the_gallery_root_and_links_every_section():
     """Examples > section > example: the sidebar enters the gallery at its root."""
     sections = _gallery_sections()
@@ -218,9 +234,15 @@ def test_the_examples_page_is_the_gallery_root_and_links_every_section():
     assert sorted(sections) == on_disk
     assert "auto_examples/index" in _toctree(DOCS / "index.md")
     assert not (DOCS / "examples" / "index.md").exists()
-    root = (DOCS / "examples" / "README.rst").read_text(encoding="utf-8")
-    linked = [line.split("`")[1] for line in root.splitlines() if ":doc:`0" in line]
-    assert linked == [f"{section}/index" for section in sections]
+
+
+def test_the_examples_page_lists_the_course_and_then_the_tours():
+    """The Course table covers the first sections in order, the Tours table the rest."""
+    sections = [f"{section}/index" for section in _gallery_sections()]
+    course, tours = _landing_tables()
+    assert course == sections[:COURSE_SECTIONS]
+    assert tours == sections[COURSE_SECTIONS:]
+    assert tours, "the Tours table is empty"
 
 
 def test_the_sidebar_lists_the_six_sections_in_order():

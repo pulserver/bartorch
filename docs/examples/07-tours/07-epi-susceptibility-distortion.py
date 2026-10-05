@@ -22,6 +22,8 @@ published on OpenNeuro [#ds001600]_, with
 and compares the estimated displacement with the one predicted by a
 gradient-echo field map of the same subject.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Read a BIDS EPI series and its sidecar, and compute the bandwidth per pixel

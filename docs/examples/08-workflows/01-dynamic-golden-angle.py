@@ -3,12 +3,12 @@
 Dynamic golden-angle radial MRI
 ===============================
 
-This lesson reconstructs a dynamic contrast-enhanced series from one
+This example reconstructs a dynamic contrast-enhanced series from one
 continuous golden-angle radial acquisition, cut into frames of thirteen spokes
 each. Each frame on its own is undersampled fifteenfold and cannot be
 reconstructed; the series can, because consecutive frames are strongly
 correlated, and a total-variation penalty along the time axis states that
-correlation. The lesson compares frame-by-frame gridding with this joint
+correlation. The example compares frame-by-frame gridding with this joint
 reconstruction on the images and on the time-intensity curve a perfusion
 analysis would use.
 
@@ -21,12 +21,15 @@ resolution is chosen at reconstruction: fewer spokes per frame give a finer
 temporal resolution and stronger streak artefacts. Combined with parallel
 imaging and a sparsity penalty along time, this is GRASP [#feng]_.
 
-The encoding is that of :doc:`02-radial-sense` with a frame axis added: the
+The encoding is that of :doc:`../04-non-cartesian/02-radial-sense` with a frame axis added: the
 image is ``(frames, y, x)``, the trajectory indexes frames as well as spokes,
 and the coil sensitivities are shared by all frames. The phantom and the coil
 sensitivities are built as in :doc:`../01-basics/02-from-kspace-to-image`; the
 cell that does it is hidden on this page and present in the script this page
 can be downloaded as.
+
+**Prerequisites.** :doc:`../04-non-cartesian/01-trajectories-and-transforms` and
+:doc:`../04-non-cartesian/02-radial-sense`.
 
 **Learning objectives**
 
@@ -35,10 +38,6 @@ can be downloaded as.
 - Regularize along time with a total-variation term over the frame axis.
 - Compare frame-by-frame gridding with the joint reconstruction in the
   images, in an x-t profile and in the time-intensity curve of a region.
-
-It follows :doc:`02-radial-sense`. The next section begins with
-:doc:`../05-model-based/01-subspace-t1-mapping`, which constrains the time
-axis by a signal model.
 """
 
 # %%
@@ -46,7 +45,6 @@ axis by a signal model.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 from cmap import Colormap
-from matplotlib.colors import ListedColormap
 
 WIDTH = 7.8  # inches, the width of the documentation column
 
@@ -54,10 +52,6 @@ WIDTH = 7.8  # inches, the width of the documentation column
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
-# mygbm, turned so that zero phase is yellow and +/-pi is blue.
-MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
-PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
 
 # Colormap, window and unit per parameter.  Both relaxation windows stop short
 # of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
@@ -100,30 +94,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
 
 
-def domain(axis, values, title=None):
-    """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness."""
-    values = values.detach().cpu()
-    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
-    magnitude = values.abs().numpy()
-    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
-    axis.imshow(colours * magnitude[..., None])
-    if title is not None:
-        axis.set_title(title)
-
-
-def phase_bar(figure, axes):
-    """The colour-to-phase key for the panels beside it."""
-    bar = figure.colorbar(
-        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
-        ax=axes,
-        fraction=0.046,
-        ticks=[-np.pi, 0.0, np.pi],
-    )
-    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
-    bar.set_label("phase [rad]")
-
-
 def errors(figure, axes, estimates, reference, scale):
     """|estimate - reference| relative to the reference's peak, on one scale."""
     peak = float(reference.abs().max())
@@ -162,7 +132,7 @@ SPOKES = 13  # per frame
 # A contrast-enhanced series
 # --------------------------
 #
-# The phantom is the BrainWeb slice of the previous lessons with a contrast
+# The phantom is the BrainWeb slice of the course lessons with a contrast
 # agent bolus passing through it. A gamma-variate curve describes the
 # first-pass concentration over time, and each tissue enhances in proportion
 # to its blood volume: strongly in grey matter, weakly in white matter, and not
@@ -268,7 +238,7 @@ plt.show()
 # a fully sampled frame, thirteen spokes undersample each frame by a factor of
 # about fifteen. The image varies along the frame axis, so the operator holds
 # one NUFFT per frame, all applied inside the same loop over the coils. The
-# noise is that of the Cartesian lessons, of variance :math:`10^{-4}` per
+# noise is that of the Cartesian course lessons, of variance :math:`10^{-4}` per
 # sample.
 
 trajectory = bt.traj(readout=SIZE, spokes=FRAMES * SPOKES, radial=True, golden=True)

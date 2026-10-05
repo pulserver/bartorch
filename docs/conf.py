@@ -224,6 +224,8 @@ GALLERY_SECTIONS = [
     "examples/05-model-based",
     "examples/06-learning",
     "examples/07-tours",
+    "examples/08-workflows",
+    "examples/09-learning-workflows",
 ]
 
 #: Whether the examples are executed, which `./scripts/build_docs.sh --execute`

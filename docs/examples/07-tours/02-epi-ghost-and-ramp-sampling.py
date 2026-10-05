@@ -20,6 +20,8 @@ corrected image with the delay-free image. It then resamples a ramp-sampled
 readout onto a uniform :math:`k_x` grid and compares the result with linear
 interpolation.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Relate an ADC delay to a linear phase in hybrid space and to the Nyquist

@@ -3,7 +3,7 @@
 Subspace-constrained T1 mapping
 ===============================
 
-This lesson estimates a :math:`T_1` map from a single continuous
+This example estimates a :math:`T_1` map from a single continuous
 inversion-recovery acquisition in which each of four hundred time points is
 encoded by one radial spoke. The aim is to show how a signal model turns a
 hopelessly undersampled time series into a well-posed reconstruction: the
@@ -36,6 +36,9 @@ The phantom and the coil sensitivities are built as in
 :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
 this page and present in the script this page can be downloaded as.
 
+**Prerequisites.** :doc:`../04-non-cartesian/02-radial-sense` and
+:doc:`../05-model-based/01-quantitative-models`.
+
 **Learning objectives**
 
 - Simulate a dictionary of inversion-recovery curves and extract a
@@ -47,9 +50,9 @@ this page and present in the script this page can be downloaded as.
   with matching frames reconstructed one at a time, and identify the
   partial-volume bias of a voxelwise fit.
 
-It follows :doc:`../04-non-cartesian/03-dynamic-golden-angle`, whose frames
-are constrained here by a linear signal model. The next lesson,
-:doc:`02-quantitative-models`, fits a nonlinear one directly to k-space.
+The frames of :doc:`01-dynamic-golden-angle` are constrained here by a linear
+signal model; :doc:`../05-model-based/01-quantitative-models` fits a nonlinear
+one directly to k-space.
 """
 
 # %%
@@ -57,7 +60,6 @@ are constrained here by a linear signal model. The next lesson,
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 from cmap import Colormap
-from matplotlib.colors import ListedColormap
 
 WIDTH = 7.8  # inches, the width of the documentation column
 
@@ -65,10 +67,6 @@ WIDTH = 7.8  # inches, the width of the documentation column
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
-# mygbm, turned so that zero phase is yellow and +/-pi is blue.
-MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
-PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
 
 # Colormap, window and unit per parameter.  Both relaxation windows stop short
 # of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
@@ -109,30 +107,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-
-
-def domain(axis, values, title=None):
-    """A complex map the way a coil sensitivity is read: phase in colour,
-    magnitude in brightness."""
-    values = values.detach().cpu()
-    colours = PHASE((values.angle() / (2 * np.pi) + 0.5).numpy())[..., :3]
-    magnitude = values.abs().numpy()
-    magnitude = magnitude / max(float(magnitude.max()), 1e-12)
-    axis.imshow(colours * magnitude[..., None])
-    if title is not None:
-        axis.set_title(title)
-
-
-def phase_bar(figure, axes):
-    """The colour-to-phase key for the panels beside it."""
-    bar = figure.colorbar(
-        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
-        ax=axes,
-        fraction=0.046,
-        ticks=[-np.pi, 0.0, np.pi],
-    )
-    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
-    bar.set_label("phase [rad]")
 
 
 def errors(figure, axes, estimates, reference, scale):
@@ -185,7 +159,7 @@ FLIP = 6.0  # degrees
 # ``(entries, frames)``.
 #
 # The same object serves the fit: handed to :func:`bartorch.nlop.Bloch` it is
-# a model operator, which is how :doc:`02-quantitative-models`
+# a model operator, which is how :doc:`../05-model-based/01-quantitative-models`
 # solves for the maps directly. Here only its forward evaluation is wanted.
 
 t1_values = torch.linspace(100.0, 4500.0, 200)  # ms
@@ -629,7 +603,7 @@ plt.show()
 # its own :math:`T_1` and that of its neighbours.
 #
 # Estimating the parameters directly from k-space, without an intermediate
-# series or a subspace, is :doc:`02-quantitative-models`.
+# series or a subspace, is :doc:`../05-model-based/01-quantitative-models`.
 
 # %%
 #

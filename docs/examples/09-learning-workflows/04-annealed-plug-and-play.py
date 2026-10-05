@@ -21,6 +21,9 @@ with the data, so a noise level that decreases from one to the other
 penalty follows as :math:`\rho_k = \lambda/\sigma_k^2`, which keeps the
 balance between data consistency and denoising that :math:`\lambda` sets.
 
+**Prerequisites.** :doc:`../06-learning/01-plug-and-play` and
+:doc:`../06-learning/02-modl-with-admm`.
+
 **Learning objectives**
 
 - Train a denoiser conditioned on the noise level, ``noise=True`` in
@@ -30,9 +33,6 @@ balance between data consistency and denoising that :math:`\lambda` sets.
   :class:`bartorch.optim.ADMMBlock` the matching schedule of penalties.
 - Compare an annealed schedule with a fixed noise level, iteration by
   iteration, and apply the same denoiser at a higher acceleration.
-
-It follows :doc:`05-self-supervised-training`. The next lesson,
-:doc:`07-uncertainty`, attaches error bars to a learned reconstruction.
 """
 # %%
 
@@ -147,7 +147,7 @@ _ = torch.manual_seed(0)
 # Data
 # ----
 #
-# The slices, coils and fourfold undersampling of :doc:`04-staged-training`:
+# The slices, coils and fourfold undersampling of :doc:`02-staged-training`:
 # subject 0 to train the denoiser on, subject 4 to reconstruct.
 
 # sphinx_gallery_start_ignore

@@ -38,8 +38,8 @@ this page and present in the script this page can be downloaded as.
   under :class:`bartorch.nlop.IRGNM`.
 
 It follows :doc:`01-coil-calibration`, which used ``nlinv`` as a calibration
-step. The next lesson, :doc:`03-noise-prewhitening`, turns to the noise model
-of the receive channels.
+step. The next lesson, :doc:`../03-regularization/01-regularized-reconstruction`,
+adds a prior on the image to the encoding that calibration provides.
 """
 
 # %%
@@ -411,7 +411,7 @@ print(f"NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 # (:doc:`../../explanation/differentiation`).
 #
 # Reconstructing parameter maps rather than an image, by putting a signal model
-# in front of the same encoding, is :doc:`../05-model-based/02-quantitative-models`.
+# in front of the same encoding, is :doc:`../05-model-based/01-quantitative-models`.
 
 # %%
 #

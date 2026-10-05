@@ -8,7 +8,8 @@ multi-contrast brain volume, apply it to a whole volume of another subject
 patch by patch, as it would run on a scanner GPU too small for the volume,
 and check that the patch boundaries leave no visible seams.
 
-The networks of the previous lessons denoise a single complex 2D slice. The
+The networks of :doc:`../06-learning/01-plug-and-play` and
+:doc:`../06-learning/02-modl-with-admm` denoise a single complex 2D slice. The
 data a learned reconstruction is most needed for are larger: a 3D volume of
 several contrasts, of subspace coefficients in MR fingerprinting, or of the
 frames of a cine. Three things change. The contrasts are denoised jointly, as
@@ -18,6 +19,8 @@ them. The volume does not fit the network's activations in GPU memory, so the
 network is trained on patches and applied patch by patch. And a network
 applied on a fixed grid of patches leaves seams at the patch boundaries,
 which a random offset of the grid averages out.
+
+**Prerequisites.** :doc:`../06-learning/02-modl-with-admm`.
 
 **Learning objectives**
 
@@ -29,9 +32,6 @@ which a random offset of the grid averages out.
 - Apply it to a whole volume with :class:`bartorch.learning.Patchwise`, and
   average the seams out with :func:`bartorch.learning.moments`.
 - Compare the size of spatial and spatiotemporal networks.
-
-It follows :doc:`02-modl-with-admm`. The next lesson,
-:doc:`04-staged-training`, trains an unrolled network in stages.
 """
 
 # %%
@@ -374,7 +374,7 @@ plt.show()
 # grid per call is enough: no plane receives the boundary error at every step.
 # The variance :func:`~bartorch.learning.moments` returns is a map of how much
 # the result depends on where the patches fall, one of the spreads of
-# :doc:`07-uncertainty`.
+# :doc:`05-uncertainty`.
 
 # %%
 #
