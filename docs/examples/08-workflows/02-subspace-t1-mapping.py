@@ -131,8 +131,8 @@ from pathlib import Path
 import brainweb_dl
 import numpy as np
 import torch
-from brainweb_dl import get_mri
 from blochsim.simulators import MPnRAGESimulator
+from brainweb_dl import get_mri
 
 import bartorch
 import bartorch.tools as bt
