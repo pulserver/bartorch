@@ -92,16 +92,35 @@ def test_api_pages_carry_no_visible_autosummary():
         assert ".. autosummary::" not in page.read_text(), page.name
 
 
+def _sections(page: Path) -> int:
+    """The number of ``##`` sections of a Markdown page, outside code fences."""
+    count, fenced = 0, False
+    for line in page.read_text(encoding="utf-8").splitlines():
+        if line.startswith("```"):
+            fenced = not fenced
+        elif not fenced and line.startswith("## "):
+            count += 1
+    return count
+
+
 @pytest.mark.parametrize(
     "page",
     sorted(p.name for p in (DOCS / "explanation").glob("*.md") if p.name != "index.md"),
 )
-def test_every_explanation_page_opens_with_a_tldr(page):
-    """The page's title, then a TL;DR block before anything else."""
-    lines = (DOCS / "explanation" / page).read_text(encoding="utf-8").splitlines()
+def test_an_explanation_page_with_several_sections_opens_with_a_tldr(page):
+    """The page's title, then a TL;DR block before anything else; a one-section page may omit it."""
+    path = DOCS / "explanation" / page
+    lines = path.read_text(encoding="utf-8").splitlines()
     assert lines[0].startswith("# "), page
     following = [line for line in lines[1:] if line.strip()]
-    assert following[:2] == ["```{admonition} TL;DR", ":class: tldr"], page
+    has_tldr = following[:2] == ["```{admonition} TL;DR", ":class: tldr"]
+    assert has_tldr or _sections(path) <= 1, page
+
+
+def test_landing_and_api_pages_carry_no_tldr():
+    pages = [*API.glob("*.md"), DOCS / "explanation" / "index.md", DOCS / "index.md"]
+    for page in pages:
+        assert "TL;DR" not in page.read_text(encoding="utf-8"), page.name
 
 
 def _colab():
@@ -202,3 +221,14 @@ def test_the_examples_page_is_the_gallery_root_and_links_every_section():
     root = (DOCS / "examples" / "README.rst").read_text(encoding="utf-8")
     linked = [line.split("`")[1] for line in root.splitlines() if ":doc:`0" in line]
     assert linked == [f"{section}/index" for section in sections]
+
+
+def test_the_sidebar_lists_the_six_sections_in_order():
+    assert _toctree(DOCS / "index.md") == [
+        "guides/user/index",
+        "guides/developer/index",
+        "explanation/index",
+        "auto_examples/index",
+        "api/index",
+        "misc/index",
+    ]

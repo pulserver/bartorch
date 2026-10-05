@@ -1325,6 +1325,21 @@ base for the rest.  `tests/test_docs.py` holds every public name to a table
 row and every table row to a public name; `tests/test_docstrings.py` holds each
 documented default to the signature.
 
+The first numbered sections under `docs/examples/` are a course read in order:
+each lesson has a short introduction, learning objectives and previous/next
+continuity.  The sections after them are Tours and stand alone: each opens with
+its objective and a prerequisites line naming the course lessons it assumes, and
+has no previous or next reference.  The Course is the shortest coherent path
+that gives a new user the framework's core mental model and enough practical
+competence to work independently.  Tours are useful applications, advanced
+branches or specialised workflows that are not necessary for that core
+competence.  The Examples page carries a Course table and a Tours table, and
+`tests/test_docs.py` holds both to `GALLERY_SECTIONS`.
+
+Figures use `docs/gallery_style.py`; no script sets font sizes or DPI.  A
+complex image is drawn with `gallery_style.domain` and keyed with
+`gallery_style.phase_bar`.
+
 An example is a Python script under `docs/examples/<section>/`, named
 `NN-title.py`, whose module docstring becomes the page and whose numeric prefix
 orders it within its section. A section is a directory with a `README.rst`
@@ -1343,10 +1358,11 @@ it off the page and in the downloadable script and notebook. Anything a reader
 would type themselves stays visible.  Literature is cited with numbered
 footnotes and listed in a *References* section at the bottom of the page.
 
-Every explanation page opens with a TL;DR admonition (```` ```{admonition} TL;DR ````
-with `:class: tldr`) directly under its title, stating only what the page
-establishes; landing pages, API pages and examples have none, and
-`tests/test_docs.py` holds it.  Every example page carries an *Open in Colab*
+An explanation page with more than one `##` section opens with a TL;DR admonition
+(```` ```{admonition} TL;DR ```` with `:class: tldr`) directly under its title,
+stating only what the page establishes; a page with a single section may omit
+it, landing pages, API pages and examples have none, and `tests/test_docs.py`
+holds it.  Every example page carries an *Open in Colab*
 badge under its title, inserted at build time by `docs/colab.py`, which also
 writes a copy of each gallery notebook into the built site under `_colab/`
 with a note and a `%pip install` cell in front; the notebook the page offers
