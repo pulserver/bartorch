@@ -17,6 +17,7 @@ import torch
 
 import bartorch
 import bartorch.tools as bt
+from bartorch import _reference
 from bartorch.linop import NUFFT
 
 CHECKS: list = []
@@ -151,10 +152,10 @@ def _pics_on_device():
     kspace = bartorch.nufft(image, traj)
 
     bartorch._finufft.reset_counters()
-    toeplitz = bt.pics(kspace, maps, t=traj)
+    toeplitz = _reference.pics(kspace, maps, traj=traj)
     normals = bartorch._finufft.normals_built()
-    fast = _time(lambda: bt.pics(kspace, maps, t=traj), reps=2)
-    pair = _time(lambda: bt.pics(kspace, maps, t=traj, no_toeplitz=True), reps=2)
+    fast = _time(lambda: _reference.pics(kspace, maps, traj=traj), reps=2)
+    pair = _time(lambda: _reference.pics(kspace, maps, traj=traj, toeplitz=False), reps=2)
 
     if toeplitz.device.type != "cuda":
         return False, f"the reconstruction came back on {toeplitz.device}"
@@ -175,7 +176,7 @@ def _streams():
             bartorch._cuda.set_streams(streams)
         except ValueError:
             continue
-        timings[streams] = _time(lambda: bt.pics(kspace, maps, t=traj), reps=2)
+        timings[streams] = _time(lambda: _reference.pics(kspace, maps, traj=traj), reps=2)
     bartorch._cuda.set_streams(1)
     if not timings:
         return False, "set_streams was refused for every count"
@@ -200,7 +201,7 @@ def _memcache():
     idle = bartorch._cuda.free_memory()
     ballast = torch.empty(1 << 27, dtype=torch.complex64, device="cuda")
     with_torch = bartorch._cuda.free_memory()
-    out = bt.pics(kspace, maps, t=traj)
+    out = _reference.pics(kspace, maps, traj=traj)
     del ballast, out
     torch.cuda.empty_cache()
     after_tool = bartorch._cuda.free_memory()
