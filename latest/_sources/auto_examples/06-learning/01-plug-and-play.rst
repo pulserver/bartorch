@@ -216,7 +216,7 @@ is trained here. Each iteration costs one application of the network.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<06:52, 316kB/s]      1%|          | 640k/125M [00:00<01:24, 1.53MB/s]      2%|▏         | 1.88M/125M [00:00<00:28, 4.53MB/s]      4%|▍         | 5.00M/125M [00:00<00:10, 12.1MB/s]     11%|█         | 14.0M/125M [00:00<00:03, 34.8MB/s]     29%|██▉       | 35.9M/125M [00:00<00:01, 81.2MB/s]     39%|███▉      | 48.6M/125M [00:01<00:00, 95.2MB/s]     47%|████▋     | 58.4M/125M [00:01<00:00, 79.7MB/s]     54%|█████▎    | 66.8M/125M [00:01<00:00, 69.3MB/s]     63%|██████▎   | 78.8M/125M [00:01<00:00, 82.2MB/s]     70%|███████   | 87.5M/125M [00:01<00:00, 78.3MB/s]     78%|███████▊  | 97.4M/125M [00:01<00:00, 84.2MB/s]     85%|████████▌ | 106M/125M [00:01<00:00, 79.4MB/s]      94%|█████████▍| 118M/125M [00:02<00:00, 81.5MB/s]    100%|██████████| 125M/125M [00:02<00:00, 59.8MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<04:30, 483kB/s]      1%|▏         | 1.75M/125M [00:00<00:21, 6.11MB/s]     11%|█▏        | 14.2M/125M [00:00<00:02, 46.6MB/s]     33%|███▎      | 41.0M/125M [00:00<00:00, 120MB/s]      46%|████▌     | 56.8M/125M [00:00<00:00, 131MB/s]     57%|█████▋    | 71.1M/125M [00:00<00:00, 98.2MB/s]     73%|███████▎  | 90.4M/125M [00:01<00:00, 123MB/s]      84%|████████▍ | 104M/125M [00:01<00:00, 91.5MB/s]     97%|█████████▋| 120M/125M [00:01<00:00, 93.7MB/s]    100%|██████████| 125M/125M [00:01<00:00, 87.4MB/s]
          zero-filled  NRMSE 0.199  SSIM 0.482
      total variation  NRMSE 0.161  SSIM 0.754
         DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -377,7 +377,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 40.930 seconds)
+   **Total running time of the script:** (0 minutes 31.097 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

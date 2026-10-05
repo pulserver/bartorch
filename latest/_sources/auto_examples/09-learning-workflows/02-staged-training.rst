@@ -453,11 +453,11 @@ the magnitude over the eight validation slices of subject 4.
  .. code-block:: none
 
                    untrained   PSNR 26.45 dB   SSIM 0.654
-         denoiser pretrained   PSNR 28.67 dB   SSIM 0.941
-                      greedy   PSNR 27.90 dB   SSIM 0.822
-                  end to end   PSNR 29.03 dB   SSIM 0.877
+         denoiser pretrained   PSNR 27.34 dB   SSIM 0.928
+                      greedy   PSNR 27.72 dB   SSIM 0.737
+                  end to end   PSNR 28.93 dB   SSIM 0.812
      CG SENSE, 20 iterations   PSNR 24.30 dB   SSIM 0.558
-    learned step: 1.141
+    learned step: 1.153
 
 
 
@@ -540,7 +540,7 @@ casts them back to the network's precision.
 
  .. code-block:: none
 
-    restored: PSNR 29.03 dB
+    restored: PSNR 28.94 dB
 
 
 
@@ -563,7 +563,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 45.993 seconds)
+   **Total running time of the script:** (1 minutes 47.389 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_02-staged-training.py:

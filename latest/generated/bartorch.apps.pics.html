@@ -568,7 +568,9 @@ application chooses for the hard-thresholding terms
 <li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=None</em>) – Inner conjugate-gradient steps for ADMM.</p></li>
 <li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Non-Cartesian trajectory, in grid units.</p></li>
 <li><p><strong>pattern</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Sampling pattern or weights; on a grid it is read off <code class="docutils literal notranslate"><span class="pre">kspace</span></code> when
-it is not given.</p></li>
+it is not given.  Off a grid it weights the data term, <code class="docutils literal notranslate"><span class="pre">|W</span> <span class="pre">(A</span> <span class="pre">x</span> <span class="pre">-</span>
+<span class="pre">y)|^2</span></code>; the square root of the density compensation of
+<a class="reference internal" href="bartorch.estimate_density.html#bartorch.estimate_density" title="bartorch.estimate_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_density()</span></code></a> preconditions the solve.</p></li>
 <li><p><strong>basis</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Subspace basis over frames and coefficients.</p></li>
 <li><p><strong>initial</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – An image to start the iteration from, in the units the solve works in
 – that is, already divided by <code class="docutils literal notranslate"><span class="pre">scaling</span></code>.  <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-W</span></code> reads it the
