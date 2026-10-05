@@ -41,6 +41,8 @@ stages whose memory is bounded by one iteration:
 :class:`bartorch.learning.Reconstruction` runs each stage in
 ``lightning``; ``torchio`` holds and augments the training images.
 
+**Prerequisites.** :doc:`../06-learning/02-modl-with-admm`.
+
 **Learning objectives**
 
 - Condition a :class:`bartorch.learning.UNet` on the iteration index and pass
@@ -50,9 +52,8 @@ stages whose memory is bounded by one iteration:
 - Split a dataset by subject and augment it with transforms that preserve the
   complex MR signal.
 
-It follows :doc:`03-networks-for-complex-volumes`. The next lesson,
-:doc:`05-self-supervised-training`, trains the same network without fully
-sampled references.
+The network is trained without fully sampled references in
+:doc:`03-self-supervised-training`.
 """
 
 # %%
@@ -172,7 +173,7 @@ _ = torch.manual_seed(0)
 #
 # Axial slices of two BrainWeb subjects, simulated as :math:`T_1`-weighted
 # spin-echo images (TR 600 ms, TE 12 ms) with a smooth background phase, as in
-# :doc:`02-modl-with-admm`. Training and validation are split by subject: no
+# :doc:`../06-learning/02-modl-with-admm`. Training and validation are split by subject: no
 # slice of subject 4 is trained on, so the validation scores measure how a
 # network trained on one head generalizes to another. A random split of slices
 # would place neighbouring, nearly identical slices of the same head on both

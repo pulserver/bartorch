@@ -18,6 +18,8 @@ window and a Hann window, and measures the ringing and the resolution of each.
 The k-space is evaluated analytically at the sample positions, so its
 truncation and its oversampling are those of a continuous object.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Remove readout oversampling in the image domain with

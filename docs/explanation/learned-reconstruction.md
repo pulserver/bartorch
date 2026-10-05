@@ -74,15 +74,16 @@ copied to the device, passed through the network under mixed precision
 (bfloat16 where the GPU supports it, float16 where it does not, such as a
 T4) and copied back.  At inference the copies of one group run on a second
 stream while the network computes on another, so the transfers are hidden
-behind the computation.  What the device holds is the network and two groups
-of patches.  A convolutional network sees zeros past a patch boundary, which
+behind the computation.  What the device holds is the network and one group of
+patches, or two at inference, with the outputs not yet placed.  A convolutional network sees zeros past a patch boundary, which
 leaves seams at the boundaries of a fixed grid of patches; the grid is offset
 at random at every call, so successive iterations place the seams differently.
 
 ## Training
 
 An unrolled network of many iterations records every iteration's activations
-during the backward pass.  Staged training bounds the memory:[^urman]
+during the backward pass ({doc}`differentiation` tabulates the memory of each
+setting).  Staged training bounds the memory:[^urman]
 
 1. The denoiser is trained alone, on pairs of an image and a degraded copy of
    it, with the iteration index it is to be used at.
@@ -131,7 +132,9 @@ reconstruction is reliable depends on how well the spread follows the error.
   unrolled iterations.
 - {doc}`../api/learning`: the networks, iterations, splitting, uncertainty and
   training stages.
-- {doc}`../auto_examples/06-learning/index`: the learned-reconstruction lessons.
+- {doc}`../auto_examples/06-learning/index` and
+  {doc}`../auto_examples/09-learning-workflows/index`: the learned-reconstruction
+  lessons and tours.
 
 ## References
 

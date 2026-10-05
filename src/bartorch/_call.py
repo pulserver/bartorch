@@ -369,7 +369,11 @@ def summary(command: Command) -> str:
 
 def _docstring(command: Command, parameters: list[inspect.Parameter]) -> str:
     """BART's own help, as numpydoc."""
-    lines = [*_help(command.help), f"Runs ``bart {command.name}``.", ""]
+    lines = [
+        *_help(command.help),
+        f"Runs ``bart {command.name}``; an option left unset keeps BART's own default.",
+        "",
+    ]
     lines += ["Parameters", "----------"]
     by_name = {p.name: p for p in parameters}
     for argument in command.arguments:

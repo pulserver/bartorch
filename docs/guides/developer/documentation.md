@@ -104,11 +104,17 @@ When substantial background is useful, provide a concise statement of the releva
 
 ### Examples and gallery
 
-Gallery examples show complete, representative scientific uses of the library.
+The gallery has two parts, the Course and the Tours, and both are executable scientific workflows accompanied by concise methodological explanation. The example galleries of MRpro, MRI-NUFFT, and DeepInv are useful models.
 
-The example galleries of MRpro, MRI-NUFFT, and DeepInv are useful models: executable scientific workflows accompanied by concise methodological explanation.
+The Course is the shortest coherent path that gives a new user the framework's core mental model and enough practical competence to work independently. Tours are useful applications, advanced branches or specialised workflows that are not necessary for that core competence.
 
-An example is **not a conversational tutorial**. Code, figures, and scientific results should dominate the page. Prose supplies the context necessary to understand the problem, consequential methodological choices, conventions, and interpretation.
+Lesson counts follow from this criterion and are not targets. A lesson that is terminal in the sequence belongs to the Course when it is fundamental. Material moves between the Course and the Tours without being cut; a Tour is not a lesser lesson.
+
+**Course.** The first numbered gallery sections are read in order. A lesson has a short introduction, learning objectives, and a reference to the lesson before and after it. The last lesson states that it ends the course and points to the Tours.
+
+**Tours.** The sections after the Course are standalone, one gallery directory per group. A Tour opens with its objective and a **Prerequisites** line naming the Course lessons it assumes, and has no previous or next reference. Its prerequisites are stated and not repeated.
+
+In both parts, an example is **not a conversational tutorial**. Code, figures, and scientific results dominate the page. Prose supplies the context necessary to understand the problem, consequential methodological choices, conventions, and interpretation. A lesson may have objectives and transitions; it does not narrate execution.
 
 A substantial example will often include:
 
@@ -219,9 +225,15 @@ Avoid:
 * repeated previews and recaps;
 * prose whose only purpose is to connect adjacent code blocks.
 
-The intended result is **a reproducible scientific example with concise methodological annotation**, not a lesson delivered by a narrator.
+The intended result is **a reproducible scientific example with concise methodological annotation**. A lesson adds objectives and continuity to this; it does not add narration.
 
 When a sentence merely describes what the next line of code does, it can usually be removed.
+
+#### Figures
+
+Gallery figures take their typography, canvas and colours from `docs/gallery_style.py`, which sphinx-gallery applies before every example. A script does not set font sizes or DPI. Figures are drawn on a transparent canvas in a mid grey that reads on both themes; the images inside them stay opaque.
+
+A complex image, such as a coil sensitivity map, is drawn with `gallery_style.domain`, which maps phase to hue and magnitude to brightness, with `gallery_style.phase_bar` as its key. Magnitude-only reconstructions are drawn as magnitudes. A map is not split into a magnitude figure and a separate phase figure.
 
 #### Running an example in Colab
 
@@ -248,7 +260,9 @@ Explanatory documentation may:
 * explain numerical or scientific trade-offs;
 * connect implementations to literature or upstream software.
 
-Every explanation page opens with a **TL;DR** block directly under its title: a short list of the page's conclusions, each stated as the page states it, with no claim the page does not support. It lets a reader decide whether the page answers their question. Landing pages, API reference pages and gallery examples have none.
+An explanation page with more than one `##` section opens with a **TL;DR** block directly under its title: a short list of the page's conclusions, each stated as the page states it, with no claim the page does not support. It lets a reader decide whether the page answers their question. A page with a single section may omit it. Landing pages, API reference pages and gallery examples have none.
+
+An explanation page has one obvious purpose and, where appropriate, a conceptual anchor: a figure, table, equation or similarly compact device that carries the page's central idea. A figure is never added for its own sake. Material that another page owns is linked and not repeated: the form of the encoding belongs to {doc}`/explanation/encoding`, the point spread function and the normal operator of a trajectory to {doc}`/explanation/non-cartesian`, and the rule that a backward pass is the adjoint to {doc}`/explanation/differentiation`.
 
 Where possible, begin from the scientific, mathematical, or computational concept rather than from the Python class hierarchy.
 
@@ -566,7 +580,8 @@ A successful documentation build establishes that the documentation can be rende
 
 ### Examples and gallery
 
-* Is this a meaningful and reproducible scientific workflow?
+* Is this a meaningful and reproducible scientific workflow, placed in the Course only if it is necessary for the core mental model and independent practice?
+* Does a Tour state its prerequisites, and a lesson its objectives and neighbours?
 * Do code and results dominate the page?
 * Does prose explain consequential choices rather than narrate execution?
 * Is theoretical background limited to what the example needs?
@@ -575,7 +590,8 @@ A successful documentation build establishes that the documentation can be rende
 
 ### Explanation
 
-* Does the page open with a TL;DR that states only what the page establishes?
+* Does a page with more than one section open with a TL;DR that states only what the page establishes?
+* Does the page have one purpose, and a conceptual anchor where one helps?
 * Does the page teach the underlying concept rather than narrate the API?
 * Are standard terms introduced accurately and then used consistently?
 * Are motivation, relationships, assumptions, and design choices clear?

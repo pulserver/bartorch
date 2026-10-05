@@ -53,8 +53,15 @@ class NUFFT(LinearOperator):
     toeplitz : bool, default=True
         Apply the normal in closed form rather than as the forward and
         adjoint applications: a convolution with a point spread function.
-    oversampling, width : float, default=0.0
-        Grid oversampling and kernel width; zero keeps the defaults.
+    oversampling : float, default=0.0
+        Oversampling of FINUFFT's fine grid, BART's ``-o``.  Zero uses the
+        library's setting, a quarter over by default.  On a device only 2 and
+        1.25 are accepted; any other value plans on the host and fails there.
+    width : float, default=0.0
+        Kernel width in grid points, BART's ``-w``.  FINUFFT sizes its kernel
+        from the tolerance, so the width is carried as the tolerance that gives
+        it, no tighter than single precision reaches.  Zero keeps the library's
+        tolerance.
 
     Examples
     --------

@@ -20,6 +20,9 @@ corrects it with a known field map in two ways:
 * by a model-based reconstruction whose encoding operator includes the field
   map by time segmentation, :func:`bartorch.linop.FieldCorrected`.
 
+**Prerequisites.** :doc:`../04-non-cartesian/01-trajectories-and-transforms` and
+:doc:`../04-non-cartesian/02-radial-sense`.
+
 **Learning objectives**
 
 * Relate the blurring of a spiral image to the off-resonance frequency and

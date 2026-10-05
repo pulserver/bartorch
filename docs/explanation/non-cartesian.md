@@ -146,7 +146,7 @@ ordering, successive spokes are separated by $\pi$ times the reciprocal of
 the golden ratio, about $111.25°$, and any number of consecutive spokes covers
 k-space approximately uniformly.[^winkelmann]  A continuously acquired
 golden-angle series can therefore be divided into frames after the
-acquisition, as {doc}`../auto_examples/04-non-cartesian/03-dynamic-golden-angle`
+acquisition, as {doc}`../auto_examples/08-workflows/01-dynamic-golden-angle`
 does.
 
 ## References

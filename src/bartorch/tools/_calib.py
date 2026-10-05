@@ -33,16 +33,18 @@ def ecalib(
         Fully sampled calibration data, or k-space with a sampled centre,
         ``(coils, z, y, x)``, or ``(coils, y, x)`` for one slice.
     maps : int, default=None
-        How many sets of sensitivities to produce (``-m``).
+        How many sets of sensitivities to produce (``-m``); BART's default is 2.
     calib_size : int or tuple of int, default=None
         The calibration region's size (``-r``), the same on every axis or one
-        per axis.
+        per axis; BART's default is 24 on every axis.
     threshold : float, default=None
-        The singular-value threshold for the calibration matrix (``-t``).
+        The singular-value threshold for the calibration matrix (``-t``);
+        BART's default is 0.001.
     crop : float, default=None
-        The eigenvalue below which a sensitivity is set to zero (``-c``).
+        The eigenvalue below which a sensitivity is set to zero (``-c``);
+        BART's default is 0.8.
     kernel_size : int, default=None
-        The calibration kernel's size (``-k``).
+        The calibration kernel's size (``-k``); BART's default is 6.
     softsense : bool, default=False
         Return the maps without the eigenvalue crop, for soft-SENSE (``-S``).
     intensity_correction : bool, default=False

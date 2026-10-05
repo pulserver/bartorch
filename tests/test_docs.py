@@ -92,16 +92,35 @@ def test_api_pages_carry_no_visible_autosummary():
         assert ".. autosummary::" not in page.read_text(), page.name
 
 
+def _sections(page: Path) -> int:
+    """The number of ``##`` sections of a Markdown page, outside code fences."""
+    count, fenced = 0, False
+    for line in page.read_text(encoding="utf-8").splitlines():
+        if line.startswith("```"):
+            fenced = not fenced
+        elif not fenced and line.startswith("## "):
+            count += 1
+    return count
+
+
 @pytest.mark.parametrize(
     "page",
     sorted(p.name for p in (DOCS / "explanation").glob("*.md") if p.name != "index.md"),
 )
-def test_every_explanation_page_opens_with_a_tldr(page):
-    """The page's title, then a TL;DR block before anything else."""
-    lines = (DOCS / "explanation" / page).read_text(encoding="utf-8").splitlines()
+def test_an_explanation_page_with_several_sections_opens_with_a_tldr(page):
+    """The page's title, then a TL;DR block before anything else; a one-section page may omit it."""
+    path = DOCS / "explanation" / page
+    lines = path.read_text(encoding="utf-8").splitlines()
     assert lines[0].startswith("# "), page
     following = [line for line in lines[1:] if line.strip()]
-    assert following[:2] == ["```{admonition} TL;DR", ":class: tldr"], page
+    has_tldr = following[:2] == ["```{admonition} TL;DR", ":class: tldr"]
+    assert has_tldr or _sections(path) <= 1, page
+
+
+def test_landing_and_api_pages_carry_no_tldr():
+    pages = [*API.glob("*.md"), DOCS / "explanation" / "index.md", DOCS / "index.md"]
+    for page in pages:
+        assert "TL;DR" not in page.read_text(encoding="utf-8"), page.name
 
 
 def _colab():
@@ -154,6 +173,15 @@ def test_the_colab_notebook_is_the_gallery_notebook_after_a_setup_cell(tmp_path)
     assert "bartorch " in colab.setup_cells("01-basics", "latest")[1]["source"][0] + " "
 
 
+def test_a_colab_notebook_importing_the_gallery_style_writes_it_first():
+    colab = _colab()
+    notebook = {"cells": [{"cell_type": "code", "source": ["from gallery_style import domain"]}]}
+    cells = colab.colab_notebook(notebook, "01-basics", "latest")["cells"]
+    assert cells[2]["source"][0].startswith("%%writefile gallery_style.py\n")
+    assert "def domain" in cells[2]["source"][0]
+    assert cells[3:] == notebook["cells"]
+
+
 def _toctree(page: Path) -> list[str]:
     """The entries of the toctrees of a Markdown page."""
     entries, inside = [], False
@@ -192,6 +220,22 @@ def _gallery_sections() -> list[str]:
     raise AssertionError("docs/conf.py defines no GALLERY_SECTIONS")
 
 
+#: The gallery sections that are the course, read in order; the rest are Tours.
+COURSE_SECTIONS = 6
+
+
+def _landing_tables() -> tuple[list[str], list[str]]:
+    """The sections linked under the Course and under the Tours on the Examples page."""
+    root = (DOCS / "examples" / "README.rst").read_text(encoding="utf-8")
+    course, tours = root.split("\nTours\n-----\n")
+    assert "\nCourse\n------\n" in course
+
+    def linked(text):
+        return [line.split("`")[1] for line in text.splitlines() if ":doc:`0" in line]
+
+    return linked(course), linked(tours)
+
+
 def test_the_examples_page_is_the_gallery_root_and_links_every_section():
     """Examples > section > example: the sidebar enters the gallery at its root."""
     sections = _gallery_sections()
@@ -199,6 +243,23 @@ def test_the_examples_page_is_the_gallery_root_and_links_every_section():
     assert sorted(sections) == on_disk
     assert "auto_examples/index" in _toctree(DOCS / "index.md")
     assert not (DOCS / "examples" / "index.md").exists()
-    root = (DOCS / "examples" / "README.rst").read_text(encoding="utf-8")
-    linked = [line.split("`")[1] for line in root.splitlines() if ":doc:`0" in line]
-    assert linked == [f"{section}/index" for section in sections]
+
+
+def test_the_examples_page_lists_the_course_and_then_the_tours():
+    """The Course table covers the first sections in order, the Tours table the rest."""
+    sections = [f"{section}/index" for section in _gallery_sections()]
+    course, tours = _landing_tables()
+    assert course == sections[:COURSE_SECTIONS]
+    assert tours == sections[COURSE_SECTIONS:]
+    assert tours, "the Tours table is empty"
+
+
+def test_the_sidebar_lists_the_six_sections_in_order():
+    assert _toctree(DOCS / "index.md") == [
+        "guides/user/index",
+        "guides/developer/index",
+        "explanation/index",
+        "auto_examples/index",
+        "api/index",
+        "misc/index",
+    ]

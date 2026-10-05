@@ -30,5 +30,5 @@ C-order tensor shape, so `array.T` converts between the two.
 | {obj}`~bartorch.io.readcfl` | Read `name.hdr` and `name.cfl` into a NumPy array in BART's dimension order |
 | {obj}`~bartorch.io.writecfl` | Write a NumPy array in BART's dimension order as `name.hdr` and `name.cfl` |
 
-{doc}`../auto_examples/05-model-based/03-maps-from-scanner-images` reads a
+{doc}`../auto_examples/08-workflows/03-maps-from-scanner-images` reads a
 multi-echo series from DICOM, fits a $T_2$ map to it and writes the map back.

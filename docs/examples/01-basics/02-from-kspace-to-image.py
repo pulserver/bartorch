@@ -53,7 +53,7 @@ compares sensitivity estimators.
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
 from cmap import Colormap
-from matplotlib.colors import ListedColormap
+from gallery_style import domain, phase_bar
 from scipy import ndimage
 
 WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
@@ -62,10 +62,6 @@ WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
 # colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
 LIPARI = Colormap("crameri:lipari").to_matplotlib()
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# Phase is cyclic, so the colormap has to be: -pi and +pi are the same colour.
-# mygbm, turned so that zero phase is yellow and +/-pi is blue.
-MYGBM = Colormap("colorcet:CET_C2").to_matplotlib().reversed()
-PHASE = ListedColormap(MYGBM([((step + 60) % 256) / 255 for step in range(256)]))
 
 # Colormap, window and unit per parameter.  Both relaxation windows stop short
 # of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
@@ -109,18 +105,6 @@ def scalebar(figure, axes, handle=None, label=None, name=None):
         cmap, limits, label = STYLE[name]
         handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
     return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
-
-
-def phase_bar(figure, axes):
-    """The colour-to-phase key for the panels beside it."""
-    bar = figure.colorbar(
-        plt.cm.ScalarMappable(plt.Normalize(-np.pi, np.pi), PHASE),
-        ax=axes,
-        fraction=0.046,
-        ticks=[-np.pi, 0.0, np.pi],
-    )
-    bar.ax.set_yticklabels(["$-\\pi$", "0", "$\\pi$"])
-    bar.set_label("phase [rad]")
 
 
 def errors(figure, axes, estimates, reference, scale):
@@ -275,25 +259,13 @@ handle = show(axes[1, 1], image, "$T_1$-weighted image", vmax=peak)
 scalebar(figure, axes[1, 1], handle, "magnitude [a.u.]")
 plt.show()
 
-# Three of the eight channels, magnitude above and phase below, with the
-# outline of the head drawn over each.
+# Three of the eight channels, with the outline of the head drawn over each.
 outline = ndimage.binary_fill_holes(head.numpy()).astype(float)
-figure, axes = panels(3, rows=2, bars=1)
+figure, axes = panels(3, bars=1)
 for column, channel in enumerate((2, 4, 6)):
-    handle = show(
-        axes[0, column], sensitivities[channel], f"channel {channel}", vmax=1.0, cmap="viridis"
-    )
-    phase_handle = show(
-        axes[1, column],
-        sensitivities[channel].angle().numpy(),
-        cmap=PHASE,
-        vmin=-np.pi,
-        vmax=np.pi,
-    )
-    for row in range(2):
-        axes[row, column].contour(outline, levels=[0.5], colors="white", linewidths=0.8)
-scalebar(figure, axes[0, :], handle, "|sensitivity|")
-phase_bar(figure, axes[1, :])
+    domain(axes[0, column], sensitivities[channel], f"channel {channel}", ceiling=1.0)
+    axes[0, column].contour(outline, levels=[0.5], colors="white", linewidths=0.8)
+phase_bar(figure, axes)
 plt.show()
 # sphinx_gallery_end_ignore
 
@@ -304,10 +276,13 @@ plt.show()
 # lipari for :math:`T_1`, navia for :math:`T_2` -- and with a window that stops
 # short of cerebrospinal fluid, the proton density, and the
 # :math:`T_1`-weighted image they give. The second shows three of the eight
-# sensitivities, magnitude above and phase below, with the outline of the head.
-# Each magnitude is highest near its coil element and falls off across the
-# head; the phase varies smoothly. These spatial variations are the extra
-# encoding that parallel imaging uses to separate aliased voxels.
+# sensitivities as complex images, with the phase in colour, the magnitude in
+# brightness and the outline of the head. Each magnitude is highest near its
+# coil element and falls off across the head; the phase varies smoothly. These
+# spatial variations are the extra encoding that parallel imaging uses to
+# separate aliased voxels.
+# :doc:`../02-parallel-imaging/01-coil-calibration` compares how they are
+# estimated.
 #
 # Sampling
 # --------

@@ -109,9 +109,10 @@ class Plan:
     contraction : str or None
         What the sum over ``a`` is: ``"subspace"`` where a basis contracts the
         coefficients, ``"segments"`` where terms are folded into the form's
-        own contraction, ``"chained"`` where a sum of terms was left as BART's
-        sum of chains because it did not match the form, and ``None`` where
-        there is none.
+        own contraction, ``"slices"`` where each slice takes its own phase in
+        k-space and the slices add up after it, ``"chained"`` where a sum of
+        terms was left as BART's sum of chains because it did not match the
+        form, and ``None`` where there is none.
     terms : int
         How many terms the contraction has; one without one.
     normal : str

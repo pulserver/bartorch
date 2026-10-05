@@ -3,7 +3,7 @@
 Parameter maps from scanner images
 ==================================
 
-This lesson estimates a :math:`T_2` map from the magnitude images a scanner
+This example estimates a :math:`T_2` map from the magnitude images a scanner
 exports, without access to the raw data: a multi-echo spin-echo series is read
 from DICOM, the decay is fitted voxel by voxel, and the map is written back as
 a DICOM series of the same study and as a NIfTI volume. The aim is to show the
@@ -17,7 +17,7 @@ own. :func:`bartorch.io.read_dicom` reads several series as one, sorts the
 images into contrasts by their echo, inversion and repetition times, and
 returns those times with the images: they are the sampling points of the
 signal model. The images and the model are then those of
-:doc:`02-quantitative-models`, minus the Fourier encoding: the fit of
+:doc:`../05-model-based/01-quantitative-models`, minus the Fourier encoding: the fit of
 :func:`bartorch.apps.mobafit` is Gauss-Newton on the signal equation alone.
 
 A magnitude image is not Gaussian where the signal is small: its noise is
@@ -29,6 +29,8 @@ the phase from the problem but not the floor; the echoes here stay above it.
 The input series is simulated in a hidden cell and written to a temporary
 directory, standing in for an export from the scanner.
 
+**Prerequisites.** :doc:`../05-model-based/01-quantitative-models`.
+
 **Learning objectives**
 
 - Read a multi-echo series stored as one DICOM series per echo, with its echo
@@ -37,10 +39,6 @@ directory, standing in for an export from the scanner.
   :func:`bartorch.apps.mobafit`.
 - Write the map as a DICOM series of the same study, and as NIfTI, in the
   geometry of the input.
-
-It follows :doc:`02-quantitative-models`. The next section,
-:doc:`../06-learning/01-plug-and-play`, replaces a specified regularizer with a
-learned denoiser.
 """
 
 # %%
@@ -51,7 +49,7 @@ from cmap import Colormap
 
 WIDTH = 7.8  # inches, the width of the documentation column
 # One perceptually uniform colormap per relaxation parameter (Fuderer et al.,
-# Magn Reson Med 2025), the one the previous lesson reads T2 in.
+# Magn Reson Med 2025), the one the quantitative-models lesson reads T2 in.
 NAVIA = Colormap("crameri:navia").to_matplotlib()
 # sphinx_gallery_end_ignore
 

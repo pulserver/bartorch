@@ -15,6 +15,8 @@ elements, estimates the field with N4 [#tustison]_ through
 :func:`bartorch.tools.bias_field_correct`, and compares the corrected image and
 the estimated field with the object and the true field.
 
+**Prerequisites.** :doc:`../01-basics/01-tensors-and-commands`.
+
 **Learning objectives**
 
 * Relate the shading of a root-sum-of-squares image to the receive

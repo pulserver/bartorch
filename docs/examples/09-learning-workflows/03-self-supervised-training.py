@@ -3,7 +3,7 @@ r"""
 Training without a reference
 ============================
 
-**Aim.** Train the unrolled network of :doc:`04-staged-training` from
+**Aim.** Train the unrolled network of :doc:`02-staged-training` from
 undersampled k-space alone, with no fully sampled reference, and measure how
 much of the supervised network's image quality it retains.
 
@@ -27,6 +27,9 @@ A new split is drawn at every step, so over the training every acquired line
 is both reconstructed from and held out [#multimask]_. At inference the
 network reconstructs from all of :math:`\Omega`.
 
+**Prerequisites.** :doc:`../06-learning/02-modl-with-admm` and
+:doc:`02-staged-training`.
+
 **Learning objectives**
 
 - Partition the acquired phase encodes with :func:`bartorch.learning.split`.
@@ -35,10 +38,6 @@ network reconstructs from all of :math:`\Omega`.
   sampling pattern instead of a reference.
 - Compare with the same network trained against references, and with
   CG-SENSE.
-
-It follows :doc:`04-staged-training`. The next lesson,
-:doc:`06-annealed-plug-and-play`, uses a denoiser trained once for any
-acquisition.
 """
 
 # %%
@@ -156,7 +155,7 @@ _ = torch.manual_seed(0)
 # Data
 # ----
 #
-# The slices, coils and fourfold undersampling of :doc:`04-staged-training`:
+# The slices, coils and fourfold undersampling of :doc:`02-staged-training`:
 # subject 0 to train on and subject 4 to validate on. The references are kept
 # only to score the results; the self-supervised network never sees them.
 

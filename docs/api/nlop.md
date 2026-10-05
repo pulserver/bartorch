@@ -75,5 +75,5 @@ inside BART, as `nlinv` does; `IRGNM(inner=solver)` passes it to a solver from
 {mod}`bartorch.optim`, whose regularization terms then apply to the step.
 
 The examples {doc}`../auto_examples/02-parallel-imaging/02-nonlinear-inversion` and
-{doc}`../auto_examples/05-model-based/02-quantitative-models` use these objects
+{doc}`../auto_examples/05-model-based/01-quantitative-models` use these objects
 in complete reconstructions.

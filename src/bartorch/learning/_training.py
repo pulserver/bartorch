@@ -126,7 +126,8 @@ class Reconstruction(lightning.LightningModule):
     ----------
     Urman Y, Nishimura M, Abraham D, Cao X, Setsompop K. Fully 3D unrolled
     magnetic resonance fingerprinting reconstruction via staged pretraining
-    and implicit gridding. arXiv:2601.17143, 2026.
+    and implicit gridding. Magn Reson Med 96(5):2516-2529, 2026.
+    https://doi.org/10.1002/mrm.70500
     """
 
     def __init__(
