@@ -206,6 +206,34 @@ def test_off_the_grid_the_app_is_the_tool_to_round_off():
     assert float((ours - tool).abs().max()) < 1e-5 * float(tool.abs().max())
 
 
+def test_off_the_grid_weights_weight_the_data_term_as_the_tools_do():
+    """``pics -p`` hands its weights to the transform, so the data term is
+    ``|W (A x - y)|^2``: the weights are a diagonal of the encoding and not only
+    of the data.  The square root of the Pipe-Menon density is the weighting that
+    preconditions a radial solve."""
+    traj, maps, measured = _radial()
+    points = traj.real[..., :2].reshape(-1, 2)
+    weights = bartorch.estimate_density(points, (32, 32)).sqrt().reshape(traj.shape[:-1])
+    term = _tv(0.001)
+    tool = ref.pics(
+        measured[..., None],
+        maps,
+        traj=traj,
+        pattern=weights[..., None],
+        regularizers=term,
+        solver="admm",
+        maxiter=10,
+    ).squeeze()
+    ours = apps.pics(
+        measured, maps, traj=traj, pattern=weights, regularizers=term, solver="admm", maxiter=10
+    ).squeeze()
+    unweighted = apps.pics(
+        measured, maps, traj=traj, regularizers=term, solver="admm", maxiter=10
+    ).squeeze()
+    assert float((ours - tool).abs().max()) < 1e-5 * float(tool.abs().max())
+    assert float((ours - unweighted).abs().max()) > 1e-3 * float(tool.abs().max())
+
+
 # --- mobafit ---------------------------------------------------------------
 #
 # The model the app fits is TorchSim's rather than BART's, so there is nothing

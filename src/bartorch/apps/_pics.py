@@ -138,7 +138,9 @@ def pics(
         Non-Cartesian trajectory, in grid units.
     pattern : torch.Tensor, default=None
         Sampling pattern or weights; on a grid it is read off ``kspace`` when
-        it is not given.
+        it is not given.  Off a grid it weights the data term, ``|W (A x -
+        y)|^2``; the square root of the density compensation of
+        :func:`~bartorch.estimate_density` preconditions the solve.
     basis : torch.Tensor, default=None
         Subspace basis over frames and coefficients.
     initial : torch.Tensor, default=None
@@ -203,7 +205,9 @@ def pics(
     else:
         # `toeplitz` defaults to the normal operator's convolution, which is
         # what the application uses; None means nobody asked.
-        off_grid: dict[str, object] = {"traj": traj, "basis": basis}
+        # Off the grid the weights are a diagonal of the encoding, as `pics -p`
+        # hands them to `nufft_create2`, so the data term is |W (A x - y)|^2.
+        off_grid: dict[str, object] = {"traj": traj, "basis": basis, "weights": pattern}
         if toeplitz is not None:
             off_grid["toeplitz"] = toeplitz
         A = linop.NoncartesianSense(maps, shape, **off_grid)
