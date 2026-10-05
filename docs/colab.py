@@ -4,7 +4,8 @@ Colab opens a notebook from a GitHub repository, so the notebooks it opens are
 copies published with the site on the ``gh-pages`` branch, under
 ``<version>/_colab/``.  Each copy is the notebook sphinx-gallery writes for the
 example, with two cells in front of it: a note, and a ``%pip install`` of
-bartorch and the packages the example imports.  The notebooks the example
+bartorch and the packages the example imports.  A notebook whose hidden cells
+import ``gallery_style`` also gets a cell writing that module beside it.  The notebooks the example
 pages offer for download are left as sphinx-gallery writes them.
 
 ``badge`` is the reStructuredText each example page carries under its title,
@@ -30,6 +31,9 @@ SECTION_PACKAGES = {
 
 #: The gallery's output directory under the documentation sources.
 GALLERY = "auto_examples"
+
+#: The figure helpers the examples import in their hidden cells.
+STYLE = Path(__file__).with_name("gallery_style.py")
 
 
 def requirement(release: str) -> str:
@@ -68,10 +72,25 @@ def setup_cells(section: str, release: str) -> list[dict]:
     return [note, install]
 
 
+def style_cell() -> dict:
+    """A cell writing ``gallery_style.py`` into the notebook's working directory."""
+    source = STYLE.read_text(encoding="utf-8")
+    return {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": ["%%writefile gallery_style.py\n" + source],
+    }
+
+
 def colab_notebook(notebook: dict, section: str, release: str) -> dict:
     """``notebook`` with the setup cells in front."""
     out = copy.deepcopy(notebook)
-    out["cells"] = setup_cells(section, release) + out["cells"]
+    cells = setup_cells(section, release)
+    if any("gallery_style" in "".join(cell.get("source", [])) for cell in out["cells"]):
+        cells.append(style_cell())
+    out["cells"] = cells + out["cells"]
     return out
 
 

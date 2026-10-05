@@ -173,6 +173,15 @@ def test_the_colab_notebook_is_the_gallery_notebook_after_a_setup_cell(tmp_path)
     assert "bartorch " in colab.setup_cells("01-basics", "latest")[1]["source"][0] + " "
 
 
+def test_a_colab_notebook_importing_the_gallery_style_writes_it_first():
+    colab = _colab()
+    notebook = {"cells": [{"cell_type": "code", "source": ["from gallery_style import domain"]}]}
+    cells = colab.colab_notebook(notebook, "01-basics", "latest")["cells"]
+    assert cells[2]["source"][0].startswith("%%writefile gallery_style.py\n")
+    assert "def domain" in cells[2]["source"][0]
+    assert cells[3:] == notebook["cells"]
+
+
 def _toctree(page: Path) -> list[str]:
     """The entries of the toctrees of a Markdown page."""
     entries, inside = [], False
