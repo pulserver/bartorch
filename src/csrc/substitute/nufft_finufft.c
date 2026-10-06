@@ -64,7 +64,6 @@ extern void bartorch_cuda_phase_map_out(int N, const bart_dim_t dims[], const fl
 		complex float* dst, const complex float* src, const complex float* map);
 extern void bartorch_cuda_gather(bart_dim_t V, const unsigned int* mask, const int* prefix, complex float* dst, const complex float* src);
 extern int bartorch_cuda_contract_upper_real(bart_dim_t L, int R, complex float* bank, const float* mat);
-extern int bartorch_cuda_contract_upper_real_bf16(bart_dim_t L, int R, complex float* bank, const void* mat);
 extern void bartorch_cuda_scatter(bart_dim_t V, const unsigned int* mask, const int* prefix, complex float* dst, const complex float* src);
 
 extern struct bartorch_cb_fft* bartorch_cb_fft_create(const bart_dim_t dims[3]);
@@ -81,11 +80,11 @@ extern void bartorch_cb_fft_inverse(struct bartorch_cb_fft* p, int N, const bart
 extern struct bartorch_paired* bartorch_paired_create(const bart_dim_t dims[3], int coeffs, int sets, const float (*shifts)[3]);
 extern void bartorch_paired_free(struct bartorch_paired* p);
 extern void bartorch_paired_in(const struct bartorch_paired* p, int k,
-		const complex float* src, const complex float* map, complex float* scratch);
+		const complex float* src, bart_dim_t step, const complex float* map, complex float* scratch);
 extern void bartorch_paired_fused(const struct bartorch_paired* p, int k, complex float* scratch,
 		const void* psf0, const void* psf1, int bf16, const unsigned int* mask, const int* prefix, bart_dim_t L);
 extern void bartorch_paired_back(const struct bartorch_paired* p, int k,
-		complex float* dst, const complex float* map, complex float* scratch);
+		complex float* dst, bart_dim_t step, const complex float* map, complex float* scratch);
 #endif
 
 #include "include/bartorch.h"
@@ -1337,11 +1336,6 @@ static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex
 
 		slot_ready(d);
 
-#ifdef USE_CUDA
-		if (2 == d->psf_size)
-			bartorch_cuda_contract_upper_real_bf16(locations, (int)coeffs, bank, psf);
-		else
-#endif
 		if (md_check_equal_dims(N, bank_dims, ciT_bank_dims, ~UINT64_C(0)))
 			bank = multiply_transfer(t, psf, bank_dims, ciT_bank_dims, bank);
 		else
@@ -1363,35 +1357,23 @@ static void packed_coset(struct nufft_fi_s* d, complex float* dst, const complex
 
 /* The two sets in the slot, convolved with `src` and added to `dst`.
  *
- * With the kernels a coil goes against both sets at once: its passes along z
- * and y serve both, and the pass along x multiplies by each set's function in
- * turn.  The kernels read a coil's coefficients a volume apart, which a folded
- * sensitivity or a single coil gives; anything else goes a set at a time. */
+ * A coil goes against both sets at once: its passes along z and y serve both,
+ * and the pass along x multiplies by each set's function in turn.  With the
+ * sensitivity folded in, what is read and written is the image and every coil
+ * accumulates into it; without, each coil's coefficients lie a coil image
+ * apart. */
 static void paired_unit(struct nufft_fi_s* d, complex float* dst, const complex float* src,
 		const bart_stride_t map_strs[], const complex float* map, bool last)
 {
+#ifdef BARTORCH_PAIRED
 	struct nufft_data* t = d->toeplitz_data;
 
 	bart_dim_t coils = t->cim_dims[3];
-
-	if ((NULL == map) && (1 != coils)) {
-
-		for (int s = 0; s < 2; s++) {
-
-			d->set = 2 * d->coset + s;
-			use_coset(d, s);
-
-			const void* psf = multiplace_read(t->psf, src);
-
-			packed_coset(d, dst, src, psf, map_strs, map, last && (1 == s));
-		}
-
-		return;
-	}
-
-#ifdef BARTORCH_PAIRED
 	bart_dim_t vol = md_calc_size(3, t->cim_dims);
 	bart_dim_t coeffs = md_calc_size(t->N, t->cim_dims) / md_calc_size(4, t->cim_dims);
+
+	bart_dim_t coil_step = (NULL == map) ? vol : 0;
+	bart_dim_t rest_step = (NULL == map) ? vol * coils : vol;
 	bart_dim_t map_coil_step = (NULL == map) ? 0 : map_strs[3] / (bart_stride_t)CFL_SIZE;
 
 	bart_dim_t sdims[1] = { coeffs * vol };
@@ -1404,26 +1386,26 @@ static void paired_unit(struct nufft_fi_s* d, complex float* dst, const complex 
 
 		const complex float* m = (NULL == map) ? NULL : map + c * map_coil_step;
 
-		bartorch_paired_in(d->paired, d->coset, src, m, scratch);
+		bartorch_paired_in(d->paired, d->coset, src + c * coil_step, rest_step, m, scratch);
 
 		slot_ready(d);
 
 		bartorch_paired_fused(d->paired, d->coset, scratch, psf0, psf1, 2 == d->psf_size,
-				d->kept_mask, d->kept_prefix, t->psf_dims[0]);
+				d->kept_mask, d->kept_prefix, md_calc_size(3, t->psf_dims));
 
 		/* The pair has been read for the last time once the last coil is past
 		 * its pass along x: the next pair can cross while this one's passes
 		 * back run. */
 		slot_read(d, last && (c == coils - 1));
 
-		bartorch_paired_back(d->paired, d->coset, dst, m, scratch);
+		bartorch_paired_back(d->paired, d->coset, dst + c * coil_step, rest_step, m, scratch);
 	}
 
 	md_free(scratch);
 
 	toeplitz_counters[TP_PAIRED]++;
 #else
-	(void)dst; (void)src; (void)map_strs; (void)map; (void)last;
+	(void)d; (void)dst; (void)src; (void)map_strs; (void)map; (void)last;
 	error("bartorch: sets in pairs without the pair kernels\n");
 #endif
 }
@@ -1550,10 +1532,10 @@ void bartorch_nufft_coset_normal(const struct linop_s* op, complex float* dst, c
 
 /* Whether a set can be convolved with the sensitivity folded in.
  *
- * Only the gathered arrangement can: it reads a coefficient of one coil at a
- * time and writes one at a time, so the map goes on as a coefficient is read
- * and comes off as it is written.  The arrangements that work over a whole
- * coil image at once have nowhere to put it. */
+ * The gathered arrangement and the pairs can: they read a coefficient of one
+ * coil at a time and write one at a time, so the map goes on as a coefficient
+ * is read and comes off as it is written.  The arrangement that works over a
+ * whole coil image at once has nowhere to put it. */
 int bartorch_nufft_coset_folds(const struct linop_s* op)
 {
 	struct nufft_fi_s* d = CAST_DOWN(nufft_fi_s, linop_get_data(op));
@@ -1561,7 +1543,7 @@ int bartorch_nufft_coset_folds(const struct linop_s* op)
 	if ((NULL == d->psf_host) || (NULL == d->toeplitz_data))
 		return 0;
 
-	return (NULL != d->kept_mask) ? 1 : 0;
+	return ((NULL != d->kept_mask) || (2 == d->unit)) ? 1 : 0;
 }
 
 /* The set convolved with a coil's image, added to the caller's image, with the
@@ -2355,6 +2337,30 @@ static void install_psf(struct nufft_data* data, const complex float* traj, comp
  * `pics --no-toeplitz` and `nufft -t` set, and it carries the memory the
  * function costs.
  */
+/* Whether the pair kernels read this arrangement: a coil's coefficients on the
+ * axis the function contracts and nothing else beside the grid and the coils,
+ * and each set's entries a grid apart -- the whole grid, or the places the
+ * samples reach -- one entry for one coefficient, the upper triangle for
+ * more. */
+static bool pairs_fit(const struct nufft_data* t, bool compressed)
+{
+	for (int i = 4; i < t->N; i++)
+		if ((1 < t->cim_dims[i]) && (COEFF_DIM != i))
+			return false;
+
+	bart_dim_t coeffs = (COEFF_DIM < t->N) ? t->cim_dims[COEFF_DIM] : 1;
+	bart_dim_t places = md_calc_size(3, t->psf_dims);
+	bart_dim_t entries = md_calc_size(t->N, t->psf_dims) / places;
+
+	if (!compressed && (places != md_calc_size(3, t->img_dims)))
+		return false;
+
+	if (1 == coeffs)
+		return 1 == entries;
+
+	return t->conf.upper_triag && (coeffs * (coeffs + 1) / 2 == entries);
+}
+
 /* Take the function off the card.
  *
  * What is left behind is BART's operator believing it has a single set of
@@ -2428,13 +2434,14 @@ static void stream_psf(struct nufft_fi_s* d)
 		t->compress = NULL;
 	}
 
-	/* In pairs, where the kernels allow it: a compressed, real function kept
-	 * as its upper triangle, over eight sets.  The kernels decide the rest --
-	 * the grid and the number of coefficients. */
+	/* In pairs, where the kernels allow it: a real function over eight sets,
+	 * whole or compressed, a coil's coefficients on the axis the function
+	 * contracts.  The kernels decide the rest -- the grid and the number of
+	 * coefficients. */
 	d->unit = 1;
 
 #ifdef BARTORCH_PAIRED
-	if (paired_enabled && (NULL != d->kept_mask) && t->conf.real && t->conf.upper_triag && (8 == cosets)) {
+	if (paired_enabled && t->conf.real && (8 == cosets) && pairs_fit(t, NULL != d->kept_mask)) {
 
 		if (NULL == d->paired) {
 
@@ -2457,10 +2464,8 @@ static void stream_psf(struct nufft_fi_s* d)
 
 	/* Paired, the function is kept in bfloat16, converted in place and the
 	 * copy shrunk to what it holds: each value lands on the first half of
-	 * where it was read, and the values still to be read lie beyond it.  A
-	 * set convolved on its own inside a pair reads it through the
-	 * contraction kernel, so that kernel is a condition. */
-	if ((2 == d->unit) && bf16_enabled && contraction_kernel) {
+	 * where it was read, and the values still to be read lie beyond it. */
+	if ((2 == d->unit) && bf16_enabled) {
 
 		bart_dim_t n = (bart_dim_t)cosets * d->psf_coset;
 		const float* in = (const float*)d->psf_host;

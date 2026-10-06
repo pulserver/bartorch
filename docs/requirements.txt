@@ -1,6 +1,6 @@
 # Rendering imports bartorch from src/, which needs torch (a CPU build is
 # enough) but not the compiled library.
-numpy>=1.24
+numpy>=2.2
 torch>=2.2
 # The denoiser the deep-learning example unrolls, and what it is trained
 # with.  Only `--execute` needs them; they are here rather than in a list of

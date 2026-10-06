@@ -349,10 +349,14 @@ endif()
 # tuned for the newest architecture listed.  The default is every size from
 # 192 to 512 that cuFFTDx transforms at cuFFT's speed or near it, plus 32 for
 # the tests; 340, whose factor 17 cuFFTDx takes through Bluestein's algorithm
-# at 2.6 times cuFFT's time, is left to cuFFT.  Without it the library has no
-# paired kernels and every size is served by the transforms it has otherwise.
+# at 2.6 times cuFFT's time, is left to cuFFT.  The pass along x is compiled
+# again for each number of coefficients in BARTORCH_PAIRED_RANKS, one
+# translation unit per rank (src/csrc/ops/paired_rank.cu): 1 is the function
+# without a subspace.  Without MathDx the library has no paired kernels and
+# every size and rank is served by the transforms it has otherwise.
 set(BARTORCH_MATHDX_DIR "" CACHE PATH "MathDx's nvidia/mathdx directory, for the paired Toeplitz kernels")
 set(BARTORCH_PAIRED_SIZES "32;192;200;224;240;256;288;300;320;360;384;400;448;480;512" CACHE STRING "Cubic grid sizes the paired Toeplitz kernels are compiled for")
+set(BARTORCH_PAIRED_RANKS "1;4;5;6;7;8;9;10" CACHE STRING "Numbers of coefficients the paired Toeplitz kernels are compiled for")
 if(BARTORCH_CUDA AND BARTORCH_MATHDX_DIR)
     if(NOT EXISTS "${BARTORCH_MATHDX_DIR}/include/cufftdx.hpp")
         message(FATAL_ERROR "BARTORCH_MATHDX_DIR=${BARTORCH_MATHDX_DIR} has no include/cufftdx.hpp")
@@ -361,8 +365,20 @@ if(BARTORCH_CUDA AND BARTORCH_MATHDX_DIR)
     foreach(_n ${BARTORCH_PAIRED_SIZES})
         string(APPEND _sizes " X(${_n})")
     endforeach()
+    set(_ranks "")
+    set(_rank_sources "")
+    foreach(_r ${BARTORCH_PAIRED_RANKS})
+        if(NOT _r MATCHES "^[1-9][0-9]*$")
+            message(FATAL_ERROR "BARTORCH_PAIRED_RANKS: ${_r} is not a number of coefficients")
+        endif()
+        string(APPEND _ranks " X(${_r})")
+        file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/paired_rank_${_r}.cu.in"
+            "/* Generated from BARTORCH_PAIRED_RANKS; see CMakeLists.txt. */\n#define BARTORCH_PAIRED_RANK ${_r}\n#include \"ops/paired_rank.cu\"\n")
+        configure_file("${CMAKE_CURRENT_BINARY_DIR}/paired_rank_${_r}.cu.in" "${CMAKE_CURRENT_BINARY_DIR}/paired_rank_${_r}.cu" COPYONLY)
+        list(APPEND _rank_sources "${CMAKE_CURRENT_BINARY_DIR}/paired_rank_${_r}.cu")
+    endforeach()
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/paired_sizes.h.in"
-        "/* Generated from BARTORCH_PAIRED_SIZES; see CMakeLists.txt. */\n#define BARTORCH_PAIRED_SIZES(X)${_sizes}\n")
+        "/* Generated from BARTORCH_PAIRED_SIZES and BARTORCH_PAIRED_RANKS; see CMakeLists.txt. */\n#define BARTORCH_PAIRED_SIZES(X)${_sizes}\n#define BARTORCH_PAIRED_RANKS(X)${_ranks}\n")
     configure_file("${CMAKE_CURRENT_BINARY_DIR}/paired_sizes.h.in" "${CMAKE_CURRENT_BINARY_DIR}/paired_sizes.h" COPYONLY)
     list(GET BARTORCH_CUDA_ARCHITECTURES -1 _paired_arch)
     set(_paired_archs "")
@@ -372,7 +388,7 @@ if(BARTORCH_CUDA AND BARTORCH_MATHDX_DIR)
     # Compiled on their own and for the listed architectures only: PTX of a
     # template instantiated once per grid size is megabytes, and a card newer
     # than the list is served by the transforms the library has otherwise.
-    add_library(bartorch_paired OBJECT src/csrc/ops/paired.cu)
+    add_library(bartorch_paired OBJECT src/csrc/ops/paired.cu ${_rank_sources})
     set_target_properties(bartorch_paired PROPERTIES
         CUDA_ARCHITECTURES "${_paired_archs}"
         POSITION_INDEPENDENT_CODE ON)
@@ -388,7 +404,7 @@ if(BARTORCH_CUDA AND BARTORCH_MATHDX_DIR)
         BARTORCH_PAIRED_SM=${_paired_arch}0)
     target_compile_options(bartorch_paired PRIVATE -Xcompiler=-fPIC -Xfatbin=-compress-all)
     list(APPEND BART_C_DEFS BARTORCH_PAIRED)
-    message(STATUS "Paired Toeplitz kernels: cuFFTDx from ${BARTORCH_MATHDX_DIR}, sizes ${BARTORCH_PAIRED_SIZES}")
+    message(STATUS "Paired Toeplitz kernels: cuFFTDx from ${BARTORCH_MATHDX_DIR}, sizes ${BARTORCH_PAIRED_SIZES}, ranks ${BARTORCH_PAIRED_RANKS}")
 endif()
 
 add_library(bartorch SHARED ${BART_SOURCES} ${BARTORCH_SOURCES})

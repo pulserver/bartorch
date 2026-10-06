@@ -320,7 +320,7 @@ def moba(
             amplitude = named.get("amplitude")
             return model.initial(
                 **(named if amplitude is None else {**named, "amplitude": amplitude / scale})
-            )
+            ).to(kspace.device)
 
         x0 = lifted(packed(values) if start is None else start)
         xref = x0 if reference is None else lifted(packed(_inside(model, reference)))
@@ -383,7 +383,7 @@ def moba(
         _joint(sense, solved),
         data,
         lambda: sense.transform.adjoint(data),
-        torch.zeros(sense.ishapes[1], dtype=torch.complex64),
+        torch.zeros(sense.ishapes[1], dtype=torch.complex64, device=kspace.device),
     )
     if not return_sensitivities:
         return maps

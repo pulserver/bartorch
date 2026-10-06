@@ -469,20 +469,22 @@ def _relative(fitted, reference, support):
     return (fitted - reference)[support].abs() / reference[support]
 
 
-def test_moba_fits_the_decay_behind_known_coils():
+def test_moba_fits_the_decay_behind_known_coils(device):
     from bartorch import nlop
 
     images, coils, t2, support, _ = _moba_phantom()
     model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+    kspace = _moba_kspace(images, coils).to(device)
 
-    fitted = apps.moba(_moba_kspace(images, coils), model, coils, **MOBA_SETTINGS, T2=80.0)
+    fitted = apps.moba(kspace, model, coils.to(device), **MOBA_SETTINGS, T2=80.0)
 
-    error = _relative(fitted["T2"], t2, support)
+    assert fitted["T2"].device.type == device
+    error = _relative(fitted["T2"].cpu(), t2, support)
     assert float(error.median()) < 0.02
     assert float(error.max()) < 0.08
 
 
-def test_moba_estimates_the_coils_with_the_decay():
+def test_moba_estimates_the_coils_with_the_decay(device):
     """Without sensitivities the coils are a second unknown; the T2 is still the
     one the images were made from, and the product of the fitted amplitude and
     coils -- which the data does fix, unlike either factor -- is the one the
@@ -491,10 +493,13 @@ def test_moba_estimates_the_coils_with_the_decay():
 
     images, coils, t2, support, amplitude = _moba_phantom()
     model = nlop.MultiEcho(MOBA_ECHO_TIMES, (MOBA_SIZE, MOBA_SIZE))
+    kspace = _moba_kspace(images, coils).to(device)
 
     fitted, estimated = apps.moba(
-        _moba_kspace(images, coils), model, return_sensitivities=True, **MOBA_SETTINGS, T2=80.0
+        kspace, model, return_sensitivities=True, **MOBA_SETTINGS, T2=80.0
     )
+    assert estimated.device.type == device
+    fitted, estimated = {name: m.cpu() for name, m in fitted.items()}, estimated.cpu()
 
     error = _relative(fitted["T2"], t2, support)
     assert float(error.median()) < 0.03

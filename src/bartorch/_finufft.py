@@ -216,11 +216,13 @@ def fft_callbacks(enable: bool = True) -> None:
 def pair_sets(enable: bool = True) -> None:
     """Convolve Toeplitz sets that differ only along x in pairs, sharing their z and y transforms.
 
-    Uses the cuFFTDx pair kernels, compiled for fixed grid sizes.  Applies to a
-    compressed real function kept as its upper triangle, with four coefficients,
-    on a cubic grid of a compiled size; other functions are convolved a set at a
-    time.  Read when a function is streamed, so it affects operators built
-    afterwards.  On by default.
+    Uses the cuFFTDx pair kernels, compiled for fixed grid sizes and numbers of
+    coefficients (``BARTORCH_PAIRED_SIZES``, ``BARTORCH_PAIRED_RANKS``).  Applies
+    to a real function on a cubic grid of a compiled size, whole or compressed:
+    a scalar one, or a subspace one kept as its upper triangle with a compiled
+    number of coefficients; other functions are convolved a set at a time.  Read
+    when a function is streamed, so it affects operators built afterwards.  On
+    by default.
     """
     from bartorch._lib import library
 

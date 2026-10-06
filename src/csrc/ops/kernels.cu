@@ -22,11 +22,6 @@
 
 #include "coset.cuh"
 
-#include <cuda_bf16.h>
-
-__device__ static inline float widen(float v) { return v; }
-__device__ static inline float widen(__nv_bfloat16 v) { return __bfloat162float(v); }
-
 /* dst = src * map * phase */
 __global__ static void kern_phase_map_in(struct phase_conf c, cuFloatComplex* dst,
 		const cuFloatComplex* src, const cuFloatComplex* map)
@@ -231,8 +226,7 @@ extern "C" void bartorch_cuda_modulate(const bart_dim_t dims[3], bart_dim_t rest
  * `hermite_to_uppertriag` lays the function's entries out in. */
 enum { CONTRACT_MAX = 16 };
 
-template <typename P>
-__global__ static void kern_contract_upper_real(bart_dim_t L, int R, cuFloatComplex* bank, const P* mat)
+__global__ static void kern_contract_upper_real(bart_dim_t L, int R, cuFloatComplex* bank, const float* mat)
 {
 	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
 	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
@@ -253,7 +247,7 @@ __global__ static void kern_contract_upper_real(bart_dim_t L, int R, cuFloatComp
 
 				int lo = (r < c) ? r : c;
 				int hi = (r < c) ? c : r;
-				float m = widen(mat[(bart_dim_t)(lo + hi * (hi + 1) / 2) * L + l]);
+				float m = mat[(bart_dim_t)(lo + hi * (hi + 1) / 2) * L + l];
 
 				re += m * in[c].x;
 				im += m * in[c].y;
@@ -269,20 +263,7 @@ extern "C" int bartorch_cuda_contract_upper_real(bart_dim_t L, int R, _Complex f
 	if ((R < 1) || (R > CONTRACT_MAX))
 		return -1;
 
-	kern_contract_upper_real<float><<<grid_for(L), 256, 0, cuda_get_stream()>>>(L, R, (cuFloatComplex*)bank, mat);
-
-	CUDA_KERNEL_ERROR;
-
-	return 0;
-}
-
-/* The same, against a function kept in bfloat16. */
-extern "C" int bartorch_cuda_contract_upper_real_bf16(bart_dim_t L, int R, _Complex float* bank, const void* mat)
-{
-	if ((R < 1) || (R > CONTRACT_MAX))
-		return -1;
-
-	kern_contract_upper_real<__nv_bfloat16><<<grid_for(L), 256, 0, cuda_get_stream()>>>(L, R, (cuFloatComplex*)bank, (const __nv_bfloat16*)mat);
+	kern_contract_upper_real<<<grid_for(L), 256, 0, cuda_get_stream()>>>(L, R, (cuFloatComplex*)bank, mat);
 
 	CUDA_KERNEL_ERROR;
 
