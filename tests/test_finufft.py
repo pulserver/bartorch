@@ -1742,49 +1742,95 @@ def test_the_passes_inside_the_transforms_answer_as_the_passes_on_their_own(in_t
     assert float((inside - separate).abs().max() / separate.abs().max()) < 1e-5
 
 
+def _paired_problem(coeffs, n=32, read=16, spokes=48, coils=2):
+    """A 3D radial problem on an n^3 grid: no basis where ``coeffs`` is None."""
+    frames = max(4, coeffs or 1)
+    traj = bt.traj(x=read, y=spokes * frames, r=True, flag_3=True).reshape(frames, spokes, read, 3)
+    torch.manual_seed(0)
+    maps = torch.randn(coils, n, n, n, dtype=torch.complex64)
+    maps = maps / maps.abs().pow(2).sum(0, keepdim=True).sqrt()
+    if coeffs is None:
+        return traj.reshape(frames * spokes, read, 3), None, maps, (n, n, n)
+    basis = torch.zeros(coeffs, frames, dtype=torch.complex64)
+    for c in range(coeffs):
+        basis[c] = torch.cos(torch.pi * c * (torch.arange(frames) + 0.5) / frames)
+    return traj, basis, maps, (coeffs, n, n, n)
+
+
 @requires_finufft
 @requires_cuda
 @pytest.mark.skipif(
     not _finufft.paired_built(), reason="built without the pair kernels (BARTORCH_MATHDX_DIR)"
 )
-def test_sets_convolved_in_pairs_answer_as_sets_one_at_a_time(in_tools):
+@pytest.mark.parametrize(
+    "coeffs, compress, coil_batch, fold_maps",
+    [
+        (None, True, 1, True),
+        (1, True, 1, True),
+        (4, True, 1, True),
+        (5, True, 1, True),
+        (10, True, 1, True),
+        (4, False, 1, True),
+        (None, True, 2, False),
+        (4, True, 2, False),
+    ],
+    ids=[
+        "scalar",
+        "rank1",
+        "rank4",
+        "rank5",
+        "rank10",
+        "rank4-whole",
+        "scalar-coils",
+        "rank4-coils",
+    ],
+)
+def test_sets_convolved_in_pairs_answer_as_sets_one_at_a_time(
+    in_tools, coeffs, compress, coil_batch, fold_maps
+):
     """Two sets that differ only along x share their passes along z and y.
 
     The pair kernels convolve a coil against both sets at once; built without
-    pairing, the same operator convolves them a set at a time.  The normals
-    agree to rounding, and the image the normal is applied to is left alone.
+    pairing, the same operator convolves them a set at a time.  For a scalar
+    function and for every compiled number of coefficients, whole or
+    compressed, with the sensitivity folded in or a batch of coil images, the
+    normals agree to rounding and the image the normal is applied to is left
+    alone.
     """
     from bartorch import linop
 
-    n, read, spokes, frames, coeffs, coils = 32, 16, 48, 4, 4, 2
-    traj = bt.traj(x=read, y=spokes * frames, r=True, flag_3=True).reshape(frames, spokes, read, 3)
-    basis = torch.zeros(coeffs, frames, dtype=torch.complex64)
-    for c in range(coeffs):
-        basis[c] = torch.cos(torch.pi * c * (torch.arange(frames) + 0.5) / frames)
-
-    torch.manual_seed(0)
-    maps = torch.randn(coils, n, n, n, dtype=torch.complex64)
-    maps = maps / maps.abs().pow(2).sum(0, keepdim=True).sqrt()
-    x = torch.randn(coeffs, n, n, n, dtype=torch.complex64, device="cuda")
+    traj, basis, maps, ishape = _paired_problem(coeffs)
+    x = torch.randn(ishape, dtype=torch.complex64, device="cuda")
     kept = x.clone()
 
     def normal(pair):
         _finufft.pair_sets(pair)
         _finufft.bfloat16_function(False)
+        _finufft.compress_psf(compress)
         try:
+            compressed = _finufft.functions_compressed()
             A = linop.NoncartesianSense(
-                maps.cuda(), (coeffs, n, n, n), traj=traj.cuda(), basis=basis.cuda()
+                maps.cuda(),
+                ishape,
+                traj=traj.cuda(),
+                basis=None if basis is None else basis.cuda(),
+                coil_batch=coil_batch,
+                fold_maps=fold_maps,
             )
             before = _finufft.pairs_convolved()
             out = A.normal(x)
-            return out, _finufft.pairs_convolved() - before
+            whole = _finufft.functions_compressed() == compressed
+            return out, _finufft.pairs_convolved() - before, whole
         finally:
             _finufft.pair_sets(True)
             _finufft.bfloat16_function(True)
+            _finufft.compress_psf(True)
 
-    one_at_a_time, none = normal(False)
-    in_pairs, pairs = normal(True)
+    one_at_a_time, none, _ = normal(False)
+    in_pairs, pairs, whole = normal(True)
 
+    # A scalar function is never worth compressing; a subspace one is here.
+    assert whole == (coeffs is None or coeffs == 1 or not compress)
     assert none == 0, "without pairing no pair is convolved together"
     assert pairs > 0, "the sets were convolved in pairs"
     assert torch.equal(x, kept), "the image was left as it was"
@@ -1796,33 +1842,25 @@ def test_sets_convolved_in_pairs_answer_as_sets_one_at_a_time(in_tools):
 @pytest.mark.skipif(
     not _finufft.paired_built(), reason="built without the pair kernels (BARTORCH_MATHDX_DIR)"
 )
-def test_a_function_kept_in_bfloat16_answers_as_one_kept_in_floats(in_tools):
+@pytest.mark.parametrize("coeffs", [None, 4], ids=["scalar", "rank4"])
+def test_a_function_kept_in_bfloat16_answers_as_one_kept_in_floats(in_tools, coeffs):
     """bfloat16 keeps a float's range and rounds each value to 2^-9 of itself.
 
     The paired normal with its function in bfloat16 is held against the same
-    normal with it in floats, and against the one-set-at-a-time path a single
-    coil without a map takes inside a pair.  They differ by the rounding and by
-    no more.
+    normal with it in floats, for a scalar function and a subspace one.  They
+    differ by the rounding and by no more.
     """
     from bartorch import linop
 
-    n, read, spokes, frames, coeffs, coils = 32, 16, 48, 4, 4, 2
-    traj = bt.traj(x=read, y=spokes * frames, r=True, flag_3=True).reshape(frames, spokes, read, 3)
-    basis = torch.zeros(coeffs, frames, dtype=torch.complex64)
-    for c in range(coeffs):
-        basis[c] = torch.cos(torch.pi * c * (torch.arange(frames) + 0.5) / frames)
-
-    torch.manual_seed(0)
-    maps = torch.randn(coils, n, n, n, dtype=torch.complex64)
-    maps = maps / maps.abs().pow(2).sum(0, keepdim=True).sqrt()
-    x = torch.randn(coeffs, n, n, n, dtype=torch.complex64, device="cuda")
+    traj, basis, maps, ishape = _paired_problem(coeffs)
+    x = torch.randn(ishape, dtype=torch.complex64, device="cuda")
 
     def normal(bf16):
         _finufft.bfloat16_function(bf16)
         try:
             before = _finufft.functions_bfloat16()
             A = linop.NoncartesianSense(
-                maps.cuda(), (coeffs, n, n, n), traj=traj.cuda(), basis=basis.cuda()
+                maps.cuda(), ishape, traj=traj.cuda(), basis=None if basis is None else basis.cuda()
             )
             return A.normal(x), _finufft.functions_bfloat16() - before
         finally:

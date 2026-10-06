@@ -218,8 +218,9 @@ jobs:
       # and the build fails loudly if it is older.
       # The pair kernels are cuFFTDx, whose headers come with MathDx: only the
       # build reads them, and the wheel carries what they compile to, so a
-      # machine running it needs the driver and nothing else.  The sizes they
-      # are compiled for are BARTORCH_PAIRED_SIZES's default (CMakeLists.txt).
+      # machine running it needs the driver and nothing else.  The sizes and
+      # ranks they are compiled for are BARTORCH_PAIRED_SIZES's and
+      # BARTORCH_PAIRED_RANKS's defaults (CMakeLists.txt).
       - name: Fetch MathDx
         run: |
           python -m pip install nvidia-mathdx==25.6.0
