@@ -5,7 +5,7 @@
 
 - bartorch drives one embedded BART through three layers: reconstruction pipelines ({mod}`bartorch.apps`), the objects the pipelines are assembled from — operators, regularization terms and solvers ({mod}`bartorch.linop`, {mod}`bartorch.nlop`, {mod}`bartorch.priors`, {mod}`bartorch.optim`) — and BART's remaining commands, with the corrections and motion estimation around a reconstruction, as functions of tensors ({mod}`bartorch.tools`).
 - An app runs a standard reconstruction in one call; the objects are needed for an encoding BART has no application for, a solver inside an outer loop, or gradients.
-- {func}`bartorch.apps.pics` returns the tensor BART's `pics` returns on a Cartesian grid and agrees with it to floating-point round-off along a trajectory; {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit TorchSim signal models and return named maps in physical units.
+- {func}`bartorch.apps.pics` returns the tensor BART's `pics` returns on a Cartesian grid and agrees with it to floating-point round-off along a trajectory; {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit BlochSim signal models and return named maps in physical units.
 - Operators pass tensors to BART without copying and commands copy their inputs by default; an error inside BART raises {class}`~bartorch.BartError`, and FINUFFT or cuFINUFFT computes every non-uniform Fourier transform.
 ```
 
@@ -66,7 +66,7 @@ threads in an order that varies between runs.  The command itself is not
 public; the test suite holds the app to it.  An app is the starting point for
 a variant of an application: its steps are Python that can be read and
 changed.  {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` use
-BART's Gauss-Newton method but not its signal models: they fit TorchSim
+BART's Gauss-Newton method but not its signal models: they fit BlochSim
 models, which carry bounds and a starting state, and return named maps in
 physical units rather than BART's scaled coefficients.
 
@@ -113,7 +113,7 @@ non-uniform FFT that is the tolerance it is planned with, $10^{-3}$ by default.
 The iterations of {mod}`bartorch.optim` reproduce BART's step sizes, penalty
 updates and stopping rules; for the Cartesian configurations the test suite
 covers, the assembled solvers return the same tensors as `pics`, bit for bit.
-{func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit TorchSim
+{func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit BlochSim
 signal models and do not reproduce their commands.  Where a configuration cannot be
 served — a non-Cartesian transform FINUFFT cannot compute, a term an iteration
 cannot apply — the call raises an error with the reason rather than computing

@@ -677,23 +677,36 @@ is trained here. Each iteration costs one application of the network.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
 
   0%|          | 0.00/125M [00:00&lt;?, ?B/s]
-  0%|          | 128k/125M [00:00&lt;06:16, 346kB/s]
-  0%|          | 512k/125M [00:00&lt;01:40, 1.30MB/s]
-  1%|▏         | 1.62M/125M [00:00&lt;00:30, 4.17MB/s]
-  4%|▎         | 4.62M/125M [00:00&lt;00:10, 11.7MB/s]
- 11%|█         | 13.6M/125M [00:00&lt;00:03, 35.0MB/s]
- 29%|██▊       | 35.8M/125M [00:00&lt;00:01, 78.1MB/s]
- 35%|███▍      | 43.2M/125M [00:01&lt;00:01, 73.1MB/s]
- 42%|████▏     | 52.9M/125M [00:01&lt;00:00, 79.6MB/s]
- 49%|████▊     | 60.6M/125M [00:01&lt;00:00, 78.0MB/s]
- 55%|█████▍    | 68.1M/125M [00:01&lt;00:00, 64.8MB/s]
- 62%|██████▏   | 77.2M/125M [00:01&lt;00:00, 66.2MB/s]
- 67%|██████▋   | 83.9M/125M [00:01&lt;00:00, 48.4MB/s]
- 78%|███████▊  | 97.2M/125M [00:01&lt;00:00, 66.7MB/s]
- 84%|████████▍ | 105M/125M [00:02&lt;00:00, 57.9MB/s]
- 94%|█████████▍| 117M/125M [00:02&lt;00:00, 63.5MB/s]
- 99%|█████████▉| 124M/125M [00:02&lt;00:00, 63.2MB/s]
-100%|██████████| 125M/125M [00:02&lt;00:00, 53.4MB/s]
+  0%|          | 128k/125M [00:00&lt;05:21, 406kB/s]
+  1%|          | 768k/125M [00:00&lt;00:57, 2.26MB/s]
+  2%|▏         | 2.50M/125M [00:00&lt;00:18, 6.93MB/s]
+  7%|▋         | 8.88M/125M [00:00&lt;00:04, 24.6MB/s]
+ 14%|█▍        | 17.8M/125M [00:00&lt;00:02, 44.7MB/s]
+ 18%|█▊        | 22.9M/125M [00:00&lt;00:02, 45.9MB/s]
+ 22%|██▏       | 27.9M/125M [00:00&lt;00:02, 46.9MB/s]
+ 27%|██▋       | 33.6M/125M [00:01&lt;00:01, 50.6MB/s]
+ 31%|███       | 38.9M/125M [00:01&lt;00:01, 48.7MB/s]
+ 35%|███▌      | 44.0M/125M [00:01&lt;00:01, 49.5MB/s]
+ 39%|███▉      | 49.0M/125M [00:01&lt;00:01, 48.7MB/s]
+ 43%|████▎     | 53.9M/125M [00:01&lt;00:01, 48.0MB/s]
+ 47%|████▋     | 58.6M/125M [00:01&lt;00:01, 44.7MB/s]
+ 51%|█████     | 63.0M/125M [00:01&lt;00:01, 38.5MB/s]
+ 54%|█████▎    | 66.9M/125M [00:02&lt;00:02, 25.1MB/s]
+ 57%|█████▋    | 70.8M/125M [00:02&lt;00:02, 27.9MB/s]
+ 60%|█████▉    | 74.1M/125M [00:02&lt;00:01, 29.2MB/s]
+ 62%|██████▏   | 77.5M/125M [00:02&lt;00:01, 29.9MB/s]
+ 65%|██████▍   | 80.8M/125M [00:02&lt;00:01, 30.1MB/s]
+ 68%|██████▊   | 84.8M/125M [00:02&lt;00:01, 33.0MB/s]
+ 71%|███████   | 88.2M/125M [00:02&lt;00:01, 33.3MB/s]
+ 74%|███████▎  | 91.6M/125M [00:02&lt;00:01, 33.7MB/s]
+ 77%|███████▋  | 95.5M/125M [00:02&lt;00:00, 35.6MB/s]
+ 81%|████████  | 100M/125M [00:03&lt;00:00, 39.0MB/s]
+ 84%|████████▎ | 104M/125M [00:03&lt;00:00, 35.4MB/s]
+ 87%|████████▋ | 109M/125M [00:03&lt;00:00, 38.6MB/s]
+ 91%|█████████ | 113M/125M [00:03&lt;00:00, 40.9MB/s]
+ 95%|█████████▍| 118M/125M [00:03&lt;00:00, 42.3MB/s]
+ 98%|█████████▊| 122M/125M [00:03&lt;00:00, 40.6MB/s]
+100%|██████████| 125M/125M [00:03&lt;00:00, 35.3MB/s]
      zero-filled  NRMSE 0.199  SSIM 0.482
  total variation  NRMSE 0.161  SSIM 0.754
     DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -789,7 +802,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 37.928 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 53.309 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-01-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/51d621c9981b908bc0655f32fc40806e/01-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-plug-and-play.ipynb</span></code></a></p>

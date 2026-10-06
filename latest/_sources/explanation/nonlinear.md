@@ -42,7 +42,7 @@ $$
 
 with $e$ the contrast index.  The unknowns are the parameter maps.  This is
 **model-based reconstruction**, BART's `moba`,[^block][^sumpf][^wang] which
-{func}`bartorch.apps.moba` performs over a TorchSim signal model;
+{func}`bartorch.apps.moba` performs over a BlochSim signal model;
 {func}`bartorch.apps.mobafit` fits the same models voxel by voxel to
 reconstructed images.
 
@@ -134,7 +134,7 @@ second and third routes.
 
 The signal models — {func}`~bartorch.nlop.InversionRecovery`,
 {func}`~bartorch.nlop.MultiEcho`, {func}`~bartorch.nlop.Bloch` — are
-[TorchSim](https://github.com/FiRMLAB-Pisa/torchsim) simulators presented as
+[BlochSim](https://github.com/pulserver/blochsim) simulators presented as
 BART nonlinear operators.  A signal model is voxel-wise: the signal of a voxel
 depends only on that voxel's parameters, so one forward-mode automatic
 differentiation pass gives the derivative for the whole volume and no Jacobian

@@ -49,14 +49,14 @@ constrains all of them. The operator is nonlinear in :math:`\theta`, so the
 problem is solved by the iteratively regularized Gauss-Newton method of
 :doc:`../02-parallel-imaging/02-nonlinear-inversion`, over a different model.
 
-The model here is :class:`bartorch.nlop.MultiEcho`, a TorchSim simulator as a
+The model here is :class:`bartorch.nlop.MultiEcho`, a BlochSim simulator as a
 BART nonlinear operator. The phantom and the coil sensitivities are built as
 in :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is
 hidden on this page and present in the script this page can be downloaded as.
 
 **Learning objectives**
 
-- Represent a relaxation model as a TorchSim-backed
+- Represent a relaxation model as a BlochSim-backed
   :class:`bartorch.nlop.SignalModel`.
 - Fit it to reconstructed echo images, and directly to k-space by composing
   it with the encoding, with :class:`bartorch.nlop.IRGNM`.
@@ -251,8 +251,8 @@ the data.
 
     /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
       warnings.warn(
-    reconstruct, then fit:       6.1 s
-    model inside the operator:  16.1 s
+    reconstruct, then fit:       5.9 s
+    model inside the operator:  16.5 s
 
 
 
@@ -324,8 +324,8 @@ the fit above.
 
  .. code-block:: none
 
-    apps.moba:                  16.6 s
-                  two-step  median  86.1 ms   relative error 0.477
+    apps.moba:                  16.5 s
+                  two-step  median  86.1 ms   relative error 0.483
                model-based  median  81.5 ms   relative error 0.007
                  apps.moba  median  81.3 ms   relative error 0.057
                    phantom  median  81.5 ms
@@ -405,7 +405,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 40.027 seconds)
+   **Total running time of the script:** (0 minutes 40.057 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-quantitative-models.py:

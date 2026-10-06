@@ -552,7 +552,7 @@ exponential is the same either way.</p>
 <li><p><strong>bounds</strong> (<em>dict</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">(low,</span> <span class="pre">high)}</span></code>; <code class="docutils literal notranslate"><span class="pre">T2</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">1000)</span></code> ms.</p></li>
 <li><p><strong>unknown</strong> (<em>sequence</em><em> of </em><em>str</em><em>, </em><em>default=</em><em>(</em><em>'T2'</em><em>,</em><em>)</em>) – What to solve for.  <code class="docutils literal notranslate"><span class="pre">offset</span></code> is the other thing the model exposes.</p></li>
 <li><p><strong>amplitude</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Carry a complex amplitude multiplying the decay.</p></li>
-<li><p><strong>subspace</strong> (<em>torchsim.Subspace</em><em>, </em><em>default=None</em>) – Solve in a temporal basis rather than in the contrasts.</p></li>
+<li><p><strong>subspace</strong> (<em>blochsim.Subspace</em><em>, </em><em>default=None</em>) – Solve in a temporal basis rather than in the contrasts.</p></li>
 <li><p><strong>**scale</strong> – The size of a step in a parameter left unbounded.</p></li>
 </ul>
 </dd>

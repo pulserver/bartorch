@@ -545,9 +545,9 @@
 <dt class="sig sig-object py" id="bartorch.nlop.SignalModel">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">SignalModel</span></span><a class="headerlink" href="#bartorch.nlop.SignalModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a></p>
-<p>A TorchSim signal model as a BART nonlinear operator.</p>
+<p>A BlochSim signal model as a BART nonlinear operator.</p>
 <p>The operator maps parameter maps to one image per contrast.  What it does
-at each point is TorchSim’s: <code class="xref py py-meth docutils literal notranslate"><span class="pre">A()</span></code> for
+at each point is BlochSim’s: <code class="xref py py-meth docutils literal notranslate"><span class="pre">A()</span></code> for
 the value, <code class="docutils literal notranslate"><span class="pre">A_jvp</span></code> for the derivative and <code class="docutils literal notranslate"><span class="pre">A_vjp</span></code> for its adjoint, none
 of which builds a Jacobian – the model is voxel-diagonal, so one
 forward-mode pass gives the whole volume’s derivative whatever the
@@ -555,7 +555,7 @@ parameter count.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>torchsim.recon.ModelOperator</em>) – The signal model, with its unknowns, bounds and scales already set.</p></li>
+<li><p><strong>model</strong> (<em>blochsim.recon.ModelOperator</em>) – The signal model, with its unknowns, bounds and scales already set.</p></li>
 <li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>)</em>) – The voxel shape, C order – <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code>, <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, whatever the
 maps are.  The operator’s domain is <code class="docutils literal notranslate"><span class="pre">(channels,</span> <span class="pre">*shape)</span></code> and its
 codomain <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">*shape)</span></code>.</p></li>
@@ -567,7 +567,7 @@ is not given.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bartorch.nlop.SignalModel.channels">
 <span class="sig-name descname"><span class="pre">channels</span></span><a class="headerlink" href="#bartorch.nlop.SignalModel.channels" title="Link to this definition">#</a></dt>
-<dd><p>Map channels the domain carries, in TorchSim’s order.</p>
+<dd><p>Map channels the domain carries, in BlochSim’s order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -576,8 +576,8 @@ is not given.</p></li>
 </dd></dl>
 
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchsim.recon</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelOperator</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchsim.simulators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiEchoSimulator</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">blochsim.recon</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelOperator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">blochsim.simulators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiEchoSimulator</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">ModelOperator</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">MultiEchoSimulator</span><span class="p">(</span><span class="n">TE</span><span class="o">=</span><span class="n">echo_times</span><span class="p">),</span> <span class="s2">"T2"</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">{</span><span class="s2">"T2"</span><span class="p">:</span> <span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">)}</span>
 <span class="gp">... </span><span class="p">)</span>

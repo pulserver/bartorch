@@ -582,7 +582,7 @@ y_{c,e} = P_e F \left( S_c \cdot M_e(\theta) \right),
 \]</div>
 <p>with <span class="math notranslate nohighlight">\(e\)</span> the contrast index.  The unknowns are the parameter maps.  This is
 <strong>model-based reconstruction</strong>, BART’s <code class="docutils literal notranslate"><span class="pre">moba</span></code>,<a class="footnote-reference brackets" href="#block" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#sumpf" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#wang" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> which
-<a class="reference internal" href="../generated/bartorch.apps.moba.html#bartorch.apps.moba" title="bartorch.apps.moba"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.moba()</span></code></a> performs over a TorchSim signal model;
+<a class="reference internal" href="../generated/bartorch.apps.moba.html#bartorch.apps.moba" title="bartorch.apps.moba"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.moba()</span></code></a> performs over a BlochSim signal model;
 <a class="reference internal" href="../generated/bartorch.apps.mobafit.html#bartorch.apps.mobafit" title="bartorch.apps.mobafit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.mobafit()</span></code></a> fits the same models voxel by voxel to
 reconstructed images.</p>
 <p>A Gauss-Newton solver requires the value <span class="math notranslate nohighlight">\(F(x)\)</span>, the derivative <span class="math notranslate nohighlight">\(DF_x\)</span> at a
@@ -698,7 +698,7 @@ second and third routes.</p>
 <h2>Signal models and their derivatives<a class="headerlink" href="#signal-models-and-their-derivatives" title="Link to this heading">#</a></h2>
 <p>The signal models — <a class="reference internal" href="../generated/bartorch.nlop.InversionRecovery.html#bartorch.nlop.InversionRecovery" title="bartorch.nlop.InversionRecovery"><code class="xref py py-func docutils literal notranslate"><span class="pre">InversionRecovery()</span></code></a>,
 <a class="reference internal" href="../generated/bartorch.nlop.MultiEcho.html#bartorch.nlop.MultiEcho" title="bartorch.nlop.MultiEcho"><code class="xref py py-func docutils literal notranslate"><span class="pre">MultiEcho()</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.Bloch.html#bartorch.nlop.Bloch" title="bartorch.nlop.Bloch"><code class="xref py py-func docutils literal notranslate"><span class="pre">Bloch()</span></code></a> — are
-<a class="reference external" href="https://github.com/FiRMLAB-Pisa/torchsim">TorchSim</a> simulators presented as
+<a class="reference external" href="https://github.com/pulserver/blochsim">BlochSim</a> simulators presented as
 BART nonlinear operators.  A signal model is voxel-wise: the signal of a voxel
 depends only on that voxel’s parameters, so one forward-mode automatic
 differentiation pass gives the derivative for the whole volume and no Jacobian

@@ -544,9 +544,9 @@
 forward model from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.nlop</span></code>, the Gauss-Newton loop of
 <a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a> over it, and the fitted variables read back
 into their own units.</p>
-<p>The model is TorchSim’s rather than BART’s – what a fit needs is a
+<p>The model is BlochSim’s rather than BART’s – what a fit needs is a
 forward it can differentiate, with bounds and a starting state, which is
-what <a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a> is over a TorchSim simulator –
+what <a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a> is over a BlochSim simulator –
 so this does not reproduce the command’s coefficients.  It solves the same
 problem with the same method and answers in named maps.</p>
 <dl class="field-list simple">

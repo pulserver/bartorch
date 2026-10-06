@@ -19,7 +19,7 @@ the BART command.
 Either route writes the output files of the BART command, in its array layout
 and units.  A `pics` command line routed to the app writes the same values
 bit for bit.  `mobafit` and `moba` are routed for the models whose parameters
-the TorchSim model of the app represents exactly -- `-T`, `-I`, `-L`, `-D`,
+the BlochSim model of the app represents exactly -- `-T`, `-I`, `-L`, `-D`,
 `-M` with `--init`, and `-G` with `-m 0`, `1`, `3` or `4` for `mobafit`; and
 for `moba` on a Cartesian grid, `-G` with the same models and without `-r`,
 and with `-l2` `-T`, `-L`, `-P`, `-D` with `-m 6` or `7`, and `--bloch` with a

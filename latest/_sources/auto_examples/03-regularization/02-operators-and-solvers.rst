@@ -169,7 +169,7 @@ data, so it is a usable check on an operator.
 
  .. code-block:: none
 
-    relative difference 1.35e-07
+    relative difference 1.20e-07
 
 
 
@@ -356,7 +356,7 @@ the solvers.
 
  .. code-block:: none
 
-    relative difference from 2 A^H (Ax - y): 2.04e-07
+    relative difference from 2 A^H (Ax - y): 2.06e-07
 
 
 
@@ -371,7 +371,7 @@ which problem.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.092 seconds)
+   **Total running time of the script:** (0 minutes 3.273 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_02-operators-and-solvers.py:

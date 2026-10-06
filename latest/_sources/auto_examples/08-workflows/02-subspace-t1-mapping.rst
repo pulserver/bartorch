@@ -84,8 +84,8 @@ one directly to k-space.
     import brainweb_dl
     import numpy as np
     import torch
+    from blochsim.simulators import MPnRAGESimulator
     from brainweb_dl import get_mri
-    from torchsim.simulators import MPnRAGESimulator
 
     import bartorch
     import bartorch.tools as bt
@@ -113,7 +113,7 @@ The dictionary and its subspace
 
 The dictionary is simulated rather than tabulated: one curve per
 :math:`T_1`, from the sequence that will be played.
-:class:`~torchsim.simulators.MPnRAGESimulator` is that sequence -- an
+:class:`~blochsim.simulators.MPnRAGESimulator` is that sequence -- an
 inversion followed by a spoiled gradient-echo train with every shot read --
 and ``simulate`` evaluates it over an array of parameters at once, giving
 ``(entries, frames)``.
@@ -607,7 +607,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.325 seconds)
+   **Total running time of the script:** (0 minutes 15.313 seconds)
 
 
 .. _sphx_glr_download_auto_examples_08-workflows_02-subspace-t1-mapping.py:

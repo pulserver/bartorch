@@ -131,8 +131,8 @@ from pathlib import Path
 import brainweb_dl
 import numpy as np
 import torch
+from blochsim.simulators import MPnRAGESimulator
 from brainweb_dl import get_mri
-from torchsim.simulators import MPnRAGESimulator
 
 import bartorch
 import bartorch.tools as bt
@@ -153,7 +153,7 @@ FLIP = 6.0  # degrees
 #
 # The dictionary is simulated rather than tabulated: one curve per
 # :math:`T_1`, from the sequence that will be played.
-# :class:`~torchsim.simulators.MPnRAGESimulator` is that sequence -- an
+# :class:`~blochsim.simulators.MPnRAGESimulator` is that sequence -- an
 # inversion followed by a spoiled gradient-echo train with every shot read --
 # and ``simulate`` evaluates it over an array of parameters at once, giving
 # ``(entries, frames)``.

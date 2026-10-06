@@ -354,7 +354,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.173 seconds)
+   **Total running time of the script:** (0 minutes 6.847 seconds)
 
 
 .. _sphx_glr_download_auto_examples_08-workflows_01-dynamic-golden-angle.py:

@@ -547,7 +547,7 @@ variables read back into their own units.  Without <code class="docutils literal
 coils are a second unknown, estimated jointly with the maps as the command
 estimates them: a k-space representation under the Sobolev weighting of
 <a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a>, shared by every contrast.</p>
-<p>The model is TorchSim’s rather than BART’s – a
+<p>The model is BlochSim’s rather than BART’s – a
 <a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a> – so this does not reproduce the
 command’s coefficients.  It solves the same problem with the same method
 and answers in named maps.</p>
@@ -629,7 +629,7 @@ complex scale between them, which the data does not fix.</p></li>
 <p class="rubric">Notes</p>
 <p>Each step is regularized towards <code class="docutils literal notranslate"><span class="pre">reference</span></code> – by default the maps
 towards where they started, the coil coefficients towards zero – where the command
-regularizes towards zero.  Zero in TorchSim’s parameterisation is the
+regularizes towards zero.  Zero in BlochSim’s parameterisation is the
 middle of each bound and no amplitude, not a plausible map, and the coils start
 at zero, as the command starts them: at that point the data has no
 derivative by the maps, so a first step centred on zero would take the
