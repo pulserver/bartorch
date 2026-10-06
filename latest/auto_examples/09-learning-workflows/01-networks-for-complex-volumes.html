@@ -745,13 +745,13 @@ the boundary errors across the volume.</p>
 </span></pre></div></div>
 <ul class="sphx-glr-horizontal">
 <li><img src="../../_images/sphx_glr_01-networks-for-complex-volumes_002.png" srcset="../../_images/sphx_glr_01-networks-for-complex-volumes_002.png" alt="reference, noisy, denoised, whole" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_01-networks-for-complex-volumes_003.png" srcset="../../_images/sphx_glr_01-networks-for-complex-volumes_003.png" alt="noisy NRMSE 0.131, denoised, whole NRMSE 0.095" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_01-networks-for-complex-volumes_003.png" srcset="../../_images/sphx_glr_01-networks-for-complex-volumes_003.png" alt="noisy NRMSE 0.131, denoised, whole NRMSE 0.098" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_01-networks-for-complex-volumes_004.png" srcset="../../_images/sphx_glr_01-networks-for-complex-volumes_004.png" alt="fixed grid − whole, 8 random grids − whole" class = "sphx-glr-multi-img"/></li>
 </ul>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>noisy                  relative error 0.1850
-whole volume           relative error 0.1125, departure from the whole volume 0.0000
-fixed grid             relative error 0.1156, departure from the whole volume 0.0321
-8 random grids         relative error 0.1213, departure from the whole volume 0.0537
+whole volume           relative error 0.1147, departure from the whole volume 0.0000
+fixed grid             relative error 0.1169, departure from the whole volume 0.0321
+8 random grids         relative error 0.1219, departure from the whole volume 0.0487
 </pre></div>
 </div>
 <p>The network, 0.14 million weights trained for a few minutes on patches of
@@ -799,7 +799,7 @@ cycle. This factorization costs few weights beyond the spatial network.</p>
 (n, channels, frames, z, y, x): (1, 6, 10, 16, 16, 16)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (9 minutes 34.998 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 37.942 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-09-learning-workflows-01-networks-for-complex-volumes-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/71f76464f13f83170b7d0ea8e3ba2e0d/01-networks-for-complex-volumes.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-networks-for-complex-volumes.ipynb</span></code></a></p>

@@ -216,7 +216,7 @@ the object divided by the mean signal inside it.
 
       delay-free: ghost-to-signal  1.38 %, NRMSE 0.0e+00
     flipped only: ghost-to-signal 18.22 %, NRMSE 3.2e-01
-       corrected: ghost-to-signal  1.38 %, NRMSE 1.1e-07
+       corrected: ghost-to-signal  1.38 %, NRMSE 1.4e-07
 
 
 
@@ -400,7 +400,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.681 seconds)
+   **Total running time of the script:** (0 minutes 2.396 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py:

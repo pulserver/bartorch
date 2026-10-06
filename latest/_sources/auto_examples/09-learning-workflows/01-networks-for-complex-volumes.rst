@@ -318,7 +318,7 @@ the boundary errors across the volume.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_01-networks-for-complex-volumes_003.png
-         :alt: noisy NRMSE 0.131, denoised, whole NRMSE 0.095
+         :alt: noisy NRMSE 0.131, denoised, whole NRMSE 0.098
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_01-networks-for-complex-volumes_003.png
          :class: sphx-glr-multi-img
 
@@ -335,9 +335,9 @@ the boundary errors across the volume.
  .. code-block:: none
 
     noisy                  relative error 0.1850
-    whole volume           relative error 0.1125, departure from the whole volume 0.0000
-    fixed grid             relative error 0.1156, departure from the whole volume 0.0321
-    8 random grids         relative error 0.1213, departure from the whole volume 0.0537
+    whole volume           relative error 0.1147, departure from the whole volume 0.0000
+    fixed grid             relative error 0.1169, departure from the whole volume 0.0321
+    8 random grids         relative error 0.1219, departure from the whole volume 0.0487
 
 
 
@@ -411,7 +411,7 @@ cycle. This factorization costs few weights beyond the spatial network.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (9 minutes 34.998 seconds)
+   **Total running time of the script:** (4 minutes 37.942 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py:

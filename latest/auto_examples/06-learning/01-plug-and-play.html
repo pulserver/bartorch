@@ -677,34 +677,23 @@ is trained here. Each iteration costs one application of the network.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
 
   0%|          | 0.00/125M [00:00&lt;?, ?B/s]
-  0%|          | 128k/125M [00:00&lt;04:11, 519kB/s]
-  3%|▎         | 3.50M/125M [00:00&lt;00:09, 12.8MB/s]
-  4%|▍         | 5.50M/125M [00:00&lt;00:08, 14.8MB/s]
-  7%|▋         | 8.75M/125M [00:00&lt;00:05, 20.4MB/s]
-  9%|▉         | 11.1M/125M [00:00&lt;00:05, 21.5MB/s]
- 11%|█         | 13.5M/125M [00:00&lt;00:05, 20.6MB/s]
- 14%|█▍        | 17.1M/125M [00:00&lt;00:04, 25.1MB/s]
- 17%|█▋        | 20.9M/125M [00:01&lt;00:03, 28.9MB/s]
- 22%|██▏       | 26.9M/125M [00:01&lt;00:02, 38.4MB/s]
- 25%|██▍       | 30.8M/125M [00:01&lt;00:02, 33.4MB/s]
- 28%|██▊       | 34.2M/125M [00:01&lt;00:03, 26.9MB/s]
- 35%|███▍      | 43.2M/125M [00:01&lt;00:02, 41.8MB/s]
- 40%|███▉      | 49.4M/125M [00:01&lt;00:01, 47.2MB/s]
- 48%|████▊     | 59.8M/125M [00:01&lt;00:01, 63.0MB/s]
- 53%|█████▎    | 66.5M/125M [00:02&lt;00:01, 37.5MB/s]
- 58%|█████▊    | 72.6M/125M [00:02&lt;00:01, 42.1MB/s]
- 63%|██████▎   | 78.1M/125M [00:02&lt;00:01, 31.6MB/s]
- 66%|██████▋   | 82.5M/125M [00:02&lt;00:01, 23.9MB/s]
- 69%|██████▉   | 86.5M/125M [00:03&lt;00:01, 26.3MB/s]
- 72%|███████▏  | 90.1M/125M [00:03&lt;00:01, 28.3MB/s]
- 75%|███████▌  | 93.8M/125M [00:03&lt;00:01, 29.1MB/s]
- 78%|███████▊  | 97.8M/125M [00:03&lt;00:00, 31.8MB/s]
- 81%|████████▏ | 101M/125M [00:03&lt;00:00, 32.5MB/s]
- 85%|████████▌ | 106M/125M [00:03&lt;00:00, 36.6MB/s]
- 88%|████████▊ | 110M/125M [00:03&lt;00:00, 37.2MB/s]
- 92%|█████████▏| 114M/125M [00:03&lt;00:00, 39.6MB/s]
- 95%|█████████▌| 118M/125M [00:03&lt;00:00, 31.8MB/s]
-100%|██████████| 125M/125M [00:04&lt;00:00, 32.1MB/s]
+  0%|          | 128k/125M [00:00&lt;06:16, 346kB/s]
+  0%|          | 512k/125M [00:00&lt;01:40, 1.30MB/s]
+  1%|▏         | 1.62M/125M [00:00&lt;00:30, 4.17MB/s]
+  4%|▎         | 4.62M/125M [00:00&lt;00:10, 11.7MB/s]
+ 11%|█         | 13.6M/125M [00:00&lt;00:03, 35.0MB/s]
+ 29%|██▊       | 35.8M/125M [00:00&lt;00:01, 78.1MB/s]
+ 35%|███▍      | 43.2M/125M [00:01&lt;00:01, 73.1MB/s]
+ 42%|████▏     | 52.9M/125M [00:01&lt;00:00, 79.6MB/s]
+ 49%|████▊     | 60.6M/125M [00:01&lt;00:00, 78.0MB/s]
+ 55%|█████▍    | 68.1M/125M [00:01&lt;00:00, 64.8MB/s]
+ 62%|██████▏   | 77.2M/125M [00:01&lt;00:00, 66.2MB/s]
+ 67%|██████▋   | 83.9M/125M [00:01&lt;00:00, 48.4MB/s]
+ 78%|███████▊  | 97.2M/125M [00:01&lt;00:00, 66.7MB/s]
+ 84%|████████▍ | 105M/125M [00:02&lt;00:00, 57.9MB/s]
+ 94%|█████████▍| 117M/125M [00:02&lt;00:00, 63.5MB/s]
+ 99%|█████████▉| 124M/125M [00:02&lt;00:00, 63.2MB/s]
+100%|██████████| 125M/125M [00:02&lt;00:00, 53.4MB/s]
      zero-filled  NRMSE 0.199  SSIM 0.482
  total variation  NRMSE 0.161  SSIM 0.754
     DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
@@ -800,7 +789,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 53.213 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 37.928 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-01-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/51d621c9981b908bc0655f32fc40806e/01-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-plug-and-play.ipynb</span></code></a></p>
