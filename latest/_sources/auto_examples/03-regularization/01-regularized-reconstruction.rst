@@ -392,7 +392,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.737 seconds)
+   **Total running time of the script:** (0 minutes 10.902 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_01-regularized-reconstruction.py:

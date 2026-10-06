@@ -400,7 +400,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.570 seconds)
+   **Total running time of the script:** (0 minutes 2.681 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py:

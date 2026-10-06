@@ -272,9 +272,9 @@ for this penalty.
 
  .. code-block:: none
 
-    pics: 0.64 s
+    pics: 1.01 s
         gridding  NRMSE 0.324  SSIM 0.418
-        CG-SENSE  NRMSE 0.087  SSIM 0.565
+        CG-SENSE  NRMSE 0.087  SSIM 0.566
       SENSE + TV  NRMSE 0.084  SSIM 0.863
 
 
@@ -360,7 +360,7 @@ the operator built above, now over the estimated sensitivities.
 
  .. code-block:: none
 
-    operator and solver: 0.61 s
+    operator and solver: 0.96 s
     relative difference from pics: 0.0e+00
 
 
@@ -404,7 +404,7 @@ iterations carry that difference into the reconstructions.
 
  .. code-block:: none
 
-    without the Toeplitz normal: 0.25 s
+    without the Toeplitz normal: 0.45 s
     relative difference 3.2e-02
 
 
@@ -451,7 +451,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.195 seconds)
+   **Total running time of the script:** (0 minutes 5.165 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_02-radial-sense.py:
