@@ -57,6 +57,13 @@ jobs:
     defaults:
       run:
         shell: bash
+    # Every compile goes through ccache, whose store is kept between runs: BART
+    # and FINUFFT change only with a submodule bump, so a run compiles what the
+    # change touched. Ninja builds on every core.
+    env:
+      CMAKE_GENERATOR: Ninja
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
     # Codecov takes the upload on GitHub's OIDC token, so no secret is needed.
     permissions:
       contents: read
@@ -116,9 +123,14 @@ jobs:
           clang model.c -o model.exe
           ./model.exe
 
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.finufft-fft || 'ducc0' }}
+          max-size: 500M
+
       - name: Install torch (CPU) and the build backend
         run: |
-          pip install scikit-build-core setuptools-scm numpy scipy pytest pytest-cov numpydoc
+          pip install scikit-build-core setuptools-scm numpy scipy pytest pytest-cov pytest-xdist numpydoc ninja
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           # The io extra, so that the ISMRMRD, DICOM and NIfTI files are read
           # and written on every platform.
@@ -216,8 +228,13 @@ jobs:
       - name: One OpenMP runtime with torch and FINUFFT threaded together
         run: pytest tests/test_openmp.py -v -s
 
+      # One worker per core, each taking the next test as it frees: the
+      # model-based fits run for tens of seconds and would otherwise queue
+      # behind one another on one worker.
       - name: Run the test suite
-        run: pytest tests/ -v ${{ matrix.coverage && '--cov --cov-report=xml' || '' }}
+        env:
+          OMP_NUM_THREADS: 2
+        run: pytest tests/ -v -n auto --dist worksteal ${{ matrix.coverage && '--cov --cov-report=xml' || '' }}
 
       # Coverage is a report, not a test: Codecov being unreachable leaves
       # the build to the suite.
@@ -233,6 +250,11 @@ jobs:
   cuda-build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      CMAKE_GENERATOR: Ninja
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      CMAKE_CUDA_COMPILER_LAUNCHER: ccache
     steps:
       - uses: actions/checkout@v4
         with:
@@ -248,9 +270,14 @@ jobs:
       - name: Install the CUDA toolkit and GCC
         run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends cmake gcc-14 g++-14 g++-12 nvidia-cuda-toolkit
 
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: cuda
+          max-size: 1G
+
       - name: Install torch (CPU) and the build backend
         run: |
-          pip install scikit-build-core setuptools-scm numpy scipy pytest numpydoc
+          pip install scikit-build-core setuptools-scm numpy scipy pytest pytest-xdist numpydoc ninja
           pip install torch --index-url https://download.pytorch.org/whl/cpu
 
       # As in the test matrix: torchvision comes with deepinv, and its
@@ -280,4 +307,4 @@ jobs:
         run: |
           python -c "import bartorch; assert 'cuda=ON' in bartorch.build_info()"
           python -c "from bartorch import _finufft; assert _finufft.available() and _finufft.cuda_available()"
-          pytest tests/ -v
+          OMP_NUM_THREADS=2 pytest tests/ -v -n auto --dist worksteal

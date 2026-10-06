@@ -93,6 +93,9 @@ def test_a_failing_tool_raises_with_barts_message():
 def test_registry_is_empty_after_a_failure():
     from bartorch._lib import library
 
+    # Whatever an earlier test in this process left registered is not this
+    # failure's.
+    library().bartorch_unlink_all()
     x = torch.ones(4, dtype=torch.complex64)
     with pytest.raises(bartorch.BartError):
         dispatch("fft", [x], None, _pos=["notanumber"])

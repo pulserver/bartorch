@@ -117,6 +117,7 @@ pyhysco = [
 ]
 dev = [
     "pytest>=7",
+    "pytest-xdist>=3",
     "SimpleITK>=2.3",
     # tests/test_docstrings.py reads the docstrings as the reference does.
     "numpydoc>=1.6",
