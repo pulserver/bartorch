@@ -14,7 +14,7 @@ from bartorch.nlop._basic import Multiply
 __all__ = ["moba"]
 
 #: Gauss-Newton steps.  The command takes eight (moba/moba.c:17) over its own
-#: coefficients; TorchSim's bounded parameterisation needs more, as
+#: coefficients; BlochSim's bounded parameterisation needs more, as
 #: :func:`~bartorch.apps.mobafit` sets out for the same reason.
 _ITERATIONS = 20
 
@@ -191,7 +191,7 @@ def moba(
     estimates them: a k-space representation under the Sobolev weighting of
     :class:`~bartorch.nlop.NonlinearSense`, shared by every contrast.
 
-    The model is TorchSim's rather than BART's -- a
+    The model is BlochSim's rather than BART's -- a
     :class:`~bartorch.nlop.SignalModel` -- so this does not reproduce the
     command's coefficients.  It solves the same problem with the same method
     and answers in named maps.
@@ -292,7 +292,7 @@ def moba(
     -----
     Each step is regularized towards ``reference`` -- by default the maps
     towards where they started, the coil coefficients towards zero -- where the command
-    regularizes towards zero.  Zero in TorchSim's parameterisation is the
+    regularizes towards zero.  Zero in BlochSim's parameterisation is the
     middle of each bound and no amplitude, not a plausible map, and the coils start
     at zero, as the command starts them: at that point the data has no
     derivative by the maps, so a first step centred on zero would take the

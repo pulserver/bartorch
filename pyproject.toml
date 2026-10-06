@@ -42,7 +42,7 @@ dependencies = [
     # On Linux it is torch's libgomp.so.1; before 2.7.1 torch's copy carried
     # a hashed name the library's NEEDED entry does not match.
     "torch>=2.7.1; sys_platform == 'linux'",
-    # TorchSim is the signal model.  `nlop.FromTorchSim` turns any of its
+    # BlochSim is the signal model.  `nlop.SignalModel` turns any of its
     # simulators into a BART nonlinear operator -- value, Jacobian-vector
     # product and adjoint product, which is exactly what `nlop_s` asks for --
     # and `nlop.InversionRecovery`, `nlop.MultiEcho` and `nlop.Bloch` are
@@ -51,7 +51,7 @@ dependencies = [
     #
     # It asks for numpy, scipy and torch, all of which are here already, and
     # nothing else.
-    "torchsim>=0.0.8",
+    "blochsim>=0.0.9",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",

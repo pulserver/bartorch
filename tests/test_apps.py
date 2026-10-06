@@ -236,7 +236,7 @@ def test_off_the_grid_weights_weight_the_data_term_as_the_tools_do():
 
 # --- mobafit ---------------------------------------------------------------
 #
-# The model the app fits is TorchSim's rather than BART's, so there is nothing
+# The model the app fits is BlochSim's rather than BART's, so there is nothing
 # to be equal to; what a fit has to answer for is the relaxation time the data
 # was made from, and the decay and the recovery are written out here.
 

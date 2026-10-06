@@ -1,20 +1,20 @@
-"""TorchSim's Bloch-simulated sequences against BART's ``sim``.
+"""BlochSim's Bloch-simulated sequences against BART's ``sim``.
 
 BART integrates the Bloch-McConnell equations through each pulse with an ODE
-solver; TorchSim plays each pulse as one hard pulse per sample.  Both play the
+solver; BlochSim plays each pulse as one hard pulse per sample.  Both play the
 same sequences -- FLASH and balanced SSFP, each optionally after a hyperbolic
 secant inversion, and pulsed CEST saturation -- over the free water and up to
 four pools exchanging with it, and these tests hold each pair to what the two
 integrations leave between them.
 
 The conventions differ, and are mapped here once.  BART takes seconds, rates
-in 1/s and frequencies in rad/s; TorchSim milliseconds and Hz, with the
+in 1/s and frequencies in rad/s; BlochSim milliseconds and Hz, with the
 opposite sign for an off-resonance or a chemical shift, and a complex sample
 that is the conjugate of BART's.  BART's water has unit M0 and a pool's M0 is
-relative to it, with ``k`` the rate back to the water; TorchSim's pools are
+relative to it, with ``k`` the rate back to the water; BlochSim's pools are
 fractions of the total, with an exchange rate that the fractions split.  BART
-measures TE from the start of the pulse, TorchSim from its centre, and BART's
-secant inversion carries a constant phase that TorchSim takes as
+measures TE from the start of the pulse, BlochSim from its centre, and BART's
+secant inversion carries a constant phase that BlochSim takes as
 ``inversion_phase``.  BART's output is per pool, and the signal is their sum.
 """
 
@@ -22,7 +22,7 @@ import math
 
 import pytest
 import torch
-from torchsim import simulators
+from blochsim import simulators
 
 from bartorch import _call
 
@@ -72,7 +72,7 @@ def _bart(seq, pools=(), tolerance="1e-6", t1=1.0, t2=0.1, **options):
 
 
 def _tissue(pools=(), shift_hz=lambda om: om / (2 * math.pi), **tissue):
-    """TorchSim's properties for BART's water and pools."""
+    """BlochSim's properties for BART's water and pools."""
     total = 1.0 + sum(pool[3] for pool in pools)
     properties = {"T1": 1000.0, "T2": 100.0, "M0": total, **tissue}
     for letter, (t1, t2, shift, m0, exchange) in zip("BCDE"[: len(pools)], pools, strict=True):

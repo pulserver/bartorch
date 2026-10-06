@@ -1,4 +1,4 @@
-"""TorchSim signal models as BART nonlinear operators.
+"""BlochSim signal models as BART nonlinear operators.
 
 The bridge has to hold four things: that the physics agrees with BART's own
 (``bart signal`` computes the same closed forms), that the derivative and its
@@ -19,11 +19,11 @@ from bartorch import _call, linop, nlop, optim
 from bartorch.nlop._base import _chain
 
 #: `signal` is private -- a curve from a command is a number, not a model a fit
-#: can be built on -- and these tests pin TorchSim's physics against it, which
+#: can be built on -- and these tests pin BlochSim's physics against it, which
 #: is what a private command is still reachable for.
 signal = _call.build("signal", __name__)
 
-torchsim = pytest.importorskip("torchsim")
+blochsim = pytest.importorskip("blochsim")
 
 
 def _rand(*shape):
@@ -154,7 +154,7 @@ def test_a_model_without_an_amplitude_has_an_adjoint_over_the_reals():
 
 
 def test_the_imaginary_half_of_the_domain_is_a_null_direction():
-    # TorchSim's maps are real; they are carried in the real part of a complex
+    # BlochSim's maps are real; they are carried in the real part of a complex
     # buffer, and nothing reads the other half.  An iterate that starts real
     # therefore stays real, to the bit.
     M = nlop.MultiEcho((10.0, 20.0), (4, 4))
@@ -219,7 +219,7 @@ def test_a_model_differentiates_in_torch():
 
 
 def test_an_arbitrary_simulator_becomes_an_operator():
-    from torchsim.simulators import FSESimulator
+    from blochsim.simulators import FSESimulator
 
     M = nlop.Bloch(
         FSESimulator(flip=torch.full((6,), 180.0), ESP=8.0, TR=3000.0),
@@ -236,7 +236,7 @@ def test_an_arbitrary_simulator_becomes_an_operator():
 
 
 def test_an_arbitrary_simulator_has_a_working_adjoint():
-    from torchsim.simulators import InversionRecoverySimulator
+    from blochsim.simulators import InversionRecoverySimulator
 
     M = nlop.Bloch(
         InversionRecoverySimulator(TI=(100.0, 500.0, 2000.0)),
@@ -251,8 +251,8 @@ def test_an_arbitrary_simulator_has_a_working_adjoint():
 
 
 def test_a_model_operator_can_be_handed_over_directly():
-    from torchsim.recon import ModelOperator
-    from torchsim.simulators import MultiEchoSimulator
+    from blochsim.recon import ModelOperator
+    from blochsim.simulators import MultiEchoSimulator
 
     model = ModelOperator(MultiEchoSimulator(TE=(10.0, 40.0)), "T2", bounds={"T2": (1.0, 500.0)})
     M = nlop.SignalModel(model, (2, 2))
@@ -264,7 +264,7 @@ def test_a_model_operator_can_be_handed_over_directly():
 #
 # `bart signal` says the two libraries agree on a *curve*.  `bart mobafit` is
 # the other half: the same measurements handed to BART's pixel-wise
-# Gauss-Newton and to one driven through a TorchSim model here, and the
+# Gauss-Newton and to one driven through a BlochSim model here, and the
 # parameters each recovers.  The tolerances are on the two fits against each
 # other, not on either against the truth, because that is what a difference in
 # the models rather than in the data would show up as.
@@ -300,7 +300,7 @@ def _decay(**extra):
     """``bart signal -G``'s multi-echo decay, off-resonance switched off.
 
     BART's default is 20 Hz, which is a phase ramp on the samples.  ``mobafit
-    -m3`` fits one as its ``fB0`` coefficient and TorchSim's multi-echo model
+    -m3`` fits one as its ``fB0`` coefficient and BlochSim's multi-echo model
     has nowhere to put it -- its ``offset`` is an additive baseline, not a
     frequency -- so the comparison is made without one.
     """
@@ -350,7 +350,7 @@ def test_the_two_fits_move_together_under_noise():
 
 
 def test_bart_fits_the_inversion_recovery_this_package_simulates():
-    """``mobafit -I`` fits ``M0 (1 - exp(-t R1 + c))`` and TorchSim's model
+    """``mobafit -I`` fits ``M0 (1 - exp(-t R1 + c))`` and BlochSim's model
     solves for ``T1`` and an amplitude.  The two parameterisations describe the
     same curve exactly when ``c`` comes out as ``ln 2``, which is what a
     recovery from full inversion is."""
@@ -393,7 +393,7 @@ def _models():
 
 
 @pytest.mark.parametrize("which", sorted(_models()))
-def test_the_bundle_is_torchsims_own_pair(which):
+def test_the_bundle_is_blochsims_own_pair(which):
     """``A_jvp`` and ``A_vjp`` take the point already, so nothing is recomputed."""
     torch.manual_seed(0)
     M = _models()[which]

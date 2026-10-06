@@ -14,7 +14,7 @@ __all__ = ["mobafit"]
 
 #: Gauss-Newton steps.  The command's own default is five (mobafit.c:155),
 #: which it can afford because its coefficients are the model's own variables
-#: scaled to order one by ``--scale``.  TorchSim's parameterisation is bounded
+#: scaled to order one by ``--scale``.  BlochSim's parameterisation is bounded
 #: instead, and a bounded variable moves slowly while the Tikhonov weight is
 #: large: on a mono-exponential decay of a known T2, five steps answer 430 ms
 #: for 60 and for 110 alike, ten come within three per cent, and twenty are
@@ -62,9 +62,9 @@ def mobafit(
     :class:`bartorch.nlop.IRGNM` over it, and the fitted variables read back
     into their own units.
 
-    The model is TorchSim's rather than BART's -- what a fit needs is a
+    The model is BlochSim's rather than BART's -- what a fit needs is a
     forward it can differentiate, with bounds and a starting state, which is
-    what :class:`~bartorch.nlop.SignalModel` is over a TorchSim simulator --
+    what :class:`~bartorch.nlop.SignalModel` is over a BlochSim simulator --
     so this does not reproduce the command's coefficients.  It solves the same
     problem with the same method and answers in named maps.
 

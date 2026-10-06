@@ -23,5 +23,5 @@ interface they are assembled from.
 | {obj}`~bartorch.apps.nlinv_maps` | `nlinv` | One set of coil sensitivity maps from `nlinv -m 1` on the low-resolution centre of k-space, normalized to unit root sum of squares; Cartesian or along a trajectory |
 | {obj}`~bartorch.apps.partial_fourier` | `homodyne` | `homodyne -I -C` along each axis acquired on one side of k-space only, the side and the acquired fraction read from the sampling mask |
 | {obj}`~bartorch.apps.pocsense` | none | The POCSENSE projections swept by BART's `pocs` iteration |
-| {obj}`~bartorch.apps.mobafit` | `mobafit` | Same Gauss-Newton method over a TorchSim model; returns named parameter maps in physical units |
-| {obj}`~bartorch.apps.moba` | `moba` | Same Gauss-Newton method over a TorchSim model inside the encoding, with the coils known or estimated jointly under Sobolev weighting; returns named parameter maps in physical units, not held to the command's output |
+| {obj}`~bartorch.apps.mobafit` | `mobafit` | Same Gauss-Newton method over a BlochSim model; returns named parameter maps in physical units |
+| {obj}`~bartorch.apps.moba` | `moba` | Same Gauss-Newton method over a BlochSim model inside the encoding, with the coils known or estimated jointly under Sobolev weighting; returns named parameter maps in physical units, not held to the command's output |

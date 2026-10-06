@@ -30,14 +30,14 @@ constrains all of them. The operator is nonlinear in :math:`\\theta`, so the
 problem is solved by the iteratively regularized Gauss-Newton method of
 :doc:`../02-parallel-imaging/02-nonlinear-inversion`, over a different model.
 
-The model here is :class:`bartorch.nlop.MultiEcho`, a TorchSim simulator as a
+The model here is :class:`bartorch.nlop.MultiEcho`, a BlochSim simulator as a
 BART nonlinear operator. The phantom and the coil sensitivities are built as
 in :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is
 hidden on this page and present in the script this page can be downloaded as.
 
 **Learning objectives**
 
-- Represent a relaxation model as a TorchSim-backed
+- Represent a relaxation model as a BlochSim-backed
   :class:`bartorch.nlop.SignalModel`.
 - Fit it to reconstructed echo images, and directly to k-space by composing
   it with the encoding, with :class:`bartorch.nlop.IRGNM`.

@@ -1,17 +1,17 @@
-"""Signal models from TorchSim, as BART nonlinear operators.
+"""Signal models from BlochSim, as BART nonlinear operators.
 
-:class:`SignalModel` bridges TorchSim's
-:class:`~torchsim.recon.ModelOperator` -- a model's value, its
+:class:`SignalModel` bridges BlochSim's
+:class:`~blochsim.recon.ModelOperator` -- a model's value, its
 Jacobian-vector product and its adjoint product, none of which builds a
 Jacobian -- onto the three things BART's ``nlop_s`` asks for.
 :func:`InversionRecovery`, :func:`MultiEcho` and :func:`Bloch` are the
-quantitative models built on TorchSim's simulators, in TorchSim's
+quantitative models built on BlochSim's simulators, in BlochSim's
 parameterisation.  The suite holds their curves and their fits against BART's
 own signal models.
 
 Notes
 -----
-TorchSim's parameter maps are real and stacked on the **last** axis.  BART
+BlochSim's parameter maps are real and stacked on the **last** axis.  BART
 works in ``complex float`` on a C-order shape with the channels in front, so
 the bridge moves the axis and carries the maps in the real part of a complex
 buffer.  The imaginary half is an exact null direction of the derivative --
@@ -33,7 +33,7 @@ __all__ = ["Bloch", "SignalModel", "InversionRecovery", "MultiEcho"]
 
 
 def _operator(acquisition, unknown, bounds, scale, amplitude, subspace):
-    from torchsim.recon import ModelOperator
+    from blochsim.recon import ModelOperator
 
     return ModelOperator(
         acquisition,
@@ -46,10 +46,10 @@ def _operator(acquisition, unknown, bounds, scale, amplitude, subspace):
 
 
 class SignalModel(_Callback):
-    """A TorchSim signal model as a BART nonlinear operator.
+    """A BlochSim signal model as a BART nonlinear operator.
 
     The operator maps parameter maps to one image per contrast.  What it does
-    at each point is TorchSim's: :meth:`~torchsim.recon.ModelOperator.A` for
+    at each point is BlochSim's: :meth:`~blochsim.recon.ModelOperator.A` for
     the value, ``A_jvp`` for the derivative and ``A_vjp`` for its adjoint, none
     of which builds a Jacobian -- the model is voxel-diagonal, so one
     forward-mode pass gives the whole volume's derivative whatever the
@@ -57,7 +57,7 @@ class SignalModel(_Callback):
 
     Parameters
     ----------
-    model : torchsim.recon.ModelOperator
+    model : blochsim.recon.ModelOperator
         The signal model, with its unknowns, bounds and scales already set.
     shape : tuple of int, default=()
         The voxel shape, C order -- ``(y, x)``, ``(z, y, x)``, whatever the
@@ -70,12 +70,12 @@ class SignalModel(_Callback):
     Attributes
     ----------
     channels : int
-        Map channels the domain carries, in TorchSim's order.
+        Map channels the domain carries, in BlochSim's order.
 
     Examples
     --------
-    >>> from torchsim.recon import ModelOperator
-    >>> from torchsim.simulators import MultiEchoSimulator
+    >>> from blochsim.recon import ModelOperator
+    >>> from blochsim.simulators import MultiEchoSimulator
     >>> model = ModelOperator(
     ...     MultiEchoSimulator(TE=echo_times), "T2", bounds={"T2": (10.0, 300.0)}
     ... )
@@ -128,7 +128,7 @@ class SignalModel(_Callback):
     # --- the two layouts ---------------------------------------------------
 
     def _to_maps(self, x: torch.Tensor) -> torch.Tensor:
-        """BART's ``(channels, *voxels)`` complex to TorchSim's real ``(*voxels, channels)``."""
+        """BART's ``(channels, *voxels)`` complex to BlochSim's real ``(*voxels, channels)``."""
         return x.reshape(self.channels, *self.voxels).movedim(0, -1).real.contiguous()
 
     def _to_bart(self, x: torch.Tensor) -> torch.Tensor:
@@ -136,14 +136,14 @@ class SignalModel(_Callback):
         return x.movedim(-1, 0).to(torch.complex64).contiguous()
 
     def _cotangent(self, dy: torch.Tensor, maps: torch.Tensor) -> torch.Tensor:
-        """One image per contrast, in TorchSim's layout and the images' own field."""
+        """One image per contrast, in BlochSim's layout and the images' own field."""
         if self._real is None:
             self._real = not self.model.A(maps).is_complex()
         dy = dy.reshape(self.contrasts, *self.voxels).movedim(0, -1)
         return (dy.real if self._real else dy).contiguous()
 
     def _bundle(self):
-        """TorchSim takes the point as an argument already, so the bundle is its own pair.
+        """BlochSim takes the point as an argument already, so the bundle is its own pair.
 
         ``A_jvp`` and ``A_vjp`` are ``(x, v)`` throughout -- no Jacobian is
         built and no point is stored, as a bundle requires; the
@@ -179,7 +179,7 @@ class SignalModel(_Callback):
         """Maps to start from, in this operator's layout.
 
         Accepts the arguments of
-        :meth:`~torchsim.recon.ModelOperator.initial` -- ``{name: value}`` in
+        :meth:`~blochsim.recon.ModelOperator.initial` -- ``{name: value}`` in
         each property's own units -- and returns a complex tensor of
         :attr:`ishape`.
         """
@@ -246,12 +246,12 @@ def InversionRecovery(  # noqa: N802  (it is a constructor)
         things the model exposes.
     amplitude : bool, default=True
         Carry a complex amplitude multiplying the recovery.
-    subspace : torchsim.Subspace, default=None
+    subspace : blochsim.Subspace, default=None
         Solve in a temporal basis rather than in the contrasts.
     **scale
         The size of a step in a parameter left unbounded.
     """
-    from torchsim.simulators import InversionRecoverySimulator
+    from blochsim.simulators import InversionRecoverySimulator
 
     bounds = {"T1": (10.0, 5000.0), **(bounds or {})}
     bounds = {name: bound for name, bound in bounds.items() if name in tuple(unknown)}
@@ -294,12 +294,12 @@ def MultiEcho(  # noqa: N802  (it is a constructor)
         What to solve for.  ``offset`` is the other thing the model exposes.
     amplitude : bool, default=True
         Carry a complex amplitude multiplying the decay.
-    subspace : torchsim.Subspace, default=None
+    subspace : blochsim.Subspace, default=None
         Solve in a temporal basis rather than in the contrasts.
     **scale
         The size of a step in a parameter left unbounded.
     """
-    from torchsim.simulators import MultiEchoSimulator
+    from blochsim.simulators import MultiEchoSimulator
 
     bounds = {"T2": (1.0, 1000.0), **(bounds or {})}
     bounds = {name: bound for name, bound in bounds.items() if name in tuple(unknown)}
@@ -325,7 +325,7 @@ def Bloch(  # noqa: N802  (it is a constructor)
     contrasts: int | None = None,
     **scale: float,
 ) -> SignalModel:
-    """Any TorchSim sequence as a model operator, through Bloch simulation.
+    """Any BlochSim sequence as a model operator, through Bloch simulation.
 
     Fits a Bloch simulation of the sequence rather than a closed-form signal
     equation, so it serves sequences that have none: an FSE train, a
@@ -334,7 +334,7 @@ def Bloch(  # noqa: N802  (it is a constructor)
 
     Parameters
     ----------
-    acquisition : torchsim Simulator
+    acquisition : blochsim Simulator
         The sequence, with everything not being solved for already fixed on
         it.  A property bound as a map -- a measured B1, a known T1 -- is one
         value per voxel and rides along.
@@ -348,7 +348,7 @@ def Bloch(  # noqa: N802  (it is a constructor)
         it.
     amplitude : bool, default=True
         Carry a complex amplitude multiplying the simulated signal.
-    subspace : torchsim.Subspace, default=None
+    subspace : blochsim.Subspace, default=None
         Solve in a temporal basis rather than in the contrasts.
     contrasts : int, default=None
         How many images the sequence records; measured when not given.
@@ -357,7 +357,7 @@ def Bloch(  # noqa: N802  (it is a constructor)
 
     Examples
     --------
-    >>> from torchsim.simulators import FSESimulator
+    >>> from blochsim.simulators import FSESimulator
     >>> M = Bloch(
     ...     FSESimulator(flip=train, ESP=8.0, TR=3000.0),
     ...     "T1", "T2",
