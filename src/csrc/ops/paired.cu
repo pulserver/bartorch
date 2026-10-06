@@ -14,49 +14,28 @@
  * A pass along x reads its lines where they lie; the passes along y and z
  * stage a tile of lines side by side through shared memory, so every access to
  * the card's memory runs along x.  Kernels exist for the cubic grids listed in
- * BARTORCH_PAIRED_SIZES, four coefficients, and a real function kept as its
- * upper triangle and compressed; anything else is served as before.
+ * BARTORCH_PAIRED_SIZES and the numbers of coefficients listed in
+ * BARTORCH_PAIRED_RANKS, against a real function -- kept as its upper triangle
+ * where there is more than one coefficient, whole or compressed to the places
+ * the samples reach; anything else is served as before.  The pass along x is
+ * the only one that depends on the rank, and each rank's is compiled in
+ * paired_rank.cu.
  */
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
-
-#include <cuda_runtime_api.h>
-
-#include <cuda_bf16.h>
-
-#include <cufftdx.hpp>
 
 #include "misc/debug.h"
 #include "misc/misc.h"
 
 #include "num/gpuops.h"
 
-#include "paired_sizes.h"
+#include "ops/paired.cuh"
 
 using namespace cufftdx;
-
-#ifndef BARTORCH_PAIRED_SM
-#define BARTORCH_PAIRED_SM 890
-#endif
+using namespace paired;
 
 namespace {
-
-constexpr unsigned R = 4;
-
-template <unsigned N, fft_direction D, unsigned F>
-using FFT1 = decltype(Size<N>() + Precision<float>() + Type<fft_type::c2c>() + Direction<D>()
-		+ FFTsPerBlock<F>() + SM<BARTORCH_PAIRED_SM>() + Block());
-
-using cplx = typename FFT1<64, fft_direction::forward, 1>::value_type;
-
-__device__ inline cplx cmul(cplx a, cplx b) { cplx c; c.x = a.x * b.x - a.y * b.y; c.y = a.x * b.y + a.y * b.x; return c; }
-__device__ inline cplx cmulc(cplx a, cplx b) { cplx c; c.x = a.x * b.x + a.y * b.y; c.y = a.y * b.x - a.x * b.y; return c; }	/* a conj(b) */
-
-constexpr size_t cmax(size_t a, size_t b) { return (a > b) ? a : b; }
-
-__device__ inline float widen(float v) { return v; }
-__device__ inline float widen(__nv_bfloat16 v) { return __bfloat162float(v); }
 
 template <unsigned N>
 struct Shape {
@@ -66,11 +45,8 @@ struct Shape {
 
 	using SF = FFT1<N, fft_direction::forward, tile>;
 	using SI = FFT1<N, fft_direction::inverse, tile>;
-	using XF = FFT1<N, fft_direction::forward, R>;
-	using XI = FFT1<N, fft_direction::inverse, R>;
 
 	static constexpr size_t smem_s = cmax(sizeof(cplx) * N * pitch, cmax(SF::shared_memory_size, SI::shared_memory_size));
-	static constexpr size_t smem_x = cmax(sizeof(cplx) * R * N, cmax(XF::shared_memory_size, XI::shared_memory_size));
 };
 
 /* A pass along an axis whose elements are S apart, a tile of lines side by
@@ -188,196 +164,15 @@ struct ZOut {
 	}
 };
 
-/* What the pass along x reads. */
-struct XArgs {
-
-	cplx* B[R];
-	const void* psf[2];		/* floats or bfloat16, as the instantiation says */
-	const unsigned* mask;
-	const int* prefix;
-	const cplx* tx;			/* 2 x N: each set's phase along x */
-	bart_dim_t L;
-};
-
-/* The pass along x of both sets of the pair: per line of four coefficients,
- * each set's phase, the transform, the multiplication by the set's function at
- * the places the samples reach, the transform back, the conjugate phase, and
- * the sum of the two. */
-template <unsigned N, typename P>
-__global__ void __launch_bounds__(Shape<N>::XF::max_threads_per_block) fused(XArgs a)
-{
-	using XF = typename Shape<N>::XF;
-	using XI = typename Shape<N>::XI;
-
-	extern __shared__ __align__(16) unsigned char smem[];
-	cplx* exch = reinterpret_cast<cplx*>(smem);
-	__shared__ int any;
-
-	const unsigned q = threadIdx.y;
-	const size_t line = blockIdx.x;
-	const unsigned tid = threadIdx.x + threadIdx.y * XF::block_dim.x;
-	const unsigned nthreads = XF::block_dim.x * XF::block_dim.y;
-	const size_t g0 = line * N;
-
-	/* A line that reaches no kept place contributes nothing. */
-	if (0 == tid)
-		any = 0;
-
-	__syncthreads();
-
-	for (size_t w = (g0 >> 5) + tid; w <= ((g0 + N - 1) >> 5); w += nthreads)
-		if (0 != a.mask[w])
-			any = 1;
-
-	__syncthreads();
-
-	if (0 == any) {
-
-		for (unsigned i = 0; i < XF::elements_per_thread; i++) {
-
-			unsigned e = threadIdx.x + i * XF::stride;
-
-			if (e < N) {
-
-				cplx z;
-				z.x = 0.f;
-				z.y = 0.f;
-				a.B[q][g0 + e] = z;
-			}
-		}
-
-		return;
-	}
-
-	cplx in[XF::storage_size];
-	cplx w[XF::storage_size];
-	cplx acc[XF::storage_size];
-
-#pragma unroll
-	for (unsigned i = 0; i < XF::elements_per_thread; i++) {
-
-		unsigned e = threadIdx.x + i * XF::stride;
-		cplx z;
-		z.x = 0.f;
-		z.y = 0.f;
-		in[i] = (e < N) ? a.B[q][g0 + e] : z;
-		acc[i] = z;
-	}
-
-	for (int sx = 0; sx < 2; sx++) {
-
-#pragma unroll
-		for (unsigned i = 0; i < XF::elements_per_thread; i++) {
-
-			unsigned e = threadIdx.x + i * XF::stride;
-			w[i] = (e < N) ? cmul(in[i], a.tx[sx * N + e]) : in[i];
-		}
-
-		__syncthreads();
-		XF().execute(w, smem);
-		__syncthreads();
-
-#pragma unroll
-		for (unsigned i = 0; i < XF::elements_per_thread; i++) {
-
-			unsigned e = threadIdx.x + i * XF::stride;
-
-			if (e < N)
-				exch[q * N + e] = w[i];
-		}
-
-		__syncthreads();
-
-		for (unsigned e = tid; e < N; e += nthreads) {
-
-			const size_t g = g0 + e;
-			cplx v[R];
-			cplx o[R];
-
-#pragma unroll
-			for (unsigned c = 0; c < R; c++) {
-
-				v[c] = exch[c * N + e];
-				o[c].x = 0.f;
-				o[c].y = 0.f;
-			}
-
-			const unsigned word = a.mask[g >> 5];
-			const unsigned bit = 1u << (g & 31);
-
-			if (word & bit) {
-
-				const bart_dim_t j = a.prefix[g >> 5] + __popc(word & (bit - 1));
-
-#pragma unroll
-				for (unsigned r = 0; r < R; r++)
-#pragma unroll
-					for (unsigned c = 0; c < R; c++) {
-
-						const unsigned lo = (r < c) ? r : c;
-						const unsigned hi = (r < c) ? c : r;
-						const float m = widen(static_cast<const P*>(a.psf[sx])[(bart_dim_t)(lo + hi * (hi + 1) / 2) * a.L + j]);
-
-						o[r].x += m * v[c].x;
-						o[r].y += m * v[c].y;
-					}
-			}
-
-#pragma unroll
-			for (unsigned r = 0; r < R; r++)
-				exch[r * N + e] = o[r];
-		}
-
-		__syncthreads();
-
-#pragma unroll
-		for (unsigned i = 0; i < XF::elements_per_thread; i++) {
-
-			unsigned e = threadIdx.x + i * XF::stride;
-
-			if (e < N)
-				w[i] = exch[q * N + e];
-		}
-
-		__syncthreads();
-		XI().execute(w, smem);
-
-#pragma unroll
-		for (unsigned i = 0; i < XF::elements_per_thread; i++) {
-
-			unsigned e = threadIdx.x + i * XF::stride;
-
-			if (e < N) {
-
-				cplx t = cmulc(w[i], a.tx[sx * N + e]);
-				acc[i].x += t.x;
-				acc[i].y += t.y;
-			}
-		}
-	}
-
-#pragma unroll
-	for (unsigned i = 0; i < XF::elements_per_thread; i++) {
-
-		unsigned e = threadIdx.x + i * XF::stride;
-
-		if (e < N)
-			a.B[q][g0 + e] = acc[i];
-	}
-}
-
-/* One coil against one pair: what a call hands over. */
+/* One coil against one pair: what the passes along z and y are handed. */
 struct Call {
 
 	cplx* dst;
 	const cplx* src;
+	size_t step;			/* from one coefficient of src and dst to the next */
 	const cplx* map;
-	cplx* B;
-	const void* psf[2];
-	int bf16;
-	const unsigned* mask;
-	const int* prefix;
-	bart_dim_t L;
+	cplx* B;			/* the coefficients in transit, a volume apart */
+	unsigned coeffs;
 	const cplx* tab;		/* the pair's tables: x of each set, y, z */
 	float scale;
 };
@@ -392,21 +187,18 @@ int prepare(void)
 
 	if ((cudaSuccess != cudaGetDevice(&device))
 	    || (cudaSuccess != cudaDeviceGetAttribute(&optin, cudaDevAttrMaxSharedMemoryPerBlockOptin, device))
-	    || ((size_t)optin < cmax(S::smem_s, S::smem_x))) {
+	    || ((size_t)optin < S::smem_s)) {
 
 		cudaGetLastError();
 		return -1;
 	}
 
 	int s = (int)S::smem_s;
-	int x = (int)S::smem_x;
 
 	if (   (cudaSuccess != cudaFuncSetAttribute(strided<N, typename S::SF, ZIn>, cudaFuncAttributeMaxDynamicSharedMemorySize, s))
 	    || (cudaSuccess != cudaFuncSetAttribute(strided<N, typename S::SF, Plain>, cudaFuncAttributeMaxDynamicSharedMemorySize, s))
 	    || (cudaSuccess != cudaFuncSetAttribute(strided<N, typename S::SI, Plain>, cudaFuncAttributeMaxDynamicSharedMemorySize, s))
-	    || (cudaSuccess != cudaFuncSetAttribute(strided<N, typename S::SI, ZOut>, cudaFuncAttributeMaxDynamicSharedMemorySize, s))
-	    || (cudaSuccess != cudaFuncSetAttribute(fused<N, float>, cudaFuncAttributeMaxDynamicSharedMemorySize, x))
-	    || (cudaSuccess != cudaFuncSetAttribute(fused<N, __nv_bfloat16>, cudaFuncAttributeMaxDynamicSharedMemorySize, x))) {
+	    || (cudaSuccess != cudaFuncSetAttribute(strided<N, typename S::SI, ZOut>, cudaFuncAttributeMaxDynamicSharedMemorySize, s))) {
 
 		cudaGetLastError();
 		return -1;
@@ -415,7 +207,7 @@ int prepare(void)
 	return 0;
 }
 
-/* The passes along z and y in, for the four coefficients of a coil. */
+/* The passes along z and y in, for the coefficients of a coil. */
 template <unsigned N>
 void run_in(const Call* c, cudaStream_t stream)
 {
@@ -426,39 +218,13 @@ void run_in(const Call* c, cudaStream_t stream)
 	const cplx* ty = c->tab + 2 * N;
 	const cplx* tz = c->tab + 3 * N;
 
-	for (unsigned r = 0; r < R; r++)
+	for (unsigned r = 0; r < c->coeffs; r++)
 		strided<N, typename S::SF, ZIn><<<grid, S::SF::block_dim, S::smem_s, stream>>>((size_t)N * N, (size_t)N,
-				ZIn{ c->src + r * V, c->map, ty, tz, c->B + r * V });
+				ZIn{ c->src + r * c->step, c->map, ty, tz, c->B + r * V });
 
-	for (unsigned r = 0; r < R; r++)
+	for (unsigned r = 0; r < c->coeffs; r++)
 		strided<N, typename S::SF, Plain><<<grid, S::SF::block_dim, S::smem_s, stream>>>((size_t)N, (size_t)N * N,
 				Plain{ c->B + r * V });
-}
-
-/* The pass along x of both sets: the only one that reads their functions. */
-template <unsigned N>
-void run_fused(const Call* c, cudaStream_t stream)
-{
-	using S = Shape<N>;
-
-	const size_t V = (size_t)N * N * N;
-
-	XArgs a;
-
-	for (unsigned r = 0; r < R; r++)
-		a.B[r] = c->B + r * V;
-
-	a.psf[0] = c->psf[0];
-	a.psf[1] = c->psf[1];
-	a.mask = c->mask;
-	a.prefix = c->prefix;
-	a.tx = c->tab;
-	a.L = c->L;
-
-	if (c->bf16)
-		fused<N, __nv_bfloat16><<<(unsigned)((size_t)N * N), S::XF::block_dim, S::smem_x, stream>>>(a);
-	else
-		fused<N, float><<<(unsigned)((size_t)N * N), S::XF::block_dim, S::smem_x, stream>>>(a);
 }
 
 /* The passes along y and z back out, into the answer. */
@@ -472,13 +238,13 @@ void run_back(const Call* c, cudaStream_t stream)
 	const cplx* ty = c->tab + 2 * N;
 	const cplx* tz = c->tab + 3 * N;
 
-	for (unsigned r = 0; r < R; r++)
+	for (unsigned r = 0; r < c->coeffs; r++)
 		strided<N, typename S::SI, Plain><<<grid, S::SI::block_dim, S::smem_s, stream>>>((size_t)N, (size_t)N * N,
 				Plain{ c->B + r * V });
 
-	for (unsigned r = 0; r < R; r++)
+	for (unsigned r = 0; r < c->coeffs; r++)
 		strided<N, typename S::SI, ZOut><<<grid, S::SI::block_dim, S::smem_s, stream>>>((size_t)N * N, (size_t)N,
-				ZOut{ c->B + r * V, c->map, ty, tz, c->dst + r * V, c->scale });
+				ZOut{ c->B + r * V, c->map, ty, tz, c->dst + r * c->step, c->scale });
 }
 
 struct Entry {
@@ -486,13 +252,26 @@ struct Entry {
 	unsigned n;
 	int (*prepare)(void);
 	void (*run_in)(const Call*, cudaStream_t);
-	void (*run_fused)(const Call*, cudaStream_t);
 	void (*run_back)(const Call*, cudaStream_t);
 };
 
-#define BARTORCH_PAIRED_ENTRY(n) { n, prepare<n>, run_in<n>, run_fused<n>, run_back<n> },
+#define BARTORCH_PAIRED_ENTRY(n) { n, prepare<n>, run_in<n>, run_back<n> },
 
 const Entry table[] = { BARTORCH_PAIRED_SIZES(BARTORCH_PAIRED_ENTRY) };
+
+/* The pass along x for `coeffs` coefficients on a grid of `n`, where both
+ * were compiled. */
+const Fused* fused_for(int coeffs, unsigned n)
+{
+#define BARTORCH_PAIRED_RANK_CASE(r) case r: return bartorch_paired_rank_##r(n);
+
+	switch (coeffs) {
+	BARTORCH_PAIRED_RANKS(BARTORCH_PAIRED_RANK_CASE)
+	default: return NULL;
+	}
+
+#undef BARTORCH_PAIRED_RANK_CASE
+}
 
 /* A set's phase along one axis, as `phase_setup` in coset.cuh builds it --
  * the shift, the centring, the fftmod folded in -- in double precision. */
@@ -525,17 +304,20 @@ void axis_phase(bart_dim_t d, float shift, cplx* out)
 struct bartorch_paired {
 
 	const Entry* entry;
+	const Fused* fused;
+	unsigned coeffs;
 	int pairs;
 	cplx* tables;			/* on the card: per pair, x of each set, y, z */
 	float scale;
 };
 
-/* The pair kernels for a grid of `dims`, with the sets' shifts as
- * `bartorch_psf_shift` gives them (set i and i + 1, i even, differ only along
- * x); NULL where there are none or the card cannot run them. */
+/* The pair kernels for a grid of `dims` and `coeffs` coefficients, with the
+ * sets' shifts as `bartorch_psf_shift` gives them (set i and i + 1, i even,
+ * differ only along x); NULL where there are none or the card cannot run
+ * them. */
 extern "C" struct bartorch_paired* bartorch_paired_create(const bart_dim_t dims[3], int coeffs, int sets, const float (*shifts)[3])
 {
-	if ((R != (unsigned)coeffs) || (8 != sets) || (dims[0] != dims[1]) || (dims[0] != dims[2]))
+	if ((8 != sets) || (dims[0] != dims[1]) || (dims[0] != dims[2]))
 		return NULL;
 
 	const Entry* entry = NULL;
@@ -544,9 +326,13 @@ extern "C" struct bartorch_paired* bartorch_paired_create(const bart_dim_t dims[
 		if ((bart_dim_t)e.n == dims[0])
 			entry = &e;
 
-	if ((NULL == entry) || (0 != entry->prepare()))
+	if (NULL == entry)
 		return NULL;
 
+	const Fused* fused = fused_for(coeffs, entry->n);
+
+	if ((NULL == fused) || (0 != entry->prepare()) || (0 != fused->prepare()))
+		return NULL;
 	for (int i = 0; i < sets; i += 2)
 		if ((shifts[i][1] != shifts[i + 1][1]) || (shifts[i][2] != shifts[i + 1][2]))
 			return NULL;
@@ -569,6 +355,8 @@ extern "C" struct bartorch_paired* bartorch_paired_create(const bart_dim_t dims[
 	struct bartorch_paired* p = (struct bartorch_paired*)xmalloc(sizeof *p);
 
 	p->entry = entry;
+	p->fused = fused;
+	p->coeffs = (unsigned)coeffs;
 	p->pairs = pairs;
 	p->scale = (float)(1. / ((double)n * n * n));
 
@@ -583,7 +371,7 @@ extern "C" struct bartorch_paired* bartorch_paired_create(const bart_dim_t dims[
 	cudaMemcpy(p->tables, host, sizeof(cplx) * 4 * n * pairs, cudaMemcpyHostToDevice);
 	xfree(host);
 
-	debug_printf(DP_DEBUG1, "bartorch: paired kernels for %" PRId64 "^3\n", n);
+	debug_printf(DP_DEBUG1, "bartorch: paired kernels for %" PRId64 "^3, %d coefficients\n", n, coeffs);
 
 	return p;
 }
@@ -597,24 +385,28 @@ extern "C" void bartorch_paired_free(struct bartorch_paired* p)
 	xfree(p);
 }
 
-/* One coil against pair `k`, in three steps.  `in` takes the coil's four
- * coefficients `src` -- times the sensitivity `map`, or NULL -- through the
- * passes along z and y into `scratch`.  `fused` takes them through the pass
- * along x against the two sets' functions `psf0`, `psf1` (the upper triangle,
- * compressed to the places `mask` and `prefix` keep, `L` of them; floats, or
- * bfloat16 where `bf16`).  `back` takes them through the passes along y and z
- * out, adding to `dst`.  Only
- * `fused` reads the functions, so the card is held for them just before it,
- * and they are free for the next pair just after. */
+/* One coil against pair `k`, in three steps.  `in` takes the coil's
+ * coefficients `src`, `step` apart -- times the sensitivity `map`, or NULL --
+ * through the passes along z and y into `scratch`, which holds them a volume
+ * apart.  `fused` takes them through the pass along x against the two sets'
+ * functions `psf0`, `psf1`: real, the upper triangle where there is more than
+ * one coefficient, each entry `L` places from the next -- compressed to the
+ * places `mask` and `prefix` keep, or the whole grid where `mask` is NULL;
+ * floats, or bfloat16 where `bf16`.  `back` takes them through the passes
+ * along y and z out, adding to `dst`, `step` apart.  Only `fused` reads the
+ * functions, so the card is held for them just before it, and they are free
+ * for the next pair just after. */
 extern "C" void bartorch_paired_in(const struct bartorch_paired* p, int k,
-		const _Complex float* src, const _Complex float* map, _Complex float* scratch)
+		const _Complex float* src, bart_dim_t step, const _Complex float* map, _Complex float* scratch)
 {
 	Call c;
 
 	memset(&c, 0, sizeof c);
 	c.src = (const cplx*)src;
+	c.step = (size_t)step;
 	c.map = (const cplx*)map;
 	c.B = (cplx*)scratch;
+	c.coeffs = p->coeffs;
 	c.tab = p->tables + 4 * p->entry->n * k;
 
 	p->entry->run_in(&c, cuda_get_stream());
@@ -625,32 +417,32 @@ extern "C" void bartorch_paired_in(const struct bartorch_paired* p, int k,
 extern "C" void bartorch_paired_fused(const struct bartorch_paired* p, int k, _Complex float* scratch,
 		const void* psf0, const void* psf1, int bf16, const unsigned int* mask, const int* prefix, bart_dim_t L)
 {
-	Call c;
+	XArgs a;
 
-	memset(&c, 0, sizeof c);
-	c.B = (cplx*)scratch;
-	c.psf[0] = psf0;
-	c.psf[1] = psf1;
-	c.bf16 = bf16;
-	c.mask = mask;
-	c.prefix = prefix;
-	c.L = L;
-	c.tab = p->tables + 4 * p->entry->n * k;
+	a.B = (cplx*)scratch;
+	a.psf[0] = psf0;
+	a.psf[1] = psf1;
+	a.mask = mask;
+	a.prefix = prefix;
+	a.tx = p->tables + 4 * p->entry->n * k;
+	a.L = L;
 
-	p->entry->run_fused(&c, cuda_get_stream());
+	p->fused->run(a, bf16, cuda_get_stream());
 
 	CUDA_KERNEL_ERROR;
 }
 
 extern "C" void bartorch_paired_back(const struct bartorch_paired* p, int k,
-		_Complex float* dst, const _Complex float* map, _Complex float* scratch)
+		_Complex float* dst, bart_dim_t step, const _Complex float* map, _Complex float* scratch)
 {
 	Call c;
 
 	memset(&c, 0, sizeof c);
 	c.dst = (cplx*)dst;
+	c.step = (size_t)step;
 	c.map = (const cplx*)map;
 	c.B = (cplx*)scratch;
+	c.coeffs = p->coeffs;
 	c.tab = p->tables + 4 * p->entry->n * k;
 	c.scale = p->scale;
 
