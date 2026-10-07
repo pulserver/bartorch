@@ -180,6 +180,16 @@ if(BARTORCH_CUDA)
     enable_language(CUDA)
     find_package(CUDAToolkit REQUIRED)
 
+    # The kernels' host compiler can be older than the compiler that links the
+    # library: CUDA 12.6 takes GCC 13 at the newest, and BART needs GCC 14.
+    # CMake adds the directories it found that compiler's runtime in to the
+    # link, where -static-libgcc then takes GCC 13's libgcc, which has no
+    # heap trampolines for BART's nested functions to call, and the library
+    # does not load.  The toolkit's own directories stay.
+    if(CMAKE_CUDA_HOST_COMPILER AND NOT CMAKE_CUDA_HOST_COMPILER STREQUAL CMAKE_CXX_COMPILER)
+        list(FILTER CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES EXCLUDE REGEX "/gcc/")
+    endif()
+
     list(APPEND BART_C_DEFS USE_CUDA USE_GPU CUDA_GET_CUDA_DEVICE_NUM)
 
     set(CMAKE_CUDA_STANDARD 17)
