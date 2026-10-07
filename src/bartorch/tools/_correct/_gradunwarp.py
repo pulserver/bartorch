@@ -396,7 +396,9 @@ class _ImageGeometry:
             raise ValueError(f"direction must have shape (3, {len(shape)}), got {direction.shape}.")
         if center.shape != (3,):
             raise ValueError("center_mm must have shape (3,).")
-        gram = direction.T @ direction
+        # Summed by numpy rather than BLAS: on macOS, matmul on these finite
+        # columns raised a floating-point "invalid value" warning.
+        gram = np.einsum("ij,ik->jk", direction, direction)
         if not np.allclose(gram, np.eye(len(shape)), atol=1e-6):
             raise ValueError("direction columns must be orthonormal.")
         direction.setflags(write=False)
