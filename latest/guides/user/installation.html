@@ -559,7 +559,8 @@ default build from PyPI.</p>
 wheel contains the compiled library with BART and FINUFFT embedded; no BART or
 FINUFFT installation and no compiler are needed.  Optional components are installed as
 extras:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[mkl]'</span><span class="w">        </span><span class="c1"># Linux x86-64: MKL for BLAS, LAPACK and FFT</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[cu12]'</span><span class="w">       </span><span class="c1"># Linux x86-64: the library compiled with CUDA 12; see CUDA below</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[mkl]'</span><span class="w">        </span><span class="c1"># Linux x86-64: MKL for BLAS, LAPACK and FFT</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[deepinv]'</span><span class="w">    </span><span class="c1"># bartorch.interop.to_deepinv</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[learning]'</span><span class="w">   </span><span class="c1"># Lightning and TorchIO, for bartorch.learning.Reconstruction and RandomGain</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[correct]'</span><span class="w">    </span><span class="c1"># SimpleITK, for bias field and gradient nonlinearity correction</span>
@@ -647,19 +648,42 @@ which the build requires on that platform;
 </section>
 <section id="cuda">
 <h2>CUDA<a class="headerlink" href="#cuda" title="Link to this heading">#</a></h2>
-<p>CUDA support requires a CUDA build of both PyTorch and bartorch;
-<code class="docutils literal notranslate"><span class="pre">torch.cuda.is_available()</span></code> and <a class="reference internal" href="../../generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.cuda_available()</span></code></a> report each.
-The PyPI wheels are CPU builds, and there is no CUDA build on macOS or
-Windows.  The CUDA build of each version, a Linux
-x86-64 wheel with the same file name, is attached to the
-<a class="reference external" href="https://github.com/pulserver/bartorch/releases">GitHub release</a> of that
-version:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>https://github.com/pulserver/bartorch/releases/download/&lt;tag&gt;/&lt;wheel&gt;
+<p>CUDA support requires a CUDA build of PyTorch and bartorch’s library compiled
+for the same CUDA major version; <code class="docutils literal notranslate"><span class="pre">torch.cuda.is_available()</span></code> and
+<a class="reference internal" href="../../generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.cuda_available()</span></code></a> report each.  The library compiled with CUDA
+is a package of its own, installed with an extra, for Linux x86-64; there is
+no CUDA build on macOS or Windows.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PyTorch</p></th>
+<th class="head"><p>bartorch</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CUDA 12 build (<code class="docutils literal notranslate"><span class="pre">torch.version.cuda</span></code> is 12.x)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'bartorch[cu12]'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>CUDA 13 build</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'bartorch[cu13]'</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A PyTorch build for a given CUDA version is installed from PyTorch’s own
+index, as the installation selector shows, before bartorch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>--index-url<span class="w"> </span>https://download.pytorch.org/whl/cu126
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[cu12]'</span>
 </pre></div>
 </div>
-<p>It contains cuFINUFFT and device code for compute capabilities 7.5, 8.0, 8.6,
-8.9 and 9.0, and links the CUDA 12 runtime, cuFFT and cuBLAS dynamically,
-which a CUDA 12 build of PyTorch provides.  A source build with CUDA passes
+<p>bartorch loads the CUDA build in place of its own library when it is for
+PyTorch’s CUDA major version and from the same bartorch release, and raises an
+error naming the extra to install otherwise; <code class="docutils literal notranslate"><span class="pre">cuda=ON</span></code> in
+<a class="reference internal" href="../../generated/bartorch.build_info.html#bartorch.build_info" title="bartorch.build_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.build_info()</span></code></a> reports the library loaded.  The CUDA build
+contains cuFINUFFT and device code for compute capabilities 7.5, 8.0 and 9.0,
+the code for 8.0 serving 8.6 and 8.9 as well, and links the CUDA runtime,
+cuFFT and cuBLAS of its CUDA version dynamically, from the NVIDIA packages a
+CUDA build of PyTorch installs.</p>
+<p>A source build with CUDA passes
 <code class="docutils literal notranslate"><span class="pre">-C</span> <span class="pre">cmake.define.BARTORCH_CUDA=ON</span></code> to pip and needs the CUDA toolkit with
 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>, version 12.1 or later for compute capability 9.0;
 <code class="docutils literal notranslate"><span class="pre">-C</span> <span class="pre">cmake.define.BARTORCH_CUDA_ARCHITECTURES=&quot;80;86&quot;</span></code> selects the compute
