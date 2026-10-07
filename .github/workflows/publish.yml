@@ -7,8 +7,10 @@ name: Publish to PyPI
 # library, bartorch-cuda12 and bartorch-cuda13.
 #
 # One-time setup on PyPI: a trusted publisher on each of the three projects
-# for owner pulserver, repository bartorch, workflow publish.yml, environment
-# pypi, and the "pypi" environment in this repository's settings.
+# for owner pulserver, repository bartorch and workflow publish.yml, with the
+# environment the project is published from: pypi for bartorch, pypi-cuda12
+# for bartorch-cuda12, pypi-cuda13 for bartorch-cuda13.  No two may share one,
+# a blank environment included, or PyPI hands the job another project's token.
 
 on:
   push:
@@ -359,8 +361,13 @@ jobs:
       - name: Run the suite's library and device files against it
         run: pytest tests/test_lib.py tests/test_cuda.py tests/test_finufft.py -q
 
+  # PyPI hands a trusted publisher a token for one project, the one whose
+  # publisher matches the job's repository, workflow and environment, so each
+  # project is published from an environment of its own: pypi for bartorch,
+  # pypi-cuda12 and pypi-cuda13 for the CUDA builds.  The CUDA builds pin the
+  # bartorch they were built with, so they follow it.
   publish:
-    name: Publish to PyPI
+    name: Publish bartorch to PyPI
     runs-on: ubuntu-latest
     needs: [sdist, wheels, test-wheels, wheels-cuda, test-cuda-wheels]
     if: startsWith(github.ref, 'refs/tags/v')
@@ -379,9 +386,24 @@ jobs:
           pattern: wheels-*
           path: dist
           merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-cuda:
+    name: Publish bartorch-cuda${{ matrix.cuda }} to PyPI
+    runs-on: ubuntu-latest
+    needs: [publish]
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      matrix:
+        cuda: ["12", "13"]
+    environment:
+      name: pypi-cuda${{ matrix.cuda }}
+      url: https://pypi.org/p/bartorch-cuda${{ matrix.cuda }}
+    permissions:
+      id-token: write
+    steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: cuda-wheel-*
+          name: cuda-wheel-${{ matrix.cuda }}
           path: dist
-          merge-multiple: true
       - uses: pypa/gh-action-pypi-publish@release/v1
