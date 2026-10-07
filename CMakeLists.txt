@@ -23,7 +23,10 @@ endif()
 
 option(BARTORCH_OPENMP "Build BART and FINUFFT with OpenMP" ON)
 option(BARTORCH_CUDA "Build BART's CUDA kernels" OFF)
-set(BARTORCH_CUDA_ARCHITECTURES "75;80;86;89;90" CACHE STRING
+# SASS for 8.0 runs on every 8.x card, so 8.6 (A40) and 8.9 (Ada) take it: on
+# an 8.9 card it times as their own SASS does, and leaving them out keeps the
+# wheel under PyPI's 100 MB.
+set(BARTORCH_CUDA_ARCHITECTURES "75;80;90" CACHE STRING
     "Architectures to emit SASS for; PTX for the last one is added for newer cards")
 
 set(CMAKE_C_STANDARD 23)

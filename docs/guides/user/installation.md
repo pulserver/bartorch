@@ -119,9 +119,10 @@ version:
 python -m pip install https://github.com/pulserver/bartorch/releases/download/<tag>/<wheel>
 ```
 
-It contains cuFINUFFT and device code for compute capabilities 7.5, 8.0, 8.6,
-8.9 and 9.0, and links the CUDA 12 runtime, cuFFT and cuBLAS dynamically,
-which a CUDA 12 build of PyTorch provides.  A source build with CUDA passes
+It contains cuFINUFFT and device code for compute capabilities 7.5, 8.0 and
+9.0, the code for 8.0 serving 8.6 and 8.9 as well, and links the CUDA 12
+runtime, cuFFT and cuBLAS dynamically, which a CUDA 12 build of PyTorch
+provides.  A source build with CUDA passes
 `-C cmake.define.BARTORCH_CUDA=ON` to pip and needs the CUDA toolkit with
 `nvcc`, version 12.1 or later for compute capability 9.0;
 `-C cmake.define.BARTORCH_CUDA_ARCHITECTURES="80;86"` selects the compute

@@ -140,7 +140,7 @@ and BART range-checks each extent before a call (`checked_int`).
 **CUDA is the same ABI.** `-DBARTORCH_CUDA=ON` compiles BART's thirteen `.cu`
 files with nvcc and links cudart, cuFFT and cuBLAS dynamically, which are the
 three BART uses, so the wheel carries device code and nothing else: about 2 MB
-of fatbinary for five architectures on top of the host library.
+of fatbinary for three architectures on top of the host library.
 `CUDA_GET_CUDA_DEVICE_NUM` switches BART to asking the driver whether a
 pointer is on a device, which is what lets a torch CUDA tensor be passed to an
 operator without being registered anywhere. Ordering is two events per call
