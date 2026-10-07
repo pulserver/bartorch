@@ -896,9 +896,9 @@ def test_nlinv_pics_is_nlinv_maps_then_pics_then_partial_fourier_for_a_volume():
 def test_nlinv_pics_is_nlinv_maps_then_pics_along_a_trajectory():
     """To round-off rather than the bits, as for ``pics`` itself: a second call
     of the same function differs by thread order and, under ``eigen_step``, by
-    the start of BART's power iteration.  The tolerance is 1e-4 of the peak,
-    below the 4e-3 by which a ``radius`` that is not forwarded changes the
-    image."""
+    the start of BART's power iteration, which on macOS reaches 1.4e-4 of the
+    peak.  The tolerance is 1e-3 of the peak, below the 4e-3 by which a
+    ``radius`` that is not forwarded changes the image."""
     traj, _, measured = _radial()
 
     maps = apps.nlinv_maps(measured, traj, radius=8.0)
@@ -912,7 +912,7 @@ def test_nlinv_pics_is_nlinv_maps_then_pics_along_a_trajectory():
     ).reshape(maps.shape[-2:])
 
     ours = apps.nlinv_pics(measured, traj=traj, wavelet=0.01, iterations=10, radius=8.0)
-    assert float((ours - composed).abs().max()) < 1e-4 * float(composed.abs().max())
+    assert float((ours - composed).abs().max()) < 1e-3 * float(composed.abs().max())
 
 
 # --- nlinv_maps ------------------------------------------------------------
