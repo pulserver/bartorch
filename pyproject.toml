@@ -101,6 +101,16 @@ io = [
 mkl = [
     "mkl>=2024; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
+# The library compiled with CUDA, for torch's CUDA 12 or CUDA 13 builds
+# (src/cuda/).  Each of those pins the bartorch it was built with, so pip
+# installs the one built with this version; there is a CUDA build for Linux
+# x86-64 only.
+cu12 = [
+    "bartorch-cuda12; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+cu13 = [
+    "bartorch-cuda13; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
 # SimpleITK resamples for bias field and gradient nonlinearity correction, and
 # registers navigator planes; it is imported by the functions that use it.
 correct = [

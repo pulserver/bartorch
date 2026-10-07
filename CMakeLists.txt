@@ -23,8 +23,16 @@ endif()
 
 option(BARTORCH_OPENMP "Build BART and FINUFFT with OpenMP" ON)
 option(BARTORCH_CUDA "Build BART's CUDA kernels" OFF)
-set(BARTORCH_CUDA_ARCHITECTURES "75;80;86;89;90" CACHE STRING
+# SASS for 8.0 runs on every 8.x card, so 8.6 (A40) and 8.9 (Ada) take it: on
+# an 8.9 card it times as their own SASS does, and leaving them out keeps the
+# wheel under PyPI's 100 MB.
+set(BARTORCH_CUDA_ARCHITECTURES "75;80;90" CACHE STRING
     "Architectures to emit SASS for; PTX for the last one is added for newer cards")
+# A CUDA major version builds the bartorch-cudaNN wheel (src/cuda/NN): the
+# library and its FINUFFT modules in bartorch_cudaNN/, which bartorch loads in
+# place of its own CPU build.  Empty builds bartorch itself.
+set(BARTORCH_CUDA_PACKAGE "" CACHE STRING
+    "CUDA major version of the bartorch-cudaNN wheel being built; empty for bartorch")
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_EXTENSIONS ON)
@@ -172,6 +180,16 @@ if(BARTORCH_CUDA)
     enable_language(CUDA)
     find_package(CUDAToolkit REQUIRED)
 
+    # The kernels' host compiler can be older than the compiler that links the
+    # library: CUDA 12.6 takes GCC 13 at the newest, and BART needs GCC 14.
+    # CMake adds the directories it found that compiler's runtime in to the
+    # link, where -static-libgcc then takes GCC 13's libgcc, which has no
+    # heap trampolines for BART's nested functions to call, and the library
+    # does not load.  The toolkit's own directories stay.
+    if(CMAKE_CUDA_HOST_COMPILER AND NOT CMAKE_CUDA_HOST_COMPILER STREQUAL CMAKE_CXX_COMPILER)
+        list(FILTER CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES EXCLUDE REGEX "/gcc/")
+    endif()
+
     list(APPEND BART_C_DEFS USE_CUDA USE_GPU CUDA_GET_CUDA_DEVICE_NUM)
 
     set(CMAKE_CUDA_STANDARD 17)
@@ -187,6 +205,18 @@ if(BARTORCH_CUDA)
     set(BARTORCH_CUDA_ARCH_SPEC "${_arch}")
 
     message(STATUS "CUDA ${CUDAToolkit_VERSION}: architectures ${BARTORCH_CUDA_ARCH_SPEC}")
+endif()
+
+if(BARTORCH_CUDA_PACKAGE)
+    if(NOT BARTORCH_CUDA)
+        message(FATAL_ERROR "BARTORCH_CUDA_PACKAGE=${BARTORCH_CUDA_PACKAGE} needs BARTORCH_CUDA=ON")
+    endif()
+    if(NOT CUDAToolkit_VERSION_MAJOR STREQUAL BARTORCH_CUDA_PACKAGE)
+        message(FATAL_ERROR "bartorch-cuda${BARTORCH_CUDA_PACKAGE} is being built with CUDA ${CUDAToolkit_VERSION}")
+    endif()
+    set(BARTORCH_INSTALL_DIR "bartorch_cuda${BARTORCH_CUDA_PACKAGE}")
+else()
+    set(BARTORCH_INSTALL_DIR "bartorch")
 endif()
 
 include(cmake/openmp.cmake)
@@ -558,5 +588,17 @@ set_target_properties(bartorch PROPERTIES
     PREFIX "lib")
 
 install(TARGETS bartorch
-    LIBRARY DESTINATION bartorch
-    RUNTIME DESTINATION bartorch)
+    LIBRARY DESTINATION ${BARTORCH_INSTALL_DIR}
+    RUNTIME DESTINATION ${BARTORCH_INSTALL_DIR})
+
+# A bartorch-cudaNN wheel has no Python of its own beyond the file that makes
+# its directory a package, and its pyproject cannot name files above it, so
+# the notices bartorch's pyproject lists are installed from here.
+if(BARTORCH_CUDA_PACKAGE)
+    install(FILES src/cuda/__init__.py DESTINATION ${BARTORCH_INSTALL_DIR})
+    foreach(_notice LICENSE external/bart/LICENSE external/finufft/LICENSE external/finufft/NOTICE
+            external/pocketfft/LICENSE.md external/blocksruntime/LICENSE.TXT)
+        get_filename_component(_dir "${_notice}" DIRECTORY)
+        install(FILES "${_notice}" DESTINATION "${SKBUILD_METADATA_DIR}/licenses/${_dir}")
+    endforeach()
+endif()

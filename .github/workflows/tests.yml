@@ -292,7 +292,7 @@ jobs:
       # kernels is GCC 12's, the newest this distribution's nvcc accepts.
       # That nvcc is CUDA 12.0, which has no atomicAdd on float2 for compute
       # capability 9.0 and so cannot compile cuFINUFFT for it; the wheel's
-      # toolkit is 12.8 and builds all five.
+      # toolkit is 12.8 and builds all three.
       - name: Build with BART's CUDA kernels and cuFINUFFT
         env:
           CC: gcc-14
@@ -301,7 +301,7 @@ jobs:
         run: >-
           pip install -e . --no-build-isolation
           --config-settings=cmake.define.BARTORCH_CUDA=ON
-          "--config-settings=cmake.define.BARTORCH_CUDA_ARCHITECTURES=75;80;86;89"
+          "--config-settings=cmake.define.BARTORCH_CUDA_ARCHITECTURES=75;80"
 
       - name: The CUDA build must report its device code and run on the host
         run: |

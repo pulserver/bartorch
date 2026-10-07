@@ -284,7 +284,7 @@ function(_bartorch_finufft_module level fft)
         target_link_options(${_module} PRIVATE
             "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/cmake/finufft_module.map")
     endif()
-    install(TARGETS ${_module} LIBRARY DESTINATION bartorch RUNTIME DESTINATION bartorch)
+    install(TARGETS ${_module} LIBRARY DESTINATION ${BARTORCH_INSTALL_DIR} RUNTIME DESTINATION ${BARTORCH_INSTALL_DIR})
     set(BARTORCH_FINUFFT_MODULES ${BARTORCH_FINUFFT_MODULES} ${_module} PARENT_SCOPE)
 endfunction()
 

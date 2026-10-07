@@ -3,22 +3,31 @@ name: Publish to PyPI
 # Wheels carry a Python-independent C library, so one wheel per platform
 # serves every interpreter and every torch version.  They are built with
 # cibuildwheel from a pure-Python "py3" target and published through PyPI's
-# trusted publisher on a version tag.
+# trusted publisher on a version tag, together with the CUDA builds of the
+# library, bartorch-cuda12 and bartorch-cuda13.
 #
-# One-time setup on PyPI: add a trusted publisher for owner pulserver,
-# repository bartorch, workflow publish.yml, environment pypi, and create the
-# "pypi" environment in this repository's settings.
+# One-time setup on PyPI: a trusted publisher on each of the three projects
+# for owner pulserver, repository bartorch, workflow publish.yml, environment
+# pypi, and the "pypi" environment in this repository's settings.
 
 on:
   push:
     tags:
       - "v*"
   # A tag is the one thing that cannot be taken back: the version it builds
-  # can never be reused on PyPI, and nothing else in the repository runs this
-  # file, so every defect in it waits until a release to appear.  Running it
-  # by hand builds, repairs and tests every wheel exactly as a tag would;
-  # what it does not do is publish, because the two jobs that hand anything
-  # over ask for a tag ref and a branch is not one.
+  # can never be reused on PyPI, so a defect in this file must not wait for a
+  # release to appear.  A pull request that changes what the wheels are made
+  # from, and a run by hand, build, repair and test every wheel exactly as a
+  # tag would; what they do not do is publish, because the job that hands
+  # anything over asks for a tag ref and a branch is not one.
+  pull_request:
+    paths:
+      - .github/workflows/publish.yml
+      - CMakeLists.txt
+      - cmake/**
+      - pyproject.toml
+      - src/cuda/**
+      - src/bartorch/_lib.py
   workflow_dispatch:
 
 jobs:
@@ -184,20 +193,41 @@ jobs:
           pytest tests/test_openmp.py -v -s
           pytest tests -q
 
-  # A CUDA wheel carries BART's device code and links the runtime libraries
-  # dynamically, so it stays a few megabytes rather than bundling cuFFT and
-  # cuBLAS.  It has the same name, version and platform tag as the CPU wheel,
-  # which PyPI cannot hold twice, so it goes to the release instead:
-  #
-  #     pip install https://github.com/pulserver/bartorch/releases/download/<tag>/<wheel>
+  # The library compiled with CUDA is a package of its own per CUDA major
+  # version, bartorch-cuda12 and bartorch-cuda13 (src/cuda/), which bartorch
+  # loads in place of its own library: `pip install bartorch[cu12]`.  Each
+  # carries the device code and links the runtime libraries dynamically, which
+  # torch's CUDA builds bring, so it stays under PyPI's 100 MB a file rather
+  # than bundling cuFFT and cuBLAS.  Each is compiled with the oldest toolkit
+  # of its major that torch ships, so that it runs against every torch of it.
   #
   # The runners have no card, so this proves the wheel loads and reports the
   # absence of one; scripts/check_device.py is what a machine with a card runs.
   wheels-cuda:
-    name: Build CUDA wheel (linux x86_64)
+    name: Build bartorch-cuda${{ matrix.cuda }} (linux x86_64)
     runs-on: ubuntu-latest
     container:
       image: quay.io/pypa/manylinux_2_28_x86_64
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # CUDA 12.6's nvcc takes GCC 13 at the newest as the host compiler of
+          # the kernels; BART itself stays on the image's GCC 14.
+          - cuda: "12"
+            toolkit: "12-6"
+            home: /usr/local/cuda-12.6
+            host: gcc-toolset-13-gcc-c++
+            hostcxx: /opt/rh/gcc-toolset-13/root/usr/bin/g++
+            runtime: libcudart.so.12 libcufft.so.11 libcublas.so.12 libcublasLt.so.12
+          - cuda: "13"
+            toolkit: "13-0"
+            home: /usr/local/cuda-13.0
+            host: ""
+            hostcxx: ""
+            runtime: libcudart.so.13 libcufft.so.12 libcublas.so.13 libcublasLt.so.13
+    env:
+      CUDA_HOME: ${{ matrix.home }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -209,9 +239,9 @@ jobs:
           dnf install -y dnf-plugins-core
           dnf config-manager --add-repo \
             https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-          dnf install -y --nogpgcheck cuda-nvcc-12-8 cuda-cudart-devel-12-8 \
-            libcufft-devel-12-8 libcublas-devel-12-8
-          echo /usr/local/cuda-12.8/bin >> $GITHUB_PATH
+          dnf install -y --nogpgcheck cuda-nvcc-${{ matrix.toolkit }} cuda-cudart-devel-${{ matrix.toolkit }} \
+            libcufft-devel-${{ matrix.toolkit }} libcublas-devel-${{ matrix.toolkit }} ${{ matrix.host }}
+          echo $CUDA_HOME/bin >> $GITHUB_PATH
           echo /opt/python/cp312-cp312/bin >> $GITHUB_PATH
       # BART needs GCC 14 for -ftrampoline-impl=heap, or clang 16+ for Blocks;
       # the manylinux image's default toolchain is checked at configure time
@@ -227,12 +257,12 @@ jobs:
           echo "MATHDX_DIR=$(python -c 'import os, sysconfig; print(os.path.join(sysconfig.get_paths()["purelib"], "nvidia", "mathdx"))')" >> $GITHUB_ENV
       - name: Build the wheel
         env:
-          CUDACXX: /usr/local/cuda-12.8/bin/nvcc
+          CUDACXX: ${{ matrix.home }}/bin/nvcc
         run: |
+          if [ -n "${{ matrix.hostcxx }}" ]; then export CUDAHOSTCXX=${{ matrix.hostcxx }}; fi
           cc --version
           python -m pip install build
-          python -m build --wheel --outdir dist/ \
-            -C cmake.define.BARTORCH_CUDA=ON \
+          python -m build --wheel --outdir dist/ src/cuda/${{ matrix.cuda }} \
             -C "cmake.define.BARTORCH_MATHDX_DIR=$MATHDX_DIR"
       # The CUDA runtimes and libgomp are excluded rather than vendored: torch
       # already brings them, bundling the first would add hundreds of
@@ -240,53 +270,99 @@ jobs:
       - name: Repair to a manylinux tag
         run: |
           /opt/python/cp312-cp312/bin/python -m pip install auditwheel
-          LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64 \
+          excludes=""
+          for lib in ${{ matrix.runtime }} libgomp.so.1; do excludes="$excludes --exclude $lib"; done
+          LD_LIBRARY_PATH=$CUDA_HOME/lib64 \
           /opt/python/cp312-cp312/bin/python -m auditwheel repair dist/*.whl \
-            -w wheelhouse/ --plat manylinux_2_28_x86_64 \
-            --exclude libcudart.so.12 --exclude libcufft.so.11 \
-            --exclude libcublas.so.12 --exclude libcublasLt.so.12 \
-            --exclude libgomp.so.1
+            -w wheelhouse/ --plat manylinux_2_28_x86_64 $excludes
       # cuFINUFFT is in the library, bound to the same cudart and cuFFT as
-      # BART's kernels, and nothing is vendored beside it.
+      # BART's kernels, and nothing is vendored beside it.  PyPI takes a file
+      # of 100 MB at most unless a project is granted more.
       - name: Inspect the CUDA wheel
         run: |
           /opt/python/cp312-cp312/bin/python -m auditwheel show wheelhouse/*.whl
           /opt/python/cp312-cp312/bin/python -m zipfile -l wheelhouse/*.whl | tee contents.txt
           ! grep -Ei 'libcudart|libcufft|libcublas|libgomp|cufinufft.*\.so' contents.txt
+          grep -q 'bartorch_cuda${{ matrix.cuda }}/libbartorch.so' contents.txt
+          grep -q 'licenses/external/finufft/LICENSE' contents.txt
           grep -q 'licenses/finufft-dependencies/DUCC0/LICENSE' contents.txt
-      # The wheel carries no interpreter, so it is loaded from the oldest and
-      # the newest Python the package supports.
-      - name: Check that it loads without a card, on Python 3.10 and 3.14
-        run: |
-          for py in cp310-cp310 cp314-cp314; do
-            python=/opt/python/$py/bin/python
-            $python -m pip install wheelhouse/*.whl \
-              torch --index-url https://download.pytorch.org/whl/cpu \
-              --extra-index-url https://pypi.org/simple
-            $python -c "
-          import sys
-          import bartorch
-          from bartorch import _cuda
-          info = bartorch.build_info()
-          print(sys.version.split()[0], info)
-          assert 'cuda=ON' in info, info
-          from bartorch import _finufft
-          assert _finufft.available() and _finufft.cuda_available()
-          import importlib.util
-          assert importlib.util.find_spec('cufinufft') is None
-          assert importlib.util.find_spec('finufft') is None
-          print('devices:', _cuda.device_count())
-          "
-          done
+          ! grep -E '^ *bartorch/' contents.txt
+          size=$(stat -c %s wheelhouse/*.whl)
+          echo "wheel: $size bytes"
+          test "$size" -lt 100000000
       - uses: actions/upload-artifact@v4
         with:
-          name: cuda-wheel
+          name: cuda-wheel-${{ matrix.cuda }}
           path: wheelhouse/*.whl
+
+  # What a user installs: the bartorch wheel with its extra, beside torch's
+  # build for the same CUDA major version, on the oldest and the newest Python
+  # the package supports.  The runners have no card, so this proves that the
+  # install resolves -- the pins of the CUDA build against torch's -- that
+  # bartorch loads the CUDA build, and that its runtime libraries are the ones
+  # torch's NVIDIA packages installed; scripts/check_device.py is what a
+  # machine with a card runs.
+  test-cuda-wheels:
+    name: Test bartorch[cu${{ matrix.cuda }}] on Python ${{ matrix.python }}
+    needs: [wheels, wheels-cuda]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cuda: ["12", "13"]
+        python: ["3.10", "3.14"]
+        include:
+          - cuda: "12"
+            torch: cu126
+          - cuda: "13"
+            torch: cu130
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-ubuntu-latest
+          path: base
+      - uses: actions/download-artifact@v4
+        with:
+          name: cuda-wheel-${{ matrix.cuda }}
+          path: cuda
+      # Both wheels are named as files, so pip takes them whatever their
+      # version, and the extra's requirement is the CUDA wheel given beside it.
+      - name: Install bartorch[cu${{ matrix.cuda }}] with torch's ${{ matrix.torch }} build
+        run: |
+          python -m pip install --upgrade pip
+          pip install "$(ls base/*.whl)[cu${{ matrix.cuda }}]" cuda/*.whl pytest \
+            torch --index-url https://download.pytorch.org/whl/${{ matrix.torch }} \
+            --extra-index-url https://pypi.org/simple
+          pip list | grep -Ei '^(torch|bartorch|nvidia-(cuda-runtime|cufft|cublas))'
+      - name: bartorch loads the CUDA build against torch's runtime
+        run: |
+          python -c "
+          import torch, bartorch
+          from bartorch import _cuda, _finufft
+          from bartorch._lib import library_path
+          info = bartorch.build_info()
+          print(torch.__version__, library_path(), info)
+          assert torch.version.cuda.split('.')[0] == '${{ matrix.cuda }}', torch.version.cuda
+          assert library_path().parent.name == 'bartorch_cuda${{ matrix.cuda }}', library_path()
+          assert 'cuda=ON' in info, info
+          assert _finufft.available() and _finufft.cuda_available()
+          maps = open('/proc/self/maps').read()
+          cudart = {l.split()[-1] for l in maps.splitlines() if 'libcudart.so' in l}
+          print('cudart:', cudart)
+          assert cudart and all('/site-packages/nvidia/' in p for p in cudart), cudart
+          print('devices:', _cuda.device_count())
+          "
+      - name: Run the suite's library and device files against it
+        run: pytest tests/test_lib.py tests/test_cuda.py tests/test_finufft.py -q
 
   publish:
     name: Publish to PyPI
     runs-on: ubuntu-latest
-    needs: [sdist, wheels, test-wheels]
+    needs: [sdist, wheels, test-wheels, wheels-cuda, test-cuda-wheels]
     if: startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
@@ -303,22 +379,9 @@ jobs:
           pattern: wheels-*
           path: dist
           merge-multiple: true
-      - uses: pypa/gh-action-pypi-publish@release/v1
-
-  # The CUDA wheel cannot go to PyPI beside the CPU one, so it is attached to
-  # the release the tag made.
-  release-cuda:
-    name: Attach the CUDA wheel to the release
-    runs-on: ubuntu-latest
-    needs: [wheels-cuda]
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
-    steps:
       - uses: actions/download-artifact@v4
         with:
-          name: cuda-wheel
-          path: wheelhouse
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: wheelhouse/*.whl
+          pattern: cuda-wheel-*
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
