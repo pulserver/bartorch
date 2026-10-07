@@ -41,6 +41,19 @@ def installed(monkeypatch, tmp_path):
     return install
 
 
+def test_an_installed_cuda_build_is_found_by_its_package(monkeypatch, tmp_path):
+    """What the installed builds are, read off the import system."""
+    import importlib
+
+    before = _lib._cuda_builds()
+    package = tmp_path / "bartorch_cuda12"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    monkeypatch.syspath_prepend(str(tmp_path))
+    importlib.invalidate_caches()
+    assert _lib._cuda_builds() == {**before, 12: package.resolve()}
+
+
 def test_without_a_cuda_build_the_package_loads_its_own(installed):
     installed([], cuda="12.6")
     assert _lib._cuda_build() is None
