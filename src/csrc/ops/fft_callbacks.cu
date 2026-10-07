@@ -56,7 +56,13 @@ static set_jit_t set_jit_callback(void)
 	if (NULL == lib)
 		return NULL;
 
+	/* cuFFT 11 (CUDA 12) exports this entry point under a versioned name and
+	 * an older one under the plain name; cuFFT 12 (CUDA 13) exports it plain. */
+#if CUFFT_VER_MAJOR >= 12
+	set_jit_t fn = (set_jit_t)dlsym(lib, "cufftXtSetJITCallback");
+#else
 	set_jit_t fn = (set_jit_t)dlsym(lib, "__cufftXtSetJITCallback_12_7");
+#endif
 
 	dlclose(lib);
 
