@@ -639,7 +639,7 @@ data, so it is a usable check on an operator.</p>
 </span><span class="n">adjoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">probe</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="p">)</span> <span class="o">*</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.H" title="bartorch.linop.LinearOperator.H"><span class="n">A</span><span class="o">.</span><span class="n">H</span></a><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">forward</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">adjoint</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">abs</span><span class="p">(</span><span class="n">forward</span><span class="p">)</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>relative difference 1.35e-07
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>relative difference 1.20e-07
 </pre></div>
 </div>
 </section>
@@ -724,14 +724,14 @@ the solvers.</p>
 </span><span class="n">difference</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">grad</span> <span class="o">-</span> <span class="n">expected</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">expected</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference from 2 A^H (Ax - y): </span><span class="si">{</span><span class="n">difference</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>relative difference from 2 A^H (Ax - y): 2.04e-07
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>relative difference from 2 A^H (Ax - y): 2.06e-07
 </pre></div>
 </div>
 <p>The regularization terms are the subject of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code>, and the
 iterations of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>;
 <a class="reference internal" href="../../explanation/inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a> states which algorithm applies to
 which problem.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.266 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.308 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-regularization-02-operators-and-solvers-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/59501848c9287ac4c5dca17502df2caa/02-operators-and-solvers.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-operators-and-solvers.ipynb</span></code></a></p>

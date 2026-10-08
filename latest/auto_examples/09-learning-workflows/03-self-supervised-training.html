@@ -704,9 +704,9 @@ the whole run, and needs no reference either.</p>
 </span>        <span class="n">DataLoader</span><span class="p">(</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">valid</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">supervised</span><span class="p">)</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span><span class="p">,</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 </pre></div>
 </div>
 </section>
@@ -730,7 +730,7 @@ and are scored against its reference.</p>
 </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">SSIM </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">ssim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">
 </span>    <span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>             supervised   PSNR 30.20 dB   SSIM 0.945
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>             supervised   PSNR 30.16 dB   SSIM 0.950
         self-supervised   PSNR 28.59 dB   SSIM 0.726
 CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 </pre></div>
@@ -749,7 +749,7 @@ acquired are the ones it cannot score against.</p>
 <ul class="sphx-glr-horizontal">
 <li><img src="../../_images/sphx_glr_03-self-supervised-training_002.png" srcset="../../_images/sphx_glr_03-self-supervised-training_002.png" alt="reference, CG-SENSE, supervised, self-supervised" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_03-self-supervised-training_003.png" srcset="../../_images/sphx_glr_03-self-supervised-training_003.png" alt="reference, enlarged, CG-SENSE, enlarged, supervised, enlarged, self-supervised, enlarged" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_03-self-supervised-training_004.png" srcset="../../_images/sphx_glr_03-self-supervised-training_004.png" alt="CG-SENSE NRMSE 0.124, supervised NRMSE 0.063, self-supervised NRMSE 0.076" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_03-self-supervised-training_004.png" srcset="../../_images/sphx_glr_03-self-supervised-training_004.png" alt="CG-SENSE NRMSE 0.124, supervised NRMSE 0.064, self-supervised NRMSE 0.076" class = "sphx-glr-multi-img"/></li>
 </ul>
 </section>
 <section id="references">
@@ -770,7 +770,7 @@ networks in highly accelerated magnetic resonance imaging. <em>NMR Biomed</em>
 35(12):e4798 (2022). <a class="reference external" href="https://doi.org/10.1002/nbm.4798">https://doi.org/10.1002/nbm.4798</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 28.741 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 54.052 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-09-learning-workflows-03-self-supervised-training-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/91a70562054f531a3c9151a7bc6be4b0/03-self-supervised-training.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03-self-supervised-training.ipynb</span></code></a></p>
