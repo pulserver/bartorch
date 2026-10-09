@@ -48,8 +48,9 @@ def nlinv_pics(
     Returns
     -------
     torch.Tensor
-        Complex image: ``([z,] y, x)`` as ``kspace`` for Cartesian data, the
-        trajectory's image grid for non-Cartesian data.
+        Complex image in the units of ``kspace``: ``([z,] y, x)`` as
+        ``kspace`` for Cartesian data, the trajectory's image grid for
+        non-Cartesian data.
     """
     kspace = kspace.to(torch.complex64)
     maps = apps.nlinv_maps(kspace, traj, size=size, radius=radius)

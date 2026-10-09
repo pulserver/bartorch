@@ -285,10 +285,12 @@ scale = optim.data_scaling(measured)
 data = (measured / scale).squeeze(1)
 
 term = priors.Wavelet(axes=(-1, -2), weight=0.002)
-assembled = optim.FISTA(term, maxiter=100)(data, A)
+assembled = optim.FISTA(term, maxiter=100)(data, A) * scale
 
 # %%
 #
+# The solution is multiplied back by the scaling, which puts the image into
+# the units of the k-space, as ``pics`` does unless given ``rescale=False``.
 # With the same preprocessing the assembled solve and the application are not
 # merely close: they are the same iteration over the same operator, and return
 # the same bits.

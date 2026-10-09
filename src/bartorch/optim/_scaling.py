@@ -62,8 +62,9 @@ def data_scaling(
     between the 90th percentile and the median.  With ``A`` the same rule is
     applied to the magnitudes of ``A^H y``.
 
-    The solution of a solve on scaled data is scaled by the same factor, and
-    is conventionally left so rather than divided back.
+    The solution of a solve on scaled data is divided by the same factor;
+    multiplying it by the scaling puts it back into the units of the data, as
+    ``pics -S`` and :func:`bartorch.apps.pics` do.
 
     Examples
     --------
