@@ -196,7 +196,7 @@ transferable from one dataset to the next.
     data = (measured / scale).squeeze(1)
 
     term = priors.Wavelet(axes=(-1, -2), weight=0.002)
-    assembled = optim.FISTA(term, maxiter=100)(data, A)
+    assembled = optim.FISTA(term, maxiter=100)(data, A) * scale
 
 
 
@@ -205,13 +205,15 @@ transferable from one dataset to the next.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 291-294
+.. GENERATED FROM PYTHON SOURCE LINES 291-296
 
+The solution is multiplied back by the scaling, which puts the image into
+the units of the k-space, as ``pics`` does unless given ``rescale=False``.
 With the same preprocessing the assembled solve and the application are not
 merely close: they are the same iteration over the same operator, and return
 the same bits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 295-301
+.. GENERATED FROM PYTHON SOURCE LINES 297-303
 
 .. code-block:: Python
 
@@ -236,7 +238,7 @@ the same bits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 302-322
+.. GENERATED FROM PYTHON SOURCE LINES 304-324
 
 
 
@@ -250,7 +252,7 @@ the same bits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 323-340
+.. GENERATED FROM PYTHON SOURCE LINES 325-342
 
 The adjoint of the encoding is not its inverse: :math:`A^H y` is the
 sensitivity-weighted coil combination of the zero-filled k-space, and
@@ -270,7 +272,7 @@ iteration on an operator, which is how a gradient step size is chosen: the
 Lipschitz constant of the least-squares gradient is the largest eigenvalue of
 :math:`A^H A`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 341-344
+.. GENERATED FROM PYTHON SOURCE LINES 343-346
 
 .. code-block:: Python
 
@@ -290,14 +292,14 @@ Lipschitz constant of the least-squares gradient is the largest eigenvalue of
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-349
+.. GENERATED FROM PYTHON SOURCE LINES 347-351
 
 An operator defined in Python is composed with BART's through
 :meth:`~bartorch.linop.LinearOperator.from_callbacks`, which BART applies as
 a callback. Here it is a spatially varying phase, as an off-resonance or an
 eddy-current phase would be, placed between the image and the encoding.
 
-.. GENERATED FROM PYTHON SOURCE LINES 350-358
+.. GENERATED FROM PYTHON SOURCE LINES 352-360
 
 .. code-block:: Python
 
@@ -322,7 +324,7 @@ eddy-current phase would be, placed between the image and the encoding.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 359-369
+.. GENERATED FROM PYTHON SOURCE LINES 361-371
 
 Differentiation
 ---------------
@@ -335,7 +337,7 @@ Wirtinger convention torch uses for complex tensors.  For a real :math:`A`,
 :doc:`../../explanation/differentiation` describes the backward passes of
 the solvers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-379
+.. GENERATED FROM PYTHON SOURCE LINES 372-381
 
 .. code-block:: Python
 
@@ -361,7 +363,7 @@ the solvers.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-384
+.. GENERATED FROM PYTHON SOURCE LINES 382-386
 
 The regularization terms are the subject of :mod:`bartorch.priors`, and the
 iterations of :mod:`bartorch.optim`;
@@ -371,7 +373,7 @@ which problem.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.308 seconds)
+   **Total running time of the script:** (0 minutes 3.346 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_02-operators-and-solvers.py:

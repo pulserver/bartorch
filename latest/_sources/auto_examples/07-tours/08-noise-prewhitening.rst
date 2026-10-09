@@ -302,8 +302,8 @@ matter, where the phantom is homogeneous.
  .. code-block:: none
 
      as measured  white-matter SNR   38.1 (median 37.7)
-     prewhitened  white-matter SNR   55.6 (median 54.3)
-    SNR ratio, prewhitened over as measured: 1.42 (median)
+     prewhitened  white-matter SNR   55.8 (median 54.5)
+    SNR ratio, prewhitened over as measured: 1.43 (median)
 
 
 
@@ -367,7 +367,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.934 seconds)
+   **Total running time of the script:** (0 minutes 4.976 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_08-noise-prewhitening.py:

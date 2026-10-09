@@ -377,16 +377,18 @@ plt.show()
 # The same solve through the operator
 # -----------------------------------
 #
-# Besides the iteration, ``pics`` scales the data. Off the Cartesian grid it
-# estimates the scale from the adjoint reconstruction and therefore needs the
-# operator, which :func:`bartorch.optim.data_scaling` takes. The encoding is
-# the operator built above, now over the estimated sensitivities.
+# Besides the iteration, ``pics`` divides the data by a scale and multiplies
+# the image back by it. Off the Cartesian grid it estimates the scale from the
+# adjoint reconstruction and therefore needs the operator, which
+# :func:`bartorch.optim.data_scaling` takes. The encoding is the operator
+# built above, now over the estimated sensitivities.
 
 A = linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory)
-data = measured / optim.data_scaling(measured[..., None], A=A)
+scale = optim.data_scaling(measured[..., None], A=A)
+data = measured / scale
 
 start = time.perf_counter()
-assembled = optim.ADMM(term, maxiter=ITERATIONS)(data, A)
+assembled = optim.ADMM(term, maxiter=ITERATIONS)(data, A) * scale
 print(f"operator and solver: {time.perf_counter() - start:.2f} s")
 
 difference = (assembled.squeeze() - reconstruction.squeeze()).abs().max()
@@ -411,9 +413,8 @@ print(f"relative difference from pics: {float(difference / reconstruction.abs().
 # iterations carry that difference into the reconstructions.
 
 start = time.perf_counter()
-pair = optim.ADMM(term, maxiter=ITERATIONS)(
-    data, linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory, toeplitz=False)
-)
+transforms = linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory, toeplitz=False)
+pair = optim.ADMM(term, maxiter=ITERATIONS)(data, transforms) * scale
 print(f"without the Toeplitz normal: {time.perf_counter() - start:.2f} s")
 print(f"relative difference {float((pair - assembled).abs().max() / assembled.abs().max()):.1e}")
 

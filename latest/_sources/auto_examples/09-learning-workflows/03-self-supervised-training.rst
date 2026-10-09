@@ -368,7 +368,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 54.052 seconds)
+   **Total running time of the script:** (4 minutes 5.803 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_03-self-supervised-training.py:

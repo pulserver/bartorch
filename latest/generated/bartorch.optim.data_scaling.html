@@ -576,8 +576,9 @@ at most 32 samples along each axis, corrected for the region’s size, and the
 maximum exceeds the 90th percentile by at least twice the difference
 between the 90th percentile and the median.  With <code class="docutils literal notranslate"><span class="pre">A</span></code> the same rule is
 applied to the magnitudes of <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code>.</p>
-<p>The solution of a solve on scaled data is scaled by the same factor, and
-is conventionally left so rather than divided back.</p>
+<p>The solution of a solve on scaled data is divided by the same factor;
+multiplying it by the scaling puts it back into the units of the data, as
+<code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-S</span></code> and <a class="reference internal" href="bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> do.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">bartorch</span><span class="o">.</span><span class="n">fftmod</span><span class="p">(</span><span class="n">kspace</span> <span class="o">*</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">),</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">data_scaling</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>

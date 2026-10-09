@@ -421,7 +421,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.492 seconds)
+   **Total running time of the script:** (0 minutes 5.487 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_01-coil-calibration.py:

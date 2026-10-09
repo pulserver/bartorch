@@ -5,7 +5,7 @@
 
 - bartorch drives one embedded BART through three layers: reconstruction pipelines ({mod}`bartorch.apps`), the objects the pipelines are assembled from — operators, regularization terms and solvers ({mod}`bartorch.linop`, {mod}`bartorch.nlop`, {mod}`bartorch.priors`, {mod}`bartorch.optim`) — and BART's remaining commands, with the corrections and motion estimation around a reconstruction, as functions of tensors ({mod}`bartorch.tools`).
 - An app runs a standard reconstruction in one call; the objects are needed for an encoding BART has no application for, a solver inside an outer loop, or gradients.
-- {func}`bartorch.apps.pics` returns the tensor BART's `pics` returns on a Cartesian grid and agrees with it to floating-point round-off along a trajectory; {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit BlochSim signal models and return named maps in physical units.
+- {func}`bartorch.apps.pics` returns the tensor BART's `pics -S` returns on a Cartesian grid and agrees with it to floating-point round-off along a trajectory; {func}`bartorch.apps.moba` and {func}`bartorch.apps.mobafit` fit BlochSim signal models and return named maps in physical units.
 - Operators pass tensors to BART without copying and commands copy their inputs by default; an error inside BART raises {class}`~bartorch.BartError`, and FINUFFT or cuFINUFFT computes every non-uniform Fourier transform.
 ```
 
@@ -59,8 +59,9 @@ are required.
 {func}`bartorch.apps.pics` performs the steps of BART's `pics` with this
 package's objects: the sampling pattern, the modulation into BART's uncentred
 convention and the data scaling in Python, then an encoding from
-{mod}`bartorch.linop` under a solver from {mod}`bartorch.optim`.  On a
-Cartesian grid it returns the tensor the command returns; along a trajectory
+{mod}`bartorch.linop` under a solver from {mod}`bartorch.optim`, and the image
+multiplied back by the scaling, as `pics -S` multiplies it.  On a Cartesian
+grid it returns the tensor the command returns; along a trajectory
 the two agree to floating-point round-off, because FINUFFT accumulates over
 threads in an order that varies between runs.  The command itself is not
 public; the test suite holds the app to it.  An app is the starting point for

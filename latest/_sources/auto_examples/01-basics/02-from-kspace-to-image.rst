@@ -443,9 +443,9 @@ Three reconstructions of the same data are compared.
 The sensitivities ESPIRiT estimates and the ones the acquisition was
 simulated with differ by a phase that varies from voxel to voxel, so the
 reconstructed image does too, and the comparison is between magnitudes.
-``pics`` returns the image in the units of the data it scaled, so
-:func:`bartorch.tools.nrmse` is called with ``scaled=True``, which fits a
-global factor before comparing.
+``pics`` returns the image in the units of the k-space rather than those of
+the simulated object, so :func:`bartorch.tools.nrmse` is called with
+``scaled=True``, which fits a global factor before comparing.
 
 .. GENERATED FROM PYTHON SOURCE LINES 418-425
 
@@ -562,7 +562,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.474 seconds)
+   **Total running time of the script:** (0 minutes 3.517 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_02-from-kspace-to-image.py:

@@ -820,8 +820,11 @@ scale before iterating, and a weight is chosen for normalized data.
 <a class="reference internal" href="../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> is that estimate: an order statistic of the
 magnitudes of a low-resolution image from the central region of k-space, or of
 <span class="math notranslate nohighlight">\(\lvert A^H y \rvert\)</span> for a non-Cartesian acquisition; its documentation states
-the rule.  <code class="docutils literal notranslate"><span class="pre">pics</span></code> returns the reconstruction of the scaled data without scaling
-it back.</p>
+the rule.  <code class="docutils literal notranslate"><span class="pre">pics</span></code> returns the reconstruction of the scaled data unless <code class="docutils literal notranslate"><span class="pre">-S</span></code>
+multiplies it back by the scale.  <a class="reference internal" href="../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> multiplies it back
+by default, so that the image is in the units of the data and acquisitions of
+different signal level keep their relative amplitudes, and returns the
+normalized image with <code class="docutils literal notranslate"><span class="pre">rescale=False</span></code>.</p>
 </section>
 <section id="representation-in-bartorch">
 <h2>Representation in bartorch<a class="headerlink" href="#representation-in-bartorch" title="Link to this heading">#</a></h2>
@@ -858,7 +861,8 @@ it back.</p>
 </div>
 <p><a class="reference internal" href="../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> performs these steps: it estimates the data scale,
 builds the encoding from the sensitivities and the sampling, takes the terms
-from its <code class="docutils literal notranslate"><span class="pre">regularizers</span></code> argument, and runs the chosen iteration.  <a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a>
+from its <code class="docutils literal notranslate"><span class="pre">regularizers</span></code> argument, runs the chosen iteration, and multiplies the
+result by the data scale.  <a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a>
 assembles the same reconstruction from an operator, a term and a solver and
 obtains the same result.  The estimators on this page assume a known, linear
 <span class="math notranslate nohighlight">\(A\)</span>; <a class="reference internal" href="nonlinear.html"><span class="doc">Nonlinear forward models</span></a> treats forward operators that depend nonlinearly on the

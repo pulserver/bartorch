@@ -272,7 +272,7 @@ for this penalty.
 
  .. code-block:: none
 
-    pics: 0.99 s
+    pics: 1.00 s
         gridding  NRMSE 0.324  SSIM 0.418
         CG-SENSE  NRMSE 0.087  SSIM 0.566
       SENSE + TV  NRMSE 0.084  SSIM 0.863
@@ -313,7 +313,7 @@ for this penalty.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 362-383
+.. GENERATED FROM PYTHON SOURCE LINES 362-384
 
 Gridding shows the streaks of radial undersampling over the whole field of
 view, superimposed on an image that is otherwise sharp: the low spatial
@@ -332,21 +332,23 @@ trajectory samples limits the resolution of all three.
 The same solve through the operator
 -----------------------------------
 
-Besides the iteration, ``pics`` scales the data. Off the Cartesian grid it
-estimates the scale from the adjoint reconstruction and therefore needs the
-operator, which :func:`bartorch.optim.data_scaling` takes. The encoding is
-the operator built above, now over the estimated sensitivities.
+Besides the iteration, ``pics`` divides the data by a scale and multiplies
+the image back by it. Off the Cartesian grid it estimates the scale from the
+adjoint reconstruction and therefore needs the operator, which
+:func:`bartorch.optim.data_scaling` takes. The encoding is the operator
+built above, now over the estimated sensitivities.
 
-.. GENERATED FROM PYTHON SOURCE LINES 384-395
+.. GENERATED FROM PYTHON SOURCE LINES 385-397
 
 .. code-block:: Python
 
 
     A = linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory)
-    data = measured / optim.data_scaling(measured[..., None], A=A)
+    scale = optim.data_scaling(measured[..., None], A=A)
+    data = measured / scale
 
     start = time.perf_counter()
-    assembled = optim.ADMM(term, maxiter=ITERATIONS)(data, A)
+    assembled = optim.ADMM(term, maxiter=ITERATIONS)(data, A) * scale
     print(f"operator and solver: {time.perf_counter() - start:.2f} s")
 
     difference = (assembled.squeeze() - reconstruction.squeeze()).abs().max()
@@ -360,13 +362,13 @@ the operator built above, now over the estimated sensitivities.
 
  .. code-block:: none
 
-    operator and solver: 0.96 s
+    operator and solver: 0.97 s
     relative difference from pics: 0.0e+00
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 396-411
+.. GENERATED FROM PYTHON SOURCE LINES 398-413
 
 The two run the same iteration over the same operator. The NUFFT spreads
 samples onto the grid over several threads and sums in the order they
@@ -384,15 +386,14 @@ operator uses the convolution by default, and ``toeplitz=False`` requests the
 transform pair. The two differ by the tolerance of the transforms, and the
 iterations carry that difference into the reconstructions.
 
-.. GENERATED FROM PYTHON SOURCE LINES 412-420
+.. GENERATED FROM PYTHON SOURCE LINES 414-421
 
 .. code-block:: Python
 
 
     start = time.perf_counter()
-    pair = optim.ADMM(term, maxiter=ITERATIONS)(
-        data, linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory, toeplitz=False)
-    )
+    transforms = linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory, toeplitz=False)
+    pair = optim.ADMM(term, maxiter=ITERATIONS)(data, transforms) * scale
     print(f"without the Toeplitz normal: {time.perf_counter() - start:.2f} s")
     print(f"relative difference {float((pair - assembled).abs().max() / assembled.abs().max()):.1e}")
 
@@ -404,13 +405,13 @@ iterations carry that difference into the reconstructions.
 
  .. code-block:: none
 
-    without the Toeplitz normal: 0.45 s
+    without the Toeplitz normal: 0.46 s
     relative difference 3.2e-02
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 421-428
+.. GENERATED FROM PYTHON SOURCE LINES 422-429
 
 The convolution costs an FFT, a pointwise multiplication and an inverse FFT
 on the doubled grid per coil, independent of the number of samples; the pair
@@ -420,7 +421,7 @@ points, and the pair is not the slower of the two; as the number of samples
 grows, with more spokes or with the frames of a dynamic series sharing one
 normal operator, the convolution becomes the cheaper.
 
-.. GENERATED FROM PYTHON SOURCE LINES 431-456
+.. GENERATED FROM PYTHON SOURCE LINES 432-457
 
 References
 ----------
@@ -451,7 +452,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.111 seconds)
+   **Total running time of the script:** (0 minutes 5.209 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_02-radial-sense.py:

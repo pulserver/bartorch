@@ -212,8 +212,11 @@ scale before iterating, and a weight is chosen for normalized data.
 {func}`bartorch.optim.data_scaling` is that estimate: an order statistic of the
 magnitudes of a low-resolution image from the central region of k-space, or of
 $\lvert A^H y \rvert$ for a non-Cartesian acquisition; its documentation states
-the rule.  `pics` returns the reconstruction of the scaled data without scaling
-it back.
+the rule.  `pics` returns the reconstruction of the scaled data unless `-S`
+multiplies it back by the scale.  {func}`bartorch.apps.pics` multiplies it back
+by default, so that the image is in the units of the data and acquisitions of
+different signal level keep their relative amplitudes, and returns the
+normalized image with `rescale=False`.
 
 ## Representation in bartorch
 
@@ -229,7 +232,8 @@ it back.
 
 {func}`bartorch.apps.pics` performs these steps: it estimates the data scale,
 builds the encoding from the sensitivities and the sampling, takes the terms
-from its `regularizers` argument, and runs the chosen iteration.  {doc}`../auto_examples/03-regularization/02-operators-and-solvers`
+from its `regularizers` argument, runs the chosen iteration, and multiplies the
+result by the data scale.  {doc}`../auto_examples/03-regularization/02-operators-and-solvers`
 assembles the same reconstruction from an operator, a term and a solver and
 obtains the same result.  The estimators on this page assume a known, linear
 $A$; {doc}`nonlinear` treats forward operators that depend nonlinearly on the

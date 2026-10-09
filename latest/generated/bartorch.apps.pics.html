@@ -540,11 +540,14 @@
 <dt class="sig sig-object py" id="bartorch.apps.pics">
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">pics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.pics" title="Link to this definition">#</a></dt>
 <dd><p>Parallel-imaging compressed-sensing reconstruction.</p>
-<p>The pipeline BART’s <code class="docutils literal notranslate"><span class="pre">pics</span></code> command runs, assembled here: the
+<p>The pipeline BART’s <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-S</span></code> command runs, assembled here: the
 sampling pattern applied to the k-space, the modulation into the
-convention BART iterates in, the scaling estimated from what is left, and
-then an encoding from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code> under an iteration from
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>.</p>
+convention BART iterates in, the data divided by the scaling estimated
+from what is left, an encoding from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.linop</span></code> under an
+iteration from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>, and the image multiplied back by the
+scaling.  The image is therefore in the units of the k-space, and two
+acquisitions keep their relative amplitudes, while a regularization weight
+is relative to the scaled data and transfers between them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -572,10 +575,10 @@ it is not given.  Off a grid it weights the data term, <code class="docutils lit
 <span class="pre">y)|^2</span></code>; the square root of the density compensation of
 <a class="reference internal" href="bartorch.estimate_density.html#bartorch.estimate_density" title="bartorch.estimate_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_density()</span></code></a> preconditions the solve.</p></li>
 <li><p><strong>basis</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Subspace basis over frames and coefficients.</p></li>
-<li><p><strong>initial</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – An image to start the iteration from, in the units the solve works in
-– that is, already divided by <code class="docutils literal notranslate"><span class="pre">scaling</span></code>.  <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-W</span></code> reads it the
-same way: it rescales the warm start only under <code class="docutils literal notranslate"><span class="pre">-S</span></code>, where the
-answer is put back into the data’s units at the end.</p></li>
+<li><p><strong>initial</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – An image to start the iteration from, in the units of the result: of
+the k-space with <code class="docutils literal notranslate"><span class="pre">rescale</span></code>, divided by the scaling without it.
+<code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-W</span></code> reads it the same way, dividing it by the scaling only
+under <code class="docutils literal notranslate"><span class="pre">-S</span></code>.</p></li>
 <li><p><strong>eigen_step</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Take the step size from the largest eigenvalue of the normal operator
 rather than from <code class="docutils literal notranslate"><span class="pre">step</span></code>, estimated by thirty power iterations as
 <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-e</span></code> estimates it.  The starting vector comes from BART’s
@@ -583,12 +586,18 @@ process-global generator, so this is the one setting under which two
 runs in a process do not agree to the bit.</p></li>
 <li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">False</span></code> applies the encoding and its adjoint rather than the normal
 operator’s convolution.</p></li>
-<li><p><strong>scaling</strong> (<em>float</em><em>, </em><em>default=None</em>) – The data scaling to divide by; estimated when it is not given, which
-is what makes a regularization weight transferable.</p></li>
+<li><p><strong>scaling</strong> (<em>float</em><em>, </em><em>default=None</em>) – The data scaling to divide by; estimated by
+<a class="reference internal" href="bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> when it is <code class="docutils literal notranslate"><span class="pre">None</span></code> or zero, as
+<code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-w</span></code> is.  An estimate of zero is replaced by one.</p></li>
+<li><p><strong>rescale</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Multiply the image by the scaling after the solve, as <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-S</span></code>
+does.  <code class="docutils literal notranslate"><span class="pre">False</span></code> returns the image of the scaled data, as <code class="docutils literal notranslate"><span class="pre">pics</span></code>
+without <code class="docutils literal notranslate"><span class="pre">-S</span></code> does: normalized, so that data of any overall scale
+reconstruct to images of comparable amplitude.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The reconstructed image.</p>
+<dd class="field-even"><p>The reconstructed image, in the units of <code class="docutils literal notranslate"><span class="pre">kspace</span></code> unless <code class="docutils literal notranslate"><span class="pre">rescale</span></code>
+is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
