@@ -251,8 +251,8 @@ plt.show()
 # their sensitivities overlap. :func:`bartorch.tools.cc` finds the
 # combinations of channels that carry most of it [#huangcc]_ and
 # :func:`bartorch.tools.ccapply` projects the data onto them. Six virtual
-# channels lose almost nothing, and everything after this runs a quarter
-# faster.
+# channels lose almost nothing, and every later step works on six channels
+# instead of eight.
 VIRTUAL = 6
 
 matrix = bt.cc(measured, p=VIRTUAL, M=True, r=CALIBRATION)

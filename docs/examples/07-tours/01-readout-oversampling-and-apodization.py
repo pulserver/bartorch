@@ -3,12 +3,12 @@
 Readout oversampling and apodization
 ====================================
 
-In this tour you take care of two things that happen to Cartesian k-space
-before you reconstruct it. The scanner usually samples the readout twice as
-densely as your matrix needs, and you remove that oversampling so that the
-image has the matrix you prescribed. And k-space stops at the edge of the
-acquired matrix, which puts Gibbs ringing next to every sharp edge; you can
-trade some of that ringing for resolution with an apodization window.
+In this tour you apply two corrections to Cartesian k-space before
+reconstruction. The readout is usually sampled at twice the density the matrix
+requires; removing that oversampling gives the image the prescribed matrix.
+And the truncation of k-space at the edge of the acquired matrix causes Gibbs
+ringing next to every sharp edge, which an apodization window reduces at the
+cost of resolution.
 
 You work on a Shepp-Logan phantom whose k-space is evaluated analytically at
 the sample positions, so the oversampling and the truncation are those of a
