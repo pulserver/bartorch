@@ -3,19 +3,20 @@ r"""
 Training without a reference
 ============================
 
-**Aim.** Train the unrolled network of :doc:`02-staged-training` from
-undersampled k-space alone, with no fully sampled reference, and measure how
-much of the supervised network's image quality it retains.
+The networks of lesson 11 and of :doc:`02-staged-training` learn from fully
+sampled reference images. Dynamic and high-dimensional acquisitions -- a cine,
+a functional run, a fingerprinting series -- are rarely acquired fully
+sampled: undersampling is what makes them fit in a breath-hold or a scan
+time, so you have no reference to train against. In this tour you train the
+unrolled network of :doc:`02-staged-training` from undersampled k-space alone
+and measure how much of the supervised network's image quality it keeps.
 
-Dynamic and high-dimensional acquisitions -- a cine, a functional run, a
-fingerprinting series -- are rarely acquired fully sampled: undersampling is
-what makes them feasible within a breath-hold or a scan time. There is then no
-reference image to train against. Self-supervised learning via data
-undersampling (SSDU) [#ssdu]_ trains against the measured k-space itself. The
-acquired phase encodes :math:`\Omega` are split into two disjoint sets,
-:math:`\Theta` and :math:`\Lambda`; the network reconstructs from
-:math:`\Theta`, and the loss compares the k-space of its reconstruction with
-the measured data on the held-out set :math:`\Lambda`,
+The idea is self-supervised learning via data undersampling (SSDU) [#ssdu]_:
+train against the measured k-space itself. You split the acquired phase
+encodes :math:`\Omega` into two disjoint sets, :math:`\Theta` and
+:math:`\Lambda`. The network reconstructs from :math:`\Theta`, and the loss
+compares the k-space of its reconstruction with the measured data on the
+held-out set :math:`\Lambda`,
 
 .. math::
 
@@ -27,15 +28,15 @@ A new split is drawn at every step, so over the training every acquired line
 is both reconstructed from and held out [#multimask]_. At inference the
 network reconstructs from all of :math:`\Omega`.
 
-**Prerequisites.** :doc:`../06-learning/02-modl-with-admm` and
-:doc:`02-staged-training`.
+Prerequisites: lesson 11, :doc:`../06-learning/02-modl-with-admm`, and the
+tour :doc:`02-staged-training`.
 
 **Learning objectives**
 
 - Partition the acquired phase encodes with :func:`bartorch.learning.split`.
 - Train an unrolled network self-supervised with
-  :class:`bartorch.learning.Reconstruction`, by giving items the
-  sampling pattern instead of a reference.
+  :class:`bartorch.learning.Reconstruction`, by giving items the sampling
+  pattern instead of a reference.
 - Compare with the same network trained against references, and with
   CG-SENSE.
 """
@@ -43,7 +44,15 @@ network reconstructs from all of :math:`\Omega`.
 # %%
 
 # sphinx_gallery_start_ignore
+import csv
+import logging
+from pathlib import Path
+
+import brainweb_dl
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from brainweb_dl import get_mri
 from matplotlib.patches import Rectangle
 
 PAGE_WIDTH = 7.8  # inches, the width of the documentation column
@@ -125,42 +134,10 @@ def compare(truth, results, crop, scale=None):
     figure.colorbar(handle, ax=axes[0], fraction=0.046, label="|error| / peak")
 
 
-# sphinx_gallery_end_ignore
-import csv
-import logging
-from pathlib import Path
-
-import brainweb_dl
-import lightning
-import numpy as np
-import torch
-from brainweb_dl import get_mri
-from monai.metrics import PSNRMetric, SSIMMetric
-from torch.utils.data import DataLoader
-
-import bartorch
-import bartorch.tools as bt
-from bartorch import learning, linop, optim, priors
-
-SIZE = 96
-COILS = 8
-ITERATIONS = 4
-ACCELERATION = 4
-EPOCHS = 16
-
-_ = torch.manual_seed(0)
-
-# %%
-#
-# Data
-# ----
-#
-# The slices, coils and fourfold undersampling of :doc:`02-staged-training`:
-# subject 0 to train on and subject 4 to validate on. The references are kept
-# only to score the results; the self-supervised network never sees them.
-
-# sphinx_gallery_start_ignore
+# The phantom: axial slices of BrainWeb subjects turned into
+# T1-weighted spin-echo images with a smooth phase, as in lesson 11.
 logging.getLogger("lightning.pytorch").setLevel(logging.ERROR)
+SIZE = 96
 TISSUES = (1, 2, 3, 4, 5, 6, 8)
 MARGIN = 0.25
 TR, TE = 600.0, 12.0  # ms
@@ -212,57 +189,84 @@ def brain_slices(subject, count):
 
 
 # sphinx_gallery_end_ignore
+
+# %%
+# Data
+# ----
+#
+# You use the slices, coils and fourfold undersampling of
+# :doc:`02-staged-training`: BrainWeb [#brainweb]_ subject 0 to train on and
+# subject 4 to validate on. The references stay here only to score the
+# results; the self-supervised network never sees them.
+import lightning
+import torch
+
+import bartorch
+import bartorch.tools as bt
+
+from bartorch import learning, linop, optim, priors
+from monai.metrics import PSNRMetric, SSIMMetric
+from torch.utils.data import DataLoader
+
+COILS = 8
+ITERATIONS = 4
+ACCELERATION = 4
+EPOCHS = 16
+NOISE = 0.02
+
+_ = torch.manual_seed(0)
+
 train_images = brain_slices(subject=0, count=24)
 valid_images = brain_slices(subject=4, count=8)
 
-sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
-sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=True)
+coils = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+sensitivities = coils / bartorch.rss(coils, axes=(0,), keepdim=True)
 
-density = torch.exp(-0.5 * ((torch.arange(SIZE) - SIZE / 2) / (SIZE / 6)) ** 2)
-lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(1)) < density / density.sum() * (
-    SIZE / ACCELERATION
-)
+ky = torch.arange(SIZE) - SIZE / 2
+density = torch.exp(-0.5 * (ky / (SIZE / 6)) ** 2)
+chance = density / density.sum() * (SIZE / ACCELERATION)
+draw = torch.rand(SIZE, generator=torch.Generator().manual_seed(1))
+lines = draw < chance
 lines[SIZE // 2 - 4 : SIZE // 2 + 4] = True
 pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
 A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
-NOISE = 0.02
 
 generator = torch.Generator().manual_seed(3)
+
+
+def measure(x):
+    noise = torch.randn(A.oshape, dtype=torch.complex64, generator=generator)
+    return A(x) + NOISE * noise
+
+
 kspace = {
-    "train": [
-        A(x) + NOISE * torch.randn(A.oshape, dtype=torch.complex64, generator=generator)
-        for x in train_images
-    ],
-    "valid": [
-        A(x) + NOISE * torch.randn(A.oshape, dtype=torch.complex64, generator=generator)
-        for x in valid_images
-    ],
+    "train": [measure(x) for x in train_images],
+    "valid": [measure(x) for x in valid_images],
 }
 
 # %%
-#
 # The split
 # ---------
 #
 # The readout is fully sampled, so the unit of the split is the phase-encode
-# line: the pattern given to :func:`~bartorch.learning.split` has one entry per
-# line and broadcasts over the coils and the readout. A quarter of the acquired
-# lines are held out, drawn with a Gaussian density across :math:`k_y`, and
-# the eight central lines always stay in :math:`\Theta`: a reconstruction
-# without the centre of k-space would lose the image contrast, and the loss
-# would be dominated by it.
-
+# line: the pattern you give :func:`~bartorch.learning.split` has one entry
+# per line and broadcasts over the coils and the readout. A quarter of the
+# acquired lines are held out, drawn with a Gaussian density across
+# :math:`k_y`, and the eight central lines always stay in :math:`\Theta`. A
+# reconstruction without the centre of k-space would lose the image contrast,
+# and the loss would be dominated by it.
 acquired = lines.float()[:, None]
-keep, held = learning.split(acquired, 0.25, keep=(8, 1), generator=torch.Generator().manual_seed(0))
+split_seed = torch.Generator().manual_seed(0)
+keep, held = learning.split(acquired, 0.25, keep=(8, 1), generator=split_seed)
 print(
-    f"{int(acquired.sum())} acquired lines: {int(keep.sum())} to reconstruct from, "
-    f"{int(held.sum())} held out"
+    f"{int(acquired.sum())} acquired lines: {int(keep.sum())} to reconstruct "
+    f"from, {int(held.sum())} held out"
 )
 
 # sphinx_gallery_start_ignore
 figure, axis = plt.subplots(figsize=(PAGE_WIDTH, 1.6))
 for lane, (row, colour) in enumerate(
-    zip((acquired[:, 0], keep[:, 0], held[:, 0]), ("0.55", "#4c9be8", "#e8a33d"))
+    zip((acquired[:, 0], keep[:, 0], held[:, 0]), ("0.55", "C0", "C1"))
 ):
     lines_in = torch.nonzero(row).ravel().numpy()
     axis.bar(lines_in, 0.8, bottom=lane - 0.4, width=0.85, color=colour)
@@ -276,34 +280,40 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
+# Of the 24 acquired lines, 20 are kept for the reconstruction and 4 are held
+# out. The eight central lines are in :math:`\Theta` in every split, and the
+# held-out lines are drawn from the acquired lines outside them.
 #
 # Two networks, one trained each way
 # ----------------------------------
 #
-# Both are the iteration-conditioned unrolled network of the previous lesson,
-# trained end to end for the same number of epochs from the same
-# initialization; only the items differ. A self-supervised item carries the
-# acquired ``pattern`` in place of a ``target``, and
-# :class:`~bartorch.learning.Reconstruction` then draws a split at
-# every step. Its validation loss is the held-out loss on a split fixed for
-# the whole run, and needs no reference either.
+# Both are the iteration-conditioned unrolled network of
+# :doc:`02-staged-training`, trained end to end for the same number of epochs
+# from the same initialization; only the items differ. A self-supervised item
+# carries the acquired ``pattern`` in place of a ``target``, and
+# :class:`~bartorch.learning.Reconstruction` then draws a split at every step.
+# Its validation loss is the held-out loss on a split fixed for the whole run,
+# and needs no reference either.
 
 
 def unrolled():
     torch.manual_seed(0)
     network = learning.UNet(2, spatial=2, widths=(16, 32, 64), steps=True)
-    prior = priors.ImplicitPrior(learning.ComplexNet(network, spatial=2), step=True)
-    block = optim.ISTBlock(prior, step=1.0)
+    denoiser = learning.ComplexNet(network, spatial=2)
+    block = optim.ISTBlock(priors.ImplicitPrior(denoiser, step=True), step=1.0)
     block.step.requires_grad_()
     return learning.Unrolled(block, iterations=ITERATIONS, checkpoint=True)
 
 
 def items(part, supervised):
-    images = train_images if "train" == part else valid_images
+    images = train_images if part == "train" else valid_images
     made = []
     for x, y in zip(images, kspace[part]):
         item = {"y": y, "A": A}
-        item.update({"target": x} if supervised else {"pattern": acquired})
+        if supervised:
+            item["target"] = x
+        else:
+            item["pattern"] = acquired
         made.append(item)
     return made
 
@@ -319,52 +329,63 @@ for name, supervised in (("supervised", True), ("self-supervised", False)):
         enable_model_summary=False,
         enable_progress_bar=False,
     )
+    stage = learning.Reconstruction(
+        models[name],
+        "end-to-end",
+        lr=1e-3,
+        fraction=0.25,
+        split_options={"keep": (8, 1)},
+    )
     trainer.fit(
-        learning.Reconstruction(
-            models[name], "end-to-end", lr=1e-3, fraction=0.25, split_options={"keep": (8, 1)}
+        stage,
+        DataLoader(
+            items("train", supervised),
+            batch_size=4,
+            shuffle=True,
+            collate_fn=list,
         ),
-        DataLoader(items("train", supervised), batch_size=4, shuffle=True, collate_fn=list),
         DataLoader(items("valid", supervised), batch_size=4, collate_fn=list),
     )
 
 # %%
-#
 # Results
 # -------
 #
-# Both networks reconstruct from all acquired lines of the validation subject
-# and are scored against its reference.
-
+# Both networks reconstruct from all acquired lines of the validation subject,
+# and you score them, and CG-SENSE, against its reference:
 psnr = PSNRMetric(max_val=1.0)
 ssim = SSIMMetric(spatial_dims=2, data_range=1.0)
 truth = torch.stack(valid_images).abs()[:, None]
 
+
+def quality(images):
+    made = images.abs()[:, None]
+    return float(psnr(made, truth).mean()), float(ssim(made, truth).mean())
+
+
+results = {}
 with torch.no_grad():
-    results = {name: torch.stack([m(y, A) for y in kspace["valid"]]) for name, m in models.items()}
+    for name, model in models.items():
+        results[name] = torch.stack([model(y, A) for y in kspace["valid"]])
 results["CG SENSE, 20 iterations"] = torch.stack(
     [optim.cg(y, A, maxiter=20) for y in kspace["valid"]]
 )
+
+# sphinx_gallery_start_ignore
 for name, made in results.items():
-    a = made.abs()[:, None]
-    print(
-        f"{name:>24}   PSNR {float(psnr(a, truth).mean()):5.2f} dB   "
-        f"SSIM {float(ssim(a, truth).mean()):.3f}"
-    )
+    p, s = quality(made)
+    print(f"{name:>24}   PSNR {p:5.2f} dB   SSIM {s:.3f}")
+# sphinx_gallery_end_ignore
 
 # %%
-#
-# The self-supervised network is trained on less information: each step
-# reconstructs from three quarters of the acquired lines and is told nothing
-# about the lines never acquired, which is where the supervised network learns
-# most. The gap between the two is what a fully sampled reference would have
-# bought; the self-supervised network needs nothing beyond the data the
+# Both networks score well above CG-SENSE, and the supervised one scores
+# above the self-supervised one in PSNR and, by a wider margin, in SSIM. The
+# self-supervised network is trained on less information: each step
+# reconstructs from three quarters of the acquired lines and receives no
+# signal about the lines never acquired, which is where the supervised network
+# learns most. The gap between the two is what a fully sampled reference
+# adds; the self-supervised network needs nothing beyond the data the
 # protocol already acquires.
-#
-# In the images below, both networks suppress the noise that the CG-SENSE
-# unfolding amplifies across the whole field of view. The self-supervised
-# network keeps more residual aliasing along the phase-encode direction
-# (vertical), which its error map shows as horizontal striping: the lines never
-# acquired are the ones it cannot score against.
 
 # sphinx_gallery_start_ignore
 compare(
@@ -380,6 +401,61 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
+# Both networks suppress the noise that the CG-SENSE unfolding amplifies
+# across the whole field of view. The self-supervised error map keeps more
+# residual structure, including faint horizontal bands that extend outside the
+# head: aliasing along the phase-encode direction (vertical) from the lines
+# never acquired, against which the self-supervised loss has no data to
+# compare.
+#
+# Your turn: what the held-out lines are worth
+# --------------------------------------------
+#
+# During training the self-supervised network only ever reconstructs from
+# :math:`\Theta`. Reconstruct the validation slices from the :math:`\Theta` of
+# the split above, without the held-out quarter, and compare with the full
+# :math:`\Omega`. No training is involved:
+subset = linop.CartesianSense(
+    sensitivities, (SIZE, SIZE), pattern=(pattern * keep).to(torch.complex64)
+)
+from_theta = {}
+with torch.no_grad():
+    for name, model in models.items():
+        made = [model(y * keep, subset) for y in kspace["valid"]]
+        from_theta[name] = torch.stack(made)
+
+# sphinx_gallery_start_ignore
+for name, made in from_theta.items():
+    print(
+        f"{name:>16}: PSNR {quality(results[name])[0]:5.2f} dB from Omega, "
+        f"{quality(made)[0]:5.2f} dB from Theta"
+    )
+# sphinx_gallery_end_ignore
+
+# %%
+# Without the held-out quarter both networks lose PSNR, the supervised one by
+# about 2.7 dB and the self-supervised one by under 1 dB, so that the
+# self-supervised network is now the better of the two. It was trained on
+# inputs with that sampling; the supervised network was trained on all of
+# :math:`\Omega` and has not seen an input with these lines missing.
+#
+# As a spec
+# ---------
+#
+# What this tour built, stated the way you would ask an agent for it:
+#
+# .. code-block:: text
+#
+#    Train the 4-iteration unrolled ISTA network of the staged-training tour
+#    (UNet(2, spatial=2, widths=(16, 32, 64), steps=True), learned step) on
+#    2D Cartesian SENSE data (8 coils, R = 4, 8 central lines, noise 0.02)
+#    twice with learning.Reconstruction(..., "end-to-end", lr=1e-3), 16
+#    epochs each: supervised, with a "target" per item, and self-supervised
+#    (SSDU), with the acquired line "pattern" per item, fraction=0.25 and
+#    split_options={"keep": (8, 1)}. Reconstruct the validation subject from
+#    all acquired lines and report PSNR and SSIM of both and of CG-SENSE.
+
+# %%
 #
 # References
 # ----------
@@ -393,3 +469,8 @@ plt.show()
 #    Akcakaya M. Multi-mask self-supervised learning for physics-guided neural
 #    networks in highly accelerated magnetic resonance imaging. *NMR Biomed*
 #    35(12):e4798 (2022). https://doi.org/10.1002/nbm.4798
+#
+# .. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+#    Evans AC. Design and construction of a realistic digital brain phantom.
+#    *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+#    https://doi.org/10.1109/42.712135
