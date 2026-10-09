@@ -412,9 +412,9 @@ wavelet = apps.pics(
 # The sensitivities ESPIRiT estimates and the ones the acquisition was
 # simulated with differ by a phase that varies from voxel to voxel, so the
 # reconstructed image does too, and the comparison is between magnitudes.
-# ``pics`` returns the image in the units of the data it scaled, so
-# :func:`bartorch.tools.nrmse` is called with ``scaled=True``, which fits a
-# global factor before comparing.
+# ``pics`` returns the image in the units of the k-space rather than those of
+# the simulated object, so :func:`bartorch.tools.nrmse` is called with
+# ``scaled=True``, which fits a global factor before comparing.
 
 results = {"zero-filled": zero_filled, "SENSE": sense, "wavelet CS": wavelet}
 for name, estimate in results.items():

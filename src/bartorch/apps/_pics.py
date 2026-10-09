@@ -96,14 +96,18 @@ def pics(
     toeplitz: bool | None = None,
     eigen_step: bool = False,
     scaling: float | None = None,
+    rescale: bool = True,
 ) -> torch.Tensor:
     """Parallel-imaging compressed-sensing reconstruction.
 
-    The pipeline BART's ``pics`` command runs, assembled here: the
+    The pipeline BART's ``pics -S`` command runs, assembled here: the
     sampling pattern applied to the k-space, the modulation into the
-    convention BART iterates in, the scaling estimated from what is left, and
-    then an encoding from :mod:`bartorch.linop` under an iteration from
-    :mod:`bartorch.optim`.
+    convention BART iterates in, the data divided by the scaling estimated
+    from what is left, an encoding from :mod:`bartorch.linop` under an
+    iteration from :mod:`bartorch.optim`, and the image multiplied back by the
+    scaling.  The image is therefore in the units of the k-space, and two
+    acquisitions keep their relative amplitudes, while a regularization weight
+    is relative to the scaled data and transfers between them.
 
     Parameters
     ----------
@@ -144,10 +148,10 @@ def pics(
     basis : torch.Tensor, default=None
         Subspace basis over frames and coefficients.
     initial : torch.Tensor, default=None
-        An image to start the iteration from, in the units the solve works in
-        -- that is, already divided by ``scaling``.  ``pics -W`` reads it the
-        same way: it rescales the warm start only under ``-S``, where the
-        answer is put back into the data's units at the end.
+        An image to start the iteration from, in the units of the result: of
+        the k-space with ``rescale``, divided by the scaling without it.
+        ``pics -W`` reads it the same way, dividing it by the scaling only
+        under ``-S``.
     eigen_step : bool, default=False
         Take the step size from the largest eigenvalue of the normal operator
         rather than from ``step``, estimated by thirty power iterations as
@@ -158,13 +162,20 @@ def pics(
         ``False`` applies the encoding and its adjoint rather than the normal
         operator's convolution.
     scaling : float, default=None
-        The data scaling to divide by; estimated when it is not given, which
-        is what makes a regularization weight transferable.
+        The data scaling to divide by; estimated by
+        :func:`bartorch.optim.data_scaling` when it is ``None`` or zero, as
+        ``pics -w`` is.  An estimate of zero is replaced by one.
+    rescale : bool, default=True
+        Multiply the image by the scaling after the solve, as ``pics -S``
+        does.  ``False`` returns the image of the scaled data, as ``pics``
+        without ``-S`` does: normalized, so that data of any overall scale
+        reconstruct to images of comparable amplitude.
 
     Returns
     -------
     torch.Tensor
-        The reconstructed image.
+        The reconstructed image, in the units of ``kspace`` unless ``rescale``
+        is ``False``.
 
     Examples
     --------
@@ -200,7 +211,7 @@ def pics(
         measured = bartorch.fftmod(kspace * pattern, axes=(-1, -2, -3), inverse=True)
         encoding = linop.CartesianSense(maps, shape, coil_batch=0, modulated=True)
         A = basic.Sampling(pattern.squeeze(), encoding.oshape) @ encoding
-        scale = optim.data_scaling(measured) if scaling is None else scaling
+        scale = scaling or optim.data_scaling(measured) or 1.0
         data = (measured * (1.0 / scale)).squeeze(1)
     else:
         # `toeplitz` defaults to the normal operator's convolution, which is
@@ -215,9 +226,7 @@ def pics(
         # Off the grid the scaling comes from the spread of the adjoint
         # reconstruction, so it is estimated over the samples in the layout
         # the application hands them in: a trailing readout axis of one.
-        if scaling is None:
-            scaling = optim.data_scaling(measured[..., None], A=A)
-        scale = scaling
+        scale = scaling or optim.data_scaling(measured[..., None], A=A) or 1.0
         data = measured * (1.0 / scale)
 
     extra: dict[str, object] = {}
@@ -247,4 +256,8 @@ def pics(
     if solver == "cg" and l2 is not None:
         arguments = [l2]
     iterate = iteration(*arguments, maxiter=_MAXITER if maxiter is None else maxiter, **extra)
-    return iterate(data, A, initial)
+    if not rescale:
+        return iterate(data, A, initial)
+    if initial is not None:
+        initial = initial * (1.0 / scale)
+    return iterate(data, A, initial) * scale

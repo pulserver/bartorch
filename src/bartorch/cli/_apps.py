@@ -96,6 +96,9 @@ def _pics(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     if "e" in options:
         options.pop("e")
         made["eigen_step"] = True
+    # The command returns the image of the scaled data unless `-S` asks for it
+    # in the data's units; the app's default is the other way round.
+    made["rescale"] = bool(options.pop("S", False))
     if "no_toeplitz" in options:
         options.pop("no_toeplitz")
         made["toeplitz"] = False

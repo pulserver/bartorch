@@ -80,14 +80,48 @@ _CONFIGURATIONS = [
 ]
 
 
+#: The app's ``rescale`` and the command's ``-S``: the image in the data's
+#: units, and the image of the scaled data.
+_UNITS = [({}, {"S": True}), ({"rescale": False}, {})]
+
+
+@pytest.mark.parametrize("ours_units,their_units", _UNITS, ids=["rescaled", "normalized"])
 @pytest.mark.parametrize(
     "arguments", [a for _, a in _CONFIGURATIONS], ids=[n for n, _ in _CONFIGURATIONS]
 )
-def test_the_app_is_the_tool_to_the_last_bit(arguments, _whole_coil_operator):
+def test_the_app_is_the_tool_to_the_last_bit(
+    arguments, ours_units, their_units, _whole_coil_operator
+):
     kspace, maps = _cartesian()
-    tool = ref.pics(kspace, maps, maxiter=20, **arguments).squeeze()
-    ours = apps.pics(kspace, maps, maxiter=20, **arguments).squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, **arguments, **their_units).squeeze()
+    ours = apps.pics(kspace, maps, maxiter=20, **arguments, **ours_units).squeeze()
     assert torch.equal(ours, tool), f"maximum difference {float((ours - tool).abs().max()):.3e}"
+
+
+def test_the_image_scales_with_the_kspace_and_the_normalized_image_does_not(
+    _whole_coil_operator,
+):
+    """Two acquisitions of one object at different signal levels keep their
+    ratio, which a quantitative series such as variable-flip-angle T1 mapping
+    is read from; the normalized image divides it out."""
+    kspace, maps = _cartesian()
+    arguments = {"regularizers": _wavelet(), "solver": "fista", "maxiter": 20}
+    image = apps.pics(kspace, maps, **arguments)
+    brighter = apps.pics(3.0 * kspace, maps, **arguments)
+    assert float((brighter - 3.0 * image).abs().max()) < 1e-5 * float(brighter.abs().max())
+
+    normalized = apps.pics(kspace, maps, rescale=False, **arguments)
+    assert float(
+        (normalized - apps.pics(3.0 * kspace, maps, rescale=False, **arguments)).abs().max()
+    ) < (1e-5 * float(normalized.abs().max()))
+    assert not torch.allclose(image, normalized)
+
+
+def test_a_given_scaling_is_what_the_image_is_multiplied_back_by(_whole_coil_operator):
+    kspace, maps = _cartesian()
+    normalized = apps.pics(kspace, maps, l2=0.1, maxiter=20, scaling=2048.0, rescale=False)
+    image = apps.pics(kspace, maps, l2=0.1, maxiter=20, scaling=2048.0)
+    assert torch.equal(image, normalized * 2048.0)
 
 
 def test_the_iteration_is_the_one_the_terms_choose():
@@ -123,7 +157,7 @@ def test_a_first_term_over_a_transform_is_not_thresholded_on_the_image(term, _wh
     kspace, maps = _cartesian()
     with pytest.raises(ValueError, match="solver='admm'"):
         apps.pics(kspace, maps, regularizers=term)
-    tool = ref.pics(kspace, maps, maxiter=20, regularizers=term, solver="admm").squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, regularizers=term, solver="admm", S=True).squeeze()
     ours = apps.pics(kspace, maps, maxiter=20, regularizers=term, solver="admm").squeeze()
     assert torch.equal(ours, tool)
 
@@ -134,22 +168,22 @@ def test_an_unknown_solver_is_refused():
         apps.pics(kspace, maps, solver="newton")
 
 
+@pytest.mark.parametrize("ours_units,their_units", _UNITS, ids=["rescaled", "normalized"])
 @pytest.mark.parametrize("solver", ["cg", "ist", "fista", "admm"])
-def test_a_warm_start_reaches_the_iteration(solver, _whole_coil_operator):
+def test_a_warm_start_reaches_the_iteration(solver, ours_units, their_units, _whole_coil_operator):
     """And moves the answer, so the equality is not two cold starts agreeing.
 
-    ``pics -W`` rescales the warm start only under ``-S``, where the answer is
-    put back into the data's units at the end (pics.c:592).  Without it the
-    solve stays in the scaled units and so does the start, which is the way
-    the app takes one.
+    ``pics -W`` divides the warm start by the scaling only under ``-S``, where
+    the answer is put back into the data's units at the end (pics.c:627).  A
+    start is in the units of the answer either way, and so the app takes one.
     """
     kspace, maps = _cartesian()
     arguments = {} if solver == "cg" else {"regularizers": _wavelet(), "solver": solver}
-    warm = 0.5 * apps.pics(kspace, maps, maxiter=5)
+    warm = 0.5 * apps.pics(kspace, maps, maxiter=5, **ours_units)
 
-    tool = ref.pics(kspace, maps, maxiter=20, W=warm, **arguments).squeeze()
-    ours = apps.pics(kspace, maps, maxiter=20, initial=warm, **arguments).squeeze()
-    cold = ref.pics(kspace, maps, maxiter=20, **arguments).squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, W=warm, **arguments, **their_units).squeeze()
+    ours = apps.pics(kspace, maps, maxiter=20, initial=warm, **arguments, **ours_units).squeeze()
+    cold = ref.pics(kspace, maps, maxiter=20, **arguments, **their_units).squeeze()
 
     assert torch.equal(ours, tool)
     assert not torch.equal(tool, cold), "the warm start changed nothing, so this proves nothing"
@@ -164,7 +198,7 @@ def test_the_eigenvalue_step_is_the_tools():
     """
     kspace, maps = _cartesian()
     arguments = {"regularizers": _wavelet(), "solver": "fista"}
-    tool = ref.pics(kspace, maps, maxiter=20, eigen_step=True, **arguments).squeeze()
+    tool = ref.pics(kspace, maps, maxiter=20, eigen_step=True, S=True, **arguments).squeeze()
     ours = apps.pics(kspace, maps, maxiter=20, eigen_step=True, **arguments).squeeze()
     plain = apps.pics(kspace, maps, maxiter=20, **arguments).squeeze()
 
@@ -198,7 +232,7 @@ def test_off_the_grid_the_app_is_the_tool_to_round_off():
     traj, maps, measured = _radial()
     term = _tv(0.001)
     tool = ref.pics(
-        measured[..., None], maps, traj=traj, regularizers=term, solver="admm", maxiter=10
+        measured[..., None], maps, traj=traj, regularizers=term, solver="admm", maxiter=10, S=True
     ).squeeze()
     ours = apps.pics(
         measured, maps, traj=traj, regularizers=term, solver="admm", maxiter=10
@@ -223,6 +257,7 @@ def test_off_the_grid_weights_weight_the_data_term_as_the_tools_do():
         regularizers=term,
         solver="admm",
         maxiter=10,
+        S=True,
     ).squeeze()
     ours = apps.pics(
         measured, maps, traj=traj, pattern=weights, regularizers=term, solver="admm", maxiter=10
