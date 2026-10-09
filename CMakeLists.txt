@@ -546,6 +546,14 @@ target_link_options(bartorch PRIVATE ${BART_LINK_OPTIONS})
 
 target_link_libraries(bartorch PRIVATE Threads::Threads ${BART_EXTRA_LIBS} ${CMAKE_DL_LIBS})
 
+# BART's shared-memory arrays call shm_open and shm_unlink, which glibc keeps in
+# librt before 2.34.  The manylinux_2_28 floor is 2.28, and SLES 15 SP4, a
+# scanner host, is 2.31: unlinked, the library loads only where something else
+# put librt in the process first, as some torch builds do and others do not.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(bartorch PRIVATE rt)
+endif()
+
 target_link_libraries(bartorch PRIVATE m)
 
 target_link_libraries(bartorch PRIVATE ${BARTORCH_FINUFFT_LIBS})
