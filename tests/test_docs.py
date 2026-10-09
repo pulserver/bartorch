@@ -231,7 +231,14 @@ def _landing_tables() -> tuple[list[str], list[str]]:
     assert "\nCourse\n------\n" in course
 
     def linked(text):
-        return [line.split("`")[1] for line in text.splitlines() if ":doc:`0" in line]
+        """Each section in the order its first link appears: a lesson or the section itself."""
+        targets = [
+            line.split("`")[1].rstrip(">").split("<")[-1]
+            for line in text.splitlines()
+            if ":doc:`" in line and ("`0" in line or "<0" in line)
+        ]
+        sections = [f"{target.split('/')[0]}/index" for target in targets]
+        return list(dict.fromkeys(sections))
 
     return linked(course), linked(tours)
 

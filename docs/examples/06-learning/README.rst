@@ -1,20 +1,17 @@
 Learned regularization
 ----------------------
 
-A learned reconstruction replaces the hand-specified regularization term by a
-neural network and keeps the encoding operator and the data consistency of the
-iterative reconstruction.  This section covers the two ways a network enters
-BART's iterations: plug-and-play reconstruction, in which a pretrained denoiser
-takes the place of the proximal operator of ADMM and FISTA without any
-training, and an unrolled network trained through BART's ADMM (MoDL).
-Networks for complex volumes, staged and self-supervised training, annealed
-plug-and-play and uncertainty are the tours of
-:doc:`/auto_examples/09-learning-workflows/index`.
-:doc:`/explanation/learned-reconstruction` describes where a network enters a
+A learned reconstruction keeps the encoding operator and the data consistency
+of an iterative reconstruction, and puts a network where the regularizer was.
+In lesson 10 you take a pretrained denoiser and use it inside BART's ADMM and
+FISTA, with no training at all: plug-and-play. In lesson 11 you train a network
+through BART's ADMM, end to end (MoDL). The tours of
+:doc:`/auto_examples/09-learning-workflows/index` go further.
+:doc:`/explanation/learned-reconstruction` explains where a network enters a
 reconstruction.
 
-The section additionally requires::
+These lessons also need::
 
     pip install lightning torchio monai deepinv
 
-The first lesson downloads the DRUNet weights ``deepinv`` distributes.
+Lesson 10 downloads the DRUNet weights that ``deepinv`` distributes.

@@ -1,12 +1,10 @@
 Basics
 ------
 
-The course starts from the data a scanner delivers, multichannel k-space, and
-reconstructs an image from it.  The first lesson relates PyTorch tensors to
-BART's arrays and commands, simulates an acquisition with BART's analytical
-phantom and verifies the centring and scaling of BART's FFT against NumPy.  The
-second reconstructs an undersampled Cartesian acquisition through the three
-steps every later section builds on: coil compression, calibration of the coil
-sensitivity maps by ESPIRiT, and a regularized SENSE reconstruction.  The
-signal model is derived in :doc:`/explanation/encoding`, and the array
-conventions are stated in :doc:`/explanation/data-layout`.
+You start from the data a scanner gives you, multichannel k-space, and end
+with an image. Lesson 1 shows how BART's arrays look as PyTorch tensors and how
+you call a BART command on them. Lesson 2 reconstructs an undersampled
+Cartesian scan through the three steps the rest of the Course builds on:
+channel compression, coil sensitivities from ESPIRiT, and a regularized SENSE
+reconstruction. :doc:`/explanation/encoding` derives the signal model, and
+:doc:`/explanation/data-layout` lists the array layouts.
