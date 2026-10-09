@@ -1,52 +1,38 @@
 """
-============================
-Coil sensitivity calibration
-============================
+=====================
+3. Coil sensitivities
+=====================
 
-This lesson compares three ways of estimating the receive sensitivities of a
-coil array from the undersampled acquisition itself, and shows how the size
-of the fully sampled calibration region decides which of them can be used.
-A SENSE reconstruction [#sense]_ inverts
+In lesson 2 you estimated the coil sensitivities with ESPIRiT from a block of
+24 central lines and passed them to ``pics`` without examining them. SENSE
+[#sense]_ solves
 
 .. math::
 
-   y_c = P F (S_c \\, x),
+   y_c = P F (S_c \\, x)
 
-and is only as accurate as the sensitivities :math:`S_c` it is given: an
-error in :math:`S_c` appears in the image as residual aliasing or as shading,
-however good the solver. In clinical practice the sensitivities are estimated
-either from a separate low-resolution prescan or, as here, by
-autocalibration, from a fully sampled block of lines at the centre of
-k-space, the autocalibration signal (ACS) region. The three estimators
-differ in what they take from the data:
+for the image :math:`x` with the sensitivities :math:`S_c` taken as known.
+Whatever is wrong in :math:`S_c` ends up in the image, as residual aliasing or
+as shading, however good the solver.
 
-- :func:`bartorch.tools.caldir` divides each low-resolution coil image,
-  reconstructed from the ACS region alone, by their root sum of squares;
-- :func:`bartorch.tools.ecalib` (ESPIRiT [#espirit]_) takes the sensitivities
-  as the eigenvectors of an operator built from the k-space neighbourhoods of
-  the ACS region;
-- :func:`bartorch.tools.nlinv` (nonlinear inversion [#nlinv]_) estimates the
-  sensitivities and the image jointly from all acquired samples, with the ACS
-  region only as part of the data.
-
-The acquisition is regularly undersampled by :math:`R = 3`, which folds the
-object into three overlapping copies along the phase-encoding direction. With
-a generous ACS region all three estimators unfold it; with a small one, the
-direct estimate is too coarse to separate the copies and ESPIRiT has too few
-kernel positions to calibrate at all.
+On a scanner the sensitivities come either from a separate low-resolution
+prescan or, as here, from the scan itself: a fully sampled block of lines at
+the centre of k-space, the autocalibration (ACS) region. In this lesson you
+estimate them in three ways, reconstruct with each, and then shrink the ACS
+region to see which of the three still works.
 
 **Learning objectives**
 
-- Estimate coil sensitivities with ``caldir``, ``ecalib`` and ``nlinv``, and
-  use each in :func:`bartorch.apps.pics`.
-- Evaluate a reconstruction against a noise-free reference within the object
-  support, by an error map and the NRMSE.
-- State why ESPIRiT requires an ACS region larger than its kernel, and why
+- Estimate coil sensitivities with :func:`bartorch.tools.caldir`,
+  :func:`bartorch.tools.ecalib` (ESPIRiT) and :func:`bartorch.tools.nlinv`,
+  and use each in :func:`bartorch.apps.pics`.
+- Recognise what a poor set of maps does to a SENSE reconstruction.
+- Explain why ESPIRiT needs an ACS region larger than its kernel, and why
   nonlinear inversion does not.
 
-The previous lesson, :doc:`../01-basics/02-from-kspace-to-image`, used ESPIRiT
-with a 24-line ACS region. The next lesson, :doc:`02-nonlinear-inversion`,
-writes nonlinear inversion out as a nonlinear operator and a Gauss-Newton
+Previous: :doc:`../01-basics/02-from-kspace-to-image`. Next:
+:doc:`02-nonlinear-inversion`, where you reconstruct the image and the
+sensitivities together and write that reconstruction out as an operator and a
 solver.
 """
 
@@ -54,23 +40,9 @@ solver.
 
 # sphinx_gallery_start_ignore
 import matplotlib.pyplot as plt
-from cmap import Colormap
 from gallery_style import domain, phase_bar
 
 WIDTH = 7.8  # inches, the width of the documentation column at 110 dpi
-
-# Fuderer et al. (Magn Reson Med 2025) recommend one perceptually uniform
-# colormap per relaxation parameter, so that a T1 map is never read as a T2 map.
-LIPARI = Colormap("crameri:lipari").to_matplotlib()
-NAVIA = Colormap("crameri:navia").to_matplotlib()
-
-# Colormap, window and unit per parameter.  Both relaxation windows stop short
-# of cerebrospinal fluid, so that white and grey matter -- 500 against 833 ms
-# in T1, 70 against 83 ms in T2 -- take up most of the scale and CSF saturates.
-STYLE = {
-    "T1": (LIPARI, (0.0, 1200.0), "$T_1$ [ms]"),
-    "T2": (NAVIA, (0.0, 120.0), "$T_2$ [ms]"),
-}
 
 
 def panels(columns, rows=1, width=WIDTH, bars=0):
@@ -78,7 +50,10 @@ def panels(columns, rows=1, width=WIDTH, bars=0):
     ``bars`` colorbars in each row."""
     side = (width - 0.9 * bars) / columns
     figure, axes = plt.subplots(
-        rows, columns, squeeze=False, figsize=(width, rows * (side + 0.35) + 0.2)
+        rows,
+        columns,
+        squeeze=False,
+        figsize=(width, rows * (side + 0.35) + 0.2),
     )
     for axis in axes.flat:
         axis.set_axis_off()
@@ -92,20 +67,6 @@ def show(axis, values, title=None, vmax=None, cmap="gray", vmin=0.0):
     if title is not None:
         axis.set_title(title)
     return handle
-
-
-def parameter(axis, values, name, title=None):
-    """One relaxation map in the colormap and window its parameter is read in."""
-    cmap, limits, _ = STYLE[name]
-    return show(axis, values, title, vmax=limits[1], cmap=cmap, vmin=limits[0])
-
-
-def scalebar(figure, axes, handle=None, label=None, name=None):
-    """One colorbar for a group of panels, so none gives up width to its own."""
-    if name is not None:
-        cmap, limits, label = STYLE[name]
-        handle = plt.cm.ScalarMappable(plt.Normalize(*limits), cmap)
-    return figure.colorbar(handle, ax=axes, fraction=0.046, label=label)
 
 
 def errors(figure, axes, estimates, reference, scale):
@@ -124,36 +85,33 @@ def scaled(estimate, reference):
 
 
 # sphinx_gallery_end_ignore
+
+# %%
+# Your scan
+# ---------
+#
+# The object is BART's Shepp-Logan phantom, seen through BART's analytical
+# eight-channel head coil. As in lesson 1, you ask for its k-space directly
+# (``kspace=True``) rather than transforming a sampled image, so the data do
+# not share the discretization of the reconstructions below. Then you add
+# complex Gaussian noise of variance 2 to every sample.
 import torch
 
 import bartorch
 import bartorch.tools as bt
+
 from bartorch import apps
 
 SIZE = 128
 COILS = 8
 ACCELERATION = 3
 
-# %%
-#
-# Data
-# ----
-#
-# The k-space is BART's analytical Shepp-Logan phantom seen through its
-# analytical head coil, evaluated in k-space rather than transformed from a
-# sampled image (:doc:`../01-basics/01-tensors-and-commands`), so the
-# reconstructions below do not share the discretization of the simulation.
-# Complex Gaussian noise of variance 2 is added to every sample.
-#
-# The reference is the root sum of squares of the fully sampled, noise-free
-# coil images. Every error is the NRMSE of a magnitude image within the
-# phantom's support, after a least-squares fit of a global scale, since the
-# three estimators normalize the sensitivities, and hence the image, in
-# different ways.
-
 clean = bt.phantom(SIZE, coils=COILS, kspace=True)
 kspace = bt.noise(clean, n=2.0, s=3)
 
+# sphinx_gallery_start_ignore
+# The reference: the root sum of squares of the fully sampled, noise-free coil
+# images, compared inside the phantom's support.
 reference = bartorch.rss(bartorch.ifft(clean, axes=(-2, -1)), axes=(0,))[0].abs()
 support = (bt.phantom(SIZE).abs() > 0).to(torch.float32)
 
@@ -163,51 +121,88 @@ def error(estimate):
     return bt.nrmse(reference * support, estimate.abs().squeeze() * support, scaled=True)
 
 
+def within(estimate):
+    """A magnitude image scaled to the reference, inside the support."""
+    return scaled(estimate.squeeze(), reference) * support
+
+
+# The skull is the brightest structure; a window at half its intensity shows
+# the aliasing inside the phantom.
+peak = 0.5 * float(reference.max())
+# sphinx_gallery_end_ignore
+
 # %%
-#
-# Every third phase encode is acquired, and a central block of ``calibration``
-# lines is acquired in full. Regular undersampling by :math:`R` replicates the
-# point spread function :math:`R` times across the field of view, so each
+# You acquire every third phase encode, plus a central block of
+# ``calibration`` lines in full. Regular undersampling by :math:`R` replicates
+# the point spread function :math:`R` times across the field of view, so each
 # voxel of the zero-filled image is the sum of three voxels a third of the
 # field of view apart. Only the sensitivities, which differ between those
-# voxels, can separate them.
-
+# three voxels, can separate them.
 encodes = torch.arange(SIZE) - SIZE // 2
 
 
 def acquire(calibration):
-    """The regularly undersampled k-space with a fully sampled central block."""
-    lines = (encodes % ACCELERATION == 0) | (encodes.abs() < calibration // 2)
+    """Every third line, and a fully sampled block at the centre."""
+    acs = encodes.abs() < calibration // 2
+    lines = (encodes % ACCELERATION == 0) | acs
     return kspace * lines.to(torch.complex64).reshape(SIZE, 1)
 
 
 measured = acquire(24)
 print(f"{float(bt.pattern(measured).real.mean()):.0%} of k-space acquired")
 
-zero_filled = bartorch.rss(bartorch.ifft(measured, axes=(-2, -1)), axes=(0,))[0]
+channel_images = bartorch.ifft(measured, axes=(-2, -1))
+zero_filled = bartorch.rss(channel_images, axes=(0,))[0]
+
+# sphinx_gallery_start_ignore
+figure, axes = panels(2, width=0.8 * WIDTH)
+show(axes[0, 0], reference, "reference", vmax=peak)
+show(axes[0, 1], within(zero_filled), "zero-filled", vmax=peak)
+plt.show()
+# sphinx_gallery_end_ignore
 
 # %%
+# The images are windowed at half the intensity of the skull, which
+# saturates. In the zero-filled image you see the three overlapping copies of
+# the phantom that regular undersampling makes. The reference on the left is
+# the root sum of squares of the fully sampled, noise-free data; every error
+# below is the NRMSE of a magnitude image against it, inside the phantom,
+# after fitting one global scale, because the three estimators normalize the
+# maps, and so the image, differently.
 #
-# Three calibrations
-# ------------------
+# Three estimates
+# ---------------
 #
-# ESPIRiT's ``crop`` sets the sensitivities to zero where the eigenvalue of the
-# calibration operator falls below it, which removes the background from the
-# reconstruction. ``nlinv`` counts Gauss-Newton steps, and its regularization
-# decreases with every step, so the count acts as a regularization parameter;
-# twelve steps suit this noise level. Its sensitivities are normalized here to
-# unit root sum of squares, the normalization the other two estimators use.
-
+# **Directly from the ACS lines.** :func:`bartorch.tools.caldir` reconstructs
+# a low-resolution image per channel from the ACS region alone and divides
+# each by their root sum of squares. It is the simplest estimate, and its
+# resolution is the resolution of the ACS block:
 direct = bt.caldir(measured, 24)
-espirit = bt.ecalib(measured, maps=1, calib_size=24, crop=0.8)
-joint, estimated = bt.nlinv(measured, maxiter=12, return_sensitivities=True)
-nonlinear = estimated / bartorch.rss(estimated, axes=(0,), keepdim=True).abs().clamp(min=1e-6)
-
-print(
-    f"caldir {tuple(direct.shape)}, ecalib {tuple(espirit.shape)}, nlinv {tuple(nonlinear.shape)}"
-)
 
 # %%
+# **ESPIRiT** [#espirit]_ slides a small kernel over the ACS region, builds a
+# calibration matrix from every position of it, and takes the sensitivities as
+# the eigenvectors of an operator derived from that matrix. ``crop`` sets the
+# maps to zero where the eigenvalue falls below it, which keeps the background
+# out of the reconstruction:
+espirit = bt.ecalib(measured, maps=1, calib_size=24, crop=0.8)
+
+# %%
+# **Nonlinear inversion** [#nlinv]_ estimates the sensitivities and the image
+# together, from every acquired sample; the ACS region is just part of the
+# data. ``maxiter`` counts Gauss-Newton steps, and because the regularization
+# shrinks with every step, the count acts as a regularization parameter;
+# twelve suit this noise level. You divide its maps by their root sum of
+# squares, which is the normalization the other two use. Lesson 4 is about
+# this method.
+joint, estimated = bt.nlinv(measured, maxiter=12, return_sensitivities=True)
+
+rss_maps = bartorch.rss(estimated, axes=(0,), keepdim=True)
+nonlinear = estimated / rss_maps.abs().clamp(min=1e-6)
+
+print(f"caldir {tuple(direct.shape)}")
+print(f"ecalib {tuple(espirit.shape)}")
+print(f"nlinv  {tuple(nonlinear.shape)}")
 
 # sphinx_gallery_start_ignore
 channel = 2
@@ -221,44 +216,37 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
+# Here is channel 2 from each: brightness is the magnitude and colour the
+# phase. The phase of a set of maps is only defined up to a phase common to
+# all channels, which each estimator fixes its own way; that common phase
+# passes into the phase of the image and leaves its magnitude alone. Up to
+# it, the three agree inside the object. Outside it the data say nothing
+# about a sensitivity, and the estimators return different values there:
+# ``caldir`` divides noise by noise and returns an arbitrary value of unit
+# magnitude, ESPIRiT sets the maps to zero, and ``nlinv`` continues the
+# smooth function its regularization favours.
 #
-# The figure shows the three estimates of one channel, with the phase in
-# colour and the magnitude in brightness. The phase of a sensitivity map is
-# determined only up to a phase common to all channels, which each estimator
-# fixes differently; that common phase passes into the phase of the
-# reconstructed image and leaves its magnitude unchanged. Up to it, the three
-# estimates agree inside the object. They differ outside it, where the data do
-# not determine a sensitivity: ``caldir`` divides noise by noise there and
-# returns an arbitrary unit-modulus value, ESPIRiT sets the maps to zero, and
-# ``nlinv`` extrapolates the smooth function its regularization favours.
+# SENSE with each set of maps
+# ---------------------------
 #
-# Each set of sensitivities is given to :func:`bartorch.apps.pics` with the
-# same Tikhonov weight and number of conjugate-gradient iterations, so that
-# the reconstructions differ only in the sensitivities. The image ``nlinv``
-# returns jointly with its sensitivities is a fourth estimate.
-
+# Now you give each set to :func:`bartorch.apps.pics` with the same Tikhonov
+# weight and the same number of conjugate-gradient iterations, so the only
+# thing that differs is the maps. The image ``nlinv`` returned with its maps
+# is a fourth estimate.
 reconstructions = {
     name: apps.pics(measured, maps, l2=0.001, maxiter=40)
-    for name, maps in (("caldir", direct), ("ESPIRiT", espirit), ("nlinv", nonlinear))
+    for name, maps in (
+        ("caldir", direct),
+        ("ESPIRiT", espirit),
+        ("nlinv", nonlinear),
+    )
 }
 
 for name, estimate in reconstructions.items():
     print(f"{name:>12}  NRMSE {error(estimate):.3f}")
 print(f"{'nlinv image':>12}  NRMSE {error(joint):.3f}")
 
-# %%
-
 # sphinx_gallery_start_ignore
-# The skull is the brightest structure; a window at half its intensity shows
-# the aliasing inside the phantom.
-peak = 0.5 * float(reference.max())
-
-
-def within(estimate):
-    """A magnitude image scaled to the reference, inside the support."""
-    return scaled(estimate.squeeze(), reference) * support
-
-
 figure, axes = panels(3, rows=2)
 show(axes[0, 0], reference, "reference", vmax=peak)
 show(axes[0, 1], within(zero_filled), "zero-filled", vmax=peak)
@@ -281,35 +269,31 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
+# All three sets of maps unfold the three copies, and so does ``nlinv`` on its
+# own. The error maps, at 3 % of the image peak, show what is left. The
+# direct estimate leaves a faint residual fold at the edges of the phantom,
+# where its low-resolution maps are least accurate; ESPIRiT and nonlinear
+# inversion leave mostly noise.
 #
-# The images are windowed at half the intensity of the skull, which
-# saturates. The zero-filled image shows the three overlapping copies of the
-# phantom that regular undersampling produces. All three calibrations unfold
-# them, and so does the image ``nlinv`` returns with its sensitivities.
-# The error maps, at 3 % of the image peak, show the remaining
-# differences: the direct estimate leaves a faint residual fold at the edges
-# of the phantom, where its low-resolution sensitivities are least accurate,
-# and ESPIRiT and nonlinear inversion leave mostly noise.
+# A smaller ACS region
+# --------------------
 #
-# A smaller calibration region
-# ----------------------------
-#
-# ESPIRiT builds its calibration matrix from every position of a kernel, six
-# samples wide by default, inside the ACS region. Eight lines leave three
-# kernel positions along the phase-encoding axis, and from this data
-# ``ecalib`` returns sensitivities that are zero in every voxel, which no
-# reconstruction can use. ``caldir`` still runs, on an image of eight lines'
-# resolution. ``nlinv`` uses every acquired sample, so the calibration region
-# affects it only through the first Gauss-Newton steps.
-
+# Now you keep only eight central lines. ESPIRiT's kernel is six samples wide
+# by default, so eight lines leave it three positions along the
+# phase-encoding axis, and its calibration matrix has too few rows. ``caldir``
+# still runs, on an image of eight lines' resolution. ``nlinv`` uses every
+# acquired sample, so the ACS region affects it only through its first
+# Gauss-Newton steps.
 scarce = acquire(8)
 
 espirit = bt.ecalib(scarce, maps=1, calib_size=8, crop=0.8)
-print(f"ESPIRiT: {float((espirit.abs() > 0).float().mean()):.0%} of voxels with a sensitivity")
+covered = float((espirit.abs() > 0).float().mean())
+print(f"ESPIRiT: {covered:.0%} of voxels with a sensitivity")
 
 direct = bt.caldir(scarce, 8)
 joint, estimated = bt.nlinv(scarce, maxiter=12, return_sensitivities=True)
-nonlinear = estimated / bartorch.rss(estimated, axes=(0,), keepdim=True).abs().clamp(min=1e-6)
+rss_maps = bartorch.rss(estimated, axes=(0,), keepdim=True)
+nonlinear = estimated / rss_maps.abs().clamp(min=1e-6)
 
 scarce_reconstructions = {
     "caldir": apps.pics(scarce, direct, l2=0.001, maxiter=40),
@@ -318,8 +302,6 @@ scarce_reconstructions = {
 }
 for name, estimate in scarce_reconstructions.items():
     print(f"{name:>12}  NRMSE {error(estimate):.3f}")
-
-# %%
 
 # sphinx_gallery_start_ignore
 figure, axes = panels(3)
@@ -342,19 +324,78 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
-#
-# With eight ACS lines the direct estimate leaves visible residual aliasing:
-# sensitivities estimated at a resolution of eight lines do not represent the
-# coil profiles closely enough to unfold three copies, and the fold-over
-# edges of the skull reappear inside the phantom. The sensitivities from
+# ESPIRiT returns maps that are zero in every voxel, which no reconstruction
+# can use. With the direct estimate you see residual aliasing: maps at the
+# resolution of eight lines do not follow the coil profiles closely enough to
+# unfold three copies, and the folded edges of the skull reappear inside the
+# phantom (the error maps are now at 10 % of the peak). The maps from
 # nonlinear inversion still unfold the image, because they are fitted to all
-# acquired samples. The same estimator applies to non-Cartesian data, where
-# no Cartesian ACS region exists, as :func:`bartorch.tools.ncalib`, which
-# :doc:`../04-non-cartesian/02-radial-sense` uses.
+# the acquired samples. The same estimator works on non-Cartesian data, where
+# there is no Cartesian ACS region at all, as :func:`bartorch.tools.ncalib`,
+# which you use in lesson 8 (:doc:`../04-non-cartesian/02-radial-sense`).
 #
-# The errors above are for one phantom, one noise level and one sampling
-# pattern, and they depend on the regularization of each reconstruction; they
-# do not rank the estimators in general.
+# These errors are for one phantom, one noise level and one sampling pattern,
+# and they depend on how each reconstruction is regularized; they do not rank
+# the estimators in general.
+#
+# Your turn: how many ACS lines?
+# ------------------------------
+#
+# Between eight and 24 lines the outcome changes. Sweep the size of the ACS
+# region for the two estimators that use only the ACS block, and compare how
+# their errors depend on it:
+sizes = (12, 16, 24, 32)
+scores = {"caldir": [], "ESPIRiT": []}
+for lines in sizes:
+    data = acquire(lines)
+    maps = {
+        "caldir": bt.caldir(data, lines),
+        "ESPIRiT": bt.ecalib(data, maps=1, calib_size=lines, crop=0.8),
+    }
+    for name, estimate in maps.items():
+        image = apps.pics(data, estimate, l2=0.001, maxiter=40)
+        scores[name].append(error(image))
+
+# sphinx_gallery_start_ignore
+for lines, *values in zip(sizes, *scores.values()):
+    print(f"{lines:>3} lines: " + ", ".join(f"{n} {v:.3f}" for n, v in zip(scores, values)))
+
+figure, axis = plt.subplots(figsize=(0.75 * WIDTH, 0.42 * WIDTH))
+for name, values in scores.items():
+    axis.plot(sizes, values, "o-", lw=1.8, label=name)
+axis.set_xlabel("ACS lines")
+axis.set_ylabel("NRMSE")
+axis.set_xticks(sizes)
+axis.set_ylim(0, None)
+axis.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0))
+plt.show()
+# sphinx_gallery_end_ignore
+
+# %%
+# The ESPIRiT error is close to its 24-line value from twelve lines on: once
+# the kernel has enough positions in the ACS region, more lines add little.
+# The ``caldir`` error keeps falling as the region grows, because its maps
+# are only as sharp as the ACS image they are computed from, and it stays
+# above ESPIRiT's at every size here. Try ``crop`` values between 0.5 and 0.95
+# for ESPIRiT, or another ``maxiter`` for ``nlinv`` at eight lines, and see
+# how the errors move.
+#
+# As a spec
+# ---------
+#
+# What this lesson built, stated the way you would ask an agent for it:
+#
+# .. code-block:: text
+#
+#    With bartorch, simulate 8-channel analytical k-space of a 128x128
+#    Shepp-Logan phantom (bt.phantom(coils=8, kspace=True)) with noise of
+#    variance 2. Keep every third phase encode plus a fully sampled central
+#    ACS block. Estimate sensitivities three ways: bt.caldir, bt.ecalib
+#    (one map, crop 0.8) and bt.nlinv (12 Gauss-Newton steps, maps divided
+#    by their root sum of squares). Reconstruct with apps.pics (l2=0.001,
+#    40 CG iterations) using each set, and report the NRMSE of the magnitude
+#    inside the phantom against the noise-free RSS image, after a global
+#    scale. Repeat with 24 and with 8 ACS lines.
 
 # %%
 #
