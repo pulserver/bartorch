@@ -16,6 +16,8 @@ edit at all to a ``.c`` file.  For those there is nothing to compare but the
 clock.
 """
 
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -49,3 +51,26 @@ def test_the_library_is_newer_than_the_sources_it_was_built_from():
         f"({built:.0f} < {changed:.0f}), so these tests are running against a stale "
         "library; rebuild with `./scripts/run_tests.sh` or `cmake --build <dir>`"
     )
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="the loader's flags are Linux's")
+def test_the_library_loads_alone_in_a_new_process():
+    """Every library it calls into is on its own link line.
+
+    One that is not is found only in what the process loaded before: torch
+    loads first in ``_lib._load``, and some of its builds put librt in the
+    process and others do not, so ``shm_open`` resolved under the CPU torch
+    of the wheel's tests and failed to load under a CUDA torch on glibc 2.31.
+    Loaded alone with every symbol bound at once, a missing link fails here,
+    on whatever glibc the suite runs on: the wheel's own tests run on the
+    manylinux floor.
+    """
+    from bartorch._lib import library_path
+
+    code = (
+        f"import ctypes, os; ctypes.CDLL({str(library_path())!r}, mode=os.RTLD_NOW | os.RTLD_LOCAL)"
+    )
+    loaded = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, check=False
+    )
+    assert loaded.returncode == 0, loaded.stderr
