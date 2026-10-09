@@ -211,21 +211,25 @@ Prefer a concrete observation or quantitative measure when interpretation is nee
 
 #### Tone
 
-Gallery prose can provide more context than API reference, but should remain concise, technical, and restrained.
+The Course and the Tours talk to the reader as "you", the way an MR scientist
+explains a method to a colleague: the mental model first, then the code that
+builds it one piece at a time, each piece followed by what it does to the
+image. `docs/examples/01-basics/02-from-kspace-to-image.py` is the model.
+
+A lesson opens by picking up from the previous lesson, lists its learning
+objectives, and links the previous and next lessons. It ends with a "Your
+turn" section, a cheap experiment that varies one parameter, and an "As a
+spec" section: a `.. code-block:: text` box stating what the lesson built the
+way you would ask an agent for it.
 
 Avoid:
 
-* second-person narration unless genuinely useful;
-* "we" merely to narrate execution;
 * rhetorical questions;
 * enthusiasm and promotional language;
-* conversational transitions;
 * motivational filler;
 * metaphors and personification;
 * repeated previews and recaps;
 * prose whose only purpose is to connect adjacent code blocks.
-
-The intended result is **a reproducible scientific example with concise methodological annotation**. A lesson adds objectives and continuity to this; it does not add narration.
 
 When a sentence merely describes what the next line of code does, it can usually be removed.
 
@@ -377,7 +381,7 @@ Project-specific terminology and conventions should be documented explicitly and
 
 ### Prose
 
-Prefer precise, declarative scientific prose.
+Prefer precise, declarative scientific prose in the API reference and the explanations; the gallery's register is set under *Tone* above.
 
 Complete sentences are generally preferable to rhetorical fragments. Concision is desirable when it does not remove relevant information.
 
