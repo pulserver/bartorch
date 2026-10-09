@@ -72,3 +72,10 @@ ul.sphx-glr-horizontal li { display: block; }
 div.highlight-text .copybtn {
   opacity: 1;
 }
+
+/* Running text is justified, on every page and in the gallery's lessons. */
+.bd-article p,
+.bd-article li {
+  text-align: justify;
+  hyphens: auto;
+}
