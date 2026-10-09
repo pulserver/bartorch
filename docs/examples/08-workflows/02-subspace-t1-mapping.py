@@ -3,41 +3,38 @@
 Subspace-constrained T1 mapping
 ===============================
 
-This example estimates a :math:`T_1` map from a single continuous
+In this tour you estimate a :math:`T_1` map from a single continuous
 inversion-recovery acquisition in which each of four hundred time points is
-encoded by one radial spoke. The aim is to show how a signal model turns a
-hopelessly undersampled time series into a well-posed reconstruction: the
-recovery curves of all plausible :math:`T_1` values span a subspace of low
-dimension, and reconstructing the few coefficients of that subspace instead of
-the individual frames reduces the number of unknowns by two orders of
-magnitude.
+encoded by one radial spoke, so each frame on its own is undersampled about
+two-hundredfold. The recovery curves of all plausible :math:`T_1` values span
+a subspace of low dimension; reconstructing the few coefficients of that
+subspace instead of the individual frames reduces the number of unknowns by
+two orders of magnitude.
 
 The sequence is an inversion pulse followed by a train of spoiled gradient
 echoes with a small flip angle, each echo read out along one golden-angle
-spoke, as in MPnRAGE and radial Look-Locker methods. The longitudinal
-magnetization recovers from inversion towards a steady state at an apparent
+spoke, as in MPnRAGE and radial Look-Locker methods. After the inversion the
+longitudinal magnetization recovers towards a steady state at an apparent
 rate that depends on :math:`T_1`, the flip angle and the repetition time, so
-each voxel follows one of a family of recovery curves. The family is
-simulated as a dictionary, and its dominant singular vectors
-:math:`\\Phi` form the basis of a subspace [#tamir]_. The time series is written
-as :math:`x_t = \\sum_a \\Phi_{at} \\alpha_a`, and the basis enters the encoding
+every voxel follows one of a family of recovery curves. You simulate that
+family as a dictionary, and its dominant singular vectors :math:`\\Phi` are
+the basis of the subspace [#tamir]_. The time series is then
+:math:`x_t = \\sum_a \\Phi_{at} \\alpha_a`, and the basis enters the encoding
 on the k-space side, between the transform of each frame and its samples:
 
 .. math::
 
    y[c, t] = \\sum_a \\Phi_{at} \\, \\mathrm{NUFFT}_t \\!\\left( S_c \\, \\alpha_a \\right).
 
-The coefficient maps :math:`\\alpha_a` are reconstructed under a
-total-variation penalty, any frame of the series can be synthesized from them, and
-:math:`T_1` is estimated by matching each voxel's coefficients against the
-dictionary.
+You reconstruct the coefficient maps :math:`\\alpha_a` under a
+total-variation penalty, synthesize any frame of the series from them, and
+estimate :math:`T_1` by matching each voxel's coefficients against the
+dictionary. Where lesson 9 fits a nonlinear model directly to k-space, here
+the model is linear and only constrains the series; the dynamic series of
+:doc:`01-dynamic-golden-angle` is constrained by a penalty instead.
 
-The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
-this page and present in the script this page can be downloaded as.
-
-**Prerequisites.** :doc:`../04-non-cartesian/02-radial-sense` and
-:doc:`../05-model-based/01-quantitative-models`.
+Prerequisites: lessons 8 and 9, :doc:`../04-non-cartesian/02-radial-sense`
+and :doc:`../05-model-based/01-quantitative-models`.
 
 **Learning objectives**
 
@@ -47,12 +44,8 @@ this page and present in the script this page can be downloaded as.
 - Reconstruct coefficient maps under a total-variation penalty, and
   synthesize images at any inversion time from them.
 - Estimate :math:`T_1` by dictionary matching in the subspace, compare it
-  with matching frames reconstructed one at a time, and identify the
+  with matching frames reconstructed one at a time, and recognise the
   partial-volume bias of a voxelwise fit.
-
-The frames of :doc:`01-dynamic-golden-angle` are constrained here by a linear
-signal model; :doc:`../05-model-based/01-quantitative-models` fits a nonlinear
-one directly to k-space.
 """
 
 # %%
@@ -124,21 +117,39 @@ def scaled(estimate, reference):
     return (float((a * b).sum() / (a * a).sum()) * a).float()
 
 
-# sphinx_gallery_end_ignore
 import csv
 from pathlib import Path
 
 import brainweb_dl
 import numpy as np
-import torch
-from blochsim.simulators import MPnRAGESimulator
 from brainweb_dl import get_mri
+
+SIZE = 128
+# sphinx_gallery_end_ignore
+
+# %%
+# The dictionary and its subspace
+# -------------------------------
+#
+# The dictionary is simulated from the sequence that is played, one curve per
+# :math:`T_1`.
+# :class:`~blochsim.simulators.MPnRAGESimulator` is that sequence, an
+# inversion followed by a spoiled gradient-echo train with every shot read,
+# and ``simulate`` evaluates it over an array of parameters at once, giving
+# ``(entries, frames)``. Handed to :func:`bartorch.nlop.Bloch`, the same
+# object is a model operator, which is how lesson 9 solves for the maps
+# directly; here you only need its forward evaluation.
+#
+# The basis is the first ``RANK`` left singular vectors of the dictionary,
+# one row per coefficient.
+import torch
 
 import bartorch
 import bartorch.tools as bt
-from bartorch import linop, optim, priors
 
-SIZE = 128
+from bartorch import linop, optim, priors
+from blochsim.simulators import MPnRAGESimulator
+
 COILS = 8
 FRAMES = 400
 RANK = 4
@@ -146,43 +157,16 @@ RANK = 4
 TR = 4.1  # ms
 FLIP = 6.0  # degrees
 
-# %%
-#
-# The dictionary and its subspace
-# -------------------------------
-#
-# The dictionary is simulated rather than tabulated: one curve per
-# :math:`T_1`, from the sequence that will be played.
-# :class:`~blochsim.simulators.MPnRAGESimulator` is that sequence -- an
-# inversion followed by a spoiled gradient-echo train with every shot read --
-# and ``simulate`` evaluates it over an array of parameters at once, giving
-# ``(entries, frames)``.
-#
-# The same object serves the fit: handed to :func:`bartorch.nlop.Bloch` it is
-# a model operator, which is how :doc:`../05-model-based/01-quantitative-models`
-# solves for the maps directly. Here only its forward evaluation is wanted.
-
 t1_values = torch.linspace(100.0, 4500.0, 200)  # ms
 
 sequence = MPnRAGESimulator(nshots=FRAMES, flip=FLIP, TR=TR)
 dictionary = torch.as_tensor(sequence.simulate(T1=t1_values))
 
-left = torch.linalg.svd(dictionary.T.to(torch.complex64), full_matrices=False)[0]
-basis = left[:, :RANK].T.contiguous()
+atoms = dictionary.T.to(torch.complex64)  # (frames, entries)
+left = torch.linalg.svd(atoms, full_matrices=False)[0]
+basis = left[:, :RANK].T.contiguous()  # (RANK, frames)
 
 print(f"dictionary {tuple(dictionary.shape)}, basis {tuple(basis.shape)}")
-
-# %%
-#
-# The left panel shows a few entries of the dictionary: the signal starts
-# negative after the inversion, passes through zero at a time that grows with
-# :math:`T_1`, and approaches the steady state of the gradient-echo train. The
-# curves are smooth and similar to each other, so a few singular vectors
-# represent them all. The singular values in the right panel decay by more
-# than two orders of magnitude over the first four, and the rank used here,
-# four, is marked by the dashed line. The rank is a modelling decision: too
-# few coefficients bias the recovered curves toward the span of the basis, too
-# many increase the number of unknowns the undersampled data must determine.
 
 # sphinx_gallery_start_ignore
 spectrum = torch.linalg.svdvals(dictionary.T.to(torch.complex64))
@@ -194,11 +178,13 @@ steady = dictionary[:, -1:].conj() / dictionary[:, -1:].abs()
 for value in (300.0, 800.0, 1400.0, 4000.0):
     entry = int((t1_values - value).abs().argmin())
     curve = (torch.as_tensor(dictionary[entry]) * steady[entry]).real
-    left_axis.plot(time_ms, curve.numpy(), label=f"$T_1$ = {t1_values[entry]:.0f} ms")
+    left_axis.plot(time_ms, curve.numpy(), label=f"{t1_values[entry]:.0f} ms")
 left_axis.axhline(0.0, color="#8a8a8a", lw=0.6)
 left_axis.set_xlabel("time after the inversion [ms]")
 left_axis.set_ylabel("signal [a.u.]")
-left_axis.legend(loc="lower right")
+left_axis.legend(
+    title="$T_1$", loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=2, frameon=False
+)
 left_axis.set_title("dictionary entries")
 right_axis.semilogy(range(1, 13), (spectrum[:12] / spectrum[0]).cpu().numpy(), marker="o", ms=4)
 right_axis.axvline(RANK + 0.5, color="#8a8a8a", ls="--")
@@ -210,15 +196,26 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
+# On the left are a few entries of the dictionary. The signal starts negative
+# after the inversion, passes through zero at a time that grows with
+# :math:`T_1`, and approaches the steady state of the gradient-echo train.
+# The curves are smooth and similar, so a few singular vectors represent all
+# of them: on the right, the fourth singular value is below 2 % of the
+# first and the twelfth below :math:`10^{-6}` of it. The dashed line marks
+# the rank you use, four. The rank is a modelling decision. Too few
+# coefficients bias the recovered curves towards the span of the basis; too
+# many add unknowns that the undersampled data have to determine.
 #
-# Phantom
-# -------
+# The object
+# ----------
 #
-# Each tissue class is given the :math:`T_1` of the BrainWeb table and its own
-# curve from the same signal model, and the series is the membership-weighted
-# sum of them. A voxel holding two tissues therefore follows a sum of two
-# recovery curves, which is not itself an inversion-recovery curve -- the
-# partial-volume error any voxelwise fit carries.
+# The object is the BrainWeb slice [#brainweb]_ of the course lessons. Each
+# tissue class gets the :math:`T_1` of the BrainWeb table and its own curve
+# from the same signal model, and the series is the membership-weighted sum
+# of them. A voxel holding two tissues therefore follows a sum of two
+# recovery curves, which is not itself an inversion-recovery curve: that is
+# the partial-volume error any voxelwise fit carries. The code that builds
+# the series is hidden.
 
 # sphinx_gallery_start_ignore
 # The phantom, the relaxation maps behind it and the coil sensitivities, built
@@ -281,9 +278,7 @@ grid_y, grid_x = torch.meshgrid(
     torch.linspace(-1.0, 1.0, SIZE), torch.linspace(-1.0, 1.0, SIZE), indexing="ij"
 )
 image = (signal * torch.exp(0.8j * (grid_x**2 - 0.5 * grid_y**2))).to(torch.complex64)
-# sphinx_gallery_end_ignore
 
-# sphinx_gallery_start_ignore
 # One inversion-recovery curve per tissue class, from the same signal model the
 # dictionary came from, combined by membership and proton density.
 curves = torch.as_tensor(sequence.simulate(T1=torch.as_tensor(tissue_t1)))
@@ -296,121 +291,127 @@ for index in range(len(TISSUES)):
 # sphinx_gallery_end_ignore
 
 # %%
+# Acquisition
+# -----------
 #
-# Acquisition and reconstruction
-# ------------------------------
-#
-# One golden-angle spoke per repetition time, four hundred of them in
-# 1.64 s after the inversion. Each frame is sampled by a single spoke, about
-# :math:`1/200` of what a fully sampled frame needs; together the spokes of
-# the train cover k-space densely. The trajectory indexes frames as well as
-# samples, and the image the encoding operator maps from is the four
-# coefficient maps rather than the four hundred frames, with ``basis``
-# contracting the one into the other. Complex Gaussian noise of variance
-# :math:`10^{-5}` per sample is added to the simulated samples, which puts the
-# signal-to-noise ratio of white matter, in a fully sampled image of the
-# steady state, at the value printed below.
-
-trajectory = bt.traj(readout=SIZE, spokes=FRAMES, radial=True, golden=True)
+# You play one golden-angle spoke per repetition time, four hundred of them
+# in 1.64 s after the inversion. Each frame is sampled by a single spoke,
+# about :math:`1/200` of what a fully sampled frame needs; together, the
+# spokes of the train cover k-space densely. The trajectory indexes frames as
+# well as samples, so you reshape it to ``(frames, 1, readout, 3)``. The
+# coils are BART's eight-channel head coil, normalized as in lesson 2, and
+# the noise has a variance of :math:`10^{-5}` per sample; printed below is
+# what that means as the signal-to-noise ratio of white matter in a fully
+# sampled image of the steady state.
+trajectory = bt.traj(
+    readout=SIZE,
+    spokes=FRAMES,
+    radial=True,
+    golden=True,
+)
 trajectory = trajectory.reshape(FRAMES, 1, SIZE, 3)
 
-# sphinx_gallery_start_ignore
-# BART's analytical head coil on the image grid, normalized so that the
-# combination of the coil images is the image itself.
 sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
-sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=True)
-# sphinx_gallery_end_ignore
+sensitivities /= bartorch.rss(sensitivities, axes=(0,), keepdim=True)
 
-frames = linop.NoncartesianSense(sensitivities, (FRAMES, SIZE, SIZE), traj=trajectory)
+frames = linop.NoncartesianSense(
+    sensitivities,
+    (FRAMES, SIZE, SIZE),
+    traj=trajectory,
+)
 measured = bt.noise(frames(series), n=1e-5, s=5)
 
 # sphinx_gallery_start_ignore
-# The noise as the signal-to-noise ratio of white matter in the steady state,
-# in an image fully sampled with the same noise per sample: the NUFFT is
-# scaled so that a unitary transform leaves the noise standard deviation
-# per voxel equal to that per sample.
+# The NUFFT is scaled so that a unitary transform leaves the noise standard
+# deviation per voxel equal to that per sample.
 white_matter = memberships[CLASS["WM"]] > 0.9
 steady = float(series[-1].abs()[white_matter].mean())
 print(f"white-matter SNR of a fully sampled steady-state image: {steady / 1e-5**0.5:.0f}")
 # sphinx_gallery_end_ignore
 
-A = linop.NoncartesianSense(sensitivities, (RANK, SIZE, SIZE), traj=trajectory, basis=basis)
+# %%
+# ``frames`` is the encoding of the four hundred frames, which is how you
+# simulated the data. For the reconstruction you build the same encoding
+# with ``basis``: its image is the four coefficient maps rather than the four
+# hundred frames, and the basis contracts the one into the other on the
+# k-space side.
+A = linop.NoncartesianSense(
+    sensitivities,
+    (RANK, SIZE, SIZE),
+    traj=trajectory,
+    basis=basis,
+)
 print(f"{A.ishape} -> {A.oshape}")
 print(A.plan)
 
 # %%
+# ``plan.contraction`` reports the subspace and its rank. The normal operator
+# is a point spread function over the basis as well as the trajectory, so an
+# iteration never transforms the four hundred frames.
 #
-# ``plan.contraction`` reports the subspace and its rank, and the normal
-# operator is a point spread function over the basis as well as the
-# trajectory, so an iteration does not transform the four hundred frames.
+# Reconstruction
+# --------------
 #
-# The penalty is the total variation [#rof]_ of each coefficient map over the
+# You penalize the total variation [#rof]_ of each coefficient map over the
 # two spatial axes. A tissue follows one recovery curve throughout, so its
-# coefficients are piecewise constant, and the noise, which the data
-# determine least well in the coefficients of the weaker singular vectors,
-# is not. A locally low-rank penalty [#llr]_ over blocks of voxels is the
-# other common choice; a block that straddles two tissues is rank two, and
+# coefficients are piecewise constant; the noise, which the data determine
+# least well in the coefficients of the weaker singular vectors, is not. A
+# locally low-rank penalty [#llr]_ over blocks of voxels is the other common
+# choice. A block that straddles two tissues is rank two, though, and
 # shrinking its second singular value mixes their curves and biases the
 # fitted :math:`T_1` towards the neighbouring tissue.
 #
 # The ADMM penalty parameter ``rho`` weights the auxiliary variable, which
-# starts at zero, against the data in each update of the coefficients. At
-# the default of 0.5 the coefficients of the weaker singular vectors, which
+# starts at zero, against the data in each update of the coefficients. At the
+# default of 0.5, the coefficients of the weaker singular vectors, which
 # carry the differences between recovery curves, are still biased towards
-# zero after forty iterations, and the fitted :math:`T_1` with them; 0.05
-# lets the data determine them within that number of iterations.
-
+# zero after forty iterations, and the fitted :math:`T_1` with them. With
+# 0.05 the data determine them within that number of iterations.
 data = measured / optim.data_scaling(measured[..., None], A=A)
 term = priors.TotalVariation(axes=(-1, -2), weight=0.001)
 coefficients = optim.ADMM(term, maxiter=40, rho=0.05)(data, A)
 
-recovered = torch.einsum("af,ayx->fyx", basis.to(torch.complex64), coefficients)
+# The series at every time point, from its coefficients.
+recovered = torch.einsum("af,ayx->fyx", basis, coefficients)
 
 # %%
-#
-# The frames reconstructed one at a time are the reference point: the
-# density-compensated adjoint of the encoding without the basis, which is the
-# gridding reconstruction of each frame from its single spoke.
-
-weights = torch.linalg.norm(trajectory.real[..., :2], dim=-1).clamp(min=0.25)
-gridded = frames.H(measured * weights.to(torch.complex64))
+# For comparison, you also reconstruct the frames one at a time: the
+# density-compensated adjoint of the encoding without the basis, which is
+# gridding of each frame from its single spoke.
+density = torch.linalg.norm(trajectory.real[..., :2], dim=-1).clamp(min=0.25)
+gridded = frames.H(measured * density.to(torch.complex64))
 
 for name, estimate in (("frame by frame", gridded), ("subspace", recovered)):
-    print(
-        f"{name:>14}  NRMSE of the series {bt.nrmse(series.abs(), estimate.abs(), scaled=True):.3f}"
-    )
+    nrmse = bt.nrmse(series.abs(), estimate.abs(), scaled=True)
+    print(f"{name:>14}: NRMSE of the series {nrmse:.3f}")
 
 # %%
+# Matching the dictionary
+# -----------------------
 #
-# Parameter fit
-# -------------
-#
-# The recovered coefficients are matched against the dictionary projected onto
-# the same subspace, by the normalized inner product, which is dictionary
-# matching performed in four dimensions rather than four hundred. Matching in
-# the subspace and matching the reconstructed curves differ only by the
-# component of the dictionary the basis discards. The frame-by-frame series
-# has no subspace, and is matched against the dictionary itself.
+# You match the recovered coefficients against the dictionary projected onto
+# the same subspace, by the normalized inner product: dictionary matching in
+# four dimensions rather than four hundred. Matching in the subspace and
+# matching the reconstructed curves differ only by the component of the
+# dictionary that the basis discards. The frame-by-frame series has no
+# subspace, so you match it against the dictionary itself.
 
 
 def match(voxels, atoms):
-    """The T1 of the dictionary atom with the largest normalized inner product."""
+    """The T1 of the atom with the largest normalized inner product."""
     voxels = voxels.reshape(len(atoms), -1)
     voxels = voxels / voxels.norm(dim=0, keepdim=True).clamp(min=1e-12)
     atoms = atoms / atoms.norm(dim=0, keepdim=True)
-    return t1_values[(atoms.conj().T @ voxels).abs().argmax(0)].reshape(SIZE, SIZE)
+    best = (atoms.conj().T @ voxels).abs().argmax(0)
+    return t1_values[best].reshape(SIZE, SIZE)
 
 
-t1_map = match(coefficients, basis.to(torch.complex64) @ dictionary.T.to(torch.complex64))
-t1_gridded = match(gridded, dictionary.T.to(torch.complex64))
+t1_map = match(coefficients, basis @ atoms)
+t1_gridded = match(gridded, atoms)
 
-# %%
-#
-# The fit is reported where the proton density is high enough for a curve to be
-# defined, and separately in the interior of each tissue class: the voxels
-# one class dominates, less a one-voxel rim, so that the numbers are not
-# those of partial volume.
-
+# sphinx_gallery_start_ignore
+# Where the proton density defines a curve, and the interior of each tissue
+# class: the voxels one class dominates, less a one-voxel rim.
 support = occupancy > 0.2 * float(occupancy.max())
 dominant = memberships.argmax(0)
 pure = support & (memberships.max(0).values > 0.7)
@@ -441,8 +442,15 @@ for name, estimate in (("frame by frame", t1_gridded), ("subspace", t1_map)):
         f" whole head {float(relative[support].mean()):.3f};"
         f"  white-matter standard deviation {float(estimate[white].std()):.0f} ms"
     )
+# sphinx_gallery_end_ignore
 
 # %%
+# The table gives the median fitted :math:`T_1` in the interior of each
+# tissue class, the voxels one class dominates less a one-voxel rim, so that
+# the numbers are not those of partial volume; the two lines below it
+# average the relative error over those interiors and over the whole head.
+# The figures below show the coefficient maps first, then the series and the
+# :math:`T_1` maps.
 
 # sphinx_gallery_start_ignore
 figure, axes = panels(2, 2, width=0.75 * WIDTH)
@@ -454,20 +462,20 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
-#
-# Each coefficient map is the weight of one singular vector of the dictionary.
-# The first resembles a proton-density-weighted image, since the first singular
-# vector is close to the mean recovery curve; the later ones encode the
-# differences between the curves of short and long :math:`T_1`, and are not
-# images of a tissue contrast. The basis is orthonormal, so the noise is
-# spread over the four maps alike while the signal falls with the singular
-# value: the fourth map has the lowest signal-to-noise ratio of the four.
+# Each coefficient map is the weight of one singular vector of the
+# dictionary. The first looks like a proton-density-weighted image, because
+# the first singular vector is close to the mean recovery curve. The later
+# ones encode the differences between the curves of short and long
+# :math:`T_1`, and are not images of any tissue contrast. The basis is
+# orthonormal, so the noise is spread over the four maps alike while the
+# signal falls with the singular value: the fourth map has the lowest
+# signal-to-noise ratio of the four.
 #
 # Images at any inversion time
 # ----------------------------
 #
 # The coefficient maps determine the whole series: multiplying by the basis
-# synthesizes the image at every one of the four hundred time points, each of
+# gives you the image at every one of the four hundred time points, each of
 # which was measured with a single spoke. Early after the inversion the
 # longitudinal magnetization is negative in every tissue; each tissue then
 # passes through zero at its own null time, shortest for white matter, and
@@ -503,19 +511,18 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
-#
 # The three frames are shortly after the inversion, when every tissue is
-# inverted and bright in magnitude; at the null of white matter, which
-# appears dark; and at the end of the train, in the steady state. The
-# subspace reconstruction reproduces these contrast changes, each frame from
-# its single spoke. The same frame reconstructed on its own is the streak
-# pattern of one spoke, with no anatomy left in it.
+# inverted and bright in magnitude; at the null of white matter, which is
+# dark; and at the end of the train, in the steady state. The subspace
+# reconstruction reproduces these contrast changes, each frame from its
+# single spoke. The same frame reconstructed on its own is the streak pattern
+# of one spoke, with no anatomy left in it.
 #
 # The curve of a single voxel shows the same with its sign. The complex
-# signal is rotated so that its steady state is positive and real, and the
-# reconstruction, which determines the series up to a global complex scale
-# because the data are normalized before the solve, is scaled to the
-# reference in the least-squares sense.
+# signal is rotated so that its steady state is positive and real. Because
+# you normalized the data before the solve, the reconstruction determines the
+# series only up to a global complex scale, so it is scaled to the reference
+# in the least-squares sense.
 
 # sphinx_gallery_start_ignore
 figure, axis = plt.subplots(figsize=(0.8 * WIDTH, 3.8))
@@ -537,12 +544,11 @@ axis.axhline(0.0, color="#8a8a8a", lw=0.6)
 axis.set_xlabel("time after the inversion [ms]")
 axis.set_ylabel("signal [a.u.]")
 axis.set_title("reference (thick) and subspace (dashed)")
-axis.legend(loc="lower right")
+axis.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0))
 plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
-#
 # The :math:`T_1` map
 # -------------------
 #
@@ -570,28 +576,26 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
-#
-# The printed table compares the median fitted :math:`T_1` with the tabulated
-# value in the interior of each tissue class. The frames reconstructed one at
-# a time still yield a :math:`T_1` map: the aliasing of each frame differs
-# from that of the next, so along the recovery curve it is incoherent, and
-# the match to the dictionary rejects much of it, which is the principle of
-# MR fingerprinting [#mrf]_. What it does not reject remains as a
-# voxel-to-voxel scatter over the whole head, visible in the white matter of
-# the difference map and in its standard deviation. The subspace
-# reconstruction fits the coefficient maps to all spokes at once under the
-# total-variation penalty, and inside each tissue its error is a fraction of
-# that of the frame-by-frame match.
+# Matching the frames reconstructed one at a time still gives you a
+# :math:`T_1` map. The aliasing of each frame differs from that of the next,
+# so along the recovery curve it is incoherent, and the match to the
+# dictionary rejects much of it, which is the principle of MR fingerprinting
+# [#mrf]_. What it does not reject stays as a voxel-to-voxel scatter over the
+# whole head, which you see in the white matter of the difference map and in
+# its standard deviation in the table. The subspace reconstruction fits the
+# coefficient maps to all spokes at once under the total-variation penalty,
+# and inside each tissue its error is a fraction of that of the
+# frame-by-frame match.
 #
 # Cerebrospinal fluid is the tissue the frame-by-frame match underestimates
 # most. Its :math:`T_1` is poorly determined by this acquisition: the
-# recovery observed during a gradient-echo train is governed by the apparent
-# relaxation time :math:`T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}`
-# [#deichmann]_, which for a flip angle :math:`\alpha` of 6 degrees and
+# recovery you observe during a gradient-echo train is governed by the
+# apparent relaxation time :math:`T_1^* = (1/T_1 - \ln\cos\alpha / T_R)^{-1}`
+# [#deichmann]_, which for a flip angle :math:`\alpha` of 6 degrees and a
 # :math:`T_R` of 4.1 ms is below 750 ms for any :math:`T_1`. The curves of
-# long :math:`T_1` therefore differ from each other by little, and noise
-# moves the match along the dictionary; a smaller flip angle or a longer
-# train increases the sensitivity to long :math:`T_1`.
+# long :math:`T_1` therefore differ little from one another, and noise moves
+# the match along the dictionary; a smaller flip angle or a longer train
+# makes the acquisition more sensitive to long :math:`T_1`.
 #
 # What both difference maps share is the rim of every tissue. A voxel holding
 # two tissues follows the sum of two recovery curves, which is not itself a
@@ -602,8 +606,25 @@ plt.show()
 # voxels thick, with no interior at this resolution, and is fitted between
 # its own :math:`T_1` and that of its neighbours.
 #
-# Estimating the parameters directly from k-space, without an intermediate
-# series or a subspace, is :doc:`../05-model-based/01-quantitative-models`.
+# As a spec
+# ---------
+#
+# What this tour built, stated the way you would ask an agent for it:
+#
+# .. code-block:: text
+#
+#    Estimate a T1 map from one inversion-recovery spoiled gradient-echo
+#    train of 400 shots (TR 4.1 ms, flip 6 degrees), one golden-angle radial
+#    spoke per shot, 128 x 128, 8 coils, with bartorch. Simulate a
+#    dictionary over 200 T1 values from 100 to 4500 ms with blochsim's
+#    MPnRAGESimulator, and take its first 4 left singular vectors as the
+#    basis. Build linop.NoncartesianSense over (4, y, x) with
+#    traj (frames, 1, readout, 3) and basis=basis. Reconstruct the
+#    coefficient maps with optim.ADMM (40 iterations, rho 0.05) and
+#    priors.TotalVariation over the spatial axes, weight 0.001, on data
+#    divided by optim.data_scaling. Match each voxel's coefficients to the
+#    dictionary projected onto the basis by the normalized inner product,
+#    and compare with matching frames gridded one at a time.
 
 # %%
 #
@@ -633,3 +654,8 @@ plt.show()
 # .. [#fuderer] Fuderer M, Wichtmann B, Crameri F, de Souza NM, Baeßler B, Gulani V,
 #    et al. Color-map recommendation for MR relaxometry maps. *Magn Reson Med*
 #    93(2):490-506 (2025). https://doi.org/10.1002/mrm.30290
+#
+# .. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+#    Evans AC. Design and construction of a realistic digital brain phantom.
+#    *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+#    https://doi.org/10.1109/42.712135
