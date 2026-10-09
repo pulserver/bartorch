@@ -1,7 +1,7 @@
 """Adapters that hand bartorch's operators to other libraries.
 
 :func:`to_deepinv` makes an operator a ``deepinv`` physics for its losses and
-samplers; ``deepinv`` is the ``bartorch[deepinv]`` extra, imported on first use.
+samplers; ``deepinv`` is imported on first use and installed separately.
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ def _physics_class() -> type:
     except ImportError as exc:  # pragma: no cover - depends on the environment
         raise ImportError(
             "bartorch.interop.to_deepinv() hands an operator over as a deepinv "
-            "LinearPhysics, and needs deepinv: pip install 'bartorch[deepinv]'"
+            "LinearPhysics, and needs deepinv: pip install deepinv"
         ) from exc
 
     class BartPhysics(LinearPhysics):

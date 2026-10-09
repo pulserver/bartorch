@@ -4,8 +4,9 @@ FINUFFT, and cuFINUFFT in a CUDA build, are compiled into the library from the
 pinned submodule, so neither Python package is a requirement or an extra, and
 a NUFFT runs in an environment that has neither.
 
-deepinv is an extra: denoisers, losses and samplers come from it through
-`priors.ImplicitPrior` and `bartorch.interop`, and nothing else imports it.
+deepinv is neither a dependency nor an extra: denoisers, losses and samplers
+come from it through `priors.ImplicitPrior` and `bartorch.interop`, which import
+it on first use, and a caller installs it.
 
 blochsim is a dependency because `nlop.SignalModel`
 turns any of its simulators into a BART nonlinear operator, and
@@ -43,13 +44,12 @@ def test_neither_finufft_package_is_asked_for(name):
     assert name not in project["optional-dependencies"]
 
 
-def test_deepinv_is_an_extra_and_not_a_dependency():
+def test_deepinv_is_not_required_by_the_package():
     project = _pyproject()["project"]
     assert not _requirements(project["dependencies"], "deepinv"), (
-        "only the adapter and the denoisers a caller brings use deepinv; "
-        "it belongs in optional-dependencies"
+        "only the adapter and the denoisers a caller brings use deepinv"
     )
-    assert _requirements(project["optional-dependencies"]["deepinv"], "deepinv")
+    assert "deepinv" not in project["optional-dependencies"]
 
 
 def test_blochsim_is_a_dependency_and_not_an_extra():

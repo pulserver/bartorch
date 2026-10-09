@@ -16,4 +16,4 @@ reverse direction needs no adapter: a denoiser is accepted by
 DeepInverse is required only for its algorithms that evaluate a physics
 operator, such as its diffusion samplers and its measurement-consistency,
 equivariant-imaging and SURE losses; install it with
-`pip install 'bartorch[deepinv]'`.
+`pip install deepinv`.

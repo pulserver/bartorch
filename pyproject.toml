@@ -74,12 +74,6 @@ Repository = "https://github.com/pulserver/bartorch"
 Issues = "https://github.com/pulserver/bartorch/issues"
 
 [project.optional-dependencies]
-# deepinv is a source of denoisers, losses and samplers, reached through
-# `priors.ImplicitPrior` and `bartorch.interop.to_deepinv`; nothing else here
-# imports it.
-deepinv = [
-    "deepinv>=0.2",
-]
 # The training stages and augmentation, `bartorch.learning.Reconstruction` and
 # `bartorch.learning.RandomGain`; the networks and the rest of
 # `bartorch.learning` need neither.
