@@ -1,4 +1,4 @@
-"""ISMRMRD raw data files read into k-space tensors."""
+"""ISMRMRD raw data, from a file or a stream, read into k-space tensors."""
 
 from __future__ import annotations
 
@@ -86,10 +86,13 @@ def read_mrd(
             readout)``: the loop counters -- ``repetition``, ``phase``,
             ``slice``, ``contrast``, ``set``, ``average``, in that order -- the
             header gives more than one position, then the channels; the
-            partition axis is present when the header states more than one.
-            Zero where nothing was acquired.  For a non-Cartesian space the
-            phase encodes are the shots and the readout the samples of each,
-            which is how :class:`~bartorch.linop.NoncartesianSense` takes them.
+            partition axis is present when there is more than one.  Zero where
+            nothing was acquired.  For a non-Cartesian space the phase encodes
+            are the shots and the readout the samples of each, which is how
+            :class:`~bartorch.linop.NoncartesianSense` takes them; the shots
+            and partitions number what the header's encoding limits state, or
+            where it states none, what the readouts' counters reach, and never
+            the encoded matrix, which is the image's.
         ``mask``, ``reference``
             ``bool``, the shape of ``kspace`` without its coil axis: every
             placed sample, and the samples of parallel-imaging calibration
@@ -128,17 +131,83 @@ def read_mrd(
     ImportError
         If ``h5py`` or ``ismrmrd`` is not installed.
     """
+    _check_units(trajectory_units)
+    header, records = _load(path, group)
+    return _assemble(header, records, encoding, trajectory_units, path)
+
+
+def read_mrd_stream(
+    header,
+    acquisitions,
+    *,
+    encoding: int = 0,
+    trajectory_units: str | None = None,
+) -> MrdRaw:
+    """Read the readouts of one encoding space of an MRD stream, as :func:`read_mrd` reads a file's.
+
+    A stream is what a scanner sends a reconstruction: the XML header, then
+    one acquisition per readout, each with its samples, its trajectory and
+    its counters.  The readouts are placed, and the noise readouts set apart,
+    exactly as :func:`read_mrd` does for the same readouts in a file.
+
+    Parameters
+    ----------
+    header : str or ismrmrd.xsd.ismrmrdHeader
+        The stream's XML header, as text or as ``ismrmrd`` parses it.
+    acquisitions : iterable of ismrmrd.Acquisition
+        The stream's acquisitions, in the order they arrived.
+    encoding : int, default=0
+        Encoding space to read, as the readouts' ``encoding_space_ref`` names it.
+    trajectory_units : {None, "grid", "1/m", "fraction"}, default=None
+        Units the stream's trajectories are in, as :func:`read_mrd` takes them.
+
+    Returns
+    -------
+    MrdRaw
+        As :func:`read_mrd` returns it.
+
+    Raises
+    ------
+    ValueError
+        If the header has no such encoding space, the stream holds no readout
+        or none belongs to the space, or a counter runs past the extent the
+        header states.
+    ImportError
+        If ``ismrmrd`` is not installed.
+    """
+    _check_units(trajectory_units)
+    hdf5 = import_module("ismrmrd.hdf5")
+    if isinstance(header, (str, bytes)):
+        text = header.decode() if isinstance(header, bytes) else header
+        header = import_module("ismrmrd.xsd").CreateFromDocument(text)
+    acquisitions = list(acquisitions)
+    if not acquisitions:
+        raise ValueError("the stream holds no readouts")
+    records = np.empty(len(acquisitions), dtype=hdf5.acquisition_dtype)
+    for i, acquisition in enumerate(acquisitions):
+        records["head"][i] = np.frombuffer(acquisition.getHead(), hdf5.acquisition_header_dtype)[0]
+        records["data"][i] = acquisition.data.astype(np.complex64).view(np.float32).ravel()
+        records["traj"][i] = acquisition.traj.astype(np.float32).ravel()
+    return _assemble(header, records, encoding, trajectory_units, "the stream")
+
+
+def _check_units(trajectory_units: str | None) -> None:
     if trajectory_units not in _TRAJECTORY_UNITS:
         raise ValueError(
             f"trajectory_units must be one of {_TRAJECTORY_UNITS}, got {trajectory_units!r}"
         )
-    header, records = _load(path, group)
+
+
+def _assemble(
+    header: Any, records: np.ndarray, encoding: int, trajectory_units: str | None, source: str
+) -> MrdRaw:
+    """Place the readout records of one encoding space, as both readers return them."""
     space = _space(header, encoding)
     head = records["head"]
     flags = head["flags"].astype(np.uint64)
     rows = np.flatnonzero(_placed(flags, head["encoding_space_ref"], encoding))
     if rows.size == 0:
-        raise ValueError(f"{path} holds no imaging readouts in encoding space {encoding}")
+        raise ValueError(f"{source} holds no imaging readouts in encoding space {encoding}")
 
     layout = _layout(space, head[rows])
     counters = _counters(layout, head["idx"][rows], encoding)
@@ -198,14 +267,16 @@ def _layout(space: dict[str, Any], head: np.ndarray) -> dict[str, Any]:
 
     The loop counters come first, then the channels, then the partitions when
     there is more than one and the phase encodes, then the readout, sized by
-    the longest readout.
+    the longest readout.  A placement axis the space leaves unsized reaches as
+    far as the readouts' counter along it.
     """
     loops = [(name, extent) for name, extent in space["extents"] if name in LOOP_COUNTERS]
     inner = [
-        (name, extent)
+        (name, extent or int(head["idx"][_COUNTER_FIELD[name]].max()) + 1)
         for name, extent in space["extents"]
-        if name not in LOOP_COUNTERS and (extent > 1 or name == "phase_encode")
+        if name not in LOOP_COUNTERS
     ]
+    inner = [(name, extent) for name, extent in inner if extent > 1 or name == "phase_encode"]
     return {
         "loops": loops,
         "inner": inner,
@@ -284,11 +355,13 @@ def _is_set(flags: np.ndarray, bit: int) -> np.ndarray:
 def _space(header: Any, index: int) -> dict[str, Any]:
     """Layout of encoding space ``index``: extents, readout length, matrix and field of view.
 
-    A Cartesian space has as many phase encodes as the larger of its encoded
-    matrix and its ``kspace_encoding_step_1`` limit, since an undersampled grid
-    still needs every line; a non-Cartesian one has as many as the limit, which
-    counts shots, or the encoded matrix when no limit is stated.  The partition
-    count is always the larger of the two.  The reconstructed matrix and field
+    A Cartesian space has as many phase encodes and partitions as the larger of
+    its encoded matrix and its ``kspace_encoding_step_1`` and
+    ``kspace_encoding_step_2`` limits, since an undersampled grid still needs
+    every line.  A non-Cartesian space's encoded matrix is the image's rather
+    than the acquisition's, so its extents are the limits alone, which count
+    shots and partitions, and zero where the header states none, for the
+    readouts' counters to size.  The reconstructed matrix and field
     of view fall back to the encoded space when the header has no ``reconSpace``.
     """
     encodings = list(getattr(header, "encoding", None) or ())
@@ -308,13 +381,10 @@ def _space(header: Any, index: int) -> dict[str, Any]:
     trajectory = getattr(encoding, "trajectory", None)
     name = getattr(trajectory, "name", None) or str(trajectory or "cartesian")
     cartesian = name.rsplit(".", 1)[-1].upper() == "CARTESIAN"
-    phase_encodes = (
-        max(views, int(encoded.matrixSize.y)) if cartesian else views or int(encoded.matrixSize.y)
-    )
-    extents += [
-        ("partition", max(partitions, int(encoded.matrixSize.z))),
-        ("phase_encode", max(phase_encodes, 1)),
-    ]
+    if cartesian:
+        views = max(views, int(encoded.matrixSize.y), 1)
+        partitions = max(partitions, int(encoded.matrixSize.z))
+    extents += [("partition", partitions), ("phase_encode", views)]
 
     matrix = tuple(int(getattr(recon.matrixSize, axis)) for axis in "xyz")
     fov = getattr(recon, "fieldOfView_mm", None)

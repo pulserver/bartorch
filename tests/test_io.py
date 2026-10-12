@@ -415,3 +415,77 @@ def test_a_scaled_nifti_reads_in_its_real_values(tmp_path):
     nibabel.save(image, tmp_path / "s.nii")
     back = io.read_nifti(tmp_path / "s.nii")
     assert back.image[0, 0, 1, 1].item() == pytest.approx(0.5 * 5 + 2.0)
+
+
+def _spiral(shots, samples, partitions, rng):
+    """Readouts of a 3-D trajectory: ``shots`` per partition, each with its own points."""
+    acquisitions = [_acquisition(rng.standard_normal((2, 24)), flags=(NOISE,))]
+    for partition in range(partitions):
+        for shot in range(shots):
+            k = rng.uniform(-0.5, 0.5, (samples, 3)).astype(np.float32)
+            data = rng.standard_normal((2, samples)) + 1j * rng.standard_normal((2, samples))
+            acquisitions.append(
+                _acquisition(
+                    data,
+                    trajectory=k,
+                    kspace_encode_step_1=shot,
+                    kspace_encode_step_2=partition,
+                )
+            )
+    return acquisitions
+
+
+def _non_cartesian(trajectory, *, z=16, shots=None, partitions=None):
+    header = _header(x=16, y=16, z=z, trajectory=trajectory)
+    limits = header.encoding[0].encodingLimits
+    xsd = ismrmrd.xsd
+    limits.kspace_encoding_step_1 = (
+        None if shots is None else xsd.limitType(minimum=0, maximum=shots - 1, center=0)
+    )
+    limits.kspace_encoding_step_2 = (
+        None if partitions is None else xsd.limitType(minimum=0, maximum=partitions - 1, center=0)
+    )
+    return header
+
+
+def test_a_stream_reads_as_the_file_it_would_be_written_to(tmp_path):
+    header = _non_cartesian("spiral", shots=5)
+    acquisitions = _spiral(5, 40, 1, np.random.default_rng(3))
+    stored = io.read_mrd(
+        _write(tmp_path / "s.h5", header, acquisitions), trajectory_units="fraction"
+    )
+    streamed = io.read_mrd_stream(
+        ismrmrd.xsd.ToXML(header), iter(acquisitions), trajectory_units="fraction"
+    )
+    assert streamed.axes == stored.axes
+    for name in ("kspace", "mask", "reference", "trajectory", "noise", "affine"):
+        torch.testing.assert_close(getattr(streamed, name), getattr(stored, name), rtol=0, atol=0)
+    assert streamed.readouts.keys() == stored.readouts.keys()
+    for name, values in stored.readouts.items():
+        torch.testing.assert_close(streamed.readouts[name], values, rtol=0, atol=0)
+    with pytest.raises(ValueError, match="no readouts"):
+        io.read_mrd_stream(header, [])
+
+
+def test_a_3d_trajectory_is_not_partitioned_by_the_encoded_depth(tmp_path):
+    # The encoded matrix of a 3-D spiral is the image's, 16 deep; its readouts
+    # are 5 shots of 40 points with no second encoding step.
+    acquisitions = _spiral(5, 40, 1, np.random.default_rng(4))
+    for shots in (5, None):
+        path = _write(tmp_path / f"{shots}.h5", _non_cartesian("spiral", shots=shots), acquisitions)
+        raw = io.read_mrd(path)
+        assert raw.axes == ("coil", "phase_encode", "readout")
+        assert raw.kspace.shape == (2, 5, 40)
+        assert bool(raw.mask.all())
+
+
+def test_non_cartesian_partitions_are_the_stated_limit_or_what_the_readouts_reach(tmp_path):
+    acquisitions = _spiral(3, 16, 4, np.random.default_rng(5))
+    unstated = io.read_mrd(_write(tmp_path / "u.h5", _non_cartesian("radial"), acquisitions))
+    assert unstated.axes == ("coil", "partition", "phase_encode", "readout")
+    assert unstated.kspace.shape == (2, 4, 3, 16)
+    assert bool(unstated.mask.all())
+    stated = _non_cartesian("radial", shots=3, partitions=6)
+    raw = io.read_mrd(_write(tmp_path / "s.h5", stated, acquisitions))
+    assert raw.kspace.shape == (2, 6, 3, 16)
+    assert raw.mask[:, 0, 0].tolist() == [True] * 4 + [False] * 2
