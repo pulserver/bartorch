@@ -51,21 +51,32 @@ def _image(out: torch.Tensor, input: torch.Tensor) -> torch.Tensor:
 
 @curated("rof")
 def rof(input: torch.Tensor, lamda: float, axes: int | tuple[int, ...]) -> torch.Tensor:
-    """Total-variation (Rudin-Osher-Fatemi) denoising along ``axes``.
+    r"""Total-variation (Rudin-Osher-Fatemi) denoising along ``axes``, BART's ``rof``.
 
-    Approximates ``argmin_x 0.5 ||x - y||_2^2 + lamda * sum_r ||(D x)_r||_2``, where
-    ``D`` stacks periodic first differences along ``axes`` and the inner norm is over
-    the derivative directions (isotropic TV of complex values).  BART runs 50 ADMM
-    iterations with ``rho = 0.1``, so a large ``lamda`` does not reach the constant
-    minimizer; the mean of ``input`` is preserved.
+    Approximates
+
+    .. math::
+
+        \min_x \; \tfrac12 \| x - y \|_2^2 + \lambda \sum_r \| (D x)_r \|_2
+
+    with :math:`D` the periodic first differences along ``axes`` and the inner
+    norm over the derivative directions (isotropic total variation).  BART runs
+    50 ADMM iterations with :math:`\rho = 0.1`, so a large :math:`\lambda` does
+    not reach the constant minimizer; the mean of ``input`` is preserved.
 
     Parameters
     ----------
+    input : torch.Tensor
+        Image :math:`y`.
     lamda : float
-        Weight of the TV term relative to the halved squared data error, in the
-        units of ``input``'s values.
+        :math:`\lambda`, in the units of ``input``'s values.
     axes : int or tuple of int
         Axes along which differences are taken.
+
+    Returns
+    -------
+    torch.Tensor
+        Denoised image, of ``input``'s shape.
     """
     return dispatch("rof", [input], None, _pos=[float(lamda), axes_flags(axes, input.ndim)])
 
@@ -79,24 +90,45 @@ def tgv(
     alpha: tuple[float, float] | None = None,
     tvscales: tuple[float, ...] | None = None,
 ) -> torch.Tensor:
-    """Second-order total generalized variation denoising along ``axes``.
+    r"""Second-order total generalized variation denoising along ``axes``, BART's ``tgv``.
 
-    Approximates ``argmin_{x,z} 0.5 ||x - y||_2^2 + lamda * (alpha1 ||D x - z||_1 +
-    alpha0 ||E z||_1)``, where ``D`` is the periodic gradient along ``axes``, ``z`` a
-    vector field and ``E z = (D z + (D z)^T) / 2`` its symmetrized gradient; each
-    ``||.||_1`` sums over voxels an l2 norm over derivative directions.  BART runs 100
-    ADMM iterations with ``rho = 0.1``.  Only ``x`` is returned; the mean of ``input``
-    is preserved.
+    Approximates
+
+    .. math::
+
+        \min_{x, z} \; \tfrac12 \| x - y \|_2^2
+            + \lambda \bigl( \alpha_1 \| D x - z \|_1 + \alpha_0 \| E z \|_1 \bigr)
+
+    with :math:`D` the periodic gradient along ``axes``, :math:`z` a vector
+    field and :math:`E z = (D z + (D z)^T) / 2` its symmetrized gradient; each
+    :math:`\| \cdot \|_1` sums over voxels an :math:`\ell_2` norm over
+    derivative directions.  BART runs 100 ADMM iterations with
+    :math:`\rho = 0.1`.  The mean of ``input`` is preserved.
 
     Parameters
     ----------
     input : torch.Tensor
-        At most 15 axes.
-    alpha : (float, float), default=None
-        The pair ``(alpha1, alpha0)``; BART's default is ``(1, sqrt(3))``.
+        Image :math:`y`, of at most 15 axes.
+    lamda : float
+        :math:`\lambda`, in the units of ``input``'s values.
+    axes : int or tuple of int
+        Axes along which differences are taken.
+    alpha : tuple of float, default=None
+        :math:`(\alpha_1, \alpha_0)`; BART's ``(1, sqrt(3))`` when omitted.
     tvscales : tuple of float, default=None
-        Nonzero weight on the derivative along each axis in ``axes``, in the same
-        order, applied in both ``D`` and ``E``.
+        Nonzero weight of the derivative along each axis of ``axes``, in the
+        same order, applied in both :math:`D` and :math:`E`.
+
+    Returns
+    -------
+    torch.Tensor
+        Denoised image :math:`x`, of ``input``'s shape.
+
+    Raises
+    ------
+    ValueError
+        More than 15 axes; ``tvscales`` not one nonzero value per axis, or more
+        than five.
     """
     _check_ndim(input, "tgv")
     out = dispatch(
@@ -120,26 +152,46 @@ def nlmeans(
     h: float | None = None,
     a: float | None = None,
 ) -> torch.Tensor:
-    """Non-local means filter along ``axes``.
+    r"""Non-local means filter along ``axes``, BART's ``nlmeans``.
 
-    Each voxel becomes ``sum_j w_ij y_j / sum_j w_ij`` over the ``j`` within
-    ``patch_distance`` of it along every axis in ``axes``, with ``w_ij = exp(-sum_o
-    g_o |y_(i+o) - y_(j+o)|^2 / (2 h^2 ||g||_2))``: ``o`` runs over a patch of
-    ``patch_length`` per axis and ``g`` is a Gaussian of standard deviation ``a`` over
-    it.  The image is reflected at its edges.
+    Each voxel becomes :math:`\sum_j w_{ij} y_j / \sum_j w_{ij}` over the
+    voxels :math:`j` within ``patch_distance`` of it along every axis of
+    ``axes``, with
+
+    .. math::
+
+        w_{ij} = \exp\Bigl( -\frac{\sum_o g_o |y_{i+o} - y_{j+o}|^2}{2 h^2 \|g\|_2} \Bigr),
+
+    where :math:`o` runs over a patch of ``patch_length`` per axis and
+    :math:`g` is a Gaussian of standard deviation ``a`` over it.  The image is
+    reflected at its edges.
 
     Parameters
     ----------
+    input : torch.Tensor
+        Image :math:`y`.
+    axes : int or tuple of int
+        Axes the patches and the search span.
     patch_length : int, default=None
-        Odd patch length per axis; BART's default is 5.
+        Odd patch length per axis; BART's 5 when omitted.
     patch_distance : int, default=None
-        Search radius per axis; BART's default is 5.  Zero returns ``input``.
+        Search radius per axis; BART's 5 when omitted.  Zero returns ``input``.
     h : float, default=None
-        Filter strength in the units of ``input``'s values; BART's default
-        is 0.04.  A large ``h`` makes the filter a box mean.
+        Filter strength, in the units of ``input``'s values; BART's 0.04 when
+        omitted.  A large ``h`` makes the filter a box mean.
     a : float, default=None
-        Standard deviation of ``g``, in voxels; BART's default is
-        ``(patch_length - 1) / 4``.
+        Standard deviation of :math:`g`, in voxels; ``(patch_length - 1) / 4``
+        when omitted.
+
+    Returns
+    -------
+    torch.Tensor
+        Filtered image, of ``input``'s shape.
+
+    Raises
+    ------
+    ValueError
+        An even ``patch_length``.
     """
     if patch_length is not None and int(patch_length) % 2 != 1:
         raise ValueError(f"patch_length must be odd, got {patch_length}")

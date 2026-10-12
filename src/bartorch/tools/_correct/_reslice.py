@@ -89,31 +89,18 @@ def reslice(
 
     No registration is performed: the transform between the grids is the one
     the two geometries define in patient coordinates.  The leading axes of
-    ``image`` and the real and imaginary parts are components of one vector
-    image and are resampled in a single pass.
-
-    A geometry has the fields of an MRD ``ImageHeader`` (``position``,
-    ``read_dir``, ``phase_dir``, ``slice_dir``, ``field_of_view``,
-    ``matrix_size``), read as attributes or, failing that, as mapping keys.
-    Positions and field of view are in millimetres; directions are unit
-    vectors in patient coordinates.  Along an axis of ``n`` voxels the spacing
-    is ``field_of_view / matrix_size`` and ``position`` is the centre of voxel
-    ``n // 2``.
+    ``image`` and the real and imaginary parts are resampled in one pass, as
+    components of one vector image.
 
     Parameters
     ----------
     image : torch.Tensor or numpy.ndarray
         Real or complex image of shape ``(..., z, y, x)``, with ``x`` the
         readout, ``y`` the phase-encode and ``z`` the slice axis.
-    source, target
-        Geometry of ``image`` and of the grid wanted.  Either one geometry for
-        the whole volume, with ``matrix_size[2]`` voxels of spacing
-        ``field_of_view[2] / matrix_size[2]`` along ``slice_dir``, or a list
-        or tuple of per-plane geometries, one per ``z`` index.  Plane ``k``
-        is centred on its own ``position``; the slice spacing is the distance
-        between consecutive positions and the slice direction runs from the
-        first position to the second.  A single plane takes ``slice_dir`` and
-        ``field_of_view[2]``.  The in-plane geometry is the first plane's.
+    source, target : object, or list or tuple of object
+        Geometry of ``image`` (``source``) and of the grid wanted
+        (``target``): one geometry for the volume, or one per ``z`` index; see
+        Notes.
     interpolation : {"linear", "nearest"}, default="linear"
         Interpolation of the source samples.
     fill : float, default=0.0
@@ -135,6 +122,24 @@ def reslice(
         1e-4, or ``interpolation`` is unknown.
     ImportError
         If SimpleITK is not installed.
+
+    Notes
+    -----
+    A geometry has the fields of an MRD ``ImageHeader`` (``position``,
+    ``read_dir``, ``phase_dir``, ``slice_dir``, ``field_of_view``,
+    ``matrix_size``), read as attributes or, failing that, as mapping keys.
+    Positions and field of view are in millimetres; directions are unit
+    vectors in patient coordinates.  Along an axis of ``n`` voxels the spacing
+    is ``field_of_view / matrix_size`` and ``position`` is the centre of voxel
+    ``n // 2``.
+
+    One geometry for the volume has ``matrix_size[2]`` slices of spacing
+    ``field_of_view[2] / matrix_size[2]`` along ``slice_dir``.  In a sequence
+    of per-plane geometries, plane ``k`` is centred on its own ``position``;
+    the slice spacing is the distance between consecutive positions and the
+    slice direction runs from the first position to the second.  A single
+    plane takes ``slice_dir`` and ``field_of_view[2]``.  The in-plane geometry
+    is the first plane's.
     """
     if interpolation not in _INTERPOLATION:
         raise ValueError(

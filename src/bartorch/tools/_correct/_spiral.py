@@ -67,8 +67,8 @@ class ReadoutTiming:
         ------
         ValueError
             If the radius is not monotonic in time, so that time is not a
-            function of :math:`|k|`.  An out-in arm is split into its two
-            halves, each deblurred separately.
+            function of :math:`|k|`; an out-in arm is split into its two
+            halves, each fitted and deblurred separately.
         """
         trajectory = np.asarray(
             trajectory.detach().cpu() if isinstance(trajectory, torch.Tensor) else trajectory,
@@ -192,6 +192,7 @@ class SpiralTransfer:
         Returns
         -------
         float
+            The error, relative to the unit modulus of the transfer.
         """
         exact = _exact_transfer(timing, self.frequencies)
         fitted = self._profiles(timing) @ self.weights
@@ -249,15 +250,12 @@ def fit_transfer(
     band : float
         Half-width of the off-resonance range, in Hz.
     terms : int, default=None
-        Number of terms; :func:`deblur` costs one k-space multiply or
-        separable convolution per term.  ``None`` takes the fewest terms whose
-        :meth:`SpiralTransfer.error` is at most ``tolerance``, starting from
-        :math:`\lceil 2.5\, \Delta f\, T \rceil` rounded up to an odd number,
-        with :math:`\Delta f` the band and :math:`T` the readout duration: the
-        number of frequencies of Gadgetron's ``MFIOperator``.
+        Number of terms, each one k-space multiply or separable convolution in
+        :func:`deblur`.  ``None`` searches for the fewest within
+        ``tolerance``; see Notes.
     tolerance : float, default=0.01
         Largest :meth:`SpiralTransfer.error` accepted when ``terms`` is
-        ``None``; ignored otherwise.  The search stops at 64 terms.
+        ``None``; ignored otherwise.
     frequencies : int, default=65
         Number of tabulated frequencies spanning ``[-band, band]``.
     method : {"mfi", "separable"}, default='mfi'
@@ -273,6 +271,15 @@ def fit_transfer(
     ------
     ValueError
         If ``terms`` is below one or ``method`` is unknown.
+
+    Notes
+    -----
+    Without ``terms``, the search starts from
+    :math:`\lceil 2.5\, \Delta f\, T \rceil` rounded up to an odd number,
+    with :math:`\Delta f` the band and :math:`T` the readout duration, which is
+    the number of frequencies of Gadgetron's ``MFIOperator``, and adds one
+    term at a time until the error is within ``tolerance`` or 64 terms are
+    reached.
 
     References
     ----------
@@ -414,11 +421,9 @@ def deblur(
     transfer : SpiralTransfer
         Factorization from :func:`fit_transfer`.
     backend : {"auto", "fft", "conv"}, default='auto'
-        ``"fft"`` applies each term as a k-space multiply; ``"conv"``, for a
-        separable ``transfer`` and a CUDA image with Triton installed, as a
-        separable circular convolution truncated to the taps holding all but
-        1e-5 of the kernel's energy per axis; ``"auto"`` chooses ``"conv"``
-        where it applies and Triton is importable, and ``"fft"`` otherwise.
+        ``"fft"``: each term a k-space multiply.  ``"conv"``: a separable
+        circular convolution, for a separable ``transfer`` and a CUDA image
+        with Triton installed.  ``"auto"``: ``"conv"`` where it applies.
 
     Returns
     -------
@@ -433,8 +438,10 @@ def deblur(
 
     Notes
     -----
-    Peak memory is one accumulator and one working volume, and for MFI one
-    real volume of readout times, independent of the number of terms.
+    The ``"conv"`` kernels are truncated, per axis, to the taps holding all
+    but 1e-5 of their energy.  Peak memory is one accumulator and one working
+    volume, and for MFI one real volume of readout times, independent of the
+    number of terms.
     """
     if not image.is_complex():
         raise ValueError("image must be complex")

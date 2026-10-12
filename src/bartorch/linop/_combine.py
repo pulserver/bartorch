@@ -1,9 +1,7 @@
-"""Putting operators side by side: the only functions in :mod:`bartorch.linop`.
+"""Stacking and block composition of operators.
 
-:func:`stack`, :func:`concatenate`, :func:`block_diag` and :func:`block` each
-build one ``linop_stack_cod`` or ``linop_stack``, so a stack is a single
-operator that a solver drives in its own loop rather than a Python list walked
-per iteration.
+Each function builds BART's ``linop_stack_cod`` or ``linop_stack``, so the
+result is one BART operator.
 """
 
 from __future__ import annotations
@@ -88,18 +86,27 @@ class _BlockDiagonal(LinearOperator):
 
 
 def concatenate(ops: Sequence[LinearOperator], axis: int = 0) -> LinearOperator:
-    """Apply every operator to the same input and lay the results end to end.
+    """Apply every operator to the same input and concatenate the outputs.
 
-    ``torch.cat`` of what they return, and what pylops calls ``VStack``: the
-    operators share a domain, and their codomains agree except along ``axis``,
-    where the sizes add up.
+    ``torch.cat`` of the outputs; pylops' ``VStack``.  BART's ``linop_stack_cod``.
 
     Parameters
     ----------
     ops : sequence of LinearOperator
-        At least one.  All must have the same domain.
+        At least one, with a common domain and codomains equal except along
+        ``axis``.
     axis : int, default=0
-        Which axis of the codomain grows, as an index into it.
+        Codomain axis to concatenate along.
+
+    Returns
+    -------
+    LinearOperator
+        ``ops[0]`` itself when there is one operator.
+
+    Raises
+    ------
+    ValueError
+        When the shapes do not agree as required.
 
     Examples
     --------
@@ -133,18 +140,27 @@ def concatenate(ops: Sequence[LinearOperator], axis: int = 0) -> LinearOperator:
 
 
 def stack(ops: Sequence[LinearOperator], axis: int = 0) -> LinearOperator:
-    """Apply every operator to the same input and put the results on a new axis.
+    """Apply every operator to the same input and stack the outputs on a new axis.
 
-    ``torch.stack`` of what they return: unlike :func:`concatenate` the
-    codomains must agree everywhere, and the result gains an axis of length
+    ``torch.stack`` of the outputs: the codomain gains an axis of length
     ``len(ops)``.
 
     Parameters
     ----------
     ops : sequence of LinearOperator
-        At least one.  All must have the same domain and the same codomain.
+        At least one, all with the same domain and codomain.
     axis : int, default=0
-        Where the new axis goes in the result.
+        Position of the new axis in the codomain.
+
+    Returns
+    -------
+    LinearOperator
+
+    Raises
+    ------
+    ValueError
+        When the shapes differ, or the new axis would exceed BART's
+        dimension count.
 
     Examples
     --------
@@ -182,21 +198,22 @@ def stack(ops: Sequence[LinearOperator], axis: int = 0) -> LinearOperator:
 
 
 def hstack(ops: Sequence[LinearOperator], axis: int = 0) -> LinearOperator:
-    """Split the input between the operators and add up what they return.
+    """Split the input between the operators along ``axis`` and sum the outputs.
 
-    ``[A B] @ [x; y] = A x + B y``, which pylops calls ``HStack``: the
-    operators share a codomain, and their domains agree except along ``axis``.
-
-    BART has no constructor for this, and it needs none: the adjoint of
-    stacking the codomains is stacking the domains, so this is
-    ``concatenate([op.H for op in ops], axis).H`` and stays one BART operator.
+    ``[A B] @ [x; y] = A x + B y``; pylops' ``HStack``.  Built as
+    ``concatenate([op.H for op in ops], axis).H``.
 
     Parameters
     ----------
     ops : sequence of LinearOperator
-        At least one.  All must have the same codomain.
+        At least one, with a common codomain and domains equal except along
+        ``axis``.
     axis : int, default=0
-        Which axis of the domain grows, as an index into it.
+        Domain axis the input is split along.
+
+    Returns
+    -------
+    LinearOperator
     """
     ops = _operators(ops, "hstack")
     return concatenate([op.H for op in ops], axis).H
@@ -205,20 +222,24 @@ def hstack(ops: Sequence[LinearOperator], axis: int = 0) -> LinearOperator:
 def block_diag(
     ops: Sequence[LinearOperator], axis: int = 0, domain_axis: int | None = None
 ) -> LinearOperator:
-    """Give each operator its own part of the input and its own part of the output.
+    """Block-diagonal operator over ``ops``.
 
-    BART's ``linop_stack``, folded over the sequence.  The domains are laid end
-    to end along ``domain_axis`` and the codomains along ``axis``; both default
-    to the first, and each side must agree off the axis it grows along.
+    Each operator maps its own part of the input to its own part of the
+    output.  BART's ``linop_stack``, folded over the sequence.
 
     Parameters
     ----------
     ops : sequence of LinearOperator
-        At least one.
+        At least one.  Domains must agree except along ``domain_axis`` and
+        codomains except along ``axis``.
     axis : int, default=0
-        Which axis of the codomain grows.
+        Codomain axis the outputs are concatenated along.
     domain_axis : int, default=None
-        Which axis of the domain grows; ``axis`` when left out.
+        Domain axis the inputs are concatenated along; ``None`` takes ``axis``.
+
+    Returns
+    -------
+    LinearOperator
     """
     ops = _operators(ops, "block_diag")
     out = ops[0]
@@ -243,19 +264,26 @@ def block_diag(
 
 
 def block(rows: Sequence[Sequence[LinearOperator]], axis: int = 0) -> LinearOperator:
-    """A block matrix of operators.
+    """Block matrix of operators.
 
-    Every operator in a row shares a codomain and every operator in a column
-    shares a domain; the row is :func:`hstack` and the rows together are
-    :func:`concatenate`.
+    Each row is :func:`hstack`-ed and the rows are :func:`concatenate`-d.
+    Operators in a row share a codomain; operators in a column share a domain.
 
     Parameters
     ----------
     rows : sequence of sequence of LinearOperator
-        The blocks, row by row.  Rows must be the same length.
+        The blocks, row by row, every row the same length.
     axis : int, default=0
-        Which axis grows, in the domain within a row and in the codomain
-        between rows.
+        Axis split in the domain and concatenated in the codomain.
+
+    Returns
+    -------
+    LinearOperator
+
+    Raises
+    ------
+    ValueError
+        When ``rows`` is empty or ragged.
     """
     rows = [list(row) for row in rows]
     if not rows or not rows[0]:

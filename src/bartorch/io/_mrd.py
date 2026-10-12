@@ -125,6 +125,8 @@ def read_mrd(
         If the file has no header, the header has no such encoding space, no
         readout belongs to it, or a counter runs past the extent the header
         states.
+    ImportError
+        If ``h5py`` or ``ismrmrd`` is not installed.
     """
     if trajectory_units not in _TRAJECTORY_UNITS:
         raise ValueError(

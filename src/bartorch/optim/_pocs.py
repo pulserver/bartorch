@@ -37,25 +37,28 @@ def _projections(projections: Iterable) -> list:
 
 
 class POCSBlock(nn.Module):
-    """One sweep of the projections, ``italgos.c``'s ``pocs``.
+    """One sweep of projections onto convex sets, BART's ``pocs`` (``italgos.c``).
 
-    Every projection is applied in turn, in place, and the sweep is the whole
-    of a step: ``pocs`` takes no step size, keeps no momentum and reads no
-    residual, so the state is the iterate alone.  Repeating the sweep is the
-    method, which is what :class:`POCS` does.
-
-    The projections carry the data and the encoding -- ``pocsense``'s are the
-    measured samples, the range of the coil sensitivities and a sparsity
-    threshold -- so ``A`` is not read.  It is accepted, and ignored, so that
-    the block has the calling convention the others have and
-    :class:`bartorch.learning.Unrolled` can stack it.
+    A step applies every projection in turn; there is no step size, momentum or
+    residual, so the state is the iterate alone.  The projections carry the data
+    and the encoding -- for ``pocsense``, the measured samples, the range of the
+    coil sensitivities and a sparsity threshold -- so ``A`` is accepted and
+    ignored, giving the block the calling convention of the others for
+    :class:`bartorch.learning.Unrolled`.
 
     Parameters
     ----------
     projections : sequence
-        The sets to project onto, applied in the order given.  Each is a
-        callable mapping a tensor to a tensor, or a :mod:`bartorch.priors`
-        term, which is taken as its proximal operator at ``mu = 1``.
+        Applied in the order given.  Each is a callable mapping a tensor to a
+        tensor, or a :mod:`bartorch.priors` term, applied as its proximal
+        operator at unit step.
+
+    Raises
+    ------
+    TypeError
+        A projection is neither callable nor a term.
+    ValueError
+        ``projections`` is empty.
 
     Examples
     --------
@@ -78,10 +81,10 @@ class POCSBlock(nn.Module):
             self.held = nn.ModuleList(modules)
 
     def start(self, y: torch.Tensor, A=None, x0: torch.Tensor | None = None) -> State:
-        """The run's state.
+        """Initial state: ``x0``, or zero of ``y``'s shape, as ``pocs_recon2`` starts.
 
-        ``pocs_recon2`` clears its result and lets the first projection put
-        the data in, so a run without ``x0`` starts at zero of ``y``'s shape.
+        ``y`` fixes the shape, dtype and device of the zero start; its values are
+        not read.
         """
         y = torch.as_tensor(y)
         if x0 is None:
@@ -89,28 +92,30 @@ class POCSBlock(nn.Module):
         return self.State(torch.as_tensor(x0).clone())
 
     def forward(self, state: State, A=None) -> State:
+        """Apply every projection once; returns the next state."""
         x = state.x
         for project in self.projections:
             x = project(x)
         return dataclasses.replace(state, x=x, k=state.k + 1)
 
     def output(self, state: State, A=None) -> torch.Tensor:
-        """The iterate.  ``pocs`` leaves it where the last projection put it."""
+        """The iterate as the last projection left it."""
         return state.x
 
 
 class POCS:
     """Projection onto convex sets, looping :class:`POCSBlock`.
 
-    ``maxiter`` sweeps of the projections, each applied in turn.  There is no
-    stopping test: ``pocs`` runs its count out.
+    ``maxiter`` sweeps of the projections, with no stopping test, as BART's
+    ``pocs``.
 
     Parameters
     ----------
     projections : sequence
-        The sets to project onto, as :class:`POCSBlock` takes them.
+        Callables on a tensor, or :mod:`bartorch.priors` terms, as
+        :class:`POCSBlock` takes them.
     maxiter : int, default=50
-        Sweeps; ``pocsense``'s default is fifty.
+        Number of sweeps; ``pocsense``'s default.
 
     Examples
     --------
@@ -125,7 +130,23 @@ class POCS:
         return POCSBlock(self.projections)
 
     def __call__(self, y: torch.Tensor, A=None, x0: torch.Tensor | None = None) -> torch.Tensor:
-        """Sweep the projections, starting from ``x0`` or from zero of ``y``'s shape."""
+        """Sweep the projections.
+
+        Parameters
+        ----------
+        y : tensor
+            Fixes the shape, dtype and device of the zero start; its values are not
+            read.
+        A : object, default=None
+            Ignored.
+        x0 : tensor, default=None
+            Starting iterate; zero of ``y``'s shape when omitted.
+
+        Returns
+        -------
+        torch.Tensor
+            The iterate after the last sweep.
+        """
         block = self._block()
         state = block.start(y, A, x0)
         for _ in range(self.maxiter):

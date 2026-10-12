@@ -181,124 +181,107 @@ def moba(
     return_sensitivities: bool = False,
     **values: Any,
 ) -> dict[str, torch.Tensor] | tuple[dict[str, torch.Tensor], torch.Tensor]:
-    """Fit a signal model to k-space: parameter maps straight from the samples.
+    """Fit a signal model to k-space: model-based reconstruction of parameter maps.
 
-    The method of the ``moba`` command, assembled here: the signal model
-    inside the encoding, ``y = P F (S . M(theta))``, fitted to the k-space by
-    the Gauss-Newton loop of :class:`bartorch.nlop.IRGNM`, and the fitted
-    variables read back into their own units.  Without ``sensitivities`` the
-    coils are a second unknown, estimated jointly with the maps as the command
-    estimates them: a k-space representation under the Sobolev weighting of
-    :class:`~bartorch.nlop.NonlinearSense`, shared by every contrast.
-
-    The model is BlochSim's rather than BART's -- a
-    :class:`~bartorch.nlop.SignalModel` -- so this does not reproduce the
-    command's coefficients.  It solves the same problem with the same method
-    and answers in named maps.
+    The method of BART's ``moba``: the model ``y = P F (S . M(theta))``,
+    fitted to the samples by Gauss-Newton (:class:`bartorch.nlop.IRGNM`).
+    Without ``sensitivities`` the coils are a second unknown, shared by the
+    contrasts and represented as in :class:`~bartorch.nlop.NonlinearSense`,
+    under a Sobolev weighting.  The model is BlochSim's
+    (:class:`~bartorch.nlop.SignalModel`), so the result is named maps in
+    physical units rather than the command's coefficients.
 
     Parameters
     ----------
     kspace : torch.Tensor
-        Samples, ``(contrasts, coils, *samples)``, C order: ``*samples`` is the
-        voxel shape on a grid, and the trajectory's sample axes off it --
-        ``traj.shape[:-1]``, without a leading contrast axis the trajectory
-        may carry.  Contrasts are in the order the model's acquisition lists
-        them.
+        Samples ``(contrasts, coils, *samples)``, C order, contrasts in the
+        order of the model's acquisition.  ``*samples`` is the voxel shape on
+        a grid, and ``traj.shape[:-1]`` without a leading contrast axis along
+        a trajectory.
     model : bartorch.nlop.SignalModel
-        The signal model, on the voxel shape of the image -- ``(y, x)`` or
-        ``(z, y, x)``.
+        Signal model on the voxel shape, ``(y, x)`` or ``(z, y, x)``.
     sensitivities : torch.Tensor, default=None
-        Coil sensitivities, ``(coils, *voxels)``, shared by the contrasts.
-        Estimated jointly with the maps when not given.
+        Coil sensitivities ``(coils, *voxels)``, shared by the contrasts;
+        estimated jointly with the maps when ``None``.
     traj : torch.Tensor, default=None
-        Non-Cartesian trajectory ``(..., samples, 3)`` in grid units, shared by
-        the contrasts or with a leading contrast axis.  Requires
-        ``sensitivities``.
+        Trajectory ``(..., samples, 3)`` in grid units, shared by the contrasts
+        or with a leading contrast axis.  Requires ``sensitivities``.
     pattern : torch.Tensor, default=None
-        Sampling pattern or weights, broadcastable against ``kspace``, with one
-        entry along the coil axis; it may differ between contrasts.  On a grid
-        it is read off ``kspace`` when not given: one wherever a coil has a
-        sample.
+        Sampling pattern or weights broadcastable against ``kspace``, of size
+        one along the coil axis; may differ between contrasts.  ``None`` on a
+        grid is one wherever any coil has a sample.
     iterations : int, default=20
-        Gauss-Newton steps.  The command takes eight over its own scaled
-        coefficients; twenty are what a bounded parameterisation needs.
+        Gauss-Newton steps.  The command's 8 suffice for its scaled
+        coefficients, not for the bounded parameterization.
     cg_maxiter : int, default=50
-        Conjugate-gradient steps per linearized problem.
+        Conjugate-gradient iterations per linearized problem.
     inner : solver, default=None
-        A configured solver from :mod:`bartorch.optim` for the linearized
-        problem, whose regularizers then penalize the maps; only with
-        ``sensitivities``, where the maps are the only unknown.  The default
-        is plain conjugate gradients.
+        Solver from :mod:`bartorch.optim` for the linearized problem, whose
+        regularizers penalize the maps; requires ``sensitivities``.  ``None``
+        is conjugate gradients.
     alpha : float, default=1.0
-        Initial Tikhonov weight on the Gauss-Newton step.
+        Tikhonov weight of the first Gauss-Newton step.
     alpha_min : float, default=0.0
-        What that weight decays towards.
+        Limit the weight decays towards.
     redu : float, default=2.0
-        Factor the weight is divided by after each step.
+        Decay factor of the weight per step.
     sobolev : tuple of float, default=(880.0, 32.0)
         ``(a, b)`` of the coil weighting ``(1 + a |k|^2)^(-b/2)`` when the
         coils are estimated; the command's defaults.
     smooth : dict of str to tuple of float, default=None
-        Properties fitted as smooth maps, ``{name: (a, b)}``: each is solved
-        for as k-space coefficients under the weighting ``(1 + a |k|^2)^(-b/2)``
-        of :class:`~bartorch.linop.Sobolev`, as the command solves for its B1
-        and B0 maps.  The weighting acts on the model's variable for the
-        property, which for a bounded one is its transformed value.  A start or
-        reference map for a smooth property is taken through the weighting's
-        adjoint and back, which leaves a constant as it is and smooths
-        anything else.
+        ``{name: (a, b)}``: properties solved for as smooth maps, through the
+        weighting ``(1 + a |k|^2)^(-b/2)`` of :class:`~bartorch.linop.Sobolev`,
+        as the command treats its B1 and B0 maps.  The weighting applies to
+        the model's variable, the transformed value for a bounded property.
     start : torch.Tensor, default=None
-        Maps to start from, of the model's input shape, in the units the solve
-        works in -- with the amplitude divided by ``scaling``.  Built from
-        ``**values`` when it is not given.
+        Starting point in the model's domain, with the amplitude divided by
+        ``scaling``; built from ``**values`` when ``None``.  A ``smooth``
+        property enters through the weighting's adjoint, which keeps a
+        constant map and smooths any other.
     reference : dict of str, default=None
-        Maps each Gauss-Newton step is regularized towards, ``{name: value}``
-        in each property's own units as ``**values`` takes them, with an
-        amplitude in the data's units; a name left out takes the model's
-        default.  The start when not given.  A value outside the model's bounds
-        is clamped to them, so a limit such as a vanishing rate is approached
-        from inside.
+        Values each step is regularized towards, ``{name: value}`` in physical
+        units with an amplitude in the units of ``kspace``; unnamed properties
+        take the model's defaults, and values are clamped strictly inside the
+        model's bounds.  ``None`` uses the start.  The coil coefficients are
+        regularized towards zero.
     scaling : float, default=None
-        The factor the data is divided by for the solve; the fitted amplitude
-        is multiplied by it again.  Estimated when not given, by the rule of
-        :func:`bartorch.optim.data_scaling` applied to least-squares contrast
-        images with known coils and zero-filled coil images without, which makes
-        ``alpha`` and the start independent of the data's overall scale.  A
-        model without an amplitude is fitted to the data as it stands.
+        Factor the data is divided by for the solve; the fitted amplitude is
+        multiplied by it again.  ``None`` applies the rule of
+        :func:`bartorch.optim.data_scaling` to least-squares contrast images
+        (known coils) or zero-filled coil images (estimated coils).  A model
+        without an amplitude is fitted to unscaled data.
     return_sensitivities : bool, default=False
-        Also return the estimated sensitivities; only when they are estimated.
+        Also return the estimated sensitivities.
     **values
-        Starting values per unknown, in that property's own units, as
-        :meth:`~bartorch.nlop.SignalModel.initial` takes them; an amplitude
-        in the data's units.
+        Starting values ``name=value`` in physical units, as
+        :meth:`~bartorch.nlop.SignalModel.initial` takes them, with an
+        amplitude in the units of ``kspace``.
 
     Returns
     -------
-    dict of str to torch.Tensor
-        The fitted maps in their own units, by the name each unknown carries.
-        With estimated coils the amplitude and the sensitivities share one
-        complex scale between them, which the data does not fix.
-    torch.Tensor
-        With ``return_sensitivities``: the sensitivities, ``(coils, *voxels)``.
+    maps : dict of str to torch.Tensor
+        Fitted maps in physical units, keyed by unknown.  With estimated coils,
+        amplitude and sensitivities share a complex factor the data does not
+        determine.
+    sensitivities : torch.Tensor
+        Estimated sensitivities ``(coils, *voxels)``; only with
+        ``return_sensitivities``.
 
     Raises
     ------
     ValueError
-        ``inner``, ``traj`` or ``return_sensitivities`` without
-        ``sensitivities``, a ``kspace`` the encoding's samples are not, or a
-        ``smooth`` property the model does not solve for.
+        If ``traj`` or ``inner`` is given without ``sensitivities``, if
+        ``return_sensitivities`` is set with ``sensitivities``, if ``kspace``
+        does not match the encoding's samples, or if ``smooth`` names a
+        property the model does not solve for.
 
     Notes
     -----
-    Each step is regularized towards ``reference`` -- by default the maps
-    towards where they started, the coil coefficients towards zero -- where the command
-    regularizes towards zero.  Zero in BlochSim's parameterisation is the
-    middle of each bound and no amplitude, not a plausible map, and the coils start
-    at zero, as the command starts them: at that point the data has no
-    derivative by the maps, so a first step centred on zero would take the
-    maps to the middle of their bounds and leave the data with no derivative
-    by the coils.  The weight decays by ``redu`` each step, and the start's
-    influence with it.
+    BART regularizes each step towards zero.  Zero in the bounded
+    parameterization is the middle of each bound with no amplitude, and with
+    the coils starting at zero the data has no derivative by the maps there,
+    so the default centre is the start instead.  Its influence decays with
+    the Tikhonov weight.
 
     Examples
     --------

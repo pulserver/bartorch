@@ -1,43 +1,44 @@
-# Prerequisites and supported platforms
+# Requirements and supported platforms
 
 ## Requirements
 
 | Requirement | Version |
 | --- | --- |
-| Python | 3.10 or later; each wheel is tested on 3.10 and 3.14 |
-| PyTorch | 2.2 or later (2.3 on macOS, the first to carry `libomp.dylib`; 2.7.1 on Linux, the first whose `libgomp` is named `libgomp.so.1`), CPU or CUDA build |
-| NumPy, SciPy | NumPy 1.24 and SciPy 1.10 or later; MRI-NUFFT, a dependency, raises these to NumPy 2.2 and SciPy 1.13 |
-| BlochSim, MRI-NUFFT | BlochSim 0.0.10 and MRI-NUFFT 1.0 or later, installed as dependencies |
+| Python | 3.10 or later; the wheels are tested on 3.10 and 3.14 |
+| PyTorch | CPU or CUDA build: 2.7.1 or later on Linux, 2.3 or later on macOS, 2.2 or later on Windows.  The library binds to the OpenMP runtime PyTorch carries ({ref}`openmp-runtime`), which sets the Linux and macOS floors |
+| NumPy, SciPy | 2.2 and 1.13 or later |
+| BlochSim, MRI-NUFFT | 0.0.10 and 1.0 or later |
+
+pip installs all of these with bartorch; install PyTorch first to choose its
+build ({doc}`installation`).
 
 ## Platforms
 
-| Platform | Distribution | Notes |
+| Platform | Distribution | Device |
 | --- | --- | --- |
-| Linux x86-64, glibc 2.28 or later | Wheel | CPU build on PyPI; CUDA build attached to the GitHub release of each version |
-| macOS 11 or later on Apple silicon | Wheel | CPU only; OpenMP is the runtime PyTorch installs (see {ref}`openmp-runtime`) |
-| Linux aarch64 | Source distribution | BART and FINUFFT are compiled on installation |
-| macOS on Intel | Source distribution | BART and FINUFFT are compiled on installation |
-| Windows 10 or later on x86-64 | Wheel | CPU only; OpenMP is the runtime PyTorch installs |
+| Linux x86-64, glibc 2.28 or later | Wheel | CPU; CUDA with the `cu12` or `cu13` extra |
+| macOS 11 or later on Apple silicon | Wheel | CPU |
+| Windows 10 or later on x86-64 | Wheel | CPU |
+| Linux aarch64, macOS on Intel | Source distribution, compiled on installation ({ref}`source-builds`) | CPU |
 
-A source installation needs the toolchain listed under {ref}`source-builds`.
-Apple MPS devices are not supported; the device paths are CPU and CUDA.
+Apple MPS devices are not supported.
 
-## Optional components
+## Optional dependencies
 
 | Extra | Installs | Needed for |
 | --- | --- | --- |
-| `mkl` | Intel MKL (Linux x86-64) | MKL as the source of BLAS, LAPACK and FFT routines, and of FINUFFT's FFT |
-| `deepinv` | DeepInverse | {func}`bartorch.interop.to_deepinv`, and DeepInverse's denoisers for {class}`~bartorch.priors.ImplicitPrior` |
-| `learning` | Lightning, TorchIO | The training stages and the complex-valued augmentation in `bartorch.learning` ({doc}`../../api/learning`) |
+| `cu12`, `cu13` | `bartorch-cuda12`, `bartorch-cuda13` (Linux x86-64) | CUDA devices ({ref}`gpu-builds`) |
+| `mkl` | Intel MKL (Linux x86-64) | MKL as the source of the BLAS, LAPACK and FFT routines, and of FINUFFT's FFT |
+| `io` | ismrmrd, pydicom, nibabel | ISMRMRD raw data, DICOM and NIfTI in {mod}`bartorch.io` |
+| `learning` | Lightning, TorchIO | {class}`~bartorch.learning.Reconstruction` and {class}`~bartorch.learning.RandomGain` ({doc}`../../api/learning`) |
 | `correct` | SimpleITK | Bias field and gradient nonlinearity correction in {mod}`bartorch.tools` |
 | `motion` | SimpleITK | Rigid registration of navigator planes in {mod}`bartorch.tools` |
 | `pyhysco` | PyHySCO (GPL-3.0-only) | {func}`bartorch.tools.correct_susceptibility` |
 
-PyHySCO is not distributed with bartorch; it is imported only when
-{func}`~bartorch.tools.correct_susceptibility` is called.  The spiral
-deblurring of {func}`~bartorch.tools.deblur` uses Triton on a CUDA device when
-it is installed.
-
-The examples additionally need `brainweb-dl`, `matplotlib` and `cmap`; the
-learned-regularization examples `lightning`, `torchio`, `monai` and `deepinv`,
-and the tours `SimpleITK` ({doc}`../../auto_examples/index`).
+Two packages are used when present and have no extra: DeepInverse
+(`pip install deepinv`) for {func}`bartorch.interop.to_deepinv`, and Triton for
+the spiral deblurring of {func}`~bartorch.tools.deblur` on a CUDA device.
+PyHySCO is not distributed with bartorch and is imported only when
+{func}`~bartorch.tools.correct_susceptibility` is called.  The packages the
+examples import are listed on the {doc}`Examples <../../auto_examples/index>`
+page.

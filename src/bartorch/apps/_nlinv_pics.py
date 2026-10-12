@@ -37,7 +37,7 @@ def nlinv_pics(
     wavelet : float, default=0.005
         ``lambda``, relative to the data scaling ``pics`` estimates.
     iterations : int, default=30
-        Iterations of the solve.
+        Iterations of the ``pics`` solve.
     size : int, default=24
         Cartesian: lines of every encoded axis, around the centre, the
         sensitivities are fitted to.
@@ -49,8 +49,8 @@ def nlinv_pics(
     -------
     torch.Tensor
         Complex image in the units of ``kspace``: ``([z,] y, x)`` as
-        ``kspace`` for Cartesian data, the trajectory's image grid for
-        non-Cartesian data.
+        ``kspace`` for Cartesian data, ``(y, x)`` on the image grid of the
+        trajectory otherwise.
     """
     kspace = kspace.to(torch.complex64)
     maps = apps.nlinv_maps(kspace, traj, size=size, radius=radius)

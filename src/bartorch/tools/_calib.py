@@ -30,28 +30,29 @@ def ecalib(
     Parameters
     ----------
     kspace : torch.Tensor
-        Fully sampled calibration data, or k-space with a sampled centre,
-        ``(coils, z, y, x)``, or ``(coils, y, x)`` for one slice.
+        k-space with a fully sampled centre, ``(coils, z, y, x)``, or
+        ``(coils, y, x)`` for one slice.
     maps : int, default=None
-        How many sets of sensitivities to produce (``-m``); BART's default is 2.
+        Number of sets of sensitivities (``-m``); BART's default is 2.
     calib_size : int or tuple of int, default=None
-        The calibration region's size (``-r``), the same on every axis or one
-        per axis; BART's default is 24 on every axis.
+        Size of the calibration region (``-r``), one for every axis or one per
+        axis in C order; BART's default is 24 on every axis.
     threshold : float, default=None
-        The singular-value threshold for the calibration matrix (``-t``);
-        BART's default is 0.001.
+        Singular-value threshold of the calibration matrix, which sets the
+        size of its null space (``-t``); BART's default is 0.001.
     crop : float, default=None
-        The eigenvalue below which a sensitivity is set to zero (``-c``);
-        BART's default is 0.8.
+        Eigenvalue below which a sensitivity is set to zero (``-c``); BART's
+        default is 0.8.
     kernel_size : int, default=None
-        The calibration kernel's size (``-k``); BART's default is 6.
+        Size of the calibration kernel (``-k``); BART's default is 6.
     softsense : bool, default=False
-        Return the maps without the eigenvalue crop, for soft-SENSE (``-S``).
+        Weight the maps by a smooth function of the eigenvalue about ``crop``
+        rather than cropping them (Soft-SENSE, ``-S``).
     intensity_correction : bool, default=False
-        Correct for intensity rather than normalising (``-I``).
+        Normalise the maps to unit l1 norm over the coils, times the square
+        root of the coil count, rather than unit l2 norm (``-I``).
     return_eigenvalues : bool, default=False
-        Also return the eigenvalue map, which BART writes as a second array
-        only when asked.
+        Also return the eigenvalue maps, BART's optional second output.
     **extra
         Further BART ``ecalib`` options, by name.  ``e``, the axis the second
         step is split along, takes an axis of ``kspace``.
@@ -59,8 +60,9 @@ def ecalib(
     Returns
     -------
     torch.Tensor or tuple of torch.Tensor
-        The sensitivities, and the eigenvalues when asked for, without a ``z``
-        axis when ``kspace`` has none.
+        The sensitivities, ``(maps, coils, z, y, x)`` with the ``maps`` axis
+        dropped when it has size one, and the eigenvalue maps when asked for;
+        without a ``z`` axis when ``kspace`` has none.
 
     Examples
     --------
@@ -98,21 +100,21 @@ def ecalib(
 
 @curated("caldir")
 def caldir(kspace: torch.Tensor, calib_size: int, **extra) -> torch.Tensor:
-    """Coil sensitivities from the centre of k-space directly.
+    """Coil sensitivities by direct calibration from the centre of k-space.
 
     Parameters
     ----------
     kspace : torch.Tensor
-        k-space with a sampled centre.
+        k-space with a fully sampled centre, ``(coils, z, y, x)``.
     calib_size : int
-        The size of the calibration region to use.
+        Size of the calibration region, the same on every axis.
     **extra
-        Further BART ``caldir`` flags, by name.
+        Further BART ``caldir`` options, by name.
 
     Returns
     -------
     torch.Tensor
-        The sensitivities.
+        The sensitivities, in the shape of ``kspace``.
     """
     return dispatch("caldir", [kspace], None, _pos=[int(calib_size)], **extra)
 
@@ -133,36 +135,35 @@ def nlinv(
     return_sensitivities: bool = False,
     **extra,
 ):
-    """Nonlinear inversion: the image and the sensitivities together.
+    r"""Image and coil sensitivities estimated jointly by nonlinear inversion.
 
     Parameters
     ----------
     kspace : torch.Tensor
-        Under-sampled k-space, C order.
+        Undersampled k-space, ``(..., coils, z, y, x)``.
     maxiter : int, default=None
-        Gauss-Newton steps (``-i``).
+        Number of Gauss-Newton steps (``-i``); BART's default is 8.
     maps : int, default=None
-        How many sets of sensitivities to estimate (``-m``).
-    traj : tensor, default=None
-        Non-Cartesian trajectory (``-t``).
-    pattern : tensor, default=None
+        Number of sets of sensitivities, ENLIVE (``-m``).
+    traj : torch.Tensor, default=None
+        Non-Cartesian trajectory ``(..., samples, 3)`` in grid units (``-t``).
+    pattern : torch.Tensor, default=None
         Sampling pattern (``-p``).
-    basis : tensor, default=None
-        Subspace basis (``-B``).
-    initial : tensor, default=None
-        Warm start (``-I``).
+    basis : torch.Tensor, default=None
+        Temporal subspace basis (``-B``).
+    initial : torch.Tensor, default=None
+        Initial image and sensitivities (``-I``).
     alpha : float, default=None
-        The ``a`` of the Sobolev coil weighting ``(1 + a |k|^2)^(-b/2)``
-        (``-a``), not the first step's regularization weight -- that is
-        ``nlinv --alpha``, reachable through ``**extra``.
+        ``a`` of the Sobolev weighting ``(1 + a |k|^2)^(-b/2)`` of the
+        sensitivities (``-a``).  The regularization weight of the first
+        Gauss-Newton step is ``nlinv --alpha``, passed through ``**extra``.
     real : bool, default=False
         Constrain the image to be real (``-c``).
     normalize : bool, default=True
-        Divide the image by the root sum of squares of the sensitivities, as
-        ``nlinv`` does unless told not to.  BART spells this the
-        other way round, as ``-N`` for "do not normalize".
+        Multiply the image by the root sum of squares of the sensitivities
+        over the coils (see Notes); ``False`` is BART's ``-N``.
     return_sensitivities : bool, default=False
-        Also return the sensitivities, which BART writes as a second array.
+        Also return the sensitivities, BART's optional second output.
     **extra
         Further BART ``nlinv`` options, by name.  ``s``, the axes the
         sensitivities are constant along, takes axes of ``kspace``.
@@ -170,7 +171,16 @@ def nlinv(
     Returns
     -------
     torch.Tensor or tuple of torch.Tensor
-        The image, and the sensitivities when asked for.
+        The image, without the coil axis and with the sets of ``maps``
+        combined, and the sensitivities when asked for.
+
+    Notes
+    -----
+    With ``normalize=True`` and one set of sensitivities, the returned image is
+    :math:`\rho \sqrt{\sum_c |s_c|^2}`: the magnitude of the coil images
+    :math:`\rho s_c` combined by root sum of squares, with the phase of
+    :math:`\rho`.  With several sets combined it is
+    :math:`\sqrt{\sum_c |\sum_m \rho_m s_{m,c}|^2}`, which is real.
     """
     flags: dict = _call.translate("nlinv", dict(extra), [kspace])
     if maxiter is not None:

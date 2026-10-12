@@ -131,27 +131,26 @@ def _bart_axis(axis: int, shape: Shape) -> int:
 
 
 class NonlinearOperator(Operator):
-    """Nonlinear operator between tensor shapes, with a derivative and its adjoint.
+    """Nonlinear operator on complex tensors, with its derivative and the derivative's adjoint.
 
-    ``F(x)`` applies the operator and, for a tensor that requires a gradient,
-    records the application; the backward pass is the adjoint of the
-    derivative at ``x``.  ``a @ b`` composes, applying ``b`` first, and either
-    side may be a :class:`~bartorch.linop.LinearOperator`.  :meth:`partial`
-    fixes one input to a value, and :meth:`linearize` gives the derivative at
-    a point as a linear operator.
+    ``F(x)`` applies the operator; when an input requires a gradient the
+    application is recorded for autograd, and the backward pass applies the
+    adjoint of the derivative at ``x``.  ``a @ b`` composes into one BART
+    operator, applying ``b`` first; either side may be a
+    :class:`~bartorch.linop.LinearOperator`.  :meth:`partial` fixes one input,
+    and :meth:`linearize` returns the derivative at a point as a linear
+    operator.
 
-    An operator may take more than one input and return more than one output;
-    :attr:`ishapes` and :attr:`oshapes` are the shape of each, and
-    :attr:`ishape` and :attr:`oshape` are the whole of it when there is one of
-    each.  An operator is defined in Python by :meth:`from_callbacks` or by
+    An operator may have several inputs and several outputs (BART's
+    ``nlop_s``).  Operators are defined in Python by :meth:`from_callbacks` or
     :class:`~bartorch.nlop.TorchOperator`.
 
     Attributes
     ----------
     ishapes, oshapes : tuple of tuple of int
-        The shape of each input and of each output, C order.
+        Shape of each input and of each output, C order.
     ishape, oshape : tuple of int
-        Domain and codomain, for an operator with one input and one output.
+        Domain and codomain of an operator with one input and one output.
 
     Examples
     --------
@@ -194,12 +193,12 @@ class NonlinearOperator(Operator):
 
     @property
     def ishape(self) -> Shape:
-        """The domain, for an operator with one input."""
+        """Domain of an operator with one input; ``ValueError`` for several."""
         return self._only(self.ishapes, "input")
 
     @property
     def oshape(self) -> Shape:
-        """The codomain, for an operator with one output."""
+        """Codomain of an operator with one output; ``ValueError`` for several."""
         return self._only(self.oshapes, "output")
 
     def _build(self) -> None:
@@ -262,10 +261,26 @@ class NonlinearOperator(Operator):
     # --- application ------------------------------------------------------
 
     def forward(self, *xs: torch.Tensor):
-        """``F(x)``, which also fixes where every derivative is taken.
+        """Evaluate ``F(*xs)`` without recording it for autograd.
 
-        Takes one tensor per input and returns one per output, or the tensor
-        itself when there is a single output.
+        The evaluation point becomes the point at which the operator's
+        derivative and adjoint are taken until the next evaluation.
+
+        Parameters
+        ----------
+        *xs : torch.Tensor
+            One tensor per input, of the shapes in :attr:`ishapes`.
+
+        Returns
+        -------
+        torch.Tensor or tuple of torch.Tensor
+            One complex64 tensor per output; the tensor itself for one output.
+
+        Raises
+        ------
+        ValueError
+            If the number of tensors is not the number of inputs, or the inputs
+            are on different devices.
         """
         if 1 == len(self.ishapes) == len(self.oshapes) and 1 == len(xs):
             return self._apply(library().bartorch_nlop_apply, xs[0], self.ishape, self.oshape)
@@ -317,13 +332,26 @@ class NonlinearOperator(Operator):
 
     @classmethod
     def from_callbacks(cls, oshape, ishape, forward, derivative, adjoint) -> NonlinearOperator:
-        """An operator from Python functions, applied through BART.
+        """Build an operator from Python functions, applied through BART's callbacks.
 
-        ``forward`` fixes the point ``derivative`` and ``adjoint`` are taken at,
-        until the next forward.  A sequence of shapes makes that many outputs
-        or inputs; then ``forward(*xs)`` returns one tensor per output, and
-        ``derivative(o, i, dx)`` and ``adjoint(o, i, dy)`` take output ``o`` by
-        input ``i``.
+        Parameters
+        ----------
+        oshape, ishape : tuple of int or sequence of tuple of int
+            Codomain and domain, C order.  A sequence of shapes gives that many
+            outputs or inputs.
+        forward : callable
+            ``forward(*xs)``, one tensor per input, returning one tensor per
+            output.  Each call sets the point at which ``derivative`` and
+            ``adjoint`` are taken.
+        derivative, adjoint : callable
+            ``derivative(dx)`` and ``adjoint(dy)`` for one input and one
+            output; ``derivative(o, i, dx)`` and ``adjoint(o, i, dy)``, the
+            derivative of output ``o`` by input ``i`` and its adjoint, for
+            several.
+
+        Returns
+        -------
+        NonlinearOperator
         """
         from bartorch.nlop._callback import _Callback
 
@@ -360,17 +388,34 @@ class NonlinearOperator(Operator):
         return self._bundle()
 
     def linearize(self, *xs: torch.Tensor, input: int | None = None, output: int = 0):  # noqa: A002
-        """The derivative at ``x``, as a :class:`~bartorch.linop.LinearOperator`.
+        """Return the derivative at a point as a :class:`~bartorch.linop.LinearOperator`.
 
-        ``xs`` is one tensor per input.  ``input`` selects the input the
-        derivative is taken by, the others held at their values; ``None`` takes
-        it by all of them laid end to end, as a Gauss-Newton step does, and the
-        result's domain is then one vector.  ``output`` selects the output.
+        Parameters
+        ----------
+        *xs : torch.Tensor
+            The point, one tensor per input.
+        input : int, default=None
+            Input to differentiate by, the others held at their values.
+            ``None`` differentiates by all inputs, flattened and concatenated in
+            input order into one vector, as a Gauss-Newton step does.
+        output : int, default=0
+            Output to differentiate.
 
-        The result holds ``x``: it answers the same whatever is evaluated
-        afterwards, and is differentiable by ``x``.  An operator that does not
-        supply its derivative as a function of the point answers at the last
-        evaluated point instead.
+        Returns
+        -------
+        LinearOperator
+            ``DF(x)``.  It holds the point: later evaluations of the operator do
+            not change it, and it is differentiable by ``x``.  For an operator
+            that does not supply its derivative as a function of the point, it
+            is instead taken at the last evaluated point and follows later
+            evaluations.
+
+        Raises
+        ------
+        ValueError
+            If the number of tensors is not the number of inputs.
+        IndexError
+            If ``input`` or ``output`` is out of range.
         """
         from bartorch.linop._base import LinearOperator
         from bartorch.nlop._derivative import Linearization
@@ -407,7 +452,18 @@ class NonlinearOperator(Operator):
         return LinearOperator.from_callbacks(op.oshape, op.ishape, op._derivative, op._adjoint)
 
     def __call__(self, *xs: torch.Tensor):
-        """``F(x)``, recorded for autograd when an input requires a gradient."""
+        """Evaluate ``F(*xs)``, recorded for autograd when an input requires a gradient.
+
+        Parameters
+        ----------
+        *xs : torch.Tensor
+            One tensor per input.
+
+        Returns
+        -------
+        torch.Tensor or tuple of torch.Tensor
+            One tensor per output; the tensor itself for one output.
+        """
         tracking = (
             any(isinstance(x, torch.Tensor) and x.requires_grad for x in xs)
             and torch.is_grad_enabled()
@@ -485,12 +541,20 @@ class NonlinearOperator(Operator):
         return self._permute_outputs(_shifted(len(self.oshapes), new, old))
 
     def partial(self, input: int, value) -> NonlinearOperator:  # noqa: A002
-        """Fix one input to ``value``; the input goes away.
+        """Fix one input to a constant, BART's ``nlop_set_input_const``.
 
-        ``nlop_set_input_const``.  What a model's fixed quantities are -- an
-        echo time, a sampling pattern -- once the operator that takes them has
-        been built.  BART copies the tensor, so the one passed in is free
-        afterwards.
+        Parameters
+        ----------
+        input : int
+            Input to fix; negative counts from the last.
+        value : torch.Tensor
+            Its value, of that input's shape.
+
+        Returns
+        -------
+        NonlinearOperator
+            The operator without that input; the remaining inputs keep their
+            order.
         """
         return _Pinned(self, input, value)
 

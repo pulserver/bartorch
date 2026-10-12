@@ -32,9 +32,13 @@ def fft(
 ) -> torch.Tensor:
     """Fourier transform along ``axes``, centred by default.
 
+    Centred, the zero frequency and the image origin are both at index
+    ``n // 2``.  BART's ``fft``.
+
     Parameters
     ----------
     input : torch.Tensor
+        Array to transform.
     axes : int or tuple of int
         Axes to transform, as indices into ``input.shape``.
     inverse : bool, default=False
@@ -43,7 +47,12 @@ def fft(
         Scale by one over the square root of the transformed size;
         otherwise unnormalized.
     uncentred : bool, default=False
-        Keep the zero frequency at index zero rather than at ``n // 2``.
+        Keep the zero frequency and the origin at index zero.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
 
     Examples
     --------
@@ -67,7 +76,25 @@ def ifft(
     unitary: bool = False,
     uncentred: bool = False,
 ) -> torch.Tensor:
-    """Inverse Fourier transform along ``axes``: :func:`fft` with ``inverse=True``."""
+    """Inverse Fourier transform along ``axes``: :func:`fft` with ``inverse=True``.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to transform.
+    axes : int or tuple of int
+        Axes to transform, as indices into ``input.shape``.
+    unitary : bool, default=False
+        Scale by one over the square root of the transformed size;
+        otherwise unnormalized.
+    uncentred : bool, default=False
+        Keep the zero frequency and the origin at index zero.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
+    """
     return fft(input, axes, inverse=True, unitary=unitary, uncentred=uncentred)
 
 
@@ -75,7 +102,24 @@ def ifft(
 def fftmod(
     input: torch.Tensor, axes: int | tuple[int, ...], *, inverse: bool = False
 ) -> torch.Tensor:
-    """Multiply by the alternating phase that centres an uncentred transform, along ``axes``."""
+    """Multiply by the phase that turns an uncentred transform into a centred one, along ``axes``.
+
+    For an even size the phase is an alternating sign.  BART's ``fftmod``.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to modulate.
+    axes : int or tuple of int
+        Axes to modulate along.
+    inverse : bool, default=False
+        Apply the conjugate phase.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
+    """
     return dispatch("fftmod", [input], None, _pos=[axes_flags(axes, input.ndim)], i=inverse)
 
 
@@ -83,7 +127,23 @@ def fftmod(
 def fftshift(
     input: torch.Tensor, axes: int | tuple[int, ...], *, inverse: bool = False
 ) -> torch.Tensor:
-    """Move the zero frequency to the middle along ``axes``, or back with ``inverse``."""
+    """Move index zero to index ``n // 2`` along ``axes``, or back with ``inverse``.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to shift.
+    axes : int or tuple of int
+        Axes to shift along.
+    inverse : bool, default=False
+        Shift index ``n // 2`` back to index zero; differs from the forward
+        shift for odd sizes.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
+    """
     return dispatch("fftshift", [input], None, _pos=[axes_flags(axes, input.ndim)], i=inverse)
 
 
@@ -99,7 +159,7 @@ def nufft(
     """Non-uniform Fourier transform of an image to samples along ``traj``.
 
     Computed by FINUFFT, with a negative exponent and scaled by one over the
-    square root of the image's voxel count.
+    square root of the image's voxel count.  BART's ``nufft``.
 
     Parameters
     ----------
@@ -115,7 +175,13 @@ def nufft(
         Temporal subspace basis, coefficients then frames, in BART's axis
         order: ``(coeffs, frames, 1, 1, 1, 1, 1)``.
     **extra
-        Further ``bart nufft`` options, by name.
+        Further BART ``nufft`` options, by name.
+
+    Returns
+    -------
+    torch.Tensor
+        Samples ``(..., *traj.shape[:-1], 1)``, the leading axes being those
+        of ``input`` before ``(z, y, x)``, such as coils.
     """
     flags: dict = dict(extra)
     if weights is not None:
@@ -148,13 +214,18 @@ def nufft_adjoint(
         Spatial shape of the image, C order ``(z, y, x)`` or ``(y, x)``.  By
         default BART estimates it from the trajectory.
     weights : torch.Tensor, default=None
-        Diagonal in k-space applied to the samples; its conjugate is applied
-        here.
+        Diagonal in k-space applied to the samples of :func:`nufft`; its
+        conjugate is applied here.
     basis : torch.Tensor, default=None
         Temporal subspace basis, coefficients then frames, in BART's axis
         order: ``(coeffs, frames, 1, 1, 1, 1, 1)``.
     **extra
-        Further ``bart nufft`` options, by name.
+        Further BART ``nufft`` options, by name.
+
+    Returns
+    -------
+    torch.Tensor
+        Image ``(..., *image_shape)``.
     """
     flags: dict = dict(extra)
     flags["a"] = True

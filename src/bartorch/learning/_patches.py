@@ -21,56 +21,55 @@ def _autocast_dtype(device: torch.device, dtype):
 
 
 class Patchwise(nn.Module):
-    """A network applied to an image one patch at a time, on its own device.
+    """Network applied to an image patch by patch on its own device.
 
-    The image stays where it is -- normally the host -- and is cut into
-    non-overlapping patches over its trailing ``len(patch)`` axes, which are
-    copied to the device a few at a time, passed through the network under
-    automatic mixed precision, and copied back into place.  What the device
-    holds at any moment is the network and ``batch`` patches, or, while
-    ``overlap`` is in effect, two groups of ``batch`` patches and the outputs
-    not yet placed, so a volume or
-    a time series of volumes larger than the device's memory goes through a
-    network trained on patches of it.  The result is on the input's device,
-    in single precision, and differentiable with respect to both the input
+    The image stays on its device, normally the host, and is cut into
+    non-overlapping patches over its trailing ``len(patch)`` axes.  Groups of
+    ``batch`` patches are copied to ``device``, passed through the network under
+    automatic mixed precision and copied back into place, so a volume or a time
+    series of volumes larger than the device's memory passes through a network
+    trained on patches.  The device holds the network and ``batch`` patches, or
+    under ``overlap`` two groups and the outputs not yet placed.  The result is
+    float32 on the input's device and differentiable with respect to the input
     and the weights.
 
-    Before cutting, the image is padded with zeros by a random offset in front
-    of each axis, drawn anew at every call from PyTorch's generator, and by
-    whatever completes the last patch behind it.  The seams therefore fall in
-    a different place at each iteration of a reconstruction and are not
-    reinforced; with ``shift=False`` they are always at multiples of the patch.
-    Drawing from PyTorch's generator is what lets
-    :class:`~bartorch.learning.Unrolled` recompute a checkpointed step
-    exactly.
+    With ``shift`` the patch grid is offset by a random amount at every call,
+    drawn from PyTorch's generator, so seams fall in a different place at each
+    iteration of a reconstruction, and :class:`~bartorch.learning.Unrolled`
+    recomputes a checkpointed step exactly.  The image is zero-padded by the
+    offset in front and to a whole patch behind.
 
-    The network is moved to ``device`` before every call if it is not there,
-    so a training loop that moves the whole model elsewhere does not move it;
-    its parameters stay the same objects, and an optimizer holding them is
-    unaffected.
+    The network is moved to ``device`` at every call if it is elsewhere, so a
+    training loop that moves the whole model does not move it; its parameters
+    remain the same objects.
 
     Parameters
     ----------
     net : nn.Module
-        Called on ``(n, channels, [frames,] *patch)`` as ``net(x)``,
-        ``net(x, sigma)`` or with the keywords this module is called with.
+        Called on ``(n, channels, [frames,] *patch)`` as ``net(x)`` or
+        ``net(x, sigma)``, with the keywords this module is called with.
     patch : sequence of int
-        Patch extent along each trailing axis, 2 or 3 of them.
+        Patch extent along each trailing axis, two or three of them.
     device : torch.device or str, default=None
-        Where the network runs; the first CUDA device when there is one, and
-        the host otherwise.
+        Where the network runs; the first CUDA device when there is one, the
+        host otherwise.
     dtype : torch.dtype or None or "auto", default="auto"
-        Precision of automatic mixed precision on the device.  ``"auto"`` is
-        bfloat16 on a card that supports it and float16 on one that does not,
-        such as a T4, and no mixed precision on the host.
+        Precision of automatic mixed precision; ``None`` disables it.
+        ``"auto"`` is bfloat16 on a card that supports it, float16 on one that
+        does not (such as a T4), and none on the host.
     batch : int, default=1
         Patches per call of the network.
     shift : bool, default=True
-        Whether the patch grid is offset at random at every call.
+        Offset the patch grid at random at every call.
     overlap : bool, default=True
-        Whether, without gradient and with the image on the host and the
-        network on a card, the copies of one chunk of patches run while the
-        network computes on another, on a second stream.
+        Without gradient, with the image on the host and the network on a card,
+        copy one group of patches on a second stream while the network computes
+        on another.
+
+    Raises
+    ------
+    ValueError
+        ``patch`` not of two or three positive extents, or ``batch`` below one.
 
     Examples
     --------
@@ -106,10 +105,22 @@ class Patchwise(nn.Module):
         self.overlap = bool(overlap)
 
     def forward(self, x: torch.Tensor, sigma=None, **keywords) -> torch.Tensor:
-        """Apply the network over every patch of ``x``, ``(n, channels, ..., *patch-axes)``.
+        """Apply the network to every patch of ``x``.
 
-        ``sigma`` and any keyword given one value per item of ``x`` are
-        repeated for each of that item's patches.
+        Parameters
+        ----------
+        x : torch.Tensor
+            ``(n, channels, ..., *patched)``, with the patched axes last.
+        sigma : float or torch.Tensor, default=None
+            Passed to the network; one value per item of ``x`` is repeated for each
+            of that item's patches.
+        **keywords
+            Passed to the network, repeated per patch like ``sigma``.
+
+        Returns
+        -------
+        torch.Tensor
+            Float32, of ``x``'s shape, on ``x``'s device.
         """
         dims = len(self.patch)
         if x.ndim < 2 + dims:

@@ -145,76 +145,68 @@ class _Planes(nn.Module):
 
 
 class ImplicitPrior(nn.Module):
-    """A denoiser substituted for a :mod:`bartorch.priors` regularizer.
+    """Denoiser in place of a regularization term's proximal operator (plug-and-play).
 
-    The proximal operator is ``denoiser(x, sigma)`` independently of the step,
-    as plug-and-play regularization defines it, or ``denoiser(x)`` where no
-    ``sigma`` is given.  Unlike a BART proximal operator this one is
-    differentiable, so a solve containing it can be differentiated end to end.
+    The proximal step is ``denoiser(x, sigma)``, or ``denoiser(x)`` without a
+    ``sigma``, independently of the solver's step size.  Unlike BART's proximal
+    operators it is differentiable, so a solve containing it can be
+    differentiated end to end.  The proximal solvers of :mod:`bartorch.optim`
+    take it in place of a term.
 
-    The denoiser receives a leading batch axis, of length one for a single
-    image.  ``sigma`` is a :class:`torch.nn.Parameter`, fixed until
-    ``requires_grad_()`` is called.
-
-    A sequence of ``sigma`` is a schedule, one noise level per iteration and
-    the last repeated beyond its end: the annealed plug-and-play iteration,
-    which starts with a strong denoiser and weakens it as the data-consistent
-    estimate improves.  With ``step`` the denoiser is also given the iteration
-    index, as ``denoiser(x, sigma, step=k)`` or ``denoiser(x, step=k)``, which
-    is how a network shared by the iterations of an unrolled reconstruction
-    adapts to each (:class:`bartorch.learning.UNet` with ``steps=True``).
-    Either makes each iteration a different map, which
-    :class:`bartorch.optim.FixedPoint` refuses.
-
-    ``transform`` is the linear operator :math:`G` of a term :math:`g(G x)`,
-    as a regularizer built by BART also carries.  The denoiser is then applied
-    on the codomain of :math:`G` rather than to the image, and the
-    alternating-direction and primal-dual iterations split the variable at
-    :math:`G x`, introducing one auxiliary variable and one dual variable per
-    term and adding :math:`G^H G` to the x-update.  This accommodates a prior
-    learned in a representation other than the optimization variable, such as
-    contrast-weighted images obtained from subspace coefficient maps.  Without
-    it :math:`G` is the identity and the denoiser is applied to the image.
+    With ``transform``, the term is :math:`g(G x)`: the denoiser is applied on
+    the codomain of :math:`G`, and the alternating-direction and primal-dual
+    iterations split the variable at :math:`G x`, as for a BART term with a
+    transform.  This places a prior learned in another representation, such as
+    contrast-weighted images synthesized from subspace coefficients.
 
     Parameters
     ----------
     denoiser : callable
-        Called as ``denoiser(x)``, or as ``denoiser(x, sigma)`` when a
-        ``sigma`` is given.  Without ``spatial`` it receives the complex
-        ``(batch, *shape)`` tensor as it stands, where ``shape`` is the image's
-        shape or, with a ``transform``, the codomain of :math:`G`.  With
-        ``spatial`` it is an image-restoration network on real
-        ``(n, channels, *spatial)`` planes of order unity -- a ``deepinv``,
-        ``monai`` or local :class:`torch.nn.Module` -- and the conversion is
-        done here.
+        Called as ``denoiser(x)`` or ``denoiser(x, sigma)``, with ``step=k``
+        added under ``step``.  Without ``spatial``, ``x`` is the complex tensor
+        ``(batch, *shape)``, with ``shape`` the image's or the codomain of
+        :math:`G`; with ``spatial``, a network on real
+        ``(n, channels, *spatial)`` tensors of order unity, such as a
+        ``deepinv`` or ``monai`` model.
     sigma : float or sequence of float, default=None
-        The noise level the denoiser is asked for, in the units its own
-        convention states; a sequence gives one per iteration.
+        Noise level passed to the denoiser, in its own units.  A sequence is a
+        schedule, one per iteration, the last repeated beyond its end.  Held as
+        a frozen :class:`torch.nn.Parameter`.
     transform : LinearOperator, default=None
-        :math:`G`, mapping the image to the domain the denoiser is applied on.
-        Only the iterations given a term's transform use it; see
-        :meth:`bartorch.priors.Regularizer.transform_is_identity`.
+        :math:`G`, with domain the image; the identity when omitted.
     spatial : {2, 3}, default=None
-        Trailing axes the network operates on: 2 for a network trained on
-        slices, 3 for one trained on volumes.  The axes in front of them are
-        folded into the network's batch axis.  ``None`` passes the complex
-        tensor unconverted.
+        Trailing axes the network takes; the axes in front are folded into its
+        batch axis.  ``None`` passes the complex tensor unconverted.
     channels : {1, 2, 3}, default=1
-        Input channels of the network: 1 for grayscale, 3 for RGB (a plane is
-        repeated and the three outputs averaged), 2 for a network taking the
-        real and imaginary planes jointly, as MoDL's does.  Only with
-        ``spatial``.
+        Input channels of the network: 1 for grayscale, 3 for RGB (the plane is
+        repeated and the three outputs averaged), 2 for the real and imaginary
+        parts jointly.  Only with ``spatial``.
     parts : {"channels", "separate", "magnitude"}, default=None
-        How the complex values become real planes: the real and imaginary
-        parts as the network's two channels, each part denoised on its own in
-        one call over a doubled batch, or the modulus denoised with the phase
-        kept.  Defaults to ``"channels"`` for two channels and ``"separate"``
-        otherwise.  Only with ``spatial``.
+        Real and imaginary parts as two channels, each part denoised separately
+        in one call, or the modulus denoised with the phase kept.
+        ``"channels"`` for two channels and ``"separate"`` otherwise when
+        omitted.  Only with ``spatial``.
     normalize : bool, default=True
-        Scale each image to unit peak modulus around the call; ``sigma`` is
-        then in units of that peak.  Only with ``spatial``.
+        Divide each image by its peak modulus around the call, so ``sigma`` is
+        relative to that peak.  Only with ``spatial``.
     step : bool, default=False
         Pass the iteration index to the denoiser as ``step``.
+
+    Raises
+    ------
+    TypeError
+        ``denoiser`` is not callable.
+    ValueError
+        ``channels``, ``parts`` or ``normalize`` without ``spatial``, or an
+        inconsistent combination of them; a ``sigma`` that is empty or not
+        one-dimensional.
+
+    Notes
+    -----
+    A ``sigma`` schedule or ``step=True`` makes each iteration a different
+    map (annealed plug-and-play, or a network shared by the iterations of an
+    unrolled reconstruction, such as :class:`bartorch.learning.UNet` with
+    ``steps=True``); :class:`bartorch.optim.FixedPoint` refuses both.
 
     Examples
     --------
@@ -270,6 +262,26 @@ class ImplicitPrior(nn.Module):
     def prox(
         self, x: torch.Tensor, gamma=1.0, *, image_shape=None, iteration: int = 0
     ) -> torch.Tensor:
+        """Apply the denoiser to ``x``; ``gamma`` is ignored.
+
+        Parameters
+        ----------
+        x : tensor
+            Of :meth:`prox_shape`, or with a leading batch axis.
+        gamma : float, default=1.0
+            Ignored: the denoising strength is ``sigma``.
+        image_shape : tuple of int, default=None
+            Image shape, which tells a single ``x`` from a batch; without it ``x``
+            is a single item.
+        iteration : int, default=0
+            Iteration index, which selects the ``sigma`` of a schedule and is passed
+            as ``step`` under ``step=True``.
+
+        Returns
+        -------
+        torch.Tensor
+            Of ``x``'s shape.
+        """
         shape = None if image_shape is None else self.prox_shape(image_shape)
         single = shape is None or x.ndim == len(shape)
         batch = x[None] if single else x
@@ -287,12 +299,31 @@ class ImplicitPrior(nn.Module):
         return out[0] if single else out
 
     def prox_shape(self, image_shape) -> tuple[int, ...]:
+        """Shape the denoiser is applied on: the image's, or the codomain of ``transform``."""
         if self.transform is None:
             return tuple(image_shape)
         self._check(image_shape)
         return tuple(self.transform.oshape)
 
     def apply_transform(self, x: torch.Tensor, image_shape=None, mode: str = "forward"):
+        """Apply :math:`G`, :math:`G^H` or :math:`G^H G` to ``x``, recorded for autograd.
+
+        The identity without ``transform``.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input of the mode, with or without a leading batch axis, applied item
+            by item.
+        image_shape : tuple of int, default=None
+            Image shape, checked against the domain of :math:`G`.
+        mode : {"forward", "adjoint", "normal"}, default="forward"
+            :math:`G`, :math:`G^H` or :math:`G^H G`.
+
+        Returns
+        -------
+        torch.Tensor
+        """
         if self.transform is None:
             return x
         from bartorch.linop._autograd import apply_adjoint, apply_forward, apply_normal
@@ -309,9 +340,11 @@ class ImplicitPrior(nn.Module):
         return _batched(lambda v: one(G, v), x, shape)
 
     def transform_is_identity(self, image_shape) -> bool:
+        """Whether the term has no ``transform``."""
         return self.transform is None
 
     def rewind(self, image_shape) -> None:
+        """Do nothing: the term draws no random shifts."""
         return None
 
     def _check(self, image_shape) -> None:

@@ -68,8 +68,8 @@ def nlinv_maps(
     Returns
     -------
     torch.Tensor
-        Complex maps ``(coils, [z,] y, x)``: the shape of ``kspace`` for
-        Cartesian data, the trajectory's image grid for non-Cartesian data.
+        Complex maps: of the shape of ``kspace`` for Cartesian data,
+        ``(coils, y, x)`` on the image grid of the trajectory otherwise.
     """
     kspace = kspace.to(torch.complex64)
     if traj is not None:

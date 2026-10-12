@@ -180,6 +180,7 @@ def correct_susceptibility(
     Returns
     -------
     SusceptibilityCorrection
+        The displacement field and the corrected pair.
 
     Raises
     ------

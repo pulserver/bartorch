@@ -38,14 +38,15 @@ def bias_field_correct(
     image : torch.Tensor
         Real 2D or 3D magnitude image, typically after coil combination.
     mask : torch.Tensor, default=None
-        Voxels the field is estimated over, shaped like ``image``.  ``None``
-        uses Otsu's threshold of the image.
+        Nonzero over the voxels the field is estimated from, shaped like
+        ``image``; Otsu's threshold of the image if ``None``.
     shrink_factor : int, default=4
         Downsampling factor of the grid the field is fitted on.
     iterations : tuple of int, default=(50, 50, 50, 50)
         Maximum iterations per fitting level, coarsest first.
     fitting_levels : int, default=None
-        Number of fitting levels; ``len(iterations)`` if ``None``.
+        Number of fitting levels, at most ``len(iterations)``; the first
+        entries of ``iterations`` are used.  ``len(iterations)`` if ``None``.
     return_field : bool, default=False
         Also return the field.
 

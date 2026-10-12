@@ -21,36 +21,36 @@ def traj(
     oversampling: bool = False,
     **extra,
 ):
-    """A k-space trajectory, in grid units.
+    """k-space trajectory in grid units, Cartesian or radial.
 
     Parameters
     ----------
     readout : int, default=None
-        Samples along a readout (``-x``).
+        Samples per readout (``-x``); BART's default is 128.
     spokes : int, default=None
-        Readouts per frame (``-y``).
+        Readouts per frame (``-y``); BART's default is 128.
     frames : int, default=None
-        Turns of a multi-shot trajectory (``-t``, BART's ``conf.turns``).
-        The name here does not describe the flag.
+        Number of frames along BART's time axis, each rotated by a fraction of
+        the angular increment (``-t``, BART's ``turns``); radial only.
     radial : bool, default=False
-        A radial trajectory rather than Cartesian (``-r``).
+        Radial spokes rather than Cartesian lines (``-r``).
     golden : bool, default=False
-        Golden-angle spacing between spokes (``-G``).
+        Golden-angle increment between spokes (``-G``); implies ``radial``.
     turns : int, default=None
-        SMS multiband factor (``-m``).  The name here does not describe the
-        flag either.
+        Simultaneous multi-slice factor: partitions along BART's slice axis
+        (``-m``); radial only.
     oversampling : bool, default=False
-        Correct the transverse gradient error of a radial trajectory
-        (``-O``).  Despite the name this is not readout oversampling, which
-        is ``traj -o`` and reachable through ``**extra`` as ``o=factor``.
+        Correct the transverse gradient error of a radial trajectory (``-O``).
+        Readout oversampling is ``traj -o``, passed as ``o=factor``.
     **extra
-        Further BART ``traj`` flags, by name.
+        Further BART ``traj`` options, by name.
 
     Returns
     -------
     torch.Tensor
-        Coordinates of shape ``(..., samples, 3)``, which every non-Cartesian
-        transform in this package takes.
+        Coordinates ``(..., spokes, readout, 3)``, ``kx, ky, kz`` in grid
+        units, with leading axes for ``frames`` and ``turns`` when they exceed
+        one.  The layout every non-Cartesian transform in this package takes.
 
     Examples
     --------

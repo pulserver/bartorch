@@ -68,18 +68,43 @@ def _unpack(state, names, z: torch.Tensor):
 
 
 class FixedPoint(nn.Module):
-    """``block`` iterated to its fixed point: a deep-equilibrium model.
+    """Iteration block run to its fixed point and differentiated there (deep equilibrium).
 
-    The forward iterations run outside the graph until the moving state changes
-    by at most ``tol`` of its norm, or for ``max_iter`` steps.  Differentiation
-    is implicit rather than through the unrolled run: one step is taken from
-    the fixed point, and the vector-Jacobian products of that step are iterated
-    to their own fixed point, so memory does not grow with the iteration count.
-    :attr:`iterations` is the last forward pass's count.
+    The forward iterations run without recording until the state changes by at
+    most ``tol`` of its norm, or for ``max_iter`` steps.  The backward pass takes
+    one recorded step from the fixed point and iterates the vector-Jacobian
+    product of that step to its own fixed point, so memory does not grow with the
+    iteration count.
 
-    A step that is not the same map at every iteration -- FISTA's momentum, a
-    moving ``rho``, adaptive or decaying step sizes -- has no fixed point and
-    is rejected.
+    Parameters
+    ----------
+    block : nn.Module
+        One of :mod:`bartorch.optim`'s iteration blocks.
+    max_iter : int, default=100
+        Maximum number of forward iterations.
+    tol : float, default=1e-4
+        Relative change of the state at which the forward iteration stops.
+    backward_iter : int, default=None
+        Maximum number of backward iterations; ``max_iter`` when omitted.
+    backward_tol : float, default=None
+        Relative change at which the backward iteration stops; ``tol`` when
+        omitted.
+
+    Attributes
+    ----------
+    iterations : int
+        Forward iterations taken by the last call.
+
+    Raises
+    ------
+    TypeError
+        ``block`` is a :class:`FISTABlock`, whose momentum makes every step a
+        different map.
+    ValueError
+        ``block`` has no fixed point for another reason: a moving or scheduled
+        ``rho``, adaptive or relaxed step sizes, or an
+        :class:`~bartorch.priors.ImplicitPrior` with a ``sigma`` schedule or
+        ``step=True``.
 
     Examples
     --------
@@ -106,6 +131,25 @@ class FixedPoint(nn.Module):
         self.iterations = 0
 
     def forward(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> torch.Tensor:
+        """Iterate the block from ``block.start(y, A, x0)`` and return the image at the fixed point.
+
+        The result is recorded for autograd only when ``y`` requires a gradient or
+        the block has trainable parameters.
+
+        Parameters
+        ----------
+        y : torch.Tensor
+            Data.
+        A : LinearOperator
+            Encoding operator.
+        x0 : torch.Tensor, default=None
+            Starting image; zero when omitted.
+
+        Returns
+        -------
+        torch.Tensor
+            The image at the fixed point.
+        """
         from bartorch.linop._base import _tracking
 
         block = self.block

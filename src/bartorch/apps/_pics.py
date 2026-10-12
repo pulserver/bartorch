@@ -63,12 +63,11 @@ def _chosen(terms: list[Regularizer]) -> str:
 def image_shape(
     kspace: torch.Tensor, sensitivities: torch.Tensor, traj: torch.Tensor | None = None
 ) -> tuple[int, ...]:
-    """The shape :func:`pics` reconstructs on, for these arguments.
+    """Image shape :func:`pics` reconstructs for these arguments.
 
-    On a grid the image is sampled where the k-space is, so its shape is the
-    k-space's without the coils.  Off it the k-space is shots and samples,
-    which say nothing about the grid, so the image is the shape the
-    sensitivities are given on.
+    On a grid, the shape of ``kspace`` without the coil axis (and without a
+    sets axis of one); along a trajectory, the shape of ``sensitivities``
+    without the coil axis.
     """
     if traj is not None:
         maps = sensitivities.squeeze(1) if sensitivities.ndim > 3 else sensitivities
@@ -98,84 +97,90 @@ def pics(
     scaling: float | None = None,
     rescale: bool = True,
 ) -> torch.Tensor:
-    """Parallel-imaging compressed-sensing reconstruction.
+    """Parallel-imaging compressed-sensing reconstruction, BART's ``pics -S``.
 
-    The pipeline BART's ``pics -S`` command runs, assembled here: the
-    sampling pattern applied to the k-space, the modulation into the
-    convention BART iterates in, the data divided by the scaling estimated
-    from what is left, an encoding from :mod:`bartorch.linop` under an
-    iteration from :mod:`bartorch.optim`, and the image multiplied back by the
-    scaling.  The image is therefore in the units of the k-space, and two
-    acquisitions keep their relative amplitudes, while a regularization weight
-    is relative to the scaled data and transfers between them.
+    The steps of the command: the sampling pattern applied to the k-space, on
+    a grid the modulation into BART's uncentred convention, division by the
+    data scaling, the solve with an encoding from :mod:`bartorch.linop` and an
+    iteration from :mod:`bartorch.optim`, and multiplication of the image by
+    the scaling.  Regularization weights are therefore relative to the scaled
+    data, and the image is in the units of ``kspace``.  On a grid the result
+    equals the command's to the bit.
 
     Parameters
     ----------
     kspace : torch.Tensor
-        Under-sampled k-space, C order: ``(coils, z, y, x)`` on a grid, and
-        ``(coils, *encoding, shots, samples)`` off it.
+        k-space, C order: ``(coils, z, y, x)`` on a grid,
+        ``(coils, *encoding, shots, samples)`` along a trajectory.
     sensitivities : torch.Tensor
-        Coil sensitivities, as :func:`~bartorch.tools.ecalib` produces them.
+        Coil sensitivities ``(coils, [1,] z, y, x)``, as
+        :func:`~bartorch.tools.ecalib` returns them.
     regularizers : Regularizer or iterable of Regularizer, default=None
-        :mod:`bartorch.priors` terms.  Their axes index the image's shape.
+        Terms from :mod:`bartorch.priors`; their axes index the image.
     l2 : float, default=None
-        Plain Tikhonov weight.
+        Tikhonov weight (``-r``).
     solver : {'cg', 'ist', 'fista', 'admm', 'pridu', 'niht'}, default=None
-        ``None`` chooses from the terms, as the application does.  IST and
-        FISTA apply a term's proximal operator to the image, so a first term
-        over a transform -- :class:`~bartorch.priors.FourierL1`,
-        :class:`~bartorch.priors.Laplace` -- for which the application
-        chooses FISTA is refused here; ``'admm'`` and ``'pridu'`` take it.
-        ``'niht'`` is the normalized iterative hard thresholding the
-        application chooses for the hard-thresholding terms
-        :class:`~bartorch.priors.WaveletNIHT` and
-        :class:`~bartorch.priors.ImageNIHT`.
+        Iteration.  ``None`` chooses as the command does: ADMM when
+        ``admm_rho`` is given, otherwise from the terms.
     maxiter : int, default=None
-        Iterations; BART's default is thirty.
+        Iterations (``-i``); ``None`` is BART's 30.
     step : float, default=None
-        Step size for the gradient iterations.
+        Step size of the gradient iterations (``-s``).
     admm_rho : float, default=None
-        ADMM penalty; setting it selects ADMM unless ``solver`` says otherwise.
+        ADMM penalty (``-u``).
     cg_maxiter : int, default=None
-        Inner conjugate-gradient steps for ADMM.
+        Conjugate-gradient iterations inside each ADMM step (``-C``).
     traj : torch.Tensor, default=None
-        Non-Cartesian trajectory, in grid units.
+        Trajectory ``(..., samples, 3)`` in grid units; selects the
+        non-Cartesian encoding.
     pattern : torch.Tensor, default=None
-        Sampling pattern or weights; on a grid it is read off ``kspace`` when
-        it is not given.  Off a grid it weights the data term, ``|W (A x -
-        y)|^2``; the square root of the density compensation of
-        :func:`~bartorch.estimate_density` preconditions the solve.
+        Sampling pattern (``-p``).  On a grid, ``None`` takes the support of
+        ``kspace``.  Along a trajectory it weights the data term,
+        ``||W (A x - y)||^2``, and is typically the square root of
+        :func:`~bartorch.estimate_density`.
     basis : torch.Tensor, default=None
-        Subspace basis over frames and coefficients.
+        Subspace basis (``-B``); used along a trajectory only.
     initial : torch.Tensor, default=None
-        An image to start the iteration from, in the units of the result: of
-        the k-space with ``rescale``, divided by the scaling without it.
-        ``pics -W`` reads it the same way, dividing it by the scaling only
-        under ``-S``.
-    eigen_step : bool, default=False
-        Take the step size from the largest eigenvalue of the normal operator
-        rather than from ``step``, estimated by thirty power iterations as
-        ``pics -e`` estimates it.  The starting vector comes from BART's
-        process-global generator, so this is the one setting under which two
-        runs in a process do not agree to the bit.
+        Starting image (``-W``), in the units of the result: of ``kspace``
+        with ``rescale``, of the scaled data without.
     toeplitz : bool, default=None
-        ``False`` applies the encoding and its adjoint rather than the normal
-        operator's convolution.
+        Along a trajectory, ``False`` applies the NUFFT and its adjoint instead
+        of the normal operator's Toeplitz convolution (``--no-toeplitz``);
+        ``None`` keeps the convolution.  Ignored on a grid.
+    eigen_step : bool, default=False
+        Step size from the largest eigenvalue of the normal operator, by 30
+        power iterations (``-e``).  The start vector comes from BART's
+        process-global generator, so repeated runs in one process differ.
     scaling : float, default=None
-        The data scaling to divide by; estimated by
-        :func:`bartorch.optim.data_scaling` when it is ``None`` or zero, as
-        ``pics -w`` is.  An estimate of zero is replaced by one.
+        Data scaling (``-w``); ``None`` or zero estimates it with
+        :func:`bartorch.optim.data_scaling`, and an estimate of zero is
+        replaced by one.
     rescale : bool, default=True
-        Multiply the image by the scaling after the solve, as ``pics -S``
-        does.  ``False`` returns the image of the scaled data, as ``pics``
-        without ``-S`` does: normalized, so that data of any overall scale
-        reconstruct to images of comparable amplitude.
+        Multiply the image by the scaling (``-S``).  ``False`` returns the
+        image of the scaled data, as ``pics`` without ``-S``.
 
     Returns
     -------
     torch.Tensor
-        The reconstructed image, in the units of ``kspace`` unless ``rescale``
-        is ``False``.
+        Image of the shape :func:`image_shape` gives.
+
+    Raises
+    ------
+    ValueError
+        If ``solver`` is unknown; if ``'cg'`` gets more than one L2 term, or
+        both ``l2`` and an L2 term; if ``eigen_step`` is set with ``'cg'``; if
+        ``'ist'`` or ``'fista'`` gets a first term over a transform other than
+        the identity, such as :class:`~bartorch.priors.FourierL1`, which the
+        command would threshold on the image itself (``'admm'`` and
+        ``'pridu'`` take it).
+
+    Notes
+    -----
+    Without ``solver``, the command's rule (``italgo_choose``) applies: no
+    term or an L2 term alone gives CG; :class:`~bartorch.priors.WaveletNIHT`
+    and :class:`~bartorch.priors.ImageNIHT` give normalized iterative hard
+    thresholding; total variation, the other terms ``italgo_choose`` assigns
+    to ADMM, and any second term give ADMM; any other first term gives FISTA.
 
     Examples
     --------

@@ -43,30 +43,35 @@ def warp(
     *,
     order: int = 1,
 ) -> torch.Tensor:
-    """Pull ``input`` through a displacement field: ``out[p] = input(p + displacement[p])``.
+    """Resample ``input`` through a displacement field: ``out[p] = input(p + displacement[p])``.
 
-    ``p`` and the displacement are in voxels along ``axes``; the grid is
-    zero outside ``[0, n - 1]``.  BART's ``interpolate -D``.
+    Positions and displacements are in voxels along ``axes``; the grid is zero
+    outside ``[0, n - 1]``.  BART's ``interpolate -D``.
 
     Parameters
     ----------
     input : torch.Tensor
+        Image to resample.
     displacement : torch.Tensor
-        Real field of shape ``(..., len(axes))``; component ``i`` of the last
-        axis is the displacement along ``axes[i]``.  The leading shape is
-        aligned right against ``input.shape``, equal to it along ``axes`` and
-        one or equal elsewhere.
+        Real, ``(..., len(axes))``: component ``i`` is the displacement along
+        ``axes[i]``.  The leading shape aligns right against ``input.shape``,
+        equal to it along ``axes`` and one or equal elsewhere.
     axes : int or tuple of int
-        The last ``len(axes)`` axes, in any order: BART interpolates along the
-        first ``len(axes)`` BART dims whatever the flags
-        (motion/displacement.c:117).
+        The last ``len(axes)`` axes, in any order.
     order : {0, 1, 3}, default=1
-        Nearest neighbour, linear, or Keys cubic; see :func:`interpolate`.
+        Nearest neighbour, linear, or Keys cubic; see
+        :func:`bartorch.interpolate`.
 
     Returns
     -------
     torch.Tensor
-        Same shape as ``input``.
+        The shape of ``input``.
+
+    Raises
+    ------
+    ValueError
+        If ``axes`` are not the trailing axes or ``displacement`` does not
+        match ``input``.
     """
     ndim = input.ndim
     axes = _grid.normalize_axes(axes, ndim)
@@ -103,34 +108,41 @@ def affine_transform(
 ) -> torch.Tensor:
     """Resample ``input`` on an affinely mapped grid: ``out(u) = input(matrix @ [u, 1])``.
 
-    The matrix maps output positions to input positions.  Positions are in
-    units of each grid's own field of view with the origin at index
-    ``n // 2``: voxel ``p`` of a grid of ``n`` sits at ``(p - n // 2) / n``
-    (motion/affine.c:25, 152, 466).  A translation of ``t`` therefore moves
+    The matrix maps output positions to input positions, each in units of its
+    own grid's field of view with the origin at index ``n // 2``: voxel ``p``
+    of a grid of ``n`` is at ``(p - n // 2) / n``.  A translation ``t`` moves
     the content by ``-t * n`` voxels, and the identity with an ``oshape``
-    other than the input's rescales the whole field of view onto the new
-    grid.  The grid is zero outside ``[0, n - 1]``.  BART's
-    ``interpolate -A``, which is limited to three dims.
+    other than the input's rescales the field of view onto the new grid.  The
+    grid is zero outside ``[0, n - 1]``.  BART's ``interpolate -A``.
 
     Parameters
     ----------
     input : torch.Tensor
-        Two or three spatial axes, optionally after leading axes of size one.
+        Two or three spatial axes, after leading axes of size one only.
     matrix : torch.Tensor
-        Real ``(k, k + 1)`` or homogeneous ``(k + 1, k + 1)`` matrix,
-        ``k = len(axes)``, acting on column vectors ``[u_0, ..., u_{k-1}, 1]``
-        whose entry ``i`` is the position along ``axes[i]``.
+        Real ``(k, k + 1)`` or homogeneous ``(k + 1, k + 1)``, ``k =
+        len(axes)``, acting on column vectors ``[u_0, ..., u_{k-1}, 1]`` with
+        ``u_i`` the position along ``axes[i]``.
     axes : tuple of int
-        The last two or three axes, in the order the matrix's rows and
-        columns refer to them.
+        The last two or three axes, in the order of the matrix's rows and
+        columns.
     oshape : tuple of int, default=None
-        Output size of the last ``k`` axes, in C order; by default
-        the input's.
+        Output size of the last ``k`` axes, C order; the input's by default.
+    order : {0, 1, 3}, default=1
+        Nearest neighbour, linear, or Keys cubic; see
+        :func:`bartorch.interpolate`.
 
     Returns
     -------
     torch.Tensor
         ``input.shape`` with its last ``k`` axes of size ``oshape``.
+
+    Raises
+    ------
+    ValueError
+        If ``axes`` are not the last two or three, a leading axis exceeds one,
+        or ``matrix`` has the wrong shape or a homogeneous last row other than
+        ``[0, ..., 0, 1]``.
 
     Examples
     --------
@@ -192,27 +204,37 @@ def fovshift(
     """Shift the field of view of k-space data by a linear phase.
 
     Multiplies ``input`` by ``exp(2 pi i k . shift)``, with ``k`` in cycles
-    per field of view and ``shift`` in fields of view (fovshift.c:31, 128;
-    num/filter.c:256).  On Cartesian data ``k = p - n / 2`` for index ``p``
-    of the last three axes -- zero at the centre of a centred FFT for even
-    ``n``.  The image moves by ``-shift``: under :func:`bartorch.fft`'s
-    convention the result is the spectrum of ``image[p + shift * n]``.
+    per field of view and ``shift`` in fields of view.  On Cartesian data
+    ``k = p - n / 2`` for index ``p`` of the last three axes, zero at the
+    centre of a centred FFT for even ``n``.  The image moves by ``-shift``:
+    under :func:`bartorch.fft`'s convention the result is the spectrum of
+    ``image[p + shift * n]``.
 
     Parameters
     ----------
     input : torch.Tensor
-        Centred Cartesian k-space whose last three axes (or fewer) are
-        ``(kz, ky, kx)``, or with ``traj`` the samples shaped as
-        :func:`bartorch.nufft` returns them.
+        Centred Cartesian k-space with ``(kz, ky, kx)``, or fewer, as its last
+        axes; with ``traj``, samples shaped as :func:`bartorch.nufft` returns
+        them.
     shift : sequence of float
-        Shift along the image axes in C order, ``(z, y, x)`` or ``(y, x)``
-        or ``(x,)``; in fields of view, or in voxels with ``pixels``.
+        Shift along the image axes in C order, ``(z, y, x)``, ``(y, x)`` or
+        ``(x,)``; in fields of view, or in voxels with ``pixels``.
     traj : torch.Tensor, default=None
         Trajectory ``(..., samples, 3)`` in grid units, ``kx, ky, kz``, as
         :func:`bartorch.tools.traj` produces.
     pixels : bool, default=False
-        ``shift`` in voxels rather than fields of view; Cartesian
-        only.
+        ``shift`` in voxels rather than fields of view; Cartesian only.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
+
+    Raises
+    ------
+    ValueError
+        If ``shift`` has more than three entries, more than ``input`` has
+        axes, or ``pixels`` is combined with ``traj``.
     """
     shift = [float(s) for s in shift]
     if not 1 <= len(shift) <= 3:
@@ -237,7 +259,8 @@ def register_affine(
 ) -> torch.Tensor:
     """Affine transform that maps ``reference`` onto ``moved``, by mutual information.
 
-    Registers magnitudes over a three-level Gaussian pyramid.
+    Magnitudes are registered over a three-level Gaussian pyramid.  BART's
+    ``affinereg``.
 
     Parameters
     ----------
@@ -258,12 +281,16 @@ def register_affine(
         and columns are the last ``k`` axes in C order.  It maps a position in
         ``reference`` to the position in ``moved`` that lands there,
         ``p_moved = A @ p_ref + t``, each in its own grid's field-of-view
-        units ``(index - n // 2) / n`` (``motion/affine.c:152-171``,
-        ``:428-465``): content of ``moved`` displaced by ``d`` voxels along
-        the last axis gives ``t[-1] = d / n``.  This is the convention
-        :func:`bartorch.tools.affine_transform` takes:
+        units ``(index - n // 2) / n``: content of ``moved`` displaced by
+        ``d`` voxels along the last axis gives ``t[-1] = d / n``.
         ``affine_transform(moved, matrix, axes=tuple(range(-k, 0)))``
         resamples ``moved`` onto ``reference``.
+
+    Raises
+    ------
+    ValueError
+        If ``transform`` is unknown, an image has a leading axis above one, or
+        only one mask is given or a mask's shape differs from its image's.
     """
     try:
         flag = _TRANSFORMS[transform]
@@ -314,7 +341,7 @@ def register_nonrigid(
 ) -> tuple[torch.Tensor, torch.Tensor | None]:
     """Displacement field from ``reference`` into ``moved``, by greedy SyN or TV-L1 optical flow.
 
-    Registers magnitudes.
+    Magnitudes are registered.  BART's ``estmotion``.
 
     Parameters
     ----------
@@ -340,9 +367,15 @@ def register_nonrigid(
         takes: ``warp(moved, field, axes)`` resamples ``moved`` onto
         ``reference``.
     inverse_field : torch.Tensor or None
-        Same layout, ``reference(p + inverse_field[p]) ≈ moved(p)``.  ``None``
-        with ``optical_flow``: BART computes no inverse there
-        (``estmotion.c:275``).
+        Same layout, ``reference(p + inverse_field[p]) ≈ moved(p)``; ``None``
+        with ``optical_flow``, for which BART computes no inverse.
+
+    Raises
+    ------
+    ValueError
+        If the images differ in shape or have more than eight axes, ``levels``
+        is outside one to five, or ``tv_weight`` or ``max_flow`` is given
+        without ``optical_flow``.
     """
     _grid.same_shape(reference, moved, "reference and moved")
     ndim = reference.ndim
@@ -385,6 +418,8 @@ def estimate_shift(
 ) -> torch.Tensor:
     """Sub-voxel shift that moves ``b`` onto ``a``, from the phase of their cross-spectrum.
 
+    BART's ``estshift``.
+
     Parameters
     ----------
     a, b : torch.Tensor
@@ -412,9 +447,16 @@ def nrmse(reference: torch.Tensor, input: torch.Tensor, *, scaled: bool = False)
 
     Parameters
     ----------
+    reference, input : torch.Tensor
+        Arrays of the same shape.
     scaled : bool, default=False
         First scale ``reference`` by the complex least-squares factor
         ``Σ conj(reference)·input / ‖reference‖²``.
+
+    Returns
+    -------
+    float
+        The error.
     """
     _grid.same_shape(reference, input, "reference and input")
     return float(dispatch("nrmse", [reference, input], False, s=scaled, scientific=True))
@@ -427,35 +469,50 @@ def _measure(option: str, reference: torch.Tensor, input: torch.Tensor) -> float
 
 @curated("measure")
 def mse(reference: torch.Tensor, input: torch.Tensor, *, magnitude: bool = False) -> float:
-    """Mean squared error ``mean |input - reference|²`` over every element .
+    """Mean squared error ``mean |input - reference|²`` over every element.
 
     Parameters
     ----------
+    reference, input : torch.Tensor
+        Arrays of the same shape.
     magnitude : bool, default=False
-        Compare magnitudes, ``mean (|input| - |reference|)²``, taken as the
-        root sum of squares over the coil axis ``-4`` of a C-order
-        ``(..., coils, z, y, x)`` array .
+        Compare magnitudes, ``mean (|input| - |reference|)²``, each the root
+        sum of squares over the coil axis of ``(..., coils, z, y, x)``.
+
+    Returns
+    -------
+    float
+        The error.
     """
     return _measure("mse_mag" if magnitude else "mse", reference, input)
 
 
 @curated("measure")
 def ssim(reference: torch.Tensor, input: torch.Tensor) -> float:
-    """Mean structural similarity of the magnitudes .
+    """Mean structural similarity of the magnitudes.
 
     Magnitudes are the root sum of squares over the coil axis, and each image
     is divided by the maximum magnitude of its ``reference``.  SSIM with
     ``k1 = 0.01``, ``k2 = 0.03``, dynamic range one and population
     statistics over a uniform 7x7 window in ``(y, x)``, at every position the
     window fits whole (no padding), averaged over those positions, over ``z``
-    and over every other axis (``networks/losses.c:304-327``,
-    ``nn/losses.c:151-285``).
+    and over every other axis.
 
     Parameters
     ----------
     reference, input : torch.Tensor
-        C order ``(..., coils, z, y, x)``; a plain ``(y, x)`` image serves.
-        ``y`` and ``x`` are at least seven.
+        ``(..., coils, z, y, x)``, or a ``(y, x)`` image; ``y`` and ``x`` at
+        least seven.
+
+    Returns
+    -------
+    float
+        Mean SSIM, at most one.
+
+    Raises
+    ------
+    ValueError
+        If ``y`` or ``x`` is below seven.
     """
     if min(reference.shape[-2:], default=0) < 7:
         raise ValueError(f"ssim needs y and x of at least 7, got shape {tuple(reference.shape)}")
@@ -464,17 +521,21 @@ def ssim(reference: torch.Tensor, input: torch.Tensor) -> float:
 
 @curated("measure")
 def psnr(reference: torch.Tensor, input: torch.Tensor) -> float:
-    """Peak signal-to-noise ratio of the magnitudes in decibels, averaged over images .
+    """Peak signal-to-noise ratio of the magnitudes, in decibels, averaged over images.
 
     Per image over ``(z, y, x)``: ``20 log10 max|reference| - 10 log10
     mean (|input| - |reference|)²``, magnitudes being the root sum of squares
-    over the coil axis; then the mean over every other axis
-    (``nn/losses.c:54-100``).
+    over the coil axis; then the mean over every other axis.
 
     Parameters
     ----------
     reference, input : torch.Tensor
-        C order ``(..., coils, z, y, x)``; a plain ``(y, x)`` image serves.
+        ``(..., coils, z, y, x)``, or a ``(y, x)`` image.
+
+    Returns
+    -------
+    float
+        PSNR in decibels.
     """
     return _measure("psnr", reference, input)
 
@@ -483,19 +544,21 @@ def psnr(reference: torch.Tensor, input: torch.Tensor) -> float:
 def roi_stat(
     roi: torch.Tensor, input: torch.Tensor, stat: str = "mean", *, bessel: bool = False
 ) -> torch.Tensor:
-    """Statistic of ``input`` over the region ``roi``.
+    """Statistic of ``input`` over the region ``roi``.  BART's ``roistat``.
 
     Parameters
     ----------
     roi : torch.Tensor
-        Weights, binary for the plain statistics.  Broadcasts against
-        ``input``; an axis where ``roi`` has size one and ``input`` does not
-        (or the reverse, several regions along it) is kept.
+        Weights, binary for the plain statistics, broadcasting against
+        ``input``.  An axis where only one of the two exceeds one (several
+        images, or several regions) is kept in the result.
+    input : torch.Tensor
+        Values the statistic is taken of.
     stat : {"count", "sum", "mean", "std", "energy", "variance"}, default='mean'
-        ``count`` is the sum of the weights; ``sum`` of the weighted
-        values; ``mean`` their ratio; ``energy`` the sum of
-        squared deviations from the mean, not of squared values;
-        ``variance`` energy over count; ``std`` its root.
+        ``count`` is the sum of the weights, ``sum`` that of the weighted
+        values, ``mean`` their ratio; ``energy`` is the sum of squared
+        deviations from the mean, ``variance`` energy over count, ``std`` its
+        root.
     bessel : bool, default=False
         Divide by count minus one; ``std`` and ``variance`` only.
 
@@ -505,6 +568,12 @@ def roi_stat(
         Broadcast shape of ``roi`` and ``input``, with size one on the axes
         where both exceed one.  Complex for ``sum`` and ``mean``, real
         otherwise.
+
+    Raises
+    ------
+    ValueError
+        If ``stat`` is unknown, ``bessel`` is given for another statistic, or
+        the shapes do not broadcast.
     """
     try:
         flag = _STATS[stat]

@@ -80,23 +80,30 @@ def _physics_class() -> type:
 
 
 def to_deepinv(op, **kwargs):
-    """A :class:`~bartorch.linop.LinearOperator` as a ``deepinv.physics.LinearPhysics``.
+    """Wrap a :class:`~bartorch.linop.LinearOperator` as a ``deepinv.physics.LinearPhysics``.
 
-    A tensor with one more axis than the operator's shape is treated as a
-    batch and applied item by item.  ``A_dagger`` solves by
-    :class:`bartorch.optim.CG`.
+    ``A`` and ``A_adjoint`` apply the operator and its adjoint, differentiably;
+    a tensor with one more axis than the operator's shape is a batch, applied
+    item by item.  ``A_dagger`` solves by :class:`bartorch.optim.CG`.
 
     Parameters
     ----------
     op : LinearOperator
-        Kept alive as long as the physics.
+        Operator, kept alive as long as the physics.
     **kwargs
-        ``maxiter``, ``lambda_`` and ``tol`` for ``A_dagger``, overridable per
-        call, and anything ``LinearPhysics`` takes.
+        ``maxiter`` (30), ``lambda_`` (0.0) and ``tol`` (1e-6), the defaults of
+        ``A_dagger``, each overridable per call; anything else is passed to
+        ``LinearPhysics``, such as a ``noise_model``.
 
     Returns
     -------
     deepinv.physics.LinearPhysics
+        The physics, with the operator as its ``op`` attribute.
+
+    Raises
+    ------
+    ImportError
+        ``deepinv`` is not installed.
 
     Examples
     --------

@@ -17,33 +17,34 @@ __all__ = ["Regularizer"]
 
 
 class Regularizer(abc.ABC):
-    """Regularization functional with a proximal operator built by BART.
+    r"""Regularization term :math:`g(G x)` whose proximal operator and transform BART builds.
 
-    A regularizer represents :math:`g(G x)`: a linear transform :math:`G` and
-    the proximal operator of a functional :math:`g` acting on its codomain.
-    :math:`G` is the identity for terms that penalize the image directly, and
-    for terms carrying their own transform inside the proximal operator, such
-    as :class:`~bartorch.priors.Wavelet`; it is a genuine operator for terms
-    such as :class:`~bartorch.priors.TotalVariation`, whose functional acts on
-    finite differences.  Both come from BART's ``opt_reg_configure``.
+    :math:`G` is a linear transform and :math:`g` a functional on its codomain,
+    both from BART's ``opt_reg_configure``.  :math:`G` is the identity for a
+    term on the image itself and for a term whose transform is inside its
+    proximal operator, such as :class:`~bartorch.priors.Wavelet`; it is a
+    proper operator for a term such as :class:`~bartorch.priors.TotalVariation`,
+    whose functional acts on finite differences.  Only the alternating-direction
+    and primal-dual iterations apply :math:`G`; see
+    :meth:`transform_is_identity`.
 
-    Only the alternating-direction and primal-dual iterations are given
-    :math:`G`; see :meth:`transform_is_identity`.
-
-    Both are built per image shape and cached, and handed to a solver as they
-    are, so solving twice with the same term builds nothing the second time.
+    Both are built per image shape and cached, so solving twice with the same
+    term builds nothing the second time.
 
     Attributes
     ----------
     kind : str
-        BART's identifier for the regularizer, the letter ``opt_reg_configure``
-        selects it by.
+        BART's letter for the term, as ``-R`` takes it.
+    weight : float
+        The term's weight :math:`\lambda`, relative to data divided by
+        :func:`~bartorch.optim.data_scaling`.
     axes : tuple of int
-        Axes the term works over, as indices into the image's shape.
+        Axes the transform acts over, as indices into the image's shape.
     joint_axes : tuple of int
-        Axes along which the term acts jointly.
+        Axes along which entries are thresholded jointly, as one :math:`\ell_2`
+        norm.
     count : int
-        Entries an NIHT term keeps; zero for every other term.
+        For an NIHT term, the percentage of entries kept; zero otherwise.
 
     Examples
     --------
@@ -66,12 +67,29 @@ class Regularizer(abc.ABC):
     _extends: bool = False
 
     def build(self, shape: tuple[int, ...], item: int = 0) -> int:
-        """The BART operator for this term over an image of C-order ``shape``.
+        """Handle of BART's operator for this term over an image of C-order ``shape``.
 
-        Built on first use for each shape.  A term that draws random shifts
-        is built once per ``item`` of a batch, so that each item draws the
-        sequence it would draw alone.  The returned handle is owned by this
-        term and freed with it.
+        Built on first use for each shape and cached.  A term that draws random
+        shifts is built once per batch ``item``, so that each item draws the
+        sequence it would draw alone.  The handle is owned by the term and freed
+        with it.
+
+        Parameters
+        ----------
+        shape : tuple of int
+            Image shape.
+        item : int, default=0
+            Batch item.
+
+        Returns
+        -------
+        int
+            The handle.
+
+        Raises
+        ------
+        ~bartorch.BartError
+            BART could not build the term over ``shape``.
         """
         shape = tuple(shape)
         if not hasattr(self, "_handles"):
@@ -107,13 +125,20 @@ class Regularizer(abc.ABC):
         return handle
 
     def prox_shape(self, image_shape: tuple[int, ...]) -> tuple[int, ...]:
-        """The C-order shape this term's proximal operator works on.
+        """C-order shape of the domain of the proximal operator, for an image of ``image_shape``.
 
-        The image's, for a term that carries its own transform inside the
-        proximal operator, a wavelet term included.  A term
-        whose transform is in front instead answers with the transform's
-        codomain: total variation thresholds the components of a gradient, and
-        those are an axis of their own.
+        The image's shape when :math:`G` is the identity, wavelet terms included;
+        otherwise the codomain of :math:`G`, which for total variation carries the
+        gradient components on an axis of their own in front.
+
+        Parameters
+        ----------
+        image_shape : tuple of int
+            Image shape.
+
+        Returns
+        -------
+        tuple of int
         """
         image_shape = tuple(image_shape)
         handle = self.build(image_shape)
@@ -137,46 +162,42 @@ class Regularizer(abc.ABC):
         image_shape: tuple[int, ...] | None = None,
         item: int = 0,
     ) -> torch.Tensor:
-        """``prox_{gamma g}(x)``, the operator BART's solvers apply.
-
-        Exposed directly so that an iteration written outside the library
-        applies the same proximal operator the library would have.
-
-        Raises a :class:`ValueError` for a tensor that requires a gradient: no
-        backward pass is implemented for BART's proximal operators, and
-        treating one as the identity would zero the gradient path through the
-        regularizer.  Use :class:`~bartorch.priors.ImplicitPrior` for a
-        differentiable proximal step, or :meth:`detach` to hold this one fixed.
+        r"""Apply the proximal operator :math:`\operatorname{prox}_{\gamma g}` as BART's solvers do.
 
         Parameters
         ----------
         x : tensor
-            Of :meth:`prox_shape`, which for most terms is the image's.
+            Of :meth:`prox_shape`, the image's shape for most terms.
         gamma : float, default=1.0
-            The step the proximal operator is taken at.  The term's own weight
-            is already in the operator, so this is only the step.
+            Step :math:`\gamma`; the term's weight is already in :math:`g`.
         image_shape : tuple of int, default=None
-            The image the term was configured for, when that is not what ``x``
-            is shaped like -- which is the case for total variation, whose
-            proximal operator works on the components of a gradient.  By
-            default ``x``'s own shape, which is right for every other term.
+            Image shape the term is configured for, when it differs from
+            ``x.shape``, as for total variation; ``x.shape`` when omitted.
         item : int, default=0
-            Which item of a batch ``x`` is; a term that draws random shifts
-            keeps a generator per item.
+            Batch item ``x`` is; a term that draws random shifts keeps a generator
+            per item.
 
         Returns
         -------
         torch.Tensor
+            Complex64, of ``x``'s shape.
+
+        Raises
+        ------
+        ValueError
+            ``x`` requires a gradient: BART's proximal operators have no backward
+            pass.  Use :class:`~bartorch.priors.ImplicitPrior` for a differentiable
+            proximal step, or :meth:`detach` to hold this one fixed.  Also raised
+            for an ``x`` not of :meth:`prox_shape`.
+        ~bartorch.BartError
+            BART could not apply the operator.
 
         Notes
         -----
-        This is the proximal operator alone.  A term may also carry a linear
-        transform in front of it -- see :meth:`transform` -- in which case a
-        solver computes ``prox(transform(x))``.  BART's ``iter2_ist`` applies
-        the proximal operator to the image and ignores the transform entirely,
-        so IST and FISTA admit only terms whose transform is the identity; a
-        total-variation term is excluded, its proximal operator not being
-        shaped like an image.
+        This is the proximal operator alone; a solver applying the term computes
+        it on :math:`G x` (:meth:`apply_transform`).  BART's IST and FISTA apply
+        it to the image and ignore :math:`G`, so they take only terms whose
+        transform is the identity.
 
         Examples
         --------
@@ -216,36 +237,36 @@ class Regularizer(abc.ABC):
     def apply_transform(
         self, x: torch.Tensor, image_shape: tuple[int, ...] | None = None, mode: str = "forward"
     ) -> torch.Tensor:
-        """This term's transform applied to ``x``, without making an operator of it.
+        """Apply :math:`G`, its adjoint or :math:`G^H G` to ``x``.
 
-        :meth:`transform` cannot answer for the gradient family -- their
-        components live on an axis past BART's sixteen -- and those are exactly
-        the terms an alternating-direction solver is for.  This applies the
-        transform over the shapes :meth:`prox_shape` reports instead, which a
-        tensor can hold at any rank.
+        Works at any rank, including total variation's, whose codomain exceeds
+        BART's 16 dimensions and so has no :meth:`transform` operator.
 
         Parameters
         ----------
         x : tensor
-            The image for ``"forward"``, the proximal operator's domain for
-            ``"adjoint"``, the image for ``"normal"``.
+            The image for ``"forward"`` and ``"normal"``, of :meth:`prox_shape` for
+            ``"adjoint"``.
         image_shape : tuple of int, default=None
-            What the term was configured for; by default ``x``'s own shape,
-            which is right whenever the transform starts from the image.
-        mode : {"forward", "adjoint", "normal"}, default='forward'
+            Image shape the term is configured for; ``x.shape`` when omitted, which
+            holds for ``"forward"`` and ``"normal"``.
+        mode : {"forward", "adjoint", "normal"}, default="forward"
+            :math:`G`, :math:`G^H` or :math:`G^H G`.
 
         Returns
         -------
         torch.Tensor
+            Complex64.
+
+        Raises
+        ------
+        ValueError
+            An unknown ``mode``, or ``x`` not of the shape ``mode`` takes.
 
         Notes
         -----
-        Recorded for autograd when ``x`` carries a gradient: the backward pass
-        is the transpose, which is the other of ``forward`` and ``adjoint``,
-        and ``normal`` itself.  An unrolled network differentiates through the
-        transform this way; the proximal operator behind it is BART's and has
-        no implemented backward pass, which is why
-        :class:`~bartorch.priors.ImplicitPrior` exists.
+        Recorded for autograd when ``x`` requires a gradient: the backward pass of
+        ``"forward"`` is ``"adjoint"`` and vice versa, and ``"normal"`` is its own.
         """
         from bartorch.linop._base import _tracking
 
@@ -293,17 +314,27 @@ class Regularizer(abc.ABC):
         return out
 
     def transform(self, image_shape: tuple[int, ...]):
-        """The operator BART puts in front of this term's proximal operator.
+        """The transform :math:`G` as a :class:`~bartorch.linop.LinearOperator`.
 
-        The identity for a term that carries its transform inside the proximal
-        operator instead.  The shapes do not say which arrangement a term is:
-        the Laplace term's transform is a real convolution whose codomain is
-        shaped like the image, so a caller inferring the arrangement from the
-        shape would omit it without noticing.
+        The identity for a term whose transform is inside its proximal operator.
+        The shapes do not tell the two arrangements apart: the Laplace term's
+        transform is a convolution whose codomain has the image's shape.
+
+        Parameters
+        ----------
+        image_shape : tuple of int
+            Image shape.
 
         Returns
         -------
         LinearOperator
+            :math:`G`, from the image to :meth:`prox_shape`.
+
+        Raises
+        ------
+        ~bartorch.BartError
+            The transform's rank exceeds BART's 16 dimensions, as for total
+            variation; :meth:`apply_transform` applies it instead.
         """
         handle = self.build(tuple(image_shape))
         lib = library()
@@ -321,14 +352,18 @@ class Regularizer(abc.ABC):
         return _Transform(ptr, ishape, oshape)
 
     def rewind(self, image_shape: tuple[int, ...]) -> None:
-        """Put this term's own random generator back to where it started.
+        """Reset the term's own random generator, for an image of ``image_shape``.
 
-        A wavelet threshold spins its transform by a shift drawn from a
-        generator of its own, seeded at one when BART makes the operator.  The
-        tool builds a fresh operator per run; a term here is kept, so a solve
-        rewinds it and a reused term answers as the tool does.  Every solver
-        does this before it iterates, whether the loop is BART's or written
-        out here; a term with no such generator is left alone.
+        A wavelet or locally low-rank term shifts its transform by a draw from a
+        generator seeded when BART builds the operator.  ``pics`` builds a fresh
+        operator per run; every solver here rewinds its terms before it iterates,
+        so a reused term draws as the command does.  A term without a generator
+        is unaffected.
+
+        Parameters
+        ----------
+        image_shape : tuple of int
+            Image shape.
         """
         image_shape = tuple(image_shape)
         self.build(image_shape)
@@ -344,17 +379,21 @@ class Regularizer(abc.ABC):
                 raise BartError(f"{self!r} could not be rewound")
 
     def transform_is_identity(self, image_shape: tuple[int, ...]) -> bool:
-        """Whether the term's linear transform is the identity, as BART decides it.
+        """Whether :math:`G` is the identity, as BART's ``linop_is_identity`` decides.
 
-        Decided by ``linop_is_identity`` on the operator, not by comparing
-        shapes: the Laplace term's transform is a convolution on the image's
-        own shape, and total variation's has a rank BART cannot hand over at
-        all.  ``iter2_chambolle_pock`` asks this of the first term before
-        treating it as the primal proximal step rather than a dual one.
+        Decided on the operator, not from shapes: the Laplace term's transform is
+        a convolution on the image's own shape.  ``iter2_chambolle_pock`` asks this
+        of the first term to choose it as the primal proximal step.
+
+        Parameters
+        ----------
+        image_shape : tuple of int
+            Image shape.
 
         Returns
         -------
         bool
+            True when :math:`G` is the identity.
         """
         handle = self.build(tuple(image_shape))
         with _lock:
@@ -411,15 +450,17 @@ class Regularizer(abc.ABC):
         return f"{self.kind}:{x}:{j}:{self.weight!r}"
 
     def detach(self) -> Regularizer:
-        """This term with its proximal step detached, for a differentiated solve.
+        """Return this term with its proximal step detached from the autograd graph.
 
-        No backward pass is implemented for BART's proximal operators, so
-        :meth:`prox` raises on a tensor that requires a gradient rather than
-        contributing an incorrect one.  The detached term thresholds exactly as
-        before, and the gradient obtained is the one the iteration has with
-        this term held fixed: the use is a solve in which a differentiable
-        denoiser occupies one term and a BART term another, and only the
-        denoiser is trained.
+        The detached term thresholds exactly as before, and the gradient obtained
+        is the iteration's with this term held fixed: the use is a solve in which a
+        differentiable denoiser occupies one term and a BART term another, and
+        only the denoiser is trained.
+
+        Returns
+        -------
+        Regularizer
+            A view of this term whose :meth:`prox` detaches its input.
 
         Examples
         --------

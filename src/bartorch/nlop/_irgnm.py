@@ -62,68 +62,78 @@ def _at(solver, alpha: float):
 
 
 class IRGNMBlock(nn.Module):
-    """One step of iteratively regularized Gauss-Newton, ``noir``'s Gauss-Newton step.
+    """One iteratively regularized Gauss-Newton step, as a :class:`torch.nn.Module`.
 
-    Without ``inner`` the step is BART's first form,
+    Without ``inner`` the step is BART's ``irgnm`` form (``noir``'s
+    Gauss-Newton step),
 
     ``x = xn + (DF^H DF + alpha)^-1 [DF^H (y - F(xn)) - alpha (xn - xref)]``,
 
     with the inverse computed by conjugate gradients inside the library and
-    differentiated implicitly.  With ``inner`` it is the second form: the
-    solver minimizes ``||DF u - r||^2 + alpha ||u||^2 + R(u)`` for ``DF``
-    linearized at ``xn`` and ``r = y - F(xn) + DF (xn - xref)``, and
-    ``x = u + xref``.  The weight then decays as
-    ``alpha <- (alpha - alpha_min) / redu + alpha_min``, and in the second form
-    is kept above ``alpha_min0``.
+    differentiated implicitly.  With ``inner`` it is the ``irgnm2`` form: the
+    solver minimizes ``||DF u - r||^2 + alpha ||u||^2 + R(u)`` with ``DF``
+    taken at ``xn`` and ``r = y - F(xn) + DF (xn - xref)``, and
+    ``x = u + xref``.
 
-    ``state = block.start(y, F, x0, xref)`` prepares the data and the model,
+    ``state = block.start(y, F, x0, xref)`` prepares a run,
     ``state = block(state, F)`` takes one step, and ``block.output(state, F)``
-    returns the unknowns.  ``alpha`` is the weight of the first step: the block
-    taking step ``k`` applies it decayed ``k`` times, so one block looped, or a
-    stack of blocks with the same ``alpha``, is BART's schedule, and a stack
-    whose blocks learn ``alpha`` learns a weight per step.  ``F`` needs a
-    :attr:`~bartorch.nlop.NonlinearOperator._bundled`.  A leading batch axis on
-    ``y`` is a batch of independent items, each stepped on its own; a model that
-    holds its items, as ``CoilSense(..., items=True)`` does, is stepped as one,
-    with each item's inner problem solved on its own.
+    returns the unknowns.  Step ``k`` (counted from zero in the state) uses
+    ``alpha`` decayed ``k`` times by ``alpha <- (alpha - alpha_min) / redu +
+    alpha_min``, so a looped block, or a stack of blocks with equal
+    ``alpha``, follows BART's schedule.
 
     Parameters
     ----------
     alpha : float, default=1.0
-        Initial Tikhonov weight.
+        Tikhonov weight of the first step.
     alpha_min : float, default=0.0
-        What the weight decays towards.
+        Limit the weight decays towards.
     alpha_min0 : float, default=0.0
-        Floor the decayed weight is never taken below; second form only.
+        Lower bound on the decayed weight; ``irgnm2`` form only.
     redu : float, default=2.0
-        Factor the weight is divided by after each step.
+        Decay factor of the weight per step.
     cg_maxiter : int, default=30
-        The first form's conjugate-gradient iterations, ``iter_conjgrad_conf``'s
-        ``maxiter``.
+        Conjugate-gradient iterations of the ``irgnm`` form
+        (``iter_conjgrad_conf.maxiter``).
     cg_tol : float, default=0.0
-        Its tolerance, ``iter_conjgrad_conf``'s ``tol``.  A nonzero ``tol`` is
-        refused by BART once the step is differentiated.
+        Their tolerance (``iter_conjgrad_conf.tol``); BART refuses a nonzero
+        value when the step is differentiated.
     cg_lambda : float, default=0.0
-        Its Tikhonov weight, ``iter_conjgrad_conf``'s ``l2lambda``.
+        Their Tikhonov weight (``iter_conjgrad_conf.l2lambda``).
     inner : solver, default=None
-        A configured solver from :mod:`bartorch.optim` for the linearized
-        problem; its regularizers are ``R``.
+        Configured solver from :mod:`bartorch.optim` for the linearized
+        problem, selecting the ``irgnm2`` form; its regularizers are ``R``.
     fuse : bool, default=True
-        Lower a coil composition so that its encoding is applied once as its
-        normal operator; see :meth:`plan`.
+        Apply the encoding of a coil model (a product of two unknowns before a
+        linear encoding) as its normal operator; see :meth:`plan`.
+
+    Raises
+    ------
+    ValueError
+        If ``alpha_min0`` is nonzero without ``inner``.
+    TypeError
+        If ``inner`` is not a solver from :mod:`bartorch.optim`.
 
     Notes
     -----
+    ``F`` must supply its derivative as a function of the point; an operator
+    from :meth:`~bartorch.nlop.NonlinearOperator.from_callbacks` does not, and
+    is refused with ``TypeError``.  A leading batch axis on ``y`` holds
+    independent items, each stepped on its own; a model that holds its items,
+    such as ``CoilSense(..., items=True)``, is applied to all at once, with
+    each item's inner problem solved on its own.
+
     ``alpha`` and ``redu`` are :class:`torch.nn.Parameter` objects, frozen until
-    ``requires_grad_()``.  The first form is differentiable by the data, the
-    iterate, the centre and ``alpha``.  The second form is differentiable by
-    the data, the iterate, the centre and the inner solver's own settings and
-    priors; it gives ``alpha`` to the solver as a number, so ``alpha`` is held
-    fixed there.
+    ``requires_grad_()``.  The ``irgnm`` form is differentiable by the data,
+    the iterate, ``xref`` and ``alpha``.  The ``irgnm2`` form is differentiable
+    by the data, the iterate, ``xref`` and the inner solver's settings and
+    priors, and passes ``alpha`` to the solver as a number.
     """
 
     @dataclasses.dataclass(frozen=True)
     class State:
+        """State of a run: iterate ``x``, centre ``xref``, prepared data, model and step ``k``."""
+
         x: torch.Tensor
         xref: torch.Tensor
         data: torch.Tensor
@@ -180,22 +190,51 @@ class IRGNMBlock(nn.Module):
         return made
 
     def plan(self, F):
-        """What ``F`` was lowered into, as a :class:`~bartorch.nlop._plan.Plan`.
+        """Report how the steps apply ``F``.
 
-        ``plan.derivative`` says where the derivative came from, ``plan.domain``
-        whether the step works against the normal operator or applies the
-        encoding forward and adjoint, ``plan.encoding`` the linear part's own
-        plan, and ``plan.fused`` whether the coil model was rewritten.
+        Parameters
+        ----------
+        F : NonlinearOperator or LinearOperator
+            Forward model.
+
+        Returns
+        -------
+        Plan
+            ``plan.derivative``: where the derivative comes from (``'declared'``,
+            ``'chain rule'``, ``'linear'`` or ``'torch'``); ``plan.domain``:
+            ``'normal'`` when the step applies the encoding as ``E^H E`` to
+            data taken through ``E^H``, ``'paired'`` when it applies ``E`` and
+            ``E^H``; ``plan.encoding``: the linear encoding's own plan, or
+            ``None``; ``plan.fused``: whether the coil model was rewritten.
         """
         return self._space(F).plan
 
     def start(self, y: torch.Tensor, F, x0=None, xref=None) -> State:
-        """The run's state: the prepared data, the start, the centre and the weight.
+        """Prepare a run.
 
-        ``x0`` and ``xref`` are a state (the unknowns laid end to end), the one
-        unknown of a single-input model at its shape, or a tuple of unknowns.
-        Without ``x0`` the start is ``nlinv``'s: the first unknown ones, the
-        rest zero.  Without ``xref`` the steps are regularized towards zero.
+        Parameters
+        ----------
+        y : torch.Tensor
+            Data of the model's output shape, with an optional leading batch
+            axis.
+        F : NonlinearOperator or LinearOperator
+            Forward model.
+        x0, xref : torch.Tensor or tuple of torch.Tensor, default=None
+            Start and regularization centre: a tuple with one tensor per
+            input, the inputs flattened and concatenated, or for a model of
+            one input that input at its shape.  ``x0=None`` starts as
+            ``nlinv`` does, with the first input ones and the others zero;
+            ``xref=None`` regularizes towards zero.
+
+        Returns
+        -------
+        IRGNMBlock.State
+            Iterate, centre, prepared data and step count ``k = 0``.
+
+        Raises
+        ------
+        ValueError
+            If ``inner`` is set and the model holds several items.
         """
         space = self._space(F)
         if self.inner is not None and 1 < space.items:
@@ -214,6 +253,20 @@ class IRGNMBlock(nn.Module):
         return self.State(x, centre, data, space)
 
     def forward(self, state: State, F) -> State:
+        """Take one Gauss-Newton step.
+
+        Parameters
+        ----------
+        state : IRGNMBlock.State
+            State from :meth:`start` or a previous step.
+        F : NonlinearOperator or LinearOperator
+            Forward model the state was started with.
+
+        Returns
+        -------
+        IRGNMBlock.State
+            The new iterate, with ``k`` incremented.
+        """
         space = state.space
         take = self._first if self.inner is None else self._second
         if space.batched(state.x, space.state_shape):
@@ -224,7 +277,20 @@ class IRGNMBlock(nn.Module):
         return dataclasses.replace(state, x=x, k=state.k + 1)
 
     def output(self, state: State, F):
-        """The unknowns: a tensor for a model of one input, else one per input."""
+        """Return the unknowns of a state.
+
+        Parameters
+        ----------
+        state : IRGNMBlock.State
+            State of the run.
+        F : NonlinearOperator or LinearOperator
+            Forward model.
+
+        Returns
+        -------
+        torch.Tensor or tuple of torch.Tensor
+            One tensor per input of ``F``, with the batch axis of the data.
+        """
         parts = state.space.split(state.x)
         return parts[0] if 1 == len(parts) else parts
 
@@ -275,42 +341,46 @@ class IRGNMBlock(nn.Module):
 
 
 class IRGNM:
-    """Iteratively regularized Gauss-Newton for ``F(x) = y``, looping :class:`IRGNMBlock`.
+    """Iteratively regularized Gauss-Newton solver for ``F(x) = y``.
 
-    Each step linearizes at the current point and solves
+    Each step linearizes ``F`` at the current iterate and solves
 
     ``min_u ||DF u - r||^2 + alpha ||u||^2 + R(u)``
 
-    where ``r`` is the residual carried to the linearization; the weight is
-    then divided by ``redu``, down to ``alpha_min``.  ``R`` is whatever the
-    inner solver regularizes with, and is nothing at all for conjugate
-    gradients.
+    for the residual ``r`` carried to the linearization; ``alpha`` is then
+    decayed towards ``alpha_min`` by ``redu``.  ``R`` is the regularization of
+    the inner solver, and absent for conjugate gradients.  The solver loops
+    :class:`IRGNMBlock`, which documents the two forms.
 
     Parameters
     ----------
     iterations : int, default=8
         Gauss-Newton steps.
     alpha : float, default=1.0
-        Initial Tikhonov weight.
+        Tikhonov weight of the first step.
     alpha_min : float, default=0.0
-        What the weight decays towards.
+        Limit the weight decays towards.
     alpha_min0 : float, default=0.0
-        A floor the decayed weight is never taken below.  Only the second
-        form has it; BART's ``irgnm`` does not.
+        Lower bound on the decayed weight; used only with ``inner``.
     redu : float, default=2.0
-        Factor the weight is divided by after each step.
+        Decay factor of the weight per step.
     cg_maxiter : int, default=30
-        Conjugate-gradient iterations per step, for the built-in solver.
+        Conjugate-gradient iterations per step without ``inner``.
     cg_tol : float, default=0.0
-        Conjugate-gradient tolerance per step, for the built-in solver.
-    inner : solver or None, default=None
-        A configured solver from :mod:`bartorch.optim` for the linearized
-        problem, whose regularizers become the ``R`` above.  ``None`` runs
-        BART's first form, with the inverse inside the library, as ``nlinv``
-        does.
+        Conjugate-gradient tolerance per step without ``inner``.
+    inner : solver, default=None
+        Configured solver from :mod:`bartorch.optim` for the linearized
+        problem, whose regularizers are ``R``.  ``None`` solves it by
+        conjugate gradients inside the library, as ``nlinv`` does.
     fuse : bool, default=True
-        Lower a coil composition so that its encoding is applied once as its
-        normal operator.
+        Apply the encoding of a coil model as its normal operator; see
+        :meth:`IRGNMBlock.plan`.
+
+    Notes
+    -----
+    The two forms agree in exact arithmetic but not to the bit: without
+    ``inner`` the result matches BART's ``iter4_irgnm``, and with
+    ``inner=optim.CG()`` it matches ``iter4_irgnm2``.
 
     Examples
     --------
@@ -336,17 +406,6 @@ class IRGNM:
     ...         [priors.Wavelet((-1, -2), 0.001), priors.TotalVariation((-1, -2), 0.01)]
     ...     )
     ... )(kspace, F, x0=start)
-
-    Notes
-    -----
-    The two forms are the same method and not the same arithmetic.  The first
-    carries ``alpha (xref - x)`` into the right-hand side and solves for a
-    step; the second shifts by ``xref``, carries an extra ``DF (x - xref)``
-    into the residual, and solves for the iterate itself.  They agree in exact
-    arithmetic and differ in the last bits, so a run with ``inner=`` will not
-    reproduce one without it.  Each reproduces BART's own loop of its form --
-    ``iter4_irgnm`` and, with ``inner=optim.CG()``, ``iter4_irgnm2`` -- and the
-    suite holds both to that.
     """
 
     def __init__(
@@ -386,20 +445,20 @@ class IRGNM:
         )
 
     def __call__(self, y: torch.Tensor, F, x0=None, xref=None):
-        """Fit ``F(x) = y``.
+        """Solve ``F(x) = y``.
 
         Parameters
         ----------
         y : torch.Tensor
-            Data of ``F.oshape``, with an optional batch axis in front.
+            Data of ``F.oshape``, with an optional leading batch axis.
         F : NonlinearOperator or LinearOperator
-            The forward model, with a bundle; a linear one is converted with
+            Forward model; a linear one is converted with
             :meth:`~bartorch.linop.LinearOperator.to_nonlinear`.
         x0 : torch.Tensor or tuple of torch.Tensor, default=None
-            Starting point; see :meth:`IRGNMBlock.start`.
+            Start; see :meth:`IRGNMBlock.start`.
         xref : torch.Tensor or tuple of torch.Tensor, default=None
-            Regularization centre.  Without one the steps are regularized
-            towards zero, as BART does.
+            Regularization centre; ``None`` regularizes towards zero, as BART
+            does.
 
         Returns
         -------
@@ -486,31 +545,30 @@ class IRGNM:
 def irgnm(y: torch.Tensor, F, *, x0=None, xref=None, inner=None, **settings):
     """Solve ``F(x) = y`` by iteratively regularized Gauss-Newton.
 
-    Linearizes ``F`` at the current iterate and solves the linearized problem
-    under a Tikhonov weight that decays from ``alpha`` towards ``alpha_min``,
-    so early steps are strongly regularized and later ones are not.
+    Functional form of :class:`IRGNM`.
 
     Parameters
     ----------
-    y : tensor
-        Data of ``F.oshapes[0]``.
-    F : NonlinearOperator
-        The forward model.
-    x0 : tensor or tuple of tensor, default=None
-        Starting iterate; without one the model's own initial value is used.
-    xref : tensor or tuple of tensor, default=None
-        Regularization centre the steps are pulled towards; without one they
-        are regularized towards zero.
+    y : torch.Tensor
+        Data of ``F.oshape``, with an optional leading batch axis.
+    F : NonlinearOperator or LinearOperator
+        Forward model.
+    x0 : torch.Tensor or tuple of torch.Tensor, default=None
+        Start; ``None`` starts with the first input ones and the others zero,
+        as ``nlinv`` does.  See :meth:`IRGNMBlock.start`.
+    xref : torch.Tensor or tuple of torch.Tensor, default=None
+        Regularization centre; ``None`` regularizes towards zero.
     inner : solver, default=None
-        Solver for the linearized problem, from :mod:`bartorch.optim`.  Without
-        one it is solved by conjugate gradients inside the library.
+        Solver from :mod:`bartorch.optim` for the linearized problem; ``None``
+        uses conjugate gradients inside the library.
     **settings
-        Settings of :class:`IRGNM`, among them ``iterations`` (8), ``alpha``,
-        ``alpha_min`` and ``redu``.
+        Other parameters of :class:`IRGNM`: ``iterations``, ``alpha``,
+        ``alpha_min``, ``alpha_min0``, ``redu``, ``cg_maxiter``, ``cg_tol``,
+        ``fuse``.
 
     Returns
     -------
     torch.Tensor or tuple of torch.Tensor
-        The solution, one tensor per input of ``F``.
+        Complex64 solution, one tensor per input of ``F``.
     """
     return IRGNM(inner=inner, **settings)(y, F, x0=x0, xref=xref)

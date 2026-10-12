@@ -126,8 +126,9 @@ pip install "bartorch[cu12]"  # with CUDA 12; use cu13 for CUDA 13
 ```
 
 Wheels are built for Linux x86-64, macOS arm64 and Windows x86-64; the CUDA
-build is Linux x86-64 only. More functionality and faster backends come as
-optional dependencies, listed in
+build is Linux x86-64 only. The other extras are listed under
+[Optional dependencies](https://pulserver.github.io/bartorch/stable/guides/user/prerequisites.html#optional-dependencies),
+and source and GPU builds under
 [Installation](https://pulserver.github.io/bartorch/stable/guides/user/installation.html).
 
 ## Learn more

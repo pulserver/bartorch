@@ -146,6 +146,12 @@ class RigidRegistration:
         ITK threads for the registration.  ITK's thread count is process-wide;
         it is set for the call and restored after it.
 
+    Raises
+    ------
+    ValueError
+        If a setting is out of range, or the pyramid's factors and sigmas
+        differ in length.
+
     Examples
     --------
     >>> estimate = RigidRegistration()(fixed, moving, spacing=(1.0, 1.0))
@@ -353,6 +359,13 @@ class RigidMotionEKF:
     initialized : bool
         Whether a measurement has been fused; the first one initializes the
         state rather than updating it.
+
+    Raises
+    ------
+    ValueError
+        If ``dimension`` is not two or three, a noise variance is not positive
+        or not one per pose coordinate, or ``initial_covariance`` is not
+        positive.
     """
 
     def __init__(
@@ -399,7 +412,13 @@ class RigidMotionEKF:
         return self.state[self.dof :].copy()
 
     def reset(self, initial: RigidMotionEstimate | None = None) -> None:
-        """Return to the uninitialized state, or initialize at ``initial``."""
+        """Return to the uninitialized state, or initialize at ``initial``.
+
+        Parameters
+        ----------
+        initial : RigidMotionEstimate, default=None
+            Pose to initialize the state at.
+        """
         self.state.fill(0.0)
         self.covariance = np.eye(2 * self.dof) * self.initial_covariance
         self.center.fill(0.0)
@@ -415,6 +434,11 @@ class RigidMotionEKF:
         ----------
         dt : float, default=1.0
             Time step, in the unit the noise variances are stated per.
+
+        Returns
+        -------
+        RigidMotionEstimate
+            The predicted pose and its covariance.
         """
         if dt <= 0.0:
             raise ValueError("dt must be positive")
@@ -448,6 +472,11 @@ class RigidMotionEKF:
         covariance : array_like, default=None
             Measurement covariance; that of ``measurement``, or
             ``measurement_noise`` on the diagonal, otherwise.
+
+        Returns
+        -------
+        RigidMotionEstimate
+            The filtered pose and its covariance.
         """
         if not isinstance(measurement, RigidMotionEstimate):
             measurement = RigidMotionEstimate(
@@ -498,6 +527,11 @@ class RigidMotionEKF:
             Time since the previous step.
         spacing : sequence of float, default=None
             Voxel size, as for :meth:`RigidRegistration.estimate`.
+
+        Returns
+        -------
+        RigidMotionEstimate
+            The filtered pose and its covariance.
         """
         initial = self.predict(dt) if self.initialized else None
         measurement = self.registration.estimate(fixed, moving, initial=initial, spacing=spacing)

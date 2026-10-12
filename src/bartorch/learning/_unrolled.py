@@ -46,65 +46,59 @@ def _restored(state, names, values):
 
 
 class Unrolled(nn.Module):
-    """Unrolled network formed by applying an iteration block ``iterations`` times.
+    """Unrolled network: an iteration block applied a fixed number of times.
 
-    The block implements one step of a BART iteration and this module
-    implements the loop over it.  With every parameter frozen the stack
-    reproduces the corresponding solver bit for bit; calling
-    ``requires_grad_()`` on a step size, a penalty weight or a denoiser's
-    weights makes the stack a trainable network.  MoDL is this module applied
-    to an :class:`~bartorch.optim.ADMMBlock` whose single term is a
+    With every parameter frozen the stack reproduces the corresponding solver
+    bit for bit; ``requires_grad_()`` on a step size, a penalty weight or a
+    denoiser's weights makes it trainable.  One block shared by every iteration
+    shares the weights; a sequence of blocks gives each iteration its own.
+    MoDL is an :class:`~bartorch.optim.ADMMBlock` whose single term is an
     :class:`~bartorch.priors.ImplicitPrior`.
 
-    A single block shared by every iteration gives the weight sharing usual in
-    unrolled networks; a sequence of blocks gives each iteration its own
-    parameters.
+    ``detach`` and ``checkpoint`` select the backward pass without changing the
+    value computed:
 
-    ``detach`` and ``checkpoint`` select how the backward pass is taken.
-    Neither alters the value the network computes:
+    * by default the whole stack is recorded, and memory grows with the number
+      of iterations;
+    * ``detach=True`` starts each iteration from a detached state; with a loss
+      on each image :meth:`steps` yields, this is greedy per-iteration
+      training, with memory independent of the number of iterations;
+    * ``checkpoint=True`` keeps the states between iterations and recomputes
+      each step in the backward pass, giving the end-to-end gradient at the
+      cost of a second application of every block.
 
-    * end to end, the default, records the whole stack.  Memory grows as the
-      iteration count times the storage of one step.
-    * ``detach=True`` starts each iteration from a detached state, so that the
-      graph never spans two iterations.  Combined with a loss on each image
-      yielded by :meth:`steps`, this is greedy per-iteration training, whose
-      memory is independent of the iteration count.
-    * ``checkpoint=True`` retains the states between iterations and recomputes
-      the interior of a step during the backward pass.  The gradient is the
-      end-to-end one and each block is applied twice.
-
-    These correspond to the stages in which a large unrolled network is
-    trained: a denoiser pretrained in isolation, then greedy per-iteration
-    training, then end-to-end fine-tuning with gradient checkpointing.
-    :class:`bartorch.optim.FixedPoint` is an alternative with bounded memory:
-    it drives the block to its fixed point and differentiates there, with no
-    iteration count to unroll.
+    :class:`bartorch.optim.FixedPoint` is the alternative without an iteration
+    count, differentiated at the fixed point.
+    :doc:`/explanation/learned-reconstruction` compares the strategies.
 
     Parameters
     ----------
     block : nn.Module or sequence of nn.Module
-        One of :mod:`bartorch.optim`'s iteration blocks, or a sequence of
-        them, one per iteration.
+        One of :mod:`bartorch.optim`'s iteration blocks, or one per iteration.
     iterations : int, default=None
-        Number of applications of a single shared block.  Omitted for a
-        sequence, whose length gives the count.
+        Number of applications of a shared block; the sequence's length for a
+        sequence.
     detach : bool, default=False
-        Whether each iteration starts from a detached state.
+        Start each iteration from a detached state.
     checkpoint : bool, default=False
-        Whether the interior of an iteration is recomputed during the backward
-        pass rather than stored.
+        Recompute each iteration in the backward pass rather than store it.
+
+    Raises
+    ------
+    ValueError
+        A shared block without ``iterations``, an empty sequence, an
+        ``iterations`` that differs from the sequence's length, or fewer than
+        one iteration.
 
     Notes
     -----
-    Checkpointing recomputes a step, and the gradient is correct only if the
-    recomputation reproduces it.  PyTorch's random state is restored for the
-    recomputation, so dropout in a denoiser is reproduced.  A BART term that
-    draws random shifts from BART's own generator, such as
-    :class:`~bartorch.priors.Wavelet` or
-    :class:`~bartorch.priors.LocallyLowRank` with ``randshift=True``, draws
-    new shifts, and the gradient then does not correspond to the forward
-    pass.  This is not checked: ``checkpoint=True`` is valid only for steps
-    that are deterministic or draw from PyTorch's generator.
+    A checkpointed step is correct only if its recomputation reproduces it.
+    PyTorch's random state is restored for the recomputation, so dropout is
+    reproduced; a BART term that draws random shifts from BART's generator,
+    such as :class:`~bartorch.priors.Wavelet` or
+    :class:`~bartorch.priors.LocallyLowRank` with ``randshift=True``, is not,
+    and the gradient then does not belong to the forward pass.  This is not
+    checked.
 
     Examples
     --------
@@ -146,14 +140,14 @@ class Unrolled(nn.Module):
         self.checkpoint = bool(checkpoint)
 
     def block(self, k: int) -> nn.Module:
-        """The block applied at iteration ``k``: the shared one, or its own."""
+        """The block applied at iteration ``k``."""
         return self.blocks[k % len(self.blocks)]
 
     def steps(self, y: torch.Tensor, A, x0: torch.Tensor | None = None):
-        """Yield the image after each iteration in turn.
+        """Yield the image after each iteration.
 
-        A loss taken on each yielded image, with ``detach`` set, gives greedy
-        per-iteration training.  :meth:`forward` returns the last of them.
+        Takes the arguments of :meth:`forward`.  A loss on each yielded image, with
+        ``detach=True``, is greedy per-iteration training.
         """
         state = self.blocks[0].start(y, A, x0)
         names = _fields(state)
@@ -165,16 +159,21 @@ class Unrolled(nn.Module):
             yield block.output(state, A)
 
     def forward(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> torch.Tensor:
-        """Reconstruct ``y``, returning the image left by the last iteration.
+        """Run the iterations and return the last image.
 
         Parameters
         ----------
         y : torch.Tensor
-            Measured data, with or without a leading batch axis.
+            Data, with or without a leading batch axis.
         A : LinearOperator
             Encoding operator, shared by every item of a batch.
         x0 : torch.Tensor, default=None
-            Starting point of the iteration; zero by default, as in BART.
+            Starting image; zero when omitted, as in BART.
+
+        Returns
+        -------
+        torch.Tensor
+            The image after the last iteration.
         """
         image = None
         for image in self.steps(y, A, x0):

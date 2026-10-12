@@ -148,24 +148,18 @@ class UNet(nn.Module):
     Each level holds ``blocks`` residual blocks of two 3-wide convolutions with
     group normalization and SiLU; levels are joined by strided convolutions on
     the way down and by nearest-neighbour upsampling and a convolution on the
-    way up.  With ``residual`` the network returns its input plus a correction,
-    and the last convolution starts at zero, so that an untrained network is
-    the identity and an unrolled iteration around it starts as the plain
-    iteration.
+    way up.  With ``residual`` the output is the input plus a correction whose
+    last convolution is initialized at zero, so an untrained network is the
+    identity.
 
     With ``frames`` the input is ``(n, channels, frames, *spatial)`` and every
     convolution is factorised into a spatial one per frame and a temporal one
-    per voxel; the frame axis is never downsampled.  This is the network for a
-    time series or any other axis that is not spatial but is correlated from
-    one entry to the next.
+    along the frames, which are never downsampled.
 
     Conditioning on the iteration index (``steps``), the noise level
-    (``noise``) and a class label (``classes``) is embedded, summed and
-    applied in every block as a feature-wise affine modulation (FiLM),
-    ``(1 + gamma) h + beta``.  A network shared by all the iterations of an
-    unrolled reconstruction is conditioned on the index; a denoiser applied
-    over an annealed schedule, on the noise level; one serving several
-    contrasts, on the contrast.
+    (``noise``) and a class label (``classes``) is embedded, summed and applied
+    in every block as a feature-wise affine modulation (FiLM),
+    ``(1 + gamma) h + beta``.
 
     Parameters
     ----------
@@ -196,12 +190,18 @@ class UNet(nn.Module):
     features : int, default=64
         Width of the conditioning embedding.
     residual : bool, default=True
-        Whether the output is the input plus a correction.  Needs
+        Whether the output is the input plus a correction.  Requires
         ``out_channels == in_channels``.
     dropout : float, default=0.0
         Dropout probability inside each residual block.  Left active at
         inference, it makes repeated reconstructions differ, which
         :func:`~bartorch.learning.moments` turns into a spread.
+
+    Raises
+    ------
+    ValueError
+        ``spatial`` not 2 or 3, empty ``widths``, or ``residual`` with
+        ``out_channels != in_channels``.
 
     Examples
     --------
@@ -292,11 +292,19 @@ class UNet(nn.Module):
             ``(n, channels, *spatial)``, or ``(n, channels, frames, *spatial)``
             with ``frames``.
         sigma : float or torch.Tensor, default=None
-            Noise level, one or one per item; only with ``noise``.
+            Noise level, one or one per item; required with ``noise``, refused
+            without.
         step : int or torch.Tensor, default=None
-            Iteration index, one or one per item; only with ``steps``.
+            Iteration index, one or one per item; required with ``steps``, refused
+            without.
         label : int or torch.Tensor, default=None
-            Class label, one or one per item; only with ``classes``.
+            Class label, one or one per item; required with ``classes``, refused
+            without.
+
+        Returns
+        -------
+        torch.Tensor
+            ``(n, out_channels, ...)``, with ``x``'s spatial and frame extents.
         """
         lead = 3 if self.frames else 2
         if x.ndim != lead + self.spatial:

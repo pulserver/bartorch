@@ -29,7 +29,20 @@ __all__ = [
 
 @curated("flip")
 def flip(input: torch.Tensor, axes: int | tuple[int, ...]) -> torch.Tensor:
-    """Reverse ``input`` along ``axes``."""
+    """Reverse ``input`` along ``axes``.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to flip.
+    axes : int or tuple of int
+        Axes to reverse.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
+    """
     return dispatch("flip", [input], None, _pos=[axes_flags(axes, input.ndim)])
 
 
@@ -37,8 +50,19 @@ def flip(input: torch.Tensor, axes: int | tuple[int, ...]) -> torch.Tensor:
 def rss(input: torch.Tensor, axes: int | tuple[int, ...], *, keepdim: bool = False) -> torch.Tensor:
     """Root of the sum of squared magnitudes over ``axes``.
 
-    The reduced axes are removed from the shape, or kept as size one with
-    ``keepdim``.
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to reduce, such as coil images.
+    axes : int or tuple of int
+        Axes summed over.
+    keepdim : bool, default=False
+        Keep the reduced axes with size one rather than removing them.
+
+    Returns
+    -------
+    torch.Tensor
+        Real values, stored as ``complex64``.
     """
     flags = axes_flags(axes, input.ndim)
     reduced = {input.ndim - 1 - b for b in range(input.ndim) if flags >> b & 1}
@@ -112,7 +136,23 @@ def maps_to_kernels(
 
 
 def kernels_to_maps(kernels: torch.Tensor, spatial: tuple[int, ...]) -> torch.Tensor:
-    """The maps a kernel bank stands for: zero-padded to ``spatial`` and transformed back."""
+    """Coil sensitivities from k-space kernels: the inverse of :func:`maps_to_kernels`.
+
+    Each kernel is zero-padded about index ``n // 2`` to ``spatial`` and
+    transformed by the centred unitary inverse FFT.
+
+    Parameters
+    ----------
+    kernels : torch.Tensor
+        Kernels ``(..., *size)``, as :func:`maps_to_kernels` returns them.
+    spatial : tuple of int
+        Spatial shape of the maps; one entry per trailing axis of ``kernels``.
+
+    Returns
+    -------
+    torch.Tensor
+        Maps ``(..., *spatial)``.
+    """
     from bartorch._fourier import fft
 
     spatial = tuple(spatial)
@@ -137,13 +177,25 @@ def resize(input: torch.Tensor, oshape: tuple[int, ...], *, anchor: str = "cente
 
     Parameters
     ----------
+    input : torch.Tensor
+        Array to resize.
     oshape : tuple of int
         Full output shape, one size per axis of ``input``.
     anchor : {"center", "front", "start"}, default='center'
-        What is kept in place.  ``"center"`` keeps index ``n // 2``
-        at ``m // 2``; ``"front"`` keeps the last element and crops or
-        pads at the beginning; ``"start"`` keeps the first element and crops or
-        pads at the end.
+        ``"center"`` keeps index ``n // 2`` at ``m // 2``; ``"front"`` keeps
+        the last element in place and crops or pads at the beginning;
+        ``"start"`` keeps the first element and crops or pads at the end.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape ``oshape``.
+
+    Raises
+    ------
+    ValueError
+        If ``oshape`` does not have one size of at least one per axis, or
+        ``anchor`` is unknown.
     """
     oshape = tuple(int(n) for n in oshape)
     if len(oshape) != input.ndim:
@@ -167,7 +219,24 @@ def resize(input: torch.Tensor, oshape: tuple[int, ...], *, anchor: str = "cente
 def circshift(
     input: torch.Tensor, shifts: int | tuple[int, ...], axes: int | tuple[int, ...]
 ) -> torch.Tensor:
-    """Cyclic shift along ``axes``: element ``i`` moves to ``(i + shift) % n``, as torch.roll."""
+    """Cyclic shift along ``axes``: element ``i`` moves to ``(i + shift) % n``.
+
+    The convention of :func:`torch.roll`.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to shift.
+    shifts : int or tuple of int
+        Shift in elements, one per entry of ``axes``; may be negative.
+    axes : int or tuple of int
+        Axes to shift along.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
+    """
     shifts, axes = _as_tuple(shifts), _as_tuple(axes)
     if len(shifts) != len(axes):
         raise ValueError(f"{len(shifts)} shifts for {len(axes)} axes")
@@ -190,9 +259,18 @@ def conv(input: torch.Tensor, kernel: torch.Tensor, axes: int | tuple[int, ...])
 
     Parameters
     ----------
+    input : torch.Tensor
+        Array to convolve.
     kernel : torch.Tensor
-        Aligned with ``input`` from the last axis.  Along ``axes`` any size;
-        along the other axes one (shared) or the input's size (per slice).
+        Aligned with ``input`` from the last axis: any size along ``axes``,
+        and one (shared) or the input's size elsewhere.
+    axes : int or tuple of int
+        Axes to convolve along.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
     """
     if kernel.ndim > input.ndim:
         raise ValueError(f"kernel has {kernel.ndim} axes, more than the input's {input.ndim}")
@@ -222,10 +300,21 @@ def median_filter(
 
     Parameters
     ----------
+    input : torch.Tensor
+        Array to filter.
+    axis : int
+        Axis to filter along.
+    length : int
+        Window length, between one and the axis length.
     geometric : bool, default=False
-        Take the geometric median of the complex values in the plane, by ten
-        Weiszfeld iterations from zero.  Otherwise the element of median
-        magnitude, or the mean of the two for an even length.
+        Take the geometric median of the complex values, by ten Weiszfeld
+        iterations from zero.  Otherwise the element of median magnitude, or
+        the mean of the two for an even length.
+
+    Returns
+    -------
+    torch.Tensor
+        ``input.shape`` with ``n - length + 1`` along ``axis``.
     """
     shape = _filter_shape(input, axis, length)
     dim = _bart_dim(axis, input.ndim)
@@ -238,6 +327,20 @@ def moving_average(input: torch.Tensor, axis: int, length: int) -> torch.Tensor:
 
     Only whole windows are taken: the axis shrinks from ``n`` to
     ``n - length + 1`` and ``out[i]`` is the mean of ``input[i:i + length]``.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to filter.
+    axis : int
+        Axis to filter along.
+    length : int
+        Window length, between one and the axis length.
+
+    Returns
+    -------
+    torch.Tensor
+        ``input.shape`` with ``n - length + 1`` along ``axis``.
     """
     shape = _filter_shape(input, axis, length)
     dim = _bart_dim(axis, input.ndim)
@@ -248,7 +351,22 @@ def moving_average(input: torch.Tensor, axis: int, length: int) -> torch.Tensor:
 def normalize(
     input: torch.Tensor, axes: int | tuple[int, ...], *, l1: bool = False
 ) -> torch.Tensor:
-    """Divide by the l2 norm over ``axes``, or the l1 norm, per index of the other axes."""
+    """Divide by the norm over ``axes``, separately for each index of the other axes.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array to normalize.
+    axes : int or tuple of int
+        Axes the norm is taken over.
+    l1 : bool, default=False
+        Use the l1 norm rather than the l2 norm.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
+    """
     flags = axes_flags(axes, input.ndim)
     return dispatch("normalize", [input], None, _pos=[flags], b=l1).reshape(input.shape)
 
@@ -269,8 +387,19 @@ def mip(
 
     Parameters
     ----------
+    input : torch.Tensor
+        Array to project.
+    axes : int or tuple of int
+        Axes projected over.
+    minimum : bool, default=False
+        Minimum rather than maximum intensity projection.
     magnitude : bool, default=False
         Project the magnitude instead of the real part.
+
+    Returns
+    -------
+    torch.Tensor
+        ``input.shape`` with size one along ``axes``.
     """
     flags = axes_flags(axes, input.ndim)
     shape = [1 if flags >> (input.ndim - 1 - i) & 1 else n for i, n in enumerate(input.shape)]
@@ -290,8 +419,17 @@ def unwrap(input: torch.Tensor, axis: int, *, bound: float = math.pi) -> torch.T
 
     Parameters
     ----------
+    input : torch.Tensor
+        Wrapped phase, in its real part.
+    axis : int
+        Axis to unwrap along.
     bound : float, default=pi
         Half the period.
+
+    Returns
+    -------
+    torch.Tensor
+        The shape of ``input``.
     """
     dim = _bart_dim(axis, input.ndim)
     return dispatch("unwrap", [input], None, _pos=[1 << dim], b=float(bound)).reshape(input.shape)
@@ -305,6 +443,15 @@ def casorati(
 
     A block spans ``kernel_shape`` along ``axes`` and the whole of every other
     axis; the blocks are all its positions, with no wrapping.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Array the blocks are taken from.
+    kernel_shape : int or tuple of int
+        Block size, one per entry of ``axes``.
+    axes : int or tuple of int
+        Axes the blocks slide along.
 
     Returns
     -------

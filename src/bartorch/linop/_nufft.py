@@ -27,41 +27,49 @@ def default_kspace_shape(traj_shape: Shape, image_shape: Shape, ndim: int) -> Sh
 class NUFFT(LinearOperator):
     """Non-uniform FFT from images to samples along a trajectory.
 
+    Type-2 transform with a negative exponent, scaled by one over the square
+    root of the number of voxels, as BART's ``nufft``; computed by FINUFFT
+    (cuFINUFFT on a card) through BART's ``nufft_create``.
+
     Parameters
     ----------
     traj : tensor
-        Trajectory ``(*encoding, shots, samples, ndim)`` in grid units,
-        ``kx, ky`` or ``kx, ky, kz``, as :func:`bartorch.tools.traj` produces.
-        A ``kz`` that is zero everywhere makes the transform two-dimensional.
-        The encoding axes are whatever the samples vary along besides the
-        shots -- frames, echoes, cardiac phases -- in any number.
+        Trajectory ``(*encoding, shots, samples, ndim)`` in grid units
+        (``kx, ky[, kz]``), as :func:`bartorch.tools.traj` returns.  A ``kz``
+        that is zero everywhere makes the transform two-dimensional.  The
+        encoding axes are any further axes the samples vary along (frames,
+        echoes, cardiac phases).
     image_shape : tuple of int
-        Image shape ``(*batches, *encoding, [z,] y, x)``: two spatial axes for
-        a two-dimensional trajectory and three for a three-dimensional one.
-        The batches -- coils, slices, anything transformed alike -- are
-        whatever leads the encoding axes, and each is transformed on its own.
+        Image shape ``(*batches, *encoding, [z,] y, x)``.  Leading batch axes
+        (coils, slices) are transformed independently.
     kspace_shape : tuple of int, default=None
-        Sample shape; by default ``(*batches, *encoding, shots, samples)``.
+        Sample shape, which must be ``(*batches, *encoding, shots,
+        samples)``; ``None`` takes it.
     weights : tensor, default=None
-        Diagonal in k-space, broadcast over ``(*encoding, shots, samples)``,
-        applied on the forward pass and conjugated on the adjoint.
+        k-space weighting, broadcast over ``(*encoding, shots, samples)``;
+        applied on the forward and conjugated on the adjoint.
     basis : tensor, default=None
         Temporal subspace basis ``(coeffs, frames)`` over the last encoding
-        axis, which is ``coeffs`` long in the image and ``frames`` long in
-        k-space.  The weights and the basis belong to the operator because its
-        Toeplitz normal is built over both.
+        axis, which has length ``coeffs`` in the image and ``frames`` in
+        k-space.
     toeplitz : bool, default=True
-        Apply the normal in closed form rather than as the forward and
-        adjoint applications: a convolution with a point spread function.
+        Apply the normal as a convolution with a point spread function rather
+        than as the forward and adjoint transforms.  The point spread function
+        includes ``weights`` and ``basis``.
     oversampling : float, default=0.0
-        Oversampling of FINUFFT's fine grid, BART's ``-o``.  Zero uses the
-        library's setting, a quarter over by default.  On a device only 2 and
-        1.25 are accepted; any other value plans on the host and fails there.
+        Upsampling factor of FINUFFT's fine grid, BART's ``-o``; 0 takes the
+        library setting (1.25 by default).  On a card only 2 and 1.25 are
+        accepted.
     width : float, default=0.0
-        Kernel width in grid points, BART's ``-w``.  FINUFFT sizes its kernel
-        from the tolerance, so the width is carried as the tolerance that gives
-        it, no tighter than single precision reaches.  Zero keeps the library's
-        tolerance.
+        Spreading-kernel width in fine-grid points, BART's ``-w``, converted to
+        the FINUFFT tolerance that gives it and clamped at single precision;
+        0 keeps the library tolerance.
+
+    Raises
+    ------
+    ValueError
+        When the trajectory, image, sample shape, weights or basis are
+        inconsistent.
 
     Examples
     --------

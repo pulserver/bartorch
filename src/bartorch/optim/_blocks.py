@@ -1,10 +1,10 @@
-"""One step of each of BART's proximal iterations, as a torch module.
+"""One iteration of each of BART's proximal algorithms, as a torch module.
 
 A block is the single implementation of its iteration's step: a solver loops
 over one, and a network stacks several.  ``state = block.start(y, A, x0)``
 initializes a run, ``state = block(state, A)`` takes one step, and
 ``block.output(state, A)`` returns the image.  Step sizes and penalty weights
-are :class:`torch.nn.Parameter`s, frozen until ``requires_grad_()`` is called;
+are :class:`torch.nn.Parameter`, frozen until ``requires_grad_()`` is called;
 while frozen, a step reproduces the library's output bit for bit.  ``cclambda``
 and ``precond`` are ``lsqr2_create``'s, so the step sees
 ``M (A^H A + cclambda) x`` and ``M A^H y``.
@@ -303,18 +303,42 @@ def _front(state, A) -> torch.Tensor:
 
 
 class ISTBlock(nn.Module):
-    """One step of iterative soft thresholding, ``italgos.c``'s ``ist``.
+    r"""One iteration of iterative soft thresholding, BART's ``ist`` (``italgos.c``).
 
-    Thresholds, then steps along ``A^H y - (A^H A + cclambda) x``;
-    :meth:`output` thresholds once more, as BART does after its loop.  With
-    ``eigen`` the step is divided by the largest eigenvalue, estimated at
-    :meth:`start`.
+    With :math:`z = \operatorname{prox}_{\tau g}(x)`, a step is
 
-    The term's proximal operator is applied to the image, so its transform
-    must be the identity: :meth:`start` refuses a term such as
-    :class:`~bartorch.priors.FourierL1`, :class:`~bartorch.priors.Laplace`
-    or :class:`~bartorch.priors.TotalVariation`, which :class:`ADMMBlock`
-    and :class:`PRIDUBlock` take.
+    .. math::
+
+        x \leftarrow z - \tau \bigl( M (A^H A + \lambda) z - M A^H y \bigr),
+
+    and :meth:`output` applies the proximal operator once more, as BART does
+    after its loop.
+
+    Parameters
+    ----------
+    prior : Regularizer or ImplicitPrior
+        The single term :math:`g`; its transform must be the identity.
+    step : float, default=0.95
+        Step size :math:`\tau`.
+    eigen : bool, default=False
+        Divide the step by :func:`~bartorch.optim.maxeigen` of the normal
+        operator, estimated in :meth:`start`.
+    cclambda : float, default=0.0
+        :math:`\lambda`, the weight of an identity added to the normal operator.
+    precond : LinearOperator, default=None
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``).
+
+    Raises
+    ------
+    ValueError
+        Not exactly one term; at :meth:`start`, a term whose transform is not
+        the identity, such as :class:`~bartorch.priors.FourierL1`,
+        :class:`~bartorch.priors.Laplace` or
+        :class:`~bartorch.priors.TotalVariation`, which :class:`ADMMBlock` and
+        :class:`PRIDUBlock` take.
+    TypeError
+        A term with auxiliary variables.
     """
 
     @dataclasses.dataclass(frozen=True)
@@ -344,7 +368,22 @@ class ISTBlock(nn.Module):
         self.precond = precond
 
     def start(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> State:
-        """The run's state: the start, and ``A^H y`` kept for every step."""
+        """Initial state of a run.
+
+        Parameters
+        ----------
+        y : tensor
+            Data of ``A.oshape``, or ``(batch, *A.oshape)``.
+        A : LinearOperator
+            Encoding operator.
+        x0 : tensor, default=None
+            Starting image; zero when omitted, as in BART.
+
+        Returns
+        -------
+        State
+            The start and :math:`M A^H y`, kept for every step.
+        """
         from bartorch.optim._linear import maxeigen
 
         _refuse_transform(self.prior, A.ishape, type(self).__name__.removesuffix("Block"))
@@ -360,23 +399,51 @@ class ISTBlock(nn.Module):
         return _over(_value(self.step), state.divisor)
 
     def forward(self, state: State, A) -> State:
+        """Take one iteration from ``state``; returns the next state."""
         tau = self._tau(state, state.k)
         x = _prox(self.prior, state.x, tau, A.ishape, state.k)
         x = x - tau * (_normal(A, x, self.cclambda, self.precond) - state.adjoint)
         return dataclasses.replace(state, x=x, k=state.k + 1)
 
     def output(self, state: State, A) -> torch.Tensor:
-        """The image, thresholded once more, as ``italgo_config`` leaves ``last`` false."""
+        """Image of ``state``, with the proximal operator applied once more, as in BART."""
         last = max(state.k - 1, 0)
         return _prox(self.prior, state.x, self._tau(state, last), A.ishape, last)
 
 
 class FISTABlock(ISTBlock):
-    """One step of fast iterative soft thresholding, ``italgos.c``'s ``fista``.
+    r"""One iteration of fast iterative soft thresholding, BART's ``fista`` (``italgos.c``).
 
-    :class:`ISTBlock` with Nesterov's ravine step between the threshold and the
-    gradient; the momentum is ``fista_formula`` with ``pqr``.  ``hogwild``
-    halves the step after 10 steps, then 20, then 40.
+    :class:`ISTBlock` with Nesterov's momentum between the proximal step and
+    the gradient step, :math:`t_{k+1} = (p + \sqrt{q + r t_k^2}) / 2`.
+
+    Parameters
+    ----------
+    prior : Regularizer or ImplicitPrior
+        The single term :math:`g`; its transform must be the identity.
+    step : float, default=0.95
+        Step size :math:`\tau`.
+    eigen : bool, default=False
+        Divide the step by :func:`~bartorch.optim.maxeigen` of the normal
+        operator, estimated in :meth:`start`.
+    hogwild : bool, default=False
+        Halve the step after 10 iterations, and again after each further 20,
+        40, ... iterations.
+    pqr : tuple of float, default=None
+        :math:`(p, q, r)`; ``None`` is BART's ``(1, 1, 4)``.
+    cclambda : float, default=0.0
+        :math:`\lambda`, the weight of an identity added to the normal operator.
+    precond : LinearOperator, default=None
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``).
+
+    Raises
+    ------
+    ValueError
+        Not exactly one term; at :meth:`start`, a term whose transform is not
+        the identity.
+    TypeError
+        A term with auxiliary variables.
     """
 
     @dataclasses.dataclass(frozen=True)
@@ -400,6 +467,22 @@ class FISTABlock(ISTBlock):
         self.pqr = (1.0, 1.0, 4.0) if pqr is None else tuple(float(v) for v in pqr)
 
     def start(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> State:
+        """Initial state of a run.
+
+        Parameters
+        ----------
+        y : tensor
+            Data of ``A.oshape``, or ``(batch, *A.oshape)``.
+        A : LinearOperator
+            Encoding operator.
+        x0 : tensor, default=None
+            Starting image; zero when omitted, as in BART.
+
+        Returns
+        -------
+        State
+            The start and :math:`M A^H y`, kept for every step.
+        """
         state = super().start(y, A, x0)
         return dataclasses.replace(state, previous=state.x)
 
@@ -408,6 +491,7 @@ class FISTABlock(ISTBlock):
         return _halved(tau, k) if self.hogwild else tau
 
     def forward(self, state: State, A) -> State:
+        """Take one iteration from ``state``; returns the next state."""
         tau = self._tau(state, state.k)
         z = _prox(self.prior, state.x, tau, A.ishape, state.k)
 
@@ -459,21 +543,74 @@ class _Resolvent(torch.autograd.Function):
 
 
 class ADMMBlock(nn.Module):
-    """One step of the alternating direction method of multipliers, ``admm.c``'s ``admm``.
+    r"""One iteration of the alternating direction method of multipliers, BART's ``admm``.
 
-    For ``min 0.5 ||A x - y||^2 + sum_j f_j(G_j x - b_j)``: conjugate gradients on
-    ``A^H A + cclambda + rho sum_j G_j^H G_j`` from the previous ``x``, then each
-    term's split and dual.  The state's ``done`` is Boyd's residual test, and
-    ``invokes`` counts inner iterations, the quantity BART's ``maxiter`` budgets.
-    Each step takes its own ``rho`` unless ``dynamic_rho`` or ``hogwild`` moves
-    it, in which case the state carries it.  A sequence of ``rho`` is a
-    schedule, one per step and the last repeated beyond its end, with the
-    scaled duals rescaled by the ratio of consecutive values so that the
-    unscaled ones carry over: the increasing penalty of annealed plug-and-play,
-    ``rho_k = lambda / sigma_k ** 2`` against a denoiser's schedule of
-    ``sigma``.  With a term that introduces
-    auxiliary variables the state vector is the image followed by those
-    variables, and :meth:`output` returns the image alone.
+    For :math:`\min_x \tfrac12 \| A x - y \|^2 + \sum_j g_j(G_j x - b_j)`, a step
+    solves the x-update
+    :math:`\bigl(M (A^H A + \lambda) + \rho \sum_j G_j^H G_j\bigr) x =
+    M A^H y + \rho \sum_j G_j^H (z_j - u_j + b_j)` by conjugate gradients from
+    the previous :math:`x`, then updates each term's split :math:`z_j` and
+    scaled dual :math:`u_j`.  The state's ``done`` is the residual stopping
+    test, and ``invokes`` counts the conjugate-gradient iterations spent, the
+    quantity :class:`~bartorch.optim.ADMM`'s ``maxiter`` budgets.
+
+    Parameters
+    ----------
+    priors : Regularizer or ImplicitPrior, or an iterable of them
+        The terms :math:`g_j`, with any transform :math:`G_j`.
+    rho : float or sequence of float, default=0.5
+        Penalty parameter :math:`\rho`.  A sequence is a schedule, one value
+        per iteration and the last repeated beyond its end; the scaled duals are
+        rescaled at each change so the unscaled ones carry over (annealed
+        plug-and-play, :math:`\rho_k = \lambda / \sigma_k^2`).
+    alpha : float, default=1.6
+        Over-relaxation parameter.
+    cg_maxiter : int, default=10
+        Conjugate-gradient iterations per x-update.
+    cg_maxiter_first : int, default=None
+        Conjugate-gradient iterations of the first x-update; ``cg_maxiter``
+        when omitted.
+    cclambda : float, default=0.0
+        :math:`\lambda`, the weight of an identity added to the normal operator.
+    biases : sequence of tensor, default=None
+        The :math:`b_j`, one per term, each of its term's
+        :meth:`~bartorch.priors.Regularizer.prox_shape`.
+    dynamic_rho : bool, default=False
+        Multiply :math:`\rho` by ``tau`` when the primal residual exceeds ``mu``
+        times the dual, divide it in the opposite case.
+    dynamic_tau : bool, default=False
+        Set ``tau`` from the residuals, :math:`\sqrt{r / s}` or its inverse,
+        clipped to ``tau_max``.
+    relative_norm : bool, default=False
+        Compare the residuals each relative to its scaling.
+    fast : bool, default=False
+        Skip the residuals and the stopping test.
+    hogwild : bool, default=False
+        Double :math:`\rho` after iteration 1, 3, 7, 15, ...
+    mu : float, default=3.0
+        Residual ratio beyond which ``dynamic_rho`` rescales :math:`\rho`.
+    tau_max : float, default=20.0
+        Upper bound of ``tau``.
+    abstol : float, default=0.0
+        Absolute tolerance of the residual stopping test.
+    reltol : float, default=0.0
+        Relative tolerance of the residual stopping test.
+    precond : LinearOperator, default=None
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``).
+
+    Raises
+    ------
+    ValueError
+        ``hogwild`` or ``fast`` with ``dynamic_rho``; a ``rho`` schedule with
+        ``dynamic_rho`` or ``hogwild``; not one bias per term; at
+        :meth:`start`, biases with a term with auxiliary variables.
+
+    Notes
+    -----
+    With ``dynamic_rho`` or ``hogwild`` the state carries :math:`\rho`.  With a
+    term that has auxiliary variables the state's ``x`` is the image followed by
+    those variables, and :meth:`output` returns the image alone.
     """
 
     @dataclasses.dataclass(frozen=True)
@@ -550,7 +687,22 @@ class ADMMBlock(nn.Module):
         self.precond = precond
 
     def start(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> State:
-        """The run's state: the start, zero splits and duals, and ``A^H y``."""
+        """Initial state of a run.
+
+        Parameters
+        ----------
+        y : tensor
+            Data of ``A.oshape``, or ``(batch, *A.oshape)``.
+        A : LinearOperator
+            Encoding operator.
+        x0 : tensor, default=None
+            Starting image; zero when omitted, as in BART.
+
+        Returns
+        -------
+        State
+            The start, zero splits and duals, and :math:`M A^H y`.
+        """
         y, x = _begin(y, A, x0)
         space = _space(self.terms, A, self.precond, type(self).__name__)
         if space is not None and any(b is not None for b in self.biases):
@@ -577,6 +729,7 @@ class ADMMBlock(nn.Module):
         return p.float() if p.requires_grad else float(p)
 
     def forward(self, state: State, A) -> State:
+        """Take one iteration from ``state``; returns the next state."""
         terms, A = _walked(self.terms, state, A)
         biases = self.biases if state.space is None else [None] * len(terms)
         shape = A.ishape
@@ -669,6 +822,7 @@ class ADMMBlock(nn.Module):
         )
 
     def output(self, state: State, A) -> torch.Tensor:
+        """Image of ``state``, without any auxiliary variables."""
         return _front(state, A)
 
     def _solve_x(self, terms, x, rhs, rho, A, first: bool):
@@ -804,18 +958,44 @@ class ADMMBlock(nn.Module):
 
 
 class PRIDUBlock(nn.Module):
-    """One step of BART's primal-dual iteration, ``italgos.c``'s ``chambolle_pock``.
+    r"""One iteration of BART's primal-dual algorithm, ``chambolle_pock`` (``italgos.c``).
 
-    The data term is its own dual, updated through its resolvent, and so is
-    every term but the first when that one's transform is the identity: it
-    becomes the primal step.  ``sigma`` and ``tau`` are ``sqrt(step)`` times and
-    over ``sigma_tau_ratio``, divided with ``eigen`` by the root of the largest
-    eigenvalue; ``hogwild`` decays by 0.95 a step.  Each step takes its own
-    ``sigma`` and ``tau`` unless ``adaptive_step`` moves them, and then the state
-    carries them.  ``done`` is BART's absolute tolerance on the two residuals.
-    With a term that introduces auxiliary variables the state vector is the
-    image followed by those variables, and :meth:`output` returns the image
-    alone.
+    For :math:`\min_x \tfrac12 \| A x - y \|^2 + \sum_j g_j(G_j x)`.  The data
+    term has a dual variable updated through its resolvent, and so does every
+    term except the first when that one's transform is the identity: it is then
+    the primal proximal step.
+
+    Parameters
+    ----------
+    priors : Regularizer or ImplicitPrior, or an iterable of them
+        The terms :math:`g_j`, with any transform :math:`G_j`.
+    step : float, default=0.95
+        Product :math:`\sigma \tau` of the dual and primal step sizes.
+    sigma_tau_ratio : float, default=1.0
+        :math:`\sigma / \tau`, so :math:`\sigma = \sqrt{\text{step}}\,\text{ratio}`
+        and :math:`\tau = \sqrt{\text{step}} / \text{ratio}`.
+    adaptive_step : bool, default=False
+        Adapt :math:`\sigma` and :math:`\tau` at every iteration; the state
+        then carries them.
+    eigen : bool, default=False
+        Divide :math:`\sigma` and :math:`\tau` by the square root of
+        :func:`~bartorch.optim.maxeigen` over the encoding and the dual terms.
+    hogwild : bool, default=False
+        Relax iteration :math:`k` by :math:`0.95^k`: each variable moves that
+        fraction of the way to its update.
+    cclambda : float, default=0.0
+        Weight of an identity added to the normal operator.
+    tol : float, default=1e-4
+        The state's ``done`` is set once the primal and dual residuals sum
+        below it; the tolerance is absolute, as in BART.
+    precond : LinearOperator, default=None
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``).
+
+    Notes
+    -----
+    With a term that has auxiliary variables the state's ``x`` is the image
+    followed by those variables, and :meth:`output` returns the image alone.
     """
 
     @dataclasses.dataclass(frozen=True)
@@ -861,7 +1041,22 @@ class PRIDUBlock(nn.Module):
         self.precond = precond
 
     def start(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> State:
-        """The run's state: the split ``iter2_chambolle_pock`` makes, zero duals, and the steps."""
+        """Initial state of a run.
+
+        Parameters
+        ----------
+        y : tensor
+            Data of ``A.oshape``, or ``(batch, *A.oshape)``.
+        A : LinearOperator
+            Encoding operator.
+        x0 : tensor, default=None
+            Starting image; zero when omitted, as in BART.
+
+        Returns
+        -------
+        State
+            The start, the split of the terms into primal and dual, zero duals, and the step sizes.
+        """
         from bartorch.optim._linear import maxeigen
 
         y, x = _begin(y, A, x0)
@@ -898,6 +1093,7 @@ class PRIDUBlock(nn.Module):
         )
 
     def forward(self, state: State, A) -> State:
+        """Take one iteration from ``state``; returns the next state."""
         every, A = _walked(self.terms, state, A)
         shape = A.ishape
         primal = every[0] if state.primal else None
@@ -964,6 +1160,7 @@ class PRIDUBlock(nn.Module):
         )
 
     def output(self, state: State, A) -> torch.Tensor:
+        """Image of ``state``, without any auxiliary variables."""
         return _front(state, A)
 
     def _adapt(self, delta, sigma, tau, terms, A):

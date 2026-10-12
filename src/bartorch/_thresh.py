@@ -17,11 +17,14 @@ def soft_thresh(
 ) -> torch.Tensor:
     """Soft thresholding, ``x * max(1 - lamda / |x|, 0)``.
 
+    BART's ``threshold``, with ``-j`` for ``joint_axes``.
+
     Parameters
     ----------
     lamda : float
         Threshold, in the units of ``input``'s magnitude.
     input : torch.Tensor
+        Array to threshold.
     joint_axes : int or tuple of int, default=()
         Axes over which ``|x|`` is the Euclidean norm, so that each fibre
         along them is shrunk as one vector; empty for element-wise.
@@ -39,6 +42,15 @@ def soft_thresh(
 @curated("threshold")
 def hard_thresh(lamda: float, input: torch.Tensor) -> torch.Tensor:
     """Hard thresholding: keep ``x`` where ``|x| > lamda``, zero elsewhere.
+
+    BART's ``threshold -H``.
+
+    Parameters
+    ----------
+    lamda : float
+        Threshold, in the units of ``input``'s magnitude.
+    input : torch.Tensor
+        Array to threshold.
 
     Returns
     -------

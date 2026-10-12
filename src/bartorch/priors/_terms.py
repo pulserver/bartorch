@@ -2,10 +2,8 @@
 
 Total generalized variation and the two infimal convolutions extend the
 optimization variable, which BART counts across the whole set of terms, so
-they cannot be built one at a time.  :func:`bartorch.apps.pics` takes them,
-and so do :class:`bartorch.optim.ADMM` and :class:`bartorch.optim.PRIDU`,
-which are the iterations BART gives a term's transform to; the solve is then
-the library's own loop over the enlarged variable, so it does not unroll.
+they cannot be built one at a time; :func:`bartorch.apps.pics`,
+:class:`bartorch.optim.ADMM` and :class:`bartorch.optim.PRIDU` take them.
 """
 
 from __future__ import annotations
@@ -54,19 +52,23 @@ class _Weighted(Regularizer):
 
 
 class Wavelet(_Weighted):
-    """l1 norm of the wavelet transform over ``axes``.
+    r""":math:`\ell_1` norm of the wavelet coefficients (BART's ``W``).
+
+    :math:`\lambda \| \Psi x \|_1`.  The wavelet transform :math:`\Psi` is
+    inside the proximal operator, so :math:`G` is the identity.
 
     Parameters
     ----------
     axes : int or tuple of int
         Axes to transform, as indices into the image's shape.
     weight : float
+        :math:`\lambda`.
     joint_axes : int or tuple of int, default=()
         Axes along which a coefficient is kept or zeroed together.
     family : {'haar', 'dau2', 'cdf44'}, default='dau2'
         Wavelet family.
     randshift : bool, default=True
-        Cycle-spin the transform by a random shift between solves.
+        Cycle-spin the transform by a random shift at each application.
 
     Examples
     --------
@@ -90,27 +92,41 @@ class Wavelet(_Weighted):
 
 
 class TotalVariation(_Weighted):
-    """l1 norm of the finite differences over ``axes``, i.e. total variation."""
+    r"""Isotropic total variation, :math:`\lambda \sum_r \| (\nabla x)_r \|_2` (BART's ``T``).
+
+    :math:`G = \nabla` stacks the first differences along ``axes``; the
+    :math:`\ell_2` norm is over the derivative directions.
+
+    Parameters
+    ----------
+    axes : int or tuple of int
+        Axes to differentiate, as indices into the image's shape.
+    weight : float
+        :math:`\lambda`.
+    joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
+    """
 
     kind = "T"
 
 
 class LocallyLowRank(_Weighted):
-    """Nuclear norm of overlapping blocks over ``axes``, i.e. locally low rank.
+    r"""Locally low-rank penalty, the nuclear norm of image blocks (BART's ``L``).
 
     Parameters
     ----------
     axes : int or tuple of int
         Axes the blocks span, as indices into the image's shape.
     weight : float
+        :math:`\lambda`.
     joint_axes : int or tuple of int, default=()
         Axes forming the columns of each block's matrix.
     block : int, default=8
         Block edge length.
     randshift : bool, default=True
-        Shift the block grid by a random offset between solves.
+        Shift the block grid by a random offset at each application.
     overlapping : bool, default=False
-        Fully overlapping blocks instead of a shifted grid.
+        Fully overlapping blocks in place of a shifted grid.
     """
 
     kind = "L"
@@ -138,13 +154,36 @@ class LocallyLowRank(_Weighted):
 
 
 class Laplace(_Weighted):
-    """Laplacian penalty over ``axes``."""
+    r""":math:`\ell_1` norm of a Laplacian-filtered image (BART's ``P``).
+
+    :math:`\lambda \| L x \|_1`, where :math:`G = L` is a 3 x 3 convolution
+    with the kernel ``[[-1, -2, -1], [-2, 12, -2], [-1, -2, -1]]``.
+
+    Parameters
+    ----------
+    axes : tuple of int
+        Exactly two axes to filter, as indices into the image's shape.
+    weight : float
+        :math:`\lambda`.
+    joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
+    """
 
     kind = "P"
 
 
 class FourierL1(_Weighted):
-    """l1 norm of the Fourier transform over ``axes``."""
+    r""":math:`\ell_1` norm of the Fourier coefficients, :math:`\lambda \| F x \|_1` (BART's ``F``).
+
+    Parameters
+    ----------
+    axes : int or tuple of int
+        Axes to transform, as indices into the image's shape.
+    weight : float
+        :math:`\lambda`.
+    joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
+    """
 
     kind = "F"
 
@@ -158,25 +197,63 @@ class _Joint(Regularizer):
 
 
 class L1(_Joint):
-    """l1 norm of the image."""
+    r""":math:`\ell_1` norm of the image, :math:`\lambda \| x \|_1` (BART's ``I``).
+
+    Parameters
+    ----------
+    weight : float
+        :math:`\lambda`.
+    joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
+    """
 
     kind = "I"
 
 
 class ImaginaryL1(_Joint):
-    """l1 norm of the image's imaginary part."""
+    r""":math:`\ell_1` norm of the imaginary part (BART's ``R1``).
+
+    :math:`\lambda \| \operatorname{Im} x \|_1`.
+
+    Parameters
+    ----------
+    weight : float
+        :math:`\lambda`.
+    joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
+    """
 
     kind = "R1"
 
 
 class ImaginaryL2(_Joint):
-    """Squared l2 norm of the image's imaginary part."""
+    r"""Squared :math:`\ell_2` norm of the imaginary part (BART's ``R2``).
+
+    :math:`\tfrac{\lambda}{2} \| \operatorname{Im} x \|_2^2`.
+
+    Parameters
+    ----------
+    weight : float
+        :math:`\lambda`.
+    joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
+    """
 
     kind = "R2"
 
 
 class L2(Regularizer):
-    """Squared l2 norm of the image, i.e. Tikhonov regularization."""
+    r"""Squared :math:`\ell_2` norm of the image (BART's ``Q``).
+
+    :math:`\tfrac{\lambda}{2} \| x \|_2^2`: Tikhonov regularization as a
+    proximal term.  :class:`~bartorch.optim.CG` takes the same weight as
+    ``lambda_``.
+
+    Parameters
+    ----------
+    weight : float
+        :math:`\lambda`.
+    """
 
     kind = "Q"
 
@@ -185,18 +262,17 @@ class L2(Regularizer):
 
 
 class NonNegative(Regularizer):
-    """Projection onto images whose real and imaginary parts are non-negative.
+    """Projection onto images whose real and imaginary parts are non-negative (BART's ``S``).
 
-    Each part is clamped at zero separately, which is BART's ``S`` term: an
-    entry ``-1 + 2i`` is projected to ``2i``, not to zero.  The term has no
-    weight.
+    Each part is clamped at zero separately: ``-1 + 2i`` is projected to
+    ``2i``.  The term takes no parameters.
     """
 
     kind = "S"
 
 
 class _Counted(Regularizer):
-    """A term that keeps the ``count`` largest entries instead of thresholding."""
+    """A term that keeps a percentage of its entries, the largest, instead of thresholding."""
 
     def __init__(self, axes, count: int, joint_axes=()):
         self.axes = _axes(axes)
@@ -205,19 +281,20 @@ class _Counted(Regularizer):
 
 
 class WaveletNIHT(_Counted):
-    """Keep the ``count`` largest wavelet coefficients over ``axes``.
+    """Keep the ``count`` per cent largest wavelet coefficients over ``axes`` (BART's ``H``).
 
     Parameters
     ----------
     axes : int or tuple of int
         Axes to transform, as indices into the image's shape.
     count : int
+        Percentage of the coefficients kept, 0 to 100.
     joint_axes : int or tuple of int, default=()
         Axes along which a coefficient is kept or zeroed together.
     family : {'haar', 'dau2', 'cdf44'}, default='dau2'
         Wavelet family.
     randshift : bool, default=True
-        Cycle-spin the transform by a random shift between solves.
+        Cycle-spin the transform by a random shift at each application.
     """
 
     kind = "H"
@@ -237,7 +314,7 @@ class WaveletNIHT(_Counted):
 
 
 class ImageNIHT(_Counted):
-    """Keep the ``count`` largest image entries."""
+    """Keep the ``count`` per cent largest image entries (BART's ``N``)."""
 
     kind = "N"
 
@@ -279,32 +356,32 @@ def _pair(values, name: str) -> tuple[float, float]:
 
 
 class TotalGeneralizedVariation(_Weighted):
-    r"""Total generalized variation over ``axes``.
+    r"""Second-order total generalized variation over ``axes`` (BART's ``G``).
 
-    Second-order TGV, minimized jointly over the image and an auxiliary vector
-    field :math:`z`:
+    Minimized jointly over the image and an auxiliary vector field :math:`z`:
 
     .. math::
 
-        \min_{x, z} \; \alpha_1 \| \nabla x + z \|_1
-                   + \alpha_0 \| \mathcal{E} z \|_1
+        \min_{z} \; \lambda \bigl( \alpha_1 \| \nabla x + z \|_1
+                                 + \alpha_0 \| \mathcal{E} z \|_1 \bigr)
 
-    with :math:`\mathcal{E}` the symmetrized gradient and ``alpha`` giving
-    :math:`(\alpha_1, \alpha_0)` (BART's ``tgv_reg``).
+    with :math:`\mathcal{E}` the symmetrized gradient (BART's ``tgv_reg``).
 
-    Only :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
-    :class:`bartorch.optim.PRIDU` accept this term; the auxiliary variables
-    extend the optimization variable and BART counts that extension across the
-    whole set of terms, so the term cannot be built in isolation.
+    Accepted by :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
+    :class:`bartorch.optim.PRIDU` only: the auxiliary variables extend the
+    optimization variable, and BART counts them across the whole set of terms,
+    so the term cannot be built alone.
 
     Parameters
     ----------
     axes : int or tuple of int
         Axes to differentiate, as indices into the image's shape.
     weight : float
+        :math:`\lambda`.
     joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
     alpha : tuple of float, default=(1.0, sqrt(3))
-        The pair :math:`(\alpha_1, \alpha_0)` in the objective above.
+        :math:`(\alpha_1, \alpha_0)`.
     """
 
     kind = "G"
@@ -319,37 +396,44 @@ class TotalGeneralizedVariation(_Weighted):
 
 
 class InfimalConvolutionTV(_Weighted):
-    r"""Infimal convolution of total variation over ``axes``.
+    r"""Infimal convolution of total variation over ``axes`` (BART's ``C``).
 
-    The image is split into two components, each penalized by total variation
-    with its own weight and its own derivative scaling:
+    The image is split into two components, each penalized by total variation:
 
     .. math::
 
-        \min_{x, z} \; \gamma_1 \| \nabla_1 (x + z) \|_1
-                   + \gamma_2 \| \nabla_2 z \|_1
+        \min_{z} \; \lambda \bigl( \gamma_1 \| \nabla (x + z) \|_1
+                                 + \gamma_2 \| \nabla z \|_1 \bigr)
 
-    with ``gamma`` giving :math:`(\gamma_1, \gamma_2)` (BART's ``ictv_reg``).
+    (BART's ``ictv_reg``).  The two gradients are the same operator: the
+    anisotropic derivative scalings of ``pics --tvscales`` and
+    ``--tvscales2`` are not carried by the term.
 
-    Only :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
-    :class:`bartorch.optim.PRIDU` accept this term; the auxiliary variables
-    extend the optimization variable and BART counts that extension across the
-    whole set of terms, so the term cannot be built in isolation.
+    Accepted by :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
+    :class:`bartorch.optim.PRIDU` only: the auxiliary variables extend the
+    optimization variable, and BART counts them across the whole set of terms,
+    so the term cannot be built alone.
 
-    The infimal convolution decomposes the image into a component smooth over
-    one set of axes and a component smooth over the other, so ``axes`` must
-    name at least one of the image's last three -- BART's spatial axes -- and
-    at least one before them, typically subspace coefficients or the frames of
-    a time series.
+    ``axes`` must include at least one of the image's last three axes (BART's
+    spatial axes) and at least one before them, such as subspace coefficients
+    or the frames of a time series.
 
     Parameters
     ----------
     axes : int or tuple of int
         Axes to differentiate, as indices into the image's shape.
     weight : float
+        :math:`\lambda`.
     joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
     gamma : tuple of float, default=(1.0, 1.0)
-        The pair :math:`(\gamma_1, \gamma_2)` in the objective above.
+        :math:`(\gamma_1, \gamma_2)`.
+
+    Raises
+    ------
+    ValueError
+        ``axes`` lacks a spatial or a non-spatial axis (raised when the term is
+        used in a solve).
     """
 
     kind = "C"
@@ -367,7 +451,7 @@ class InfimalConvolutionTV(_Weighted):
 
 
 class InfimalConvolutionTGV(_Weighted):
-    r"""Infimal convolution of total generalized variation over ``axes``.
+    r"""Infimal convolution of total generalized variation over ``axes`` (BART's ``V``).
 
     The image is split into two components as for
     :class:`InfimalConvolutionTV`, each penalized by second-order TGV with its
@@ -375,36 +459,41 @@ class InfimalConvolutionTGV(_Weighted):
 
     .. math::
 
-        \min_{x, z, u, w} \;
+        \min_{z, u, w} \; \lambda \Bigl[
             \gamma_1 \bigl( \alpha_1 \| \nabla (x + z) + u \|_1
                           + \alpha_0 \| \mathcal{E} u \|_1 \bigr)
           + \gamma_2 \bigl( \alpha_1 \| \nabla z + w \|_1
-                          + \alpha_0 \| \mathcal{E} w \|_1 \bigr)
+                          + \alpha_0 \| \mathcal{E} w \|_1 \bigr) \Bigr]
 
-    with ``alpha`` giving :math:`(\alpha_1, \alpha_0)` and ``gamma``
-    :math:`(\gamma_1, \gamma_2)` (BART's ``ictgv_reg``).
+    (BART's ``ictgv_reg``), with the same gradient for both components.
 
-    Only :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
-    :class:`bartorch.optim.PRIDU` accept this term; the auxiliary variables
-    extend the optimization variable and BART counts that extension across the
-    whole set of terms, so the term cannot be built in isolation.
+    Accepted by :func:`bartorch.apps.pics`, :class:`bartorch.optim.ADMM` and
+    :class:`bartorch.optim.PRIDU` only: the auxiliary variables extend the
+    optimization variable, and BART counts them across the whole set of terms,
+    so the term cannot be built alone.
 
-    The infimal convolution decomposes the image into a component smooth over
-    one set of axes and a component smooth over the other, so ``axes`` must
-    name at least one of the image's last three -- BART's spatial axes -- and
-    at least one before them, typically subspace coefficients or the frames of
-    a time series.
+    ``axes`` must include at least one of the image's last three axes (BART's
+    spatial axes) and at least one before them, such as subspace coefficients
+    or the frames of a time series.
 
     Parameters
     ----------
     axes : int or tuple of int
         Axes to differentiate, as indices into the image's shape.
     weight : float
+        :math:`\lambda`.
     joint_axes : int or tuple of int, default=()
+        Axes along which entries are thresholded jointly.
     alpha : tuple of float, default=(1.0, sqrt(3))
-        The pair :math:`(\alpha_1, \alpha_0)` in the objective above.
+        :math:`(\alpha_1, \alpha_0)`.
     gamma : tuple of float, default=(1.0, 1.0)
-        The pair :math:`(\gamma_1, \gamma_2)` in the objective above.
+        :math:`(\gamma_1, \gamma_2)`.
+
+    Raises
+    ------
+    ValueError
+        ``axes`` lacks a spatial or a non-spatial axis (raised when the term is
+        used in a solve).
     """
 
     kind = "V"

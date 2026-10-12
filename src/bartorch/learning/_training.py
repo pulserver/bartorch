@@ -38,52 +38,44 @@ def _normalized(residual: torch.Tensor, reference: torch.Tensor) -> torch.Tensor
 
 
 class Reconstruction(lightning.LightningModule):
-    """A reconstruction network trained in one of the three stages of an unrolled network.
+    r"""Lightning module training one of the three stages of an unrolled reconstruction network.
 
-    ``"denoiser"`` trains the network alone, on pairs of a degraded image and
-    its reference, optionally with the iteration index and noise level it
-    will meet in the unrolled network.  ``"greedy"`` trains an
-    :class:`~bartorch.learning.Unrolled` built with ``detach=True``, taking a
-    loss on each iteration's image and back-propagating it before the next
-    iteration runs, so memory holds one iteration; the losses are weighted
-    geometrically, the last ``ratio`` times the first.  ``"end-to-end"`` takes
-    the loss on the last image alone, through the whole stack, which is
-    affordable with ``checkpoint=True``.  Greedy training needs a block whose
-    image passes through its own iteration's denoiser, as
-    :class:`~bartorch.optim.ISTBlock`'s gradient step followed by the
-    denoiser does; :class:`~bartorch.optim.ADMMBlock` returns the image of its
-    conjugate-gradient update, which depends on the previous iteration's
-    denoiser alone.  Run in that order, each stage
-    starting from the weights the previous one left, these are the staged
-    training of Urman et al.
+    * ``"denoiser"`` trains the network alone, on pairs of a degraded image and
+      its reference.
+    * ``"greedy"`` trains an :class:`~bartorch.learning.Unrolled` built with
+      ``detach=True``, back-propagating a loss on each iteration's image before
+      the next iteration runs; the losses grow geometrically, the last
+      ``ratio`` times the first.
+    * ``"end-to-end"`` takes the loss on the last image through the whole
+      stack, which ``checkpoint=True`` makes affordable.
+
+    Run in this order, each from the weights the previous one left, these are
+    the staged training of Urman et al.
 
     Items are dictionaries and a batch is a list of them (``collate_fn=list``),
-    because operators and k-space vary between subjects:
+    since operators and k-space vary between subjects:
 
     * ``"denoiser"``: ``input`` and ``target`` images, and optionally
-      ``step``, ``sigma`` and ``label`` passed to the network.
-    * the unrolled stages: ``y`` and ``A``, the measured data and its
-      encoding operator; ``target``, the reference image, or ``pattern`` for
-      self-supervised training; optionally ``x0``.
+      ``step``, ``sigma`` and ``label`` passed to the network;
+    * the unrolled stages: the data ``y`` and its encoding ``A``; the reference
+      image ``target``, or the sampling ``pattern`` for self-supervised
+      training; optionally ``x0``.
 
-    Every item may carry ``weights``, multiplying the voxel-wise error of the
-    default loss.  Items stay where the dataset put them: the batch is not
-    moved to the device the trainer runs on, since a
-    :class:`~bartorch.learning.Patchwise` network or an operator whose
-    operands are on the host decides itself what crosses to the card.
+    Any item may carry ``weights``, multiplying the voxel-wise error of the
+    default loss.  Batches are not moved to the trainer's device: a
+    :class:`~bartorch.learning.Patchwise` network or an operator with operands
+    on the host moves what it needs.
 
-    Without ``target`` the item is trained self-supervised: its ``pattern``
-    is split by :func:`~bartorch.learning.split` at every step, the network
-    reconstructs from ``pattern`` times the reconstruct part, and the loss is
-    SSDU's normalised l1-l2 loss on the held-out part of the k-space.  The
-    split drawn for validation is the same at every epoch.
+    An item without ``target`` is trained self-supervised (SSDU): its
+    ``pattern`` is partitioned by :func:`~bartorch.learning.split` at every
+    step, the network reconstructs from one part, and the loss is the
+    normalized :math:`\ell_1 + \ell_2` error of the held-out k-space.  The
+    validation partition is the same at every epoch.
 
-    Optimization is manual, so that a greedy step can release each
-    iteration's graph: gradients are accumulated over ``accumulate`` items,
-    optionally clipped, and applied with Adam; the learning rate is reduced
-    by ``factor`` after ``patience`` epochs without improvement of the logged
-    ``val_loss``, which :class:`lightning.pytorch.callbacks.EarlyStopping` and
-    :class:`lightning.pytorch.callbacks.ModelCheckpoint` also monitor.
+    Optimization is manual: gradients are accumulated over ``accumulate``
+    items, optionally clipped, and applied with Adam; the learning rate is
+    multiplied by ``factor`` after ``patience`` epochs without improvement of
+    the logged ``val_loss``.
 
     Parameters
     ----------
@@ -91,13 +83,13 @@ class Reconstruction(lightning.LightningModule):
         The network for ``"denoiser"``, an
         :class:`~bartorch.learning.Unrolled` for the other stages.
     stage : {"denoiser", "greedy", "end-to-end"}, default="end-to-end"
-        What is trained, and how.
+        Training stage.
     loss : callable, default=None
         ``loss(prediction, target, item)`` for supervised items; the mean
-        modulus of the error by default.
+        modulus of the error when omitted.
     ratio : float, default=10.0
-        Weight of the last iteration's loss over the first's, in the greedy
-        stage.
+        Weight of the last iteration's loss relative to the first's, in the
+        greedy stage.
     lr : float, default=1e-3
         Adam's learning rate.
     weight_decay : float, default=0.0
@@ -108,19 +100,23 @@ class Reconstruction(lightning.LightningModule):
         Epochs without improvement of ``val_loss`` before the learning rate
         is reduced.
     accumulate : int, default=1
-        Items whose gradients are summed before a step.
+        Items whose gradients are summed before an optimizer step.
     clip : float, default=None
-        Maximum norm of the gradient.
+        Maximum norm of the gradient; no clipping when omitted.
     fraction : float, default=0.4
         Share of the acquired samples held out, for self-supervised items.
     split_options : dict, default=None
         Further keywords of :func:`~bartorch.learning.split`.
 
-    Examples
-    --------
-    >>> stage = learning.Reconstruction(model, stage="greedy", accumulate=4)
-    >>> trainer = lightning.Trainer(max_epochs=50, callbacks=[EarlyStopping("val_loss")])
-    >>> trainer.fit(stage, DataLoader(train, collate_fn=list), DataLoader(valid, collate_fn=list))
+    Raises
+    ------
+    ValueError
+        An unknown ``stage``; ``"greedy"`` with a model not built with
+        ``detach=True``; ``accumulate`` below one.  In training, ``"greedy"``
+        with a block whose image does not depend on that iteration's
+        parameters, such as :class:`~bartorch.optim.ADMMBlock`, whose image is
+        the conjugate-gradient update preceding the denoiser;
+        :class:`~bartorch.optim.ISTBlock` qualifies.
 
     References
     ----------
@@ -128,6 +124,12 @@ class Reconstruction(lightning.LightningModule):
     magnetic resonance fingerprinting reconstruction via staged pretraining
     and implicit gridding. Magn Reson Med 96(5):2516-2529, 2026.
     https://doi.org/10.1002/mrm.70500
+
+    Examples
+    --------
+    >>> stage = learning.Reconstruction(model, stage="greedy", accumulate=4)
+    >>> trainer = lightning.Trainer(max_epochs=50, callbacks=[EarlyStopping("val_loss")])
+    >>> trainer.fit(stage, DataLoader(train, collate_fn=list), DataLoader(valid, collate_fn=list))
     """
 
     def __init__(
@@ -297,25 +299,24 @@ class Reconstruction(lightning.LightningModule):
 class RandomGain(
     torchio.transforms.augmentation.RandomTransform, torchio.transforms.IntensityTransform
 ):
-    """Multiply every image of a subject by one random complex gain.
+    r"""Multiply every image of a subject by one random complex gain (``torchio`` transform).
 
-    The images are complex values laid out as real channels by
-    :func:`~bartorch.learning.as_real`, real parts first: a channel count of
-    ``2 k`` is ``k`` complex images.  The gain is ``exp(s) exp(i phi)``, with
-    ``phi`` uniform in ``phase`` and ``s`` uniform in ``log_scale``, and the
-    same for every image of the subject, so that a degraded input and its
-    reference, or an image and the k-space made from it, stay consistent.
-    The spatial transforms of ``torchio`` apply to the real and imaginary
-    channels as they are, since interpolating each part is interpolating
-    the complex value; its other intensity transforms do not respect the
-    complex structure.
+    The images hold complex values as real channels, laid out by
+    :func:`~bartorch.learning.as_real`: ``2 k`` channels are ``k`` complex
+    images, real parts first.  The gain is :math:`e^{s} e^{i \varphi}`, with
+    :math:`\varphi` uniform in ``phase`` and :math:`s` uniform in
+    ``log_scale``, the same for every image of the subject, so a degraded input
+    and its reference stay consistent.  ``torchio``'s spatial transforms apply
+    to the real and imaginary channels as they are; its other intensity
+    transforms do not respect the complex structure.
 
     Parameters
     ----------
     phase : float or tuple of float, default=pi
-        Range of ``phi`` in radians; a single value ``d`` is ``(-d, d)``.
+        Range of :math:`\varphi`, in radians; a single value ``d`` is
+        ``(-d, d)``.
     log_scale : float or tuple of float, default=0.0
-        Range of ``s``; a single value ``d`` is ``(-d, d)``.
+        Range of :math:`s`; a single value ``d`` is ``(-d, d)``.
     **kwargs
         Passed to :class:`torchio.transforms.Transform`.
     """

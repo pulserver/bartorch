@@ -46,31 +46,32 @@ def _operator(acquisition, unknown, bounds, scale, amplitude, subspace):
 
 
 class SignalModel(_Callback):
-    """A BlochSim signal model as a BART nonlinear operator.
+    """BlochSim signal model as a nonlinear operator from parameter maps to contrast images.
 
-    The operator maps parameter maps to one image per contrast.  What it does
-    at each point is BlochSim's: :meth:`~blochsim.recon.ModelOperator.A` for
-    the value, ``A_jvp`` for the derivative and ``A_vjp`` for its adjoint, none
-    of which builds a Jacobian -- the model is voxel-diagonal, so one
-    forward-mode pass gives the whole volume's derivative whatever the
-    parameter count.
+    The value, derivative and adjoint are BlochSim's
+    :meth:`~blochsim.recon.ModelOperator.A`, ``A_jvp`` and ``A_vjp``.  The
+    domain is ``(channels, *shape)``: the model's variables (bounded
+    parameters in their transformed form, the amplitude as real and imaginary
+    parts) in the real part of a complex tensor, in the order of
+    :attr:`names`.  The codomain is ``(contrasts, *shape)``.
+    :meth:`initial` and :meth:`split` convert from and to named maps in
+    physical units.
 
     Parameters
     ----------
     model : blochsim.recon.ModelOperator
-        The signal model, with its unknowns, bounds and scales already set.
+        Signal model with its unknowns, bounds and scales set.
     shape : tuple of int, default=()
-        The voxel shape, C order -- ``(y, x)``, ``(z, y, x)``, whatever the
-        maps are.  The operator's domain is ``(channels, *shape)`` and its
-        codomain ``(contrasts, *shape)``.
+        Voxel shape, C order.
     contrasts : int, default=None
-        How many images the model returns.  Measured from the model when it
-        is not given.
+        Number of contrast images; evaluated from the model when ``None``.
 
     Attributes
     ----------
     channels : int
-        Map channels the domain carries, in BlochSim's order.
+        Number of channels of the domain.
+    contrasts : int
+        Number of contrast images of the codomain.
 
     Examples
     --------
@@ -172,26 +173,43 @@ class SignalModel(_Callback):
 
     @property
     def names(self) -> tuple[str, ...]:
-        """What each channel of the domain is, in order."""
+        """Name of each channel of the domain, in order."""
         return tuple(self.model.names)
 
     def initial(self, **values: Any) -> torch.Tensor:
-        """Maps to start from, in this operator's layout.
+        """Pack starting maps into the operator's domain.
 
-        Accepts the arguments of
-        :meth:`~blochsim.recon.ModelOperator.initial` -- ``{name: value}`` in
-        each property's own units -- and returns a complex tensor of
-        :attr:`ishape`.
+        Parameters
+        ----------
+        **values
+            ``name=value`` in each property's physical units, as
+            :meth:`~blochsim.recon.ModelOperator.initial` takes them; a scalar
+            or a map of the voxel shape.  Properties not given take the
+            model's default.
+
+        Returns
+        -------
+        torch.Tensor
+            Complex64 tensor of :attr:`ishape`.
         """
         maps = self.model.initial(self.voxels, **values)
         return maps.movedim(-1, 0).to(torch.complex64).contiguous()
 
     def split(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
-        """The named maps ``x`` stands for, in their own units.
+        """Unpack a tensor of the domain into named maps in physical units.
 
-        The inverse of the packing :meth:`initial` does: what a fit returns is
-        the variables actually solved for, and this turns them back
-        into a T1 in milliseconds and a complex amplitude.
+        The inverse of :meth:`initial`; only the real part of ``x`` is read.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Tensor of :attr:`ishape`, such as a fit's result.
+
+        Returns
+        -------
+        dict of str to torch.Tensor
+            One map of the voxel shape per unknown, e.g. ``T1`` in ms and a
+            complex ``amplitude``.
         """
         maps = x.reshape(self.channels, *self.voxels).movedim(0, -1).real.contiguous()
         return self.model.split(maps)
@@ -222,12 +240,11 @@ def InversionRecovery(  # noqa: N802  (it is a constructor)
     subspace: Any = None,
     **scale: float,
 ) -> SignalModel:
-    """T1 from an inversion-recovery series.
+    """Inversion-recovery signal model for T1 mapping.
 
-    The longitudinal magnetization read at a series of inversion times.  The
-    unknowns are ``T1`` and, with ``amplitude``, a complex amplitude; the
-    Look-Locker parameterisation ``(Mss, M0, R1*)`` describes the same recovery
-    in different variables.
+    The longitudinal magnetization at a series of inversion times, from
+    BlochSim's ``InversionRecoverySimulator``.  The unknowns are ``T1`` and,
+    with ``amplitude``, a complex amplitude.
 
     Parameters
     ----------
@@ -236,20 +253,25 @@ def InversionRecovery(  # noqa: N802  (it is a constructor)
     shape : tuple of int, default=()
         The voxel shape, C order.
     TR : float, default=None
-        Repetition time in milliseconds; without one the magnetization is
-        fully relaxed when each inversion arrives.
+        Repetition time in milliseconds; ``None`` is full relaxation before
+        each inversion.
     bounds : dict, default=None
-        ``{name: (low, high)}``; ``T1`` defaults to ``(10, 5000)`` ms, which
-        keeps a Gauss-Newton iterate physical.
+        ``{name: (low, high)}`` per unknown, in its units; ``T1`` defaults to
+        ``(10, 5000)`` ms.  Bounds of properties not in ``unknown`` are
+        dropped.
     unknown : sequence of str, default=('T1',)
-        What to solve for.  ``inv_efficiency`` and ``offset`` are the other
-        things the model exposes.
+        Properties solved for, e.g. also ``inv_efficiency`` or ``offset``.
     amplitude : bool, default=True
-        Carry a complex amplitude multiplying the recovery.
+        Include a complex amplitude multiplying the signal.
     subspace : blochsim.Subspace, default=None
-        Solve in a temporal basis rather than in the contrasts.
+        Temporal basis the prediction is projected through.
     **scale
-        The size of a step in a parameter left unbounded.
+        ``name=value``: step size of an unbounded parameter.
+
+    Returns
+    -------
+    SignalModel
+        Domain ``(channels, *shape)``, codomain ``(len(TI), *shape)``.
     """
     from blochsim.simulators import InversionRecoverySimulator
 
@@ -275,12 +297,11 @@ def MultiEcho(  # noqa: N802  (it is a constructor)
     subspace: Any = None,
     **scale: float,
 ) -> SignalModel:
-    """T2 or T2* from a multi-echo readout.
+    """Mono-exponential multi-echo signal model for T2 or T2* mapping.
 
-    The transverse decay read at a series of echo times.  Which relaxation is
-    measured is a property of the sequence that produced the data, not of the
-    model: a spin-echo train measures T2 and a gradient-echo train T2*, and the
-    exponential is the same either way.
+    The transverse decay at a series of echo times, from BlochSim's
+    ``MultiEchoSimulator``.  The fitted constant is T2 for a spin-echo train
+    and T2* for a gradient-echo train; the model is the same.
 
     Parameters
     ----------
@@ -289,15 +310,22 @@ def MultiEcho(  # noqa: N802  (it is a constructor)
     shape : tuple of int, default=()
         The voxel shape, C order.
     bounds : dict, default=None
-        ``{name: (low, high)}``; ``T2`` defaults to ``(1, 1000)`` ms.
+        ``{name: (low, high)}`` per unknown, in its units; ``T2`` defaults to
+        ``(1, 1000)`` ms.  Bounds of properties not in ``unknown`` are
+        dropped.
     unknown : sequence of str, default=('T2',)
-        What to solve for.  ``offset`` is the other thing the model exposes.
+        Properties solved for, e.g. also ``offset``.
     amplitude : bool, default=True
-        Carry a complex amplitude multiplying the decay.
+        Include a complex amplitude multiplying the signal.
     subspace : blochsim.Subspace, default=None
-        Solve in a temporal basis rather than in the contrasts.
+        Temporal basis the prediction is projected through.
     **scale
-        The size of a step in a parameter left unbounded.
+        ``name=value``: step size of an unbounded parameter.
+
+    Returns
+    -------
+    SignalModel
+        Domain ``(channels, *shape)``, codomain ``(len(TE), *shape)``.
     """
     from blochsim.simulators import MultiEchoSimulator
 
@@ -325,35 +353,38 @@ def Bloch(  # noqa: N802  (it is a constructor)
     contrasts: int | None = None,
     **scale: float,
 ) -> SignalModel:
-    """Any BlochSim sequence as a model operator, through Bloch simulation.
+    """Signal model of any BlochSim simulator.
 
-    Fits a Bloch simulation of the sequence rather than a closed-form signal
-    equation, so it serves sequences that have none: an FSE train, a
-    fingerprinting schedule, a bSSFP sweep, or a sequence of your own --
-    anything with a ``simulate`` becomes an operator Gauss-Newton can solve.
+    For sequences without a closed-form signal equation, such as a fast
+    spin-echo train, a fingerprinting schedule or a bSSFP sweep.
 
     Parameters
     ----------
-    acquisition : blochsim Simulator
-        The sequence, with everything not being solved for already fixed on
-        it.  A property bound as a map -- a measured B1, a known T1 -- is one
-        value per voxel and rides along.
+    acquisition : blochsim.Simulator
+        The sequence, with every property not solved for fixed on it; a
+        property given as a map (a measured B1, a known T1) has one value per
+        voxel.
     *unknown : str
-        The properties being solved for, in the order their channels appear.
+        Properties solved for, in channel order.
     shape : tuple of int, default=()
-        The voxel shape, C order.
+        Voxel shape, C order.
     bounds : dict, default=None
-        ``{name: (low, high)}``, either end ``None`` for unbounded.  A bound
-        is kept by solving for a transformed variable, so no iterate leaves
-        it.
+        ``{name: (low, high)}``, either end ``None`` for unbounded.  A bounded
+        parameter is solved for in a transformed variable, so no iterate
+        leaves the bound.
     amplitude : bool, default=True
-        Carry a complex amplitude multiplying the simulated signal.
+        Include a complex amplitude multiplying the signal.
     subspace : blochsim.Subspace, default=None
-        Solve in a temporal basis rather than in the contrasts.
+        Temporal basis the prediction is projected through.
     contrasts : int, default=None
-        How many images the sequence records; measured when not given.
+        Number of contrast images; evaluated from the model when ``None``.
     **scale
-        The size of a step in a parameter left unbounded.
+        ``name=value``: step size of an unbounded parameter.
+
+    Returns
+    -------
+    SignalModel
+        Domain ``(channels, *shape)``, codomain ``(contrasts, *shape)``.
 
     Examples
     --------

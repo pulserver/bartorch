@@ -1,4 +1,6 @@
-# From BART and sigpy
+# BART and sigpy equivalents
+
+Each comment names the BART command line or the sigpy call the line corresponds to.
 
 ```python
 import bartorch.tools as bt
@@ -13,9 +15,9 @@ A = linop.CartesianSense(maps, (1, 128, 128))   # sigpy.mri.linop.Sense
 x = optim.CG(maxiter=20)(kspace, A)             # sigpy.app.LinearLeastSquares
 ```
 
-Arrays are torch tensors in C order, with the coils first: `(coils, z, y, x)`,
-the reverse of BART's dimension vector and the layout sigpy uses
-({doc}`../../explanation/data-layout`). Axes are given as indices, never as
+Arrays are PyTorch tensors in C order with the coils first, `(coils, z, y, x)`:
+the reverse of BART's dimension vector, and the layout sigpy uses
+({doc}`../../explanation/data-layout`).  Axes are given as indices, never as
 BART bitmasks.
 
 | BART | sigpy | bartorch |
@@ -34,5 +36,5 @@ BART bitmasks.
 | — | `sp.alg.GradientMethod(prox=...)` | `optim.FISTA`, `optim.IST` |
 | `bart <command> ...` | — | `bartorch <command> ...`, the same arguments |
 
-BART's `fft` is unnormalised unless `-u`; `linop.FFT` is unitary. Every other
-command is a function of `bartorch.tools` ({doc}`../../api/tools`).
+BART's `fft` is unnormalised unless `-u`; `linop.FFT` is unitary.  Every other
+BART command is a function of `bartorch.tools` ({doc}`../../api/tools`).

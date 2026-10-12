@@ -126,24 +126,56 @@ class LinearOperator(Operator):
             raise TypeError(f"{type(self).__name__} must define _create, or forward and adjoint")
 
     def forward(self, x: torch.Tensor, out: torch.Tensor | None = None) -> torch.Tensor:
-        """``A x``, without recording for autograd.
+        """Apply ``A x`` without recording for autograd.
 
-        ``out`` is written in place when given; for a BART-backed operator it
-        must be a contiguous complex64 tensor of :attr:`oshape` on the input's
-        device.
+        Parameters
+        ----------
+        x : tensor, shape ishape
+            Input.
+        out : tensor, shape oshape, default=None
+            Written in place when given.  For a BART-backed operator, a
+            contiguous complex64 tensor on the input's device.
+
+        Returns
+        -------
+        tensor, shape oshape
+            ``out`` when given.
         """
         return self._apply(library().bartorch_linop_forward, x, self.ishape, self.oshape, out)
 
     def adjoint(self, y: torch.Tensor, out: torch.Tensor | None = None) -> torch.Tensor:
-        """``A^H y``, without recording for autograd."""
+        """Apply ``A^H y`` without recording for autograd.
+
+        Parameters
+        ----------
+        y : tensor, shape oshape
+            Input.
+        out : tensor, shape ishape, default=None
+            Written in place when given, as for :meth:`forward`.
+
+        Returns
+        -------
+        tensor, shape ishape
+        """
         return self._apply(library().bartorch_linop_adjoint, y, self.oshape, self.ishape, out)
 
     def normal(self, x: torch.Tensor, out: torch.Tensor | None = None) -> torch.Tensor:
-        """``A^H A x``.
+        """Apply ``A^H A x``.
 
-        A BART-backed operator applies its own normal, which for a
-        non-Cartesian encoding built with ``toeplitz=True`` is a convolution
-        with a point spread function.  Otherwise ``adjoint(forward(x))``.
+        A BART-backed operator applies BART's normal, which for an encoding
+        built with ``toeplitz=True`` is a convolution with a point spread
+        function; a Python-defined one computes ``adjoint(forward(x))``.
+
+        Parameters
+        ----------
+        x : tensor, shape ishape
+            Input.
+        out : tensor, shape ishape, default=None
+            Written in place when given, as for :meth:`forward`.
+
+        Returns
+        -------
+        tensor, shape ishape
         """
         if self._native:
             return self._apply(library().bartorch_linop_normal, x, self.ishape, self.ishape, out)
@@ -156,11 +188,26 @@ class LinearOperator(Operator):
 
     @classmethod
     def from_callbacks(cls, oshape, ishape, forward, adjoint, normal=None) -> LinearOperator:
-        """An operator from Python functions, applied through BART.
+        """Build a BART operator from Python functions.
 
-        ``forward`` maps ``ishape`` to ``oshape`` and ``adjoint`` back; ``normal``,
-        where a cheaper form exists, is ``adjoint(forward(x))`` in one.  Each
-        receives a view of BART's buffer, and every application crosses into Python.
+        Each function receives a view of BART's buffer, without a copy, and
+        returns a tensor; every application calls back into Python.
+
+        Parameters
+        ----------
+        oshape, ishape : tuple of int
+            Codomain and domain, C order.
+        forward : callable
+            ``x -> A x``, from ``ishape`` to ``oshape``.
+        adjoint : callable
+            ``y -> A^H y``, from ``oshape`` to ``ishape``.
+        normal : callable, default=None
+            ``x -> A^H A x`` in one function; ``None`` chains ``adjoint``
+            onto ``forward``.
+
+        Returns
+        -------
+        LinearOperator
         """
         from bartorch.linop._basic import _Callback
 
@@ -170,21 +217,15 @@ class LinearOperator(Operator):
     def plan(self):
         """The encoding form this operator was lowered into, or ``None``.
 
-        Diagnostic: reading it changes nothing about the operator.  An MRI
-        encoding reports what the planner chose for it -- the transform, the
-        element-wise factors on each side of it, the contraction, what is
-        streamed, how the normal is applied, and which executor path ran it.
-        The algebra carries the plan through, so a composition with one
-        encoding in it reports that encoding's plan; anything else has none.
+        An MRI encoding reports the transform, the element-wise factors on
+        each side of it, the contraction, what is streamed, how the normal is
+        applied and which executor built it.  A composition containing exactly
+        one encoding reports that encoding's plan; any other operator has none.
 
-        ``plan.fused`` is the field to check: it is false where the coil-slab
-        loop could not take the form and where a sum of terms was left as a
-        chain, both of which give the same numbers several times slower.
-        ``plan.executor`` is read back from the library after the build, so it
-        reports the path that ran rather than the one intended.
-
-        Accessing this on a composition builds it, since the plan is decided by
-        lowering and lowering is what building does.
+        ``plan.fused`` is false where the coil-slab loop could not take the
+        form or a sum of terms was left as a chain: the same result, computed
+        more slowly.  ``plan.executor`` is read back from the library after
+        the build.  Reading the property on a composition builds it.
 
         Returns
         -------
@@ -284,16 +325,17 @@ class LinearOperator(Operator):
     def __getitem__(self, key) -> LinearOperator:
         """``A[key]``: the operator whose output is ``A(x)[key]``.
 
-        The restriction is BART's, not a view taken afterwards -- an
-        :class:`~bartorch.linop.Extract` chained onto this operator, with a
+        An :class:`~bartorch.linop.Extract` chained onto this operator, with a
         :class:`~bartorch.linop.Reshape` after it where an integer index drops
-        an axis the way it does for a tensor.  So a slice of an operator is
-        still one BART operator, and its adjoint puts the block back and
-        leaves the rest zero.
+        an axis, so the result is one BART operator whose adjoint zero-fills
+        outside the block.  ``key`` holds integers and slices, at most one per
+        codomain axis, and at most one ``...``.
 
-        Integers and slices, one per axis or fewer, with ``...`` standing for
-        the axes not named.  A step other than one has no BART constructor
-        behind it and is refused rather than emulated.
+        Raises
+        ------
+        IndexError
+            For a slice step other than one, an empty slice, an index out of
+            range, or a key of another type.
 
         Examples
         --------
@@ -312,10 +354,10 @@ class LinearOperator(Operator):
 
     @property
     def H(self) -> LinearOperator:  # noqa: N802  (the mathematical name)
-        """``A^H``, from BART's own adjoint constructor.
+        """``A^H``, from BART's adjoint constructor.
 
-        The result is a BART operator rather than a Python wrapper, so
-        ``A.H @ B`` is one operator and its normal is ``A A^H``.
+        The result is a BART operator: ``A.H @ B`` is one operator, and the
+        normal of ``A.H`` is ``A A^H``.
         """
         return _Adjoint(self)
 
@@ -333,8 +375,8 @@ class LinearOperator(Operator):
     def gram(self) -> LinearOperator:
         """``A^H A`` as an operator.
 
-        BART's own, so an encoding built with ``toeplitz=True`` gives the
-        point-spread convolution rather than the two applications.
+        BART's normal: for an encoding built with ``toeplitz=True``, the
+        convolution with a point spread function.
         """
         return _Normal(self)
 
@@ -343,12 +385,20 @@ class LinearOperator(Operator):
         return _Normal(self.H)
 
     def opnorm(self) -> float:
-        """The spectral norm, by BART's power iteration on ``A^H A``.
+        """Estimate the spectral norm by BART's power iteration on ``A^H A``.
 
-        BART starts the iteration from its process-global generator, so this
-        returns a slightly different number each time it is called.  It is an
-        estimate: what a step size or a Lipschitz constant needs, not an exact
-        singular value.
+        The starting vector comes from BART's process-global generator, so
+        repeated calls differ slightly.  Accurate enough for a step size or a
+        Lipschitz constant, not an exact singular value.
+
+        Returns
+        -------
+        float
+
+        Raises
+        ------
+        BartError
+            When the power iteration does not converge.
         """
         op = self._bart()
         largest = self._under_lock(library().bartorch_linop_maxeigen, op._h.ptr, device=op.device)
@@ -357,16 +407,25 @@ class LinearOperator(Operator):
         return math.sqrt(largest)
 
     def __call__(self, x: torch.Tensor, out: torch.Tensor | None = None) -> torch.Tensor:
-        """``A x``, recorded for autograd when ``x`` requires a gradient.
+        """Apply ``A x``, recorded for autograd when ``x`` requires a gradient.
+
+        The backward pass applies :meth:`adjoint`.
 
         Parameters
         ----------
-        x : torch.Tensor
-            Array of :attr:`ishape`.
-        out : torch.Tensor, default=None
-            Contiguous complex64 array of :attr:`oshape` to write into, so that
-            repeated applications reuse one buffer.  Not allowed when ``x``
-            requires a gradient.
+        x : tensor, shape ishape
+            Input.
+        out : tensor, shape oshape, default=None
+            Contiguous complex64 tensor written in place.
+
+        Returns
+        -------
+        tensor, shape oshape
+
+        Raises
+        ------
+        ValueError
+            When ``out`` is given and ``x`` requires a gradient.
         """
         if _tracking(x):
             if out is not None:
@@ -398,22 +457,22 @@ class LinearOperator(Operator):
 
     @property
     def dim_size(self) -> int:
-        """How many elements the domain holds."""
+        """Number of elements in the domain."""
         return math.prod(self.ishape)
 
     @property
     def codim_size(self) -> int:
-        """How many elements the codomain holds."""
+        """Number of elements in the codomain."""
         return math.prod(self.oshape)
 
     @property
     def dim_rank(self) -> int:
-        """How many axes the domain has."""
+        """Number of axes of the domain."""
         return len(self.ishape)
 
     @property
     def codim_rank(self) -> int:
-        """How many axes the codomain has."""
+        """Number of axes of the codomain."""
         return len(self.oshape)
 
     def to_nonlinear(self):
@@ -423,31 +482,36 @@ class LinearOperator(Operator):
         return FromLinear(self)
 
     def pinv(self, y: torch.Tensor, damp: float = 0.0, **kwargs) -> torch.Tensor:
-        """``(A^H A + damp I)^-1 A^H y``, the damped least-squares solution.
+        """Solve ``(A^H A + damp I) x = A^H y``, the damped least-squares problem.
 
-        Solved in closed form where BART has one that has been checked, and by
-        :class:`bartorch.optim.CG` otherwise; the same quantity either way.
-
-        BART offers the closed form through a ``norm_inv``, which only
-        `linops/sum.c` carries, and that routine divides by a count
-        `linop_sum_create` overwrites afterwards -- so it answers for a
-        differently scaled operator than the one it is attached to.  A class
-        therefore opts in through :attr:`_exact_pinv` once a test holds the
-        closed form and the solver to the same answer, and only
-        :class:`~bartorch.linop.ScaledSum` does.  Everything else takes the
-        solver, chains, sums and adjoints included, since those drop the
-        ``norm_inv`` regardless.
+        :class:`~bartorch.linop.ScaledSum` is solved by BART's closed-form
+        pseudo-inverse; every other operator, including compositions, by
+        :class:`~bartorch.optim.CG`.
 
         Parameters
         ----------
-        y : torch.Tensor
-            Array of :attr:`oshape`.
+        y : tensor, shape oshape
+            Data.
         damp : float, default=0.0
-            The Tikhonov weight, ``CG``'s ``lambda_``.
+            Tikhonov weight, ``CG``'s ``lambda_``.
         **kwargs
-            Passed to :class:`~bartorch.optim.CG`, with ``x0`` as the warm
-            start.  Refused when the closed form applies, because there is
-            then no solver for them to configure.
+            Passed to :class:`~bartorch.optim.CG`; ``x0`` is the warm start.
+
+        Returns
+        -------
+        tensor, shape ishape
+
+        Raises
+        ------
+        TypeError
+            When ``kwargs`` are given and the closed form applies.
+
+        Notes
+        -----
+        BART attaches a closed form (``norm_inv``) only in ``linops/sum.c``,
+        and it is correct for ``linop_scaled_sum`` alone: for the plain sum it
+        solves a differently scaled problem.  :class:`~bartorch.linop.Sum`
+        therefore takes the solver.
         """
         op = self._bart()
         lib = library()

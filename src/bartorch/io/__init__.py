@@ -1,9 +1,10 @@
 """File formats: BART's CFL, ISMRMRD raw data, DICOM and NIfTI images.
 
-Images and k-space are tensors in bartorch's layout; geometry is a ``(4, 4)``
-affine from voxel indices ``(x, y, z)`` to RAS millimetres, which every reader
-returns and every image writer takes.  ISMRMRD, DICOM and NIfTI need the
-``io`` extra.
+Images and k-space are tensors in bartorch's C-order layout; geometry is a
+``(4, 4)`` affine from voxel indices ``(x, y, z)`` to RAS millimetres, which
+every image reader returns and every image writer takes.  CFL arrays are NumPy
+arrays in BART's own dimension order.  ISMRMRD, DICOM and NIfTI need the ``io``
+extra.
 """
 
 from ._cfl import readcfl, writecfl

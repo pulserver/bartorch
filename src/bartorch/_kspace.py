@@ -103,7 +103,7 @@ def fermi_window(
     Examples
     --------
     >>> window = fermi_window((256, 256))
-    >>> float(window[128, 128]), round(float(window[128, 0]), 3)
+    >>> round(float(window[128, 128]), 3), round(float(window[128, 0]), 3)
     (1.0, 0.5)
     """
     shape = tuple(int(n) for n in shape)

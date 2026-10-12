@@ -10,11 +10,22 @@ _BART_DIMS = 16
 def readcfl(name: str) -> np.ndarray:
     """Read the CFL pair ``name.hdr`` / ``name.cfl`` into a NumPy array.
 
+    Parameters
+    ----------
+    name : str
+        Path without the extension.
+
     Returns
     -------
     numpy.ndarray
-        ``complex64`` with BART's dims as its shape, in Fortran order; trailing
-        singleton dims are dropped.
+        ``complex64``, Fortran order, with BART's dimension vector as its shape
+        (``x`` first), not the reversed C-order shape of a bartorch tensor;
+        trailing singleton dimensions are dropped.
+
+    Raises
+    ------
+    ValueError
+        If the data file does not hold as many elements as the header states.
     """
     with open(name + ".hdr") as f:
         lines = [ln.strip() for ln in f if not ln.startswith("#")]
@@ -35,8 +46,14 @@ def readcfl(name: str) -> np.ndarray:
 def writecfl(name: str, array: np.ndarray) -> None:
     """Write ``array`` as the CFL pair ``name.hdr`` / ``name.cfl``.
 
-    Its shape becomes BART's dims and its values are written as ``complex64`` in
-    Fortran order.
+    Parameters
+    ----------
+    name : str
+        Path without the extension.
+    array : numpy.ndarray
+        Array whose shape is BART's dimension vector (``x`` first); written as
+        ``complex64`` in Fortran order.  A C-order tensor is written in BART's
+        order by passing ``tensor.numpy().T``.
     """
     array = np.asarray(array, dtype=np.complex64)
     dims = list(array.shape)

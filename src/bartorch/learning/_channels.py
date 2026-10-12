@@ -9,29 +9,25 @@ __all__ = ["ComplexNet", "as_complex", "as_real"]
 
 
 def as_real(input: torch.Tensor) -> torch.Tensor:
-    """Real and imaginary parts of ``input`` stacked along a new leading axis.
+    """Stack the real and imaginary parts of ``input`` along a new leading axis.
 
-    The pair is placed in front rather than in the trailing axis used by
-    :func:`torch.view_as_real`, matching the channel-first convention of
-    convolutional networks and of ``torchio.ScalarImage``.
+    The channel-first counterpart of :func:`torch.view_as_real`, as
+    convolutional networks and ``torchio.ScalarImage`` take channels.
 
     Parameters
     ----------
     input : torch.Tensor
-        Complex tensor of any shape.  A real tensor is given a zero imaginary
-        part, so that magnitude images and complex k-space can be carried in
-        the same layout.
+        Complex, of any shape.  A real tensor is given a zero imaginary part.
 
     Returns
     -------
     torch.Tensor
-        Real tensor of shape ``(2, *input.shape)``.
+        Real, of shape ``(2, *input.shape)``.
 
     Notes
     -----
-    ``torchio.ScalarImage`` requires four axes, ``(channels, width, height,
-    depth)``, so a two-dimensional image is unsqueezed to
-    ``(2, height, width, 1)`` before it is passed on.
+    ``torchio.ScalarImage`` takes four axes, ``(channels, x, y, z)``, so a
+    two-dimensional image is given a trailing axis of length one first.
 
     Examples
     --------
@@ -44,19 +40,26 @@ def as_real(input: torch.Tensor) -> torch.Tensor:
 
 
 def as_complex(input: torch.Tensor) -> torch.Tensor:
-    """Complex tensor formed from a leading axis of real and imaginary parts.
+    """Combine a leading axis of real and imaginary parts into a complex tensor.
 
     Inverse of :func:`as_real`.
 
     Parameters
     ----------
     input : torch.Tensor
-        Real tensor whose leading axis has length two.
+        Real, with a leading axis of length two.
 
     Returns
     -------
     torch.Tensor
-        Complex tensor of shape ``input.shape[1:]``.
+        Complex, of shape ``input.shape[1:]``.
+
+    Raises
+    ------
+    TypeError
+        ``input`` is complex.
+    ValueError
+        The leading axis is not of length two.
     """
     if input.is_complex():
         raise TypeError(f"as_complex takes the real pair, and {input.dtype} is complex already")
@@ -75,35 +78,23 @@ _NORMALIZE = (None, "peak", "whiten")
 
 
 class ComplexNet(nn.Module):
-    """A network on real channels applied to complex images whose leading axes are channels.
+    """Network on real channels applied to complex images whose leading axes are channels.
 
     The input is ``(batch, *channels, *spatial)``, or
-    ``(batch, *channels, frames, *spatial)`` with ``frames``.  The complex
-    values and the ``channels`` axes become the network's
-    ``2 * prod(channels)`` real channels, real parts first, in the order of
-    :func:`as_real` applied to each item; with ``frames`` the frame axis is
-    kept as the axis in front of the spatial ones, which is what
-    :class:`UNet` with ``frames=True`` takes.  This is the layout for
-    subspace coefficient maps, which are denoised jointly as one
-    multi-channel image rather than one coefficient at a time.
-
-    ``normalize`` brings each item to order unity around the call, with
-    statistics taken without gradient:
-
-    * ``"peak"`` divides by the peak modulus, so that ``sigma`` is in units of
-      that peak.
-    * ``"whiten"`` subtracts each real channel's mean and multiplies by the
-      inverse square root of the channels' covariance, so that the channels
-      the network sees are uncorrelated and of unit variance.  Coefficient maps
-      of a subspace basis differ in energy by orders of magnitude, and this
-      balances them.  ``sigma`` then has no fixed unit.
+    ``(batch, *channels, frames, *spatial)`` with ``frames``.  The real and
+    imaginary parts and the ``channels`` axes become the network's
+    ``2 * prod(channels)`` real channels, real parts first; a frame axis stays
+    in front of the spatial ones, as :class:`UNet` with ``frames=True`` takes
+    it.  Subspace coefficient maps are thereby denoised jointly as one
+    multi-channel image.
 
     Parameters
     ----------
     net : callable
         Called on real ``(batch, 2 * prod(channels), [frames,] *spatial)``
-        tensors as ``net(x)``, ``net(x, sigma)``, and with any further keyword
-        this module is called with, such as ``step``.
+        tensors as ``net(x)`` or ``net(x, sigma)``, with any further keyword
+        this module is called with, such as ``step``.  Returns its input's
+        shape.
     spatial : {2, 3}, default=3
         Number of trailing spatial axes.
     channels : int, default=0
@@ -112,7 +103,19 @@ class ComplexNet(nn.Module):
     frames : bool, default=False
         Whether the axis in front of the spatial ones is a frame axis.
     normalize : {"peak", "whiten", None}, default="peak"
-        How each item is scaled around the call.
+        Scaling of each item around the call, with statistics taken without
+        gradient.  ``"peak"`` divides by the peak modulus, so ``sigma`` is
+        relative to it; ``"whiten"`` subtracts each real channel's mean and
+        decorrelates the channels to unit variance, balancing coefficient maps
+        whose energies differ by orders of magnitude, so ``sigma`` has no fixed
+        unit; ``None`` leaves the item as it is.
+
+    Raises
+    ------
+    TypeError
+        ``net`` is not callable.
+    ValueError
+        An unknown ``normalize``.
 
     Examples
     --------
@@ -141,10 +144,22 @@ class ComplexNet(nn.Module):
         self.normalize = normalize
 
     def forward(self, input: torch.Tensor, sigma=None, **keywords) -> torch.Tensor:
-        """Apply the network, returning ``input``'s shape and dtype.
+        """Apply the network.
 
-        A real ``input`` is taken as complex with a zero imaginary part, and
-        the real part of the result is returned.
+        Parameters
+        ----------
+        input : torch.Tensor
+            ``(batch, *channels, [frames,] *spatial)``.  A real tensor is taken as
+            complex with a zero imaginary part.
+        sigma : float or torch.Tensor, default=None
+            Passed to the network as its second argument when given.
+        **keywords
+            Passed to the network.
+
+        Returns
+        -------
+        torch.Tensor
+            Of ``input``'s shape and dtype; the real part for a real ``input``.
         """
         inner = self.channels + int(self.frames) + self.spatial
         if input.ndim != 1 + inner:
