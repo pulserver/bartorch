@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=90dfe745"></script>
+    <script src="../_static/documentation_options.js?v=2b236558"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,18 +56,19 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/generated/bartorch.apps.moba.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -194,71 +195,54 @@
             </li>
         </ul>
         <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/user/index.html">User guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -267,15 +251,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -539,103 +517,87 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.apps.moba">
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">moba</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.moba" title="Link to this definition">#</a></dt>
-<dd><p>Fit a signal model to k-space: parameter maps straight from the samples.</p>
-<p>The method of the <code class="docutils literal notranslate"><span class="pre">moba</span></code> command, assembled here: the signal model
-inside the encoding, <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">P</span> <span class="pre">F</span> <span class="pre">(S</span> <span class="pre">.</span> <span class="pre">M(theta))</span></code>, fitted to the k-space by
-the Gauss-Newton loop of <a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a>, and the fitted
-variables read back into their own units.  Without <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> the
-coils are a second unknown, estimated jointly with the maps as the command
-estimates them: a k-space representation under the Sobolev weighting of
-<a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a>, shared by every contrast.</p>
-<p>The model is BlochSim’s rather than BART’s – a
-<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a> – so this does not reproduce the
-command’s coefficients.  It solves the same problem with the same method
-and answers in named maps.</p>
+<dd><p>Fit a signal model to k-space: model-based reconstruction of parameter maps.</p>
+<p>The method of BART’s <code class="docutils literal notranslate"><span class="pre">moba</span></code>: the model <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">P</span> <span class="pre">F</span> <span class="pre">(S</span> <span class="pre">.</span> <span class="pre">M(theta))</span></code>,
+fitted to the samples by Gauss-Newton (<a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a>).
+Without <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> the coils are a second unknown, shared by the
+contrasts and represented as in <a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a>,
+under a Sobolev weighting.  The model is BlochSim’s
+(<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a>), so the result is named maps in
+physical units rather than the command’s coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Samples, <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">coils,</span> <span class="pre">*samples)</span></code>, C order: <code class="docutils literal notranslate"><span class="pre">*samples</span></code> is the
-voxel shape on a grid, and the trajectory’s sample axes off it –
-<code class="docutils literal notranslate"><span class="pre">traj.shape[:-1]</span></code>, without a leading contrast axis the trajectory
-may carry.  Contrasts are in the order the model’s acquisition lists
-them.</p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><em>bartorch.nlop.SignalModel</em></a>) – The signal model, on the voxel shape of the image – <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> or
-<code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
-<li><p><strong>sensitivities</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Coil sensitivities, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*voxels)</span></code>, shared by the contrasts.
-Estimated jointly with the maps when not given.</p></li>
-<li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Non-Cartesian trajectory <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in grid units, shared by
-the contrasts or with a leading contrast axis.  Requires
-<code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>.</p></li>
-<li><p><strong>pattern</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Sampling pattern or weights, broadcastable against <code class="docutils literal notranslate"><span class="pre">kspace</span></code>, with one
-entry along the coil axis; it may differ between contrasts.  On a grid
-it is read off <code class="docutils literal notranslate"><span class="pre">kspace</span></code> when not given: one wherever a coil has a
-sample.</p></li>
-<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=20</em>) – Gauss-Newton steps.  The command takes eight over its own scaled
-coefficients; twenty are what a bounded parameterisation needs.</p></li>
-<li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=50</em>) – Conjugate-gradient steps per linearized problem.</p></li>
-<li><p><strong>inner</strong> (<em>solver</em><em>, </em><em>default=None</em>) – A configured solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> for the linearized
-problem, whose regularizers then penalize the maps; only with
-<code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>, where the maps are the only unknown.  The default
-is plain conjugate gradients.</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Initial Tikhonov weight on the Gauss-Newton step.</p></li>
-<li><p><strong>alpha_min</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – What that weight decays towards.</p></li>
-<li><p><strong>redu</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – Factor the weight is divided by after each step.</p></li>
+<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Samples <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">coils,</span> <span class="pre">*samples)</span></code>, C order, contrasts in the
+order of the model’s acquisition.  <code class="docutils literal notranslate"><span class="pre">*samples</span></code> is the voxel shape on
+a grid, and <code class="docutils literal notranslate"><span class="pre">traj.shape[:-1]</span></code> without a leading contrast axis along
+a trajectory.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><em>bartorch.nlop.SignalModel</em></a>) – Signal model on the voxel shape, <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
+<li><p><strong>sensitivities</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Coil sensitivities <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*voxels)</span></code>, shared by the contrasts;
+estimated jointly with the maps when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in grid units, shared by the contrasts
+or with a leading contrast axis.  Requires <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>.</p></li>
+<li><p><strong>pattern</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Sampling pattern or weights broadcastable against <code class="docutils literal notranslate"><span class="pre">kspace</span></code>, of size
+one along the coil axis; may differ between contrasts.  <code class="docutils literal notranslate"><span class="pre">None</span></code> on a
+grid is one wherever any coil has a sample.</p></li>
+<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=20</em>) – Gauss-Newton steps.  The command’s 8 suffice for its scaled
+coefficients, not for the bounded parameterization.</p></li>
+<li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=50</em>) – Conjugate-gradient iterations per linearized problem.</p></li>
+<li><p><strong>inner</strong> (<em>solver</em><em>, </em><em>default=None</em>) – Solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> for the linearized problem, whose
+regularizers penalize the maps; requires <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>.  <code class="docutils literal notranslate"><span class="pre">None</span></code>
+is conjugate gradients.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Tikhonov weight of the first Gauss-Newton step.</p></li>
+<li><p><strong>alpha_min</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Limit the weight decays towards.</p></li>
+<li><p><strong>redu</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – Decay factor of the weight per step.</p></li>
 <li><p><strong>sobolev</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>880.0</em><em>, </em><em>32.0</em><em>)</em>) – <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> of the coil weighting <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code> when the
 coils are estimated; the command’s defaults.</p></li>
-<li><p><strong>smooth</strong> (<em>dict</em><em> of </em><em>str to tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – Properties fitted as smooth maps, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">(a,</span> <span class="pre">b)}</span></code>: each is solved
-for as k-space coefficients under the weighting <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code>
-of <a class="reference internal" href="bartorch.linop.Sobolev.html#bartorch.linop.Sobolev" title="bartorch.linop.Sobolev"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sobolev</span></code></a>, as the command solves for its B1
-and B0 maps.  The weighting acts on the model’s variable for the
-property, which for a bounded one is its transformed value.  A start or
-reference map for a smooth property is taken through the weighting’s
-adjoint and back, which leaves a constant as it is and smooths
-anything else.</p></li>
-<li><p><strong>start</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Maps to start from, of the model’s input shape, in the units the solve
-works in – with the amplitude divided by <code class="docutils literal notranslate"><span class="pre">scaling</span></code>.  Built from
-<code class="docutils literal notranslate"><span class="pre">**values</span></code> when it is not given.</p></li>
-<li><p><strong>reference</strong> (<em>dict</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – Maps each Gauss-Newton step is regularized towards, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">value}</span></code>
-in each property’s own units as <code class="docutils literal notranslate"><span class="pre">**values</span></code> takes them, with an
-amplitude in the data’s units; a name left out takes the model’s
-default.  The start when not given.  A value outside the model’s bounds
-is clamped to them, so a limit such as a vanishing rate is approached
-from inside.</p></li>
-<li><p><strong>scaling</strong> (<em>float</em><em>, </em><em>default=None</em>) – The factor the data is divided by for the solve; the fitted amplitude
-is multiplied by it again.  Estimated when not given, by the rule of
-<a class="reference internal" href="bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> applied to least-squares contrast
-images with known coils and zero-filled coil images without, which makes
-<code class="docutils literal notranslate"><span class="pre">alpha</span></code> and the start independent of the data’s overall scale.  A
-model without an amplitude is fitted to the data as it stands.</p></li>
-<li><p><strong>return_sensitivities</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the estimated sensitivities; only when they are estimated.</p></li>
-<li><p><strong>**values</strong> – Starting values per unknown, in that property’s own units, as
-<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them; an amplitude
-in the data’s units.</p></li>
+<li><p><strong>smooth</strong> (<em>dict</em><em> of </em><em>str to tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">(a,</span> <span class="pre">b)}</span></code>: properties solved for as smooth maps, through the
+weighting <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code> of <a class="reference internal" href="bartorch.linop.Sobolev.html#bartorch.linop.Sobolev" title="bartorch.linop.Sobolev"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sobolev</span></code></a>,
+as the command treats its B1 and B0 maps.  The weighting applies to
+the model’s variable, the transformed value for a bounded property.</p></li>
+<li><p><strong>start</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Starting point in the model’s domain, with the amplitude divided by
+<code class="docutils literal notranslate"><span class="pre">scaling</span></code>; built from <code class="docutils literal notranslate"><span class="pre">**values</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code>.  A <code class="docutils literal notranslate"><span class="pre">smooth</span></code>
+property enters through the weighting’s adjoint, which keeps a
+constant map and smooths any other.</p></li>
+<li><p><strong>reference</strong> (<em>dict</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – Values each step is regularized towards, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">value}</span></code> in physical
+units with an amplitude in the units of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>; unnamed properties
+take the model’s defaults, and values are clamped strictly inside the
+model’s bounds.  <code class="docutils literal notranslate"><span class="pre">None</span></code> uses the start.  The coil coefficients are
+regularized towards zero.</p></li>
+<li><p><strong>scaling</strong> (<em>float</em><em>, </em><em>default=None</em>) – Factor the data is divided by for the solve; the fitted amplitude is
+multiplied by it again.  <code class="docutils literal notranslate"><span class="pre">None</span></code> applies the rule of
+<a class="reference internal" href="bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> to least-squares contrast images
+(known coils) or zero-filled coil images (estimated coils).  A model
+without an amplitude is fitted to unscaled data.</p></li>
+<li><p><strong>return_sensitivities</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the estimated sensitivities.</p></li>
+<li><p><strong>**values</strong> – Starting values <code class="docutils literal notranslate"><span class="pre">name=value</span></code> in physical units, as
+<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them, with an
+amplitude in the units of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>dict of str to torch.Tensor</em> – The fitted maps in their own units, by the name each unknown carries.
-With estimated coils the amplitude and the sensitivities share one
-complex scale between them, which the data does not fix.</p></li>
-<li><p><em>torch.Tensor</em> – With <code class="docutils literal notranslate"><span class="pre">return_sensitivities</span></code>: the sensitivities, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*voxels)</span></code>.</p></li>
+<li><p><strong>maps</strong> (<em>dict of str to torch.Tensor</em>) – Fitted maps in physical units, keyed by unknown.  With estimated coils,
+amplitude and sensitivities share a complex factor the data does not
+determine.</p></li>
+<li><p><strong>sensitivities</strong> (<em>torch.Tensor</em>) – Estimated sensitivities <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*voxels)</span></code>; only with
+<code class="docutils literal notranslate"><span class="pre">return_sensitivities</span></code>.</p></li>
 </ul>
 </p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">inner</span></code>, <code class="docutils literal notranslate"><span class="pre">traj</span></code> or <code class="docutils literal notranslate"><span class="pre">return_sensitivities</span></code> without
-    <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>, a <code class="docutils literal notranslate"><span class="pre">kspace</span></code> the encoding’s samples are not, or a
-    <code class="docutils literal notranslate"><span class="pre">smooth</span></code> property the model does not solve for.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">traj</span></code> or <code class="docutils literal notranslate"><span class="pre">inner</span></code> is given without <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>, if
+    <code class="docutils literal notranslate"><span class="pre">return_sensitivities</span></code> is set with <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code>, if <code class="docutils literal notranslate"><span class="pre">kspace</span></code>
+    does not match the encoding’s samples, or if <code class="docutils literal notranslate"><span class="pre">smooth</span></code> names a
+    property the model does not solve for.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Each step is regularized towards <code class="docutils literal notranslate"><span class="pre">reference</span></code> – by default the maps
-towards where they started, the coil coefficients towards zero – where the command
-regularizes towards zero.  Zero in BlochSim’s parameterisation is the
-middle of each bound and no amplitude, not a plausible map, and the coils start
-at zero, as the command starts them: at that point the data has no
-derivative by the maps, so a first step centred on zero would take the
-maps to the middle of their bounds and leave the data with no derivative
-by the coils.  The weight decays by <code class="docutils literal notranslate"><span class="pre">redu</span></code> each step, and the start’s
-influence with it.</p>
+<p>BART regularizes each step towards zero.  Zero in the bounded
+parameterization is the middle of each bound with no amplitude, and with
+the coils starting at zero the data has no derivative by the maps there,
+so the default centre is the start instead.  Its influence decays with
+the Tikhonov weight.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="n">nlop</span><span class="o">.</span><span class="n">MultiEcho</span><span class="p">([</span><span class="mf">12.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">echo</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">echo</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)],</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">maps</span> <span class="o">=</span> <span class="n">moba</span><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">sensitivities</span><span class="p">,</span> <span class="n">T2</span><span class="o">=</span><span class="mf">80.0</span><span class="p">)</span>
@@ -646,9 +608,9 @@ influence with it.</p>
 
 <section id="examples-using-moba">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">moba</span></code><a class="headerlink" href="#examples-using-moba" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lesson 8 you reconstructed one image from undersampled radial data, and in lesson 4 you solved a model that is nonlinear in its unknowns, image times coil sensitivities, by Gauss-Newton. In this lesson you apply both to quantitative imaging. You estimate a T_2 map from an undersampled multi-echo spin-echo scan twice: first by reconstructing an image per echo and fitting the decay voxel by voxel, then by fitting the signal model directly to the k-space data, and you compare the accuracy of the two at the same undersampling."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">9. Nonlinear inversion for T2 mapping</span></a></p>
+  <div class="sphx-glr-thumbnail-title">9. Nonlinear inversion for T2 mapping</div>
 </div></div></section>
 </section>
 

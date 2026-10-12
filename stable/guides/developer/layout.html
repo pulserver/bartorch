@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=90dfe745"></script>
+    <script src="../../_static/documentation_options.js?v=2b236558"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,20 +56,21 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/guides/developer/layout.html" />
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Development workflow" href="workflow.html" />
-    <link rel="prev" title="Editable and source installation" href="installation.html" />
+    <link rel="next" title="BART fork" href="bart-fork.html" />
+    <link rel="prev" title="Backends and timings" href="internals/performance.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -196,71 +197,54 @@
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User guide</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Editable and source installation</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -269,15 +253,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -523,7 +501,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-python-package">The Python package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-package">Python package</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-sources">Documentation sources</a></li>
 </ul>
             </nav>
@@ -548,7 +526,7 @@ its scripts under <code class="docutils literal notranslate"><span class="pre">s
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">external/bart/</span></code></p></td>
-<td><p>BART, a Git submodule of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code> (<a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>)</p></td>
+<td><p>BART, a Git submodule of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code> (<a class="reference internal" href="bart-fork.html"><span class="doc">BART fork</span></a>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">external/finufft/</span></code></p></td>
 <td><p>FINUFFT and cuFINUFFT, a Git submodule of upstream <code class="docutils literal notranslate"><span class="pre">flatironinstitute/finufft</span></code> at one reviewed commit, built by its own CMake and linked into the library (<code class="docutils literal notranslate"><span class="pre">cmake/finufft.cmake</span></code>)</p></td>
@@ -559,23 +537,29 @@ its scripts under <code class="docutils literal notranslate"><span class="pre">s
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/include/bartorch.h</span></code></p></td>
 <td><p>The C ABI, the only header the Python side sees</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/abi/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/compat/</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">cblas.h</span></code>, <code class="docutils literal notranslate"><span class="pre">lapacke.h</span></code> and <code class="docutils literal notranslate"><span class="pre">fftw3.h</span></code> BART includes, and the OpenMP import definitions for Windows</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/abi/</span></code></p></td>
 <td><p>Command execution, the in-memory CFL registry, CUDA stream ordering</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/ops/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/ops/</span></code></p></td>
 <td><p>Operators, the encoding executor, and the configuration of BART’s iterative solve as <code class="docutils literal notranslate"><span class="pre">pics</span></code> sets it up</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/substitute/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/substitute/</span></code></p></td>
 <td><p>Components compiled in place of BART’s: the FINUFFT NUFFT, point spread functions, the FFT and BLAS/LAPACK tables</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/</span></code></p></td>
 <td><p>The Python package; private modules begin with an underscore</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_catalogue.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_catalogue.py</span></code></p></td>
 <td><p>Generated from the header and from BART’s command declarations</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/cuda/</span></code></p></td>
+<td><p>The packages <code class="docutils literal notranslate"><span class="pre">bartorch-cuda12</span></code> and <code class="docutils literal notranslate"><span class="pre">bartorch-cuda13</span></code>: the same CMake project built with CUDA</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scripts/</span></code></p></td>
-<td><p>Scripts run by hand: tests, lint, documentation, generators, device checks, artwork</p></td>
+<td><p>Scripts run by hand: tests, lint, documentation, generators, device checks, benchmarks, artwork and figures</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cmake/</span></code></p></td>
 <td><p>Build helpers: FINUFFT’s configuration, and the OpenMP runtime the library binds to</p></td>
@@ -600,10 +584,10 @@ pointers and reversed dimension vectors through ctypes, which is why one wheel
 per platform serves every Python and PyTorch version.  Changes to BART’s
 behaviour are made by replacing a translation unit or by a compile definition,
 never by editing the submodule checkout; <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> lists each replacement.
-A change that belongs in BART itself goes to the fork, as <a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>
+A change that belongs in BART itself goes to the fork, as <a class="reference internal" href="bart-fork.html"><span class="doc">BART fork</span></a>
 describes.</p>
-<section id="the-python-package">
-<h2>The Python package<a class="headerlink" href="#the-python-package" title="Link to this heading">#</a></h2>
+<section id="python-package">
+<h2>Python package<a class="headerlink" href="#python-package" title="Link to this heading">#</a></h2>
 <p>Every public interface is flat: <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> and each subpackage export their
 names from <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, and every module beneath them is private, named
 with a leading underscore.  <code class="docutils literal notranslate"><span class="pre">tests/test_namespace.py</span></code> holds this.</p>
@@ -626,23 +610,29 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">apps/</span></code></p></td>
 <td><p>BART’s reconstructions assembled from operators and solvers</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">learning/</span></code>, <code class="docutils literal notranslate"><span class="pre">interop.py</span></code></p></td>
-<td><p>Unrolled iterations and channel conversions, and the DeepInverse adapter</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">learning/</span></code></p></td>
+<td><p>Networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and the Lightning training stages in <code class="docutils literal notranslate"><span class="pre">_training.py</span></code> (<code class="docutils literal notranslate"><span class="pre">learning</span></code> extra)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tools/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">interop.py</span></code></p></td>
+<td><p>The DeepInverse adapter</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tools/</span></code></p></td>
 <td><p>BART’s remaining commands in five sections, and corrections and rigid motion in <code class="docutils literal notranslate"><span class="pre">tools/_correct/</span></code> and <code class="docutils literal notranslate"><span class="pre">tools/_motion/</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cli/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cli/</span></code></p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> command line: <code class="docutils literal notranslate"><span class="pre">_argv.py</span></code> reads a <code class="docutils literal notranslate"><span class="pre">bart</span></code> command line, <code class="docutils literal notranslate"><span class="pre">_apps.py</span></code> routes it to an app</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">io/</span></code></p></td>
-<td><p>CFL files, ISMRMRD raw data, DICOM and NIfTI images (<code class="docutils literal notranslate"><span class="pre">io</span></code> extra)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">io/</span></code></p></td>
+<td><p>CFL files, ISMRMRD raw data, DICOM and NIfTI images</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_lib.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_marshal.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_buffer.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_lib.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_marshal.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_buffer.py</span></code></p></td>
 <td><p>The ctypes signatures, loading the library, the form of an ABI argument, and a tensor over one of BART’s buffers</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_dispatch.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_operator.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_grid.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_dispatch.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_operator.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_grid.py</span></code></p></td>
 <td><p>Running a command on tensors, what every operator shares, and what the operations on a grid share</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_flags.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_layout.py</span></code></p></td>
+<td><p>Axis indices to BART dimensions and bitmasks, and the PyTorch layout of an MRI operator against BART’s dimensions</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_backend.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_finufft.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_cuda.py</span></code></p></td>
 <td><p>The BLAS, LAPACK and FFT sources, and the controls of the NUFFT substitution and of the device</p></td>
@@ -670,24 +660,27 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
 <td><p>Landing page: the README and the top-level toctree</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/guides/user/</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/guides/developer/</span></code></p></td>
-<td><p>User and developer guides</p></td>
+<td><p>User and developer guides; <code class="docutils literal notranslate"><span class="pre">docs/guides/developer/internals/</span></code> holds the implementation detail behind the explanation pages</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/explanation/</span></code></p></td>
 <td><p>Conceptual explanations</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/examples/</span></code></p></td>
-<td><p>Example scripts, one directory per section with its header <code class="docutils literal notranslate"><span class="pre">README.rst</span></code>, and <code class="docutils literal notranslate"><span class="pre">README.rst</span></code>, the header of the Examples page</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/gallery/</span></code></p></td>
+<td><p>The Examples page and the Course and Tours pages under it, whose toctrees place the example pages in the navigation</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/api/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/examples/</span></code></p></td>
+<td><p>Example scripts, one directory per section with its header <code class="docutils literal notranslate"><span class="pre">README.rst</span></code>, and <code class="docutils literal notranslate"><span class="pre">README.rst</span></code>, the header of sphinx-gallery’s orphan root page</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/api/</span></code></p></td>
 <td><p>API category pages; their tables list the objects</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/api_objects.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/api_objects.py</span></code></p></td>
 <td><p>Collects the objects from the API tables into <code class="docutils literal notranslate"><span class="pre">docs/api_objects.rst</span></code>, which generates one page per object under <code class="docutils literal notranslate"><span class="pre">docs/generated/</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/_templates/autosummary/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/_templates/autosummary/</span></code></p></td>
 <td><p>Templates of the generated object pages</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/misc/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/misc/</span></code></p></td>
 <td><p>License, related projects, contributors and citation</p></td>
 </tr>
 </tbody>
@@ -708,20 +701,20 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="installation.html"
+       href="internals/performance.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Editable and source installation</p>
+        <p class="prev-next-title">Backends and timings</p>
       </div>
     </a>
     <a class="right-next"
-       href="workflow.html"
+       href="bart-fork.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Development workflow</p>
+        <p class="prev-next-title">BART fork</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -743,7 +736,7 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-python-package">The Python package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-package">Python package</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-sources">Documentation sources</a></li>
 </ul>
   </nav></div>

@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,29 +45,32 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=90dfe745"></script>
+    <script src="../_static/documentation_options.js?v=2b236558"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.learning.Reconstruction';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/generated/bartorch.learning.Reconstruction.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -194,71 +197,54 @@
             </li>
         </ul>
         <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/user/index.html">User guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -267,15 +253,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -546,81 +526,82 @@
 <dt class="sig sig-object py" id="bartorch.learning.Reconstruction">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.learning.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><a class="headerlink" href="#bartorch.learning.Reconstruction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">LightningModule</span></code></p>
-<p>A reconstruction network trained in one of the three stages of an unrolled network.</p>
-<p><code class="docutils literal notranslate"><span class="pre">&quot;denoiser&quot;</span></code> trains the network alone, on pairs of a degraded image and
-its reference, optionally with the iteration index and noise level it
-will meet in the unrolled network.  <code class="docutils literal notranslate"><span class="pre">&quot;greedy&quot;</span></code> trains an
-<a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a> built with <code class="docutils literal notranslate"><span class="pre">detach=True</span></code>, taking a
-loss on each iteration’s image and back-propagating it before the next
-iteration runs, so memory holds one iteration; the losses are weighted
-geometrically, the last <code class="docutils literal notranslate"><span class="pre">ratio</span></code> times the first.  <code class="docutils literal notranslate"><span class="pre">&quot;end-to-end&quot;</span></code> takes
-the loss on the last image alone, through the whole stack, which is
-affordable with <code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code>.  Greedy training needs a block whose
-image passes through its own iteration’s denoiser, as
-<a class="reference internal" href="bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ISTBlock</span></code></a>’s gradient step followed by the
-denoiser does; <a class="reference internal" href="bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a> returns the image of its
-conjugate-gradient update, which depends on the previous iteration’s
-denoiser alone.  Run in that order, each stage
-starting from the weights the previous one left, these are the staged
-training of Urman et al.</p>
+<p>Lightning module training one of the three stages of an unrolled reconstruction network.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;denoiser&quot;</span></code> trains the network alone, on pairs of a degraded image and
+its reference.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;greedy&quot;</span></code> trains an <a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a> built with
+<code class="docutils literal notranslate"><span class="pre">detach=True</span></code>, back-propagating a loss on each iteration’s image before
+the next iteration runs; the losses grow geometrically, the last
+<code class="docutils literal notranslate"><span class="pre">ratio</span></code> times the first.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;end-to-end&quot;</span></code> takes the loss on the last image through the whole
+stack, which <code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code> makes affordable.</p></li>
+</ul>
+<p>Run in this order, each from the weights the previous one left, these are
+the staged training of Urman et al.</p>
 <p>Items are dictionaries and a batch is a list of them (<code class="docutils literal notranslate"><span class="pre">collate_fn=list</span></code>),
-because operators and k-space vary between subjects:</p>
+since operators and k-space vary between subjects:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;denoiser&quot;</span></code>: <code class="docutils literal notranslate"><span class="pre">input</span></code> and <code class="docutils literal notranslate"><span class="pre">target</span></code> images, and optionally
-<code class="docutils literal notranslate"><span class="pre">step</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">label</span></code> passed to the network.</p></li>
-<li><p>the unrolled stages: <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">A</span></code>, the measured data and its
-encoding operator; <code class="docutils literal notranslate"><span class="pre">target</span></code>, the reference image, or <code class="docutils literal notranslate"><span class="pre">pattern</span></code> for
-self-supervised training; optionally <code class="docutils literal notranslate"><span class="pre">x0</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">step</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">label</span></code> passed to the network;</p></li>
+<li><p>the unrolled stages: the data <code class="docutils literal notranslate"><span class="pre">y</span></code> and its encoding <code class="docutils literal notranslate"><span class="pre">A</span></code>; the reference
+image <code class="docutils literal notranslate"><span class="pre">target</span></code>, or the sampling <code class="docutils literal notranslate"><span class="pre">pattern</span></code> for self-supervised
+training; optionally <code class="docutils literal notranslate"><span class="pre">x0</span></code>.</p></li>
 </ul>
-<p>Every item may carry <code class="docutils literal notranslate"><span class="pre">weights</span></code>, multiplying the voxel-wise error of the
-default loss.  Items stay where the dataset put them: the batch is not
-moved to the device the trainer runs on, since a
-<a class="reference internal" href="bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-class docutils literal notranslate"><span class="pre">Patchwise</span></code></a> network or an operator whose
-operands are on the host decides itself what crosses to the card.</p>
-<p>Without <code class="docutils literal notranslate"><span class="pre">target</span></code> the item is trained self-supervised: its <code class="docutils literal notranslate"><span class="pre">pattern</span></code>
-is split by <a class="reference internal" href="bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a> at every step, the network
-reconstructs from <code class="docutils literal notranslate"><span class="pre">pattern</span></code> times the reconstruct part, and the loss is
-SSDU’s normalised l1-l2 loss on the held-out part of the k-space.  The
-split drawn for validation is the same at every epoch.</p>
-<p>Optimization is manual, so that a greedy step can release each
-iteration’s graph: gradients are accumulated over <code class="docutils literal notranslate"><span class="pre">accumulate</span></code> items,
-optionally clipped, and applied with Adam; the learning rate is reduced
-by <code class="docutils literal notranslate"><span class="pre">factor</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> epochs without improvement of the logged
-<code class="docutils literal notranslate"><span class="pre">val_loss</span></code>, which <code class="xref py py-class docutils literal notranslate"><span class="pre">lightning.pytorch.callbacks.EarlyStopping</span></code> and
-<code class="xref py py-class docutils literal notranslate"><span class="pre">lightning.pytorch.callbacks.ModelCheckpoint</span></code> also monitor.</p>
+<p>Any item may carry <code class="docutils literal notranslate"><span class="pre">weights</span></code>, multiplying the voxel-wise error of the
+default loss.  Batches are not moved to the trainer’s device: a
+<a class="reference internal" href="bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-class docutils literal notranslate"><span class="pre">Patchwise</span></code></a> network or an operator with operands
+on the host moves what it needs.</p>
+<p>An item without <code class="docutils literal notranslate"><span class="pre">target</span></code> is trained self-supervised (SSDU): its
+<code class="docutils literal notranslate"><span class="pre">pattern</span></code> is partitioned by <a class="reference internal" href="bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a> at every
+step, the network reconstructs from one part, and the loss is the
+normalized <span class="math notranslate nohighlight">\(\ell_1 + \ell_2\)</span> error of the held-out k-space.  The
+validation partition is the same at every epoch.</p>
+<p>Optimization is manual: gradients are accumulated over <code class="docutils literal notranslate"><span class="pre">accumulate</span></code>
+items, optionally clipped, and applied with Adam; the learning rate is
+multiplied by <code class="docutils literal notranslate"><span class="pre">factor</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> epochs without improvement of
+the logged <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>nn.Module</em>) – The network for <code class="docutils literal notranslate"><span class="pre">&quot;denoiser&quot;</span></code>, an
 <a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a> for the other stages.</p></li>
-<li><p><strong>stage</strong> (<em>{&quot;denoiser&quot;</em><em>, </em><em>&quot;greedy&quot;</em><em>, </em><em>&quot;end-to-end&quot;}</em><em>, </em><em>default=&quot;end-to-end&quot;</em>) – What is trained, and how.</p></li>
+<li><p><strong>stage</strong> (<em>{&quot;denoiser&quot;</em><em>, </em><em>&quot;greedy&quot;</em><em>, </em><em>&quot;end-to-end&quot;}</em><em>, </em><em>default=&quot;end-to-end&quot;</em>) – Training stage.</p></li>
 <li><p><strong>loss</strong> (<em>callable</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">loss(prediction,</span> <span class="pre">target,</span> <span class="pre">item)</span></code> for supervised items; the mean
-modulus of the error by default.</p></li>
-<li><p><strong>ratio</strong> (<em>float</em><em>, </em><em>default=10.0</em>) – Weight of the last iteration’s loss over the first’s, in the greedy
-stage.</p></li>
+modulus of the error when omitted.</p></li>
+<li><p><strong>ratio</strong> (<em>float</em><em>, </em><em>default=10.0</em>) – Weight of the last iteration’s loss relative to the first’s, in the
+greedy stage.</p></li>
 <li><p><strong>lr</strong> (<em>float</em><em>, </em><em>default=1e-3</em>) – Adam’s learning rate.</p></li>
 <li><p><strong>weight_decay</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Adam’s weight decay.</p></li>
 <li><p><strong>factor</strong> (<em>float</em><em>, </em><em>default=0.5</em>) – Multiplier of the learning rate on a plateau of <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>.</p></li>
 <li><p><strong>patience</strong> (<em>int</em><em>, </em><em>default=10</em>) – Epochs without improvement of <code class="docutils literal notranslate"><span class="pre">val_loss</span></code> before the learning rate
 is reduced.</p></li>
-<li><p><strong>accumulate</strong> (<em>int</em><em>, </em><em>default=1</em>) – Items whose gradients are summed before a step.</p></li>
-<li><p><strong>clip</strong> (<em>float</em><em>, </em><em>default=None</em>) – Maximum norm of the gradient.</p></li>
+<li><p><strong>accumulate</strong> (<em>int</em><em>, </em><em>default=1</em>) – Items whose gradients are summed before an optimizer step.</p></li>
+<li><p><strong>clip</strong> (<em>float</em><em>, </em><em>default=None</em>) – Maximum norm of the gradient; no clipping when omitted.</p></li>
 <li><p><strong>fraction</strong> (<em>float</em><em>, </em><em>default=0.4</em>) – Share of the acquired samples held out, for self-supervised items.</p></li>
 <li><p><strong>split_options</strong> (<em>dict</em><em>, </em><em>default=None</em>) – Further keywords of <a class="reference internal" href="bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a>.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – An unknown <code class="docutils literal notranslate"><span class="pre">stage</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;greedy&quot;</span></code> with a model not built with
+    <code class="docutils literal notranslate"><span class="pre">detach=True</span></code>; <code class="docutils literal notranslate"><span class="pre">accumulate</span></code> below one.  In training, <code class="docutils literal notranslate"><span class="pre">&quot;greedy&quot;</span></code>
+    with a block whose image does not depend on that iteration’s
+    parameters, such as <a class="reference internal" href="bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a>, whose image is
+    the conjugate-gradient update preceding the denoiser;
+    <a class="reference internal" href="bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ISTBlock</span></code></a> qualifies.</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Urman Y, Nishimura M, Abraham D, Cao X, Setsompop K. Fully 3D unrolled
+magnetic resonance fingerprinting reconstruction via staged pretraining
+and implicit gridding. Magn Reson Med 96(5):2516-2529, 2026.
+<a class="reference external" href="https://doi.org/10.1002/mrm.70500">https://doi.org/10.1002/mrm.70500</a></p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="n">learning</span><span class="o">.</span><span class="n">Reconstruction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"greedy"</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">trainer</span> <span class="o">=</span> <span class="n">lightning</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="n">max_epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="s2">"val_loss"</span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">),</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="nb">list</span><span class="p">))</span>
 </pre></div>
 </div>
-<p class="rubric">References</p>
-<p>Urman Y, Nishimura M, Abraham D, Cao X, Setsompop K. Fully 3D unrolled
-magnetic resonance fingerprinting reconstruction via staged pretraining
-and implicit gridding. Magn Reson Med 96(5):2516-2529, 2026.
-<a class="reference external" href="https://doi.org/10.1002/mrm.70500">https://doi.org/10.1002/mrm.70500</a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.learning.Reconstruction.transfer_batch_to_device">
 <span class="sig-name descname"><span class="pre">transfer_batch_to_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Reconstruction.transfer_batch_to_device" title="Link to this definition">#</a></dt>

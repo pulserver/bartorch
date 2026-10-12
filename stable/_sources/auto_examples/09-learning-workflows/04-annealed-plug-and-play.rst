@@ -18,30 +18,32 @@
 .. _sphx_glr_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py:
 
 
-===========================
+======================
 Annealed plug-and-play
-===========================
+======================
 
-**Aim.** Train one denoiser on images alone, without any encoding, and use it
-as the regularizer of an ADMM reconstruction at any undersampling, with the
-denoising strength decreasing over the iterations; show that it holds up at
-an acceleration where CG-SENSE breaks down.
+In lesson 10 you plugged a denoiser someone else had trained, on
+photographs, into ADMM at one noise level you chose. In this tour you train
+the denoiser yourself, on MR images alone and without any encoding, and use
+it as the regularizer of an ADMM reconstruction whose denoising strength
+decreases over the iterations. You then apply the same network, unchanged, at an
+acceleration where CG-SENSE breaks down.
 
 A plug-and-play reconstruction [#pnp]_ replaces the proximal step of an
-iterative algorithm by a denoiser. The denoiser is trained on images, not on
-k-space, so one network serves every protocol whose images resemble its
+iterative algorithm by a denoiser. Because the denoiser is trained on images,
+not on k-space, one network serves every protocol whose images resemble its
 training images: a change of acceleration, sampling pattern or coil array
 needs no retraining. The proximal step of a regularizer :math:`\lambda\phi`
 with ADMM penalty :math:`\rho` is a Gaussian denoiser of noise variance
 :math:`\sigma^2 = \lambda/\rho`. The first iterates carry the strong
 incoherent aliasing of the undersampling and the last are nearly consistent
-with the data, so a noise level that decreases from one to the other
-[#dpir]_ removes the aliasing first and preserves fine anatomy at the end. The
-penalty follows as :math:`\rho_k = \lambda/\sigma_k^2`, which keeps the
-balance between data consistency and denoising that :math:`\lambda` sets.
+with the data, so a noise level that decreases from one to the other [#dpir]_
+removes the aliasing first and preserves fine anatomy at the end. The penalty
+follows as :math:`\rho_k = \lambda/\sigma_k^2`, which keeps the balance
+between data consistency and denoising that :math:`\lambda` sets.
 
-**Prerequisites.** :doc:`../06-learning/01-plug-and-play` and
-:doc:`../06-learning/02-modl-with-admm`.
+Prerequisites: lesson 10, :doc:`../06-learning/01-plug-and-play`, and
+lesson 11, :doc:`../06-learning/02-modl-with-admm`.
 
 **Learning objectives**
 
@@ -53,32 +55,7 @@ balance between data consistency and denoising that :math:`\lambda` sets.
 - Compare an annealed schedule with a fixed noise level, iteration by
   iteration, and apply the same denoiser at a higher acceleration.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-145
-
-.. code-block:: Python
-
-
-    import csv
-    import logging
-    from pathlib import Path
-
-    import brainweb_dl
-    import lightning
-    import numpy as np
-    import torch
-    from brainweb_dl import get_mri
-    from monai.metrics import PSNRMetric
-    from torch.utils.data import DataLoader
-
-    import bartorch
-    import bartorch.tools as bt
-    from bartorch import learning, linop, optim, priors
-
-    SIZE = 96
-    COILS = 8
-    ITERATIONS = 12
-
-    _ = torch.manual_seed(0)
+.. GENERATED FROM PYTHON SOURCE LINES 41-189
 
 
 
@@ -87,42 +64,63 @@ balance between data consistency and denoising that :math:`\lambda` sets.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-151
+.. GENERATED FROM PYTHON SOURCE LINES 190-197
 
 Data
 ----
 
-The slices, coils and fourfold undersampling of :doc:`02-staged-training`:
-subject 0 to train the denoiser on, subject 4 to reconstruct.
+You use the slices, coils and fourfold undersampling of
+:doc:`02-staged-training`: BrainWeb [#brainweb]_ subject 0 to train the
+denoiser on, subject 4 to reconstruct. The acquisition is wrapped in a
+function, because you will change the acceleration at the end.
 
-.. GENERATED FROM PYTHON SOURCE LINES 152-234
+.. GENERATED FROM PYTHON SOURCE LINES 197-245
 
 .. code-block:: Python
 
+    import lightning
+    import torch
+
+    import bartorch
+    import bartorch.tools as bt
+
+    from bartorch import learning, linop, optim, priors
+    from monai.metrics import PSNRMetric
+    from torch.utils.data import DataLoader
+
+    COILS = 8
+    ITERATIONS = 12
+    NOISE = 0.02
+
+    _ = torch.manual_seed(0)
 
     train_images = brain_slices(subject=0, count=24)
     valid_images = brain_slices(subject=4, count=8)
 
-    sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
-    sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=True)
-    NOISE = 0.02
+    coils = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+    sensitivities = coils / bartorch.rss(coils, axes=(0,), keepdim=True)
 
 
     def acquisition(acceleration, seed):
-        """A Cartesian SENSE encoding sampling one line in ``acceleration`` on average."""
-        density = torch.exp(-0.5 * ((torch.arange(SIZE) - SIZE / 2) / (SIZE / 6)) ** 2)
+        """Cartesian SENSE, one line in ``acceleration`` on average."""
+        ky = torch.arange(SIZE) - SIZE / 2
+        density = torch.exp(-0.5 * (ky / (SIZE / 6)) ** 2)
         chance = density / density.sum() * (SIZE / acceleration)
-        lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(seed)) < chance
+        draw = torch.rand(SIZE, generator=torch.Generator().manual_seed(seed))
+        lines = draw < chance
         lines[SIZE // 2 - 4 : SIZE // 2 + 4] = True
-        pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
+        pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE)
+        pattern = pattern.contiguous()
         return linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
 
 
     def measure(A, generator):
-        return [
-            A(x) + NOISE * torch.randn(A.oshape, dtype=torch.complex64, generator=generator)
-            for x in valid_images
-        ]
+        made = []
+        for x in valid_images:
+            shape, kind = A.oshape, torch.complex64
+            noise = torch.randn(shape, dtype=kind, generator=generator)
+            made.append(A(x) + NOISE * noise)
+        return made
 
 
     A = acquisition(4, seed=1)
@@ -135,23 +133,22 @@ subject 0 to train the denoiser on, subject 4 to reconstruct.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 235-245
+.. GENERATED FROM PYTHON SOURCE LINES 246-256
 
-A denoiser for every noise level
---------------------------------
+Noise-conditioned denoiser
+--------------------------
 
 With ``noise=True`` the U-Net takes the noise level as an input and
-modulates its features with it, so one network covers a range of SNRs. It is
-trained on pairs of a slice and the same slice with complex white Gaussian
+modulates its features with it, so one network covers a range of SNRs. You
+train it on pairs of a slice and the same slice with complex white Gaussian
 noise, at a standard deviation drawn log-uniformly between 0.5 and 20 per
 cent of the image's peak for each pair
 (:class:`~bartorch.learning.ComplexNet` scales each image to unit peak). No
 coil sensitivities, sampling pattern or k-space enter the training.
 
-.. GENERATED FROM PYTHON SOURCE LINES 246-293
+.. GENERATED FROM PYTHON SOURCE LINES 256-285
 
 .. code-block:: Python
-
 
     LOW, HIGH = 0.005, 0.2
 
@@ -182,6 +179,30 @@ coil sensitivities, sampling pattern or k-space enter the training.
         DataLoader(valid_images, batch_size=4, collate_fn=pairs),
     )
 
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 286-288
+
+You score every image by the mean PSNR of its magnitude over the eight
+slices of subject 4. First the denoiser on its own, at three noise levels:
+
+.. GENERATED FROM PYTHON SOURCE LINES 288-305
+
+.. code-block:: Python
+
     psnr = PSNRMetric(max_val=1.0)
     truth = torch.stack(valid_images).abs()[:, None]
 
@@ -194,10 +215,10 @@ coil sensitivities, sampling pattern or k-space enter the training.
         for sigma in (0.01, 0.05, 0.1):
             noisy = torch.stack(valid_images)
             noisy = noisy + sigma * torch.randn_like(noisy)
-            denoised = torch.stack([denoiser(x[None], torch.tensor([sigma]))[0] for x in noisy])
-            print(
-                f"sigma {sigma:4.2f}: noisy {score(noisy):5.2f} dB, denoised {score(denoised):5.2f} dB"
-            )
+            level = torch.tensor([sigma])
+            denoised = torch.stack([denoiser(x[None], level)[0] for x in noisy])
+            before, after = score(noisy), score(denoised)
+            print(f"sigma {sigma}: {before:5.2f} dB noisy, {after:5.2f} denoised")
 
 
 
@@ -207,20 +228,21 @@ coil sensitivities, sampling pattern or k-space enter the training.
 
  .. code-block:: none
 
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    sigma 0.01: noisy 41.46 dB, denoised 41.13 dB
-    sigma 0.05: noisy 27.17 dB, denoised 27.16 dB
-    sigma 0.10: noisy 21.06 dB, denoised 21.06 dB
+    sigma 0.01: 41.46 dB noisy, 42.77 denoised
+    sigma 0.05: 27.17 dB noisy, 32.80 denoised
+    sigma 0.1: 21.06 dB noisy, 28.53 denoised
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 294-307
+.. GENERATED FROM PYTHON SOURCE LINES 306-323
 
-Schedules of noise level and penalty
-------------------------------------
+The gain grows with the noise level: about 2 dB at 0.01, about 8 dB at 0.1.
+One set of weights covers the whole range, which is what lets the noise
+level change from one iteration to the next below.
+
+Annealing schedules
+-------------------
 
 :class:`~bartorch.priors.ImplicitPrior` takes a sequence of noise levels,
 one per iteration, and :class:`~bartorch.optim.ADMMBlock` a sequence of
@@ -229,14 +251,13 @@ schedule decreases the noise level geometrically from 0.1 to 0.01 of the
 peak over twelve iterations, and the penalty follows as
 :math:`\rho_k = \lambda/\sigma_k^2`. When the penalty changes, the block
 rescales ADMM's scaled dual variable by the ratio of the old penalty to the
-new, so that the unscaled one carries over. The two fixed schedules hold the
-noise level at either end of the annealed one, with the penalty given by the
-same :math:`\lambda`.
+new, so the unscaled one carries over. The two fixed schedules hold the
+noise level at 0.03 and at 0.01, with the penalty given by the same
+:math:`\lambda`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 308-347
+.. GENERATED FROM PYTHON SOURCE LINES 323-339
 
 .. code-block:: Python
-
 
     LAMBDA = 1e-4
 
@@ -247,23 +268,38 @@ same :math:`\lambda`.
     }
 
 
-    def plug_and_play(sigma):
+    def plug_and_play(sigma, lam=LAMBDA):
         prior = priors.ImplicitPrior(denoiser, sigma=sigma.tolist())
-        block = optim.ADMMBlock(prior, rho=(LAMBDA / sigma**2).tolist(), cg_maxiter=5)
+        rho = (lam / sigma**2).tolist()
+        block = optim.ADMMBlock(prior, rho=rho, cg_maxiter=5)
         return learning.Unrolled(block, iterations=ITERATIONS)
 
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 340-342
+
+:meth:`~bartorch.learning.Unrolled.steps` yields every iterate, so you can
+follow each schedule iteration by iteration:
+
+.. GENERATED FROM PYTHON SOURCE LINES 342-366
+
+.. code-block:: Python
 
     curves, results = {}, {}
     with torch.no_grad():
         for name, sigma in schedules.items():
             runs = [list(plug_and_play(sigma).steps(y, A)) for y in kspace]
-            iterates = [torch.stack([run[k] for run in runs]) for k in range(ITERATIONS)]
+            iterates = [torch.stack(images) for images in zip(*runs)]
             curves[name] = [score(images) for images in iterates]
             results[name] = iterates[-1]
-        results["CG SENSE, 20 iterations"] = torch.stack([optim.cg(y, A, maxiter=20) for y in kspace])
-
-    for name, images in results.items():
-        print(f"{name:>24}   PSNR {score(images):5.2f} dB")
+    cg = torch.stack([optim.cg(y, A, maxiter=20) for y in kspace])
+    results["CG SENSE, 20 iterations"] = cg
 
 
 
@@ -279,25 +315,29 @@ same :math:`\lambda`.
 
  .. code-block:: none
 
-       annealed, 0.1 to 0.01   PSNR 27.01 dB
-                 fixed, 0.03   PSNR 27.14 dB
-                 fixed, 0.01   PSNR 27.48 dB
+       annealed, 0.1 to 0.01   PSNR 30.80 dB
+                 fixed, 0.03   PSNR 30.67 dB
+                 fixed, 0.01   PSNR 30.06 dB
      CG SENSE, 20 iterations   PSNR 24.21 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 348-355
+.. GENERATED FROM PYTHON SOURCE LINES 367-378
 
-A large fixed noise level converges within a few iterations, to an image
-limited by the smoothing the denoiser applies at that level. A small one
-preserves detail, but its large penalty makes each ADMM step move little
-from the previous one, and twelve iterations do not reach its fixed point.
-The annealed schedule takes the large steps first and the small ones last,
-and ends slightly ahead of the better fixed level without that level having
-to be tuned for the acquisition.
+The fixed level of 0.03 converges within about four iterations, to an image
+limited by the smoothing the denoiser applies at that level. The fixed level
+of 0.01 preserves more detail, but its large penalty makes each ADMM step
+move little from the previous one: it starts far below CG-SENSE and is still
+rising after twelve iterations. The annealed schedule is ahead from the
+first iteration, and ends slightly ahead of the better fixed level, without
+a level having been tuned for this acquisition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 356-369
+In the error maps of one slice, the CG-SENSE error is spread over the whole
+field of view; the plug-and-play error is confined to the head and largest
+at the cortex.
+
+.. GENERATED FROM PYTHON SOURCE LINES 378-391
 
 
 
@@ -315,7 +355,7 @@ to be tuned for the acquisition.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_003.png
-         :alt: CG-SENSE NRMSE 0.124, annealed plug-and-play NRMSE 0.090
+         :alt: CG-SENSE NRMSE 0.124, annealed plug-and-play NRMSE 0.058
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_003.png
          :class: sphx-glr-multi-img
 
@@ -323,30 +363,26 @@ to be tuned for the acquisition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-378
+.. GENERATED FROM PYTHON SOURCE LINES 392-397
 
-Another acquisition, the same denoiser
---------------------------------------
+Transfer to another acquisition
+-------------------------------
 
-The denoiser was trained without an encoding, so it applies unchanged to
-:math:`R = 6`, a sampling pattern it has never been used with. At this
-acceleration eight coils no longer unfold the aliasing well: CG-SENSE is
-dominated by g-factor noise and residual aliasing, while the plug-and-play
-reconstruction keeps the anatomy.
+You trained the denoiser without an encoding, so it applies unchanged to
+:math:`R = 6`, a sampling pattern it has never been used with:
 
-.. GENERATED FROM PYTHON SOURCE LINES 379-398
+.. GENERATED FROM PYTHON SOURCE LINES 397-415
 
 .. code-block:: Python
 
-
     A6 = acquisition(6, seed=2)
     kspace6 = measure(A6, torch.Generator().manual_seed(4))
+    annealed_pnp = plug_and_play(schedules["annealed, 0.1 to 0.01"])
     with torch.no_grad():
-        annealed = torch.stack(
-            [plug_and_play(schedules["annealed, 0.1 to 0.01"])(y, A6) for y in kspace6]
-        )
-        cg = torch.stack([optim.cg(y, A6, maxiter=20) for y in kspace6])
-    print(f"sixfold: annealed plug-and-play {score(annealed):5.2f} dB, CG SENSE {score(cg):5.2f} dB")
+        annealed = torch.stack([annealed_pnp(y, A6) for y in kspace6])
+    cg6 = torch.stack([optim.cg(y, A6, maxiter=20) for y in kspace6])
+    print(f"R = 6: annealed plug-and-play {score(annealed):5.2f} dB")
+    print(f"R = 6: CG SENSE {score(cg6):5.2f} dB")
 
 
 
@@ -365,7 +401,7 @@ reconstruction keeps the anatomy.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_005.png
-         :alt: CG-SENSE, R = 6 NRMSE 0.168, annealed, R = 6 NRMSE 0.139
+         :alt: CG-SENSE, R = 6 NRMSE 0.168, annealed, R = 6 NRMSE 0.062
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_005.png
          :class: sphx-glr-multi-img
 
@@ -374,12 +410,79 @@ reconstruction keeps the anatomy.
 
  .. code-block:: none
 
-    sixfold: annealed plug-and-play 23.72 dB, CG SENSE 21.98 dB
+    R = 6: annealed plug-and-play 30.57 dB
+    R = 6: CG SENSE 21.98 dB
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 399-410
+.. GENERATED FROM PYTHON SOURCE LINES 416-429
+
+At this acceleration eight coils no longer unfold the aliasing well:
+CG-SENSE loses about 2 dB with respect to :math:`R = 4`, and its error map
+shows the folded outline of the head on top of the g-factor noise. The
+plug-and-play reconstruction loses a fraction of a decibel and keeps the
+anatomy.
+
+Exercise: the weight :math:`\lambda`
+------------------------------------
+
+:math:`\lambda` sets the weight of the denoising step relative to data
+consistency at every noise level. Rerun the annealed schedule at
+:math:`R = 4` with a tenth and ten times the weight above; the denoiser stays
+as it is:
+
+.. GENERATED FROM PYTHON SOURCE LINES 429-435
+
+.. code-block:: Python
+
+    for lam in (LAMBDA / 10, LAMBDA, LAMBDA * 10):
+        pnp = plug_and_play(schedules["annealed, 0.1 to 0.01"], lam=lam)
+        with torch.no_grad():
+            made = torch.stack([pnp(y, A) for y in kspace])
+        print(f"lambda {lam:.0e}: PSNR {score(made):5.2f} dB")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    lambda 1e-05: PSNR 29.84 dB
+    lambda 1e-04: PSNR 30.80 dB
+    lambda 1e-03: PSNR 28.48 dB
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 436-458
+
+Both a tenth and ten times the weight score more than 1 dB below
+:math:`\lambda = 10^{-4}`. A smaller :math:`\lambda` lowers every penalty
+:math:`\rho_k`, so the denoiser's output enters the data-consistency step
+with less weight; a larger one weights it more, and the reconstruction moves
+away from the measured data.
+
+As a spec
+---------
+
+What this tour built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   Train a noise-conditioned denoiser, ComplexNet(UNet(2, spatial=2,
+   widths=(16, 32, 64), noise=True)), on clean complex brain slices with
+   complex Gaussian noise of a log-uniform level in [0.005, 0.2], 30 epochs
+   of learning.Reconstruction(..., "denoiser", lr=2e-3). Use it as the
+   proximal step of 12 ADMM iterations (optim.ADMMBlock, 5 CG steps) for 2D
+   Cartesian SENSE at R = 4: priors.ImplicitPrior with sigma decreasing
+   geometrically from 0.1 to 0.01 and rho_k = 1e-4 / sigma_k^2. Compare it
+   with fixed sigma 0.03 and 0.01 and with CG-SENSE by PSNR per iteration,
+   and rerun it unchanged at R = 6.
+
+.. GENERATED FROM PYTHON SOURCE LINES 460-476
 
 References
 ----------
@@ -393,10 +496,15 @@ References
    image restoration with deep denoiser prior. *IEEE Trans Pattern Anal Mach
    Intell* 44(10):6360-6376 (2022). https://doi.org/10.1109/TPAMI.2021.3088914
 
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+   Evans AC. Design and construction of a realistic digital brain phantom.
+   *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 38.108 seconds)
+   **Total running time of the script:** (0 minutes 20.194 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py:

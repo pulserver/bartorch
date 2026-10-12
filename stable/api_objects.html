@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,29 +45,32 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=90dfe745"></script>
+    <script src="_static/documentation_options.js?v=2b236558"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=a5fa425f"></script>
     <script src="_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api_objects';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/api_objects.html" />
     <link rel="icon" href="_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -196,71 +199,54 @@
             </li>
         </ul>
         <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/user/issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/user/discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/user/security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/user/index.html">User guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/developer/installation.html">Editable and source installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/developer/bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/developer/terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/developer/pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/developer/code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="guides/developer/internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -269,15 +255,9 @@
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="auto_examples/09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -560,10 +540,10 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Inverse Fourier transform along <code class="docutils literal notranslate"><span class="pre">axes</span></code>: <a class="reference internal" href="generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">fft()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">inverse=True</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.fftshift.html#bartorch.fftshift" title="bartorch.fftshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fftshift</span></code></a></p></td>
-<td><p>Move the zero frequency to the middle along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, or back with <code class="docutils literal notranslate"><span class="pre">inverse</span></code>.</p></td>
+<td><p>Move index zero to index <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code> along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, or back with <code class="docutils literal notranslate"><span class="pre">inverse</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.fftmod.html#bartorch.fftmod" title="bartorch.fftmod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fftmod</span></code></a></p></td>
-<td><p>Multiply by the alternating phase that centres an uncentred transform, along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Multiply by the phase that turns an uncentred transform into a centred one, along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nufft.html#bartorch.nufft" title="bartorch.nufft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nufft</span></code></a></p></td>
 <td><p>Non-uniform Fourier transform of an image to samples along <code class="docutils literal notranslate"><span class="pre">traj</span></code>.</p></td>
@@ -605,7 +585,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Reverse <code class="docutils literal notranslate"><span class="pre">input</span></code> along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.circshift.html#bartorch.circshift" title="bartorch.circshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">circshift</span></code></a></p></td>
-<td><p>Cyclic shift along <code class="docutils literal notranslate"><span class="pre">axes</span></code>: element <code class="docutils literal notranslate"><span class="pre">i</span></code> moves to <code class="docutils literal notranslate"><span class="pre">(i</span> <span class="pre">+</span> <span class="pre">shift)</span> <span class="pre">%</span> <span class="pre">n</span></code>, as torch.roll.</p></td>
+<td><p>Cyclic shift along <code class="docutils literal notranslate"><span class="pre">axes</span></code>: element <code class="docutils literal notranslate"><span class="pre">i</span></code> moves to <code class="docutils literal notranslate"><span class="pre">(i</span> <span class="pre">+</span> <span class="pre">shift)</span> <span class="pre">%</span> <span class="pre">n</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.conv.html#bartorch.conv" title="bartorch.conv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conv</span></code></a></p></td>
 <td><p>Cyclic convolution of <code class="docutils literal notranslate"><span class="pre">input</span></code> with <code class="docutils literal notranslate"><span class="pre">kernel</span></code> along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, of the input's shape.</p></td>
@@ -617,7 +597,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Mean over each window of <code class="docutils literal notranslate"><span class="pre">length</span></code> consecutive elements along <code class="docutils literal notranslate"><span class="pre">axis</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.normalize.html#bartorch.normalize" title="bartorch.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a></p></td>
-<td><p>Divide by the l2 norm over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, or the l1 norm, per index of the other axes.</p></td>
+<td><p>Divide by the norm over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, separately for each index of the other axes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.mip.html#bartorch.mip" title="bartorch.mip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mip</span></code></a></p></td>
 <td><p>Maximum or minimum intensity projection over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, which are kept as size one.</p></td>
@@ -638,7 +618,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Coil sensitivities as k-space kernels: the centre of each map's unitary spectrum.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.kernels_to_maps.html#bartorch.kernels_to_maps" title="bartorch.kernels_to_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kernels_to_maps</span></code></a></p></td>
-<td><p>The maps a kernel bank stands for: zero-padded to <code class="docutils literal notranslate"><span class="pre">spatial</span></code> and transformed back.</p></td>
+<td><p>Coil sensitivities from k-space kernels: the inverse of <a class="reference internal" href="generated/bartorch.maps_to_kernels.html#bartorch.maps_to_kernels" title="bartorch.maps_to_kernels"><code class="xref py py-func docutils literal notranslate"><span class="pre">maps_to_kernels()</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BartError</span></code></a></p></td>
 <td><p>A BART command or operator failed; the message is BART's.</p></td>
@@ -647,22 +627,22 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Set the number of threads BART, its FFT and FINUFFT's host transforms use.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.set_copy_inputs.html#bartorch.set_copy_inputs" title="bartorch.set_copy_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_copy_inputs</span></code></a></p></td>
-<td><p>Whether a command works on a private copy of each input, which is the default.</p></td>
+<td><p>Set whether a BART command works on a private copy of each input tensor.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.set_debug_level.html#bartorch.set_debug_level" title="bartorch.set_debug_level"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_debug_level</span></code></a></p></td>
-<td><p>Set BART's verbosity: 0 errors, 1 warnings, 2 info, 3 and up debug.</p></td>
+<td><p>Set BART's verbosity, process-wide.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.get_debug_level.html#bartorch.get_debug_level" title="bartorch.get_debug_level"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_debug_level</span></code></a></p></td>
-<td><p></p></td>
+<td><p>BART's verbosity, as <a class="reference internal" href="generated/bartorch.set_debug_level.html#bartorch.set_debug_level" title="bartorch.set_debug_level"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_debug_level()</span></code></a> takes it.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda_available</span></code></a></p></td>
 <td><p>Whether BART can run on a CUDA device: built with CUDA, and a device present.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.set_cuda_streams.html#bartorch.set_cuda_streams" title="bartorch.set_cuda_streams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cuda_streams</span></code></a></p></td>
-<td><p>Set the number of CUDA streams BART runs on, 1 to 8.</p></td>
+<td><p>Set the number of CUDA streams BART runs on.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.use_cuda_memcache.html#bartorch.use_cuda_memcache" title="bartorch.use_cuda_memcache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_cuda_memcache</span></code></a></p></td>
-<td><p>Whether BART keeps freed device memory for its own reuse.</p></td>
+<td><p>Set whether BART keeps freed device memory for its own reuse.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.bart_version.html#bartorch.bart_version" title="bartorch.bart_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bart_version</span></code></a></p></td>
 <td><p>Version string of the embedded BART.</p></td>
@@ -703,31 +683,31 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>A linear map between two C-order shapes, with an adjoint.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Identity.html#bartorch.linop.Identity" title="bartorch.linop.Identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Identity</span></code></a></p></td>
-<td><p>The identity on <code class="docutils literal notranslate"><span class="pre">shape</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_identity</span></code>.</p></td>
+<td><p>Identity on <code class="docutils literal notranslate"><span class="pre">shape</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_identity</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Zero.html#bartorch.linop.Zero" title="bartorch.linop.Zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Zero</span></code></a></p></td>
-<td><p>The operator that sends everything to zero, BART's <code class="docutils literal notranslate"><span class="pre">linop_null</span></code>.</p></td>
+<td><p>Zero operator, BART's <code class="docutils literal notranslate"><span class="pre">linop_null</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Diagonal.html#bartorch.linop.Diagonal" title="bartorch.linop.Diagonal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Diagonal</span></code></a></p></td>
-<td><p>Pointwise multiplication by <code class="docutils literal notranslate"><span class="pre">diag</span></code>, broadcast over the axes where it is one.</p></td>
+<td><p>Pointwise multiplication by <code class="docutils literal notranslate"><span class="pre">diag</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_cdiag</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.ComponentDiagonal.html#bartorch.linop.ComponentDiagonal" title="bartorch.linop.ComponentDiagonal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComponentDiagonal</span></code></a></p></td>
-<td><p>A diagonal on the real part and another on the imaginary part.</p></td>
+<td><p>Separate real scalings of the real and imaginary parts, BART's <code class="docutils literal notranslate"><span class="pre">linop_rdiag</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Conj.html#bartorch.linop.Conj" title="bartorch.linop.Conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Conj</span></code></a></p></td>
 <td><p>Complex conjugation, BART's <code class="docutils literal notranslate"><span class="pre">linop_zconj</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Real.html#bartorch.linop.Real" title="bartorch.linop.Real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Real</span></code></a></p></td>
-<td><p>The real part, BART's <code class="docutils literal notranslate"><span class="pre">linop_zreal</span></code>.</p></td>
+<td><p>Real part, BART's <code class="docutils literal notranslate"><span class="pre">linop_zreal</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.FFT.html#bartorch.linop.FFT" title="bartorch.linop.FFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FFT</span></code></a></p></td>
-<td><p>BART's unitary Fourier transform along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, centred by default.</p></td>
+<td><p>Unitary Fourier transform along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_fft</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.NUFFT.html#bartorch.linop.NUFFT" title="bartorch.linop.NUFFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NUFFT</span></code></a></p></td>
 <td><p>Non-uniform FFT from images to samples along a trajectory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.MultiplySum.html#bartorch.linop.MultiplySum" title="bartorch.linop.MultiplySum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiplySum</span></code></a></p></td>
-<td><p>Multiply by a tensor and sum over the axes absent from the codomain.</p></td>
+<td><p>Multiply by a tensor and sum over the axes the codomain reduces, BART's <code class="docutils literal notranslate"><span class="pre">linop_fmac</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Matrix.html#bartorch.linop.Matrix" title="bartorch.linop.Matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Matrix</span></code></a></p></td>
 <td><p>Multiplication by a matrix along one axis, BART's <code class="docutils literal notranslate"><span class="pre">linop_matrix</span></code>.</p></td>
@@ -736,28 +716,28 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Convolution with a fixed kernel, BART's <code class="docutils literal notranslate"><span class="pre">linop_conv</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Gradient.html#bartorch.linop.Gradient" title="bartorch.linop.Gradient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gradient</span></code></a></p></td>
-<td><p>Finite differences along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, stacked on a new leading axis.</p></td>
+<td><p>Forward finite differences along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_grad</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Sobolev.html#bartorch.linop.Sobolev" title="bartorch.linop.Sobolev"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sobolev</span></code></a></p></td>
-<td><p>A smooth image from weighted k-space coefficients, BART's <code class="docutils literal notranslate"><span class="pre">linop_noir_weights</span></code>.</p></td>
+<td><p>Image from Sobolev-weighted k-space coefficients, BART's <code class="docutils literal notranslate"><span class="pre">linop_noir_weights</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.concatenate.html#bartorch.linop.concatenate" title="bartorch.linop.concatenate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concatenate</span></code></a></p></td>
-<td><p>Apply every operator to the same input and lay the results end to end.</p></td>
+<td><p>Apply every operator to the same input and concatenate the outputs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.stack.html#bartorch.linop.stack" title="bartorch.linop.stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack</span></code></a></p></td>
-<td><p>Apply every operator to the same input and put the results on a new axis.</p></td>
+<td><p>Apply every operator to the same input and stack the outputs on a new axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.hstack.html#bartorch.linop.hstack" title="bartorch.linop.hstack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hstack</span></code></a></p></td>
-<td><p>Split the input between the operators and add up what they return.</p></td>
+<td><p>Split the input between the operators along <code class="docutils literal notranslate"><span class="pre">axis</span></code> and sum the outputs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.block_diag.html#bartorch.linop.block_diag" title="bartorch.linop.block_diag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_diag</span></code></a></p></td>
-<td><p>Give each operator its own part of the input and its own part of the output.</p></td>
+<td><p>Block-diagonal operator over <code class="docutils literal notranslate"><span class="pre">ops</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.block.html#bartorch.linop.block" title="bartorch.linop.block"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block</span></code></a></p></td>
-<td><p>A block matrix of operators.</p></td>
+<td><p>Block matrix of operators.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Reshape.html#bartorch.linop.Reshape" title="bartorch.linop.Reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reshape</span></code></a></p></td>
-<td><p>Read the same elements under another shape, BART's <code class="docutils literal notranslate"><span class="pre">linop_reshape</span></code>.</p></td>
+<td><p>Reshape, BART's <code class="docutils literal notranslate"><span class="pre">linop_reshape</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Transpose.html#bartorch.linop.Transpose" title="bartorch.linop.Transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Transpose</span></code></a></p></td>
 <td><p>Swap two axes, BART's <code class="docutils literal notranslate"><span class="pre">linop_transpose</span></code>.</p></td>
@@ -781,7 +761,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Take the block of <code class="docutils literal notranslate"><span class="pre">oshape</span></code> that starts at <code class="docutils literal notranslate"><span class="pre">start</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_extract</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Hankel.html#bartorch.linop.Hankel" title="bartorch.linop.Hankel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Hankel</span></code></a></p></td>
-<td><p>A sliding window along <code class="docutils literal notranslate"><span class="pre">axis</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_hankelization</span></code>.</p></td>
+<td><p>Sliding window along <code class="docutils literal notranslate"><span class="pre">axis</span></code> (Hankel matrix), BART's <code class="docutils literal notranslate"><span class="pre">linop_hankelization</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Sum.html#bartorch.linop.Sum" title="bartorch.linop.Sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sum</span></code></a></p></td>
 <td><p>Sum over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_sum</span></code>.</p></td>
@@ -804,10 +784,10 @@ the same objects in tables; this page generates the page of each.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a></p></td>
-<td><p>Nonlinear operator between tensor shapes, with a derivative and its adjoint.</p></td>
+<td><p>Nonlinear operator on complex tensors, with its derivative and the derivative's adjoint.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.TorchOperator.html#bartorch.nlop.TorchOperator" title="bartorch.nlop.TorchOperator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TorchOperator</span></code></a></p></td>
-<td><p>A nonlinear operator from a differentiable torch function.</p></td>
+<td><p>Nonlinear operator from a differentiable PyTorch function.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a></p></td>
 <td><p>Joint image and coil-sensitivity forward model, BART's <code class="docutils literal notranslate"><span class="pre">noir</span></code>.</p></td>
@@ -819,70 +799,70 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Non-Cartesian joint image and coil-sensitivity forward model.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.CoilSense.html#bartorch.nlop.CoilSense" title="bartorch.nlop.CoilSense"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoilSense</span></code></a></p></td>
-<td><p>Product of an image and unknown coil sensitivities, through any encoding.</p></td>
+<td><p>Product of an image and unknown coil sensitivities before a linear encoding.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SignalModel</span></code></a></p></td>
-<td><p>A BlochSim signal model as a BART nonlinear operator.</p></td>
+<td><p>BlochSim signal model as a nonlinear operator from parameter maps to contrast images.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.InversionRecovery.html#bartorch.nlop.InversionRecovery" title="bartorch.nlop.InversionRecovery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InversionRecovery</span></code></a></p></td>
-<td><p>T1 from an inversion-recovery series.</p></td>
+<td><p>Inversion-recovery signal model for T1 mapping.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.MultiEcho.html#bartorch.nlop.MultiEcho" title="bartorch.nlop.MultiEcho"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiEcho</span></code></a></p></td>
-<td><p>T2 or T2* from a multi-echo readout.</p></td>
+<td><p>Mono-exponential multi-echo signal model for T2 or T2* mapping.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.Bloch.html#bartorch.nlop.Bloch" title="bartorch.nlop.Bloch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Bloch</span></code></a></p></td>
-<td><p>Any BlochSim sequence as a model operator, through Bloch simulation.</p></td>
+<td><p>Signal model of any BlochSim simulator.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.Multiply.html#bartorch.nlop.Multiply" title="bartorch.nlop.Multiply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Multiply</span></code></a></p></td>
-<td><p>The pointwise product of two inputs, broadcast where either is one.</p></td>
+<td><p>Pointwise product of two inputs, BART's <code class="docutils literal notranslate"><span class="pre">tenmul</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.Divide.html#bartorch.nlop.Divide" title="bartorch.nlop.Divide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Divide</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">/</span> <span class="pre">b</span></code>, elementwise, of two inputs of one shape.</p></td>
+<td><p>Elementwise quotient of two inputs, BART's <code class="docutils literal notranslate"><span class="pre">zdiv</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.Weighted.html#bartorch.nlop.Weighted" title="bartorch.nlop.Weighted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Weighted</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">*</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">b</span> <span class="pre">*</span> <span class="pre">z</span></code> of two inputs of one shape.</p></td>
+<td><p>Weighted sum <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">*</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">b</span> <span class="pre">*</span> <span class="pre">z</span></code> of two inputs, BART's <code class="docutils literal notranslate"><span class="pre">zaxpbz</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.Constant.html#bartorch.nlop.Constant" title="bartorch.nlop.Constant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Constant</span></code></a></p></td>
-<td><p>An operator of no inputs that returns <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p></td>
+<td><p>Operator of no inputs returning a fixed tensor, BART's <code class="docutils literal notranslate"><span class="pre">nlop_const</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.Exp.html#bartorch.nlop.Exp" title="bartorch.nlop.Exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Exp</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">exp(x)</span></code>, elementwise.</p></td>
+<td><p>Elementwise <code class="docutils literal notranslate"><span class="pre">exp(x)</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zexp</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.Log.html#bartorch.nlop.Log" title="bartorch.nlop.Log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Log</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">log(x)</span></code>, elementwise.</p></td>
+<td><p>Elementwise principal <code class="docutils literal notranslate"><span class="pre">log(x)</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zlog</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.Sqrt.html#bartorch.nlop.Sqrt" title="bartorch.nlop.Sqrt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sqrt</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">sqrt(x)</span></code>, elementwise.</p></td>
+<td><p>Elementwise principal <code class="docutils literal notranslate"><span class="pre">sqrt(x)</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zsqrt</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.Power.html#bartorch.nlop.Power" title="bartorch.nlop.Power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Power</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">**</span> <span class="pre">exponent</span></code>, elementwise.</p></td>
+<td><p>Elementwise <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">**</span> <span class="pre">exponent</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zspow</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.Add.html#bartorch.nlop.Add" title="bartorch.nlop.Add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Add</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">value</span></code>, elementwise.</p></td>
+<td><p>Elementwise <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">value</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zsadd</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.Inverse.html#bartorch.nlop.Inverse" title="bartorch.nlop.Inverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Inverse</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">x</span></code>, elementwise.</p></td>
+<td><p>Elementwise <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">x</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zinv</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.Abs.html#bartorch.nlop.Abs" title="bartorch.nlop.Abs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Abs</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">|x|</span></code>, elementwise, as a complex tensor.</p></td>
+<td><p>Elementwise <code class="docutils literal notranslate"><span class="pre">|x|</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zabs</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.SmoothAbs.html#bartorch.nlop.SmoothAbs" title="bartorch.nlop.SmoothAbs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SmoothAbs</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">sqrt(|x|^2</span> <span class="pre">+</span> <span class="pre">eps)</span></code>, elementwise.</p></td>
+<td><p>Elementwise <code class="docutils literal notranslate"><span class="pre">sqrt(|x|^2</span> <span class="pre">+</span> <span class="pre">eps)</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">smo_abs</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.Phase.html#bartorch.nlop.Phase" title="bartorch.nlop.Phase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Phase</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">/</span> <span class="pre">|x|</span></code>, elementwise: BART's <code class="docutils literal notranslate"><span class="pre">zphsr</span></code>, built out of its two pieces.</p></td>
+<td><p>Elementwise <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">/</span> <span class="pre">|x|</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zphsr</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.SumOfSquares.html#bartorch.nlop.SumOfSquares" title="bartorch.nlop.SumOfSquares"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SumOfSquares</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">sum(|x|^2)</span></code> along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zss</span></code>.</p></td>
+<td><p>Sum of squared magnitudes along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zss</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.RootSumOfSquares.html#bartorch.nlop.RootSumOfSquares" title="bartorch.nlop.RootSumOfSquares"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootSumOfSquares</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">sqrt(sum(|x|^2))</span></code> along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Root sum of squared magnitudes along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">zrss</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IRGNM</span></code></a></p></td>
-<td><p>Iteratively regularized Gauss-Newton for <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code>, looping <a class="reference internal" href="generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a>.</p></td>
+<td><p>Iteratively regularized Gauss-Newton solver for <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a></p></td>
-<td><p>One step of iteratively regularized Gauss-Newton, <code class="docutils literal notranslate"><span class="pre">noir</span></code>'s Gauss-Newton step.</p></td>
+<td><p>One iteratively regularized Gauss-Newton step, as a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.irgnm.html#bartorch.nlop.irgnm" title="bartorch.nlop.irgnm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">irgnm</span></code></a></p></td>
 <td><p>Solve <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code> by iteratively regularized Gauss-Newton.</p></td>
@@ -896,10 +876,10 @@ the same objects in tables; this page generates the page of each.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CG</span></code></a></p></td>
-<td><p>Conjugate gradients for a least-squares problem with quadratic penalties.</p></td>
+<td><p>Conjugate gradients on the normal equations of a quadratic problem.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.IST.html#bartorch.optim.IST" title="bartorch.optim.IST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IST</span></code></a></p></td>
-<td><p>Iterative soft thresholding, looping <a class="reference internal" href="generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ISTBlock</span></code></a>.</p></td>
+<td><p>Iterative soft thresholding (proximal gradient), looping <a class="reference internal" href="generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ISTBlock</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.FISTA.html#bartorch.optim.FISTA" title="bartorch.optim.FISTA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FISTA</span></code></a></p></td>
 <td><p>Fast iterative soft thresholding, looping <a class="reference internal" href="generated/bartorch.optim.FISTABlock.html#bartorch.optim.FISTABlock" title="bartorch.optim.FISTABlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">FISTABlock</span></code></a>.</p></td>
@@ -908,19 +888,19 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Alternating direction method of multipliers, looping <a class="reference internal" href="generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.PRIDU.html#bartorch.optim.PRIDU" title="bartorch.optim.PRIDU"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIDU</span></code></a></p></td>
-<td><p>Primal-dual iteration, looping <a class="reference internal" href="generated/bartorch.optim.PRIDUBlock.html#bartorch.optim.PRIDUBlock" title="bartorch.optim.PRIDUBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">PRIDUBlock</span></code></a>.</p></td>
+<td><p>Primal-dual iteration (Chambolle-Pock), looping <a class="reference internal" href="generated/bartorch.optim.PRIDUBlock.html#bartorch.optim.PRIDUBlock" title="bartorch.optim.PRIDUBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">PRIDUBlock</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POCS</span></code></a></p></td>
 <td><p>Projection onto convex sets, looping <a class="reference internal" href="generated/bartorch.optim.POCSBlock.html#bartorch.optim.POCSBlock" title="bartorch.optim.POCSBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">POCSBlock</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tikhonov</span></code></a></p></td>
-<td><p>A quadratic penalty <code class="docutils literal notranslate"><span class="pre">weight</span> <span class="pre">*</span> <span class="pre">||operator</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">bias||^2</span></code>.</p></td>
+<td><p>Quadratic penalty <span class="math notranslate nohighlight">\(w \| G x - b \|^2\)</span> for <a class="reference internal" href="generated/bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.maxeigen.html#bartorch.optim.maxeigen" title="bartorch.optim.maxeigen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxeigen</span></code></a></p></td>
-<td><p>Power-iteration estimate of the largest eigenvalue of the normal operator.</p></td>
+<td><p>Estimate the largest eigenvalue of the normal operator by power iteration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.POCSBlock.html#bartorch.optim.POCSBlock" title="bartorch.optim.POCSBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POCSBlock</span></code></a></p></td>
-<td><p>One sweep of the projections, <code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>'s <code class="docutils literal notranslate"><span class="pre">pocs</span></code>.</p></td>
+<td><p>One sweep of projections onto convex sets, BART's <code class="docutils literal notranslate"><span class="pre">pocs</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.cg.html#bartorch.optim.cg" title="bartorch.optim.cg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cg</span></code></a></p></td>
 <td><p>Solve a linear least-squares problem by conjugate gradients.</p></td>
@@ -938,25 +918,25 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Solve a regularized least-squares problem by a primal-dual iteration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.pocs.html#bartorch.optim.pocs" title="bartorch.optim.pocs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocs</span></code></a></p></td>
-<td><p>Sweep a list of projections, <code class="docutils literal notranslate"><span class="pre">optim.POCS(projections)(y,</span> <span class="pre">x0=x0)</span></code>.</p></td>
+<td><p>Projection onto convex sets in one call: <code class="docutils literal notranslate"><span class="pre">optim.POCS(projections,</span> <span class="pre">**settings)(y,</span> <span class="pre">x0=x0)</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ISTBlock</span></code></a></p></td>
-<td><p>One step of iterative soft thresholding, <code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>'s <code class="docutils literal notranslate"><span class="pre">ist</span></code>.</p></td>
+<td><p>One iteration of iterative soft thresholding, BART's <code class="docutils literal notranslate"><span class="pre">ist</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.FISTABlock.html#bartorch.optim.FISTABlock" title="bartorch.optim.FISTABlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FISTABlock</span></code></a></p></td>
-<td><p>One step of fast iterative soft thresholding, <code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>'s <code class="docutils literal notranslate"><span class="pre">fista</span></code>.</p></td>
+<td><p>One iteration of fast iterative soft thresholding, BART's <code class="docutils literal notranslate"><span class="pre">fista</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a></p></td>
-<td><p>One step of the alternating direction method of multipliers, <code class="docutils literal notranslate"><span class="pre">admm.c</span></code>'s <code class="docutils literal notranslate"><span class="pre">admm</span></code>.</p></td>
+<td><p>One iteration of the alternating direction method of multipliers, BART's <code class="docutils literal notranslate"><span class="pre">admm</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.PRIDUBlock.html#bartorch.optim.PRIDUBlock" title="bartorch.optim.PRIDUBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIDUBlock</span></code></a></p></td>
-<td><p>One step of BART's primal-dual iteration, <code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>'s <code class="docutils literal notranslate"><span class="pre">chambolle_pock</span></code>.</p></td>
+<td><p>One iteration of BART's primal-dual algorithm, <code class="docutils literal notranslate"><span class="pre">chambolle_pock</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FixedPoint</span></code></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">block</span></code> iterated to its fixed point: a deep-equilibrium model.</p></td>
+<td><p>Iteration block run to its fixed point and differentiated there (deep equilibrium).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_scaling</span></code></a></p></td>
-<td><p>Normalization factor for the data of a reconstruction.</p></td>
+<td><p>Estimate the factor by which BART's reconstructions divide the data.</p></td>
 </tr>
 </tbody>
 </table>
@@ -967,58 +947,58 @@ the same objects in tables; this page generates the page of each.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.L1.html#bartorch.priors.L1" title="bartorch.priors.L1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">L1</span></code></a></p></td>
-<td><p>l1 norm of the image.</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ell_1\)</span> norm of the image, <span class="math notranslate nohighlight">\(\lambda \| x \|_1\)</span> (BART's <code class="docutils literal notranslate"><span class="pre">I</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Wavelet</span></code></a></p></td>
-<td><p>l1 norm of the wavelet transform over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ell_1\)</span> norm of the wavelet coefficients (BART's <code class="docutils literal notranslate"><span class="pre">W</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.LocallyLowRank.html#bartorch.priors.LocallyLowRank" title="bartorch.priors.LocallyLowRank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LocallyLowRank</span></code></a></p></td>
-<td><p>Nuclear norm of overlapping blocks over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, i.e. locally low rank.</p></td>
+<td><p>Locally low-rank penalty, the nuclear norm of image blocks (BART's <code class="docutils literal notranslate"><span class="pre">L</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.L2.html#bartorch.priors.L2" title="bartorch.priors.L2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">L2</span></code></a></p></td>
-<td><p>Squared l2 norm of the image, i.e. Tikhonov regularization.</p></td>
+<td><p>Squared <span class="math notranslate nohighlight">\(\ell_2\)</span> norm of the image (BART's <code class="docutils literal notranslate"><span class="pre">Q</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.NonNegative.html#bartorch.priors.NonNegative" title="bartorch.priors.NonNegative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonNegative</span></code></a></p></td>
-<td><p>Projection onto images whose real and imaginary parts are non-negative.</p></td>
+<td><p>Projection onto images whose real and imaginary parts are non-negative (BART's <code class="docutils literal notranslate"><span class="pre">S</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TotalVariation</span></code></a></p></td>
-<td><p>l1 norm of the finite differences over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, i.e. total variation.</p></td>
+<td><p>Isotropic total variation, <span class="math notranslate nohighlight">\(\lambda \sum_r \| (\nabla x)_r \|_2\)</span> (BART's <code class="docutils literal notranslate"><span class="pre">T</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.FourierL1.html#bartorch.priors.FourierL1" title="bartorch.priors.FourierL1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FourierL1</span></code></a></p></td>
-<td><p>l1 norm of the Fourier transform over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ell_1\)</span> norm of the Fourier coefficients, <span class="math notranslate nohighlight">\(\lambda \| F x \|_1\)</span> (BART's <code class="docutils literal notranslate"><span class="pre">F</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.Laplace.html#bartorch.priors.Laplace" title="bartorch.priors.Laplace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Laplace</span></code></a></p></td>
-<td><p>Laplacian penalty over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ell_1\)</span> norm of a Laplacian-filtered image (BART's <code class="docutils literal notranslate"><span class="pre">P</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.ImaginaryL1.html#bartorch.priors.ImaginaryL1" title="bartorch.priors.ImaginaryL1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImaginaryL1</span></code></a></p></td>
-<td><p>l1 norm of the image's imaginary part.</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ell_1\)</span> norm of the imaginary part (BART's <code class="docutils literal notranslate"><span class="pre">R1</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.ImaginaryL2.html#bartorch.priors.ImaginaryL2" title="bartorch.priors.ImaginaryL2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImaginaryL2</span></code></a></p></td>
-<td><p>Squared l2 norm of the image's imaginary part.</p></td>
+<td><p>Squared <span class="math notranslate nohighlight">\(\ell_2\)</span> norm of the imaginary part (BART's <code class="docutils literal notranslate"><span class="pre">R2</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.TotalGeneralizedVariation.html#bartorch.priors.TotalGeneralizedVariation" title="bartorch.priors.TotalGeneralizedVariation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TotalGeneralizedVariation</span></code></a></p></td>
-<td><p>Total generalized variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Second-order total generalized variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code> (BART's <code class="docutils literal notranslate"><span class="pre">G</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.InfimalConvolutionTV.html#bartorch.priors.InfimalConvolutionTV" title="bartorch.priors.InfimalConvolutionTV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InfimalConvolutionTV</span></code></a></p></td>
-<td><p>Infimal convolution of total variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Infimal convolution of total variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code> (BART's <code class="docutils literal notranslate"><span class="pre">C</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.InfimalConvolutionTGV.html#bartorch.priors.InfimalConvolutionTGV" title="bartorch.priors.InfimalConvolutionTGV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InfimalConvolutionTGV</span></code></a></p></td>
-<td><p>Infimal convolution of total generalized variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Infimal convolution of total generalized variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code> (BART's <code class="docutils literal notranslate"><span class="pre">V</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Regularizer</span></code></a></p></td>
-<td><p>Regularization functional with a proximal operator built by BART.</p></td>
+<td><p>Regularization term <span class="math notranslate nohighlight">\(g(G x)\)</span> whose proximal operator and transform BART builds.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a></p></td>
-<td><p>A denoiser substituted for a <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> regularizer.</p></td>
+<td><p>Denoiser in place of a regularization term's proximal operator (plug-and-play).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.rof.html#bartorch.priors.rof" title="bartorch.priors.rof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rof</span></code></a></p></td>
-<td><p>Total-variation (Rudin-Osher-Fatemi) denoising along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Total-variation (Rudin-Osher-Fatemi) denoising along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">rof</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.priors.tgv.html#bartorch.priors.tgv" title="bartorch.priors.tgv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tgv</span></code></a></p></td>
-<td><p>Second-order total generalized variation denoising along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Second-order total generalized variation denoising along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">tgv</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.priors.nlmeans.html#bartorch.priors.nlmeans" title="bartorch.priors.nlmeans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlmeans</span></code></a></p></td>
-<td><p>Non-local means filter along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p></td>
+<td><p>Non-local means filter along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">nlmeans</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1032,13 +1012,13 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Residual UNet on real <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> tensors, for denoising and restoration.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet" title="bartorch.learning.ComplexNet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComplexNet</span></code></a></p></td>
-<td><p>A network on real channels applied to complex images whose leading axes are channels.</p></td>
+<td><p>Network on real channels applied to complex images whose leading axes are channels.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Patchwise</span></code></a></p></td>
-<td><p>A network applied to an image one patch at a time, on its own device.</p></td>
+<td><p>Network applied to an image patch by patch on its own device.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Unrolled</span></code></a></p></td>
-<td><p>Unrolled network formed by applying an iteration block <code class="docutils literal notranslate"><span class="pre">iterations</span></code> times.</p></td>
+<td><p>Unrolled network: an iteration block applied a fixed number of times.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.split.html#bartorch.learning.split" title="bartorch.learning.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a></p></td>
 <td><p>Partition the acquired samples into a set to reconstruct from and a set held out.</p></td>
@@ -1050,16 +1030,16 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>The factor making <code class="docutils literal notranslate"><span class="pre">|error|</span> <span class="pre">&lt;=</span> <span class="pre">factor</span> <span class="pre">*</span> <span class="pre">spread</span></code> hold with the given coverage.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_real</span></code></a></p></td>
-<td><p>Real and imaginary parts of <code class="docutils literal notranslate"><span class="pre">input</span></code> stacked along a new leading axis.</p></td>
+<td><p>Stack the real and imaginary parts of <code class="docutils literal notranslate"><span class="pre">input</span></code> along a new leading axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.as_complex.html#bartorch.learning.as_complex" title="bartorch.learning.as_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_complex</span></code></a></p></td>
-<td><p>Complex tensor formed from a leading axis of real and imaginary parts.</p></td>
+<td><p>Combine a leading axis of real and imaginary parts into a complex tensor.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.learning.Reconstruction.html#bartorch.learning.Reconstruction" title="bartorch.learning.Reconstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reconstruction</span></code></a></p></td>
-<td><p>A reconstruction network trained in one of the three stages of an unrolled network.</p></td>
+<td><p>Lightning module training one of the three stages of an unrolled reconstruction network.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.learning.RandomGain.html#bartorch.learning.RandomGain" title="bartorch.learning.RandomGain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomGain</span></code></a></p></td>
-<td><p>Multiply every image of a subject by one random complex gain.</p></td>
+<td><p>Multiply every image of a subject by one random complex gain (<code class="docutils literal notranslate"><span class="pre">torchio</span></code> transform).</p></td>
 </tr>
 </tbody>
 </table>
@@ -1070,7 +1050,7 @@ the same objects in tables; this page generates the page of each.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pics</span></code></a></p></td>
-<td><p>Parallel-imaging compressed-sensing reconstruction.</p></td>
+<td><p>Parallel-imaging compressed-sensing reconstruction, BART's <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-S</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.apps.nlinv_pics.html#bartorch.apps.nlinv_pics" title="bartorch.apps.nlinv_pics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlinv_pics</span></code></a></p></td>
 <td><p>Wavelet-regularized SENSE reconstruction with coil sensitivities fitted to the data.</p></td>
@@ -1082,13 +1062,13 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Homodyne completion of an image reconstructed from partial-Fourier k-space.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.apps.pocsense.html#bartorch.apps.pocsense" title="bartorch.apps.pocsense"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocsense</span></code></a></p></td>
-<td><p>POCSENSE reconstruction: the measured samples, the coils, and sparsity.</p></td>
+<td><p>POCSENSE reconstruction by projections onto convex sets.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.apps.mobafit.html#bartorch.apps.mobafit" title="bartorch.apps.mobafit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mobafit</span></code></a></p></td>
 <td><p>Fit a signal model to reconstructed contrast images, voxel by voxel.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.apps.moba.html#bartorch.apps.moba" title="bartorch.apps.moba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moba</span></code></a></p></td>
-<td><p>Fit a signal model to k-space: parameter maps straight from the samples.</p></td>
+<td><p>Fit a signal model to k-space: model-based reconstruction of parameter maps.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1099,7 +1079,7 @@ the same objects in tables; this page generates the page of each.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">phantom</span></code></a></p></td>
-<td><p>An analytical phantom, as an image or as its k-space.</p></td>
+<td><p>Analytical phantom, as an image or as its k-space.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coils</span></code></a></p></td>
 <td><p>Compute coil sensitivitity maps in x-space or k-space.</p></td>
@@ -1111,7 +1091,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Add noise with selected variance to input.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traj</span></code></a></p></td>
-<td><p>A k-space trajectory, in grid units.</p></td>
+<td><p>k-space trajectory in grid units, Cartesian or radial.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a></p></td>
 <td><p>Compute sampling grid for x-space / k-space (and time).</p></td>
@@ -1159,7 +1139,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Coil sensitivities by ESPIRiT.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.caldir.html#bartorch.tools.caldir" title="bartorch.tools.caldir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">caldir</span></code></a></p></td>
-<td><p>Coil sensitivities from the centre of k-space directly.</p></td>
+<td><p>Coil sensitivities by direct calibration from the centre of k-space.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.calmat.html#bartorch.tools.calmat" title="bartorch.tools.calmat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calmat</span></code></a></p></td>
 <td><p>Compute calibration matrix.</p></td>
@@ -1171,7 +1151,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Estimate coil sensitivities using walsh method (use with ecaltwo).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlinv</span></code></a></p></td>
-<td><p>Nonlinear inversion: the image and the sensitivities together.</p></td>
+<td><p>Image and coil sensitivities estimated jointly by nonlinear inversion.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ncalib</span></code></a></p></td>
 <td><p>Estimate coil sensitivities using ENLIVE calibration.</p></td>
@@ -1204,7 +1184,7 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Resample <code class="docutils literal notranslate"><span class="pre">input</span></code> on an affinely mapped grid: <code class="docutils literal notranslate"><span class="pre">out(u)</span> <span class="pre">=</span> <span class="pre">input(matrix</span> <span class="pre">&#64;</span> <span class="pre">[u,</span> <span class="pre">1])</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.warp.html#bartorch.tools.warp" title="bartorch.tools.warp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warp</span></code></a></p></td>
-<td><p>Pull <code class="docutils literal notranslate"><span class="pre">input</span></code> through a displacement field: <code class="docutils literal notranslate"><span class="pre">out[p]</span> <span class="pre">=</span> <span class="pre">input(p</span> <span class="pre">+</span> <span class="pre">displacement[p])</span></code>.</p></td>
+<td><p>Resample <code class="docutils literal notranslate"><span class="pre">input</span></code> through a displacement field: <code class="docutils literal notranslate"><span class="pre">out[p]</span> <span class="pre">=</span> <span class="pre">input(p</span> <span class="pre">+</span> <span class="pre">displacement[p])</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.register_affine.html#bartorch.tools.register_affine" title="bartorch.tools.register_affine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_affine</span></code></a></p></td>
 <td><p>Affine transform that maps <code class="docutils literal notranslate"><span class="pre">reference</span></code> onto <code class="docutils literal notranslate"><span class="pre">moved</span></code>, by mutual information.</p></td>
@@ -1219,13 +1199,13 @@ the same objects in tables; this page generates the page of each.</p>
 <td><p>Normalized root mean square error <code class="docutils literal notranslate"><span class="pre">‖input</span> <span class="pre">-</span> <span class="pre">reference‖</span> <span class="pre">/</span> <span class="pre">‖reference‖</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.mse.html#bartorch.tools.mse" title="bartorch.tools.mse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mse</span></code></a></p></td>
-<td><p>Mean squared error <code class="docutils literal notranslate"><span class="pre">mean</span> <span class="pre">|input</span> <span class="pre">-</span> <span class="pre">reference|²</span></code> over every element .</p></td>
+<td><p>Mean squared error <code class="docutils literal notranslate"><span class="pre">mean</span> <span class="pre">|input</span> <span class="pre">-</span> <span class="pre">reference|²</span></code> over every element.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.psnr.html#bartorch.tools.psnr" title="bartorch.tools.psnr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psnr</span></code></a></p></td>
-<td><p>Peak signal-to-noise ratio of the magnitudes in decibels, averaged over images .</p></td>
+<td><p>Peak signal-to-noise ratio of the magnitudes, in decibels, averaged over images.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ssim</span></code></a></p></td>
-<td><p>Mean structural similarity of the magnitudes .</p></td>
+<td><p>Mean structural similarity of the magnitudes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.roi_stat.html#bartorch.tools.roi_stat" title="bartorch.tools.roi_stat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roi_stat</span></code></a></p></td>
 <td><p>Statistic of <code class="docutils literal notranslate"><span class="pre">input</span></code> over the region <code class="docutils literal notranslate"><span class="pre">roi</span></code>.</p></td>
@@ -1337,13 +1317,13 @@ the same objects in tables; this page generates the page of each.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.cli.main.html#bartorch.cli.main" title="bartorch.cli.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td><p>Run one command line.</p></td>
+<td><p>Run one <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> command line, the console entry point.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.cli.route.html#bartorch.cli.route" title="bartorch.cli.route"><code class="xref py py-obj docutils literal notranslate"><span class="pre">route</span></code></a></p></td>
-<td><p>Whether this command line runs as an app or as the command.</p></td>
+<td><p>Decide whether a command line runs as an app or as the BART command.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.cli.read.html#bartorch.cli.read" title="bartorch.cli.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code></a></p></td>
-<td><p>One CFL pair as a tensor in this package's layout.</p></td>
+<td><p>Read a CFL pair as a tensor in this package's C-order layout.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1354,7 +1334,7 @@ the same objects in tables; this page generates the page of each.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.interop.to_deepinv.html#bartorch.interop.to_deepinv" title="bartorch.interop.to_deepinv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_deepinv</span></code></a></p></td>
-<td><p>A <a class="reference internal" href="generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a> as a <code class="docutils literal notranslate"><span class="pre">deepinv.physics.LinearPhysics</span></code>.</p></td>
+<td><p>Wrap a <a class="reference internal" href="generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a> as a <code class="docutils literal notranslate"><span class="pre">deepinv.physics.LinearPhysics</span></code>.</p></td>
 </tr>
 </tbody>
 </table>

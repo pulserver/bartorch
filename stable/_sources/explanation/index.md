@@ -1,31 +1,31 @@
-# Explanation
+# Explanations
 
-The concepts behind the interfaces, their notation, and the reasons for the
-choices visible in the API.  The pages assume linear algebra and numerical
-computing, not MRI reconstruction or convex optimization; terms from either are
-introduced where first used.  Exact interfaces are in {doc}`../api/index`, and
-complete workflows in the {doc}`examples <../auto_examples/index>`.
+The concepts behind bartorch, one page each, from the call into BART to
+learned reconstruction and performance. Exact interfaces are in {doc}`../api/index`, and
+complete workflows in the {doc}`examples <../gallery/index>`.
 
-| Page | Question |
+| Page | Contents |
 | --- | --- |
-| {doc}`execution-model` | Which interface fits a task, and what runs underneath it? |
-| {doc}`data-layout` | How are arrays, axes, trajectories and Fourier transforms laid out, why, and how is data from elsewhere converted into that layout? |
-| {doc}`inverse-problems` | What is estimated, from what, and by which algorithm? |
-| {doc}`encoding` | What does the MRI forward operator consist of, and how is it represented? |
-| {doc}`non-cartesian` | How is the Fourier transform computed off the Cartesian grid, and what is its normal operator? |
-| {doc}`nonlinear` | What changes when the forward operator is nonlinear in the unknowns? |
-| {doc}`differentiation` | How do gradients pass through operators, solvers and unrolled iterations? |
-| {doc}`learned-reconstruction` | Where does a network enter a reconstruction, and how is it trained and applied to large data? |
+| {doc}`execution-model` | Tools, apps and operators over one embedded BART; errors, devices and threads |
+| {doc}`data-layout` | Tensor axes as BART dimensions, Fourier conventions, trajectory units and file formats |
+| {doc}`encoding` | MRI forward operator, operator algebra, the plan it is lowered into |
+| {doc}`non-cartesian` | NUFFT, density compensation, Toeplitz normal |
+| {doc}`regularizers` | Penalties and their proximal operators |
+| {doc}`solvers` | Choice of iteration, step size and regularization weight |
+| {doc}`nonlinear` | Nonlinear forward models, IRGNM, joint coil estimation and parameter maps |
+| {doc}`learned-reconstruction` | Gradients through operators and solvers; networks inside a reconstruction |
+| {doc}`performance` | Devices, precision, threads and the libraries behind BLAS, LAPACK and the FFT |
 
 ```{toctree}
 :hidden:
 
 execution-model
 data-layout
-inverse-problems
 encoding
 non-cartesian
+regularizers
+solvers
 nonlinear
-differentiation
 learned-reconstruction
+performance
 ```

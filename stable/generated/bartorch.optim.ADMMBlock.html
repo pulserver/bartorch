@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,29 +45,32 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=90dfe745"></script>
+    <script src="../_static/documentation_options.js?v=2b236558"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.optim.ADMMBlock';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/generated/bartorch.optim.ADMMBlock.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -194,71 +197,54 @@
             </li>
         </ul>
         <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/user/index.html">User guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -267,15 +253,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -545,53 +525,96 @@
 <dt class="sig sig-object py" id="bartorch.optim.ADMMBlock">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">ADMMBlock</span></span><a class="headerlink" href="#bartorch.optim.ADMMBlock" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>One step of the alternating direction method of multipliers, <code class="docutils literal notranslate"><span class="pre">admm.c</span></code>’s <code class="docutils literal notranslate"><span class="pre">admm</span></code>.</p>
-<p>For <code class="docutils literal notranslate"><span class="pre">min</span> <span class="pre">0.5</span> <span class="pre">||A</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">y||^2</span> <span class="pre">+</span> <span class="pre">sum_j</span> <span class="pre">f_j(G_j</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">b_j)</span></code>: conjugate gradients on
-<code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">cclambda</span> <span class="pre">+</span> <span class="pre">rho</span> <span class="pre">sum_j</span> <span class="pre">G_j^H</span> <span class="pre">G_j</span></code> from the previous <code class="docutils literal notranslate"><span class="pre">x</span></code>, then each
-term’s split and dual.  The state’s <code class="docutils literal notranslate"><span class="pre">done</span></code> is Boyd’s residual test, and
-<code class="docutils literal notranslate"><span class="pre">invokes</span></code> counts inner iterations, the quantity BART’s <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> budgets.
-Each step takes its own <code class="docutils literal notranslate"><span class="pre">rho</span></code> unless <code class="docutils literal notranslate"><span class="pre">dynamic_rho</span></code> or <code class="docutils literal notranslate"><span class="pre">hogwild</span></code> moves
-it, in which case the state carries it.  A sequence of <code class="docutils literal notranslate"><span class="pre">rho</span></code> is a
-schedule, one per step and the last repeated beyond its end, with the
-scaled duals rescaled by the ratio of consecutive values so that the
-unscaled ones carry over: the increasing penalty of annealed plug-and-play,
-<code class="docutils literal notranslate"><span class="pre">rho_k</span> <span class="pre">=</span> <span class="pre">lambda</span> <span class="pre">/</span> <span class="pre">sigma_k</span> <span class="pre">**</span> <span class="pre">2</span></code> against a denoiser’s schedule of
-<code class="docutils literal notranslate"><span class="pre">sigma</span></code>.  With a term that introduces
-auxiliary variables the state vector is the image followed by those
-variables, and <a class="reference internal" href="#bartorch.optim.ADMMBlock.output" title="bartorch.optim.ADMMBlock.output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code></a> returns the image alone.</p>
+<p>One iteration of the alternating direction method of multipliers, BART’s <code class="docutils literal notranslate"><span class="pre">admm</span></code>.</p>
+<p>For <span class="math notranslate nohighlight">\(\min_x \tfrac12 \| A x - y \|^2 + \sum_j g_j(G_j x - b_j)\)</span>, a step
+solves the x-update
+<span class="math notranslate nohighlight">\(\bigl(M (A^H A + \lambda) + \rho \sum_j G_j^H G_j\bigr) x =
+M A^H y + \rho \sum_j G_j^H (z_j - u_j + b_j)\)</span> by conjugate gradients from
+the previous <span class="math notranslate nohighlight">\(x\)</span>, then updates each term’s split <span class="math notranslate nohighlight">\(z_j\)</span> and
+scaled dual <span class="math notranslate nohighlight">\(u_j\)</span>.  The state’s <code class="docutils literal notranslate"><span class="pre">done</span></code> is the residual stopping
+test, and <code class="docutils literal notranslate"><span class="pre">invokes</span></code> counts the conjugate-gradient iterations spent, the
+quantity <a class="reference internal" href="bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMM</span></code></a>’s <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> budgets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>priors</strong> (<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em> or </em><a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><em>ImplicitPrior</em></a><em>, or </em><em>an iterable</em><em> of </em><em>them</em>) – The terms <span class="math notranslate nohighlight">\(g_j\)</span>, with any transform <span class="math notranslate nohighlight">\(G_j\)</span>.</p></li>
+<li><p><strong>rho</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>default=0.5</em>) – Penalty parameter <span class="math notranslate nohighlight">\(\rho\)</span>.  A sequence is a schedule, one value
+per iteration and the last repeated beyond its end; the scaled duals are
+rescaled at each change so the unscaled ones carry over (annealed
+plug-and-play, <span class="math notranslate nohighlight">\(\rho_k = \lambda / \sigma_k^2\)</span>).</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.6</em>) – Over-relaxation parameter.</p></li>
+<li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=10</em>) – Conjugate-gradient iterations per x-update.</p></li>
+<li><p><strong>cg_maxiter_first</strong> (<em>int</em><em>, </em><em>default=None</em>) – Conjugate-gradient iterations of the first x-update; <code class="docutils literal notranslate"><span class="pre">cg_maxiter</span></code>
+when omitted.</p></li>
+<li><p><strong>cclambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – <span class="math notranslate nohighlight">\(\lambda\)</span>, the weight of an identity added to the normal operator.</p></li>
+<li><p><strong>biases</strong> (<em>sequence</em><em> of </em><em>tensor</em><em>, </em><em>default=None</em>) – The <span class="math notranslate nohighlight">\(b_j\)</span>, one per term, each of its term’s
+<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a>.</p></li>
+<li><p><strong>dynamic_rho</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Multiply <span class="math notranslate nohighlight">\(\rho\)</span> by <code class="docutils literal notranslate"><span class="pre">tau</span></code> when the primal residual exceeds <code class="docutils literal notranslate"><span class="pre">mu</span></code>
+times the dual, divide it in the opposite case.</p></li>
+<li><p><strong>dynamic_tau</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set <code class="docutils literal notranslate"><span class="pre">tau</span></code> from the residuals, <span class="math notranslate nohighlight">\(\sqrt{r / s}\)</span> or its inverse,
+clipped to <code class="docutils literal notranslate"><span class="pre">tau_max</span></code>.</p></li>
+<li><p><strong>relative_norm</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Compare the residuals each relative to its scaling.</p></li>
+<li><p><strong>fast</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Skip the residuals and the stopping test.</p></li>
+<li><p><strong>hogwild</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Double <span class="math notranslate nohighlight">\(\rho\)</span> after iteration 1, 3, 7, 15, …</p></li>
+<li><p><strong>mu</strong> (<em>float</em><em>, </em><em>default=3.0</em>) – Residual ratio beyond which <code class="docutils literal notranslate"><span class="pre">dynamic_rho</span></code> rescales <span class="math notranslate nohighlight">\(\rho\)</span>.</p></li>
+<li><p><strong>tau_max</strong> (<em>float</em><em>, </em><em>default=20.0</em>) – Upper bound of <code class="docutils literal notranslate"><span class="pre">tau</span></code>.</p></li>
+<li><p><strong>abstol</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Absolute tolerance of the residual stopping test.</p></li>
+<li><p><strong>reltol</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Relative tolerance of the residual stopping test.</p></li>
+<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Left preconditioner <span class="math notranslate nohighlight">\(M\)</span> from <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code> to itself, positive
+definite (<code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>’s <code class="docutils literal notranslate"><span class="pre">precond_op</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">hogwild</span></code> or <code class="docutils literal notranslate"><span class="pre">fast</span></code> with <code class="docutils literal notranslate"><span class="pre">dynamic_rho</span></code>; a <code class="docutils literal notranslate"><span class="pre">rho</span></code> schedule with
+    <code class="docutils literal notranslate"><span class="pre">dynamic_rho</span></code> or <code class="docutils literal notranslate"><span class="pre">hogwild</span></code>; not one bias per term; at
+    <a class="reference internal" href="#bartorch.optim.ADMMBlock.start" title="bartorch.optim.ADMMBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start()</span></code></a>, biases with a term with auxiliary variables.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">dynamic_rho</span></code> or <code class="docutils literal notranslate"><span class="pre">hogwild</span></code> the state carries <span class="math notranslate nohighlight">\(\rho\)</span>.  With a
+term that has auxiliary variables the state’s <code class="docutils literal notranslate"><span class="pre">x</span></code> is the image followed by
+those variables, and <a class="reference internal" href="#bartorch.optim.ADMMBlock.output" title="bartorch.optim.ADMMBlock.output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code></a> returns the image alone.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.ADMMBlock.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.ADMMBlock.start" title="Link to this definition">#</a></dt>
-<dd><p>The run’s state: the start, zero splits and duals, and <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code>.</p>
+<dd><p>Initial state of a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>tensor</em>) – Data of <code class="docutils literal notranslate"><span class="pre">A.oshape</span></code>, or <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">*A.oshape)</span></code>.</p></li>
+<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding operator.</p></li>
+<li><p><strong>x0</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Starting image; zero when omitted, as in BART.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The start, zero splits and duals, and <span class="math notranslate nohighlight">\(M A^H y\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>State</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.ADMMBlock.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.ADMMBlock.forward" title="Link to this definition">#</a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
+<dd><p>Take one iteration from <code class="docutils literal notranslate"><span class="pre">state</span></code>; returns the next state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.ADMMBlock.output">
 <span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.ADMMBlock.output" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Image of <code class="docutils literal notranslate"><span class="pre">state</span></code>, without any auxiliary variables.</p>
+</dd></dl>
 
 </dd></dl>
 
 <section id="examples-using-admmblock">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">ADMMBlock</span></code><a class="headerlink" href="#examples-using-admmblock" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson trains an unrolled reconstruction network for undersampled Cartesian SENSE: a small convolutional denoiser placed in the proximal step of BART&#x27;s alternating-direction iteration, with the whole iteration trained end to end against fully sampled images. The aim is to show how a learned regularizer is combined with the physical encoding model -- coil sensitivities, Fourier transform and sampling pattern -- so that the network only has to remove what the data leave undetermined, and how such a network is trained with standard tools."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
-  <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_04-annealed-plug-and-play_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 the proximal step of ADMM was a denoiser pretrained on photographs, never trained on MR images or on the residual aliasing of an undersampled scan. In this lesson you train the denoiser through the iteration: a fixed number of ADMM steps is unrolled into one network, which is fitted end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">11. Training an unrolled network</span></a></p>
+  <div class="sphx-glr-thumbnail-title">11. Training an unrolled network</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 you plugged a denoiser someone else had trained, on photographs, into ADMM at one noise level you chose. In this tour you train the denoiser yourself, on MR images alone and without any encoding, and use it as the regularizer of an ADMM reconstruction whose denoising strength decreases over the iterations. You then apply the same network, unchanged, at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_04-annealed-plug-and-play_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/09-learning-workflows/04-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
   <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
 </div></div></section>

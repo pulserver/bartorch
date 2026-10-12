@@ -1,73 +1,66 @@
-# The MRI encoding operator
+# Encoding operators
 
 ```{admonition} TL;DR
 :class: tldr
 
-- The SENSE forward model is $A = PFS$; coil sensitivities make an undersampled acquisition solvable within the limits of the coil geometry.
-- Every encoding bartorch builds is one expression, $y = \sum_a O \cdot T(I \cdot x_a)$: an image-side factor, a transform (FFT, NUFFT or wave), a k-space-side factor and a contraction, applied by one executor a slab of coils at a time.
-- Compositions written with `@` and `+` are matched against that form when first used; `A.plan` reports the result, including a fallback to a chain of operators.
-- The normal operator $A^H A$ is applied through a kernel — the sampling pattern on a grid, a point spread function on a doubled grid off it — or, where no kernel exists, as the forward operator followed by the adjoint.
+- Cartesian, non-Cartesian and wave SENSE are one expression, $y = \sum_a O \cdot T(I \cdot x_a)$, applied by one executor a slab of coils at a time.
+- Subspace, time segmentation, multi-shot phase and SMS are compositions written with `@` and `+`, lowered into that expression when first used.
+- `A.plan` reports the form an operator was built into; `plan.fused` is false where a composition fell back to a chain.
 ```
 
-The forward operator of an MRI reconstruction maps an object to the signal the
-experiment would have measured.  This page derives it for parallel imaging,
-states the single expression bartorch represents every encoding with, and
-describes how compositions of operators are built into that expression and how
-its normal operator is applied.
+The encoding operator $A$ maps the image you estimate to the samples the
+scanner acquired, and every reconstruction you assemble yourself starts from
+one. You build the standard encodings with a constructor, extend them with
+diagonals, sums and operators of your own, and hand the result to a solver or
+to autograd as one BART operator. Lesson 6 of the
+{doc}`Course <../gallery/course>` builds the SENSE operator, checks its
+adjoint and extends it with an operator written in Python.
 
-## Sensitivity encoding
+## Capabilities
 
-A receive coil measures the transverse magnetization of the object, weighted
-by the coil's spatial sensitivity and integrated against the phase imposed by
-the gradients.  With $x(r)$ the object at position $r$, $S_c(r)$ the
-sensitivity of coil $c$ and $k_j$ the k-space position of sample $j$, in cycles
-per unit length,
+:::{container} capabilities
 
-$$
-y_{c,j} = \int S_c(r)\, x(r)\, e^{-2\pi i\, k_j \cdot r}\, \mathrm{d}r .
-$$
+- **Builds Cartesian, non-Cartesian and wave SENSE as one encoding form, applied a slab of coils at a time.**
 
-On a voxel grid this is the composition
+  Code: {func}`~bartorch.linop.CartesianSense`, {class}`~bartorch.linop.NoncartesianSense`, {func}`~bartorch.linop.WaveSense`, `src/csrc/ops/sense.c`. Tests: *every encoding reports its transform*; *the slab loop is what ran the encoding* (`test_plan.py`); *a cartesian reconstruction is the same whatever the slab* (`test_sense.py`).
+- **Contracts subspace coefficients with a temporal basis inside the encoding, with a normal kernel that does not grow with the frames.**
 
-$$
-A = P F S ,
-$$
+  Code: `basis=` of each constructor. Tests: *a subspace encoding is the model written out*; *the collapsed normal does not grow with the frames* (`test_linop_mri.py`); *a fused subspace encoding is the frames written out* (`test_plan.py`).
+- **Corrects off-resonance by time segmentation around any encoding.**
 
-the **SENSE** forward model:[^pruessmann1999] $S$ maps an image to one coil
-image per channel, $F$ is the Fourier transform of each coil image, and $P$
-selects the acquired samples.
+  Code: {func}`~bartorch.linop.FieldCorrected`. Tests: *more segments is a better approximation*; *it wraps any encoding*; *a segmented nufft is the sum of its segments* (`test_linop_mri.py`).
+- **Lowers a sum of terms written with `@` and `+` into one encoding, applied in one call however many terms it has.**
 
-Undersampling Cartesian k-space along a phase-encoding direction by the
-**acceleration factor** $R$ reduces the field of view along that direction by
-$R$: each voxel of a coil image obtained by the inverse FFT of the
-undersampled data is the superposition of $R$ object voxels separated by
-$\mathrm{FOV}/R$.  For $C$ coils the aliased voxels satisfy $C$ equations in
-$R$ unknowns; they are determined when $C \ge R$ and the sensitivity vectors of
-the aliased voxels are linearly independent.  The conditioning of this small
-system sets the noise amplification: the SNR of the unfolded image is that of
-the fully sampled acquisition divided by $g\sqrt{R}$, where $\sqrt{R}$
-accounts for the shorter acquisition and the **g-factor** $g \ge 1$, which
-varies from voxel to voxel, for the coil geometry.  Coil sensitivities therefore make an accelerated
-acquisition solvable within the limits of the coil geometry; beyond them, and
-outside the object, the system is underdetermined or poorly conditioned and a
-regularized estimate is needed ({doc}`inverse-problems`).
+  Code: `linop/_plan.py`. Tests: *composing builds a description and nothing else*; *a sum written by hand is the contraction the planner lowers*; *a composition costs one application however many terms* (`test_plan.py`).
+- **Lowers a phase per shot and a phase per slice (SMS) the same way.**
 
-The sensitivities are smooth functions of position, estimated from the data:
-{func}`~bartorch.tools.ecalib` by ESPIRiT from the **autocalibration (ACS)
-region**, a fully sampled block at the centre of k-space,[^espirit] {func}`~bartorch.tools.nlinv` by nonlinear inversion
-jointly with the image, on a Cartesian grid or along a trajectory, and
-{func}`~bartorch.tools.ncalib` from non-Cartesian samples; {doc}`nonlinear`
-describes the joint estimation.
+  Code: `linop/_plan.py`, `src/csrc/ops/sense.c`. Tests: *a shot phase is a contraction over the shots*; *a phase per slice is summed over on the far side*; *an echo phase with a basis is a contraction over the frames* (`test_plan.py`).
+- **Reports the plan an operator was built into, including a fallback to BART's chain of operators.**
 
-## The encoding form
+  Code: {attr}`~bartorch.linop.LinearOperator.plan`. Tests: *a plan reads as a sentence*; *a form the loop cannot take says so*; *a grid contraction is fused and a coil varying one is not* (`test_plan.py`).
+- **Composes, adds, scales, slices, stacks and takes adjoints and normals of operators, and the result stays one BART operator with a correct adjoint.**
 
-Wave-encoded, subspace-constrained, off-resonance-corrected and simultaneous
-multislice acquisitions each modify $PFS$.  bartorch represents all of them by
-one expression: for coil $c$, encoding frame $t$ and sample $j$,
+  Code: {class}`~bartorch.linop.LinearOperator`, {func}`~bartorch.linop.concatenate`, {func}`~bartorch.linop.hstack`, {func}`~bartorch.linop.block_diag`, {func}`~bartorch.linop.block`. Tests: *every combination stays one bart operator*; *the algebra keeps the adjoint honest* (`test_linop.py`); *each stays one bart operator* (`test_linop_combine.py`).
+- **Takes an operator written in Python, by its forward and adjoint, into a BART composition and a BART solver.**
 
-$$
-y[c, t, j] = \sum_a O[a, t](j)\; T_t\!\left( I[c, a, t](r)\, x[a](r) \right)\!(j).
-$$
+  Code: {class}`~bartorch.linop.LinearOperator`. Tests: *an operator written here chains with one of barts*; *an operator written here is solved by barts conjugate gradients* (`test_linop.py`).
+- **Applies the normal operator through a kernel where one exists, and as the forward followed by the adjoint otherwise.**
+
+  Code: {meth}`~bartorch.linop.LinearOperator.gram`, `toeplitz=`. Tests: *a pattern collapses into a kernel*; *a fused normal is the kernel written out*; *without toeplitz the normal is the two applications* (`test_plan.py`).
+
+:::
+
+## Division of responsibility
+
+- **BART**: the operators the encodings are made of, its chains and sums of
+  operators, the FFT on a device (cuFFT), and the solvers that iterate on the result.
+- **bartorch**: the encoding executor, the planner that lowers a composition
+  into it, and the callbacks that carry a Python operator into BART.
+- **Other libraries**: FINUFFT for the NUFFT ({doc}`non-cartesian`), and
+  mri-nufft for the time-segmentation coefficients
+  {func}`~bartorch.linop.FieldCorrected` fits from a field map.
+
+## Method
 
 ```{image} ../_static/encoding.svg
 :class: only-light
@@ -81,114 +74,73 @@ $$
 :width: 100%
 ```
 
-| Symbol | Name | Instances |
-| --- | --- | --- |
-| $I$ | Image-side factor | Coil sensitivities; spatial weights of the terms of a contraction, such as the field-map phase of a time segment |
-| $T$ | Transform | FFT on the image grid; NUFFT along a trajectory ({doc}`non-cartesian`); wave encoding, an FFT with a point spread function between the readout and phase-encode transforms[^wave] |
-| $O$ | K-space-side factor | Sampling pattern or table of sampled phase encodes; density weights; subspace basis;[^tamir] sample weights of the terms of a contraction |
-| $\sum_a$ | Contraction | Subspace coefficients; time segments of an off-resonance correction;[^sutton] slices of a simultaneous multislice acquisition |
+### Encoding form
 
-With $I$ the sensitivities, $T$ the FFT, $O$ a sampling pattern and no
-contraction, the expression is $A = PFS$.  {func}`~bartorch.linop.CartesianSense`,
-{class}`~bartorch.linop.NoncartesianSense`, {func}`~bartorch.linop.WaveSense`
-and {func}`~bartorch.linop.FieldCorrected` each construct an instance, and one
-executor applies all of them.  It processes the coils a slab at a time, so
-that the coil images and their transforms are never held for all coils at
-once, and keeps the element-wise factors in the same pass as the transform.
-
-## Composition and lowering
-
-Composing operators with `@` and `+` records a description instead of building
-an operator.  The first operation that needs the built operator — an
-application, `.H`, a solve, or reading `.plan` — passes the whole description
-to a planner, which matches it against the encoding form.  Where it matches,
-the composition is built as one encoding (**lowering**); a time-segmented
-off-resonance correction written term by term is therefore built into the same
-operator {func}`~bartorch.linop.FieldCorrected` gives.  Where it does not
-match — for example, a spatial weight that differs between sets of
-sensitivities, which the form cannot carry because the sets are contracted
-before the image-side factor is applied — the composition is built as BART's
-chain of operators, with the same result and a higher cost.
-
-`A.plan` reports the outcome, read back from the library after the operator is
-built:
-
-| Field | Reports |
-| --- | --- |
-| `transform` | `"fft"`, `"nufft"`, `"wave"` or `"none"` |
-| `image`, `kspace` | The element-wise factors on each side of the transform |
-| `contraction`, `terms` | `"subspace"`, `"segments"`, `"slices"`, `"chained"` or `None`, and the number of terms |
-| `normal` | How $A^H A$ is applied: `"kernel"`, `"transform"` or `"applications"` (below) |
-| `coil_batch`, `streamed` | Coils per slab, and what is processed a slab at a time |
-| `executor` | `"slab"` where the executor took the form, `"chain"` where BART's chain of operators runs instead |
-| `fused` | `True` when the executor took the form and no sum of terms was left as a chain |
-| `cartesian` | Trajectory axes found on the image grid and transformed by an FFT, the NUFFT then running over the others: `("z",)` for a stack of 2D trajectories |
-| `items` | The number of items along encoding axes the image varies along, each with its own transform and normal kernel (below) |
-
-## The normal operator
-
-CG and the proximal-gradient methods apply $A^H A$ once per iteration, and ADMM
-once per iteration of its inner solve.  For the encoding form it is applied in
-one of three ways, which `plan.normal` names.
-
-**Cartesian sampling** (`"kernel"`).  With a binary pattern $P$,
-$A^H A = S^H F^H P F S$: for each coil, multiplication by $S_c$, an FFT,
-multiplication by the pattern, an inverse FFT, and multiplication by
-$\overline{S_c}$, summed over the coils.  With a subspace basis $\Phi$ the
-k-space factor becomes a kernel over pairs of coefficients,
-$K_{aa'}(k) = \sum_t \overline{\Phi_{at}}\, \Phi_{a't}\, P_t(k)$, computed
-once when the operator is built rather than summed over frames at every
-iteration.
-
-**Non-Cartesian sampling** (`"kernel"`).  The normal operator of the transform
-alone, $Q = \mathrm{NUFFT}^H W^H W\, \mathrm{NUFFT}$, is a convolution with the
-point spread function of the weighted trajectory, which {doc}`non-cartesian`
-derives together with the storage of its transfer function.[^fessler2005]  The
-full SENSE normal operator is
+For coil $c$, frame $t$ and sample $k$,
 
 $$
-A^H A = \sum_c \overline{S_c}\; Q\; S_c ,
+y[c, t, k] = \sum_a O[a, t](k)\; T_t\!\left( I[c, a, t](r)\, x[a](r) \right)\!(k).
 $$
 
-which is not translation invariant: the sensitivities vary in space, so only
-the transform's normal $Q$ is a convolution.  It is applied coil by coil as
-multiplication by $S_c$, $Q$, and multiplication by $\overline{S_c}$.  With a
-subspace basis, the kernel of $Q$ is taken over pairs of coefficients, as in
-the Cartesian case.
+$I$ holds the coil sensitivities and any spatial weight; $T$ is the FFT, the
+NUFFT or the wave transform;[^wave] $O$ holds the sampling pattern, density
+weights, a subspace basis[^tamir] or a sample weight; the sum over $a$ runs over
+subspace coefficients, time segments[^sutton] or slices. With $I = S$, $T = F$,
+$O = P$ and one term this is SENSE, $A = PFS$.[^pruessmann] Each application
+is one call into the library, and the coil images are never held for all coils
+at once.
 
-**Forward and adjoint** (`"applications"`).  bartorch builds no kernel for a
-contraction over terms — the segments of an off-resonance correction, the
-slices of a simultaneous multislice acquisition — for a slice phase, for a
-wave pattern that varies along the readout, or when `toeplitz=False`; $A^H A$
-is then applied as the forward operator followed by the adjoint.  `"transform"` names the case with no
-k-space factor, where the transform's own normal operator is the whole of it.
+### Operator algebra
 
-## Encoding axes and batch axes
+`A @ B` applies `B` first; `A + B` and `A - B` need equal shapes; `c * A`
+scales by a number, and `*` between two operators is refused. `A.H` is the
+adjoint, `A.T` the adjoint without conjugation, `A.gram()` is $A^H A$ and
+`A.cogram()` is $A A^H$. `A[0]` restricts the output as tensor indexing does.
+{func}`~bartorch.linop.concatenate` (vertical stacking) applies every operator
+to one input, {func}`~bartorch.linop.hstack` splits the input and adds the
+outputs, and {func}`~bartorch.linop.block_diag` gives each operator its own
+part of both. An operator of your own defines `forward` and `adjoint`, and each
+application crosses into Python once. Check any adjoint with the dot-product
+test, $\langle A x, y \rangle = \langle x, A^H y \rangle$ for random $x$, $y$:
 
-| Axis | Definition | Examples | Cost |
-| --- | --- | --- | --- |
-| Encoding axis | Indexed by the trajectory or the sampling pattern | Frames, echoes, cardiac phases | Joins the samples of one transform when the image does not vary along it; one transform per item when it does |
-| Batch axis | Not indexed by the trajectory; items share the trajectory and are encoded independently | Slices, averages, repetitions | One transform plan for all items, applied to each |
+```python
+lhs = torch.vdot(A(x).flatten(), y.flatten())
+rhs = torch.vdot(x.flatten(), A.H(y).flatten())
+```
 
-Where a subspace basis contracts an encoding axis, the image carries
-coefficients rather than frames, and every sample the trajectory indexes
-belongs to one point set: the frames join the shots and the readout samples in
-one transform.  Where the image itself varies along the axis — a dynamic
-series of frames — each item has its own transform and normal kernel inside the
-one operator, applied under the same coil loop, and `plan.items` reports their
-number.  Under BART's own commands the non-uniform FFT substitution refuses an
-image that varies along a trajectory axis, with the reason.
+A product of diagonals around one encoding, or a sum of such products sharing
+the encoding, is lowered into the form when the operator is first applied,
+solved, or asked for `.plan`. Anything else is built as BART's chain of
+operators, with the same result at a higher cost; `plan.contraction` is then
+`"chained"` or `plan.executor` is `"chain"`. The planner's rules and every
+field of the plan are in {doc}`../guides/developer/internals/encoding`.
+
+### Normal operator
+
+A solver applies $A^H A$ once per iteration. On a grid with a pattern it is
+$\sum_c \overline{S_c} F^H P F S_c$, with a subspace kernel
+$K_{aa'} = \sum_t \overline{\Phi_{at}} \Phi_{a't} P_t$ computed once. Along a
+trajectory the transform's own normal is a convolution with a point spread
+function ({doc}`non-cartesian`). `plan.normal` names which applies:
+`"kernel"`, `"transform"`, or `"applications"`, the forward followed by the
+adjoint.
+
+## Examples
+
+- {doc}`../auto_examples/03-regularization/02-operators-and-solvers`: the SENSE
+  operator built by hand, its adjoint checked, and an operator written in Python.
+- {doc}`../auto_examples/07-tours/05-spiral-deblurring`: off-resonance correction
+  of a spiral scan with {func}`~bartorch.linop.FieldCorrected`.
+- {doc}`../auto_examples/08-workflows/02-subspace-t1-mapping`: a subspace
+  encoding along a radial trajectory, and its plan.
+- {doc}`../api/linop`: every operator and combinator.
 
 ## References
 
-[^pruessmann1999]: Pruessmann KP, Weiger M, Scheidegger MB, Boesiger P. SENSE: sensitivity encoding for fast MRI. *Magn Reson Med* 42(5):952–962 (1999). [doi:10.1002/(SICI)1522-2594(199911)42:5\<952::AID-MRM16\>3.0.CO;2-S](https://doi.org/10.1002/(SICI)1522-2594(199911)42:5%3C952::AID-MRM16%3E3.0.CO;2-S)
-
-[^espirit]: Uecker M, Lai P, Murphy MJ, Virtue P, Elad M, Pauly JM, Vasanawala SS, Lustig M. ESPIRiT — an eigenvalue approach to autocalibrating parallel MRI: where SENSE meets GRAPPA. *Magn Reson Med* 71(3):990–1001 (2014). [doi:10.1002/mrm.24751](https://doi.org/10.1002/mrm.24751)
+[^pruessmann]: Pruessmann KP, Weiger M, Scheidegger MB, Boesiger P. SENSE: sensitivity encoding for fast MRI. *Magn Reson Med* 42(5):952–962 (1999). [doi:10.1002/(SICI)1522-2594(199911)42:5\<952::AID-MRM16\>3.0.CO;2-S](https://doi.org/10.1002/(SICI)1522-2594(199911)42:5%3C952::AID-MRM16%3E3.0.CO;2-S)
 
 [^wave]: Bilgic B, Gagoski BA, Cauley SF, Fan AP, Polimeni JR, Grant PE, Wald LL, Setsompop K. Wave-CAIPI for highly accelerated 3D imaging. *Magn Reson Med* 73(6):2152–2162 (2015). [doi:10.1002/mrm.25347](https://doi.org/10.1002/mrm.25347)
 
 [^tamir]: Tamir JI, Uecker M, Chen W, Lai P, Alley MT, Vasanawala SS, Lustig M. T2 shuffling: sharp, multicontrast, volumetric fast spin-echo imaging. *Magn Reson Med* 77(1):180–195 (2017). [doi:10.1002/mrm.26102](https://doi.org/10.1002/mrm.26102)
 
 [^sutton]: Sutton BP, Noll DC, Fessler JA. Fast, iterative image reconstruction for MRI in the presence of field inhomogeneities. *IEEE Trans Med Imaging* 22(2):178–188 (2003). [doi:10.1109/TMI.2002.808360](https://doi.org/10.1109/TMI.2002.808360)
-
-[^fessler2005]: Fessler JA, Lee S, Olafsson VT, Shi HR, Noll DC. Toeplitz-based iterative image reconstruction for MRI with correction for magnetic field inhomogeneity. *IEEE Trans Signal Process* 53(9):3393–3402 (2005). [doi:10.1109/TSP.2005.853152](https://doi.org/10.1109/TSP.2005.853152)

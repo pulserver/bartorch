@@ -6,7 +6,7 @@ that derivative.  `F(*x)` evaluates it, `F.linearize(*x)` returns $DF_x$ as a
 {obj}`~bartorch.linop.LinearOperator`, `a @ b` composes (applying `b` first,
 either side possibly linear), and `F.partial(i, value)` fixes input `i`.
 {doc}`../explanation/nonlinear` describes the reconstruction problems these
-operators model, and {doc}`../explanation/differentiation` how they and the
+operators model, and {doc}`../explanation/learned-reconstruction` how they and the
 Gauss-Newton steps enter autograd.
 
 ```{eval-rst}

@@ -9,8 +9,7 @@ per-contrast values, and the image geometry as one `(4, 4)` affine from voxel
 indices `(x, y, z)` -- the last three axes of an image tensor, reversed -- to
 RAS coordinates in millimetres, the convention of NIfTI.  The image writers
 take the same affine, so an image read from one format is written to the other
-in the same place.  ISMRMRD, DICOM and NIfTI need the `io` extra:
-`pip install 'bartorch[io]'`.
+in the same place.
 
 CFL arrays are NumPy arrays in BART's dimension order, the reverse of a
 C-order tensor shape, so `array.T` converts between the two.

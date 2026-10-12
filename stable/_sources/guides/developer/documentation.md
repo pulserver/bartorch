@@ -114,6 +114,8 @@ Lesson counts follow from this criterion and are not targets. A lesson that is t
 
 **Tours.** The sections after the Course are standalone, one gallery directory per group. A Tour opens with its objective and a **Prerequisites** line naming the Course lessons it assumes, and has no previous or next reference. Its prerequisites are stated and not repeated.
 
+The Examples page, `docs/gallery/index.md`, lists every lesson and every Tour. The Course page lists the lessons in one numbered table; the Tours page lists the Tours in one headed table per group, with the packages the group needs beyond the common ones. These pages' toctrees, not sphinx-gallery's, place the example pages in the navigation.
+
 In both parts, an example is **not a conversational tutorial**. Code, figures, and scientific results dominate the page. Prose supplies the context necessary to understand the problem, consequential methodological choices, conventions, and interpretation. A lesson may have objectives and transitions; it does not narrate execution.
 
 A substantial example will often include:
@@ -128,7 +130,7 @@ A substantial example will often include:
 
 These elements need not become separate headings, particularly for short examples.
 
-#### Explain decisions, not execution
+#### Decisions and execution
 
 Prose should explain decisions whose significance is scientific, mathematical, numerical, or specific to the library.
 
@@ -211,21 +213,29 @@ Prefer a concrete observation or quantitative measure when interpretation is nee
 
 #### Tone
 
-Gallery prose can provide more context than API reference, but should remain concise, technical, and restrained.
+The Course and the Tours talk to the reader as "you", the way an MR scientist
+explains a method to a colleague: the mental model first, then the code that
+builds it one piece at a time, each piece followed by what it does to the
+image. `docs/examples/01-basics/02-from-kspace-to-image.py` is the model.
+
+A lesson opens by picking up from the previous lesson, lists its learning
+objectives, and links the previous and next lessons. It ends with an
+"Exercise" section, a cheap experiment that varies one parameter, and an "As a
+spec" section: a `.. code-block:: text` box stating what the lesson built the
+way you would ask an agent for it.
+
+Every heading, page titles included, names a concept, as a textbook heading
+does: "Coil compression", "Exercise: ACS size", "Division of responsibility";
+not "Fewer channels" or "What bartorch does".
 
 Avoid:
 
-* second-person narration unless genuinely useful;
-* "we" merely to narrate execution;
 * rhetorical questions;
 * enthusiasm and promotional language;
-* conversational transitions;
 * motivational filler;
 * metaphors and personification;
 * repeated previews and recaps;
 * prose whose only purpose is to connect adjacent code blocks.
-
-The intended result is **a reproducible scientific example with concise methodological annotation**. A lesson adds objectives and continuity to this; it does not add narration.
 
 When a sentence merely describes what the next line of code does, it can usually be removed.
 
@@ -235,7 +245,7 @@ Gallery figures take their typography, canvas and colours from `docs/gallery_sty
 
 A complex image, such as a coil sensitivity map, is drawn with `gallery_style.domain`, which maps phase to hue and magnitude to brightness, with `gallery_style.phase_bar` as its key. Magnitude-only reconstructions are drawn as magnitudes. A map is not split into a magnitude figure and a separate phase figure.
 
-#### Running an example in Colab
+#### Colab notebooks
 
 Every example page carries an **Open in Colab** badge under its title; `docs/colab.py` inserts it when the page is built, so a script does not carry one itself. The badge opens a copy of the example's notebook, published with the site under `<version>/_colab/`, whose first two cells are a note and a `%pip install` of bartorch and the packages the example imports. The notebook offered for download on the page has no such cells. A section whose examples import more than the common set lists those packages in `SECTION_PACKAGES` in `docs/colab.py`.
 
@@ -262,7 +272,7 @@ Explanatory documentation may:
 
 An explanation page with more than one `##` section opens with a **TL;DR** block directly under its title: a short list of the page's conclusions, each stated as the page states it, with no claim the page does not support. It lets a reader decide whether the page answers their question. A page with a single section may omit it. Landing pages, API reference pages and gallery examples have none.
 
-An explanation page has one obvious purpose and, where appropriate, a conceptual anchor: a figure, table, equation or similarly compact device that carries the page's central idea. A figure is never added for its own sake. Material that another page owns is linked and not repeated: the form of the encoding belongs to {doc}`/explanation/encoding`, the point spread function and the normal operator of a trajectory to {doc}`/explanation/non-cartesian`, and the rule that a backward pass is the adjoint to {doc}`/explanation/differentiation`.
+An explanation page has one obvious purpose and, where appropriate, a conceptual anchor: a figure, table, equation or similarly compact device that carries the page's central idea. A figure is never added for its own sake. Material that another page owns is linked and not repeated: the form of the encoding belongs to {doc}`/explanation/encoding`, the point spread function and the normal operator of a trajectory to {doc}`/explanation/non-cartesian`, and the rule that a backward pass is the adjoint to {doc}`/explanation/learned-reconstruction`.
 
 Where possible, begin from the scientific, mathematical, or computational concept rather than from the Python class hierarchy.
 
@@ -377,7 +387,7 @@ Project-specific terminology and conventions should be documented explicitly and
 
 ### Prose
 
-Prefer precise, declarative scientific prose.
+Prefer precise, declarative scientific prose in the API reference and the explanations; the gallery's register is set under *Tone* above.
 
 Complete sentences are generally preferable to rhetorical fragments. Concision is desirable when it does not remove relevant information.
 
@@ -532,7 +542,7 @@ Distinguish current design rationale from historical narration.
 
 Abandoned alternatives, transient development reasoning, and change history generally belong in issue trackers, design records, release notes, or repository history unless they are necessary to understand a current constraint.
 
-## Editing existing documentation
+## Revision of existing documentation
 
 Documentation maintenance is semantic editing, not indiscriminate rewriting.
 
@@ -552,7 +562,7 @@ Conversely, documentation that is already precise and appropriate should not be 
 
 When documentation and implementation appear to disagree, establish the intended behavior before changing the documentation.
 
-## Building and reviewing documentation
+## Documentation build and review
 
 Substantial documentation changes should be reviewed in rendered form.
 

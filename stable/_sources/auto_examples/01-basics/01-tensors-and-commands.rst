@@ -18,45 +18,67 @@
 .. _sphx_glr_auto_examples_01-basics_01-tensors-and-commands.py:
 
 
-====================
-Tensors and commands
-====================
+=======================
+1. Your data as tensors
+=======================
 
-This first lesson establishes how MR data from BART appear in Python: how a
-multichannel image and its k-space are laid out as tensors, which Fourier
-convention BART uses to go from k-space to the image, and how a BART command
-is called. Every later lesson relies on these conventions. A reconstruction
-that is off by a factor of :math:`\sqrt{N}`, or by a half-voxel shift from a
-misplaced k-space centre, is a consequence of misreading one of them.
+If you have used BART before, you know its arrays as CFL files on disk and its
+commands as programs you call from a shell. bartorch runs the same BART inside
+your Python process: every command is a Python function that takes and returns
+:class:`torch.Tensor` objects, with no files and no subprocess in between. In
+this lesson you see what your data look like on that side: how a multichannel
+image and its k-space are laid out as tensors, which Fourier transform takes
+one to the other, and how a BART command line maps onto a function call.
 
-bartorch runs BART inside the Python process. Every BART command is a function
-of :mod:`bartorch.tools` or of the ``bartorch`` namespace that takes and returns
-:class:`torch.Tensor` objects, with no files and no subprocess in between. The
-lesson simulates a receive-array acquisition of BART's analytical Shepp-Logan
-phantom, transforms it between image space and k-space, checks the transform
-against NumPy, and runs the same command once more through BART's command line.
+Every later lesson relies on these conventions. A reconstruction that is off
+by a factor of :math:`\sqrt{N}`, or shifted by half a voxel because the
+k-space centre is misplaced, usually results from misreading one of them.
 
 **Learning objectives**
 
-- Relate a C-order tensor shape to BART's dimension vector, and locate the
-  receive-channel axis.
-- Generate a phantom as an image, as coil images and as analytical k-space.
-- State the centring and normalization of :func:`bartorch.fft`, and verify them
-  against :func:`numpy.fft.fftn`.
-- Explain why analytically simulated k-space, truncated to the acquired
-  matrix, reconstructs with Gibbs ringing.
+- Read a tensor shape as BART's dimension vector, and find the receive-channel
+  axis in it.
+- Make a phantom as an image, as coil images and as analytical k-space.
+- Know where :func:`bartorch.fft` puts the k-space centre and how it
+  normalizes, and check both against :func:`numpy.fft.fftn`.
+- See why analytical k-space, cut to the acquired matrix, reconstructs with
+  Gibbs ringing.
 - Call a BART command from Python, and the same command from its command line.
 
-The next lesson, :doc:`02-from-kspace-to-image`, reconstructs an undersampled
-acquisition with the functions introduced here.
+Next: :doc:`02-from-kspace-to-image`, where you reconstruct an undersampled
+scan with the functions you meet here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-68
+.. GENERATED FROM PYTHON SOURCE LINES 34-58
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 59-75
+
+A multichannel image
+--------------------
+
+BART stores an array in Fortran order and describes it by a dimension vector
+whose first entry varies fastest: readout (``x``), then the phase-encoding
+directions (``y``, ``z``), then the receive channels in BART's dimension 3,
+then further dimensions for sets of maps, echoes, frames and so on. A torch
+tensor holding the same bytes in C order has the reversed shape, so no copy
+is made between the two. A 2D multichannel image is therefore
+``(coils, 1, y, x)``: the 1 is BART's ``z``, and the readout is the last
+axis. :doc:`/explanation/data-layout` lists the layouts you meet in the rest
+of the course.
+
+:func:`bartorch.tools.phantom` is BART's ``phantom`` command. On its own it
+gives you the Shepp-Logan image; with ``coils`` it gives you that image as
+seen by each channel of BART's analytical eight-channel head coil.
+
+.. GENERATED FROM PYTHON SOURCE LINES 75-102
 
 .. code-block:: Python
-
-
-    import tempfile
-    from pathlib import Path
 
     import numpy as np
     import torch
@@ -67,47 +89,21 @@ acquisition with the functions introduced here.
     SIZE = 128
     COILS = 8
 
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 69-86
-
-Array layout
-------------
-
-BART stores an array in Fortran order and describes it by a dimension vector
-whose first entry varies fastest: readout (``x``), then the phase-encoding
-directions (``y``, ``z``), then the receive channels in BART's dimension 3,
-and further dimensions for sets of sensitivity maps, echoes, frames and so
-on. A tensor holding the same bytes in C order has the reversed shape, so no
-copy is needed between the two: a two-dimensional multichannel image is
-``(coils, 1, y, x)``, with the singleton standing for BART's ``z``, and the
-readout direction is the last tensor axis.
-:doc:`/explanation/data-layout` tabulates the layouts used throughout.
-
-:func:`bartorch.tools.phantom` is BART's ``phantom`` command. Without
-``coils`` it returns the Shepp-Logan image; with ``coils`` it returns that
-image weighted by the complex receive sensitivities of BART's analytical
-eight-channel head array, one image per channel.
-
-.. GENERATED FROM PYTHON SOURCE LINES 87-95
-
-.. code-block:: Python
-
-
     image = bt.phantom(SIZE)
     coil_images = bt.phantom(SIZE, coils=COILS)
 
     print(f"image {tuple(image.shape)}, {image.dtype}")
     print(f"coil images {tuple(coil_images.shape)}")
-    print(f"BART dimensions of the coil images {list(reversed(coil_images.shape))}")
+    print(f"as BART sees them {list(reversed(coil_images.shape))}")
 
 
 
+
+
+.. image-sg:: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_001.png
+   :alt: channel 0, channel 2, channel 4, channel 6
+   :srcset: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_001.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -116,25 +112,29 @@ eight-channel head array, one image per channel.
 
     image (128, 128), torch.complex64
     coil images (8, 1, 128, 128)
-    BART dimensions of the coil images [128, 128, 1, 8]
+    as BART sees them [128, 128, 1, 8]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-103
+.. GENERATED FROM PYTHON SOURCE LINES 103-115
 
-Each channel sees the object through its own sensitivity profile: bright
-near the coil element, dark on the opposite side of the head. The root sum
-of squares (RSS) over the channel axis, :math:`\sqrt{\sum_c |x_c|^2}`, is
-the standard magnitude combination of a receive array; it recovers the
-object with the residual shading of the summed sensitivity magnitudes.
-:func:`bartorch.rss` takes the channel axis as a tensor index, as every
-function of this package does, rather than as BART's bitmask.
+Each channel sees the object through its own sensitivity: bright next to its
+coil element, dark on the far side of the head. The channel axis, first in
+the tensor shape, is BART's dimension 3, the fourth entry of the reversed
+shape.
 
-.. GENERATED FROM PYTHON SOURCE LINES 104-108
+Combining the channels
+----------------------
+
+The usual way to make one magnitude image from a receive array is the root
+sum of squares (RSS) over the channels, :math:`\sqrt{\sum_c |x_c|^2}`.
+:func:`bartorch.rss` takes the channel axis as a tensor axis, as every
+function in bartorch does, rather than as BART's bitmask:
+
+.. GENERATED FROM PYTHON SOURCE LINES 115-118
 
 .. code-block:: Python
-
 
     combined = bartorch.rss(coil_images, axes=(0,))
     print(f"combined {tuple(combined.shape)}")
@@ -152,88 +152,50 @@ function of this package does, rather than as BART's bitmask.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-121
-
-
-
-
-.. image-sg:: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_001.png
-   :alt: channel 0, channel 2, channel 4, channel 6
-   :srcset: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_001.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 122-133
+.. GENERATED FROM PYTHON SOURCE LINES 119-127
 
 Fourier transform
 -----------------
 
-The measured signal of a channel is the Fourier transform of its coil image,
-sampled on the k-space grid. :func:`bartorch.fft` is BART's *centred*
-discrete transform: the k-space centre (DC) and the image centre are both at
-index ``n // 2``, which is how k-space is displayed and how scanners
-deliver it. The transform is unnormalized unless ``unitary=True``. For an
-even matrix size the centred transform equals NumPy's transform between
-``ifftshift`` and ``fftshift``, which gives a reference computed outside
-BART.
+What a channel measures is the Fourier transform of its coil image, sampled
+on the k-space grid. :func:`bartorch.fft` is BART's *centred* transform: the
+k-space centre (DC) and the image centre both sit at index ``n // 2``, which
+is how scanners deliver k-space and how you display it. It is unnormalized
+unless you ask for ``unitary=True``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-143
+.. GENERATED FROM PYTHON SOURCE LINES 127-129
 
 .. code-block:: Python
-
 
     kspace = bartorch.fft(coil_images, axes=(-2, -1), unitary=True)
 
-    shifted = np.fft.ifftshift(coil_images.numpy(), axes=(-2, -1))
-    reference = np.fft.fftshift(np.fft.fft2(shifted, norm="ortho"), axes=(-2, -1))
-
-    difference = np.abs(kspace.numpy() - reference).max() / np.abs(reference).max()
-    print(f"largest difference from numpy, relative to the peak: {difference:.1e}")
 
 
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    largest difference from numpy, relative to the peak: 1.7e-07
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 130-132
 
+You can check this against NumPy. For an even matrix size, the centred
+transform is NumPy's transform between an ``ifftshift`` and an ``fftshift``:
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-148
-
-The difference is single-precision round-off. The unitary transform
-preserves the :math:`\ell_2` norm (Parseval's theorem), so white noise has
-the same standard deviation in k-space and in the image, a property the
-noise and SNR lessons rely on.
-
-.. GENERATED FROM PYTHON SOURCE LINES 149-152
+.. GENERATED FROM PYTHON SOURCE LINES 132-154
 
 .. code-block:: Python
 
+    shifted = np.fft.ifftshift(coil_images.numpy(), axes=(-2, -1))
+    reference = np.fft.fftshift(
+        np.fft.fft2(shifted, norm="ortho"),
+        axes=(-2, -1),
+    )
 
-    print(f"norm ratio image/k-space: {float(coil_images.norm() / kspace.norm()):.6f}")
+    difference = np.abs(kspace.numpy() - reference).max() / np.abs(reference).max()
+    ratio = float(coil_images.norm() / kspace.norm())
+    print(f"largest difference, relative to the peak: {difference:.1e}")
+    print(f"norm ratio image / k-space: {ratio:.6f}")
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    norm ratio image/k-space: 1.000004
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 153-165
 
 
 
@@ -244,37 +206,45 @@ noise and SNR lessons rely on.
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    largest difference, relative to the peak: 1.7e-07
+    norm ratio image / k-space: 1.000004
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-187
 
-The k-space magnitude, drawn on a logarithmic scale, spans five orders of
-magnitude: the signal energy is concentrated at the centre, which sets the
-image contrast, while the periphery carries the edges and fine detail. This
-distribution is what variable-density undersampling exploits in the next
-lessons.
+.. GENERATED FROM PYTHON SOURCE LINES 155-178
+
+The two transforms differ by single-precision round-off. The unitary
+transform keeps the :math:`\ell_2` norm (Parseval's theorem), which is why
+the norm ratio is one: white noise has the same standard deviation in
+k-space as in the image.
+
+On the left is the RSS image, with the shading the summed coil
+sensitivities leave on it. On the right is the k-space of one channel, on a
+logarithmic scale. It spans five orders of magnitude: most of the energy is
+at the centre, which sets the contrast, while the periphery carries the
+edges and the fine detail. This is what variable-density undersampling
+exploits in lesson 2.
 
 Analytical k-space
 ------------------
 
-``kspace=True`` evaluates the Fourier transform of the phantom's ellipses
-analytically at the k-space sample positions, rather than transforming the
-sampled image. The two are different data. The continuous object has
-infinite spatial-frequency extent, and an acquisition of a finite matrix
-truncates it at :math:`\pm k_{\max}`; its inverse transform therefore
-carries Gibbs ringing, the oscillation next to every sharp edge that
-truncation artefacts produce on a scanner. The DFT of the sampled image,
-by contrast, reproduces that image exactly. Simulating data with the same
-discrete model the reconstruction inverts, the *inverse crime*
-[#guerquin]_, removes this discretization error from a simulation;
-analytical k-space retains it and is therefore the more realistic test
-data.
+The k-space above is the discrete transform of a sampled image, so
+transforming it back gives you that image exactly. A scanner does not
+measure that. It measures the continuous object, whose spectrum never ends,
+and keeps only the part inside :math:`\pm k_{\max}`. ``kspace=True`` asks
+``phantom`` for exactly that: the Fourier transform of its ellipses,
+evaluated analytically at the sample positions. Simulating data with the
+same discrete model you then invert is the *inverse crime* [#guerquin]_;
+analytical k-space avoids it, and is the more realistic test data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 188-195
+.. GENERATED FROM PYTHON SOURCE LINES 178-211
 
 .. code-block:: Python
-
 
     analytical = bt.phantom(SIZE, kspace=True)
     truncated = bartorch.ifft(analytical, axes=(-2, -1))
@@ -286,27 +256,13 @@ data.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    relative difference from the sampled phantom: 0.218
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 196-222
-
-
-
-
 .. rst-class:: sphx-glr-horizontal
 
 
     *
 
       .. image-sg:: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_003.png
-         :alt: sampled phantom, from analytical k-space, |difference|
+         :alt: sampled phantom, analytical k-space, |difference|
          :srcset: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_003.png
          :class: sphx-glr-multi-img
 
@@ -318,42 +274,55 @@ data.
          :class: sphx-glr-multi-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    relative difference from the sampled phantom: 0.218
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 223-241
 
-The difference map is largest at the ellipse boundaries and decays with
-distance from them. The profile through the centre of the phantom shows the
-ringing directly: the image from analytical k-space overshoots at every
-intensity step and oscillates with a period of about two voxels next to it. The
-unnormalized inverse transform is used here because ``phantom`` scales its
+.. GENERATED FROM PYTHON SOURCE LINES 212-232
+
+The difference is largest at the edges of the ellipses and fades away from
+them. The profile through the centre shows the ringing itself: the image
+from analytical k-space overshoots at every step in intensity and oscillates
+next to it with a period of about two voxels. That is the truncation
+artefact you see next to sharp edges on a scanner.
+
+Here you use the unnormalized inverse, because ``phantom`` scales its
 k-space so that the unnormalized inverse returns the image's intensities.
 
-Commands and the command line
------------------------------
+The command line
+----------------
 
-A function of :mod:`bartorch.tools` passes BART's options as keyword
+A function of :mod:`bartorch.tools` takes BART's options as keyword
 arguments, under their long names or their single-letter flags, and reverses
-the dimension vector of each tensor it hands over. The ``bartorch`` console
-command takes BART's own command lines and operates on CFL files, so a script
-written for the ``bart`` executable runs against the same library;
-:func:`bartorch.cli.main` runs one such command line in the current process.
-:func:`bartorch.io.writecfl` takes an array in BART's order, which the
-transpose of a C-order array is.
+the shape of every tensor it hands to BART. The ``bartorch`` console command
+takes BART's own command lines and works on CFL files, so a script written
+for the ``bart`` executable runs against the same library.
+:func:`bartorch.cli.main` runs one such command line in your process.
+:func:`bartorch.io.writecfl` wants the array in BART's order, which is the
+transpose of a C-order array:
 
-.. GENERATED FROM PYTHON SOURCE LINES 242-251
+.. GENERATED FROM PYTHON SOURCE LINES 232-246
 
 .. code-block:: Python
 
+    import tempfile
+
+    from pathlib import Path
 
     with tempfile.TemporaryDirectory() as directory:
-        source, target = str(Path(directory) / "coils"), str(Path(directory) / "kspace")
+        source = str(Path(directory) / "coils")
+        target = str(Path(directory) / "kspace")
         bartorch.io.writecfl(source, coil_images.numpy().T)
         status = bartorch.cli.main(["fft", "-u", "3", source, target])
         from_files = torch.as_tensor(bartorch.cli.read(target))
 
-    print(f"exit status {status}, identical to bartorch.fft: {torch.equal(from_files, kspace)}")
+    print(f"exit status {status}")
+    print(f"identical to bartorch.fft: {torch.equal(from_files, kspace)}")
 
 
 
@@ -363,25 +332,99 @@ transpose of a C-order array is.
 
  .. code-block:: none
 
-    exit status 0, identical to bartorch.fft: True
+    exit status 0
+    identical to bartorch.fft: True
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 252-262
+.. GENERATED FROM PYTHON SOURCE LINES 247-264
 
-``-u`` requests the unitary transform and ``3`` is BART's bitmask for its
-dimensions 0 and 1 (readout and first phase-encoding direction), the last
-two tensor axes. The two routes run the same BART function on the same
-bytes, so the results are identical.
+``-u`` asks for the unitary transform, and ``3`` is BART's bitmask for its
+dimensions 0 and 1 (readout and the first phase encoding), which are the last
+two tensor axes. Both routes run the same BART function on the same bytes, so
+the results are identical, bit for bit.
 
-A BART command is not recorded by autograd: its result has no gradient with
-respect to its inputs. The operators of :mod:`bartorch.linop` and the solvers
-of :mod:`bartorch.optim`, introduced from
-:doc:`../03-regularization/02-operators-and-solvers` on, are differentiable.
-:doc:`../../explanation/execution-model` describes both routes.
+One difference matters later. A BART command is not recorded by autograd, so
+its result has no gradient with respect to its inputs. The operators of
+:mod:`bartorch.linop` and the solvers of :mod:`bartorch.optim`, which you
+meet in lesson 6 (:doc:`../03-regularization/02-operators-and-solvers`), are
+differentiable. :doc:`../../explanation/execution-model` describes both
+routes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-271
+Exercise: matrix size
+---------------------
+
+Does acquiring more of k-space get rid of the ringing? Repeat the comparison
+with analytical k-space at a few matrix sizes:
+
+.. GENERATED FROM PYTHON SOURCE LINES 264-287
+
+.. code-block:: Python
+
+    sizes = (64, 128, 256, 512)
+    errors, overshoots = [], []
+    for n in sizes:
+        sampled = bt.phantom(n)
+        from_kspace = bartorch.ifft(bt.phantom(n, kspace=True), axes=(-2, -1))
+        errors.append(float((from_kspace - sampled).norm() / sampled.norm()))
+        overshoots.append(float(from_kspace.abs().max() / sampled.abs().max()))
+
+    for n, e, o in zip(sizes, errors, overshoots):
+        print(f"{n:>4}: relative difference {e:.3f}, peak {o:.2f} x the phantom's")
+
+
+
+
+
+.. image-sg:: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_005.png
+   :alt: 01 tensors and commands
+   :srcset: /auto_examples/01-basics/images/sphx_glr_01-tensors-and-commands_005.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+      64: relative difference 0.336, peak 1.16 x the phantom's
+     128: relative difference 0.218, peak 1.18 x the phantom's
+     256: relative difference 0.155, peak 1.13 x the phantom's
+     512: relative difference 0.110, peak 1.12 x the phantom's
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 288-314
+
+The relative difference falls by about :math:`\sqrt{2}` for every doubling
+of the matrix: the ringing occupies a band of a few voxels along each edge,
+a shrinking fraction of the image. The overshoot does not decrease: the
+brightest voxel stays more than a tenth above the phantom's peak at every
+size. This is the Gibbs phenomenon: truncating the spectrum of an object
+with discontinuities produces an overshoot at each of them, whatever the
+matrix size. Try multiplying the analytical k-space
+by a Hann window along both axes before the inverse, and see which of the
+two numbers changes.
+
+As a spec
+---------
+
+What this lesson built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   With bartorch, make BART's 128x128 Shepp-Logan phantom as an image and as
+   8 coil images (bt.phantom, shape (coils, 1, y, x)), combine the channels
+   with bartorch.rss over axis 0, and transform them to k-space with
+   bartorch.fft over the last two axes, unitary. Check the transform against
+   numpy's fft2 between ifftshift and fftshift (norm="ortho"). Reconstruct
+   analytical k-space (bt.phantom(kspace=True)) with the unnormalized
+   bartorch.ifft and report its relative difference from the sampled
+   phantom. Finally run "fft -u 3" through bartorch.cli.main on CFL files
+   and check the result equals bartorch.fft's.
+
+.. GENERATED FROM PYTHON SOURCE LINES 316-322
 
 References
 ----------
@@ -393,7 +436,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.929 seconds)
+   **Total running time of the script:** (0 minutes 0.751 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_01-tensors-and-commands.py:

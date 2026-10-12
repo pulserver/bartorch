@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=90dfe745"></script>
+    <script src="../_static/documentation_options.js?v=2b236558"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,18 +56,19 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/generated/bartorch.linop.LinearOperator.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -194,71 +195,54 @@
             </li>
         </ul>
         <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/user/index.html">User guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -267,15 +251,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -614,53 +592,96 @@ operands are.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.forward" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code>, without recording for autograd.</p>
-<p><code class="docutils literal notranslate"><span class="pre">out</span></code> is written in place when given; for a BART-backed operator it
-must be a contiguous complex64 tensor of <code class="xref py py-attr docutils literal notranslate"><span class="pre">oshape</span></code> on the input’s
-device.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code> without recording for autograd.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>tensor</em><em>, </em><em>shape ishape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape oshape</em><em>, </em><em>default=None</em>) – Written in place when given.  For a BART-backed operator, a
+contiguous complex64 tensor on the input’s device.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">out</span></code> when given.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tensor, shape oshape</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.adjoint">
 <span class="sig-name descname"><span class="pre">adjoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.adjoint" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code>, without recording for autograd.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code> without recording for autograd.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>tensor</em><em>, </em><em>shape oshape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape ishape</em><em>, </em><em>default=None</em>) – Written in place when given, as for <a class="reference internal" href="#bartorch.linop.LinearOperator.forward" title="bartorch.linop.LinearOperator.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">forward()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape ishape</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.normal">
 <span class="sig-name descname"><span class="pre">normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.normal" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">x</span></code>.</p>
-<p>A BART-backed operator applies its own normal, which for a
-non-Cartesian encoding built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code> is a convolution
-with a point spread function.  Otherwise <code class="docutils literal notranslate"><span class="pre">adjoint(forward(x))</span></code>.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">x</span></code>.</p>
+<p>A BART-backed operator applies BART’s normal, which for an encoding
+built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code> is a convolution with a point spread
+function; a Python-defined one computes <code class="docutils literal notranslate"><span class="pre">adjoint(forward(x))</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>tensor</em><em>, </em><em>shape ishape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape ishape</em><em>, </em><em>default=None</em>) – Written in place when given, as for <a class="reference internal" href="#bartorch.linop.LinearOperator.forward" title="bartorch.linop.LinearOperator.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">forward()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape ishape</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.from_callbacks">
 <em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_callbacks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.from_callbacks" title="Link to this definition">#</a></dt>
-<dd><p>An operator from Python functions, applied through BART.</p>
-<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> maps <code class="docutils literal notranslate"><span class="pre">ishape</span></code> to <code class="docutils literal notranslate"><span class="pre">oshape</span></code> and <code class="docutils literal notranslate"><span class="pre">adjoint</span></code> back; <code class="docutils literal notranslate"><span class="pre">normal</span></code>,
-where a cheaper form exists, is <code class="docutils literal notranslate"><span class="pre">adjoint(forward(x))</span></code> in one.  Each
-receives a view of BART’s buffer, and every application crosses into Python.</p>
+<dd><p>Build a BART operator from Python functions.</p>
+<p>Each function receives a view of BART’s buffer, without a copy, and
+returns a tensor; every application calls back into Python.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order.</p></li>
+<li><p><strong>ishape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order.</p></li>
+<li><p><strong>forward</strong> (<em>callable</em>) – <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">A</span> <span class="pre">x</span></code>, from <code class="docutils literal notranslate"><span class="pre">ishape</span></code> to <code class="docutils literal notranslate"><span class="pre">oshape</span></code>.</p></li>
+<li><p><strong>adjoint</strong> (<em>callable</em>) – <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">-&gt;</span> <span class="pre">A^H</span> <span class="pre">y</span></code>, from <code class="docutils literal notranslate"><span class="pre">oshape</span></code> to <code class="docutils literal notranslate"><span class="pre">ishape</span></code>.</p></li>
+<li><p><strong>normal</strong> (<em>callable</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">x</span></code> in one function; <code class="docutils literal notranslate"><span class="pre">None</span></code> chains <code class="docutils literal notranslate"><span class="pre">adjoint</span></code>
+onto <code class="docutils literal notranslate"><span class="pre">forward</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.plan">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plan</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.plan" title="Link to this definition">#</a></dt>
 <dd><p>The encoding form this operator was lowered into, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-<p>Diagnostic: reading it changes nothing about the operator.  An MRI
-encoding reports what the planner chose for it – the transform, the
-element-wise factors on each side of it, the contraction, what is
-streamed, how the normal is applied, and which executor path ran it.
-The algebra carries the plan through, so a composition with one
-encoding in it reports that encoding’s plan; anything else has none.</p>
-<p><code class="docutils literal notranslate"><span class="pre">plan.fused</span></code> is the field to check: it is false where the coil-slab
-loop could not take the form and where a sum of terms was left as a
-chain, both of which give the same numbers several times slower.
-<code class="docutils literal notranslate"><span class="pre">plan.executor</span></code> is read back from the library after the build, so it
-reports the path that ran rather than the one intended.</p>
-<p>Accessing this on a composition builds it, since the plan is decided by
-lowering and lowering is what building does.</p>
+<p>An MRI encoding reports the transform, the element-wise factors on
+each side of it, the contraction, what is streamed, how the normal is
+applied and which executor built it.  A composition containing exactly
+one encoding reports that encoding’s plan; any other operator has none.</p>
+<p><code class="docutils literal notranslate"><span class="pre">plan.fused</span></code> is false where the coil-slab loop could not take the
+form or a sum of terms was left as a chain: the same result, computed
+more slowly.  <code class="docutils literal notranslate"><span class="pre">plan.executor</span></code> is read back from the library after
+the build.  Reading the property on a composition builds it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bartorch.linop._form.Plan or None</p>
@@ -679,9 +700,9 @@ lowering and lowering is what building does.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.H">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">H</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.H" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span></code>, from BART’s own adjoint constructor.</p>
-<p>The result is a BART operator rather than a Python wrapper, so
-<code class="docutils literal notranslate"><span class="pre">A.H</span> <span class="pre">&#64;</span> <span class="pre">B</span></code> is one operator and its normal is <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">A^H</span></code>.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span></code>, from BART’s adjoint constructor.</p>
+<p>The result is a BART operator: <code class="docutils literal notranslate"><span class="pre">A.H</span> <span class="pre">&#64;</span> <span class="pre">B</span></code> is one operator, and the
+normal of <code class="docutils literal notranslate"><span class="pre">A.H</span></code> is <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">A^H</span></code>.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -700,8 +721,8 @@ lowering and lowering is what building does.</p>
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.gram">
 <span class="sig-name descname"><span class="pre">gram</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.gram" title="Link to this definition">#</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span></code> as an operator.</p>
-<p>BART’s own, so an encoding built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code> gives the
-point-spread convolution rather than the two applications.</p>
+<p>BART’s normal: for an encoding built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code>, the
+convolution with a point spread function.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -713,25 +734,37 @@ point-spread convolution rather than the two applications.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.opnorm">
 <span class="sig-name descname"><span class="pre">opnorm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.opnorm" title="Link to this definition">#</a></dt>
-<dd><p>The spectral norm, by BART’s power iteration on <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span></code>.</p>
-<p>BART starts the iteration from its process-global generator, so this
-returns a slightly different number each time it is called.  It is an
-estimate: what a step size or a Lipschitz constant needs, not an exact
-singular value.</p>
+<dd><p>Estimate the spectral norm by BART’s power iteration on <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span></code>.</p>
+<p>The starting vector comes from BART’s process-global generator, so
+repeated calls differ slightly.  Accurate enough for a step size or a
+Lipschitz constant, not an exact singular value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – When the power iteration does not converge.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.__call__" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code>, recorded for autograd when <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code>, recorded for autograd when <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient.</p>
+<p>The backward pass applies <a class="reference internal" href="#bartorch.linop.LinearOperator.adjoint" title="bartorch.linop.LinearOperator.adjoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjoint()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Array of <code class="xref py py-attr docutils literal notranslate"><span class="pre">ishape</span></code>.</p></li>
-<li><p><strong>out</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Contiguous complex64 array of <code class="xref py py-attr docutils literal notranslate"><span class="pre">oshape</span></code> to write into, so that
-repeated applications reuse one buffer.  Not allowed when <code class="docutils literal notranslate"><span class="pre">x</span></code>
-requires a gradient.</p></li>
+<li><p><strong>x</strong> (<em>tensor</em><em>, </em><em>shape ishape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape oshape</em><em>, </em><em>default=None</em>) – Contiguous complex64 tensor written in place.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape oshape</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – When <code class="docutils literal notranslate"><span class="pre">out</span></code> is given and <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -751,25 +784,25 @@ requires a gradient.</p></li>
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.dim_size">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dim_size</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.dim_size" title="Link to this definition">#</a></dt>
-<dd><p>How many elements the domain holds.</p>
+<dd><p>Number of elements in the domain.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.codim_size">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">codim_size</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.codim_size" title="Link to this definition">#</a></dt>
-<dd><p>How many elements the codomain holds.</p>
+<dd><p>Number of elements in the codomain.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.dim_rank">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dim_rank</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.dim_rank" title="Link to this definition">#</a></dt>
-<dd><p>How many axes the domain has.</p>
+<dd><p>Number of axes of the domain.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.codim_rank">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">codim_rank</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.codim_rank" title="Link to this definition">#</a></dt>
-<dd><p>How many axes the codomain has.</p>
+<dd><p>Number of axes of the codomain.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -781,51 +814,52 @@ requires a gradient.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.pinv">
 <span class="sig-name descname"><span class="pre">pinv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.pinv" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">(A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">damp</span> <span class="pre">I)^-1</span> <span class="pre">A^H</span> <span class="pre">y</span></code>, the damped least-squares solution.</p>
-<p>Solved in closed form where BART has one that has been checked, and by
-<a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.CG</span></code></a> otherwise; the same quantity either way.</p>
-<p>BART offers the closed form through a <code class="docutils literal notranslate"><span class="pre">norm_inv</span></code>, which only
-<cite>linops/sum.c</cite> carries, and that routine divides by a count
-<cite>linop_sum_create</cite> overwrites afterwards – so it answers for a
-differently scaled operator than the one it is attached to.  A class
-therefore opts in through <code class="xref py py-attr docutils literal notranslate"><span class="pre">_exact_pinv</span></code> once a test holds the
-closed form and the solver to the same answer, and only
-<a class="reference internal" href="bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledSum</span></code></a> does.  Everything else takes the
-solver, chains, sums and adjoints included, since those drop the
-<code class="docutils literal notranslate"><span class="pre">norm_inv</span></code> regardless.</p>
+<dd><p>Solve <code class="docutils literal notranslate"><span class="pre">(A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">damp</span> <span class="pre">I)</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">A^H</span> <span class="pre">y</span></code>, the damped least-squares problem.</p>
+<p><a class="reference internal" href="bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledSum</span></code></a> is solved by BART’s closed-form
+pseudo-inverse; every other operator, including compositions, by
+<a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Array of <code class="xref py py-attr docutils literal notranslate"><span class="pre">oshape</span></code>.</p></li>
-<li><p><strong>damp</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The Tikhonov weight, <code class="docutils literal notranslate"><span class="pre">CG</span></code>’s <code class="docutils literal notranslate"><span class="pre">lambda_</span></code>.</p></li>
-<li><p><strong>**kwargs</strong> – Passed to <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>, with <code class="docutils literal notranslate"><span class="pre">x0</span></code> as the warm
-start.  Refused when the closed form applies, because there is
-then no solver for them to configure.</p></li>
+<li><p><strong>y</strong> (<em>tensor</em><em>, </em><em>shape oshape</em>) – Data.</p></li>
+<li><p><strong>damp</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Tikhonov weight, <code class="docutils literal notranslate"><span class="pre">CG</span></code>’s <code class="docutils literal notranslate"><span class="pre">lambda_</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>; <code class="docutils literal notranslate"><span class="pre">x0</span></code> is the warm start.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape ishape</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TypeError</strong> – When <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> are given and the closed form applies.</p>
+</dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>BART attaches a closed form (<code class="docutils literal notranslate"><span class="pre">norm_inv</span></code>) only in <code class="docutils literal notranslate"><span class="pre">linops/sum.c</span></code>,
+and it is correct for <code class="docutils literal notranslate"><span class="pre">linop_scaled_sum</span></code> alone: for the plain sum it
+solves a differently scaled problem.  <a class="reference internal" href="bartorch.linop.Sum.html#bartorch.linop.Sum" title="bartorch.linop.Sum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sum</span></code></a>
+therefore takes the solver.</p>
 </dd></dl>
 
 </dd></dl>
 
 <section id="examples-using-linearoperator">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">LinearOperator</span></code><a class="headerlink" href="#examples-using-linearoperator" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson introduces the building blocks of non-Cartesian reconstruction: radial, golden-angle and spiral trajectories, the non-uniform fast Fourier transform (NUFFT) that samples an image along them, the density compensation that an adjoint (gridding) reconstruction needs, and the point spread function (PSF) that describes the undersampling artefacts."><img alt="" src="../_images/sphx_glr_01-trajectories-and-transforms_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Trajectories and transforms</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an undersampled golden-angle radial acquisition with eight receive coils: the density-compensated gridding reconstruction first, then an iterative SENSE reconstruction with coil sensitivities estimated from the radial data themselves, with and without a total-variation penalty. The aim is to see which of the streak artefacts of radial undersampling the coil encoding removes, which the regularization removes, and what each costs."><img alt="" src="../_images/sphx_glr_02-radial-sense_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html"><span class="doc">Radial SENSE reconstruction</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Radial SENSE reconstruction</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A spiral readout acquires each k-space radius at its own time, so a spin off resonance accrues a phase that varies over k-space: its image is blurred into a ring rather than shifted, as it would be along the readout of a Cartesian acquisition. With readouts of tens of milliseconds, the B_0 inhomogeneity near air-tissue interfaces is enough to smear the temporal and orbitofrontal cortex over several voxels."><img alt="" src="../_images/sphx_glr_05-spiral-deblurring_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lessons 2 to 6 every sample sat on the Cartesian grid, so the FFT and its inverse were all the Fourier transforms you needed. In this lesson you leave the grid. You sample the same brain slice along radial and spiral trajectories, reconstruct it by gridding, and see what each step of that reconstruction does to the image."><img alt="" src="../_images/sphx_glr_01-trajectories-and-transforms_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">7. Basics of non-Cartesian imaging</span></a></p>
+  <div class="sphx-glr-thumbnail-title">7. Basics of non-Cartesian imaging</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 7 you computed radial trajectories, the NUFFT, density compensation and the point spread function, and saw that omitting spokes produces streak artefacts. In this lesson you reconstruct an undersampled golden-angle radial scan with eight receive coils: you estimate the coil sensitivities from the radial data, then reconstruct by gridding, by iterative SENSE, and by SENSE with a total-variation penalty."><img alt="" src="../_images/sphx_glr_02-radial-sense_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html"><span class="doc">8. Radial SENSE</span></a></p>
+  <div class="sphx-glr-thumbnail-title">8. Radial SENSE</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 8 you reconstructed one image from undersampled radial data, and in lesson 4 you solved a model that is nonlinear in its unknowns, image times coil sensitivities, by Gauss-Newton. In this lesson you apply both to quantitative imaging. You estimate a T_2 map from an undersampled multi-echo spin-echo scan twice: first by reconstructing an image per echo and fitting the decay voxel by voxel, then by fitting the signal model directly to the k-space data, and you compare the accuracy of the two at the same undersampling."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">9. Nonlinear inversion for T2 mapping</span></a></p>
+  <div class="sphx-glr-thumbnail-title">9. Nonlinear inversion for T2 mapping</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you correct the blurring that B_0 off-resonance causes in a spiral image. A spiral readout reaches each k-space radius at its own time, so a spin off resonance by f picks up a phase 2\pi f\, t(k) that grows from the centre of k-space outwards. In a Cartesian scan the same phase is linear along the readout and only shifts the spin; on a spiral it is radial, and it spreads the spin into a ring. With a readout of tens of milliseconds, the field near the sinuses and the ear canals is enough to smear the orbitofrontal and temporal cortex over several voxels."><img alt="" src="../_images/sphx_glr_05-spiral-deblurring_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/07-tours/05-spiral-deblurring.html"><span class="doc">Off-resonance correction of spiral imaging</span></a></p>
   <div class="sphx-glr-thumbnail-title">Off-resonance correction of spiral imaging</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This example reconstructs a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, cut into frames of thirteen spokes each. Each frame on its own is undersampled fifteenfold and cannot be reconstructed; the series can, because consecutive frames are strongly correlated, and a total-variation penalty along the time axis states that correlation. The example compares frame-by-frame gridding with this joint reconstruction on the images and on the time-intensity curve a perfusion analysis would use."><img alt="" src="../_images/sphx_glr_01-dynamic-golden-angle_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you reconstruct a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, which you cut into frames of thirteen spokes each after the scan. On its own, each frame is undersampled about fifteenfold, and its gridding reconstruction is dominated by streaks. Consecutive frames, however, show the same anatomy and differ by a slow change of contrast, so you reconstruct all frames jointly with a penalty on the temporal variation of the series. You compare frame-by-frame gridding with that joint reconstruction on the images, on an x-t profile, and on the time-intensity curve a perfusion analysis would read."><img alt="" src="../_images/sphx_glr_01-dynamic-golden-angle_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p>
   <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This example estimates a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke. The aim is to show how a signal model turns a hopelessly undersampled time series into a well-posed reconstruction: the recovery curves of all plausible T_1 values span a subspace of low dimension, and reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude."><img alt="" src="../_images/sphx_glr_02-subspace-t1-mapping_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you estimate a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke, so each frame on its own is undersampled about two-hundredfold. The recovery curves of all plausible T_1 values span a subspace of low dimension; reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude."><img alt="" src="../_images/sphx_glr_02-subspace-t1-mapping_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/08-workflows/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p>
   <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
 </div></div></section>

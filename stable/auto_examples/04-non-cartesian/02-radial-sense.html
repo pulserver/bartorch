@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Radial SENSE reconstruction &#8212; bartorch</title>
+    <title>8. Radial SENSE &#8212; bartorch</title>
   
   
   
@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=90dfe745"></script>
+    <script src="../../_static/documentation_options.js?v=2b236558"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,20 +58,21 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/auto_examples/04-non-cartesian/02-radial-sense.html" />
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Model-based reconstruction" href="../05-model-based/index.html" />
-    <link rel="prev" title="Trajectories and transforms" href="01-trajectories-and-transforms.html" />
+    <link rel="next" title="9. Nonlinear inversion for T2 mapping" href="../05-model-based/01-quantitative-models.html" />
+    <link rel="prev" title="7. Basics of non-Cartesian imaging" href="01-trajectories-and-transforms.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -198,71 +199,54 @@
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/user/security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/user/index.html">User guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/installation.html">Editable and source installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../gallery/index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../gallery/course.html">Course</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Non-Cartesian imaging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -271,15 +255,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -515,7 +493,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Radial SENSE reconstruction</h1>
+    <h1>8. Radial SENSE</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -525,12 +503,15 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acquisition">Acquisition</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sensitivity-calibration">Sensitivity calibration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulated-acquisition">Simulated acquisition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coil-sensitivities-from-the-spokes">Coil sensitivities from the spokes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gridding">Gridding</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-sense">Iterative SENSE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-same-solve-through-the-operator">The same solve through the operator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cg-sense">CG-SENSE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sense-with-total-variation">SENSE with total variation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cg-sense-from-an-operator-and-a-solver">CG-SENSE from an operator and a solver</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-normal-operator">The normal operator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-early-stopping-of-cg">Exercise: early stopping of CG</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#as-a-spec">As a spec</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
             </nav>
@@ -548,84 +529,79 @@
 <p><a class="reference internal" href="#sphx-glr-download-auto-examples-04-non-cartesian-02-radial-sense-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="radial-sense-reconstruction">
-<span id="sphx-glr-auto-examples-04-non-cartesian-02-radial-sense-py"></span><h1>Radial SENSE reconstruction<a class="headerlink" href="#radial-sense-reconstruction" title="Link to this heading">#</a></h1>
-<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/v0.0.12/_colab/04-non-cartesian/02-radial-sense.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
+<section class="sphx-glr-example-title" id="radial-sense">
+<span id="sphx-glr-auto-examples-04-non-cartesian-02-radial-sense-py"></span><h1>8. Radial SENSE<a class="headerlink" href="#radial-sense" title="Link to this heading">#</a></h1>
+<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/v0.0.13/_colab/04-non-cartesian/02-radial-sense.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>This lesson reconstructs an undersampled golden-angle radial acquisition with
-eight receive coils: the density-compensated gridding reconstruction first,
-then an iterative SENSE reconstruction with coil sensitivities estimated from
-the radial data themselves, with and without a total-variation penalty. The
-aim is to see which of the streak artefacts of radial undersampling the coil
-encoding removes, which the regularization removes, and what each costs.</p>
-<p>A radial acquisition that satisfies the Nyquist criterion at the edge of
-k-space needs <span class="math notranslate nohighlight">\(\pi/2\)</span> times as many spokes as the matrix has lines;
-with fewer, the azimuthal gaps between spokes alias into streaks that run
-across the whole field of view. Radial undersampling is nevertheless
-benign compared with Cartesian undersampling: every spoke passes through the
-k-space centre, so the low spatial frequencies stay fully sampled and the
-aliasing is incoherent rather than a discrete fold-over. Parallel imaging
-removes it by fitting the image to the non-Cartesian SENSE model
-<a class="footnote-reference brackets" href="#pruessmann2001" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>In lesson 7 you computed radial trajectories, the NUFFT, density
+compensation and the point spread function, and saw that omitting spokes
+produces streak artefacts. In this lesson you reconstruct an undersampled
+golden-angle radial scan with eight receive coils: you estimate the coil
+sensitivities from the radial data, then reconstruct by gridding, by
+iterative SENSE, and by SENSE with a total-variation penalty.</p>
+<p>The forward model is the SENSE model of lesson 2 with the FFT replaced by a
+NUFFT <a class="footnote-reference brackets" href="#pruessmann2001" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>:</p>
 <div class="math notranslate nohighlight">
-\[A = W \, \mathrm{NUFFT} \, S,\]</div>
-<p>with <span class="math notranslate nohighlight">\(S\)</span> the coil sensitivities, the NUFFT evaluated along the
-trajectory and <span class="math notranslate nohighlight">\(W\)</span> an optional weighting of the samples. The fit is
-solved iteratively, since <span class="math notranslate nohighlight">\(A^H A\)</span> is not diagonal in any basis.</p>
-<p>The measured data are simulated with the same transform the reconstruction
-uses, so the comparison isolates the undersampling, the noise and the error
-of the estimated sensitivities from any mismatch between the forward model
-and the measurement. The phantom and the coil sensitivities are built as in
-<a class="reference internal" href="../01-basics/02-from-kspace-to-image.html"><span class="doc">From k-space to image</span></a>; the cell that does it is hidden on
-this page and present in the script this page can be downloaded as.</p>
+\[y = W \, \mathrm{NUFFT} \, S x + \varepsilon,\]</div>
+<p>where <span class="math notranslate nohighlight">\(S\)</span> multiplies by the coil sensitivities, the NUFFT samples each
+coil image along the trajectory, <span class="math notranslate nohighlight">\(W\)</span> is an optional weighting of the
+samples and <span class="math notranslate nohighlight">\(\varepsilon\)</span> is noise. <span class="math notranslate nohighlight">\(A^H A\)</span> is not diagonal in
+any basis, so the model is solved iteratively, with one NUFFT and one adjoint
+NUFFT (or an equivalent convolution) per iteration.</p>
+<p>Every spoke passes through the centre of k-space, so the low spatial
+frequencies remain fully sampled. The angular gaps between spokes alias into
+streaks distributed over the whole field of view, not into the discrete
+fold-over of Cartesian undersampling. The coil encoding and the penalty act
+on this incoherent aliasing.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
 <li><p>Simulate a multichannel radial acquisition with
 <a class="reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.linop.NoncartesianSense</span></code></a>.</p></li>
-<li><p>Estimate sensitivities from the radial data with
+<li><p>Estimate the sensitivities from the radial data with
 <a class="reference internal" href="../../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ncalib()</span></code></a>.</p></li>
-<li><p>Compare gridding, unregularized CG-SENSE and total-variation-regularized
-SENSE, and identify the residual artefact of each.</p></li>
-<li><p>Reconstruct with <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> and with the operator under
+<li><p>Reconstruct by gridding, by CG-SENSE and by SENSE with total variation, and
+name the residual artefact of each.</p></li>
+<li><p>Rebuild the same reconstruction from the operator and
 <a class="reference internal" href="../../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.ADMM</span></code></a>, and compare the two forms of the normal
 operator.</p></li>
 </ul>
-<p>It follows <a class="reference internal" href="01-trajectories-and-transforms.html"><span class="doc">Trajectories and transforms</span></a>. The next lesson,
-<a class="reference internal" href="../05-model-based/01-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a>, fits a signal model to the
-data. The Tour <a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a> adds a time axis
-to this encoding.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w">
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
+<p>Previous: <a class="reference internal" href="01-trajectories-and-transforms.html"><span class="doc">7. Basics of non-Cartesian imaging</span></a>. Next:
+<a class="reference internal" href="../05-model-based/01-quantitative-models.html"><span class="doc">9. Nonlinear inversion for T2 mapping</span></a>, where you put a signal model
+inside the forward operator and fit a <span class="math notranslate nohighlight">\(T_2\)</span> map straight from k-space.
+The Tour <a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a> adds a time axis to
+this encoding.</p>
+<section id="simulated-acquisition">
+<h2>Simulated acquisition<a class="headerlink" href="#simulated-acquisition" title="Link to this heading">#</a></h2>
+<p>The object is the BrainWeb brain slice <a class="footnote-reference brackets" href="#brainweb" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> of lesson 2, on a 192
+matrix, seen by BART’s analytical eight-channel head coil. You acquire 48
+spokes of 192 samples.
+To sample the edge of k-space at the Nyquist rate a radial scan needs
+<span class="math notranslate nohighlight">\(\pi/2\)</span> times as many spokes as the matrix has lines, here about 302,
+so the scan is undersampled by a factor of about 6.3. Successive spokes are
+rotated by the golden angle, 111.25 degrees, so any contiguous subset of
+them covers k-space nearly uniformly <a class="footnote-reference brackets" href="#winkelmann" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<p><a class="reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.linop.NoncartesianSense</span></code></a> implements the model above: it
+maps an image to the samples of every channel along the trajectory. You
+simulate the scan by applying it to the object and adding complex Gaussian
+noise. The data are generated with the same transform used for the
+reconstruction, so the errors below come from the undersampling, the noise
+and the estimated sensitivities, not from a model mismatch.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w">
 </span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mri</span><span class="w">
 </span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span><span class="w">
+</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">apps</span><span class="p">,</span> <span class="n">linop</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">priors</span><span class="w">
 </span><span class="w">
-</span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">192</span><span class="w">
 </span><span class="n">COILS</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
-</span><span class="n">SPOKES</span> <span class="o">=</span> <span class="mi">48</span>  <span class="c1"># against pi/2 * SIZE = 302 for a trajectory that is not undersampled</span><span class="w">
-</span><span class="n">TV_WEIGHT</span> <span class="o">=</span> <span class="mf">0.0005</span><span class="w">
-</span><span class="n">ITERATIONS</span> <span class="o">=</span> <span class="mi">30</span><span class="w">
-</span></pre></div></div>
-<section id="acquisition">
-<h2>Acquisition<a class="headerlink" href="#acquisition" title="Link to this heading">#</a></h2>
-<p>Forty-eight golden-angle spokes of 192 samples each, across a 192 matrix:
-<span class="math notranslate nohighlight">\(\pi/2 \times 192 \approx 302\)</span> spokes would sample the edge of k-space
-at the Nyquist rate, so the acquisition is undersampled by a factor of about
-6.3. Successive spokes are rotated by the golden angle, 111.25 degrees, so
-any contiguous subset of them covers k-space nearly uniformly
-<a class="footnote-reference brackets" href="#winkelmann" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>; <a class="reference internal" href="../08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a> relies on that property.</p>
-<p><a class="reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.linop.NoncartesianSense</span></code></a> maps an image to the samples of
-every channel along the trajectory. The measurement is that operator applied
-to the phantom, with complex Gaussian noise of variance <span class="math notranslate nohighlight">\(10^{-4}\)</span> per
-sample added, as in the Cartesian lessons.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">trajectory</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><span class="n">bt</span><span class="o">.</span><span class="n">traj</span></a><span class="p">(</span><span class="n">readout</span><span class="o">=</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">spokes</span><span class="o">=</span><span class="n">SPOKES</span><span class="p">,</span> <span class="n">radial</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">golden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">SPOKES</span> <span class="o">=</span> <span class="mi">48</span><span class="w">
+</span><span class="w">
+</span><span class="n">sensitivities</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><span class="n">bt</span><span class="o">.</span><span class="n">coils</span></a><span class="p">(</span><span class="n">t</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><span class="n">bt</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">D</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">COILS</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">sensitivities</span> <span class="o">/</span><span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">trajectory</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><span class="n">bt</span><span class="o">.</span><span class="n">traj</span></a><span class="p">(</span><span class="n">readout</span><span class="o">=</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">spokes</span><span class="o">=</span><span class="n">SPOKES</span><span class="p">,</span> <span class="n">radial</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">golden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">E</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">NoncartesianSense</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">)</span><span class="w">
 </span><span class="n">measured</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">E</span></a><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span><span class="w">
@@ -633,196 +609,291 @@ sample added, as in the Cartesian lessons.</p>
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">E</span></a><span class="o">.</span><span class="n">ishape</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">E</span></a><span class="o">.</span><span class="n">oshape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-property reference internal" href="../../generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.plan" title="bartorch.linop.LinearOperator.plan"><span class="n">E</span><span class="o">.</span><span class="n">plan</span></a><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(192, 192) -&gt; (8, 48, 192)
+<img src="../../_images/sphx_glr_02-radial-sense_001.png" srcset="../../_images/sphx_glr_02-radial-sense_001.png" alt="first 5 spokes, all 48 spokes" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(192, 192) -&gt; (8, 48, 192)
 Plan(transform=nufft, image=sensitivities, normal=kernel, coil_batch=1, streamed=coils, executor=slab)
 </pre></div>
 </div>
-<p>The operator’s samples are <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">spokes,</span> <span class="pre">samples)</span></code> along a trajectory
+<p>Each golden-angle increment places the new spoke inside the largest
+angular gap left by the previous ones, so the angular coverage is nearly
+uniform after any number of spokes. Near the centre the 48 spokes sample
+k-space more densely than the Nyquist rate; towards the edge the azimuthal
+distance between spokes exceeds one grid unit, and this undersampling of the
+high spatial frequencies produces the streaks.</p>
+<p>The data are <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">spokes,</span> <span class="pre">samples)</span></code> along a trajectory
 <code class="docutils literal notranslate"><span class="pre">(spokes,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> whose <code class="docutils literal notranslate"><span class="pre">kz</span></code> component is zero, which makes the
 transform two-dimensional. <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> takes that layout.
 BART’s commands, <a class="reference internal" href="../../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ncalib()</span></code></a> and
 <a class="reference internal" href="../../generated/bartorch.nufft_adjoint.html#bartorch.nufft_adjoint" title="bartorch.nufft_adjoint"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.nufft_adjoint()</span></code></a> among them, carry non-Cartesian k-space as
-<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">spokes,</span> <span class="pre">samples,</span> <span class="pre">1)</span></code>, whose trailing axis is the readout dimension
-of a Cartesian acquisition, so they are given <code class="docutils literal notranslate"><span class="pre">measured[...,</span> <span class="pre">None]</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">spokes,</span> <span class="pre">samples,</span> <span class="pre">1)</span></code>, so you hand them <code class="docutils literal notranslate"><span class="pre">measured[...,</span> <span class="pre">None]</span></code>.</p>
 </section>
-<section id="sensitivity-calibration">
-<h2>Sensitivity calibration<a class="headerlink" href="#sensitivity-calibration" title="Link to this heading">#</a></h2>
-<p>ESPIRiT reads its calibration matrix from a Cartesian neighbourhood of the
-k-space centre, so on radial data it needs that region gridded first.
-<a class="reference internal" href="../../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ncalib()</span></code></a> estimates the sensitivities from the samples as
-they were measured, by nonlinear inversion <a class="footnote-reference brackets" href="#nlinv" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> at low resolution; the
-densely sampled centre of a radial acquisition acts as its own
-autocalibration region.</p>
-<p><code class="docutils literal notranslate"><span class="pre">N=True</span></code> divides the estimated maps by their root sum of squares. A SENSE
-fit recovers the image <span class="math notranslate nohighlight">\(x\)</span> for which <span class="math notranslate nohighlight">\(Sx\)</span> explains the data, so
-maps whose root sum of squares varies across the field of view leave its
-reciprocal in the image as a smooth intensity shading. ESPIRiT maps are
-normalized by construction; nonlinear inversion maps are not.</p>
+<section id="coil-sensitivities-from-the-spokes">
+<h2>Coil sensitivities from the spokes<a class="headerlink" href="#coil-sensitivities-from-the-spokes" title="Link to this heading">#</a></h2>
+<p>ESPIRiT, used in lessons 2 and 3, builds its calibration matrix from a
+Cartesian block at the k-space centre, so on radial data that block must be
+gridded first. <a class="reference internal" href="../../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ncalib()</span></code></a> operates on the non-Cartesian
+samples directly: it runs the nonlinear inversion of lesson 4 <a class="footnote-reference brackets" href="#nlinv" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> at
+low resolution, with the densely sampled centre of the radial scan as the
+calibration region.</p>
+<p><code class="docutils literal notranslate"><span class="pre">N=True</span></code> divides the maps by their root sum of squares, as was done for
+the simulated maps above. SENSE recovers the image <span class="math notranslate nohighlight">\(x\)</span> for which
+<span class="math notranslate nohighlight">\(Sx\)</span> explains the data, so a root sum of squares that varies across
+the field of view appears in the image as its reciprocal, a smooth intensity
+shading. ESPIRiT maps are normalized by construction; nonlinear-inversion
+maps are not.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">maps</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib" title="bartorch.tools.ncalib"><span class="n">bt</span><span class="o">.</span><span class="n">ncalib</span></a><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_02-radial-sense_001.png" srcset="../../_images/sphx_glr_02-radial-sense_001.png" alt="coil 1, coil 4, coil 7" class = "sphx-glr-single-img"/><p>The estimated maps reproduce the magnitude and phase of the simulated ones
-over the head. They are smoother, because nonlinear inversion penalizes the
-high spatial frequencies of the sensitivities, and outside the head, where
-there is no signal to calibrate from, they are extrapolated.</p>
+<img src="../../_images/sphx_glr_02-radial-sense_002.png" srcset="../../_images/sphx_glr_02-radial-sense_002.png" alt="coil 1, coil 4, coil 7" class = "sphx-glr-single-img"/><p>Brightness is magnitude, colour is phase. The estimated maps reproduce the
+magnitude of the simulated ones and their phase pattern across the head.
+They are smoother, because nonlinear inversion penalizes the high spatial
+frequencies of the sensitivities, and in places their phase is offset from
+the simulated one. A phase common to all coils is not identifiable: SENSE
+cannot separate it from the phase of the image, which absorbs it. Outside
+the head there is no signal to calibrate from, and the maps there are
+extrapolated.</p>
 </section>
 <section id="gridding">
 <h2>Gridding<a class="headerlink" href="#gridding" title="Link to this heading">#</a></h2>
-<p>The gridding reconstruction is the density-compensated adjoint: each sample
-is weighted by its distance from the k-space centre (the ramp filter of
-filtered back-projection), the samples are interpolated onto the grid by the
-adjoint NUFFT, and the channels are combined by root sum of squares. It uses
-no model of the coil encoding, so the missing spokes appear in it as the
-streaks the point spread function of the trajectory predicts.</p>
+<p>The gridding reconstruction is the density-compensated adjoint of lesson 7,
+applied per channel: weight each sample by its distance from the k-space
+centre (the ramp filter of filtered back-projection), apply the adjoint
+NUFFT, and combine the channels by root sum of squares.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">real</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="w">
 </span><span class="w">
-</span><span class="n">channels</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.nufft_adjoint.html#bartorch.nufft_adjoint" title="bartorch.nufft_adjoint"><span class="n">bartorch</span><span class="o">.</span><span class="n">nufft_adjoint</span></a><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">,</span> <span class="n">trajectory</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">channels</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.nufft_adjoint.html#bartorch.nufft_adjoint" title="bartorch.nufft_adjoint"><span class="n">bartorch</span><span class="o">.</span><span class="n">nufft_adjoint</span></a><span class="p">(</span><span class="w">
+</span>    <span class="n">measured</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">,</span><span class="w">
+</span>    <span class="n">trajectory</span><span class="p">,</span><span class="w">
+</span>    <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
 </span><span class="n">gridded</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">channels</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
+<img src="../../_images/sphx_glr_02-radial-sense_003.png" srcset="../../_images/sphx_glr_02-radial-sense_003.png" alt="reference, gridding, gridding error" class = "sphx-glr-single-img"/><p>The anatomy is sharp, since the centre of k-space is fully sampled, but
+streaks cover the whole field of view, including the region outside the
+head where the object has no signal. They are the image convolved with the
+point spread function of lesson 7. Gridding uses no model of the coil
+encoding, so it cannot separate aliased signal from true signal.</p>
 </section>
-<section id="iterative-sense">
-<h2>Iterative SENSE<a class="headerlink" href="#iterative-sense" title="Link to this heading">#</a></h2>
-<p>Conjugate gradients on the normal equations <span class="math notranslate nohighlight">\(A^H A x = A^H y\)</span>, with no
-penalty, is CG-SENSE <a class="footnote-reference brackets" href="#pruessmann2001" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. The coil encoding separates the
-aliased signal the streaks consist of, but at this undersampling the problem
-is ill-conditioned, and each further iteration fits more of the noise; the
-number of iterations acts as the regularization. A total-variation penalty
-<a class="footnote-reference brackets" href="#rof" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> adds prior knowledge instead: streaks and noise have a large total
-variation, the anatomy a small one. ADMM is the algorithm <code class="docutils literal notranslate"><span class="pre">pics</span></code> selects
-for this penalty.</p>
+<section id="cg-sense">
+<h2>CG-SENSE<a class="headerlink" href="#cg-sense" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> with a trajectory and no penalty runs conjugate
+gradients on the normal equations <span class="math notranslate nohighlight">\(A^H A x = A^H y\)</span>: CG-SENSE
+<a class="footnote-reference brackets" href="#pruessmann2001" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">cg_sense</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../../_images/sphx_glr_02-radial-sense_004.png" srcset="../../_images/sphx_glr_02-radial-sense_004.png" alt="gridding, CG-SENSE, CG-SENSE error" class = "sphx-glr-single-img"/><p>The streaks are removed: each coil weights the aliased signal differently,
+and the coil encoding separates it from the anatomy. The residual is noise
+amplified across the head, since at sixfold undersampling the inversion is
+ill-conditioned. The largest errors are on the scalp, a bright, thin edge
+whose energy lies mostly at high spatial frequencies, where the spokes are
+farthest apart. Without a penalty, the iteration count is the only
+regularization: further iterations fit more of the noise. The last section
+of the lesson varies it.</p>
+</section>
+<section id="sense-with-total-variation">
+<h2>SENSE with total variation<a class="headerlink" href="#sense-with-total-variation" title="Link to this heading">#</a></h2>
+<p>A total-variation penalty <a class="footnote-reference brackets" href="#rof" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> over the two image axes regularizes
+explicitly: noise and streaks have a large total variation, piecewise
+constant anatomy a small one. <code class="docutils literal notranslate"><span class="pre">pics</span></code> solves the penalized problem with
+ADMM.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">TV_WEIGHT</span> <span class="o">=</span> <span class="mf">0.0005</span><span class="w">
+</span><span class="n">ITERATIONS</span> <span class="o">=</span> <span class="mi">30</span><span class="w">
 </span><span class="w">
 </span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">priors</span><span class="o">.</span><span class="n">TotalVariation</span></a><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">TV_WEIGHT</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">reconstruction</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="w">
-</span>    <span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">regularizers</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">admm</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="w">
+</span>    <span class="n">measured</span><span class="p">,</span><span class="w">
+</span>    <span class="n">maps</span><span class="p">,</span><span class="w">
+</span>    <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span><span class="w">
+</span>    <span class="n">regularizers</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a><span class="p">,</span><span class="w">
+</span>    <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">admm</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
+</span>    <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">pics: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> s</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">gridding</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">gridded</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">CG-SENSE</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">cg_sense</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">SENSE + TV</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">reconstruction</span><span class="p">}</span><span class="w">
-</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">error</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span>    <span class="n">similarity</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><span class="n">bt</span><span class="o">.</span><span class="n">ssim</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">  NRMSE </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  SSIM </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>pics: 1.01 s
-    gridding  NRMSE 0.324  SSIM 0.418
-    CG-SENSE  NRMSE 0.087  SSIM 0.566
-  SENSE + TV  NRMSE 0.084  SSIM 0.863
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_02-radial-sense_005.png" srcset="../../_images/sphx_glr_02-radial-sense_005.png" alt="48 golden-angle spokes, 8 coils, reference, gridding, CG-SENSE, SENSE + TV" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-radial-sense_006.png" srcset="../../_images/sphx_glr_02-radial-sense_006.png" alt="gridding error, CG-SENSE error, SENSE + TV error" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-radial-sense_007.png" srcset="../../_images/sphx_glr_02-radial-sense_007.png" alt="enlarged, reference, gridding, CG-SENSE, SENSE + TV" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>pics: 0.63 s
 </pre></div>
 </div>
-<ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_02-radial-sense_002.png" srcset="../../_images/sphx_glr_02-radial-sense_002.png" alt="48 golden-angle spokes, 8 coils, reference, gridding, CG-SENSE, SENSE + TV" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-radial-sense_003.png" srcset="../../_images/sphx_glr_02-radial-sense_003.png" alt="error magnitude, gridding, CG-SENSE, SENSE + TV" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-radial-sense_004.png" srcset="../../_images/sphx_glr_02-radial-sense_004.png" alt="enlarged, reference, gridding, CG-SENSE, SENSE + TV" class = "sphx-glr-multi-img"/></li>
-</ul>
-<p>Gridding shows the streaks of radial undersampling over the whole field of
-view, superimposed on an image that is otherwise sharp: the low spatial
-frequencies are fully sampled, and the streaks come from the high ones. The
-error map shows them extending outside the head, where the object has no
-signal. CG-SENSE removes the streaks, whose aliased signal the coil
-encoding separates, and leaves amplified noise across the head; its largest
-errors are at the scalp, whose bright, thin edge has most of its energy at
-spatial frequencies the sparse outer k-space samples poorly. The
-total-variation penalty suppresses the noise as well. Its residual error
-lies along the tissue boundaries, and in the enlarged region the thin
-cortical folds are flattened, since a boundary between two tissues of
-similar intensity also has a small total variation. The disc of k-space the
-trajectory samples limits the resolution of all three.</p>
+<p>The penalty suppresses the noise as well as the streaks. Its residual
+error lies along tissue boundaries, and in the enlarged region behind the
+ventricles the thin cortical folds are flattened: a boundary between two
+tissues of similar intensity also has a small total variation and is
+smoothed with the noise. The resolution of all three is limited by the disc
+of k-space the spokes cover. The NRMSE and SSIM against the reference:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">nrmse</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ssim</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><span class="n">bt</span><span class="o">.</span><span class="n">ssim</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">: NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, SSIM </span><span class="si">{</span><span class="n">ssim</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  gridding: NRMSE 0.324, SSIM 0.418
+  CG-SENSE: NRMSE 0.087, SSIM 0.565
+SENSE + TV: NRMSE 0.084, SSIM 0.863
+</pre></div>
+</div>
+<p>CG-SENSE and SENSE with TV have nearly the same NRMSE but different SSIM.
+NRMSE sums the squared error over the image: CG-SENSE distributes it as
+noise over the head, TV concentrates it at edges. SSIM compares local
+means, variances and covariances, and is higher for the TV reconstruction.
+<code class="docutils literal notranslate"><span class="pre">scaled=True</span></code> fits one global factor before comparing, so the metric
+compares shapes, not overall scale.</p>
 </section>
-<section id="the-same-solve-through-the-operator">
-<h2>The same solve through the operator<a class="headerlink" href="#the-same-solve-through-the-operator" title="Link to this heading">#</a></h2>
-<p>Besides the iteration, <code class="docutils literal notranslate"><span class="pre">pics</span></code> scales the data. Off the Cartesian grid it
-estimates the scale from the adjoint reconstruction and therefore needs the
-operator, which <a class="reference internal" href="../../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> takes. The encoding is
-the operator built above, now over the estimated sensitivities.</p>
+<section id="cg-sense-from-an-operator-and-a-solver">
+<h2>CG-SENSE from an operator and a solver<a class="headerlink" href="#cg-sense-from-an-operator-and-a-solver" title="Link to this heading">#</a></h2>
+<p>The same reconstruction can be assembled from its parts, as in lesson 6:
+the encoding operator over the estimated maps, and the ADMM solver with the
+same term. <code class="docutils literal notranslate"><span class="pre">pics</span></code> also divides the data by a scale before solving and
+multiplies the image back by it; off the grid it estimates the scale from
+the adjoint reconstruction, so <a class="reference internal" href="../../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.optim.data_scaling()</span></code></a> takes the
+operator.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">NoncartesianSense</span></a><span class="p">(</span><span class="n">maps</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">)</span><span class="w">
-</span><span class="n">data</span> <span class="o">=</span> <span class="n">measured</span> <span class="o">/</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><span class="n">optim</span><span class="o">.</span><span class="n">data_scaling</span></a><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="p">)</span><span class="w">
+</span><span class="n">scale</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><span class="n">optim</span><span class="o">.</span><span class="n">data_scaling</span></a><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="p">)</span><span class="w">
+</span><span class="n">data</span> <span class="o">=</span> <span class="n">measured</span> <span class="o">/</span> <span class="n">scale</span><span class="w">
 </span><span class="w">
 </span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">assembled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><span class="n">optim</span><span class="o">.</span><span class="n">ADMM</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">)</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="p">)</span><span class="w">
+</span><span class="n">assembled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><span class="n">optim</span><span class="o">.</span><span class="n">ADMM</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">)</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">A</span></a><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">operator and solver: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> s</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">difference</span> <span class="o">=</span> <span class="p">(</span><span class="n">assembled</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="p">)</span> <span class="o">-</span> <span class="n">reconstruction</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference from pics: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">difference</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">reconstruction</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">relative</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">difference</span> <span class="o">/</span> <span class="n">reconstruction</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference from pics: </span><span class="si">{</span><span class="n">relative</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>operator and solver: 0.97 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>operator and solver: 0.61 s
 relative difference from pics: 0.0e+00
 </pre></div>
 </div>
-<p>The two run the same iteration over the same operator. The NUFFT spreads
-samples onto the grid over several threads and sums in the order they
-finish in, so the two can differ at the level of floating-point round-off.</p>
+<p>The two run the same iteration over the same operator. They are not
+guaranteed to be bit-identical: the NUFFT spreads samples onto the grid over
+several threads and sums them in the order the threads finish, so two runs
+can differ at the level of floating-point round-off.</p>
 </section>
 <section id="the-normal-operator">
 <h2>The normal operator<a class="headerlink" href="#the-normal-operator" title="Link to this heading">#</a></h2>
-<p>Each iteration applies <span class="math notranslate nohighlight">\(A^H A\)</span>. For a single coil this is a
-convolution with the point spread function of the trajectory, so it can be
-computed exactly by FFTs on a grid of twice the matrix size (the Toeplitz
-embedding <a class="footnote-reference brackets" href="#fessler" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>) instead of by a NUFFT and an adjoint NUFFT; with coils
+<p>Every iteration applies <span class="math notranslate nohighlight">\(A^H A\)</span>. For one coil that is a convolution
+with the point spread function of the trajectory, so it can be computed
+exactly by FFTs on a grid of twice the matrix size, the Toeplitz embedding
+<a class="footnote-reference brackets" href="#fessler" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>, instead of by a NUFFT followed by an adjoint NUFFT; with coils
 it is that convolution between multiplications by the sensitivities. The
-operator uses the convolution by default, and <code class="docutils literal notranslate"><span class="pre">toeplitz=False</span></code> requests the
-transform pair. The two differ by the tolerance of the transforms, and the
-iterations carry that difference into the reconstructions.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">pair</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><span class="n">optim</span><span class="o">.</span><span class="n">ADMM</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">)</span><span class="p">(</span><span class="w">
-</span>    <span class="n">data</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">NoncartesianSense</span></a><span class="p">(</span><span class="n">maps</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">toeplitz</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="w">
+operator uses the convolution by default (<code class="docutils literal notranslate"><span class="pre">normal=kernel</span></code> in the plan
+printed above), and <code class="docutils literal notranslate"><span class="pre">toeplitz=False</span></code> asks for the transform pair.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">pair</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">linop</span><span class="o">.</span><span class="n">NoncartesianSense</span></a><span class="p">(</span><span class="w">
+</span>    <span class="n">maps</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>    <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span><span class="w">
+</span>    <span class="n">toeplitz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">paired</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><span class="n">optim</span><span class="o">.</span><span class="n">ADMM</span></a><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><span class="n">term</span></a><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">ITERATIONS</span><span class="p">)</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <a class="sphx-glr-backref-module-bartorch-linop sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><span class="n">pair</span></a><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">without the Toeplitz normal: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> s</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">pair</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">assembled</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">assembled</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">relative</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">paired</span> <span class="o">-</span> <span class="n">assembled</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">assembled</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference </span><span class="si">{</span><span class="n">relative</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>without the Toeplitz normal: 0.45 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>without the Toeplitz normal: 0.24 s
 relative difference 3.2e-02
 </pre></div>
 </div>
-<p>The convolution costs an FFT, a pointwise multiplication and an inverse FFT
-on the doubled grid per coil, independent of the number of samples; the pair
-costs two non-uniform transforms, whose spreading and interpolation grow with
-the number of samples. With 48 spokes there are fewer samples than grid
-points, and the pair is not the slower of the two; as the number of samples
-grows, with more spokes or with the frames of a dynamic series sharing one
-normal operator, the convolution becomes the cheaper.</p>
+<p>The two normal operators differ by the tolerance of the transforms, and
+the iterations propagate that difference into the images. Their costs scale
+differently. The convolution is an FFT, a pointwise multiplication and an
+inverse FFT on the doubled grid per coil, independent of the number of
+samples. The transform pair is two non-uniform transforms, whose spreading
+and interpolation cost grows with the number of samples. The convolution
+therefore gains as the number of samples grows, with more spokes or with
+the frames of a dynamic series sharing one normal operator. The timings
+printed above are for this machine and this sample count.</p>
+</section>
+<section id="exercise-early-stopping-of-cg">
+<h2>Exercise: early stopping of CG<a class="headerlink" href="#exercise-early-stopping-of-cg" title="Link to this heading">#</a></h2>
+<p>Check that the iteration count regularizes CG-SENSE: rerun it with a range
+of iteration counts and compute the NRMSE of each.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">counts</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span><span class="w">
+</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="p">]</span><span class="w">
+</span><span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">:</span><span class="w">
+</span>    <span class="n">estimate</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">count</span><span class="p">)</span><span class="w">
+</span>    <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../../_images/sphx_glr_02-radial-sense_008.png" srcset="../../_images/sphx_glr_02-radial-sense_008.png" alt="02 radial sense" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span> 5 iterations: NRMSE 0.192
+10 iterations: NRMSE 0.108
+20 iterations: NRMSE 0.091
+40 iterations: NRMSE 0.090
+60 iterations: NRMSE 0.100
+</pre></div>
+</div>
+<p>The error falls steeply over the first iterations, as CG recovers the
+image, reaches its minimum between 20 and 40 iterations, and rises again at
+60, as CG fits more of the noise: semi-convergence. The dashed line is the
+TV reconstruction. Repeat the experiment with fewer spokes, or a higher
+noise level in <code class="docutils literal notranslate"><span class="pre">bt.noise</span></code>, and see where the minimum moves.</p>
+</section>
+<section id="as-a-spec">
+<h2>As a spec<a class="headerlink" href="#as-a-spec" title="Link to this heading">#</a></h2>
+<p>What this lesson built, stated the way you would ask an agent for it:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Reconstruct a 2D golden-angle radial multichannel acquisition (8 coils,
+48 spokes of 192 samples, 192x192 matrix) with bartorch. Simulate it with
+linop.NoncartesianSense and bt.noise. Estimate normalized sensitivities
+with bt.ncalib(kspace[..., None], t=traj, N=True). Reconstruct three ways:
+gridding (ramp-weighted bartorch.nufft_adjoint, root sum of squares),
+CG-SENSE (apps.pics, 30 iterations) and SENSE with total variation
+(priors.TotalVariation over the last two axes, weight 0.0005, ADMM,
+30 iterations). Repeat the TV reconstruction with optim.data_scaling and
+optim.ADMM over the operator, with and without the Toeplitz normal, and
+report the differences. Report NRMSE and SSIM of the magnitudes against
+the reference after a global least-squares scale.
+</pre></div>
+</div>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="pruessmann2001" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id4">2</a>)</span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
 <p>Pruessmann KP, Weiger M, Börnert P, Boesiger P. Advances in sensitivity
 encoding with arbitrary k-space trajectories. <em>Magn Reson Med</em>
 46(4):638-651 (2001). <a class="reference external" href="https://doi.org/10.1002/mrm.1241">https://doi.org/10.1002/mrm.1241</a></p>
 </aside>
-<aside class="footnote brackets" id="winkelmann" role="doc-footnote">
+<aside class="footnote brackets" id="brainweb" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+Evans AC. Design and construction of a realistic digital brain phantom.
+<em>IEEE Trans Med Imaging</em> 17(3):463-468 (1998).
+<a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
+</aside>
+<aside class="footnote brackets" id="winkelmann" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p>Winkelmann S, Schaeffter T, Koehler T, Eggers H, Doessel O. An optimal
 radial profile order based on the golden ratio for time-resolved MRI.
 <em>IEEE Trans Med Imaging</em> 26(1):68-76 (2007).
 <a class="reference external" href="https://doi.org/10.1109/TMI.2006.885337">https://doi.org/10.1109/TMI.2006.885337</a></p>
 </aside>
 <aside class="footnote brackets" id="nlinv" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
 <p>Uecker M, Hohage T, Block KT, Frahm J. Image reconstruction by regularized
 nonlinear inversion – joint estimation of coil sensitivities and image
 content. <em>Magn Reson Med</em> 60(3):674-682 (2008).
 <a class="reference external" href="https://doi.org/10.1002/mrm.21691">https://doi.org/10.1002/mrm.21691</a></p>
 </aside>
 <aside class="footnote brackets" id="rof" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
 <p>Rudin LI, Osher S, Fatemi E. Nonlinear total variation based noise removal
 algorithms. <em>Physica D</em> 60(1-4):259-268 (1992).
 <a class="reference external" href="https://doi.org/10.1016/0167-2789(92)90242-F">https://doi.org/10.1016/0167-2789(92)90242-F</a></p>
 </aside>
 <aside class="footnote brackets" id="fessler" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">6</a><span class="fn-bracket">]</span></span>
 <p>Fessler JA, Lee S, Olafsson VT, Shi HR, Noll DC. Toeplitz-based iterative
 image reconstruction for MRI with correction for magnetic field
 inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
 <a class="reference external" href="https://doi.org/10.1109/TSP.2005.853152">https://doi.org/10.1109/TSP.2005.853152</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.203 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.270 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-non-cartesian-02-radial-sense-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/bc84ed3e92e55e20c8e03a42ea2633b5/02-radial-sense.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-radial-sense.ipynb</span></code></a></p>
@@ -855,15 +926,15 @@ inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Trajectories and transforms</p>
+        <p class="prev-next-title">7. Basics of non-Cartesian imaging</p>
       </div>
     </a>
     <a class="right-next"
-       href="../05-model-based/index.html"
+       href="../05-model-based/01-quantitative-models.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Model-based reconstruction</p>
+        <p class="prev-next-title">9. Nonlinear inversion for T2 mapping</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -885,12 +956,15 @@ inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acquisition">Acquisition</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sensitivity-calibration">Sensitivity calibration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulated-acquisition">Simulated acquisition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coil-sensitivities-from-the-spokes">Coil sensitivities from the spokes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gridding">Gridding</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-sense">Iterative SENSE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-same-solve-through-the-operator">The same solve through the operator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cg-sense">CG-SENSE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sense-with-total-variation">SENSE with total variation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cg-sense-from-an-operator-and-a-solver">CG-SENSE from an operator and a solver</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-normal-operator">The normal operator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-early-stopping-of-cg">Exercise: early stopping of CG</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#as-a-spec">As a spec</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>

@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=90dfe745"></script>
+    <script src="../../_static/documentation_options.js?v=2b236558"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,20 +56,21 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/guides/user/index.html" />
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Prerequisites and supported platforms" href="prerequisites.html" />
+    <link rel="next" title="Developer guide" href="../developer/index.html" />
     <link rel="prev" title="Homepage" href="../../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.12" />
+  <meta name="docsearch:version" content="v0.0.13" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -196,71 +197,54 @@
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Prerequisites and supported platforms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="issues.html">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="discussions.html">Questions and proposals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="security.html">Security</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">User guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/installation.html">Editable and source installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/bart-fork.html">The BART fork</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/terminology.html">Terminology and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/pull-requests.html">Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/code-of-conduct.html">Code of conduct</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer/internals/performance.html">Backends and timings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/03-bias-field.html">Receive bias field</a></li>
@@ -269,15 +253,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/08-workflows/index.html">Tours: dynamic and quantitative workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../auto_examples/09-learning-workflows/index.html">Tours: learning workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
@@ -500,7 +478,9 @@
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -516,6 +496,23 @@
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-platforms">Supported platforms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytorch-build">PyTorch build</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#package-and-extras">Package and extras</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gpu-builds">GPU builds</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-interface">Command-line interface</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting help</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -527,43 +524,228 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="user-guide">
 <h1>User guide<a class="headerlink" href="#user-guide" title="Link to this heading">#</a></h1>
-<p>Installing bartorch and getting help with it: the supported platforms and
-requirements, the installation with the optional components a workflow needs,
-and where to report a defect, ask a question or disclose a vulnerability.  The
-array layout, trajectory units and Fourier-transform conventions are stated in
-<a class="reference internal" href="../../explanation/data-layout.html"><span class="doc">Data layout and conventions</span></a>, the other concepts in
-<a class="reference internal" href="../../explanation/index.html"><span class="doc">Explanation</span></a>, and complete reconstructions in the
-<a class="reference internal" href="../../auto_examples/index.html"><span class="doc">examples</span></a>.</p>
+<p>Installation and support.  The array layout, trajectory units and
+Fourier-transform conventions are in <a class="reference internal" href="../../explanation/data-layout.html"><span class="doc">Data layout</span></a>, the
+other concepts in <a class="reference internal" href="../../explanation/index.html"><span class="doc">Explanations</span></a>, and complete reconstructions
+in the <a class="reference internal" href="../../gallery/index.html"><span class="doc">Examples</span></a>.  A build from source or from a
+checkout is described in <a class="reference internal" href="../developer/installation.html"><span class="doc">Development installation</span></a>.</p>
+<section id="supported-platforms">
+<h2>Supported platforms<a class="headerlink" href="#supported-platforms" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Page</p></th>
-<th class="head"><p>Purpose</p></th>
+<tr class="row-odd"><th class="head"><p>Platform</p></th>
+<th class="head"><p>Distribution</p></th>
+<th class="head"><p>Device</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="prerequisites.html"><span class="doc">Prerequisites and supported platforms</span></a></p></td>
-<td><p>Python and PyTorch requirements, supported platforms, and the optional extras</p></td>
+<tr class="row-even"><td><p>Linux x86-64, glibc 2.28 or later</p></td>
+<td><p>Wheel</p></td>
+<td><p>CPU; CUDA with the <code class="docutils literal notranslate"><span class="pre">cu12</span></code> or <code class="docutils literal notranslate"><span class="pre">cu13</span></code> extra</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="installation.html"><span class="doc">Installation</span></a></p></td>
-<td><p>Installing PyTorch and bartorch, extras, source builds, CUDA and the command line</p></td>
+<tr class="row-odd"><td><p>macOS 11 or later on Apple silicon</p></td>
+<td><p>Wheel</p></td>
+<td><p>CPU</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="from-bart-sigpy.html"><span class="doc">From BART and sigpy</span></a></p></td>
-<td><p>BART commands and sigpy calls, and their equivalents here</p></td>
+<tr class="row-even"><td><p>Windows 10 or later on x86-64</p></td>
+<td><p>Wheel</p></td>
+<td><p>CPU</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="issues.html"><span class="doc">Reporting issues</span></a></p></td>
-<td><p>What a bug report or a numerical discrepancy report contains</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="discussions.html"><span class="doc">Questions and proposals</span></a></p></td>
-<td><p>Where questions and proposals go</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="security.html"><span class="doc">Security</span></a></p></td>
-<td><p>Reporting a vulnerability privately</p></td>
+<tr class="row-odd"><td><p>Linux aarch64, macOS on Intel</p></td>
+<td><p>Source distribution, compiled on installation (<a class="reference internal" href="../developer/installation.html#source-builds"><span class="std std-ref">Source builds</span></a>)</p></td>
+<td><p>CPU</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="toctree-wrapper compound">
+<p>Apple MPS devices are not supported.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Requirement</p></th>
+<th class="head"><p>Version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.10 or later; the wheels are tested on 3.10 and 3.14</p></td>
+</tr>
+<tr class="row-odd"><td><p>PyTorch</p></td>
+<td><p>CPU or CUDA build: 2.7.1 or later on Linux, 2.3 or later on macOS, 2.2 or later on Windows.  The library binds to the OpenMP runtime PyTorch carries (<a class="reference internal" href="../../explanation/execution-model.html#openmp-runtime"><span class="std std-ref">OpenMP runtime</span></a>), which sets the Linux and macOS floors</p></td>
+</tr>
+<tr class="row-even"><td><p>NumPy, SciPy</p></td>
+<td><p>2.2 and 1.13 or later</p></td>
+</tr>
+<tr class="row-odd"><td><p>BlochSim, MRI-NUFFT</p></td>
+<td><p>0.0.10 and 1.0 or later</p></td>
+</tr>
+<tr class="row-even"><td><p>SimpleITK</p></td>
+<td><p>2.3 or later</p></td>
+</tr>
+<tr class="row-odd"><td><p>ismrmrd, pydicom, nibabel</p></td>
+<td><p>1.14, 3.0 and 5.0 or later</p></td>
+</tr>
+</tbody>
+</table>
 </div>
+<p>pip installs all of these with bartorch; install PyTorch first to choose its
+build.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<section id="pytorch-build">
+<h3>PyTorch build<a class="headerlink" href="#pytorch-build" title="Link to this heading">#</a></h3>
+<p>Install PyTorch first, with the command the
+<a class="reference external" href="https://pytorch.org/get-started/locally/">PyTorch installation selector</a> gives
+for your device: the CPU build, or the build for your CUDA version.  If PyTorch
+is missing, pip installs the default build from PyPI with bartorch.  The
+version floors are listed under <em>Supported platforms</em>.</p>
+</section>
+<section id="package-and-extras">
+<h3>Package and extras<a class="headerlink" href="#package-and-extras" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>bartorch
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[mkl,io]'</span><span class="w">   </span><span class="c1"># with extras, comma-separated</span>
+</pre></div>
+</div>
+<p>The wheel contains the compiled library with BART and FINUFFT embedded; you
+need no BART or FINUFFT installation and no compiler.</p>
+<p>Check the installation by building a phantom:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">bartorch.tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">bartorch</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span> <span class="n">bartorch</span><span class="o">.</span><span class="n">bart_version</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bartorch</span><span class="o">.</span><span class="n">build_info</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bartorch</span><span class="o">.</span><span class="n">backend_sources</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bt</span><span class="o">.</span><span class="n">phantom</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../../generated/bartorch.build_info.html#bartorch.build_info" title="bartorch.build_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.build_info()</span></code></a> reports the compiler, the OpenMP and CUDA
+configuration of the library, and the FINUFFT version and FFT compiled into it.
+<a class="reference internal" href="../../generated/bartorch.backend_sources.html#bartorch.backend_sources" title="bartorch.backend_sources"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.backend_sources()</span></code></a> reports the library serving each BLAS and
+LAPACK routine, BART’s FFT and FINUFFT’s FFT: MKL when the <code class="docutils literal notranslate"><span class="pre">mkl</span></code> extra is
+installed, otherwise the routines PyTorch links, and SciPy’s for the rest.</p>
+</section>
+<section id="optional-dependencies">
+<h3>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Extra</p></th>
+<th class="head"><p>Installs</p></th>
+<th class="head"><p>Needed for</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cu12</span></code>, <code class="docutils literal notranslate"><span class="pre">cu13</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bartorch-cuda12</span></code>, <code class="docutils literal notranslate"><span class="pre">bartorch-cuda13</span></code> (Linux x86-64)</p></td>
+<td><p>CUDA devices (<a class="reference internal" href="#gpu-builds"><span class="std std-ref">GPU builds</span></a>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mkl</span></code></p></td>
+<td><p>Intel MKL (Linux x86-64)</p></td>
+<td><p>MKL as the source of the BLAS, LAPACK and FFT routines, and of FINUFFT’s FFT</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">learning</span></code></p></td>
+<td><p>Lightning, TorchIO</p></td>
+<td><p><a class="reference internal" href="../../generated/bartorch.learning.Reconstruction.html#bartorch.learning.Reconstruction" title="bartorch.learning.Reconstruction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reconstruction</span></code></a> and <a class="reference internal" href="../../generated/bartorch.learning.RandomGain.html#bartorch.learning.RandomGain" title="bartorch.learning.RandomGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomGain</span></code></a> (<a class="reference internal" href="../../api/learning.html"><span class="doc">Learning</span></a>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pyhysco</span></code></p></td>
+<td><p>PyHySCO (GPL-3.0-only)</p></td>
+<td><p><a class="reference internal" href="../../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.correct_susceptibility()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Two packages are used when present and have no extra: DeepInverse
+(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">deepinv</span></code>) for <a class="reference internal" href="../../generated/bartorch.interop.to_deepinv.html#bartorch.interop.to_deepinv" title="bartorch.interop.to_deepinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.interop.to_deepinv()</span></code></a>, and Triton for
+the spiral deblurring of <a class="reference internal" href="../../generated/bartorch.tools.deblur.html#bartorch.tools.deblur" title="bartorch.tools.deblur"><code class="xref py py-func docutils literal notranslate"><span class="pre">deblur()</span></code></a> on a CUDA device.
+PyHySCO is not distributed with bartorch and is imported only when
+<a class="reference internal" href="../../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-func docutils literal notranslate"><span class="pre">correct_susceptibility()</span></code></a> is called.  The packages the
+examples import are listed on the <a class="reference internal" href="../../gallery/index.html"><span class="doc">Examples</span></a> page.</p>
+</section>
+<section id="gpu-builds">
+<span id="id1"></span><h3>GPU builds<a class="headerlink" href="#gpu-builds" title="Link to this heading">#</a></h3>
+<p>A CUDA device needs a CUDA build of PyTorch and bartorch’s library compiled for
+the same CUDA major version, a separate package installed by an extra.  Both
+exist for Linux x86-64 only.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PyTorch build (<code class="docutils literal notranslate"><span class="pre">torch.version.cuda</span></code>)</p></th>
+<th class="head"><p>bartorch</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>12.x</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'bartorch[cu12]'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>13.x</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'bartorch[cu13]'</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>--index-url<span class="w"> </span>https://download.pytorch.org/whl/cu126
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[cu12]'</span>
+</pre></div>
+</div>
+<p>bartorch loads the CUDA build in place of its own library when it matches
+PyTorch’s CUDA major version and the installed bartorch release, and raises an
+<code class="docutils literal notranslate"><span class="pre">ImportError</span></code> naming the extra to install otherwise.
+<a class="reference internal" href="../../generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.cuda_available()</span></code></a> and <code class="docutils literal notranslate"><span class="pre">cuda=ON</span></code> in <a class="reference internal" href="../../generated/bartorch.build_info.html#bartorch.build_info" title="bartorch.build_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.build_info()</span></code></a>
+report the library loaded.  The CUDA build contains BART’s kernels and
+cuFINUFFT for compute capabilities 7.5, 8.0 and 9.0, with the 8.0 code serving
+8.6 and 8.9 and PTX for newer devices, and links the CUDA runtime, cuFFT and
+cuBLAS installed with PyTorch’s CUDA build.</p>
+</section>
+<section id="command-line-interface">
+<h3>Command-line interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> command accepts the command lines of BART’s <code class="docutils literal notranslate"><span class="pre">bart</span></code> executable
+and operates on CFL files:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>bartorch<span class="w"> </span>pics<span class="w"> </span>-l1<span class="w"> </span>-r0.01<span class="w"> </span>-i30<span class="w"> </span>kspace<span class="w"> </span>sensitivities<span class="w"> </span>image
+bartorch<span class="w"> </span>--list
+</pre></div>
+</div>
+<p>A script written for <code class="docutils literal notranslate"><span class="pre">bart</span></code> runs with the command name replaced, or with a
+<code class="docutils literal notranslate"><span class="pre">bart</span></code> symbolic link to <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> earlier on the <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.  The commands that
+run as <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.apps</span></code> pipelines are listed in <a class="reference internal" href="../../api/cli.html"><span class="doc">Command line</span></a>.</p>
+</section>
+</section>
+<section id="getting-help">
+<h2>Getting help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h2>
+<p><strong>Issue reports.</strong> Bugs, documentation defects and feature requests go to the
+<a class="reference external" href="https://github.com/pulserver/bartorch/issues/new/choose">issue tracker</a>, whose
+forms ask for the information below.  Search the existing issues for the error
+message and the function name first.  A bug report contains:</p>
+<ul class="simple">
+<li><p>the observed and the expected behaviour, with the complete traceback;</p></li>
+<li><p>a minimal script on synthetic data, <a class="reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.phantom()</span></code></a> or a
+random tensor with a fixed seed, rather than acquired data;</p></li>
+<li><p>the shapes, dtypes and devices of the inputs, the axis and trajectory
+conventions assumed, and the options used, including regularization terms
+and Fourier-transform normalization;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bartorch.__version__</span></code>, the output of <a class="reference internal" href="../../generated/bartorch.build_info.html#bartorch.build_info" title="bartorch.build_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.build_info()</span></code></a> (which
+includes the BART and FINUFFT versions compiled in), the Python and PyTorch
+versions, the operating system and the installation command;</p></li>
+<li><p>for a build from a checkout, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">rev-parse</span> <span class="pre">HEAD</span></code> and
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">-C</span> <span class="pre">external/bart</span> <span class="pre">rev-parse</span> <span class="pre">HEAD</span></code>;</p></li>
+<li><p>on a CUDA device, the GPU model, the driver version, <code class="docutils literal notranslate"><span class="pre">torch.version.cuda</span></code>,
+<code class="docutils literal notranslate"><span class="pre">torch.cuda.is_available()</span></code> and <a class="reference internal" href="../../generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.cuda_available()</span></code></a>.</p></li>
+</ul>
+<p>If importing bartorch or loading its library fails, report that error; the
+functions above need the library.  A numerical discrepancy report states the
+reference compared with (an independent implementation, an explicit sum, a
+closed form) and the relative error observed.  A performance report states the
+problem size, the thread count, whether the timing includes warm-up and device
+synchronization, and the peak memory.  Share only data you may publish, and
+remove patient identifiers, credentials and private paths from logs.</p>
+<p><strong>Questions and proposals.</strong> The repository has no GitHub Discussions;
+questions and proposals go to the issue tracker.  File a usage question the
+documentation does not answer as a documentation issue, and a proposal as a
+feature request stating the reconstruction problem and the interface proposed.
+Discuss a change to the public API in an issue before opening a pull request.</p>
+<p><strong>Security.</strong> Report a vulnerability privately, through the <strong>Report a
+vulnerability</strong> button under the repository’s
+<a class="reference external" href="https://github.com/pulserver/bartorch/security">Security</a> tab, not as a public
+issue.  The policy, including the supported versions, is
+<a class="reference external" href="https://github.com/pulserver/bartorch/blob/main/SECURITY.md"><code class="docutils literal notranslate"><span class="pre">SECURITY.md</span></code></a>.</p>
+</section>
 </section>
 
 
@@ -587,11 +769,11 @@ array layout, trajectory units and Fourier-transform conventions are stated in
       </div>
     </a>
     <a class="right-next"
-       href="prerequisites.html"
+       href="../developer/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Prerequisites and supported platforms</p>
+        <p class="prev-next-title">Developer guide</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -601,6 +783,32 @@ array layout, trajectory units and Fourier-transform conventions are stated in
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-platforms">Supported platforms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytorch-build">PyTorch build</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#package-and-extras">Package and extras</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gpu-builds">GPU builds</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-interface">Command-line interface</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting help</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

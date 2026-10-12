@@ -5,19 +5,14 @@
 Model-based reconstruction
 --------------------------
 
-Quantitative MRI estimates tissue parameters such as :math:`T_1` and
-:math:`T_2` from a series of images acquired at different contrasts.
-Reconstructing each contrast separately and fitting a signal model afterwards
-ignores the relation between the contrasts that the signal model states.  A
-model-based reconstruction places that relation in the forward operator, so
-that every contrast constrains the same unknowns.  This section fits a
-nonlinear signal model directly to multi-echo k-space to estimate :math:`T_2`
-maps, and compares the result with a voxel-wise fit of reconstructed images.
-The linear subspace formulation and the fit to DICOM images are the tours
+To map :math:`T_2` you usually reconstruct one image per echo and fit a decay
+in every voxel. In lesson 9 you put the decay into the forward model instead,
+and fit the maps directly to the multi-echo k-space, so that every echo
+constrains the same unknowns. The tours
 :doc:`/auto_examples/08-workflows/02-subspace-t1-mapping` and
-:doc:`/auto_examples/08-workflows/03-maps-from-scanner-images`.
-:doc:`/explanation/nonlinear` compares the formulations with reconstruction
-followed by a voxel-wise fit.
+:doc:`/auto_examples/08-workflows/03-maps-from-scanner-images` show the linear
+subspace alternative and a fit to DICOM images. :doc:`/explanation/nonlinear`
+compares the formulations.
 
 
 .. raw:: html
@@ -33,7 +28,7 @@ followed by a voxel-wise fit.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 8 you reconstructed one image from undersampled radial data, and in lesson 4 you solved a model that is nonlinear in its unknowns, image times coil sensitivities, by Gauss-Newton. In this lesson you apply both to quantitative imaging. You estimate a T_2 map from an undersampled multi-echo spin-echo scan twice: first by reconstructing an image per echo and fitting the decay voxel by voxel, then by fitting the signal model directly to the k-space data, and you compare the accuracy of the two at the same undersampling.">
 
 .. only:: html
 
@@ -44,7 +39,7 @@ followed by a voxel-wise fit.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
+      <div class="sphx-glr-thumbnail-title">9. Nonlinear inversion for T2 mapping</div>
     </div>
 
 

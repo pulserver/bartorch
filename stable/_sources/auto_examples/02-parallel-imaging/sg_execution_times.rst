@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:09.456** total execution time for 2 files **from auto_examples/02-parallel-imaging**:
+**00:09.701** total execution time for 2 files **from auto_examples/02-parallel-imaging**:
 
 .. container::
 
@@ -32,9 +32,9 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_01-coil-calibration.py` (``01-coil-calibration.py``)
-     - 00:05.491
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py` (``02-nonlinear-inversion.py``)
-     - 00:03.966
+     - 00:04.994
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_01-coil-calibration.py` (``01-coil-calibration.py``)
+     - 00:04.707
      - 0.0

@@ -18,77 +18,93 @@
 .. _sphx_glr_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py:
 
 
-===================
-Nonlinear inversion
-===================
+=====================================================
+4. Joint reconstruction of image and sensitivity maps
+=====================================================
 
-This lesson reconstructs an image and the coil sensitivities together from
-undersampled data whose fully sampled central region is too small for a
-separate calibration, and then writes the same reconstruction out as a
-nonlinear operator and a Gauss-Newton solver.
+In lesson 3 you saw ESPIRiT fail with eight ACS lines while nonlinear
+inversion kept working, because it fits the sensitivities to every acquired
+sample rather than to the ACS block alone. In this lesson you keep only six
+central lines, too few for any separate calibration, and reconstruct the
+image and the sensitivities together.
 
-ESPIRiT [#espirit]_ estimates the sensitivities from the autocalibration
-(ACS) region at the centre of k-space, and a linear SENSE reconstruction then
-treats them as known. When the ACS region is small, or absent, as in many
-real-time, non-Cartesian and highly accelerated protocols, the sensitivities
-are unknowns like the image, and the forward model
+In the SENSE model
 
 .. math::
 
    y_c = P F (S_c \cdot x)
 
-becomes bilinear: it is a product of two unknowns. Nonlinear inversion
-(NLINV) [#nlinv]_ solves it by the iteratively regularized Gauss-Newton
-method (IRGNM) [#bakushinsky]_, with the smoothness of the sensitivities, which
-resolves the ambiguity of the factorization, built into the model as a
-weighting of their k-space coefficients rather than added as a penalty.
-
-The phantom and the coil sensitivities are built as in
-:doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is hidden on
-this page and present in the script this page can be downloaded as.
+both :math:`S_c` and :math:`x` become unknowns, and the model becomes
+bilinear: the data are a product of the two. Nonlinear inversion (NLINV)
+[#nlinv]_ solves it with the iteratively regularized Gauss-Newton method
+(IRGNM) [#bakushinsky]_. The factorization into image and sensitivities is
+not unique, and NLINV restricts it by building smoothness of the
+sensitivities into the model. You first run it as BART's ``nlinv``,
+then write the same reconstruction out as an operator and a solver you can
+change.
 
 **Learning objectives**
 
 - Reconstruct an image and its sensitivities jointly with
   :func:`bartorch.tools.nlinv` from an ACS region too small for ESPIRiT.
-- State the ambiguity of the bilinear factorization and the role of the
-  Sobolev weighting of the sensitivities.
+- Explain the ambiguity of the bilinear model and how the Sobolev weighting
+  of the sensitivities resolves it.
 - Write the same reconstruction as :class:`bartorch.nlop.NonlinearSense`
   under :class:`bartorch.nlop.IRGNM`.
+- See how the number of Gauss-Newton steps acts as a regularization
+  parameter.
 
-It follows :doc:`01-coil-calibration`, which used ``nlinv`` as a calibration
-step. The next lesson, :doc:`../03-regularization/01-regularized-reconstruction`,
-adds a prior on the image to the encoding that calibration provides.
+Previous: :doc:`01-coil-calibration`. Next:
+:doc:`../03-regularization/01-regularized-reconstruction`, where you add a
+prior on the image to the reconstruction and learn how to choose it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-230
+.. GENERATED FROM PYTHON SOURCE LINES 44-170
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 171-180
+
+Simulated acquisition
+---------------------
+
+The object is the BrainWeb slice of lesson 2 [#brainweb]_, at 128 by 128,
+and you receive it with BART's analytical eight-channel head coil, as there.
+You keep a third of the phase encodes, drawn at random and more densely near
+the centre, but only six fully sampled lines at the centre itself. How the
+phantom and the pattern are made is hidden; ``lines`` is a vector of ones on
+the acquired phase encodes.
+
+.. GENERATED FROM PYTHON SOURCE LINES 180-203
 
 .. code-block:: Python
 
-
-    import csv
-    from pathlib import Path
-
-    import brainweb_dl
-    import numpy as np
     import torch
-    from brainweb_dl import get_mri
 
     import bartorch
     import bartorch.tools as bt
+
     from bartorch import nlop
 
-    SIZE = 128
     COILS = 8
     ACCELERATION = 3
     CALIBRATION = 6  # lines at the centre, far fewer than ESPIRiT needs
 
+    sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+    sensitivities /= bartorch.rss(sensitivities, axes=(0,), keepdim=True)
 
+    kspace = bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True)
+    kspace = bt.noise(kspace, n=1e-5, s=42)
 
-
+    lines = simulate(ACCELERATION, CALIBRATION)
     pattern = lines.reshape(SIZE, 1).to(torch.complex64)
     measured = kspace[:, None] * pattern
 
-    print(f"{float(lines.mean()):.0%} of the phase encodes, {CALIBRATION} of them at the centre")
+    print(f"{float(lines.mean()):.0%} of the lines, {CALIBRATION} at the centre")
 
 
 
@@ -98,114 +114,137 @@ adds a prior on the image to the encoding that calibration provides.
 
  .. code-block:: none
 
-    32% of the phase encodes, 6 of them at the centre
+    32% of the lines, 6 at the centre
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-246
+.. GENERATED FROM PYTHON SOURCE LINES 204-220
 
-Six central lines locate the k-space centre but do not calibrate anything
-on their own. With ESPIRiT's default kernel of six points, a six-line ACS
-region leaves a single kernel position along the phase-encoding axis, too
-few rows for the calibration matrix of :func:`bartorch.tools.ecalib`.
+Six central lines tell you where the centre of k-space is, but they do not
+calibrate anything on their own. ESPIRiT's kernel is six points wide by
+default, so a six-line ACS region leaves it a single kernel position along
+the phase-encoding axis: far too few rows for the calibration matrix of
+:func:`bartorch.tools.ecalib`.
 
 Joint reconstruction
 --------------------
 
 :func:`bartorch.tools.nlinv` takes the k-space and returns the image and,
-when asked, the sensitivities it estimated along the way. Its iteration count
-is a number of Gauss-Newton steps rather than of linear iterations, and it
-acts as a regularization parameter rather than a convergence threshold: the
-regularization weight is halved after every step, so stopping early leaves a
-smoother image and running longer eventually lets the noise in. Eight steps
-is BART's default; twelve are used here.
+if you ask, the sensitivities it estimated on the way. ``maxiter`` counts
+Gauss-Newton steps, not linear iterations. The regularization weight is
+halved after every step, so the count is a regularization parameter rather
+than a convergence threshold: fewer steps give a smoother image, more steps
+admit more noise. BART's default is eight steps; you use
+twelve.
 
-.. GENERATED FROM PYTHON SOURCE LINES 247-256
+.. GENERATED FROM PYTHON SOURCE LINES 220-253
 
 .. code-block:: Python
 
-
     STEPS = 12
 
-    reconstruction, estimated = bt.nlinv(measured, maxiter=STEPS, return_sensitivities=True)
-    zero_filled = bartorch.rss(bartorch.ifft(measured[:, 0], axes=(-2, -1), unitary=True), axes=(0,))
+    reconstruction, estimated = bt.nlinv(
+        measured,
+        maxiter=STEPS,
+        return_sensitivities=True,
+    )
 
-    print(f"NRMSE, zero-filled {bt.nrmse(image.abs(), zero_filled.abs(), scaled=True):.3f}")
-    print(f"NRMSE, nlinv       {bt.nrmse(image.abs(), reconstruction.abs(), scaled=True):.3f}")
+    channel_images = bartorch.ifft(measured[:, 0], axes=(-2, -1), unitary=True)
+    zero_filled = bartorch.rss(channel_images, axes=(0,))
+
+    for name, estimate in (("zero-filled", zero_filled), ("nlinv", reconstruction)):
+        nrmse = bt.nrmse(image.abs(), estimate.abs(), scaled=True)
+        print(f"NRMSE, {name:>11}: {nrmse:.3f}")
 
 
 
+
+
+.. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_001.png
+   :alt: reference, zero-filled, nlinv, |error|, nlinv
+   :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_001.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
-    NRMSE, zero-filled 0.209
-    NRMSE, nlinv       0.078
+    NRMSE, zero-filled: 0.209
+    NRMSE,       nlinv: 0.078
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-293
+.. GENERATED FROM PYTHON SOURCE LINES 254-282
+
+From a third of the phase encodes and six central lines, nonlinear
+inversion removes the aliasing of the zero-filled image. Its error sits at
+tissue boundaries, around the skull, and in the noise-like residue that
+random sampling leaves. As in lesson 2, ``scaled=True`` fits one global
+factor before comparing, so the NRMSE compares shapes, not the overall
+scale.
+
+The estimated sensitivities
+----------------------------
+
+The coil unknown in NLINV is not the sensitivity map itself but its k-space
+representation :math:`\hat{s}`, and the map follows as
+
+.. math::
+
+   S = \mathcal{F}^{-1}\left[(1 + a|k|^2)^{-b/2} \, \hat{s}\right],
+
+a Sobolev-norm weighting that suppresses high spatial frequencies. Every
+Gauss-Newton step in :math:`\hat{s}` is therefore a smooth change of the
+map, and the joint problem needs no separate penalty on the coils.
+
+This matters because the pair is determined only up to a common factor:
+multiply every map by a nonzero function :math:`\gamma(r)`, divide the image
+by it, and the data do not change (:doc:`../../explanation/nonlinear`). The
+weighting restricts :math:`\gamma` to smooth functions, so your estimate can
+differ from the true maps by a smooth common magnitude and phase. To compare
+the two, you remove that factor: divide the maps by their root sum of
+squares and subtract the phase of channel 0.
+
+.. GENERATED FROM PYTHON SOURCE LINES 282-300
+
+.. code-block:: Python
+
+    maps = estimated[:, 0]
+    maps = maps / bartorch.rss(maps, axes=(0,), keepdim=True)
+    maps = maps * torch.exp(-1j * maps[0].angle())
 
 
 
 
-.. rst-class:: sphx-glr-horizontal
 
-
-    *
-
-      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_001.png
-         :alt: reference, zero-filled, nlinv, |error|, nlinv
-         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_002.png
-         :alt: simulated, channel 2, simulated, channel 4, simulated, channel 6, nlinv, channel 2, nlinv, channel 4, nlinv, channel 6
-         :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_002.png
-         :class: sphx-glr-multi-img
+.. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_002.png
+   :alt: simulated, channel 2, simulated, channel 4, simulated, channel 6, nlinv, channel 2, nlinv, channel 4, nlinv, channel 6
+   :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_002.png
+   :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 294-336
+.. GENERATED FROM PYTHON SOURCE LINES 301-327
 
-From a third of the phase encodes and six central lines, nonlinear inversion
-removes the aliasing of the zero-filled image; its error is concentrated at
-tissue boundaries and in the noise-like residue of the random sampling.
-
-The estimated sensitivities are smooth by construction rather than by
-agreement with the data: the coil unknown is not the sensitivity map but its
-k-space representation :math:`\hat{s}`, and the map follows as
-:math:`S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2} \hat{s}]`, a Sobolev-norm
-weighting that suppresses high spatial frequencies. A Gauss-Newton step in
-the unknown is therefore a smooth change of the map, and the joint problem
-needs no separate penalty on the coils.
-
-The pair is determined only up to a common factor: multiplying every map by
-a nonzero function :math:`\gamma(r)` and dividing the image by it leaves the
-data unchanged (:doc:`../../explanation/nonlinear`). The weighting restricts
-:math:`\gamma` to smooth functions, so the estimated maps match the
-simulated ones up to a smooth common magnitude and phase. The figure above
-therefore shows the estimated maps inside the head, divided by their root sum
-of squares and with the phase of channel 0 subtracted, which removes that
-factor; so normalized, they reproduce the simulated maps. An ``nlinv`` image
-is reported after multiplication by the root sum of squares of the maps.
-Outside the object neither factor is determined at all -- their product is
-zero for any pair -- so the maps there follow from the initialization and
-the weighting.
+Inside the head, the normalized estimates reproduce the simulated maps in
+both magnitude and phase. Outside it neither factor is determined at all,
+since their product is zero there for any pair, so the maps follow from the
+initialization and the weighting; the figure masks them. ``nlinv`` reports
+its image multiplied by the root sum of squares of its maps, so the image
+it returns is the one that goes with maps normalized this way.
 
 The model and the solver
 ------------------------
 
-:class:`bartorch.nlop.NonlinearSense` is that forward model as a nonlinear
-operator with two inputs, the image and the coil coefficients, and
+``nlinv`` runs a fixed configuration. To change any part of it, you write
+the model and the solver out explicitly.
+:class:`bartorch.nlop.NonlinearSense` is the forward model above as a
+nonlinear operator with two inputs, the image and the coil coefficients, and
 :class:`bartorch.nlop.IRGNM` is the Gauss-Newton loop over it. Each step
 linearizes the model at the current estimate :math:`x_k` and solves
 
@@ -214,18 +253,18 @@ linearizes the model at the current estimate :math:`x_k` and solves
    \min_x \, \| DF_{x_k} (x - x_k) - (y - F(x_k)) \|^2
    + \alpha_k \| x - x_{\mathrm{ref}} \|^2,
 
-with :math:`DF_{x_k}` the derivative of the forward model,
-:math:`x_{\mathrm{ref}}` zero unless one is given, and :math:`\alpha_k`
-halved after every step, so the first steps are heavily regularized and the
+where :math:`DF_{x_k}` is the derivative of the forward model,
+:math:`x_{\mathrm{ref}}` is zero unless you give one, and :math:`\alpha_k`
+is halved after every step: the first steps are heavily regularized and the
 later ones are not.
 
-.. GENERATED FROM PYTHON SOURCE LINES 337-343
+.. GENERATED FROM PYTHON SOURCE LINES 327-333
 
 .. code-block:: Python
 
-
     model = nlop.NonlinearSense(
-        (COILS, 1, SIZE, SIZE), pattern=lines.reshape(1, SIZE, 1).to(torch.complex64)
+        (COILS, 1, SIZE, SIZE),
+        pattern=lines.reshape(1, SIZE, 1).to(torch.complex64),
     )
     print(f"inputs {model.ishapes} -> output {model.oshapes}")
 
@@ -242,29 +281,26 @@ later ones are not.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 344-348
+.. GENERATED FROM PYTHON SOURCE LINES 334-338
 
-``nlinv`` scales the data by ``100 / ||y||`` before it starts, which fixes
-the meaning of :math:`\alpha`, and runs the conjugate gradients of each step
-to a hundred iterations or a relative tolerance of a tenth. Given the same
-three settings, the loop written here is the application.
+To get what ``nlinv`` gets, you need three of its settings. It scales the
+data by :math:`100 / \|y\|` before it starts, which fixes what
+:math:`\alpha` means, and it runs the conjugate gradients of each step to a
+hundred iterations or a relative tolerance of a tenth:
 
-.. GENERATED FROM PYTHON SOURCE LINES 349-362
+.. GENERATED FROM PYTHON SOURCE LINES 338-354
 
 .. code-block:: Python
 
+    scale = 100.0 / float(torch.linalg.vector_norm(measured))
+    data = model.prepare(measured * scale)
 
-    data = model.prepare(measured * (100.0 / float(torch.linalg.vector_norm(measured))))
-    fitted, coefficients = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)(data, model)
+    solver = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)
+    fitted, coefficients = solver(data, model)
 
-    maps = model.coils(coefficients)
-    combined = fitted.squeeze() * bartorch.rss(maps[:, 0], axes=(0,))
+    coil_maps = model.coils(coefficients)
+    combined = fitted.squeeze() * bartorch.rss(coil_maps[:, 0], axes=(0,))
 
-    difference = float(
-        (fitted.squeeze() - bt.nlinv(measured, maxiter=STEPS, normalize=False)).abs().max()
-    )
-    print(f"largest difference from nlinv: {difference / float(fitted.abs().max()):.1e}")
-    print(f"NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 
 
 
@@ -280,33 +316,100 @@ three settings, the loop written here is the application.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 363-378
+.. GENERATED FROM PYTHON SOURCE LINES 355-377
 
-The two agree to single-precision round-off rather than to the last bit,
-because the data scaling is computed here and inside the application by
-different expressions.
+The loop you wrote and the application agree to about a thousandth of the
+image peak, and give the same NRMSE, rather than agreeing to the last bit:
+the data scaling is computed here and inside the application by different
+expressions.
 
-What the operator form adds is access to everything around the step. The
-linearized problem can go to a solver from :mod:`bartorch.optim` instead of
-the conjugate gradients inside the library (``inner=optim.CG()`` is the same
-method written out, and a regularized solver makes the step a regularized
-one), the loop can be unrolled as :class:`bartorch.nlop.IRGNMBlock`, and a
-Gauss-Newton step is differentiable with respect to the data, the iterate,
+What the operator form gives you is access to everything around the step.
+You can hand the linearized problem to a solver from :mod:`bartorch.optim`
+instead of the conjugate gradients inside the library (``inner=optim.CG()``
+is the same method written out, and a regularized solver makes the step a
+regularized one), unroll the loop as :class:`bartorch.nlop.IRGNMBlock`, and
+differentiate a Gauss-Newton step with respect to the data, the iterate,
 the regularization centre and :math:`\alpha`
-(:doc:`../../explanation/differentiation`).
+(:doc:`../../explanation/learned-reconstruction`). Putting a signal model in front
+of the same encoding, to reconstruct parameter maps rather than an image, is
+lesson 9 (:doc:`../05-model-based/01-quantitative-models`).
 
-Reconstructing parameter maps rather than an image, by putting a signal model
-in front of the same encoding, is :doc:`../05-model-based/01-quantitative-models`.
+Exercise: Gauss-Newton steps
+----------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 381-397
+The number of Gauss-Newton steps was described above as a regularization
+parameter. Run ``nlinv`` for a few more step counts and compute the NRMSE
+of each image; the plot adds the twelve-step result from above:
+
+.. GENERATED FROM PYTHON SOURCE LINES 377-405
+
+.. code-block:: Python
+
+    counts = (4, 8, 16)
+    scores = []
+    for count in counts:
+        estimate = bt.nlinv(measured, maxiter=count)
+        scores.append(bt.nrmse(image.abs(), estimate.abs(), scaled=True))
+
+
+
+
+
+.. image-sg:: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_003.png
+   :alt: 02 nonlinear inversion
+   :srcset: /auto_examples/02-parallel-imaging/images/sphx_glr_02-nonlinear-inversion_003.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+      4 steps: NRMSE 0.181
+      8 steps: NRMSE 0.089
+     12 steps: NRMSE 0.078
+     16 steps: NRMSE 0.107
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 406-431
+
+The error is lowest at twelve steps and higher on both sides. With four
+steps the regularization weight is still large and the estimate is biased
+towards the regularization centre; at sixteen the weight has been halved
+four more times and the noise amplified by the inversion dominates. The
+optimum depends on the noise level and the undersampling: try a different
+``n`` in ``bt.noise`` and see where the minimum moves. Later steps are also
+more expensive than early ones, so a large step count costs considerably
+more time.
+
+As a spec
+---------
+
+What this lesson built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   With bartorch, reconstruct a 2D Cartesian 8-channel k-space of shape
+   (coils, 1, y, x), undersampled along y to a third of the lines with only
+   6 fully sampled central lines, by nonlinear inversion: bt.nlinv with 12
+   Gauss-Newton steps, returning the sensitivities. Then write the same
+   reconstruction as nlop.NonlinearSense (with the sampling pattern) under
+   nlop.IRGNM(iterations=12, cg_maxiter=100, cg_tol=0.1), on data scaled
+   by 100 / ||y||, and check it against bt.nlinv(normalize=False). Compare
+   the estimated maps with the true ones after dividing by their root sum
+   of squares and removing the phase of channel 0.
+
+.. GENERATED FROM PYTHON SOURCE LINES 433-449
 
 References
 ----------
 
-.. [#espirit] Uecker M, Lai P, Murphy MJ, Virtue P, Elad M, Pauly JM, Vasanawala SS,
-   Lustig M. ESPIRiT -- an eigenvalue approach to autocalibrating parallel
-   MRI: where SENSE meets GRAPPA. *Magn Reson Med* 71(3):990-1001 (2014).
-   https://doi.org/10.1002/mrm.24751
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+   Evans AC. Design and construction of a realistic digital brain phantom.
+   *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
 
 .. [#nlinv] Uecker M, Hohage T, Block KT, Frahm J. Image reconstruction by regularized
    nonlinear inversion -- joint estimation of coil sensitivities and image
@@ -320,7 +423,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.966 seconds)
+   **Total running time of the script:** (0 minutes 4.994 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py:

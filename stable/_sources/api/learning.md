@@ -7,7 +7,7 @@ image held on the host, unrolled iterations, the partition of the acquired
 samples for training without a reference, and a voxel-wise uncertainty.  A
 network used as a regularizer is a {obj}`~bartorch.priors.ImplicitPrior`,
 whose `sigma` may be a schedule over the iterations and which with `step=True`
-hands the network the iteration index.  {doc}`../explanation/differentiation`
+hands the network the iteration index.  {doc}`../explanation/learned-reconstruction`
 describes how gradients pass through an unrolled iteration and the memory each
 backward strategy uses.
 
@@ -72,6 +72,6 @@ either name is asked for, so `import bartorch.learning` imports neither.
 | {obj}`~bartorch.learning.Reconstruction` | A `LightningModule` training a denoiser, an unrolled network greedily, or an unrolled network end to end, supervised or self-supervised, with the batch left on the host |
 | {obj}`~bartorch.learning.RandomGain` | A `torchio` transform multiplying every image of a subject by one random complex gain |
 
-The lessons of {doc}`../auto_examples/06-learning/index` and the tours of
-{doc}`../auto_examples/09-learning-workflows/index` train networks built from
+Lessons 10 and 11 of the {doc}`Course <../gallery/course>` and the learning
+workflows of the {doc}`Tours <../gallery/tours>` train networks built from
 these objects.

@@ -1,161 +1,122 @@
-# Nonlinear forward models
+# Model-based reconstruction
 
 ```{admonition} TL;DR
 :class: tldr
 
-- Joint estimation of the image and the coil sensitivities (`nlinv`) and model-based parameter estimation (`moba`) have forward operators that are nonlinear in the unknowns.
-- Both are solved by iteratively regularized Gauss-Newton: each step solves a linearized least-squares problem with a Tikhonov term whose weight decreases geometrically, and the number of steps acts as a regularization parameter.
-- `nlinv` resolves the ambiguity between image and sensitivities with a Sobolev weighting of the coils; the data term of a signal model is nonconvex in its parameters, so the result depends on the starting point.
-- A model-based reconstruction estimates parameter maps directly; a subspace reconstruction keeps the forward model linear and fits the parameters afterwards.
+- A forward model nonlinear in its unknowns, image times coils (`nlinv`) or parameter maps through a signal model (`moba`), is a {class}`~bartorch.nlop.NonlinearOperator` with a derivative and its adjoint.
+- {class}`~bartorch.nlop.IRGNM` solves it by iteratively regularized Gauss-Newton, BART's own loop, with BlochSim signal models whose bounds keep every iterate physical.
+- The `moba` and `mobafit` apps fit those models and answer in named maps; a command line they cannot express runs as BART's command.
 ```
 
-{doc}`inverse-problems` assumes a known, linear forward operator.  Two common
-MRI reconstructions do not satisfy that assumption: the coil sensitivities can
-be unknowns alongside the image, and the image can be a function of physical
-parameters.  Both lead to a nonlinear operator $F$ and are solved by the same
-Gauss-Newton method.
+You meet a nonlinear forward model when the coil sensitivities are unknowns
+alongside the image, or when the image is a function of tissue parameters such
+as $T_1$ or $T_2$. Model-based reconstruction fits the parameter maps directly
+to k-space, $y_{c,e} = P_e F (S_c \cdot M_e(\theta))$, so every contrast
+constrains the same few maps. Lesson 4 of the {doc}`Course <../gallery/course>`
+estimates image and coils jointly, and lesson 9 fits a $T_2$ map to k-space.
 
-## Two nonlinear models
+## Capabilities
 
-**Joint estimation of image and sensitivities.**  When the acquisition has no
-autocalibration (ACS) region large enough for a separate calibration, or the
-coil sensitivity maps are to be estimated from all of the data, both are
-unknowns:
+:::{container} capabilities
 
-$$
-y_c = P F \left( S_c \cdot x \right).
-$$
+- **Represents a nonlinear operator with its value, its derivative at a point and the adjoint of that derivative, composable with linear operators by `@`.**
 
-The operator is bilinear: linear in $x$ for fixed $S$, linear in $S$ for fixed
-$x$, and nonlinear in the pair.  This is **nonlinear inversion**, BART's
-`nlinv`,[^nlinv] which {func}`bartorch.tools.nlinv` runs; its sensitivities
-are the calibration for a subsequent linear reconstruction.
+  Code: {mod}`bartorch.nlop`. Tests: *a derivative agrees with a finite difference*; *a Jacobian is a linear operator with the adjoint identity*; *a linear operator still composes with a nonlinear one* (`test_nlop_algebra.py`).
+- **Runs iteratively regularized Gauss-Newton with the same arithmetic as BART's own loop, to the last bit.**
 
-**Model-based parameter estimation.**  A quantitative experiment acquires a
-series of contrasts whose dependence on tissue parameters $\theta$ is given by
-a signal model $M$ — a mono-exponential decay in $T_2$, an inversion recovery
-in $T_1$, or a Bloch simulation of the sequence:
+  Code: {class}`~bartorch.nlop.IRGNM`, {class}`~bartorch.nlop.IRGNMBlock`. Tests: *the loop without an inner solver is the first form to the last bit*; *the Python loop with conjugate gradients is the library to the last bit* (`test_nlop_irgnm.py`).
+- **Solves each linearized problem with any solver of {mod}`bartorch.optim`, whose regularization terms then penalize the step.**
 
-$$
-y_{c,e} = P_e F \left( S_c \cdot M_e(\theta) \right),
-$$
+  Code: `IRGNM(inner=...)`. Tests: *an unregularized inner solver reaches the same answer*; *a threshold pulls the answer away from the unregularized one* (`test_nlop_irgnm.py`).
+- **Estimates image and coil sensitivities jointly, as `nlinv` does, with the coils under a Sobolev weighting.**
 
-with $e$ the contrast index.  The unknowns are the parameter maps.  This is
-**model-based reconstruction**, BART's `moba`,[^block][^sumpf][^wang] which
-{func}`bartorch.apps.moba` performs over a BlochSim signal model;
-{func}`bartorch.apps.mobafit` fits the same models voxel by voxel to
-reconstructed images.
+  Code: {class}`~bartorch.nlop.NonlinearSense`, {func}`~bartorch.tools.nlinv`. Tests: *a Cartesian fit is the nlinv tool to the last bit*; *the coil weighting damps high spatial frequencies* (`test_nlop_mri.py`).
+- **Wraps BlochSim signal models (inversion recovery, multi-echo decay, any simulated sequence) as nonlinear operators, without forming a Jacobian.**
 
-A Gauss-Newton solver requires the value $F(x)$, the derivative $DF_x$ at a
-point as a linear operator, and its adjoint $DF_x^H$.  A
-{class}`~bartorch.nlop.NonlinearOperator` provides the three, and
-`F.linearize(x)` returns $DF_x$ as a {class}`~bartorch.linop.LinearOperator`.
+  Code: {class}`~bartorch.nlop.SignalModel`, {func}`~bartorch.nlop.MultiEcho`, {func}`~bartorch.nlop.Bloch`. Tests: *the multi-echo decay is what BART computes*; *the adjoint is the adjoint of the derivative* (`test_nlop_blochsim.py`); *the Look-Locker recovery is BART's* (`test_signal_models.py`).
+- **Keeps each bounded parameter inside its bounds at every iterate, and returns named maps in their own units.**
 
-## Iteratively regularized Gauss-Newton
+  Code: {meth}`~bartorch.nlop.SignalModel.initial`, {meth}`~bartorch.nlop.SignalModel.split`. Tests: *a bound keeps every iterate physical*; *a starting point and the maps it stands for round trip* (`test_nlop_blochsim.py`).
+- **Fits a signal model voxel by voxel to images, or directly to k-space with known or jointly estimated coils.**
 
-Each Gauss-Newton step replaces $F$ by its linearization at the current iterate
-$x_k$ and solves the resulting linear problem with a Tikhonov term centred on a
-reference $x_{\mathrm{ref}}$:
+  Code: {func}`~bartorch.apps.mobafit`, {func}`~bartorch.apps.moba`. Tests: *a decay is fitted to the time it was made from*; *moba fits the decay behind known coils*; *moba estimates the coils with the decay* (`test_apps.py`).
+- **Answers a `moba` or `mobafit` command line with the app, to the tolerance of a fit, and sends one the app cannot express to BART's command.**
 
-$$
-x_{k+1} = \arg\min_x \;
-\left\lVert DF_{x_k}(x - x_k) - \left(y - F(x_k)\right) \right\rVert_2^2
-+ \alpha_k \lVert x - x_{\mathrm{ref}} \rVert_2^2 ,
-$$
+  Code: {mod}`bartorch.cli`. Tests: *moba writes the command's maps to the tolerance of a fit*; *a moba the app cannot express goes to the command*; *a mobafit the app cannot express goes to the command* (`test_cli.py`).
 
-that is,
-$x_{k+1} = x_k + (DF^H DF + \alpha_k I)^{-1}\left[DF^H (y - F(x_k)) - \alpha_k (x_k - x_{\mathrm{ref}})\right]$
-with $DF = DF_{x_k}$.  The weight decreases geometrically,
-$\alpha_{k+1} = (\alpha_k - \alpha_{\min})/q + \alpha_{\min}$ with $q = 2$ by
-default.[^bakushinsky]  The early steps are strongly regularized and change
-the iterate only along well-determined directions; later steps admit the
-poorly determined ones.  The number of steps is a regularization parameter:
-stopping early gives a smoother estimate, and continuing eventually fits the
-noise.
+:::
 
-{class}`~bartorch.nlop.IRGNM` implements this loop and
-{class}`~bartorch.nlop.IRGNMBlock` one step of it.  Without an inner solver
-the linear problem is solved by conjugate gradients inside BART, as in
-`nlinv`; with `inner=` it is passed to a solver of {mod}`bartorch.optim`, and
-that solver's regularization terms add a penalty to the step.
+## Division of responsibility
 
-## Identifiability
+- **BART**: the Gauss-Newton step and its conjugate-gradient inverse, the
+  `noir` coil model, and the `moba` and `mobafit` commands a command line falls
+  back to.
+- **bartorch**: the operator algebra, the step written out in Python, and the
+  apps that assemble `moba` and `mobafit` from them.
+- **BlochSim**: the signal models, their derivatives and the bounded
+  parameterisation.
 
-The bilinear model has a symmetry: $S_c \cdot x$ is unchanged by
-$S_c \mapsto \gamma S_c$ and $x \mapsto x / \gamma$ for any nonzero function
-$\gamma(r)$, so the data do not determine how structure is shared between the
-two factors.  `nlinv` resolves this with the prior knowledge that
-sensitivities are smooth, built into the model: the coil unknown is a k-space
-representation $\hat{s}$, and the sensitivities are
+## Method
+
+```{image} ../_static/figures/model-irgnm.svg
+:class: plot
+:alt: Left, the eight echoes of one voxel with the decay fitted after Gauss-Newton steps 2, 6 and 16; right, the median relative T2 error over sixteen steps beside the Tikhonov weight, which halves each step
+```
+
+A $T_2$ decay fitted voxel by voxel by {class}`~bartorch.nlop.IRGNMBlock`
+from a start of 80 ms, regularized towards the middle of the $T_2$ bound
+(`scripts/figures/model.py`). The early, strongly weighted steps stay near
+the centre; the error falls once $\alpha_k$ is small enough for the data to
+dominate.
+
+### Gauss-Newton step
+
+Each step linearizes $F$ at the iterate $x_k$ and solves a Tikhonov-regularized
+least-squares problem centred on $x_{\mathrm{ref}}$:
 
 $$
-S = \mathcal{F}^{-1}\!\left[ (1 + a \lvert k \rvert^2)^{-b/2}\, \hat{s} \right],
+x_{k+1} = x_k + (DF^H DF + \alpha_k I)^{-1}\left[DF^H (y - F(x_k)) - \alpha_k (x_k - x_{\mathrm{ref}})\right],
 $$
 
-a **Sobolev weighting** that attenuates the high spatial frequencies of the
-coil estimate.  The IRGNM penalty on $\hat{s}$ is then a penalty on the
-Sobolev norm of $S$, and the image receives the high-frequency structure.  The
-product $x \cdot \sqrt{\sum_c \lvert S_c \rvert^2}$ is invariant to $\gamma$
-up to its phase, which is why `nlinv` reports the image multiplied by the
-root sum of squares of the estimated sensitivities.
-{class}`~bartorch.nlop.NonlinearSense` is this model;
-{func}`~bartorch.nlop.CoilSense` is the unweighted product in front of any
-linear encoding, which leaves the regularization of the coils to the caller.
+with $DF = DF_{x_k}$. The weight decays geometrically,
+$\alpha_{k+1} = (\alpha_k - \alpha_{\min})/q + \alpha_{\min}$, with $q = 2$ by
+default.[^bakushinsky] The number of steps
+is a regularization parameter: stopping early gives a smoother estimate.
 
-Signal models have no such symmetry — the model fixes the meaning of each
-map — but the data term is nonconvex in $\theta$, so the result depends on the
-starting point.  The models of {mod}`bartorch.nlop` impose bounds by solving
-for a transformed variable, so that every iterate stays within the bounds;
-{meth}`~bartorch.nlop.SignalModel.initial` builds a starting point from
-parameter values and {meth}`~bartorch.nlop.SignalModel.split` converts a
-solution back to named maps in physical units.
+### Sobolev weighting
 
-## Approaches to parameter mapping
+In $S_c \cdot x$ any nonzero function can move from the coils to the image
+without changing the data. `nlinv` solves for the coils as k-space
+coefficients $\hat{s}$ with $S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2}\hat{s}]$,
+so the penalty on $\hat{s}$ is a Sobolev norm of $S$ and the image receives the
+high spatial frequencies.[^nlinv] `moba` uses the same weighting for its coils,
+and `apps.moba(smooth=...)` applies it to a parameter map such as B1 or B0.
 
-| Approach | Unknown | Forward model | Cross-contrast information in the reconstruction | Problem | Output |
-| --- | --- | --- | --- | --- | --- |
-| Reconstruction, then voxel-wise fit | One image per contrast | Linear, $P_e F S$ | Only through a joint regularizer, if one is used; none if the contrasts are reconstructed separately | Linear reconstruction, then a nonlinear fit per voxel | Contrast images, then parameter maps |
-| Subspace reconstruction | Coefficient maps of a low-dimensional basis $\Phi$ | Linear, $P_e F S\, \Phi$ | The signal evolution is restricted to the span of $\Phi$[^huang][^tamir] | Linear; convex with a convex regularizer | Coefficient maps, then parameter maps by dictionary matching or fitting |
-| Model-based reconstruction | Parameter maps $\theta$ | Nonlinear, $P_e F S\, M(\theta)$ | The signal model couples every contrast to the same parameters | Nonlinear, nonconvex | Parameter maps |
+### Bounded parameters
 
-A model-based reconstruction estimates fewer unknowns from the same data —
-for a multi-echo experiment, a few maps rather than one image per echo — and
-applies regularization to the maps.  This improves the estimate when the
-model describes the signal; a signal the model does not describe, such as
-partial volume of two tissues or an imperfect refocusing, becomes a bias in
-the maps.  A subspace reconstruction restricts the signal to a basis derived
-from a dictionary of simulated signals, keeps a linear forward model, and
-defers the nonlinear estimation of the parameters to a separate step.
-{doc}`../auto_examples/08-workflows/02-subspace-t1-mapping` and
-{doc}`../auto_examples/05-model-based/01-quantitative-models` apply the
-second and third routes.
+A bounded parameter is solved for through a transformed variable: a scaled
+sigmoid for a two-sided bound, a softplus for a one-sided one. Every iterate
+then maps inside the bound, and a millisecond relaxation time and a
+dimensionless fraction take steps of comparable size. The data term remains
+nonconvex in $\theta$, so the result depends on the start.[^sumpf] Which
+command lines the apps answer, and why the others go to BART, is listed in
+{doc}`../guides/developer/internals/model-based`.
 
-## Signal models and their derivatives
+## Examples
 
-The signal models — {func}`~bartorch.nlop.InversionRecovery`,
-{func}`~bartorch.nlop.MultiEcho`, {func}`~bartorch.nlop.Bloch` — are
-[BlochSim](https://github.com/pulserver/blochsim) simulators presented as
-BART nonlinear operators.  A signal model is voxel-wise: the signal of a voxel
-depends only on that voxel's parameters, so one forward-mode automatic
-differentiation pass gives the derivative for the whole volume and no Jacobian
-matrix is formed.  {class}`~bartorch.nlop.TorchOperator` does the same for any
-differentiable PyTorch function.  Composition with `@` places a model in front
-of an encoding; the derivative of `E @ M` at $\theta$ is $E\, DM_\theta$.
-{doc}`differentiation` describes how gradients pass through the Gauss-Newton
-steps themselves.
+- {doc}`../auto_examples/02-parallel-imaging/02-nonlinear-inversion`: image
+  and coils by Gauss-Newton.
+- {doc}`../auto_examples/05-model-based/01-quantitative-models`: a $T_2$ map
+  by voxel-wise fit and by fit to k-space.
+- {doc}`../auto_examples/08-workflows/02-subspace-t1-mapping`: the linear
+  alternative, a subspace reconstruction followed by a fit.
+- {doc}`../api/nlop` and {doc}`../api/apps`: the operators, the signal
+  models, IRGNM and the apps.
 
 ## References
 
 [^nlinv]: Uecker M, Hohage T, Block KT, Frahm J. Image reconstruction by regularized nonlinear inversion—joint estimation of coil sensitivities and image content. *Magn Reson Med* 60(3):674–682 (2008). [doi:10.1002/mrm.21691](https://doi.org/10.1002/mrm.21691)
 
-[^block]: Block KT, Uecker M, Frahm J. Model-based iterative reconstruction for radial fast spin-echo MRI. *IEEE Trans Med Imaging* 28(11):1759–1769 (2009). [doi:10.1109/TMI.2009.2023119](https://doi.org/10.1109/TMI.2009.2023119)
-
 [^sumpf]: Sumpf TJ, Uecker M, Boretius S, Frahm J. Model-based nonlinear inverse reconstruction for T2 mapping using highly undersampled spin-echo MRI. *J Magn Reson Imaging* 34(2):420–428 (2011). [doi:10.1002/jmri.22634](https://doi.org/10.1002/jmri.22634)
 
-[^wang]: Wang X, Tan Z, Scholand N, Roeloffs V, Uecker M. Physics-based reconstruction methods for magnetic resonance imaging. *Phil Trans R Soc A* 379(2200):20200196 (2021). [doi:10.1098/rsta.2020.0196](https://doi.org/10.1098/rsta.2020.0196)
-
 [^bakushinsky]: Bakushinsky AB, Kokurin MY. *Iterative Methods for Approximate Solution of Inverse Problems.* Springer (2004). [doi:10.1007/978-1-4020-3122-9](https://doi.org/10.1007/978-1-4020-3122-9)
-
-[^huang]: Huang C, Graff CG, Clarkson EW, Bilgin A, Altbach MI. T2 mapping from highly undersampled data by reconstruction of principal component coefficient maps using compressed sensing. *Magn Reson Med* 67(5):1355–1366 (2012). [doi:10.1002/mrm.23128](https://doi.org/10.1002/mrm.23128)
-
-[^tamir]: Tamir JI, Uecker M, Chen W, Lai P, Alley MT, Vasanawala SS, Lustig M. T2 shuffling: sharp, multicontrast, volumetric fast spin-echo imaging. *Magn Reson Med* 77(1):180–195 (2017). [doi:10.1002/mrm.26102](https://doi.org/10.1002/mrm.26102)
