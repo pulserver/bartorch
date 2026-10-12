@@ -114,22 +114,38 @@ def _ensure_ready() -> None:
 
 
 def set_debug_level(level: int) -> None:
-    """Set BART's verbosity: 0 errors, 1 warnings, 2 info, 3 and up debug."""
+    """Set BART's verbosity, process-wide.
+
+    BART's messages go to the ``bartorch.bart`` logger: level 0 as errors,
+    1 as warnings, 2 as info and 3 and up as debug.
+
+    Parameters
+    ----------
+    level : int
+        0 errors only, 1 warnings (the default), 2 info, 3 and up debug.
+    """
     _ensure_ready()
     library().bartorch_set_debug_level(int(level))
 
 
 def get_debug_level() -> int:
+    """BART's verbosity, as :func:`set_debug_level` takes it."""
     _ensure_ready()
     return int(library().bartorch_get_debug_level())
 
 
 def set_copy_inputs(copy: bool) -> None:
-    """Whether a command works on a private copy of each input, which is the default.
+    """Set whether a BART command works on a private copy of each input tensor.
 
-    Some commands write into their inputs; with ``False`` a command is handed the
-    tensor's own memory and may modify it.  A card tensor given to a command that
-    runs on the host is copied to the host regardless.
+    Some commands write into their inputs.  With ``False`` a command is handed
+    the tensor's own memory and may modify it; a CUDA tensor given to a command
+    that runs on the host is copied regardless.  Operators never copy their
+    inputs and are not affected.
+
+    Parameters
+    ----------
+    copy : bool
+        ``True``, the default, copies every input.
     """
     global _copy_inputs
     _copy_inputs = bool(copy)
@@ -163,7 +179,13 @@ def fold_maps() -> bool:
 
 
 def set_num_threads(n: int) -> None:
-    """Set the number of threads BART, its FFT and FINUFFT's host transforms use."""
+    """Set the number of threads BART, its FFT and FINUFFT's host transforms use.
+
+    Parameters
+    ----------
+    n : int
+        Thread count, process-wide.
+    """
     _ensure_ready()
     library().bartorch_set_num_threads(int(n))
 

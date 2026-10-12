@@ -145,30 +145,29 @@ class _Callback(NonlinearOperator):
 
 
 class TorchOperator(_Callback):
-    """A nonlinear operator from a differentiable torch function.
+    """Nonlinear operator from a differentiable PyTorch function.
 
-    The derivative is torch's forward-mode Jacobian-vector product, and its
-    adjoint the reverse-mode vector-Jacobian product, both at the last
-    evaluated point.
+    The derivative is ``torch.func.jvp`` and its adjoint ``torch.autograd.grad``,
+    both at the last evaluated point.
 
     Parameters
     ----------
     fn : callable
-        A differentiable function on tensors.  With several input shapes it
-        takes that many arguments, and it may return several tensors.
-    ishape, oshape : tuple of int, or a sequence of them
-        Domain and codomain, C order.
+        Differentiable function of one tensor per input, returning one tensor
+        per output.
+    ishape, oshape : tuple of int or sequence of tuple of int
+        Domain and codomain, C order; a sequence of shapes gives that many
+        inputs or outputs.
+
+    Notes
+    -----
+    BART's operators are complex: a real argument arrives as ``w + 0j``, and
+    its gradient is complex, of which the real part is the gradient by ``w``.
 
     Examples
     --------
     >>> F = TorchOperator(lambda p: p[0] * torch.exp(-t / p[1]), (2,), t.shape)
     >>> nlop.IRGNM()(measured, F, x0=torch.tensor([1.0, 20.0]))
-
-    Notes
-    -----
-    A real argument is carried in the real part of a complex one: BART's
-    operators are complex throughout, so a weight arrives as ``w + 0j`` and
-    its gradient comes back complex.  Take the real part of it.
     """
 
     def __init__(self, fn: Callable, ishape, oshape):

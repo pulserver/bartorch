@@ -1,9 +1,8 @@
 # Questions and proposals
 
-GitHub Discussions is not enabled for the repository.  Usage questions and
-proposals are filed on the
-[issue tracker](https://github.com/pulserver/bartorch/issues/new/choose): a
-question as a documentation issue when the documentation did not answer it,
-and a proposal as a feature request, which states the reconstruction problem
-and the interface proposed before any implementation.  A change to the public
-API is discussed in an issue before a pull request is opened.
+The repository has no GitHub Discussions; questions and proposals go to the
+[issue tracker](https://github.com/pulserver/bartorch/issues/new/choose).  File
+a usage question the documentation does not answer as a documentation issue,
+and a proposal as a feature request stating the reconstruction problem and the
+interface proposed.  Discuss a change to the public API in an issue before
+opening a pull request.

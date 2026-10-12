@@ -54,19 +54,27 @@ def _listing() -> str:
 
 
 def route(name: str, argv: list[str]) -> tuple[str, dict | None]:
-    """Whether this command line runs as an app or as the command.
+    """Decide whether a command line runs as an app or as the BART command.
 
-    The decision needs the arrays -- which axes a ``-R`` bitmask names depends
-    on the image's rank, and what ``mobafit`` and ``moba`` fit depends on the
-    times they are given -- so the inputs are read here and handed on.
+    The input files are read, since the decision depends on them: the axes a
+    ``-R`` bitmask names depend on the image's rank, and the model
+    ``mobafit`` and ``moba`` fit on the times given.
+
+    Parameters
+    ----------
+    name : str
+        BART command, such as ``'pics'``.
+    argv : list of str
+        Its arguments, without the command name.
 
     Returns
     -------
     where : {'app', 'command'}
+        ``'command'`` when no app answers the command or the command line has
+        an argument or a file the app does not take.
     plan : dict or None
-        ``{'call': Call, 'outputs': [path, ...]}``: what the app is called
-        with and the files its answer is written to, or ``None`` under
-        ``'command'``.
+        ``{'call': Call, 'outputs': [path, ...]}``: the app's arguments, with
+        the inputs read, and the output files; ``None`` for ``'command'``.
     """
     adapter = ADAPTERS.get(name)
     if adapter is None:
@@ -135,10 +143,17 @@ def _missing(name: str, argv: list[str]) -> list[str]:
 
 
 def read(path: str):
-    """One CFL pair as a tensor in this package's layout.
+    """Read a CFL pair as a tensor in this package's C-order layout.
 
-    ``readcfl`` answers in BART's own order, whose shape is the reverse of
-    this one over the same bytes, so the transpose is the whole conversion.
+    Parameters
+    ----------
+    path : str
+        File name without the ``.cfl``/``.hdr`` suffix.
+
+    Returns
+    -------
+    torch.Tensor
+        The array, with the shape of BART's dimensions reversed.
     """
     import numpy as np
     import torch
@@ -161,7 +176,22 @@ def _run_app(name: str, plan: dict) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run one command line.  Returns the exit code the command returns."""
+    """Run one ``bartorch`` command line, the console entry point.
+
+    Parameters
+    ----------
+    argv : list of str, default=None
+        Command and arguments, as ``bart`` takes them; ``None`` reads
+        ``sys.argv[1:]``.  No arguments, ``--help`` or ``--list`` print the
+        command list; ``--version`` prints BART's version;
+        ``<command> --help`` prints the command's help.
+
+    Returns
+    -------
+    int
+        Exit code: 0 on success, 1 for an unknown command, a missing input
+        file or a failed command.
+    """
     words = list(sys.argv[1:] if argv is None else argv)
 
     if not words or words[0] in HELP_FLAGS or words[0] == "--list":

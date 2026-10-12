@@ -39,7 +39,7 @@ def read_nifti(path: str | Sequence[str]) -> Images:
     -------
     Images
         A named tuple of ``image``, ``(contrasts, z, y, x)`` where the volumes
-        of every file follow each other; ``affine``, the file's ``(4, 4)``
+        of every file follow each other; ``affine``, the first file's ``(4, 4)``
         from voxel indices ``(x, y, z)`` to RAS millimetres; ``timings`` in
         milliseconds and degrees, one per contrast, NaN where no sidecar states
         one; and ``header``, the first file's NIfTI header.
@@ -48,6 +48,8 @@ def read_nifti(path: str | Sequence[str]) -> Images:
     ------
     ValueError
         If the files differ in shape or geometry.
+    ImportError
+        If ``nibabel`` is not installed.
     """
     nibabel = require("nibabel")
     paths = [Path(path)] if isinstance(path, (str, Path)) else [Path(p) for p in path]
@@ -105,6 +107,13 @@ def write_nifti(
     -------
     pathlib.Path
         The image file.
+
+    Raises
+    ------
+    ValueError
+        If ``timings`` has a key other than the four above.
+    ImportError
+        If ``nibabel`` is not installed.
     """
     nibabel = require("nibabel")
     data = np.asarray(torch.as_tensor(image).detach().cpu().numpy())

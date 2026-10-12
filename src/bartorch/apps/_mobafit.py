@@ -57,68 +57,62 @@ def mobafit(
 ) -> dict[str, torch.Tensor]:
     """Fit a signal model to reconstructed contrast images, voxel by voxel.
 
-    The pipeline BART's ``mobafit`` command runs, assembled here: a
-    forward model from :mod:`bartorch.nlop`, the Gauss-Newton loop of
-    :class:`bartorch.nlop.IRGNM` over it, and the fitted variables read back
-    into their own units.
-
-    The model is BlochSim's rather than BART's -- what a fit needs is a
-    forward it can differentiate, with bounds and a starting state, which is
-    what :class:`~bartorch.nlop.SignalModel` is over a BlochSim simulator --
-    so this does not reproduce the command's coefficients.  It solves the same
-    problem with the same method and answers in named maps.
+    The method of BART's ``mobafit``: Gauss-Newton (:class:`bartorch.nlop.IRGNM`)
+    over a :class:`~bartorch.nlop.SignalModel`.  The model is BlochSim's, in
+    its bounded parameterization, so the result is named maps in physical
+    units rather than the command's coefficients; the two minimize the same
+    objective.
 
     Parameters
     ----------
     images : torch.Tensor
-        Contrast images, ``(contrasts, *voxels)``, C order: one image per
-        echo, inversion time or repetition, in the order the model's
-        acquisition lists them.  Any intensity units: a model with an
-        amplitude is fitted to the images scaled to unit peak, and the
-        amplitude, given or fitted, is in the units of ``images``.
+        Contrast images ``(contrasts, *voxels)``, C order, in the order of the
+        model's acquisition, in any intensity units.
     model : bartorch.nlop.SignalModel
-        The signal model, built on the acquisition that produced ``images``
-        -- :func:`~bartorch.nlop.MultiEcho`, :func:`~bartorch.nlop.InversionRecovery`
-        or :func:`~bartorch.nlop.Bloch` -- on the voxel shape of ``images``.
+        Signal model of the acquisition, on the voxel shape of ``images``:
+        :func:`~bartorch.nlop.MultiEcho`,
+        :func:`~bartorch.nlop.InversionRecovery` or :func:`~bartorch.nlop.Bloch`.
     iterations : int, default=20
-        Gauss-Newton steps.  The command takes five over its own scaled
-        coefficients; twenty are what a bounded parameterisation needs.
+        Gauss-Newton steps.  The command's 5 suffice for its scaled
+        coefficients, not for the bounded parameterization.
     cg_maxiter : int, default=50
-        Conjugate-gradient steps per linearized problem.
+        Conjugate-gradient iterations per linearized problem (``--liniter``).
     inner : solver, default=None
-        A configured solver from :mod:`bartorch.optim` for the linearized
-        problem, whose regularizers then penalize the maps.  The default is
-        plain conjugate gradients, which is what the command solves with.
+        Solver from :mod:`bartorch.optim` for the linearized problem, whose
+        regularizers penalize the maps; ``None`` is conjugate gradients.
     alpha : float, default=1.0
-        Initial Tikhonov weight on the Gauss-Newton step.
+        Tikhonov weight of the first Gauss-Newton step.
     alpha_min : float, default=0.0
-        What that weight decays towards.
+        Limit the weight decays towards.
     redu : float, default=2.0
-        Factor the weight is divided by after each step.
+        Decay factor of the weight per step.
     magnitude : bool, default=False
-        Fit the magnitude of the model to the magnitude of the data rather
-        than the signal itself, which is BART's ``-a``.
+        Fit the model's magnitude to the images' magnitude (``-a``).
     start : torch.Tensor, default=None
-        Maps to start from, of the model's input shape.  Built from
-        ``**values`` when it is not given.
+        Starting point in the model's domain, as
+        :meth:`~bartorch.nlop.SignalModel.initial` packs it, with the amplitude
+        in the units of ``images``; built from ``**values`` when ``None``.
     reference : dict of str, default=None
-        Maps each Gauss-Newton step is regularized towards, ``{name: value}``
-        in each property's own units as ``**values`` takes them; a name left
-        out takes the model's default.  A value outside the model's bounds is
-        clamped to them, so a limit such as a vanishing rate is approached from
-        inside.  Without it each step is regularized towards zero in the
-        model's variables, as the command's is: the middle of each bound and
-        no amplitude.
+        Values each step is regularized towards, ``{name: value}`` in physical
+        units with an amplitude in the units of ``images``; unnamed properties
+        take the model's defaults, and values are clamped strictly inside the
+        model's bounds.  ``None`` regularizes towards zero in the model's
+        variables, as the command does: the middle of each bound and no
+        amplitude.
     **values
-        Starting values per unknown, in that property's own units, as
+        Starting values ``name=value`` in physical units, as
         :meth:`~bartorch.nlop.SignalModel.initial` takes them.
 
     Returns
     -------
     dict of str to torch.Tensor
-        The fitted maps in their own units, by the name each unknown carries.
-        A voxel whose data is zero across every contrast is left at the value
-        it started from, as the command leaves such a patch at zero.
+        Fitted maps in physical units, keyed by unknown.  Voxels whose data is
+        zero in every contrast keep their starting values.
+
+    Notes
+    -----
+    For a model with an amplitude, the images are divided by their peak
+    magnitude for the fit and the amplitude is scaled back.
 
     Examples
     --------

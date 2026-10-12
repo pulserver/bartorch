@@ -1,4 +1,4 @@
-# The BART fork
+# BART fork
 
 BART is developed at [codeberg.org/mrirecon/bart](https://codeberg.org/mrirecon/bart),
 which is the canonical upstream; the GitHub repository `mrirecon/bart` is an
@@ -30,7 +30,7 @@ git remote add upstream https://codeberg.org/mrirecon/bart.git
 git fetch upstream --tags
 ```
 
-## What belongs in the fork
+## Patch scope
 
 A downstream patch is a generic change to BART: a portability fix, or a hook
 that lets BART be embedded in or extended by another program.  Each patch is
@@ -44,7 +44,7 @@ FINUFFT, cuFINUFFT and cuFFTDx substitutions, the FFT and BLAS/LAPACK tables,
 and everything that refers to PyTorch or Python.  These are compiled in place
 of BART's translation units, as `AGENTS.md` lists, not written into the fork.
 
-## Syncing with Codeberg
+## Synchronisation with Codeberg
 
 The fork's *Upstream sync* workflow fast-forwards `master` to Codeberg's
 `master` every week and carries over Codeberg's new tags; it forces no ref and

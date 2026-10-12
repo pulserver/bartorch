@@ -1,6 +1,6 @@
 # Security policy
 
-## Reporting a vulnerability
+## Vulnerability reports
 
 Report a vulnerability privately through GitHub's private vulnerability
 reporting: the **Report a vulnerability** button under the repository's

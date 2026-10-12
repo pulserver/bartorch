@@ -69,7 +69,13 @@ class _Elementwise(NonlinearOperator):
 
 
 class Exp(_Elementwise):
-    """``exp(x)``, elementwise.  BART's ``zexp``."""
+    """Elementwise ``exp(x)``, BART's ``zexp``.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
+    """
 
     _fn = "bartorch_nlop_zexp"
 
@@ -80,7 +86,13 @@ class Exp(_Elementwise):
 
 
 class Log(_Elementwise):
-    """``log(x)``, elementwise.  BART's ``zlog``."""
+    """Elementwise principal ``log(x)``, BART's ``zlog``.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
+    """
 
     _fn = "bartorch_nlop_zlog"
 
@@ -91,7 +103,13 @@ class Log(_Elementwise):
 
 
 class Sqrt(_Elementwise):
-    """``sqrt(x)``, elementwise.  BART's ``zsqrt``."""
+    """Elementwise principal ``sqrt(x)``, BART's ``zsqrt``.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
+    """
 
     _fn = "bartorch_nlop_zsqrt"
 
@@ -106,9 +124,15 @@ class Sqrt(_Elementwise):
 
 
 class Abs(_Elementwise):
-    """``|x|``, elementwise, as a complex tensor.  BART's ``zabs``.
+    """Elementwise ``|x|``, BART's ``zabs``.
 
-    Not differentiable at zero; :class:`SmoothAbs` is the variant that is.
+    The result is complex with zero imaginary part.  The derivative is
+    undefined at zero; :class:`SmoothAbs` is finite there.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
     """
 
     _fn = "bartorch_nlop_zabs"
@@ -124,14 +148,14 @@ class Abs(_Elementwise):
 
 
 class SmoothAbs(_Elementwise):
-    """``sqrt(|x|^2 + eps)``, elementwise.  BART's ``smo_abs``.
+    """Elementwise ``sqrt(|x|^2 + eps)``, BART's ``smo_abs``.
 
     Parameters
     ----------
     shape : tuple of int
-        The shape it maps, C order.
+        Domain and codomain, C order.
     eps : float, default=1e-12
-        What keeps the derivative finite at zero.
+        Offset that keeps the derivative finite at zero.
     """
 
     _fn = "bartorch_nlop_smo_abs"
@@ -157,10 +181,14 @@ class SmoothAbs(_Elementwise):
 
 
 class Inverse(_Elementwise):
-    """``1 / x``, elementwise.  BART's ``zinv``.
+    """Elementwise ``1 / x``, BART's ``zinv``.
 
-    A positive ``eps`` picks BART's regularised form, which divides by
-    ``|x|^2 + eps`` rather than by ``x``.
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
+    eps : float, default=0.0
+        Positive selects BART's regularized form ``conj(x) / (|x|^2 + eps)``.
     """
 
     _fn = "bartorch_nlop_zinv"
@@ -187,7 +215,15 @@ class Inverse(_Elementwise):
 
 
 class Power(_Elementwise):
-    """``x ** exponent``, elementwise.  BART's ``zspow``."""
+    """Elementwise ``x ** exponent``, BART's ``zspow``.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
+    exponent : complex
+        Scalar exponent.
+    """
 
     _fn = "bartorch_nlop_zspow"
 
@@ -215,10 +251,16 @@ class Power(_Elementwise):
 
 
 class Add(_Elementwise):
-    """``x + value``, elementwise.  BART's ``zsadd``.
+    """Elementwise ``x + value``, BART's ``zsadd``.
 
-    Linear in name only: BART carries it as a nonlinear operator because an
-    affine map is not one, and its derivative is the identity.
+    An affine map, hence a nonlinear operator; its derivative is the identity.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
+    value : complex
+        Scalar added to every entry.
     """
 
     _fn = "bartorch_nlop_zsadd"
@@ -271,7 +313,18 @@ class _Reduction(NonlinearOperator):
 
 
 class SumOfSquares(_Reduction):
-    """``sum(|x|^2)`` along ``axes``, BART's ``zss``."""
+    """Sum of squared magnitudes along ``axes``, BART's ``zss``.
+
+    The reduced axes are kept with size one; the result is complex with zero
+    imaginary part.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain, C order.
+    axes : sequence of int
+        Axes summed over.
+    """
 
     _fn = "bartorch_nlop_zss"
 
@@ -301,10 +354,20 @@ class SumOfSquares(_Reduction):
 
 
 class RootSumOfSquares(_Reduction):
-    """``sqrt(sum(|x|^2))`` along ``axes``.  BART's ``zrss``.
+    """Root sum of squared magnitudes along ``axes``, BART's ``zrss``.
 
-    A positive ``eps`` picks BART's regularised form, whose derivative stays
-    finite where the sum is zero.
+    The reduced axes are kept with size one; the result is complex with zero
+    imaginary part.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain, C order.
+    axes : sequence of int
+        Axes summed over; ``()`` gives the elementwise magnitude.
+    eps : float, default=0.0
+        Positive computes ``sqrt(sum(|x|^2) + eps)``, whose derivative is
+        finite where the sum is zero.
     """
 
     _fn = "bartorch_nlop_zrss"
@@ -332,18 +395,22 @@ class RootSumOfSquares(_Reduction):
 
 
 class Multiply(NonlinearOperator):
-    """The pointwise product of two inputs, broadcast where either is one.
+    """Pointwise product of two inputs, BART's ``tenmul``.
 
-    BART's ``tenmul``.  This is the operator every multi-argument model is
-    built out of: ``nlinv``'s is an image of ``(1, X, Y)`` times coil profiles
-    of ``(C, X, Y)``, and the derivative by either input is a multiplication
-    by the other.
+    The derivative by either input is multiplication by the other.  ``nlinv``'s
+    model is this product of an image ``(1, y, x)`` and coil profiles
+    ``(coils, y, x)``.
 
     Parameters
     ----------
     a, b : tuple of int
-        The shape of each input, C order, of the same rank.  They broadcast
-        the way torch's do.
+        Shapes of the two inputs, C order and of equal rank; axes of size one
+        broadcast.
+
+    Raises
+    ------
+    ValueError
+        If the ranks differ or an axis does not broadcast.
     """
 
     def __init__(self, a: Shape, b: Shape):
@@ -371,9 +438,17 @@ class Multiply(NonlinearOperator):
 
 
 class Divide(NonlinearOperator):
-    """``a / b``, elementwise, of two inputs of one shape.  BART's ``zdiv``.
+    """Elementwise quotient of two inputs, BART's ``zdiv``.
 
-    A positive ``eps`` picks BART's regularised form.
+    Input 0 is the dividend and input 1 the divisor.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Shape of both inputs and of the output, C order.
+    eps : float, default=0.0
+        Positive multiplies by the regularized inverse of :class:`Inverse`
+        instead of dividing.
     """
 
     def __init__(self, shape: Shape, eps: float = 0.0):
@@ -406,7 +481,15 @@ class Divide(NonlinearOperator):
 
 
 class Weighted(NonlinearOperator):
-    """``a * x + b * z`` of two inputs of one shape.  BART's ``zaxpbz``."""
+    """Weighted sum ``a * x + b * z`` of two inputs, BART's ``zaxpbz``.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Shape of both inputs and of the output, C order.
+    a, b : float, default=1.0
+        Real weights of input 0 (``x``) and input 1 (``z``).
+    """
 
     def __init__(self, shape: Shape, a: float = 1.0, b: float = 1.0):
         self._shape = tuple(shape)
@@ -433,13 +516,21 @@ class Weighted(NonlinearOperator):
 
 
 def Phase(shape: Shape) -> NonlinearOperator:  # noqa: N802
-    """``x / |x|``, elementwise: BART's ``zphsr``, built out of its two pieces.
+    """Elementwise ``x / |x|``, BART's ``zphsr``.
 
-    BART's own ``nlop_zphsr_create`` chains ``zabs`` into ``zdiv`` and then
-    calls ``nlop_dup(x, 0, 0)``, which trips its own ``a < b`` assertion, so
-    the constructor aborts and cannot be used.  The same operator is these two
-    pieces put together with the indices the algebra checks: the absolute
-    value into the divisor, then the two inputs made one.
+    Built as :class:`Abs` chained into the divisor of :class:`Divide`, with
+    the two inputs tied: BART's ``nlop_zphsr_create`` calls
+    ``nlop_dup(x, 0, 0)``, which fails BART's own ``a < b`` assertion.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        Domain and codomain, C order.
+
+    Returns
+    -------
+    NonlinearOperator
+        One input and one output of ``shape``.
     """
     shape = tuple(shape)
     from bartorch.nlop._base import _chain
@@ -448,12 +539,17 @@ def Phase(shape: Shape) -> NonlinearOperator:  # noqa: N802
 
 
 class Constant(NonlinearOperator):
-    """An operator of no inputs that returns ``value``.  BART's ``nlop_const``.
+    """Operator of no inputs returning a fixed tensor, BART's ``nlop_const``.
 
-    Combined with another operator and linked into one of its inputs, this is
-    how a model's fixed quantity -- a sampling pattern, an echo time -- is
-    pinned; :meth:`~bartorch.nlop.NonlinearOperator.partial` does exactly that in
-    one step.  BART copies the tensor, so the one passed in is free afterwards.
+    :meth:`~bartorch.nlop.NonlinearOperator.partial` fixes an input of another
+    operator to a constant in one step.
+
+    Parameters
+    ----------
+    value : torch.Tensor
+        The output.
+    shape : tuple of int, default=None
+        Output shape, C order; ``value``'s shape by default.
     """
 
     def __init__(self, value: torch.Tensor, shape: Shape | None = None):

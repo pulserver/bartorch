@@ -26,19 +26,18 @@ def interpolate(
     the ``axes``, where ``w`` is the kernel of ``order``.  Positions are array
     indices: ``coord = 2.0`` is the sample ``input[2]``.  The grid is
     zero outside ``[0, n - 1]``, so a position within one kernel radius of
-    the edge is weighted against zeros.
+    the edge is weighted against zeros.  BART's ``interpolate``.
 
     Parameters
     ----------
     input : torch.Tensor
+        Array to sample.
     coord : torch.Tensor
-        Real positions of shape ``(..., len(axes))``; component ``i`` of the
-        last axis is the position along ``axes[i]``.  The leading shape is
-        aligned right against ``input.shape``: along each of ``axes`` it is
-        the output size, along every other axis it is one (the positions are
-        shared) or the input's size.  Along an axis outside the last three
-        (``bart interpolate -x`` sizes only BART dims 0-2) the output size
-        must equal the input's.
+        Real positions ``(..., len(axes))``: component ``i`` is the position
+        along ``axes[i]``.  The leading shape aligns right against
+        ``input.shape``: the output size along each of ``axes``, and one
+        (shared positions) or the input's size elsewhere.  Along an axis
+        before the last three, the output size must equal the input's.
     axes : int or tuple of int
         Axes interpolated over.
     order : {0, 1, 3}, default=1
@@ -50,6 +49,11 @@ def interpolate(
     torch.Tensor
         ``input.shape`` with each of ``axes`` replaced by ``coord``'s size
         there.
+
+    Raises
+    ------
+    ValueError
+        If ``coord`` does not match ``input`` as described.
 
     Examples
     --------

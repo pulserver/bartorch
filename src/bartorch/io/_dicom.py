@@ -119,6 +119,8 @@ def read_dicom(path: str | Sequence[str], *, series: Any = None) -> Images:
         If no series matches, several do and ``series`` is not given, the
         files are multi-frame, two images share a contrast and a slice, or the
         contrasts cover different slices.
+    ImportError
+        If ``pydicom`` is not installed.
     """
     pydicom = require("pydicom")
     datasets = _read_files(pydicom, path)
@@ -241,6 +243,10 @@ def to_dicom(image: Any, affine: Any, *, header: Any = None, **fields: Any) -> l
     TypeError
         If the image is complex: write its magnitude, phase, real or imaginary
         part as a series of its own.
+    ValueError
+        If the image has fewer than two axes.
+    ImportError
+        If ``pydicom`` is not installed.
     """
     pydicom = require("pydicom")
     pixels = np.asarray(torch.as_tensor(image).detach().cpu().numpy())
@@ -325,9 +331,21 @@ def write_dicom(
 ) -> list[Path]:
     """Write a real image as one DICOM MR image series, a file per image.
 
-    Parameters and conversion are those of :func:`to_dicom`.  Files are named
-    ``EX<StudyID>_<SeriesNumber:02>_<SeriesDescription>_<InstanceNumber:03>.dcm``
-    in the directory ``path``, which is created.
+    The conversion is that of :func:`to_dicom`.  Files are named
+    ``EX<StudyID>_<SeriesNumber:02>_<SeriesDescription>_<InstanceNumber:03>.dcm``.
+
+    Parameters
+    ----------
+    path : str
+        Directory to write into; created if absent.
+    image : torch.Tensor or numpy.ndarray
+        As for :func:`to_dicom`.
+    affine : torch.Tensor or numpy.ndarray
+        As for :func:`to_dicom`.
+    header : ismrmrd.xsd.ismrmrdHeader or pydicom.Dataset, default=None
+        As for :func:`to_dicom`.
+    **fields
+        As for :func:`to_dicom`.
 
     Returns
     -------

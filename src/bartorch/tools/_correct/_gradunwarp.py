@@ -161,6 +161,13 @@ class GradientCoefficients:
     source_name : str, default=None
         Label of the table's source, such as a file name.
 
+    Raises
+    ------
+    ValueError
+        If ``alpha`` and ``beta`` are not matching ``(3, n + 1, n + 1)``
+        arrays, ``basis`` is unknown, or a normalized expansion has no
+        positive ``reference_radius_mm``.
+
     Examples
     --------
     >>> table = "0.25 m = R0\n  1 A( 1, 0)  1.0  x\n  2 A( 3, 0)  -0.025  x\n"
@@ -675,6 +682,13 @@ class Gradunwarp:
     ----------
     coefficients : GradientCoefficients
         The parsed table.
+
+    Raises
+    ------
+    ValueError
+        If the table does not parse, the grids are not two- or
+        three-dimensional with one positive field of view per axis, or the
+        ``orientation`` columns are not orthonormal.
 
     Examples
     --------

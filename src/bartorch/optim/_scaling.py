@@ -21,36 +21,32 @@ def data_scaling(
     percentile: float | None = None,
     compat: bool = False,
 ) -> float:
-    """Normalization factor for the data of a reconstruction.
+    """Estimate the factor by which BART's reconstructions divide the data.
 
     Dividing the data by it makes a regularization weight independent of the
-    data's overall scale, and is the normalization BART's own reconstructions
-    apply before solving.
+    data's overall scale.
 
     Parameters
     ----------
     y : torch.Tensor
-        Data as the solve will see it: for a Cartesian encoding, after the
-        sampling pattern and ``fftmod(..., inverse=True)``.  Coils must be on
-        their own axis in BART's layout rather than the squeezed layout an
-        operator takes, because the estimate is read off the k-space centre and
-        a misplaced coil axis moves it.
+        Data as the solve takes it: for a Cartesian encoding, after the sampling
+        pattern and ``fftmod(..., inverse=True)``.  Without ``A`` the coils are
+        on their own axis in BART's layout, not squeezed as an operator takes
+        them, since the estimate is read from the k-space centre.
     A : LinearOperator, default=None
-        The encoding.  With one, the estimate used for a non-Cartesian
-        acquisition: the spread of ``|A^H y|`` from its order statistics.
-        Without one, the k-space-centre estimate BART's ``estscaling``
-        makes, used for a Cartesian acquisition.
+        Encoding operator.  With one, the estimate is taken from ``|A^H y|``,
+        as for a non-Cartesian acquisition; without one, from the k-space
+        centre, as BART's ``estscaling`` does.
     percentile : float, default=None
-        Take this percentile of the sorted magnitudes instead of BART's
-        rule.
+        Percentile of the sorted magnitudes to take in place of BART's rule.
     compat : bool, default=False
-        Take the median, as BART's older estimate did.  Only with ``A``.
+        Take the median, BART's legacy estimate.  Only with ``A``.
 
     Returns
     -------
     float
-        The scaling.  Zero means the estimate failed, and a scaling of one
-        should be used instead.
+        The scaling.  Zero when the estimate failed, which ``pics`` replaces
+        by one.
 
     Notes
     -----
@@ -62,9 +58,9 @@ def data_scaling(
     between the 90th percentile and the median.  With ``A`` the same rule is
     applied to the magnitudes of ``A^H y``.
 
-    The solution of a solve on scaled data is divided by the same factor;
-    multiplying it by the scaling puts it back into the units of the data, as
-    ``pics -S`` and :func:`bartorch.apps.pics` do.
+    A solve on the divided data returns the image divided by the same factor;
+    multiplying by the scaling restores the data's units, as ``pics -S`` and
+    :func:`bartorch.apps.pics` do.
 
     Examples
     --------

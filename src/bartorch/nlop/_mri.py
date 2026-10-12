@@ -66,79 +66,73 @@ class _Part(LinearOperator):
 class NonlinearSense(NonlinearOperator):
     r"""Joint image and coil-sensitivity forward model, BART's ``noir``.
 
-    The operator has **two** inputs, the image and the coil representation, and
-    one output, the data.  Its derivative with respect to either input is a
-    linear operator (:meth:`~bartorch.nlop.NonlinearOperator.linearize`), and a
-    Gauss-Newton step solves the linearized problem over both jointly.
-
-    The coil unknown is not the sensitivity maps.  It is a k-space
-    representation :math:`\hat{s}` of them, from which the maps follow by the
-    Sobolev weighting
+    Two inputs, the image and the coil coefficients, and one output.  The coil
+    input is not the sensitivity maps but a k-space representation
+    :math:`\hat{s}` of them, mapped to the maps by the Sobolev weighting
 
     .. math::
 
-        S = \mathcal{F}^{-1} \left[ \, \kappa \,
+        S = \mathcal{F}^{-1} \left[ \, c \,
             (1 + a |k|^2)^{-b/2} \, \hat{s} \, \right]
 
-    with ``sobolev`` giving :math:`(a, b)` and ``c`` the scale
-    :math:`\kappa` (BART's ``noir_calc_weights``).  The weighting is part of
-    the model, so the estimated variable is smoothness-regularized by
-    construction and the Gauss-Newton step needs no separate penalty on the
-    coils.  :attr:`coils` is the linear operator mapping fitted coefficients to
-    sensitivities.
+    (BART's ``noir_calc_weights``), so the coils are smooth by construction
+    and a Gauss-Newton step needs no separate penalty on them.  :attr:`coils`
+    maps fitted coefficients to sensitivities.
 
-    Off the grid the model is asymmetric, as BART builds it: it returns gridded
-    coil images rather than samples, so a measurement must be gridded to match.
-    :meth:`prepare` does that, and is a no-op on a grid, where the model
-    returns k-space directly.
+    On a grid the output is k-space.  Off the grid, as BART builds the model,
+    the output is the gridded coil images, ``nufft^H`` of k-space;
+    :meth:`prepare` brings a measurement to that form.
 
     Parameters
     ----------
     image_shape : tuple of int
-        Coil-image shape, ``(coils, *spatial)``, C order -- the same shape the
-        linear encodings take.  The image itself is this with one coil.
-    pattern : tensor, default=None
-        Binary sampling mask, one at acquired positions and zero elsewhere,
-        on a grid.  Without one the acquisition is treated as fully sampled.
-    trajectory : tensor, default=None
-        Trajectory ``(..., samples, 3)`` in grid units, ``kx, ky, kz``, as
-        :func:`bartorch.tools.traj` produces.  Giving one selects the
-        non-Cartesian model.
+        Coil-image shape ``(coils, *spatial)``, C order, as the linear
+        encodings take it.  The image input is this shape with one coil.
+    pattern : torch.Tensor, default=None
+        Sampling mask on the grid, one at acquired positions; ``None`` on a
+        grid is all ones.  Off the grid it is passed to BART as is and may not
+        be combined with ``basis``.
+    trajectory : torch.Tensor, default=None
+        Trajectory ``(..., samples, 3)`` in grid units, as
+        :func:`bartorch.tools.traj` produces; selects the non-Cartesian model.
     kspace_shape : tuple of int, default=None
-        Sample shape.  Off the grid it defaults to the trajectory's with the
-        image's coil axes in front, as the NUFFT's does; on the grid it is the
-        coil-image shape.
+        Sample shape.  Default: ``image_shape`` on a grid,
+        ``(coils, *trajectory.shape[:-1], 1)`` off it.
     coil_shape, coefficient_shape : tuple of int, default=None
-        Where the sensitivities live and where their coefficients do; both
-        default to the coil-image shape.
-    weights : tensor, default=None
-        Diagonal in k-space applied to the samples, off the grid; its
-        conjugate is applied on the adjoint.
-    basis : tensor, default=None
-        Temporal subspace basis ``(coeffs, frames)`` over the last encoding
-        axis, off the grid.  The Cartesian model does not take one.
-    mask : tensor, default=None
-        A support the image is restricted to.
+        Shapes of the sensitivities and of their coefficients; both default to
+        ``image_shape``.
+    weights : torch.Tensor, default=None
+        k-space diagonal applied to the samples off the grid; its conjugate is
+        applied in the adjoint.
+    basis : torch.Tensor, default=None
+        Temporal subspace basis ``(coefficients, frames)`` over the last
+        encoding axis; off the grid only.
+    mask : torch.Tensor, default=None
+        Support the image is restricted to.
     sobolev : tuple of float, default=(220.0, 32.0)
-        ``(a, b)`` of the coil weighting ``c (1 + a |k|^2)^(-b/2)``; BART's
-        ``220, 32``.
+        ``(a, b)`` of the coil weighting; BART's defaults.
     c : float, default=1.0
-        The scale on that weighting, BART's ``1``.
+        Scale of the coil weighting.
     real : bool, default=False
         Constrain the image to be real.
     sos : bool, default=False
         BART's sum-of-squares variant of the coil weighting.
     oversampling_coils : float, default=None
-        Fit the coils on a finer grid than the image.  By default whichever
-        ``nlinv`` uses: two off the grid, one on it.
+        Grid oversampling of the coil coefficients; ``None`` takes ``nlinv``'s
+        choice, 2 off the grid and 1 on it.
     oversampled_coils : bool, default=False
-        Return them on that grid rather than on the image's.
+        Return the sensitivities on the oversampled grid rather than the
+        image's.
     toeplitz : bool, default=True
-        Apply the normal in closed form rather than as the forward and
-        adjoint applications: a convolution with a point spread function, off
-        the grid.
+        Off the grid, apply the normal operator as a convolution with a point
+        spread function rather than as a NUFFT and its adjoint.
     optimized : bool, default=False
-        BART's ``noir2_noncart_optimized_create``, off the grid.
+        Off the grid, BART's ``noir2_noncart_optimized_create``.
+
+    Raises
+    ------
+    ValueError
+        If ``basis`` is given on a grid, or with ``pattern`` off the grid.
 
     Examples
     --------
@@ -354,10 +348,9 @@ class NonlinearSense(NonlinearOperator):
 
     @property
     def coils(self):
-        """Coil coefficients to sensitivities: the Sobolev weighting and the transform.
+        """Linear operator from coil coefficients to sensitivity maps.
 
-        A fit returns coefficients; applying this operator gives the
-        sensitivity maps they represent.
+        The Sobolev weighting followed by the inverse Fourier transform.
         """
         return self._linop(
             library().bartorch_noir_coils, self.ishapes[1], self._read(_SHAPES["coils"])
@@ -365,23 +358,22 @@ class NonlinearSense(NonlinearOperator):
 
     @property
     def image(self):
-        """The image's own linear part -- the mask, and the real constraint if asked for."""
+        """Linear operator applied to the image input: support mask and real constraint."""
         shape = self.ishapes[0]
         return self._linop(library().bartorch_noir_image, shape, shape)
 
     @property
     def data(self):
-        """From what the model returns to the measurement.
+        """Linear operator from the model's output to k-space.
 
-        Off the grid this is the NUFFT, whose adjoint grids a measurement into
-        the coil images the model returns; on the grid it is the identity.
-        :meth:`prepare` is the one call that matters.
+        The NUFFT off the grid, whose adjoint is :meth:`prepare`; the identity
+        on a grid.
         """
         return self._linop(library().bartorch_noir_data, self.oshapes[0], self.kspace_shape)
 
     @property
     def transform(self):
-        """The transform from coil images to k-space, without the model in front of it."""
+        """Linear operator from coil images to k-space, the encoding after the product."""
         return self._linop(
             library().bartorch_noir_transform,
             self._read(_SHAPES["coil_images"]),
@@ -389,11 +381,21 @@ class NonlinearSense(NonlinearOperator):
         )
 
     def prepare(self, kspace: torch.Tensor) -> torch.Tensor:
-        """The measurement in the shape the model returns.
+        """Bring a measurement to the model's output.
 
-        Off the grid this is ``nufft^H(kspace)``, as ``noir2_recon`` applies
-        before the first Gauss-Newton step; on the grid the measurement is
-        returned unchanged.
+        Off the grid this is ``nufft^H(kspace)``, as ``noir2_recon`` applies it
+        before the first Gauss-Newton step; on a grid ``kspace`` is returned
+        unchanged.
+
+        Parameters
+        ----------
+        kspace : torch.Tensor
+            Measurement of :attr:`kspace_shape`.
+
+        Returns
+        -------
+        torch.Tensor
+            Tensor of :attr:`oshape`.
         """
         if not self.noncart:
             return as_operand(kspace, self.kspace_shape, "kspace")
@@ -411,11 +413,29 @@ def CartesianSense(  # noqa: N802  (it is a constructor)
 ) -> NonlinearSense:
     """Cartesian joint image and coil-sensitivity forward model.
 
-    The nonlinear counterpart of :func:`bartorch.linop.CartesianSense`, with
-    the sensitivities a second unknown rather than a fixed tensor; this is the
-    model ``nlinv`` inverts without a trajectory.  The coil unknown is the
-    Sobolev-weighted k-space representation described in
-    :class:`NonlinearSense`, which documents the arguments.
+    :class:`NonlinearSense` on a grid, the model ``nlinv`` inverts without a
+    trajectory: the nonlinear counterpart of
+    :func:`bartorch.linop.CartesianSense`, with the sensitivities a second
+    unknown.
+
+    Parameters
+    ----------
+    image_shape : tuple of int
+        Coil-image shape ``(coils, *spatial)``, C order.
+    pattern : torch.Tensor, default=None
+        Sampling mask; ``None`` is fully sampled.
+    **kwargs
+        Keyword arguments of :class:`NonlinearSense`, except ``trajectory``.
+
+    Returns
+    -------
+    NonlinearSense
+        Inputs: image, coil coefficients.  Output: k-space.
+
+    Raises
+    ------
+    ValueError
+        If ``trajectory`` is given.
     """
     if kwargs.get("trajectory") is not None:
         raise ValueError("a trajectory makes the non-Cartesian model; use NoncartesianSense")
@@ -429,11 +449,24 @@ def NoncartesianSense(  # noqa: N802  (it is a constructor)
 ) -> NonlinearSense:
     """Non-Cartesian joint image and coil-sensitivity forward model.
 
-    The nonlinear counterpart of :class:`bartorch.linop.NoncartesianSense`, the
-    model ``nlinv`` inverts off the grid.  The coil unknown is the Sobolev-weighted
-    k-space representation described in :class:`NonlinearSense`.  The model is
-    asymmetric, as BART builds it: it returns gridded coil images, and
-    :meth:`NonlinearSense.prepare` puts a measurement in that shape.
+    :class:`NonlinearSense` along a trajectory, the model ``nlinv`` inverts
+    off the grid: the nonlinear counterpart of
+    :class:`bartorch.linop.NoncartesianSense`.  The output is the gridded coil
+    images; :meth:`NonlinearSense.prepare` brings a measurement to that form.
+
+    Parameters
+    ----------
+    trajectory : torch.Tensor
+        Trajectory ``(..., samples, 3)`` in grid units.
+    image_shape : tuple of int
+        Coil-image shape ``(coils, *spatial)``, C order.
+    **kwargs
+        Keyword arguments of :class:`NonlinearSense`.
+
+    Returns
+    -------
+    NonlinearSense
+        Inputs: image, coil coefficients.  Output: gridded coil images.
     """
     return NonlinearSense(image_shape, trajectory=trajectory, **kwargs)
 
@@ -445,37 +478,39 @@ def CoilSense(  # noqa: N802  (it is a constructor)
     *,
     items: bool = False,
 ) -> NonlinearOperator:
-    """Product of an image and unknown coil sensitivities, through any encoding.
+    """Product of an image and unknown coil sensitivities before a linear encoding.
 
-    The general construction rather than BART's particular model: a product of
-    two unknowns in front of any linear operator from coil images to data -- a
-    wave encoding, a field-corrected one, a subspace one, or one of your own::
-
-        _chain(Multiply(image_shape, coil_shape), encoding.to_nonlinear())
-
-    Unlike :class:`NonlinearSense` there is no Sobolev weighting on the coils:
-    the sensitivities themselves are the unknown, and nothing constrains them
-    to be smooth.  Regularize them by chaining a smoothing operator onto the
-    coil input, or use :class:`NonlinearSense`, which carries BART's.
+    The model ``y = E(x * s)`` with image ``x`` and sensitivities ``s`` both
+    unknown, for any linear ``E`` from coil images to data: a wave encoding,
+    a field-corrected or subspace encoding, or any other.  Unlike
+    :class:`NonlinearSense` the sensitivities themselves are the unknown, with
+    no Sobolev weighting; smoothness is imposed by chaining a smoothing
+    operator onto the coil input, if at all.
 
     Parameters
     ----------
     encoding : LinearOperator
-        From coil images to data.  Its domain is the coil-image shape.
+        Encoding from coil images, its domain, to data.
     image_shape : tuple of int, default=None
-        Where the image lives; by default the encoding's domain with one coil.
+        Image shape; the encoding's domain with one coil.
     coil_shape : tuple of int, default=None
-        Where the sensitivities live; by default the encoding's domain.
+        Sensitivity shape; the encoding's domain.
     items : bool, default=False
         The encoding's leading axis holds independent items, each with its own
-        image and coils; the coils are the next axis.  A Gauss-Newton step then
-        applies the model to every item at once and solves each item's inner
-        problem on its own.
+        image and coils, and the coil axis is the next one.  A Gauss-Newton
+        step applies the model to all items at once and solves each item's
+        inner problem on its own.
 
     Returns
     -------
     NonlinearOperator
-        Two inputs, the image and the coils, and one output, the data.
+        Inputs: image, sensitivities.  Output: data.
+
+    Raises
+    ------
+    ValueError
+        If ``items`` is set and the image, coil and encoding shapes do not
+        share their leading size.
 
     Examples
     --------

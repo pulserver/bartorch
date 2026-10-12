@@ -23,32 +23,42 @@ def phantom(
     rotation_steps: int | None = None,
     **extra,
 ) -> torch.Tensor:
-    """An analytical phantom, as an image or as its k-space.
+    """Analytical phantom, as an image or as its k-space.
 
     Parameters
     ----------
     shape : int or tuple of int, default=None
-        The image's spatial size (``-x``).  BART's phantom is square or
-        cubic, so a tuple must have one size repeated; three of them ask for
-        the three-dimensional phantom.  Without one, BART's default size.
+        Spatial size (``-x``).  The phantom is square or cubic: a tuple repeats
+        one size, and three entries select the three-dimensional phantom.
+        BART's default is 128.
     kspace : bool, default=False
         Return the analytical k-space rather than the image (``-k``).
     coils : int, default=None
-        Simulate this many coil sensitivities (``-s``).
-    traj : tensor, default=None
-        Sample the k-space along this trajectory (``-t``) rather than on a
-        grid, which implies ``kspace``.
+        Number of simulated coils (``-s``); adds a leading coil axis.
+    traj : torch.Tensor, default=None
+        Trajectory ``(..., samples, 3)`` in grid units to sample the k-space
+        along (``-t``) rather than a grid; implies ``kspace``.
     geometry : {'circle', 'brain', 'nist', 'sonar', 'tubes', 'bart'}, default=None
-        Which phantom to make; BART spells each as its own flag.
+        Phantom geometry, each one of BART's flags; BART's default is the
+        Shepp-Logan phantom.
     rotation_angle, rotation_steps : float, int, default=None
-        Rotate the phantom (``--rotation-angle``, ``--rotation-steps``).
+        Rotation angle in degrees (``--rotation-angle``), and the number of
+        frames rotated by it, for ``"nist"``, ``"sonar"`` and ``"tubes"``
+        (``--rotation-steps``).
     **extra
-        Further BART ``phantom`` flags, by name.
+        Further BART ``phantom`` options, by name.
 
     Returns
     -------
     torch.Tensor
-        The phantom.
+        ``(coils, z, y, x)`` with ``coils``, otherwise ``(y, x)`` or
+        ``(z, y, x)``, with leading axes for frames; with ``traj``, the samples
+        as :func:`bartorch.nufft` returns them.
+
+    Raises
+    ------
+    ValueError
+        If ``shape`` has unequal sizes or ``geometry`` is unknown.
 
     Examples
     --------

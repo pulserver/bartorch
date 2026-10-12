@@ -32,19 +32,19 @@ __all__ = [
 
 
 class FFT(LinearOperator):
-    """BART's unitary Fourier transform along ``axes``, centred by default.
+    """Unitary Fourier transform along ``axes``, BART's ``linop_fft``.
 
     Parameters
     ----------
     shape : tuple of int
-        The shape it transforms, C order.
+        Domain and codomain, C order.
     axes : int or tuple of int
-        Which axes to transform, as indices into ``shape``; negative indices
-        count from the end.
+        Axes to transform; negative indices count from the end.
     inverse : bool, default=False
-        Transform the other way.
+        Apply the inverse transform as the forward.
     centred : bool, default=True
-        Put the zero frequency in the middle, which is BART's ``fftc``.
+        Zero frequency at index ``n // 2`` (BART's ``fftc``); False is the
+        uncentred transform.  ``centered`` is accepted as a keyword alias.
 
     Examples
     --------
@@ -94,11 +94,20 @@ class _SettableDiagonal(LinearOperator):
     _values: str
 
     def set(self, values: torch.Tensor) -> None:
-        """Replace the values, in place, keeping the operator's identity.
+        """Replace the values in place, without rebuilding the operator.
 
-        ``values`` has the shape the operator was built with.  A solve or a
-        step assembled over this operator is unaffected structurally and needs
-        no rebuild; only what it computes changes.
+        Compositions, normals and solvers built over this operator apply the
+        new values from their next application.  The values are copied.
+
+        Parameters
+        ----------
+        values : tensor
+            Same shape as the values the operator was built with.
+
+        Raises
+        ------
+        BartError
+            When BART refuses to write the values.
         """
         current = getattr(self, self._values)
         made = as_operand(values, tuple(current.shape), self._values)
@@ -121,17 +130,17 @@ class _SettableDiagonal(LinearOperator):
 
 
 class Diagonal(_SettableDiagonal):
-    """Pointwise multiplication by ``diag``, broadcast over the axes where it is one.
+    """Pointwise multiplication by ``diag``, BART's ``linop_cdiag``.
 
-    BART's ``cdiag``.
+    The adjoint multiplies by ``conj(diag)``.
 
     Parameters
     ----------
     diag : tensor
-        The diagonal.  Every axis is either the operator's size along that
-        axis or one, and the ones are broadcast.
+        The diagonal, with the operator's rank; each axis is the operator's
+        size or one, and size-one axes are broadcast.
     shape : tuple of int
-        The shape the operator works on, C order.
+        Domain and codomain, C order.
     """
 
     _values = "diag"
@@ -155,32 +164,24 @@ class Diagonal(_SettableDiagonal):
 
 
 class ComponentDiagonal(LinearOperator):
-    """A diagonal on the real part and another on the imaginary part.
+    """Separate real scalings of the real and imaginary parts, BART's ``linop_rdiag``.
 
-    BART's ``linop_rdiag``, which is ``md_zrmul``: the real part of the input
-    is scaled by the real part of ``diag`` and the imaginary part by the
-    imaginary part, each on its own.  It is the operator for treating a
-    complex array as two real channels, not the real-valued diagonal its BART
-    name suggests: that is :class:`Diagonal` given a real diagonal, adjoint
-    included, since conjugating a real number does nothing.
+    ``y = Re(d) Re(x) + i Im(d) Im(x)`` (BART's ``md_zrmul``).  A real ``d``
+    therefore zeroes the imaginary part; multiplication by a real diagonal is
+    :class:`Diagonal`.
 
-    So ``ComponentDiagonal(w)`` with a real ``w`` scales the real part by
-    ``w`` and annihilates the imaginary part; scaling both takes
-    ``w + 1j * w``, or :class:`Diagonal`.
-
-    Scaling two components separately is linear over the reals and not over
-    the complex numbers, as :class:`Conj` and
-    :class:`~bartorch.linop.Real` are: it is self-adjoint for a real inner
-    product and does not pass a complex dot test on its own.
+    The operator is linear over the reals only, like :class:`Conj` and
+    :class:`~bartorch.linop.Real`: it is self-adjoint under the real inner
+    product and fails a complex dot test on its own.
 
     Parameters
     ----------
     diag : tensor
-        Its real part scales real parts and its imaginary part scales
-        imaginary parts.  Every axis is either the operator's size along that
-        axis or one, and the ones are broadcast.
+        Real part scales the real part, imaginary part scales the imaginary
+        part.  Each axis is the operator's size or one, and size-one axes are
+        broadcast.
     shape : tuple of int
-        The shape the operator works on, C order.
+        Domain and codomain, C order.
     """
 
     def __init__(self, diag: torch.Tensor, shape: Shape):
@@ -231,20 +232,19 @@ class Sampling(_SettableDiagonal):
 
 
 class MultiplySum(LinearOperator):
-    """Multiply by a tensor and sum over the axes absent from the codomain.
+    """Multiply by a tensor and sum over the axes the codomain reduces, BART's ``linop_fmac``.
 
-    BART's ``fmac``.  This is the coil model: with sensitivities of shape
-    ``(coils, y, x)``, ``ishape (1, y, x)`` and ``oshape (coils, y, x)`` it
-    maps an image to coil images, and its adjoint combines coil images with
-    the conjugate sensitivities.
+    With sensitivities of shape ``(coils, y, x)``, ``ishape=(1, y, x)`` and
+    ``oshape=(coils, y, x)`` this is the coil model: image to coil images,
+    and the adjoint is the coil combination with conjugate sensitivities.
 
     Parameters
     ----------
     tensor : tensor
-        What to multiply by.
+        Multiplier, broadcast against the domain and codomain.
     ishape, oshape : tuple of int
-        Domain and codomain, C order.  An axis the domain has and the codomain
-        does not is summed over.
+        Domain and codomain, C order.  An axis of size one in ``oshape``
+        and larger in the product is summed over.
     """
 
     def __init__(self, tensor: torch.Tensor, ishape: Shape, oshape: Shape):
@@ -268,16 +268,15 @@ class MultiplySum(LinearOperator):
 
 
 class Identity(LinearOperator):
-    """The identity on ``shape``, BART's ``linop_identity``.
+    """Identity on ``shape``, BART's ``linop_identity``.
 
-    It is the empty product: ``A ** 0`` returns one, and it is the term
-    to add when an operator needs a multiple of the identity beside it, as in
-    ``A + 0.1 * Identity(A.ishape)``.
+    ``A ** 0`` returns one; ``A + 0.1 * Identity(A.ishape)`` adds a multiple
+    of the identity.
 
     Parameters
     ----------
     shape : tuple of int
-        The shape it maps to itself, C order.
+        Domain and codomain, C order.
     """
 
     def __init__(self, shape: Shape):
@@ -290,7 +289,7 @@ class Identity(LinearOperator):
 
 
 class Zero(LinearOperator):
-    """The operator that sends everything to zero, BART's ``linop_null``.
+    """Zero operator, BART's ``linop_null``.
 
     Parameters
     ----------
@@ -315,14 +314,14 @@ class Zero(LinearOperator):
 class Conj(LinearOperator):
     """Complex conjugation, BART's ``linop_zconj``.
 
-    Conjugation is not linear over the complex numbers, being conjugate
-    linear, so this is the operator BART offers under that name.  ``A.conj()``
-    and ``A.T`` are built from it rather than from a rule of their own.
+    Conjugation is antilinear: linear over the reals, not over the complex
+    numbers, so the operator fails a complex dot test on its own.
+    :meth:`LinearOperator.conj` and :attr:`LinearOperator.T` are built from it.
 
     Parameters
     ----------
     shape : tuple of int
-        The shape it maps to itself, C order.
+        Domain and codomain, C order.
     """
 
     def __init__(self, shape: Shape):

@@ -201,7 +201,6 @@ def test_the_user_guide_holds_installation_and_support_pages_only():
     pages = [
         "prerequisites",
         "installation",
-        "from-bart-sigpy",
         "issues",
         "discussions",
         "security",

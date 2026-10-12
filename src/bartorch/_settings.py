@@ -53,17 +53,33 @@ def cuda_available() -> bool:
 
 
 def set_cuda_streams(n: int) -> None:
-    """Set the number of CUDA streams BART runs on, 1 to 8.
+    """Set the number of CUDA streams BART runs on.
 
     More than one lets BART overlap its transfers with its arithmetic.
+
+    Parameters
+    ----------
+    n : int
+        Stream count, 1 to 8.
+
+    Raises
+    ------
+    ValueError
+        If BART refuses ``n``.
     """
     _cuda.set_streams(n)
 
 
 def use_cuda_memcache(enable: bool) -> None:
-    """Whether BART keeps freed device memory for its own reuse.
+    """Set whether BART keeps freed device memory for its own reuse.
 
     Off, memory goes back to the driver as soon as BART is done with it, where
-    torch's allocator can take it, at the cost of slower allocation.
+    torch's allocator can take it, at the cost of slower allocation.  A BART
+    command clears the cache when it ends; the setting matters for operators.
+
+    Parameters
+    ----------
+    enable : bool
+        Keep freed memory in BART's cache.
     """
     _cuda.use_memcache(enable)

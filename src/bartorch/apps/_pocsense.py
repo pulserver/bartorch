@@ -99,42 +99,42 @@ def pocsense(
     robust: float | None = None,
     scaling: float | None = None,
 ) -> torch.Tensor:
-    """POCSENSE reconstruction: the measured samples, the coils, and sparsity.
+    """POCSENSE reconstruction by projections onto convex sets.
 
-    The pipeline of BART's POCSENSE application, assembled here: the
-    scaling the application estimates, the sampling pattern read off the
-    k-space, the modulation into the convention BART iterates in, and then a
-    sweep of three projections from :mod:`bartorch.linop` and
-    :mod:`bartorch.priors` under :class:`bartorch.optim.POCS`.
+    The steps of BART's POCSENSE application: data scaling, the sampling
+    pattern read off the k-space, modulation into BART's uncentred
+    convention, and :class:`bartorch.optim.POCS` sweeps of the projections
+    onto data consistency, the range of the coil sensitivities and, with
+    ``alpha``, a sparsity projection.
 
     Parameters
     ----------
     kspace : torch.Tensor
-        Under-sampled k-space, C order ``(coils, z, y, x)``.
+        Cartesian k-space ``(coils, z, y, x)``, C order.
     sensitivities : torch.Tensor
-        Coil sensitivities, normalized, as :func:`~bartorch.tools.ecalib`
-        produces them.
+        Normalized coil sensitivities ``(coils, [1,] z, y, x)``, as
+        :func:`~bartorch.tools.ecalib` returns them.
     maxiter : int, default=None
-        Sweeps of the projections; BART's default is fifty.
+        Sweeps; ``None`` is BART's 50.
     alpha : float, default=0.0
-        Regularization weight.  Zero leaves the sparsity projection out
-        entirely, as the application does, and the sweep is then the two
-        projections onto the data and onto the coils.
+        Regularization weight; zero omits the sparsity projection.
     wavelet : bool, default=False
-        Threshold the wavelet coefficients of the coil images rather than
-        shrinking the samples towards zero, which is the application's ``-l 1``.
+        Soft-threshold the Daubechies-2 wavelet coefficients of the coil
+        images (``-l 1``) rather than apply the L2 proximal operator to the
+        samples.
     robust : float, default=None
-        Soft-threshold the residual at a measured position by this much
-        rather than discarding it, which is the application's ``-o``.
+        Soft-threshold the residual at measured positions by this amount
+        instead of replacing it with the measurement (``-o``).
     scaling : float, default=None
-        The data scaling to divide by; estimated when it is not given, and
-        the answer is put back into the data's units either way.
+        Data scaling; ``None`` estimates it with
+        :func:`bartorch.optim.data_scaling`.  The result is in the units of
+        ``kspace`` either way.
 
     Returns
     -------
     torch.Tensor
-        Coil k-space, in the centred convention, of ``kspace``'s shape.  The
-        image is the coil combination of its inverse transform.
+        Coil k-space of ``kspace``'s shape, centred convention; the image is
+        the coil combination of its inverse Fourier transform.
 
     Examples
     --------

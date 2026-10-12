@@ -36,28 +36,27 @@ __all__ = ["ADMM", "CG", "PRIDU", "FISTA", "IST", "NIHT", "Tikhonov"]
 
 @dataclasses.dataclass(frozen=True)
 class Tikhonov:
-    """A quadratic penalty ``weight * ||operator x - bias||^2``.
+    r"""Quadratic penalty :math:`w \| G x - b \|^2` for :class:`CG`.
 
-    Generalized Tikhonov regularization, minimized by :class:`CG` alongside the
-    data-fidelity term.  Without an operator the penalty is on the image
-    itself; without a bias it penalizes the norm rather than the distance from
-    a reference.
-
-    Every combination remains a linear least-squares problem and is solved by
-    conjugate gradients: the terms are stacked beneath the encoding, and the
-    normal operator of the stack is the sum of the parts' normals, so a
-    Toeplitz encoding keeps its point spread function convolution.
+    Generalized Tikhonov regularization.  :class:`CG` stacks the terms under the
+    encoding, so the problem stays linear least squares, the normal operator is
+    :math:`A^H A + \sum_i w_i G_i^H G_i`, and a Toeplitz encoding keeps its
+    point-spread-function convolution.
 
     Parameters
     ----------
     weight : float
-        The weight, not its square root.  Must not be negative.
+        :math:`w`, the weight of the squared norm (not its square root); at
+        least zero.
     operator : LinearOperator, default=None
-        What the penalty is on, mapping the image somewhere.  By default the
-        image itself.
+        :math:`G`, with domain ``A.ishape``; the identity when omitted.
     bias : tensor, default=None
-        What the penalty pulls towards, of the operator's codomain shape.  By
-        default zero, which is the ordinary penalty on size.
+        :math:`b`, of ``operator.oshape``; zero when omitted.
+
+    Raises
+    ------
+    ValueError
+        ``weight`` is negative.
 
     Examples
     --------
@@ -65,7 +64,7 @@ class Tikhonov:
 
     >>> CG(terms=Tikhonov(0.1, bias=prior))(y, A)
 
-    Penalize the first differences, which is quadratic total variation:
+    Penalize the first differences (quadratic total variation):
 
     >>> CG(terms=Tikhonov(0.1, operator=linop.Gradient(A.ishape, (-1, -2))))(y, A)
     """
@@ -173,34 +172,43 @@ Regularizers = Regularizer | Iterable[Regularizer] | None
 def maxeigen(
     A, terms: Terms = None, *, cclambda: float = 0.0, precond=None, iterations: int = 30
 ) -> float:
-    """Power-iteration estimate of the largest eigenvalue of the normal operator.
+    r"""Estimate the largest eigenvalue of the normal operator by power iteration.
 
-    The quantity a proximal step is scaled by.  The power
-    iteration starts from a random vector drawn from BART's own generator, so
-    an iteration written outside the library must request it here, at the point
-    in the sequence the library would have reached it; otherwise the subsequent
-    draws -- a wavelet term's random cycle spinning, for instance -- differ.
+    The operator is :math:`M (A^H A + \lambda I) + \sum_j G_j^H G_j`, as BART's
+    ``lsqr2_create`` and ``iter2_chambolle_pock`` form it, with :math:`M` the
+    preconditioner and :math:`G_j` the terms' transforms.  A solver given
+    ``eigen=True`` divides its step by this value.
 
     Parameters
     ----------
     A : LinearOperator
-        The encoding.  Its normal is the operator, with ``cclambda`` on the
-        diagonal, as ``lsqr`` builds it.
+        Encoding operator.
     terms : Regularizer or iterable of Regularizer, default=None
-        Terms whose transforms are added to the normal operator.  The
-        primal-dual iteration estimates over these; the proximal iterations
-        estimate over the encoding alone.
+        Terms whose :math:`G_j^H G_j` is added.  The primal-dual iteration
+        passes its dual terms; the proximal-gradient iterations pass none.
     cclambda : float, default=0.0
-        Weight of an identity added to the normal operator.
+        :math:`\lambda`.
     precond : LinearOperator, default=None
-        Chained onto the normal before the terms are added, as ``lsqr2_create``
-        chains it.
+        :math:`M`, from ``A.ishape`` to itself.
     iterations : int, default=30
-        Power iterations; BART takes thirty.
+        Power iterations; BART uses 30.
 
     Returns
     -------
     float
+        The estimated eigenvalue.
+
+    Raises
+    ------
+    ~bartorch.BartError
+        The library could not form the operator or run the iteration.
+
+    Notes
+    -----
+    The starting vector is drawn from BART's process-wide random generator.  An
+    iteration written outside the library calls this where BART's own loop
+    would, so that later draws -- a wavelet term's random shifts, for
+    instance -- follow the same sequence.
     """
     op = A._bart()
     _ensure_ready()
@@ -519,25 +527,36 @@ class _Solver:
         return getattr(state, "done", False)
 
     def __call__(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> torch.Tensor:
-        """Solve for the image given data ``y`` and encoding ``A``.
+        """Solve for the image.
 
         Parameters
         ----------
-        y : torch.Tensor
-            Data of ``A.oshape``, recorded for autograd when it requires a gradient.
+        y : tensor
+            Data of ``A.oshape``, or ``(batch, *A.oshape)``; a batch is solved
+            one item at a time, each as its own run.
         A : LinearOperator
-            The encoding.  A BART-backed operator is applied without leaving
-            the library; a Python-defined one is called back once per
-            application.
-        x0 : torch.Tensor, default=None
-            Warm start of ``A.ishape``; without one the iteration starts at
-            zero.
+            Encoding operator.  A BART-backed operator is applied inside the
+            library; a Python-defined one is called back once per application.
+        x0 : tensor, default=None
+            Starting image of ``A.ishape``, or one per batch item; zero when omitted.
 
         Returns
         -------
         torch.Tensor
-            Complex64 solution of ``A.ishape``, with ``y``'s batch in front.  A
-            batch is solved one item at a time, each as its own run.
+            Complex64 image of ``A.ishape``, with ``y``'s batch axis in front.
+
+        Raises
+        ------
+        ValueError
+            ``y`` requires a gradient and a BART term has not been detached
+            (:meth:`~bartorch.priors.Regularizer.detach`): its proximal operator has
+            no backward pass.
+
+        Notes
+        -----
+        The iterations are torch operations, so a solve is differentiated by
+        unrolling.  Step sizes and weights are fixed; :mod:`bartorch.optim`'s
+        blocks and :class:`~bartorch.learning.Unrolled` expose them as parameters.
         """
         made = _item_by_item(self, y, A, x0)
         if made is not None:
@@ -576,51 +595,48 @@ class _Solver:
 
 
 class CG(_Solver):
-    r"""Conjugate gradients for a least-squares problem with quadratic penalties.
+    r"""Conjugate gradients on the normal equations of a quadratic problem.
 
-    Without terms the problem is
-
-    .. math::
-
-        \min_x \; \| A x - y \|^2 + \lambda \| x \|^2
-
-    the ordinary Tikhonov-regularized least-squares problem.  With terms it
-    is
+    Solves
 
     .. math::
 
         \min_x \; \| A x - y \|^2 + \lambda \| x \|^2
               + \sum_i w_i \| G_i x - b_i \|^2
 
-    still a linear least-squares problem and so still this iteration.
+    where the sum is over the :class:`Tikhonov` terms.
 
     Parameters
     ----------
     lambda_ : float, default=0.0
-        Tikhonov weight on the image itself, added to the normal operator.
+        :math:`\lambda`, the Tikhonov weight on the image.
     terms : Tikhonov or iterable of Tikhonov, default=None
-        Quadratic penalties with an operator, a bias, or both.  See
-        :class:`Tikhonov`.
+        Quadratic penalties :math:`w_i \| G_i x - b_i \|^2`.
     maxiter : int, default=30
+        Maximum number of iterations.
     tol : float, default=0.0
         Stop once the residual of the normal equations is at most
-        ``tol * ||A^H y||``.  Zero, BART's default, runs every iteration.
+        ``tol * ||A^H y||``; zero, BART's default, runs every iteration.
     cclambda : float, default=0.0
-        Weight of an identity added to the normal operator.
+        Weight of an identity added to the normal operator (``lsqr``'s
+        ``cclambda``).
     precond : LinearOperator, default=None
-        Left preconditioner, ``lsqr2_create``'s ``precond_op``: chained onto
-        the normal operator and onto the adjoint, so the iteration sees
-        ``M(A^H A + lambda) x = M A^H y``.  Must be positive definite --
-        BART composes it without symmetrizing.  BART's own reconstructions
-        pass none.
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``); BART's reconstructions use none.
+
+    Raises
+    ------
+    TypeError
+        A term is not a :class:`Tikhonov` penalty, such as a proximal
+        regularizer.
 
     Notes
     -----
-    BART's conjugate gradients takes one weight and nothing else:
-    ``iter2_conjgrad`` asserts that it is handed no regularizing operators and
-    no biases, and ``lsqr2_create`` builds ``A^H A + lambda I``.  So the terms
-    are not passed to it -- they are built into the operator it is given, by
-    stacking them under the encoding.
+    BART's ``iter2_conjgrad`` takes the weight :math:`\lambda` and no
+    regularizing operators or biases.  The terms are therefore stacked under the
+    encoding, :math:`[A; \sqrt{w_i} G_i] x \approx [y; \sqrt{w_i} b_i]`, and the
+    stacked operator is solved; its normal is applied as the sum of the parts'
+    normals.
 
     Examples
     --------
@@ -657,17 +673,34 @@ class CG(_Solver):
         *,
         steps: list | None = None,
     ) -> torch.Tensor:
-        """Solve, and with ``steps`` say how many iterations it took.
+        """Solve for the image.
 
-        An alternating-direction solver budgets by this count, which is not
-        otherwise visible from outside the library.
+        Parameters
+        ----------
+        y : tensor
+            Data of ``A.oshape``, or ``(batch, *A.oshape)``; a batch is solved
+            one item at a time.
+        A : LinearOperator
+            Encoding operator.
+        x0 : tensor, default=None
+            Starting image of ``A.ishape``, or one per batch item; zero when omitted.
+        steps : list, default=None
+            When given, the number of iterations each solve took is appended to it.
 
-        When ``y`` carries a gradient the solve is recorded: the forward pass
-        is the same iteration and the same bits, and the backward pass is
-        another solve with the same operator, as
-        :mod:`bartorch.optim._autograd` describes.  A solve can therefore stand
-        inside an unrolled network -- as the data-consistency layer of a MoDL,
-        for instance -- and not only at the end of one.
+        Returns
+        -------
+        torch.Tensor
+            Complex64 image of ``A.ishape``, with ``y``'s batch axis in front.
+
+        Notes
+        -----
+        When ``y`` requires a gradient the solve is recorded as one operation:
+        the forward pass is the library's iteration, and the backward pass a
+        second solve with the same normal operator
+        (:doc:`/explanation/learned-reconstruction`).  The warm start receives no
+        gradient.  For a linearization of a nonlinear operator the gradient also
+        reaches the point it was linearized at.  The solve can therefore serve as
+        the data-consistency layer of an unrolled network.
         """
         from bartorch.linop._base import _tracking
 
@@ -764,29 +797,36 @@ class CG(_Solver):
 
 
 class IST(_Solver):
-    """Iterative soft thresholding, looping :class:`ISTBlock`.
+    r"""Iterative soft thresholding (proximal gradient), looping :class:`ISTBlock`.
+
+    Solves :math:`\min_x \tfrac12 \| A x - y \|^2 + g(x)`.
 
     Parameters
     ----------
     regularizers : Regularizer or ImplicitPrior, default=None
-        Exactly one term, whose transform is the identity: the iteration
-        applies its proximal operator to the image.
+        The single term :math:`g`; its transform must be the identity.
     maxiter : int, default=30
+        Number of iterations.
     step : float, default=0.95
-        Step size.
+        Step size :math:`\tau` of the gradient step.
     eigen : bool, default=False
-        Scale the step by the largest eigenvalue of the normal operator,
-        estimated with 30 power iterations.
+        Divide the step by :func:`maxeigen` of the normal operator.
     hogwild : bool, default=False
-        BART's ``hogwild`` setting, which its IST rejects.
+        Must be false: BART's IST rejects it.
     cclambda : float, default=0.0
         Weight of an identity added to the normal operator.
     precond : LinearOperator, default=None
-        Left preconditioner, ``lsqr2_create``'s ``precond_op``: chained onto
-        the normal operator and onto the adjoint, so the iteration sees
-        ``M(A^H A + lambda) x = M A^H y``.  Must be positive definite --
-        BART composes it without symmetrizing.  BART's own reconstructions
-        pass none.
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``); BART's reconstructions use none.
+
+    Raises
+    ------
+    ValueError
+        Not exactly one term, or ``hogwild``; at the call, a term whose
+        transform is not the identity, such as
+        :class:`~bartorch.priors.TotalVariation`.
+    TypeError
+        A term with auxiliary variables.
     """
 
     _algorithm = "ist"
@@ -841,32 +881,41 @@ class IST(_Solver):
 
 
 class FISTA(IST):
-    """Fast iterative soft thresholding, looping :class:`FISTABlock`.
+    r"""Fast iterative soft thresholding, looping :class:`FISTABlock`.
+
+    Solves :math:`\min_x \tfrac12 \| A x - y \|^2 + g(x)` with Nesterov
+    momentum.
 
     Parameters
     ----------
     regularizers : Regularizer or ImplicitPrior, default=None
-        Exactly one term, whose transform is the identity: the iteration
-        applies its proximal operator to the image.
+        The single term :math:`g`; its transform must be the identity.
     maxiter : int, default=30
+        Number of iterations.
     step : float, default=0.95
-        Step size.
+        Step size :math:`\tau` of the gradient step.
     eigen : bool, default=False
-        Scale the step by the largest eigenvalue of the normal operator,
-        estimated with 30 power iterations.
+        Divide the step by :func:`maxeigen` of the normal operator.
     hogwild : bool, default=False
-        BART's ``hogwild`` setting.
+        Halve the step after 10 iterations, and again after each further 20,
+        40, ... iterations.
     pqr : tuple of float, default=None
-        Acceleration parameters ``(p, q, r)``; ``None``
-        keeps BART's.
+        :math:`(p, q, r)` of the momentum update
+        :math:`t_{k+1} = (p + \sqrt{q + r t_k^2}) / 2`; ``None`` is BART's
+        ``(1, 1, 4)``.
     cclambda : float, default=0.0
         Weight of an identity added to the normal operator.
     precond : LinearOperator, default=None
-        Left preconditioner, ``lsqr2_create``'s ``precond_op``: chained onto
-        the normal operator and onto the adjoint, so the iteration sees
-        ``M(A^H A + lambda) x = M A^H y``.  Must be positive definite --
-        BART composes it without symmetrizing.  BART's own reconstructions
-        pass none.
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``); BART's reconstructions use none.
+
+    Raises
+    ------
+    ValueError
+        Not exactly one term; at the call, a term whose transform is not the
+        identity.
+    TypeError
+        A term with auxiliary variables.
 
     Examples
     --------
@@ -924,69 +973,74 @@ class FISTA(IST):
 
 
 class ADMM(_Solver):
-    """Alternating direction method of multipliers, looping :class:`ADMMBlock`.
+    r"""Alternating direction method of multipliers, looping :class:`ADMMBlock`.
+
+    Solves :math:`\min_x \tfrac12 \| A x - y \|^2 + \sum_j g_j(G_j x - b_j)`,
+    splitting each term at :math:`G_j x`; each x-update is a conjugate-gradient
+    solve.
 
     Parameters
     ----------
     regularizers : Regularizer or ImplicitPrior, or an iterable of them, default=None
-        Terms with auxiliary variables -- total generalized
-        variation and the two infimal convolutions -- walk the image and the
-        fields behind it.
+        The terms :math:`g_j`, with any transform :math:`G_j`, including terms
+        with auxiliary variables.
     maxiter : int, default=30
-        A budget on conjugate-gradient iterations across the whole run, not a
-        count of outer steps: ``admm`` breaks when ``nr_invokes > maxiter``.
-        Thirty with ten inner iterations is about five outer steps.
+        Budget of conjugate-gradient iterations over the whole run, not of
+        outer iterations: the run stops once the inner iterations spent exceed
+        it, as BART's ``admm`` does.
     rho : float, default=0.5
-        Penalty parameter; BART's default is 0.5.
+        Penalty parameter :math:`\rho`.
     cg_maxiter : int, default=10
-        Conjugate-gradient iterations per x-update; BART's default is 10.
+        Conjugate-gradient iterations per x-update.
     hogwild : bool, default=False
-        BART's ``hogwild`` setting, which doubles ``rho`` after
-        ten steps, then twenty, then forty.  Not combinable with
-        ``dynamic_rho``, which BART asserts against.
+        Double :math:`\rho` after iteration 1, 3, 7, 15, ...  Excludes
+        ``dynamic_rho``.
     cclambda : float, default=0.0
         Weight of an identity added to the normal operator.
     biases : sequence of tensor, default=None
-        The ``b_j`` of ``f_j(G_j x - b_j)``, one per term, each of its term's
-        transformed shape.
+        The :math:`b_j`, one per term, each of its term's
+        :meth:`~bartorch.priors.Regularizer.prox_shape`.
     dynamic_rho : bool, default=False
-        Move ``rho`` with the residuals: up by
-        ``tau`` when the primal residual leads, down when the dual does.  The
-        dual variables are rescaled to match, so the split stays where it was.
+        Multiply :math:`\rho` by ``tau`` when the primal residual exceeds ``mu``
+        times the dual, divide it when the dual exceeds ``mu`` times the
+        primal; the scaled duals are rescaled to match.
     dynamic_tau : bool, default=False
-        Choose ``tau`` from the residuals too,
-        as ``sqrt(r / s)`` clipped to ``[1 / tau_max, tau_max]``.  Together
-        with ``dynamic_rho`` and ``relative_norm`` this is the residual
-        balancing of Wohlberg (2017).
+        Set ``tau`` from the residuals, :math:`\sqrt{r / s}` or its inverse,
+        clipped to ``tau_max`` (residual balancing, Wohlberg 2017).
     relative_norm : bool, default=False
-        Compare the residuals to their scalings rather than to each other.
+        Compare the residuals each relative to its scaling.
     fast : bool, default=False
-        Skip the residuals entirely, and with them the stopping test.
+        Skip the residuals, and with them the stopping test.  Excludes
+        ``dynamic_rho``.
     alpha : float, default=1.6
-        Over-relaxation; BART's default is 1.6.
+        Over-relaxation parameter.
     mu : float, default=3.0
-        How far the residuals must part before ``dynamic_rho`` moves ``rho``.
+        Residual ratio beyond which ``dynamic_rho`` rescales :math:`\rho`.
     tau_max : float, default=20.0
-        The clip on ``tau``.
-    abstol, reltol : float, default=0.0
-        Boyd's absolute and relative tolerances, which stop the iteration when
-        both residuals are inside them.  ``italgo_config`` sets both to zero,
-        so only the iteration budget stops the run.
+        Upper bound of ``tau``.
+    abstol : float, default=0.0
+        Absolute tolerance of the residual stopping test (Boyd et al. 2011).
+    reltol : float, default=0.0
+        Relative tolerance of the residual stopping test.  With both
+        tolerances zero, as ``italgo_config`` sets them, only ``maxiter``
+        ends the run.
     cg_maxiter_first : int, default=None
-        A separate budget for the first step's inner solve, where there is no
-        warm start to build on; riesling's, not BART's.
+        Conjugate-gradient iterations of the first x-update; ``cg_maxiter``
+        when omitted.
     precond : LinearOperator, default=None
-        Left preconditioner, ``lsqr2_create``'s ``precond_op``: chained onto
-        the normal operator and onto the adjoint, so the iteration sees
-        ``M(A^H A + lambda) x = M A^H y``.  Must be positive definite --
-        BART composes it without symmetrizing.  BART's own reconstructions
-        pass none.
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``); BART's reconstructions use none.
+
+    Raises
+    ------
+    ValueError
+        ``hogwild`` or ``fast`` with ``dynamic_rho``, or not one bias per term.
 
     Notes
     -----
-    ``italgo_config`` has no way to pass ``alpha``, ``mu``, ``tau_max``, the
-    tolerances, the biases or ``cg_maxiter_first``, so BART's own loop cannot
-    be given them.
+    ``alpha``, ``mu``, ``tau_max``, the tolerances, the biases and
+    ``cg_maxiter_first`` have no counterpart in ``italgo_config``, so BART's
+    own loop runs with their defaults.
 
     Examples
     --------
@@ -1101,37 +1155,43 @@ class ADMM(_Solver):
 
 
 class PRIDU(_Solver):
-    """Primal-dual iteration, looping :class:`PRIDUBlock`.
+    r"""Primal-dual iteration (Chambolle-Pock), looping :class:`PRIDUBlock`.
+
+    Solves :math:`\min_x \tfrac12 \| A x - y \|^2 + \sum_j g_j(G_j x)` with no
+    inner solve.
 
     Parameters
     ----------
     regularizers : Regularizer or ImplicitPrior, or an iterable of them, default=None
-        Terms with auxiliary variables extend the optimization variable; the
-        step spans the image and the auxiliary fields behind it, as in
-        :class:`ADMM`.
+        The terms :math:`g_j`, with any transform :math:`G_j`, including terms
+        with auxiliary variables.
     maxiter : int, default=30
+        Maximum number of iterations.
     step : float, default=0.95
-        Step size.
+        Product of the dual and primal step sizes, :math:`\sigma \tau`.
     sigma_tau_ratio : float, default=1.0
-        Ratio of the dual to the primal step: ``sigma = sqrt(step) * ratio``,
-        ``tau = sqrt(step) / ratio``.  BART's own reconstructions set it to
-        the factor the data was divided by, so pass :func:`data_scaling`'s
-        value to match them.
+        :math:`\sigma / \tau`, so :math:`\sigma = \sqrt{\text{step}}\,\text{ratio}`
+        and :math:`\tau = \sqrt{\text{step}} / \text{ratio}`.  BART's
+        reconstructions set it to the :func:`data_scaling` factor.
     adaptive_step : bool, default=False
-        Adapt the steps during the iteration.
+        Adapt :math:`\sigma` and :math:`\tau` at every iteration.
     eigen : bool, default=False
-        Scale the step by the largest eigenvalue of the normal operator,
-        estimated with 30 power iterations.
+        Divide :math:`\sigma` and :math:`\tau` by the square root of
+        :func:`maxeigen` over the encoding and the dual terms.
     hogwild : bool, default=False
-        Decay the steps by a factor of 0.95 per iteration.
+        Relax iteration :math:`k` by :math:`0.95^k`: each variable moves that
+        fraction of the way to its update.
     cclambda : float, default=0.0
         Weight of an identity added to the normal operator.
     precond : LinearOperator, default=None
-        Left preconditioner, ``lsqr2_create``'s ``precond_op``: chained onto
-        the normal operator and onto the adjoint, so the iteration sees
-        ``M(A^H A + lambda) x = M A^H y``.  Must be positive definite --
-        BART composes it without symmetrizing.  BART's own reconstructions
-        pass none.
+        Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
+        definite (``lsqr2_create``'s ``precond_op``); BART's reconstructions use none.
+
+    Notes
+    -----
+    The first term is applied as the primal proximal step when its transform
+    is the identity, and every other term through a dual variable.  The run
+    stops early when the primal and dual residuals sum below 1e-4.
     """
 
     _algorithm = "pridu"

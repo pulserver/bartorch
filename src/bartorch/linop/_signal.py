@@ -26,24 +26,23 @@ _CONV_MODE = {"symmetric": 0, "causal": 1, "anticausal": 2}
 class Matrix(LinearOperator):
     """Multiplication by a matrix along one axis, BART's ``linop_matrix``.
 
-    The matrix is an array like any other: it contracts the axis the domain
-    and the codomain differ along and broadcasts over the axes it has only one
-    of, so one operator can carry a different matrix per slice.
+    The contracted axis has size one in the codomain and the produced axis
+    size one in the domain.  The matrix is broadcast over its axes of size
+    one and may vary along the others, for instance one matrix per slice.
 
     Parameters
     ----------
     matrix : tensor
-        The matrix, with the domain's size along the axis it contracts and the
-        codomain's along the axis it produces.
+        Same rank as the operator: the domain's size along the contracted
+        axis, the codomain's along the produced axis.
     oshape, ishape : tuple of int
-        Codomain and domain, C order, with the same number of axes.
+        Codomain and domain, C order, with the same rank.
 
     Examples
     --------
-    A basis of ``k`` functions over ``t`` samples, applied along the first
-    axis of ``(t, y, x)``:
+    A basis ``(k, t)`` applied to ``(1, t, y, x)``, giving ``(k, 1, y, x)``:
 
-    >>> B = Matrix(basis, (k, y, x), (t, y, x))
+    >>> B = Matrix(basis[:, :, None, None], (k, 1, y, x), (1, t, y, x))
     """
 
     def __init__(self, matrix: torch.Tensor, oshape: Shape, ishape: Shape):
@@ -79,21 +78,25 @@ class Convolve(LinearOperator):
     Parameters
     ----------
     kernel : tensor
-        What to convolve with, with one axis per axis of ``shape``; an axis it
-        has only one of is left alone.
+        Same rank as ``shape``.
     shape : tuple of int
-        The domain, C order.
+        Domain, C order.
     axes : int or tuple of int
-        Which axes to convolve along.
-    mode : str, default='same'
-        How the ends are treated, under numpy's names: ``"wrap"`` (circular),
-        ``"same"`` (the input's size, truncated), ``"valid"`` (only where the
-        kernel fits) or ``"full"`` (extended).
-    direction : str, default=None
-        ``"symmetric"``, ``"causal"`` or ``"anticausal"``.  BART only plans a
-        ``"valid"`` or ``"full"`` convolution as a causal one, so leaving this
-        out picks causal for those two and symmetric for the others rather
-        than failing inside BART's planner.
+        Axes to convolve along.
+    mode : {"wrap", "same", "valid", "full"}, default='same'
+        Boundary handling, under numpy's names: circular, truncated to the
+        input size, only where the kernel fits, or extended.
+    direction : {"symmetric", "causal", "anticausal"}, default=None
+        Kernel alignment.  ``None`` is ``"causal"`` for ``"valid"`` and
+        ``"full"``, the only direction BART accepts for those modes, and
+        ``"symmetric"`` otherwise.
+
+    Raises
+    ------
+    ValueError
+        For an unknown mode or direction, a non-causal ``"valid"`` or
+        ``"full"`` convolution, or a kernel whose rank differs from the
+        domain's.
     """
 
     def __init__(
@@ -181,30 +184,29 @@ class _Differences(LinearOperator):
 
 
 def Gradient(shape: Shape, axes) -> LinearOperator:  # noqa: N802  (it is a constructor)
-    """Finite differences along ``axes``, stacked on a new leading axis.
+    """Forward finite differences along ``axes``, BART's ``linop_grad``.
 
-    BART's ``linop_grad``.  The codomain is ``(len(axes), *shape)``: one
-    difference per axis, side by side, which is the operator a total-variation term is
-    built on.
-
-    The difference is the forward one and the boundary is circular: component
-    ``i`` at the last index along its axis is the first entry minus the last,
-    not zero.  So the operator has a null space -- a constant maps to zero --
-    as a gradient does.
-
-    **The components come out in ascending axis order**, whatever order
-    ``axes`` names them in.  BART stacks them by bit position, and its bits
-    run the opposite way to C-order axes, so this reverses that with BART's
-    own ``linop_flip`` rather than leaving the caller to discover that
-    ``axes=(0, 1)`` puts axis 1 first.
+    The boundary is circular: at the last index along an axis the difference
+    is the first entry minus the last.  Constants are the null space.
 
     Parameters
     ----------
     shape : tuple of int
-        The domain, C order.
+        Domain, C order.
     axes : int or tuple of int
-        Which axes to difference along.  Order does not matter: BART takes a
-        set of axes, and the result is ordered by axis either way.
+        Axes to difference along, each at most once.
+
+    Returns
+    -------
+    LinearOperator
+        Codomain ``(len(axes), *shape)``.  The components are in ascending
+        axis order, whatever the order of ``axes``.
+
+    Raises
+    ------
+    ValueError
+        When an axis is named twice, or the new axis would exceed BART's
+        dimension count.
     """
     from bartorch.linop._shape import Flip
 
@@ -226,26 +228,25 @@ def Gradient(shape: Shape, axes) -> LinearOperator:  # noqa: N802  (it is a cons
 
 
 class Sobolev(LinearOperator):
-    """A smooth image from weighted k-space coefficients, BART's ``linop_noir_weights``.
+    """Image from Sobolev-weighted k-space coefficients, BART's ``linop_noir_weights``.
 
-    The coefficients are multiplied by ``c (1 + a |k|^2)^(-b/2)`` and taken
-    onto the grid by the centred unitary inverse FFT along ``axes``, where
-    ``k_i`` is the frequency index along axis ``i``, from ``-n_i // 2``,
-    divided by ``n_i``.  Solving for the coefficients rather than the image
-    weights the penalty on each frequency by the inverse square of its weight:
-    the Sobolev norm NLINV puts on coil sensitivities and ``moba`` on B1 and B0
-    maps.
+    The coefficients are multiplied by ``c (1 + a |k|^2)^(-b/2)`` and
+    transformed by the centred unitary inverse FFT along ``axes``.  ``k_i``
+    is the frequency index along axis ``i``, from ``-(n_i // 2)``, divided by
+    ``n_i``.  Penalising the coefficients rather than the image is the
+    Sobolev-norm regularization NLINV applies to coil sensitivities and
+    ``moba`` to B1 and B0 maps.
 
     Parameters
     ----------
     shape : tuple of int
-        The grid, C order.  The coefficients have the same shape.
+        Domain and codomain, C order.
     axes : int or tuple of int
-        The axes weighted and transformed.
+        Axes weighted and transformed.
     a, b : float
-        Width and order of the weighting.
+        Width and order of the weighting (NLINV's ``a`` and ``b``).
     c : float, default=1.0
-        The weight at the centre of k-space.
+        Weight at the centre of k-space.
 
     Examples
     --------

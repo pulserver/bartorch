@@ -70,23 +70,17 @@ def _num_coeffs(sizes: list[int], flen: int) -> int:
 def fwt(input: torch.Tensor, axes: int | tuple[int, ...], *, wavelet: str = "dau2") -> torch.Tensor:
     """Forward multi-level discrete wavelet transform along ``axes``.
 
+    BART's ``wavelet``, or ``cdf97`` for ``"cdf97"``.
+
     Parameters
     ----------
     input : torch.Tensor
-        Every transformed axis needs at least 16 samples, the coarsest scale.
+        Array to transform; every transformed axis has at least 16 samples.
     axes : int or tuple of int
         Axes to transform, as indices into ``input.shape``.
     wavelet : {"haar", "dau2", "cdf44", "cdf97"}, default='dau2'
-        ``"haar"``, ``"dau2"`` and ``"cdf44"`` are, along one axis,
-        PyWavelets' ``wavedec`` with ``"haar"``, ``"db2"`` and ``"bior4.4"``
-        in ``mode="symmetric"``, concatenated coarse first.  Each level keeps
-        ``(n + taps - 1) // 2`` coefficients per band, so there are more
-        coefficients than samples unless the filter has two taps and every
-        level's length is even; levels continue while that half-length is at
-        least 16.  ``"cdf97"`` is CDF 9/7 by lifting, in place, coarse band
-        first, levels continuing while every transformed axis is longer than
-        32; one level of an even length is PyWavelets' ``"bior4.4"`` in
-        ``mode="periodization"`` with the detail band negated.
+        Haar, Daubechies with two vanishing moments, or CDF 4/4 and 9/7
+        biorthogonal; see Notes.
 
     Returns
     -------
@@ -94,6 +88,26 @@ def fwt(input: torch.Tensor, axes: int | tuple[int, ...], *, wavelet: str = "dau
         For ``"cdf97"``, the shape of ``input``.  Otherwise the coefficients
         of all transformed axes are flattened into the last of ``axes``, and
         the other transformed axes have size one.
+
+    Raises
+    ------
+    ValueError
+        If ``wavelet`` is unknown, ``axes`` repeat or are out of range, or a
+        transformed axis is shorter than 16.
+
+    Notes
+    -----
+    ``"haar"``, ``"dau2"`` and ``"cdf44"`` are, along one axis, PyWavelets'
+    ``wavedec`` with ``"haar"``, ``"db2"`` and ``"bior4.4"`` in
+    ``mode="symmetric"``, concatenated coarse first.  Each level keeps
+    ``(n + taps - 1) // 2`` coefficients per band, so there are more
+    coefficients than samples unless the filter has two taps and every level's
+    length is even; levels continue while that half-length is at least 16.
+
+    ``"cdf97"`` is CDF 9/7 by lifting, in place, coarse band first, with levels
+    continuing while every transformed axis is longer than 32; one level of an
+    even length is PyWavelets' ``"bior4.4"`` in ``mode="periodization"`` with
+    the detail band negated.
     """
     _check_wavelet(wavelet)
     shape = tuple(input.shape)
@@ -120,12 +134,11 @@ def iwt(
 ) -> torch.Tensor:
     """Wavelet synthesis along ``axes``: coefficients from :func:`fwt` back to samples.
 
-    ``bart wavelet -a`` runs the synthesis filter bank, which inverts
-    :func:`fwt` (``iwt(fwt(x)) == x``) for every wavelet.  It is a left
-    inverse, not the adjoint, although BART's wavelet linop uses it as its
-    adjoint: synthesis ignores the reflected samples the analysis read
-    (``wavelet_up3``, ``src/wavelet/wavelet.c``).  The two coincide only for
-    ``"haar"`` when every level's length is even, where the transform is
+    The synthesis filter bank of ``bart wavelet -a`` inverts :func:`fwt`
+    (``iwt(fwt(x)) == x``) for every wavelet.  It is a left inverse, not the
+    adjoint, although BART's wavelet operator uses it as its adjoint: synthesis
+    ignores the reflected samples the analysis read.  The two coincide only
+    for ``"haar"`` when every level's length is even, where the transform is
     orthogonal.  ``"cdf97"`` runs ``bart cdf97 -i``, the exact inverse of a
     biorthogonal transform that is not orthogonal.
 
@@ -140,6 +153,17 @@ def iwt(
         Transformed axes, as indices into ``oshape``.
     wavelet : {"haar", "dau2", "cdf44", "cdf97"}, default='dau2'
         As for :func:`fwt`.
+
+    Returns
+    -------
+    torch.Tensor
+        Samples of shape ``oshape``.
+
+    Raises
+    ------
+    ValueError
+        If ``input`` does not have the coefficient layout :func:`fwt` gives
+        for ``oshape`` and ``axes``.
     """
     _check_wavelet(wavelet)
     oshape = tuple(int(n) for n in oshape)

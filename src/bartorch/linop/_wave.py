@@ -56,40 +56,43 @@ def wave_psf(
 
         \mathrm{psf}[r, t] = \exp\left(-2\pi i \sum_a s_a k_a(t - d_a) \, r_a\right)
 
-    over the voxel positions :math:`r` along the phase encodes and the readout
-    samples :math:`t`, the layout :func:`~bartorch.linop.WaveSense` takes as
-    ``psf=``.  Unlike the sine and cosine waves ``WaveSense`` constructs, any
-    waveform is accepted, such as a tapered wave.
+    over voxel positions :math:`r` along the phase encodes and readout samples
+    :math:`t`, in the layout :func:`~bartorch.linop.WaveSense` takes as
+    ``psf``.  Any waveform is accepted, for instance a tapered wave.
 
     Parameters
     ----------
     trajectory : array_like
-        The wave's k-space coordinates along the phase encodes, in cycles/m,
-        at each ADC sample of the readout in acquisition order:
-        ``(readout, encodes)``, the encodes ordered ``(z, y)`` in 3D and
-        ``(y,)`` in 2D.  ``readout`` is the oversampled readout ``WaveSense``
-        takes.
+        Wave k-space coordinates along the phase encodes in cycles/m, one row
+        per ADC sample in acquisition order: ``(readout, encodes)`` with the
+        encodes ``(z, y)`` in 3D or ``(y,)`` in 2D.  ``readout`` is the
+        oversampled readout length.
     image_shape : tuple of int
-        The image's spatial shape ``([z,] y, x)`` before readout oversampling.
+        Spatial image shape ``([z,] y, x)`` before readout oversampling.
     fov : float or tuple of float
-        Field of view along the phase encodes in metres, one value or
-        ``(z, y)``.  Voxel ``n // 2`` is at the centre.
+        Field of view along the phase encodes in m, one value or ``(z, y)``.
+        Voxel ``n // 2`` is at the centre.
     scale : float or tuple of float, default=1.0
         Gradient amplitude relative to nominal, one value or ``(z, y)``.
     delay : float or tuple of float, default=0.0
-        How much later than the ADC each wave runs, in readout samples, one
-        value or ``(z, y)``.  Applied as a linear phase on the trajectory's
-        spectrum, which takes the trajectory as periodic over the readout, as
-        a balanced wave inside the ADC window is.
+        Delay of each wave relative to the ADC in readout samples, one value
+        or ``(z, y)``.  Applied as a linear phase on the trajectory's
+        spectrum, so the trajectory is taken as periodic over the readout.
     centred : bool, default=True
-        The readout in acquisition order, for ``WaveSense(centred=True)``.
-        False reorders it for BART's uncentred transform, whose sample ``k``
-        is frequency ``k`` modulo the readout length.
+        Readout in acquisition order, for ``WaveSense(centred=True)``.  False
+        applies ``ifftshift`` along the readout, for BART's uncentred
+        transform.
 
     Returns
     -------
-    tensor
-        ``([z,] y, readout)``, complex128.
+    tensor, shape ([z,] y, readout)
+        The point spread function, complex128.
+
+    Raises
+    ------
+    ValueError
+        When the trajectory's axes do not match the phase encodes, or the
+        readout is shorter than ``x``.
     """
     k = _trajectory(trajectory)
     image_shape = tuple(int(n) for n in image_shape)
@@ -142,29 +145,25 @@ def wave_calibrate(
 ) -> tuple[tuple[float, ...], tuple[float, ...]]:
     """Fit the wave's gradient amplitude and delay to a wave-free calibration region.
 
-    The reference is the calibration region acquired without the wave; the
-    wave-encoded samples it predicts are the reference transformed to hybrid
-    space along the phase encodes, multiplied by :func:`wave_psf` and
-    transformed back, all on the grid the samples are given on.  The scale and
-    delay of each axis are fitted by nonlinear least squares from 1 and 0,
-    comparing on the lines acquired with the wave whose neighbourhood, as far
-    as the wave's largest excursion in lines reaches along each axis, lies
-    inside the calibration region.  The k-space outside that region, which the
-    reference does not have, is taken as negligible there.
+    The model predicts the wave-encoded samples from the reference: inverse
+    FFT along the phase encodes, multiplication by :func:`wave_psf`, and FFT
+    back.  Per phase-encode axis, scale and delay are fitted by nonlinear
+    least squares (``scipy.optimize.least_squares``) starting from 1 and 0.
+    The residual is taken on the acquired wave lines whose neighbourhood,
+    within the wave's largest excursion in lines, lies inside the calibration
+    region; k-space outside the region is neglected.
 
     Parameters
     ----------
     reference : array_like
         Wave-free k-space ``(coils, [kz,] ky, readout)``, zero outside the
-        calibration region; the readout is the ADC's samples in acquisition
-        order, as for ``wave``.
+        calibration region, with the readout in acquisition order.
     wave : array_like
         Wave-encoded k-space on the same grid, zero where not acquired.
     trajectory : array_like
-        The nominal wave trajectory, as for :func:`wave_psf`.
+        Nominal wave trajectory, as for :func:`wave_psf`.
     fov : float or tuple of float
-        Field of view along the phase encodes in metres, one value or
-        ``(z, y)``.
+        Field of view along the phase encodes in m, one value or ``(z, y)``.
 
     Returns
     -------
@@ -176,8 +175,8 @@ def wave_calibrate(
     Raises
     ------
     ValueError
-        When no acquired line has its neighbourhood inside the calibration
-        region.
+        When the shapes disagree, or no acquired line has its neighbourhood
+        inside the calibration region.
     """
     from scipy.ndimage import binary_erosion
     from scipy.optimize import least_squares
