@@ -344,3 +344,9 @@ def test_a_transform_that_does_not_start_from_the_image_is_refused():
     term = priors.ImplicitPrior(_Peek(), transform=_basis_transform(2, 5, 8))
     with pytest.raises(ValueError, match="transform takes"):
         term.prox_shape((3, 8, 8))
+
+
+@pytest.mark.parametrize("axes", [(-1,), (-1, -2, -3)])
+def test_a_laplace_term_over_other_than_two_axes_is_refused(axes):
+    with pytest.raises(ValueError, match="two axes"):
+        priors.Laplace(axes, 0.1)

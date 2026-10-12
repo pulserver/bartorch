@@ -1052,3 +1052,9 @@ def test_partial_fourier_refuses_a_mask_of_another_shape():
     image = torch.zeros(SIZE, SIZE, dtype=torch.complex64)
     with pytest.raises(ValueError, match="sampled has shape"):
         apps.partial_fourier(image, torch.ones(SIZE, dtype=torch.bool))
+
+
+def test_a_basis_on_a_grid_is_refused_rather_than_ignored():
+    kspace, maps = _cartesian()
+    with pytest.raises(ValueError, match="basis"):
+        apps.pics(kspace, maps, basis=torch.ones(1, 1), maxiter=1)
