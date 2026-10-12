@@ -328,8 +328,8 @@ difference = (variable.grad - expected).abs().max() / expected.abs().max()
 print(f"relative difference from 2 A^H (Ax - y): {float(difference):.2e}")
 
 # %%
-# :doc:`../../explanation/differentiation` describes the backward passes of
-# the solvers, and :doc:`../../explanation/inverse-problems` which algorithm
+# :doc:`../../explanation/learned-reconstruction` describes the backward
+# passes of the solvers, and :doc:`../../explanation/solvers` which algorithm
 # applies to which problem.
 #
 # Exercise: FISTA convergence

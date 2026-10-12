@@ -501,7 +501,7 @@ plt.show()
 # iteration.
 #
 # :class:`~bartorch.learning.Unrolled` provides two alternatives, neither of
-# which changes the forward value (:doc:`../../explanation/differentiation`):
+# which changes the forward value (:doc:`../../explanation/learned-reconstruction`):
 #
 # * ``detach=True`` starts each iteration from a detached state, so the graph
 #   spans one iteration. With a loss on each image that

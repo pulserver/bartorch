@@ -6,7 +6,7 @@ $g$ and the linear transform $G$, and the solvers of {mod}`bartorch.optim`
 apply them.  An {obj}`~bartorch.priors.ImplicitPrior` takes the place of a term
 with a denoiser; with `spatial=` it converts the complex image to the real
 planes an image-restoration network takes.  Three functions apply BART's
-denoisers to an image directly.  {doc}`../explanation/inverse-problems` introduces functionals,
+denoisers to an image directly.  {doc}`../explanation/regularizers` introduces functionals,
 proximal operators and the splitting that a nontrivial $G$ requires.
 
 ```{eval-rst}

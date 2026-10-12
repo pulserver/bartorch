@@ -25,8 +25,8 @@ Tikhonov regularization favours a small image; a wavelet :math:`\\ell_1`
 penalty favours an image that is sparse in a wavelet basis, as in compressed
 sensing; total variation (TV) favours one that is piecewise constant. The
 weight sets the balance between data consistency and the penalty.
-:doc:`../../explanation/inverse-problems` introduces the formulation and the
-algorithms.
+:doc:`../../explanation/regularizers` introduces the penalties and
+:doc:`../../explanation/solvers` the algorithms.
 
 **Learning objectives**
 

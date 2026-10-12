@@ -364,7 +364,7 @@ print(f"NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 # regularized one), unroll the loop as :class:`bartorch.nlop.IRGNMBlock`, and
 # differentiate a Gauss-Newton step with respect to the data, the iterate,
 # the regularization centre and :math:`\alpha`
-# (:doc:`../../explanation/differentiation`). Putting a signal model in front
+# (:doc:`../../explanation/learned-reconstruction`). Putting a signal model in front
 # of the same encoding, to reconstruct parameter maps rather than an image, is
 # lesson 9 (:doc:`../05-model-based/01-quantitative-models`).
 #

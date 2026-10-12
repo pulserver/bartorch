@@ -110,3 +110,16 @@ div.highlight-text .copybtn {
 .bd-article .capabilities li > p {
   text-align: left;
 }
+
+/* The explanation plots (scripts/make_figures.py) share the gallery's
+   transparent canvas and grey foreground, so the dark theme shows them as
+   they are. */
+html[data-theme="dark"] .bd-content img.plot {
+  background-color: transparent;
+  filter: none;
+}
+
+/* Table cells are too narrow to justify. */
+.bd-article td p, .bd-article th p {
+  text-align: left;
+}

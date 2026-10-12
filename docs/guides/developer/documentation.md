@@ -270,7 +270,7 @@ Explanatory documentation may:
 
 An explanation page with more than one `##` section opens with a **TL;DR** block directly under its title: a short list of the page's conclusions, each stated as the page states it, with no claim the page does not support. It lets a reader decide whether the page answers their question. A page with a single section may omit it. Landing pages, API reference pages and gallery examples have none.
 
-An explanation page has one obvious purpose and, where appropriate, a conceptual anchor: a figure, table, equation or similarly compact device that carries the page's central idea. A figure is never added for its own sake. Material that another page owns is linked and not repeated: the form of the encoding belongs to {doc}`/explanation/encoding`, the point spread function and the normal operator of a trajectory to {doc}`/explanation/non-cartesian`, and the rule that a backward pass is the adjoint to {doc}`/explanation/differentiation`.
+An explanation page has one obvious purpose and, where appropriate, a conceptual anchor: a figure, table, equation or similarly compact device that carries the page's central idea. A figure is never added for its own sake. Material that another page owns is linked and not repeated: the form of the encoding belongs to {doc}`/explanation/encoding`, the point spread function and the normal operator of a trajectory to {doc}`/explanation/non-cartesian`, and the rule that a backward pass is the adjoint to {doc}`/explanation/learned-reconstruction`.
 
 Where possible, begin from the scientific, mathematical, or computational concept rather than from the Python class hierarchy.
 
