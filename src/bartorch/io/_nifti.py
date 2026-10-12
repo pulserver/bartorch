@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Sequence
+from importlib import import_module
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +13,6 @@ import numpy as np
 import torch
 
 from ._dicom import _TIMINGS, Images
-from ._optional import require
 
 #: BIDS sidecar keys, in seconds except the flip angle, for each timing.
 _SIDECAR = {
@@ -51,7 +51,7 @@ def read_nifti(path: str | Sequence[str]) -> Images:
     ImportError
         If ``nibabel`` is not installed.
     """
-    nibabel = require("nibabel")
+    nibabel = import_module("nibabel")
     paths = [Path(path)] if isinstance(path, (str, Path)) else [Path(p) for p in path]
     volumes, timings, affine, header = [], {name: [] for name in _TIMINGS}, None, None
     for file in paths:
@@ -115,7 +115,7 @@ def write_nifti(
     ImportError
         If ``nibabel`` is not installed.
     """
-    nibabel = require("nibabel")
+    nibabel = import_module("nibabel")
     data = np.asarray(torch.as_tensor(image).detach().cpu().numpy())
     if data.ndim == 2:
         data = data[None]

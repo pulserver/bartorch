@@ -4,9 +4,7 @@ import numpy as np
 import pytest
 import torch
 
-pytest.importorskip("SimpleITK")
-
-from bartorch.tools import reslice  # noqa: E402
+from bartorch.tools import reslice
 
 
 def rotation(a, b, c):

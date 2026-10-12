@@ -3,9 +3,8 @@
 EPI readout corrections, receive-field (bias) correction, gradient
 nonlinearity correction, off-resonance field maps and spiral deblurring, and
 susceptibility correction from a reversed phase-encoding pair.  SimpleITK
-(``pip install 'bartorch[correct]'``), Triton and PyHySCO
-(``pip install 'bartorch[pyhysco]'``) are optional and imported by the
-functions that use them.
+resamples; Triton and PyHySCO (``pip install 'bartorch[pyhysco]'``) are
+optional.  Each is imported by the functions that use it.
 """
 
 from __future__ import annotations

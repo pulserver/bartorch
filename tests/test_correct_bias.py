@@ -5,8 +5,6 @@ import torch
 
 import bartorch.tools as bt
 
-pytest.importorskip("SimpleITK", reason="bias field correction needs the correct extra")
-
 
 @pytest.fixture
 def shaded():

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import SimpleITK as sitk  # noqa: E402
 import torch
 
 from bartorch.tools import (
@@ -12,8 +13,6 @@ from bartorch.tools import (
     RigidMotionEstimate,
     RigidRegistration,
 )
-
-sitk = pytest.importorskip("SimpleITK", reason="rigid registration needs the motion extra")
 
 
 def plane(size: int = 64, seed: int = 0) -> np.ndarray:

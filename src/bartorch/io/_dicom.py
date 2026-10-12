@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import math
 from collections.abc import Sequence
+from importlib import import_module
 from pathlib import Path
 from typing import Any, NamedTuple
 
@@ -17,7 +18,6 @@ import numpy as np
 import torch
 
 from ._geometry import lps_affine, to_lps
-from ._optional import require
 
 #: Timing fields a series is sorted into contrasts by, as :attr:`Images.timings`
 #: names them, with the DICOM keyword each is read from.  DICOM states times in
@@ -122,7 +122,7 @@ def read_dicom(path: str | Sequence[str], *, series: Any = None) -> Images:
     ImportError
         If ``pydicom`` is not installed.
     """
-    pydicom = require("pydicom")
+    pydicom = import_module("pydicom")
     datasets = _read_files(pydicom, path)
     datasets = _select(datasets, series)
     if any(int(getattr(ds, "NumberOfFrames", 1) or 1) > 1 for ds in datasets):
@@ -248,7 +248,7 @@ def to_dicom(image: Any, affine: Any, *, header: Any = None, **fields: Any) -> l
     ImportError
         If ``pydicom`` is not installed.
     """
-    pydicom = require("pydicom")
+    pydicom = import_module("pydicom")
     pixels = np.asarray(torch.as_tensor(image).detach().cpu().numpy())
     if np.iscomplexobj(pixels):
         raise TypeError(

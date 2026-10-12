@@ -93,9 +93,6 @@ def test_it_beats_the_ramp_on_the_image() -> None:
     assert residual(pipe) < residual(_ramp())
 
 
-@pytest.mark.skipif(
-    importlib.util.find_spec("SimpleITK") is None, reason="registration needs the motion extra"
-)
 def test_it_registers_a_pose_to_a_hundredth_of_a_pixel() -> None:
     """The shift is along the columns, which is SimpleITK's ``tx``."""
     traj = spokes()

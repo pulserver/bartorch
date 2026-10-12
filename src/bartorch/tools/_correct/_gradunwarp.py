@@ -22,12 +22,8 @@ __all__ = ["CoefficientAccessor", "GradientCoefficients", "Gradunwarp"]
 
 
 def _simpleitk():
-    try:
-        import SimpleITK
-    except ImportError as error:
-        raise ImportError(
-            "gradient nonlinearity correction requires SimpleITK: pip install 'bartorch[correct]'"
-        ) from error
+    import SimpleITK
+
     return SimpleITK
 
 

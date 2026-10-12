@@ -14,10 +14,8 @@ _INTERPOLATION = {"linear": "sitkLinear", "nearest": "sitkNearestNeighbor"}
 
 
 def _simpleitk():
-    try:
-        import SimpleITK
-    except ImportError as error:
-        raise ImportError("reslice requires SimpleITK: pip install 'bartorch[correct]'") from error
+    import SimpleITK
+
     return SimpleITK
 
 
@@ -120,8 +118,6 @@ def reslice(
         If the shape of ``image`` does not match ``source``, the planes of a
         sequence are not equally spaced to 1e-3 relative or not collinear to
         1e-4, or ``interpolation`` is unknown.
-    ImportError
-        If SimpleITK is not installed.
 
     Notes
     -----

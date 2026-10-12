@@ -35,7 +35,7 @@ python -m pip install pre-commit 'codespell[toml]' -r docs/requirements.txt
 
 The first command compiles the library through scikit-build-core into
 `build/<wheel tag>/` and installs the package with pytest, pytest-xdist,
-numpydoc, ruff and SimpleITK; with CUDA, add
+numpydoc and ruff; with CUDA, add
 `--config-settings=cmake.define.BARTORCH_CUDA=ON`.  The second installs the
 pre-commit hooks' runner, the spelling check, and the documentation and
 gallery requirements.
