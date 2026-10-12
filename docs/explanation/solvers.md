@@ -115,7 +115,9 @@ fully sampled k-space centre (at most 32 samples per axis), or their maximum
 when it exceeds that percentile by twice the percentile's distance from the
 median; with an encoding `A`, the same rule on
 $\lvert A^Hy\rvert$. {func}`~bartorch.apps.pics` divides by it unless you pass
-`scaling`, and returns the image of the divided data.
+`scaling`, and multiplies the image back by it, as `pics -S` does, so that the
+image is in the units of the data; `rescale=False` returns the image of the
+divided data.
 
 ### Bayesian interpretation
 

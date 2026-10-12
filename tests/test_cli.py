@@ -45,6 +45,11 @@ _LINES = [
     ["pics", "-r", "0.1", "-i", "20"],
     ["pics", "-l2", "-r", "0.05", "-i", "20"],
     ["pics", "-R", "W:3:0:0.01", "-i", "20"],
+    # `-S` puts the image back into the data's units, which is the app's
+    # default; without it the command answers in the scaled units.
+    ["pics", "-S", "-l1", "-r", "0.01", "-i", "20"],
+    ["pics", "-S", "-r", "0.1", "-w", "2048", "-i", "20"],
+    ["pics", "-r", "0.1", "-w", "2048", "-i", "20"],
 ]
 
 

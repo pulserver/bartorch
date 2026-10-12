@@ -393,14 +393,16 @@ for name, estimate in results.items():
 #
 # The same reconstruction can be assembled from its parts, as in lesson 6:
 # the encoding operator over the estimated maps, and the ADMM solver with the
-# same term. ``pics`` also scales the data before solving; off the grid it
-# estimates the scale from the adjoint reconstruction, so
-# :func:`bartorch.optim.data_scaling` takes the operator.
+# same term. ``pics`` also divides the data by a scale before solving and
+# multiplies the image back by it; off the grid it estimates the scale from
+# the adjoint reconstruction, so :func:`bartorch.optim.data_scaling` takes the
+# operator.
 A = linop.NoncartesianSense(maps[:, 0], (SIZE, SIZE), traj=trajectory)
-data = measured / optim.data_scaling(measured[..., None], A=A)
+scale = optim.data_scaling(measured[..., None], A=A)
+data = measured / scale
 
 start = time.perf_counter()
-assembled = optim.ADMM(term, maxiter=ITERATIONS)(data, A)
+assembled = optim.ADMM(term, maxiter=ITERATIONS)(data, A) * scale
 print(f"operator and solver: {time.perf_counter() - start:.2f} s")
 
 difference = (assembled.squeeze() - reconstruction.squeeze()).abs().max()
@@ -431,7 +433,7 @@ pair = linop.NoncartesianSense(
 )
 
 start = time.perf_counter()
-paired = optim.ADMM(term, maxiter=ITERATIONS)(data, pair)
+paired = optim.ADMM(term, maxiter=ITERATIONS)(data, pair) * scale
 print(f"without the Toeplitz normal: {time.perf_counter() - start:.2f} s")
 
 relative = float((paired - assembled).abs().max() / assembled.abs().max())

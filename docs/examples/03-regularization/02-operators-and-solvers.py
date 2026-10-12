@@ -235,9 +235,11 @@ scale = optim.data_scaling(measured)
 data = (measured / scale).squeeze(1)
 
 term = priors.Wavelet(axes=(-1, -2), weight=0.002)
-assembled = optim.FISTA(term, maxiter=100)(data, A)
+assembled = optim.FISTA(term, maxiter=100)(data, A) * scale
 
 # %%
+# The solution is multiplied back by the scale, which puts the image into the
+# units of the k-space, as ``pics`` does unless given ``rescale=False``.
 # Now run ``pics`` on the raw ``kspace`` with the same term and solver, and
 # compare:
 tool = apps.pics(kspace, maps, regularizers=term, solver="fista", maxiter=100)
