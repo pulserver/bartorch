@@ -36,8 +36,8 @@ experiment, as a DICOM series of its own. :func:`bartorch.io.read_dicom` reads
 several series as one, sorts the images into contrasts by their echo,
 inversion and repetition times, and returns those times with the images: they
 are the sampling points of the signal model. The fit is that of lesson 9
-without the Fourier encoding: :func:`bartorch.apps.mobafit` runs Gauss-Newton
-on the signal equation alone.
+without the Fourier encoding: :func:`bartorch.apps.mobafit` runs
+Levenberg-Marquardt on the signal equation alone, one voxel at a time.
 
 The noise of a magnitude image is Rician where the signal is small and has a
 positive floor, which a decay model fitted to it reads as a longer
@@ -208,7 +208,7 @@ that is what a registration or segmentation package reads.
  .. code-block:: none
 
 
-    PosixPath('/tmp/tmp48vv9uva/t2-map.nii.gz')
+    PosixPath('/tmp/tmpvlsoqyq9/t2-map.nii.gz')
 
 
 
@@ -285,7 +285,7 @@ What this tour built, stated the way you would ask an agent for it:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 30.235 seconds)
+   **Total running time of the script:** (0 minutes 0.911 seconds)
 
 
 .. _sphx_glr_download_auto_examples_08-workflows_03-maps-from-scanner-images.py:

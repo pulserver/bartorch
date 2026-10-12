@@ -518,39 +518,27 @@
 <dt class="sig sig-object py" id="bartorch.apps.mobafit">
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">mobafit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.mobafit" title="Link to this definition">#</a></dt>
 <dd><p>Fit a signal model to reconstructed contrast images, voxel by voxel.</p>
-<p>The method of BART’s <code class="docutils literal notranslate"><span class="pre">mobafit</span></code>: Gauss-Newton (<a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.nlop.IRGNM</span></code></a>)
-over a <a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a>.  The model is BlochSim’s, in
-its bounded parameterization, so the result is named maps in physical
-units rather than the command’s coefficients; the two minimize the same
-objective.</p>
+<p>Levenberg-Marquardt over every voxel at once, each with its own damping and
+its own small linear system solved directly, over the model of a
+<a class="reference internal" href="bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator" title="bartorch.nlop.ModelOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelOperator</span></code></a>.  The model is BlochSim’s, in its
+bounded parameterization, so the result is named maps in physical units
+rather than BART’s coefficients, and no iterate leaves the bounds.  The
+answer is a local minimum that depends on the starting point.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>images</strong> (<em>torch.Tensor</em>) – Contrast images <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">*voxels)</span></code>, C order, in the order of the
 model’s acquisition, in any intensity units.</p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><em>bartorch.nlop.SignalModel</em></a>) – Signal model of the acquisition, on the voxel shape of <code class="docutils literal notranslate"><span class="pre">images</span></code>:
+<li><p><strong>model</strong> (<a class="reference internal" href="bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator" title="bartorch.nlop.ModelOperator"><em>bartorch.nlop.ModelOperator</em></a>) – Signal model of the acquisition, on the voxel shape of <code class="docutils literal notranslate"><span class="pre">images</span></code>:
 <a class="reference internal" href="bartorch.nlop.MultiEcho.html#bartorch.nlop.MultiEcho" title="bartorch.nlop.MultiEcho"><code class="xref py py-func docutils literal notranslate"><span class="pre">MultiEcho()</span></code></a>,
 <a class="reference internal" href="bartorch.nlop.InversionRecovery.html#bartorch.nlop.InversionRecovery" title="bartorch.nlop.InversionRecovery"><code class="xref py py-func docutils literal notranslate"><span class="pre">InversionRecovery()</span></code></a> or <a class="reference internal" href="bartorch.nlop.Bloch.html#bartorch.nlop.Bloch" title="bartorch.nlop.Bloch"><code class="xref py py-func docutils literal notranslate"><span class="pre">Bloch()</span></code></a>.</p></li>
-<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=20</em>) – Gauss-Newton steps.  The command’s 5 suffice for its scaled
-coefficients, not for the bounded parameterization.</p></li>
-<li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=50</em>) – Conjugate-gradient iterations per linearized problem (<code class="docutils literal notranslate"><span class="pre">--liniter</span></code>).</p></li>
-<li><p><strong>inner</strong> (<em>solver</em><em>, </em><em>default=None</em>) – Solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> for the linearized problem, whose
-regularizers penalize the maps; <code class="docutils literal notranslate"><span class="pre">None</span></code> is conjugate gradients.</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Tikhonov weight of the first Gauss-Newton step.</p></li>
-<li><p><strong>alpha_min</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Limit the weight decays towards.</p></li>
-<li><p><strong>redu</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – Decay factor of the weight per step.</p></li>
+<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=20</em>) – Levenberg-Marquardt steps; a voxel stops earlier once it has converged.</p></li>
 <li><p><strong>magnitude</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Fit the model’s magnitude to the images’ magnitude (<code class="docutils literal notranslate"><span class="pre">-a</span></code>).</p></li>
 <li><p><strong>start</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Starting point in the model’s domain, as
-<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> packs it, with the amplitude
+<a class="reference internal" href="bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator.initial" title="bartorch.nlop.ModelOperator.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> packs it, with the amplitude
 in the units of <code class="docutils literal notranslate"><span class="pre">images</span></code>; built from <code class="docutils literal notranslate"><span class="pre">**values</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><p><strong>reference</strong> (<em>dict</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – Values each step is regularized towards, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">value}</span></code> in physical
-units with an amplitude in the units of <code class="docutils literal notranslate"><span class="pre">images</span></code>; unnamed properties
-take the model’s defaults, and values are clamped strictly inside the
-model’s bounds.  <code class="docutils literal notranslate"><span class="pre">None</span></code> regularizes towards zero in the model’s
-variables, as the command does: the middle of each bound and no
-amplitude.</p></li>
 <li><p><strong>**values</strong> – Starting values <code class="docutils literal notranslate"><span class="pre">name=value</span></code> in physical units, as
-<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them.</p></li>
+<a class="reference internal" href="bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator.initial" title="bartorch.nlop.ModelOperator.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

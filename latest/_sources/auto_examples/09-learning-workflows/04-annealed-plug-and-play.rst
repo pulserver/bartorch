@@ -228,9 +228,9 @@ slices of subject 4. First the denoiser on its own, at three noise levels:
 
  .. code-block:: none
 
-    sigma 0.01: 41.46 dB noisy, 42.77 denoised
-    sigma 0.05: 27.17 dB noisy, 32.80 denoised
-    sigma 0.1: 21.06 dB noisy, 28.53 denoised
+    sigma 0.01: 41.46 dB noisy, 41.45 denoised
+    sigma 0.05: 27.17 dB noisy, 27.17 denoised
+    sigma 0.1: 21.06 dB noisy, 21.06 denoised
 
 
 
@@ -315,9 +315,9 @@ follow each schedule iteration by iteration:
 
  .. code-block:: none
 
-       annealed, 0.1 to 0.01   PSNR 30.80 dB
-                 fixed, 0.03   PSNR 30.67 dB
-                 fixed, 0.01   PSNR 30.06 dB
+       annealed, 0.1 to 0.01   PSNR 27.02 dB
+                 fixed, 0.03   PSNR 27.14 dB
+                 fixed, 0.01   PSNR 27.50 dB
      CG SENSE, 20 iterations   PSNR 24.21 dB
 
 
@@ -355,7 +355,7 @@ at the cortex.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_003.png
-         :alt: CG-SENSE NRMSE 0.124, annealed plug-and-play NRMSE 0.058
+         :alt: CG-SENSE NRMSE 0.124, annealed plug-and-play NRMSE 0.090
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_003.png
          :class: sphx-glr-multi-img
 
@@ -401,7 +401,7 @@ You trained the denoiser without an encoding, so it applies unchanged to
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_005.png
-         :alt: CG-SENSE, R = 6 NRMSE 0.168, annealed, R = 6 NRMSE 0.062
+         :alt: CG-SENSE, R = 6 NRMSE 0.168, annealed, R = 6 NRMSE 0.139
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_04-annealed-plug-and-play_005.png
          :class: sphx-glr-multi-img
 
@@ -410,7 +410,7 @@ You trained the denoiser without an encoding, so it applies unchanged to
 
  .. code-block:: none
 
-    R = 6: annealed plug-and-play 30.57 dB
+    R = 6: annealed plug-and-play 23.72 dB
     R = 6: CG SENSE 21.98 dB
 
 
@@ -450,9 +450,9 @@ as it is:
 
  .. code-block:: none
 
-    lambda 1e-05: PSNR 29.84 dB
-    lambda 1e-04: PSNR 30.80 dB
-    lambda 1e-03: PSNR 28.48 dB
+    lambda 1e-05: PSNR 27.01 dB
+    lambda 1e-04: PSNR 27.02 dB
+    lambda 1e-03: PSNR 27.54 dB
 
 
 
@@ -504,7 +504,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 20.892 seconds)
+   **Total running time of the script:** (0 minutes 31.418 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py:

@@ -119,7 +119,7 @@ bartorch.nlop
    CartesianSense
    NoncartesianSense
    CoilSense
-   SignalModel
+   ModelOperator
    InversionRecovery
    MultiEcho
    Bloch

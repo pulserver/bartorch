@@ -1,10 +1,10 @@
-﻿nlop.SignalModel
-================
+﻿nlop.ModelOperator
+==================
 
 .. currentmodule:: bartorch.nlop
 
 
-.. autoclass:: SignalModel
+.. autoclass:: ModelOperator
    :show-inheritance:
 
    .. autoproperty:: names

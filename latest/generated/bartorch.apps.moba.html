@@ -523,7 +523,7 @@ fitted to the samples by Gauss-Newton (<a class="reference internal" href="barto
 Without <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> the coils are a second unknown, shared by the
 contrasts and represented as in <a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a>,
 under a Sobolev weighting.  The model is BlochSim’s
-(<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a>), so the result is named maps in
+(<a class="reference internal" href="bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator" title="bartorch.nlop.ModelOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelOperator</span></code></a>), so the result is named maps in
 physical units rather than the command’s coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -532,7 +532,7 @@ physical units rather than the command’s coefficients.</p>
 order of the model’s acquisition.  <code class="docutils literal notranslate"><span class="pre">*samples</span></code> is the voxel shape on
 a grid, and <code class="docutils literal notranslate"><span class="pre">traj.shape[:-1]</span></code> without a leading contrast axis along
 a trajectory.</p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><em>bartorch.nlop.SignalModel</em></a>) – Signal model on the voxel shape, <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator" title="bartorch.nlop.ModelOperator"><em>bartorch.nlop.ModelOperator</em></a>) – Signal model on the voxel shape, <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
 <li><p><strong>sensitivities</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Coil sensitivities <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*voxels)</span></code>, shared by the contrasts;
 estimated jointly with the maps when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in grid units, shared by the contrasts
@@ -571,7 +571,7 @@ multiplied by it again.  <code class="docutils literal notranslate"><span class=
 without an amplitude is fitted to unscaled data.</p></li>
 <li><p><strong>return_sensitivities</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the estimated sensitivities.</p></li>
 <li><p><strong>**values</strong> – Starting values <code class="docutils literal notranslate"><span class="pre">name=value</span></code> in physical units, as
-<a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them, with an
+<a class="reference internal" href="bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator.initial" title="bartorch.nlop.ModelOperator.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> takes them, with an
 amplitude in the units of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>.</p></li>
 </ul>
 </dd>
