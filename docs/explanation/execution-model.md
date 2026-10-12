@@ -1,4 +1,4 @@
-# BART in your process
+# Execution model
 
 ```{admonition} TL;DR
 :class: tldr
@@ -16,7 +16,7 @@ reconstruction needs the operators and solvers. Calibration, trajectories and
 simulation are tools. Lesson 1 of the {doc}`Course <../auto_examples/index>`
 calls a command on a tensor, and lesson 6 assembles `pics` by hand.
 
-## What bartorch does
+## Capabilities
 
 :::{container} capabilities
 
@@ -47,15 +47,16 @@ calls a command on a tensor, and lesson 6 assembles `pics` by hand.
 
 :::
 
-## What stays BART's
+## Division of responsibility
 
-- **The numerics**, outside the substitutions: commands, operators and
-  iterations are BART's code from the pinned revision of `pulserver/bart`.
-- **The substitutions** change a result only within their own accuracy:
-  FINUFFT for every non-uniform transform ({doc}`non-cartesian`), and the FFT,
-  BLAS and LAPACK from MKL, PyTorch's library or SciPy.
+- **BART**: the commands, operators and iterations, compiled from the pinned
+  revision of `pulserver/bart`.
+- **bartorch**: the tensor boundary, error handling, device placement, and the
+  substitutions, which change a result only within their own accuracy: FINUFFT
+  for every non-uniform transform ({doc}`non-cartesian`), and the FFT, BLAS and
+  LAPACK from MKL, PyTorch's library or SciPy.
 
-## How it works
+## Method
 
 ```{image} ../_static/architecture.svg
 :class: only-light
@@ -69,27 +70,27 @@ calls a command on a tensor, and lesson 6 assembles `pics` by hand.
 :width: 100%
 ```
 
-### The call
+### Tensor transfer
 
 A tensor crosses as its data pointer and its shape reversed into a BART
 dimension vector ({doc}`data-layout`). Arrays BART allocates come from
 PyTorch, on the device of the call. One Python thread calls into BART at a
 time; the parallelism is inside the call, on OpenMP threads.
 
-### On a card
+### GPU execution
 
 Operators and solvers work on device memory directly, with cuFFT, cuBLAS and
 cuFINUFFT. A few commands allocate host temporaries and mix them with their
 inputs; those are given host copies, and their results come back on the card.
 
 (openmp-runtime)=
-### One OpenMP runtime
+### OpenMP runtime
 
 BART and FINUFFT link the OpenMP runtime PyTorch ships, and the wheels carry
 none of their own, because LLVM's runtime ends the process when a second copy
 starts. On Linux this needs PyTorch 2.7.1 or later.
 
-## See it run
+## Examples
 
 - {doc}`../auto_examples/01-basics/01-tensors-and-commands`: BART commands on
   tensors.
