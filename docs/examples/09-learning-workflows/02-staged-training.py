@@ -353,8 +353,8 @@ def trainer(epochs):
 
 
 # %%
-# Stage 1: the denoiser alone
-# ---------------------------
+# Stage 1: denoiser pretraining
+# -----------------------------
 #
 # The inputs are reconstructions of increasing quality -- the zero-filled coil
 # combination :math:`A^H y`, and CG-SENSE after 2, 5 and 20 iterations --
@@ -383,8 +383,8 @@ trainer(15).fit(
 )
 
 # %%
-# Stage 2: one iteration at a time
-# --------------------------------
+# Stage 2: greedy training
+# ------------------------
 #
 # ``detach=True`` starts every iteration from a detached state, and the greedy
 # stage back-propagates each iteration's loss before the next iteration runs,
@@ -425,8 +425,8 @@ trainer(8).fit(
 scores["greedy"] = quality(reconstruct(greedy))
 
 # %%
-# Stage 3: the whole stack
-# ------------------------
+# Stage 3: end-to-end training
+# ----------------------------
 #
 # The loss is now on the final image alone, so the earlier iterations are free
 # to produce whatever intermediate image serves the last one best.
@@ -490,8 +490,8 @@ plt.show()
 # error is concentrated at tissue boundaries, where it slightly smooths the
 # cortex.
 #
-# Storing the weights
-# -------------------
+# Checkpoints
+# -----------
 #
 # Store the weights in half precision: that halves the file and loses nothing
 # a float16 or bfloat16 inference would keep. ``load_state_dict`` casts them
@@ -506,8 +506,8 @@ restored.load_state_dict(compact)
 print(f"restored: PSNR {quality(reconstruct(restored))[0]:5.2f} dB")
 
 # %%
-# Your turn: what each iteration adds
-# -----------------------------------
+# Exercise: per-iteration gain
+# ----------------------------
 #
 # :meth:`~bartorch.learning.Unrolled.steps` yields the image after every
 # iteration, so you can watch the trained stack and the untrained one

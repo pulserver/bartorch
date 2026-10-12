@@ -108,8 +108,8 @@ for number, (te, image) in enumerate(zip(ECHO_TIMES, magnitude), start=101):
 # sphinx_gallery_end_ignore
 
 # %%
-# The scanner's export
-# --------------------
+# DICOM export
+# ------------
 #
 # The input is a scanner export: a CPMG multi-echo spin-echo acquisition of
 # eight echoes, 10 ms apart, stored as one DICOM series per echo, numbered 101
@@ -118,8 +118,8 @@ for number, (te, image) in enumerate(zip(ECHO_TIMES, magnitude), start=101):
 # the left-right axis, as a slice aligned to the AC-PC line is. The code that
 # writes the export is hidden; ``scanner`` is its folder.
 #
-# Reading the series
-# ------------------
+# Series import
+# -------------
 #
 # :func:`~bartorch.io.read_dicom` reads all eight series at once. It returns
 # the images as ``(contrasts, slices, rows, columns)`` in order of echo time,
@@ -152,8 +152,8 @@ plt.show()
 # ventricles, with the longest :math:`T_2`, keeps its signal across the train,
 # while the scalp fat loses most of it.
 #
-# Fitting the decay
-# -----------------
+# Decay fitting
+# -------------
 #
 # Build :class:`bartorch.nlop.MultiEcho` on the echo times the files state
 # and on the in-plane shape of the slice. The fit is voxel by voxel, so you
@@ -174,8 +174,8 @@ for name, (region, truth, _) in compartments.items():
     print(f"{name:>13}: T2 {median:6.1f} ms, simulated {truth:5.1f} ms")
 
 # %%
-# Writing the map
-# ---------------
+# DICOM output
+# ------------
 #
 # You write the map back to DICOM as a series of the same study: passing the
 # first echo's dataset as ``header`` lends the new series its patient, study

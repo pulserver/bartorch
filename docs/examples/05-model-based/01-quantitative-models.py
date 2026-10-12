@@ -163,8 +163,8 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 # sphinx_gallery_end_ignore
 
 # %%
-# Your object
-# -----------
+# Multi-echo phantom
+# ------------------
 #
 # The object is the BrainWeb slice of lesson 2 on a 64 matrix, described by
 # two maps: a proton-density amplitude and a :math:`T_2` per voxel, each
@@ -201,8 +201,8 @@ plt.show()
 # the ventricles, at 329 ms, saturates the window, which is chosen to spread
 # white and grey matter over the colour scale [#fuderer]_.
 #
-# Undersampling each echo
-# -----------------------
+# Echo undersampling
+# ------------------
 #
 # Each echo is sampled at a quarter of the phase encodes (:math:`R = 4`):
 # eight fully sampled central lines and the rest drawn at random, with a
@@ -274,8 +274,8 @@ start = M.initial(T2=80.0)
 print(f"unknowns {M.names}: {M.ishapes[0]} -> {M.oshapes[0]}")
 
 # %%
-# Reconstruct, then fit
-# ---------------------
+# Two-step fit
+# ------------
 #
 # The conventional route has two steps. Reconstruct every echo by conjugate
 # gradients on the SENSE normal equations, then fit the model to the echo
@@ -309,8 +309,8 @@ plt.show()
 # the relative error grows, so the late echoes, which determine :math:`T_2`
 # most, are also the least accurate.
 #
-# The model inside the operator
-# -----------------------------
+# Model-based forward operator
+# ----------------------------
 #
 # The model-based route composes the model with the encoding, ``E @ M``, and
 # fits the k-space directly with :class:`bartorch.nlop.IRGNM`, the
@@ -328,8 +328,8 @@ print(f"model inside the operator: {time.perf_counter() - start_time:5.1f} s")
 # alone, against echo images, or the model followed by the encoding, against
 # k-space.
 #
-# In one call
-# -----------
+# Model-based reconstruction app
+# ------------------------------
 #
 # :func:`bartorch.apps.moba` assembles the model-based fit from the
 # k-space, the model, the sensitivities and the sampling pattern, and returns
@@ -349,8 +349,8 @@ one_call = apps.moba(
 print(f"apps.moba: {time.perf_counter() - start_time:5.1f} s")
 
 # %%
-# Comparing the maps
-# ------------------
+# Map comparison
+# --------------
 #
 # Read the three :math:`T_2` maps back and compare them with the phantom,
 # inside the head:
@@ -409,8 +409,8 @@ plt.show()
 # :doc:`../../explanation/nonlinear` describes the model-based approach in
 # more detail.
 #
-# Your turn: fit the fully sampled echoes
-# ---------------------------------------
+# Exercise: fully sampled echoes
+# ------------------------------
 #
 # Is the error of the two-step route caused by the voxelwise fit or by the
 # echo images it is given? Run the same fit on the fully sampled, noise-free

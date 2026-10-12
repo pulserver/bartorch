@@ -189,8 +189,8 @@ zoom = (slice(70, 118), slice(40, 88))
 # sphinx_gallery_end_ignore
 
 # %%
-# Your scan
-# ---------
+# Simulated acquisition
+# ---------------------
 #
 # The object is the BrainWeb slice [#brainweb]_ of lessons 2 and 5, a
 # :math:`T_1`-weighted spin-echo image, here at 128 by 128; the code that
@@ -237,8 +237,8 @@ plt.show()
 # the random sampling, spread over the whole field of view, on top of the
 # thermal noise. The orange box marks the region enlarged below.
 #
-# An explicit penalty
-# -------------------
+# Explicit penalty
+# ----------------
 #
 # The reference is total variation under ADMM, as in lesson 5. Of the
 # weights 0.002, 0.005, 0.01 and 0.02, 0.005 gives the lowest NRMSE against
@@ -266,8 +266,8 @@ plt.show()
 # intensity changes into patches, the piecewise-constant images that total
 # variation favours.
 #
-# A denoiser in its place
-# -----------------------
+# Denoiser as prior
+# -----------------
 #
 # The network takes real planes of shape ``(n, channels, y, x)``; your image
 # is complex. :class:`~bartorch.priors.ImplicitPrior` bridges the two:
@@ -336,8 +336,8 @@ report(reconstructions)
 # SSIM ranks the over-smoothed FISTA image above the ADMM one. One figure of
 # merit does not replace looking at the images.
 #
-# Your turn: the noise level
-# --------------------------
+# Exercise: denoiser noise level
+# ------------------------------
 #
 # :math:`\sigma` is the strength of the prior. A :math:`\sigma` below the
 # noise level of the iterate leaves noise and aliasing in place; one above it

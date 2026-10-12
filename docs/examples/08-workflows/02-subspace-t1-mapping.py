@@ -386,8 +386,8 @@ for name, estimate in (("frame by frame", gridded), ("subspace", recovered)):
     print(f"{name:>14}: NRMSE of the series {nrmse:.3f}")
 
 # %%
-# Matching the dictionary
-# -----------------------
+# Dictionary matching
+# -------------------
 #
 # You match the recovered coefficients against the dictionary projected onto
 # the same subspace, by the normalized inner product: dictionary matching in
@@ -471,8 +471,8 @@ plt.show()
 # signal falls with the singular value: the fourth map has the lowest
 # signal-to-noise ratio of the four.
 #
-# Images at any inversion time
-# ----------------------------
+# Synthetic inversion-time images
+# -------------------------------
 #
 # The coefficient maps determine the whole series: multiplying by the basis
 # gives you the image at every one of the four hundred time points, each of

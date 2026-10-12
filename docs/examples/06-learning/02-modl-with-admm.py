@@ -490,8 +490,8 @@ plt.show()
 # subjects, validation on subjects left out of training, and a fixed
 # reconstruction time.
 #
-# Training a deeper stack
-# -----------------------
+# Deeper unrolled stack
+# ---------------------
 #
 # Five iterations of a 2D encoding record a computational graph of modest
 # size. Ten iterations of a 3D non-Cartesian encoding do not, and the memory
@@ -550,8 +550,8 @@ print(f"rho's gradient: {made[0]:.6g} recorded, {made[1]:.6g} recomputed")
 # the iteration count. That is a deep-equilibrium model [#deq]_, and the
 # stack you trained is its truncated form.
 #
-# Your turn: more iterations than you trained
-# -------------------------------------------
+# Exercise: iterations beyond training
+# ------------------------------------
 #
 # The block was trained for five iterations. Wrap the same trained block in
 # a new :class:`~bartorch.learning.Unrolled` with fewer or more iterations

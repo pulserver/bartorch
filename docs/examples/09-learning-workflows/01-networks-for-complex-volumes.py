@@ -165,8 +165,8 @@ def brain_volume(subject):
 # sphinx_gallery_end_ignore
 
 # %%
-# A multi-contrast complex volume
-# -------------------------------
+# Multi-contrast complex volume
+# -----------------------------
 #
 # Your data are three spin-echo contrasts of a BrainWeb subject [#brainweb]_
 # on a :math:`64^3` grid: :math:`T_1`-weighted (TR 600 ms, TE 12 ms),
@@ -293,8 +293,8 @@ trainer.fit(
 )
 
 # %%
-# Applying the network patch by patch
-# -----------------------------------
+# Patchwise inference
+# -------------------
 #
 # :class:`~bartorch.learning.Patchwise` keeps the volume in host memory, sends
 # it to the network's device a few patches at a time, runs the network there
@@ -427,8 +427,8 @@ cine = learning.UNet(6, spatial=3, widths=(8, 16), frames=True, periodic=True)
 print("(n, channels, frames, z, y, x):", tuple(cine(frames).shape))
 
 # %%
-# Your turn: how many random grids?
-# ---------------------------------
+# Exercise: random patch grids
+# ----------------------------
 #
 # Averaging more shifted calls costs one network pass each. How far from the
 # whole-volume result is the average of 2, 4, 8 and 16 calls?

@@ -116,8 +116,8 @@ combined = bartorch.rss(coil_images, axes=(0,))
 print(f"combined {tuple(combined.shape)}")
 
 # %%
-# Into k-space
-# ------------
+# Fourier transform
+# -----------------
 #
 # What a channel measures is the Fourier transform of its coil image, sampled
 # on the k-space grid. :func:`bartorch.fft` is BART's *centred* transform: the
@@ -256,8 +256,8 @@ print(f"identical to bartorch.fft: {torch.equal(from_files, kspace)}")
 # differentiable. :doc:`../../explanation/execution-model` describes both
 # routes.
 #
-# Your turn: a larger matrix
-# --------------------------
+# Exercise: matrix size
+# ---------------------
 #
 # Does acquiring more of k-space get rid of the ringing? Repeat the comparison
 # with analytical k-space at a few matrix sizes:

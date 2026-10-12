@@ -440,8 +440,8 @@ plt.show()
 # NUFFT pair per segment and iteration, against one FFT pair per
 # demodulation frequency for MFI.
 #
-# Your turn: the number of demodulation frequencies
-# -------------------------------------------------
+# Exercise: demodulation frequencies
+# ----------------------------------
 #
 # The MFI approximation is poor until the demodulation frequencies are about
 # :math:`1/T` apart. Ask :func:`~bartorch.tools.fit_transfer` for a fixed

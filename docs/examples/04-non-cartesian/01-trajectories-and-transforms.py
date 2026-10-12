@@ -135,8 +135,8 @@ peak = float(image.abs().max())
 # sphinx_gallery_end_ignore
 
 # %%
-# Your trajectory
-# ---------------
+# Radial trajectory
+# -----------------
 #
 # The object is the BrainWeb slice of lesson 2 [#brainweb]_ on a 128 by 128
 # grid, acquired with a single receive coil of uniform sensitivity, so that
@@ -291,8 +291,8 @@ for name, density in (("ramp", ramp(golden)), ("Pipe-Menon", estimated)):
 # include the corners the disc does not cover. The estimate is needed where
 # no closed form is available, as for a spiral.
 #
-# A spiral
-# --------
+# Spiral trajectory
+# -----------------
 #
 # :func:`bartorch.tools.traj` does not generate spirals, so you write one
 # yourself: sixteen Archimedean interleaves reaching :math:`\pm n/2`, each
@@ -423,8 +423,8 @@ plt.show()
 # bright lines radiating from the centre. Convolving the object with this PSF
 # produces the streaks of an undersampled radial image.
 #
-# Your turn: drop spokes
-# ----------------------
+# Exercise: angular undersampling
+# -------------------------------
 #
 # Repeat the gridding reconstruction with the ramp weights for fewer and more
 # spokes than 201, and compare the error and the images:

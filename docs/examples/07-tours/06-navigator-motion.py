@@ -173,8 +173,8 @@ plt.show()
 # registration relies on the outline of the head and the large structures,
 # which this resolution retains.
 #
-# One pose
-# --------
+# Pose estimation
+# ---------------
 #
 # :class:`~bartorch.tools.NavigatorMotionTracker` takes the first navigator
 # you give it as the reference and returns the pose of every later one
@@ -249,8 +249,8 @@ plt.show()
 # navigator, and the through-plane motion, which each plane sees as a change
 # of the anatomy in it rather than as a rigid motion within it.
 #
-# A scan
-# ------
+# Motion over a scan
+# ------------------
 #
 # Over a scan, the head nods, a rotation about the
 # left-right axis, by up to 2.3° with a period of 8 s, and drifts by 3 mm

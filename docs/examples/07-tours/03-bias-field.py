@@ -293,8 +293,8 @@ for name, mask in masks.items():
 # least uniform. The brain mask, which holds only the classes you judge the
 # field by, gives the most uniform white matter.
 #
-# What N4 does not recover
-# ------------------------
+# Residual bias
+# -------------
 #
 # The estimate gets worse as the range of the field grows. Keep only the four
 # posterior elements, and the field falls steeply towards the frontal pole:
@@ -340,8 +340,8 @@ plt.show()
 # as a root-sum-of-squares combination, and for the transmit field, which no
 # receive calibration measures.
 #
-# Your turn: the fitting grid
-# ---------------------------
+# Exercise: B-spline fitting grid
+# -------------------------------
 #
 # The field is fitted on the shrunk image and evaluated on the full grid. A
 # field that is smooth on the scale of the head needs few grid points, and

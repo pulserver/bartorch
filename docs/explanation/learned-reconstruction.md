@@ -20,7 +20,7 @@ iteration remain BART's.  This page states the ways the network is placed and
 trained, how a network is applied to data larger than GPU memory, and what an
 uncertainty estimate from it does and does not state.
 
-## Where the network enters
+## Network placement
 
 | Scheme | What is trained | On what | Iterations at inference |
 | --- | --- | --- | --- |

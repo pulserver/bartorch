@@ -173,8 +173,8 @@ sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=T
 # sphinx_gallery_end_ignore
 
 # %%
-# Your scan
-# ---------
+# Simulated acquisition
+# ---------------------
 #
 # The object, the coils and the sampling are those of lesson 2: the BrainWeb
 # slice [#brainweb]_, eight channels, and one phase-encoding line in three
@@ -200,8 +200,8 @@ measured = kspace[:, None] * simulate(ACCELERATION, CALIBRATION)
 maps = bt.ecalib(measured, maps=1, calib_size=CALIBRATION, crop=0.8)
 
 # %%
-# Three penalties
-# ---------------
+# Tikhonov, wavelet and TV penalties
+# ----------------------------------
 #
 # Each penalty admits particular solvers; ``pics`` takes the term and the
 # solver:
@@ -326,8 +326,8 @@ plt.show()
 # the noise and the aliasing remain. At the largest, the cortex is flattened
 # into patches of constant intensity and thin gyri merge.
 #
-# Combining penalties
-# -------------------
+# Combined penalties
+# ------------------
 #
 # ``regularizers`` also takes a list, and the terms are added. ADMM splits
 # the variable once per term with a transform of its own, so it takes any
@@ -353,8 +353,8 @@ print(f"wavelet + TV: NRMSE {nrmse(combined):.3f}")
 # ``nrmse(..., scaled=True)`` fits one global factor before comparing, so it
 # compares the shape of the image and not its overall scale.
 #
-# Your turn: change the noise
-# ---------------------------
+# Exercise: noise level and weight
+# --------------------------------
 #
 # Does the best weight depend on the noise? Sweep the wavelet weights again on
 # the same scan with a third of the noise and with three times as much:

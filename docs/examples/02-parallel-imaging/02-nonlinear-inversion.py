@@ -168,8 +168,8 @@ def simulate(acceleration, calibration, seed=11):
 # sphinx_gallery_end_ignore
 
 # %%
-# Your scan
-# ---------
+# Simulated acquisition
+# ---------------------
 #
 # The object is the BrainWeb slice of lesson 2 [#brainweb]_, at 128 by 128,
 # and you receive it with BART's analytical eight-channel head coil, as there.
@@ -368,8 +368,8 @@ print(f"NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
 # of the same encoding, to reconstruct parameter maps rather than an image, is
 # lesson 9 (:doc:`../05-model-based/01-quantitative-models`).
 #
-# Your turn: how many Gauss-Newton steps?
-# ---------------------------------------
+# Exercise: Gauss-Newton steps
+# ----------------------------
 #
 # The number of Gauss-Newton steps was described above as a regularization
 # parameter. Run ``nlinv`` for a few more step counts and compute the NRMSE

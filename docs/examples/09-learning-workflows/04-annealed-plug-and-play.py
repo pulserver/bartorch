@@ -243,8 +243,8 @@ A = acquisition(4, seed=1)
 kspace = measure(A, torch.Generator().manual_seed(3))
 
 # %%
-# A denoiser for every noise level
-# --------------------------------
+# Noise-conditioned denoiser
+# --------------------------
 #
 # With ``noise=True`` the U-Net takes the noise level as an input and
 # modulates its features with it, so one network covers a range of SNRs. You
@@ -307,8 +307,8 @@ with torch.no_grad():
 # One set of weights covers the whole range, which is what lets the noise
 # level change from one iteration to the next below.
 #
-# Schedules of noise level and penalty
-# ------------------------------------
+# Annealing schedules
+# -------------------
 #
 # :class:`~bartorch.priors.ImplicitPrior` takes a sequence of noise levels,
 # one per iteration, and :class:`~bartorch.optim.ADMMBlock` a sequence of
@@ -389,8 +389,8 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
-# Another acquisition, the same denoiser
-# --------------------------------------
+# Transfer to another acquisition
+# -------------------------------
 #
 # You trained the denoiser without an encoding, so it applies unchanged to
 # :math:`R = 6`, a sampling pattern it has never been used with:
@@ -419,8 +419,8 @@ plt.show()
 # plug-and-play reconstruction loses a fraction of a decibel and keeps the
 # anatomy.
 #
-# Your turn: the weight :math:`\lambda`
-# -------------------------------------
+# Exercise: the weight :math:`\lambda`
+# ------------------------------------
 #
 # :math:`\lambda` sets the weight of the denoising step relative to data
 # consistency at every noise level. Rerun the annealed schedule at

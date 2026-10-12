@@ -260,8 +260,8 @@ print(
 # sphinx_gallery_end_ignore
 
 # %%
-# Correction from the reversed pair
-# ---------------------------------
+# Reversed-gradient correction
+# ----------------------------
 #
 # PyHySCO looks for the displacement field :math:`b` for which the blip-up
 # image sampled at :math:`y + b` and the blip-down image sampled at

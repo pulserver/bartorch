@@ -217,10 +217,14 @@ builds it one piece at a time, each piece followed by what it does to the
 image. `docs/examples/01-basics/02-from-kspace-to-image.py` is the model.
 
 A lesson opens by picking up from the previous lesson, lists its learning
-objectives, and links the previous and next lessons. It ends with a "Your
-turn" section, a cheap experiment that varies one parameter, and an "As a
+objectives, and links the previous and next lessons. It ends with an
+"Exercise" section, a cheap experiment that varies one parameter, and an "As a
 spec" section: a `.. code-block:: text` box stating what the lesson built the
 way you would ask an agent for it.
+
+Every heading, page titles included, names a concept, as a textbook heading
+does: "Coil compression", "Exercise: ACS size", "Division of responsibility";
+not "Fewer channels" or "What bartorch does".
 
 Avoid:
 

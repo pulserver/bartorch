@@ -161,8 +161,8 @@ head = proton_density > 0.05
 # sphinx_gallery_end_ignore
 
 # %%
-# Your scan
-# ---------
+# Simulated acquisition
+# ---------------------
 #
 # The object is a slice of the BrainWeb brain [#brainweb]_, rendered as a
 # :math:`T_1`-weighted spin-echo image; how it is built does not matter here,
@@ -207,8 +207,8 @@ plt.show()
 # combination of the channel images equal to the image itself, so you can
 # compare every reconstruction below directly with ``image``.
 #
-# Skipping lines
-# --------------
+# Undersampling
+# -------------
 #
 # You keep every readout sample, since they cost no scan time, and acquire one
 # phase-encoding line in three. The lines are drawn at random, more densely
@@ -244,8 +244,8 @@ plt.show()
 # is the aliasing you have to remove: every missing line leaves a faint copy
 # of the head, smeared along the phase-encoding direction.
 #
-# Fewer channels
-# --------------
+# Coil compression
+# ----------------
 #
 # Eight channels carry less than eight images' worth of information, because
 # their sensitivities overlap. :func:`bartorch.tools.cc` finds the
@@ -358,8 +358,8 @@ for name, estimate in results.items():
 # The wavelet weight, 0.004, is a choice: a larger one removes more noise and
 # more fine detail with it. Lesson 5 shows how to choose it.
 #
-# Your turn: skip more lines
-# --------------------------
+# Exercise: acceleration factor
+# -----------------------------
 #
 # How far can you push the acceleration? Rerun the same two reconstructions
 # with every third, fourth, fifth and sixth line, keeping the ACS block:

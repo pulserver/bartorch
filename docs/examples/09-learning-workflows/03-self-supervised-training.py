@@ -245,8 +245,8 @@ kspace = {
 }
 
 # %%
-# The split
-# ---------
+# Sample splitting
+# ----------------
 #
 # The readout is fully sampled, so the unit of the split is the phase-encode
 # line: the pattern you give :func:`~bartorch.learning.split` has one entry
@@ -284,8 +284,8 @@ plt.show()
 # out. The eight central lines are in :math:`\Theta` in every split, and the
 # held-out lines are drawn from the acquired lines outside them.
 #
-# Two networks, one trained each way
-# ----------------------------------
+# Supervised and self-supervised training
+# ---------------------------------------
 #
 # Both are the iteration-conditioned unrolled network of
 # :doc:`02-staged-training`, trained end to end for the same number of epochs
@@ -408,8 +408,8 @@ plt.show()
 # never acquired, against which the self-supervised loss has no data to
 # compare.
 #
-# Your turn: what the held-out lines are worth
-# --------------------------------------------
+# Exercise: held-out fraction
+# ---------------------------
 #
 # During training the self-supervised network only ever reconstructs from
 # :math:`\Theta`. Reconstruct the validation slices from the :math:`\Theta` of

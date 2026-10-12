@@ -237,8 +237,8 @@ kspace = {
 }
 
 # %%
-# A network with dropout
-# ----------------------
+# Monte Carlo dropout
+# -------------------
 #
 # The network is the iteration-conditioned unrolled network of
 # :doc:`02-staged-training`, with dropout in every residual block of its
@@ -279,8 +279,8 @@ trainer.fit(
 )
 
 # %%
-# Two spreads
-# -----------
+# Reconstruction spread
+# ---------------------
 #
 # :func:`~bartorch.learning.moments` calls a randomized reconstruction a
 # number of times and returns the voxel-wise mean and variance. Your first
@@ -412,8 +412,8 @@ plt.show()
 # narrower than it in parts of the cortex. The coverage holds on average over
 # voxels, as the calibration guarantees, not voxel by voxel.
 #
-# Your turn: ask for another coverage
-# -----------------------------------
+# Exercise: target coverage
+# -------------------------
 #
 # The calibration works for any coverage you ask for. Calibrate the
 # k-space-subset spread at 50, 80 and 95 per cent and check what the test

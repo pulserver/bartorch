@@ -149,8 +149,8 @@ peak = float(image.abs().max())
 # sphinx_gallery_end_ignore
 
 # %%
-# Your scan
-# ---------
+# Simulated acquisition
+# ---------------------
 #
 # The object is the BrainWeb brain slice [#brainweb]_ of lesson 2, on a 192
 # matrix, seen by BART's analytical eight-channel head coil. You acquire 48
@@ -388,8 +388,8 @@ for name, estimate in results.items():
 # ``scaled=True`` fits one global factor before comparing, so the metric
 # compares shapes, not overall scale.
 #
-# The same solve from operator and solver
-# ---------------------------------------
+# CG-SENSE from an operator and a solver
+# --------------------------------------
 #
 # The same reconstruction can be assembled from its parts, as in lesson 6:
 # the encoding operator over the estimated maps, and the ADMM solver with the
@@ -448,8 +448,8 @@ print(f"relative difference {relative:.1e}")
 # the frames of a dynamic series sharing one normal operator. The timings
 # printed above are for this machine and this sample count.
 #
-# Your turn: stop CG early
-# ------------------------
+# Exercise: early stopping of CG
+# ------------------------------
 #
 # Check that the iteration count regularizes CG-SENSE: rerun it with a range
 # of iteration counts and compute the NRMSE of each.

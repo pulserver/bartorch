@@ -140,8 +140,8 @@ image = (signal * torch.exp(0.8j * (grid_x**2 - 0.5 * grid_y**2))).to(torch.comp
 # sphinx_gallery_end_ignore
 
 # %%
-# A contrast-enhanced series
-# --------------------------
+# Contrast-enhanced series
+# ------------------------
 #
 # The object is the BrainWeb slice [#brainweb]_ of the course lessons with a
 # bolus of contrast agent passing through it. A gamma-variate curve gives the
@@ -225,8 +225,8 @@ print(A.plan)
 # frame and applies them all inside the same loop over the coils;
 # ``plan.items`` is the number of frames it carries.
 #
-# Two reconstructions
-# -------------------
+# Gridding and regularized reconstruction
+# ---------------------------------------
 #
 # The first treats the frames as independent: the adjoint of the encoding
 # applied to density-compensated samples, which is gridding of thirteen
@@ -314,8 +314,8 @@ plt.show()
 # Temporal total variation removes that variation and retains the time
 # course.
 #
-# Time-intensity curve
-# --------------------
+# Time-intensity curves
+# ---------------------
 #
 # A perfusion study reports the mean signal in a region as a function of
 # time, so you compare the two reconstructions on that curve too, in the grey
@@ -354,8 +354,8 @@ plt.show()
 # penalty attenuates a change that lasts only a few frames, and a larger
 # weight trades more of the peak for less noise.
 #
-# Your turn: choose the frame length after the scan
-# -------------------------------------------------
+# Exercise: retrospective frame length
+# ------------------------------------
 #
 # Because the spokes follow the golden angle, the same data can be regrouped
 # into longer frames. Join two or four frames into one, grid each, and compare

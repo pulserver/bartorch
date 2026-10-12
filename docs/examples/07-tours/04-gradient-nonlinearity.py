@@ -337,8 +337,8 @@ plt.show()
 # displacement moves signal between slices, and correcting it needs the whole
 # volume.
 #
-# Your turn: a less linear coil
-# -----------------------------
+# Exercise: coil nonlinearity
+# ---------------------------
 #
 # The displacement is linear in the coefficients. Scale the :math:`z`
 # gradient's term and see how far a voxel 200 mm above isocentre moves:

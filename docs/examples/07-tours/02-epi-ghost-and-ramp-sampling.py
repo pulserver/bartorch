@@ -349,8 +349,8 @@ plt.show()
 # ratio is the thing to check: where a step exceeds one over the support, the
 # readout is aliased and no resampling recovers it.
 #
-# Your turn: a longer delay
-# -------------------------
+# Exercise: readout delay
+# -----------------------
 #
 # Change the ADC delay, acquire the train and the navigator again, and compare
 # the ghost-to-signal ratio with the lines only flipped and with the fit

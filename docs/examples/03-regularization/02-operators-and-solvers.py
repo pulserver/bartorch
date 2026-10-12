@@ -332,8 +332,8 @@ print(f"relative difference from 2 A^H (Ax - y): {float(difference):.2e}")
 # the solvers, and :doc:`../../explanation/inverse-problems` which algorithm
 # applies to which problem.
 #
-# Your turn: convergence of FISTA
-# -------------------------------
+# Exercise: FISTA convergence
+# ---------------------------
 #
 # ``optim.FISTA`` is a loop over :class:`bartorch.optim.FISTABlock`, one
 # iteration per call. Run the loop yourself for 200 iterations and record the

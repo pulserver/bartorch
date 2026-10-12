@@ -87,8 +87,8 @@ def scaled(estimate, reference):
 # sphinx_gallery_end_ignore
 
 # %%
-# Your scan
-# ---------
+# Simulated acquisition
+# ---------------------
 #
 # The object is BART's Shepp-Logan phantom, seen through BART's analytical
 # eight-channel head coil. As in lesson 1, you ask for its k-space directly
@@ -170,8 +170,8 @@ plt.show()
 # after fitting one global scale, because the three estimators normalize the
 # maps, and so the image, differently.
 #
-# Three estimates
-# ---------------
+# Sensitivity estimation
+# ----------------------
 #
 # **Directly from the ACS lines.** :func:`bartorch.tools.caldir` reconstructs
 # a low-resolution image per channel from the ACS region alone and divides
@@ -226,8 +226,8 @@ plt.show()
 # magnitude, ESPIRiT sets the maps to zero, and ``nlinv`` continues the
 # smooth function its regularization favours.
 #
-# SENSE with each set of maps
-# ---------------------------
+# SENSE and map quality
+# ---------------------
 #
 # Now you give each set to :func:`bartorch.apps.pics` with the same Tikhonov
 # weight and the same number of conjugate-gradient iterations, so the only
@@ -275,8 +275,8 @@ plt.show()
 # where its low-resolution maps are least accurate; ESPIRiT and nonlinear
 # inversion leave mostly noise.
 #
-# A smaller ACS region
-# --------------------
+# ACS size
+# --------
 #
 # Now you keep only eight central lines. ESPIRiT's kernel is six samples wide
 # by default, so eight lines leave it three positions along the
@@ -338,8 +338,8 @@ plt.show()
 # and they depend on how each reconstruction is regularized; they do not rank
 # the estimators in general.
 #
-# Your turn: how many ACS lines?
-# ------------------------------
+# Exercise: ACS size
+# ------------------
 #
 # Between eight and 24 lines the outcome changes. Sweep the size of the ACS
 # region for the two estimators that use only the ACS block, and compare how

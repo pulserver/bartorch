@@ -321,8 +321,8 @@ plt.show()
 # each axis to its own Nyquist edge, so a rectangular matrix gets an ellipse
 # matched to its grid.
 #
-# Your turn: tune the Fermi transition
-# ------------------------------------
+# Exercise: Fermi transition width
+# --------------------------------
 #
 # The Fermi window has two knobs. Keep its radius at 0.8 and sharpen or
 # soften its transition, and watch the ringing next to the skull trade
