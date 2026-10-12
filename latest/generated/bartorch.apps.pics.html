@@ -577,7 +577,7 @@ non-Cartesian encoding.</p></li>
 <code class="docutils literal notranslate"><span class="pre">kspace</span></code>.  Along a trajectory it weights the data term,
 <code class="docutils literal notranslate"><span class="pre">||W</span> <span class="pre">(A</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">y)||^2</span></code>, and is typically the square root of
 <a class="reference internal" href="bartorch.estimate_density.html#bartorch.estimate_density" title="bartorch.estimate_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_density()</span></code></a>.</p></li>
-<li><p><strong>basis</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Subspace basis (<code class="docutils literal notranslate"><span class="pre">-B</span></code>); used along a trajectory only.</p></li>
+<li><p><strong>basis</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Subspace basis (<code class="docutils literal notranslate"><span class="pre">-B</span></code>), along a trajectory only.</p></li>
 <li><p><strong>initial</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Starting image (<code class="docutils literal notranslate"><span class="pre">-W</span></code>), in the units of the result: of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>
 with <code class="docutils literal notranslate"><span class="pre">rescale</span></code>, of the scaled data without.</p></li>
 <li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=None</em>) – Along a trajectory, <code class="docutils literal notranslate"><span class="pre">False</span></code> applies the NUFFT and its adjoint instead
@@ -600,12 +600,12 @@ image of the scaled data, as <code class="docutils literal notranslate"><span cl
 <dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">solver</span></code> is unknown; if <code class="docutils literal notranslate"><span class="pre">'cg'</span></code> gets more than one L2 term, or
-    both <code class="docutils literal notranslate"><span class="pre">l2</span></code> and an L2 term; if <code class="docutils literal notranslate"><span class="pre">eigen_step</span></code> is set with <code class="docutils literal notranslate"><span class="pre">'cg'</span></code>; if
-    <code class="docutils literal notranslate"><span class="pre">'ist'</span></code> or <code class="docutils literal notranslate"><span class="pre">'fista'</span></code> gets a first term over a transform other than
-    the identity, such as <a class="reference internal" href="bartorch.priors.FourierL1.html#bartorch.priors.FourierL1" title="bartorch.priors.FourierL1"><code class="xref py py-class docutils literal notranslate"><span class="pre">FourierL1</span></code></a>, which the
-    command would threshold on the image itself (<code class="docutils literal notranslate"><span class="pre">'admm'</span></code> and
-    <code class="docutils literal notranslate"><span class="pre">'pridu'</span></code> take it).</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">solver</span></code> is unknown; if <code class="docutils literal notranslate"><span class="pre">basis</span></code> is given on a grid; if <code class="docutils literal notranslate"><span class="pre">'cg'</span></code>
+    gets more than one L2 term, or both <code class="docutils literal notranslate"><span class="pre">l2</span></code> and an L2 term; if
+    <code class="docutils literal notranslate"><span class="pre">eigen_step</span></code> is set with <code class="docutils literal notranslate"><span class="pre">'cg'</span></code>; if <code class="docutils literal notranslate"><span class="pre">'ist'</span></code> or <code class="docutils literal notranslate"><span class="pre">'fista'</span></code> gets a
+    first term over a transform other than the identity, such as
+    <a class="reference internal" href="bartorch.priors.FourierL1.html#bartorch.priors.FourierL1" title="bartorch.priors.FourierL1"><code class="xref py py-class docutils literal notranslate"><span class="pre">FourierL1</span></code></a>, which the command would threshold
+    on the image itself (<code class="docutils literal notranslate"><span class="pre">'admm'</span></code> and <code class="docutils literal notranslate"><span class="pre">'pridu'</span></code> take it).</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
