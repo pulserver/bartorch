@@ -256,3 +256,11 @@ def test_a_failed_assertion_inside_bart_reaches_the_caller():
 
     with pytest.raises(bartorch.BartError, match="Assertion"):
         linop.MultiplySum(torch.ones(7, 3, dtype=torch.complex64), (1, 3), (2, 3))
+
+
+@pytest.mark.parametrize("n", [5, 6])
+def test_fftshift_and_its_inverse_match_numpy(n):
+    x = torch.arange(n).to(torch.complex64)
+    assert bartorch.fftshift(x, 0).real.tolist() == np.fft.fftshift(np.arange(n)).tolist()
+    shifted = bartorch.fftshift(x, 0, inverse=True).real.tolist()
+    assert shifted == np.fft.ifftshift(np.arange(n)).tolist()

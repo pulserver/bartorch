@@ -144,7 +144,7 @@ def fftshift(
     torch.Tensor
         The shape of ``input``.
     """
-    return dispatch("fftshift", [input], None, _pos=[axes_flags(axes, input.ndim)], i=inverse)
+    return dispatch("fftshift", [input], None, _pos=[axes_flags(axes, input.ndim)], b=inverse)
 
 
 @curated("nufft")

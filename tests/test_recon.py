@@ -166,3 +166,16 @@ def test_ecalib_of_one_slice_without_a_z_axis_gives_that_slice_s_maps():
     np.testing.assert_array_equal(
         bt.ecalib(kspace[:, 0], maps=1).numpy(), bt.ecalib(kspace, maps=1)[:, 0].numpy()
     )
+
+
+@pytest.mark.parametrize("planar", [False, True])
+@pytest.mark.parametrize("sets", [1, 2])
+def test_ecalib_eigenvalues_have_the_maps_shape_with_one_coil(planar, sets):
+    ksp = bt.phantom(32, coils=4, kspace=True)
+    if planar:
+        ksp = ksp[:, 0]
+    maps, eigenvalues = bt.ecalib(ksp, maps=sets, return_eigenvalues=True)
+    coil_axis = maps.ndim - (3 if planar else 4)
+    expected = list(maps.shape)
+    expected[coil_axis] = 1
+    assert list(eigenvalues.shape) == expected

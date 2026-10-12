@@ -91,6 +91,12 @@ def ecalib(
     if planar:
         kspace = kspace.unsqueeze(1)
     found = dispatch("ecalib", [kspace], None, _n_out=2 if return_eigenvalues else 1, **flags)
+    if return_eigenvalues:
+        # BART's trailing axes of one come back dropped; the eigenvalues have
+        # the sensitivities' shape with one entry along the coils.
+        sensitivities, eigenvalues = found
+        shape = (*sensitivities.shape[:-4], 1, *sensitivities.shape[-3:])
+        found = (sensitivities, eigenvalues.reshape(shape))
     if not planar:
         return found
     if return_eigenvalues:

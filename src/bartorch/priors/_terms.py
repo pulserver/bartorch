@@ -167,9 +167,19 @@ class Laplace(_Weighted):
         :math:`\lambda`.
     joint_axes : int or tuple of int, default=()
         Axes along which entries are thresholded jointly.
+
+    Raises
+    ------
+    ValueError
+        If ``axes`` does not name exactly two axes.
     """
 
     kind = "P"
+
+    def __init__(self, axes, weight: float, joint_axes=()):
+        super().__init__(axes, weight, joint_axes)
+        if len(self.axes) != 2:
+            raise ValueError(f"Laplace filters exactly two axes, got {self.axes}")
 
 
 class FourierL1(_Weighted):

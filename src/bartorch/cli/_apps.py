@@ -78,6 +78,8 @@ def _pics(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
             raise Unsupported(f"pics -l takes 1 or 2, got {kind!r}")
         options.pop("r", None)
 
+    if "B" in options and "t" not in options:
+        raise Unsupported("pics -B on a grid is a subspace encoding the app does not build")
     for flag, keyword in (
         ("i", "maxiter"),
         ("s", "step"),

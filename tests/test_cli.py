@@ -938,6 +938,13 @@ def test_long_flags_take_their_value_either_way():
     assert joined == apart == {"wavelet": ["haar"]}
 
 
+def test_pics_with_a_basis_on_a_grid_goes_to_the_command():
+    from bartorch.cli._apps import ADAPTERS
+
+    with pytest.raises(_argv.Unsupported, match="subspace"):
+        ADAPTERS["pics"]({"B": [torch.ones(1, 1)]}, [torch.ones(1, 8, 8), torch.ones(1, 8, 8)], 1)
+
+
 def test_a_selector_says_which_arm_was_given():
     options, _ = _argv.parse("pics", ["--fista", "k", "m", "o"])
     assert options == {"fista": ["--fista"]}

@@ -139,7 +139,7 @@ def pics(
         ``||W (A x - y)||^2``, and is typically the square root of
         :func:`~bartorch.estimate_density`.
     basis : torch.Tensor, default=None
-        Subspace basis (``-B``); used along a trajectory only.
+        Subspace basis (``-B``), along a trajectory only.
     initial : torch.Tensor, default=None
         Starting image (``-W``), in the units of the result: of ``kspace``
         with ``rescale``, of the scaled data without.
@@ -167,12 +167,12 @@ def pics(
     Raises
     ------
     ValueError
-        If ``solver`` is unknown; if ``'cg'`` gets more than one L2 term, or
-        both ``l2`` and an L2 term; if ``eigen_step`` is set with ``'cg'``; if
-        ``'ist'`` or ``'fista'`` gets a first term over a transform other than
-        the identity, such as :class:`~bartorch.priors.FourierL1`, which the
-        command would threshold on the image itself (``'admm'`` and
-        ``'pridu'`` take it).
+        If ``solver`` is unknown; if ``basis`` is given on a grid; if ``'cg'``
+        gets more than one L2 term, or both ``l2`` and an L2 term; if
+        ``eigen_step`` is set with ``'cg'``; if ``'ist'`` or ``'fista'`` gets a
+        first term over a transform other than the identity, such as
+        :class:`~bartorch.priors.FourierL1`, which the command would threshold
+        on the image itself (``'admm'`` and ``'pridu'`` take it).
 
     Notes
     -----
@@ -211,6 +211,10 @@ def pics(
     shape = image_shape(kspace, sensitivities, traj)
 
     if traj is None:
+        if basis is not None:
+            raise ValueError(
+                "basis applies along a trajectory; on a grid there is no subspace encoding"
+            )
         if pattern is None:
             pattern = sampling.pattern(kspace)
         measured = bartorch.fftmod(kspace * pattern, axes=(-1, -2, -3), inverse=True)
