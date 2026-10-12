@@ -311,7 +311,7 @@ voxel.
 
  .. code-block:: none
 
-             dropout: factor   8.57, coverage 0.906 (asked 0.9), correlation of error and spread 0.26
+             dropout: factor   8.58, coverage 0.906 (asked 0.9), correlation of error and spread 0.26
      k-space subsets: factor   3.82, coverage 0.897 (asked 0.9), correlation of error and spread 0.23
 
 
@@ -378,7 +378,7 @@ slices reach; nothing is reconstructed again:
 
  .. code-block:: none
 
-    asked 0.50: factor  1.36, reached 0.505
+    asked 0.50: factor  1.36, reached 0.506
     asked 0.80: factor  2.70, reached 0.794
     asked 0.95: factor  5.17, reached 0.951
 
@@ -430,7 +430,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 12.484 seconds)
+   **Total running time of the script:** (1 minutes 12.416 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_05-uncertainty.py:

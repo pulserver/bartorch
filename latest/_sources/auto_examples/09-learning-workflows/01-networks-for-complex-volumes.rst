@@ -329,7 +329,7 @@ volume.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_01-networks-for-complex-volumes_003.png
-         :alt: noisy NRMSE 0.131, denoised, whole NRMSE 0.098
+         :alt: noisy NRMSE 0.131, denoised, whole NRMSE 0.095
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_01-networks-for-complex-volumes_003.png
          :class: sphx-glr-multi-img
 
@@ -346,9 +346,9 @@ volume.
  .. code-block:: none
 
     noisy                  relative error 0.1850
-    whole volume           relative error 0.1147, departure from the whole volume 0.0000
-    fixed grid             relative error 0.1169, departure from the whole volume 0.0321
-    8 random grids         relative error 0.1219, departure from the whole volume 0.0487
+    whole volume           relative error 0.1125, departure from the whole volume 0.0000
+    fixed grid             relative error 0.1156, departure from the whole volume 0.0321
+    8 random grids         relative error 0.1213, departure from the whole volume 0.0537
 
 
 
@@ -520,7 +520,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (5 minutes 0.576 seconds)
+   **Total running time of the script:** (14 minutes 51.623 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py:

@@ -215,7 +215,7 @@ measures.
 
                      truth  measured
     rotation   S/I   1.15°     1.46°
-    rotation   A/P  -1.72°    -1.44°
+    rotation   A/P  -1.72°    -1.45°
     rotation   L/R   2.86°     2.51°
     shift      S/I   3.0 mm   3.37 mm
     shift      A/P  -2.0 mm  -2.66 mm
@@ -345,9 +345,9 @@ each measured coordinate. You filter the same scan with three values of
 
  .. code-block:: none
 
-    process_noise 100    rms error: rotation S/I 0.46°, A/P 0.36°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
+    process_noise 100    rms error: rotation S/I 0.48°, A/P 0.37°, L/R 0.40°; shift S/I 0.19 mm, A/P 0.42 mm, L/R 0.19 mm
     process_noise 0.001  rms error: rotation S/I 0.46°, A/P 0.29°, L/R 0.36°; shift S/I 0.16 mm, A/P 0.41 mm, L/R 0.15 mm
-    process_noise 0.0001 rms error: rotation S/I 0.41°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
+    process_noise 0.0001 rms error: rotation S/I 0.43°, A/P 0.24°, L/R 0.60°; shift S/I 0.15 mm, A/P 0.42 mm, L/R 0.13 mm
 
 
 
@@ -405,7 +405,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.615 seconds)
+   **Total running time of the script:** (0 minutes 4.768 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_06-navigator-motion.py:

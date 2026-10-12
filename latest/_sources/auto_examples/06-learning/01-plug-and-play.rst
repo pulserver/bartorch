@@ -230,7 +230,7 @@ You run the same prior under ADMM and under FISTA.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<05:18, 410kB/s]      0%|          | 512k/125M [00:00<01:29, 1.45MB/s]      1%|          | 1.25M/125M [00:00<00:38, 3.37MB/s]      3%|▎         | 3.50M/125M [00:00<00:13, 9.17MB/s]      7%|▋         | 8.25M/125M [00:00<00:05, 21.0MB/s]     16%|█▌        | 19.5M/125M [00:00<00:02, 49.6MB/s]     32%|███▏      | 39.4M/125M [00:00<00:00, 96.6MB/s]     51%|█████▏    | 64.0M/125M [00:01<00:00, 110MB/s]      61%|██████    | 75.6M/125M [00:01<00:00, 113MB/s]     70%|██████▉   | 86.6M/125M [00:01<00:00, 110MB/s]     80%|███████▉  | 99.2M/125M [00:01<00:00, 104MB/s]     92%|█████████▏| 114M/125M [00:01<00:00, 117MB/s]     100%|██████████| 125M/125M [00:01<00:00, 74.8MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<03:17, 659kB/s]      1%|          | 640k/125M [00:00<00:52, 2.47MB/s]      2%|▏         | 1.88M/125M [00:00<00:20, 6.31MB/s]      4%|▍         | 5.00M/125M [00:00<00:08, 15.3MB/s]     11%|█▏        | 14.2M/125M [00:00<00:02, 41.6MB/s]     32%|███▏      | 39.2M/125M [00:00<00:00, 110MB/s]      65%|██████▌   | 81.2M/125M [00:00<00:00, 212MB/s]     82%|████████▏ | 102M/125M [00:00<00:00, 206MB/s]      99%|█████████▊| 123M/125M [00:01<00:00, 202MB/s]    100%|██████████| 125M/125M [00:01<00:00, 124MB/s]
 
 
 
@@ -387,7 +387,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 31.271 seconds)
+   **Total running time of the script:** (0 minutes 40.418 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

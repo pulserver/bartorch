@@ -368,7 +368,7 @@ of each image; the plot adds the twelve-step result from above:
       4 steps: NRMSE 0.181
       8 steps: NRMSE 0.089
      12 steps: NRMSE 0.078
-     16 steps: NRMSE 0.106
+     16 steps: NRMSE 0.107
 
 
 
@@ -423,7 +423,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 13.202 seconds)
+   **Total running time of the script:** (0 minutes 6.316 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py:
