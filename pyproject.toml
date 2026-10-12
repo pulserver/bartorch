@@ -52,6 +52,14 @@ dependencies = [
     # It asks for numpy, scipy and torch, all of which are here already, and
     # nothing else.
     "blochsim>=0.0.10",
+    # Resampling for bias field, gradient nonlinearity and reslicing, and
+    # navigator registration; imported by the functions that use it.
+    "SimpleITK>=2.3",
+    # ISMRMRD raw data, DICOM and NIfTI images for `bartorch.io`, each
+    # imported by the functions that read or write it.  h5py comes with ismrmrd.
+    "ismrmrd>=1.14",
+    "pydicom>=3.0",
+    "nibabel>=5.0",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -81,13 +89,6 @@ learning = [
     "lightning>=2.2",
     "torchio>=0.19",
 ]
-# ISMRMRD raw data, DICOM and NIfTI images for `bartorch.io`, each imported by
-# the functions that read or write it.  h5py comes with ismrmrd.
-io = [
-    "ismrmrd>=1.14",
-    "pydicom>=3.0",
-    "nibabel>=5.0",
-]
 # MKL covers every BLAS and LAPACK routine BART calls and is about twice as
 # fast as the alternatives on the work that leans on LAPACK.  There is no MKL
 # wheel for macOS, where SciPy's OpenBLAS and Accelerate serve instead; on
@@ -105,14 +106,6 @@ cu12 = [
 cu13 = [
     "bartorch-cuda13; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
-# SimpleITK resamples for bias field and gradient nonlinearity correction, and
-# registers navigator planes; it is imported by the functions that use it.
-correct = [
-    "SimpleITK>=2.3",
-]
-motion = [
-    "SimpleITK>=2.3",
-]
 # PyHySCO is GPL-3.0-only: installing it is the user's decision, it is never
 # distributed with bartorch, and `tools.correct_susceptibility` imports it only
 # when called.
@@ -122,14 +115,13 @@ pyhysco = [
 dev = [
     "pytest>=7",
     "pytest-xdist>=3",
-    "SimpleITK>=2.3",
     # tests/test_docstrings.py reads the docstrings as the reference does.
     "numpydoc>=1.6",
     "ruff",
 ]
 # Kept the same as docs/requirements.txt.  Rendering imports the package from
 # the checkout, which needs torch but not the compiled library.
-docs = [
+doc = [
     "sphinx>=7.3,<9",
     "sphinx-book-theme>=1.1,<2",
     "sphinx-copybutton>=0.5,<1",

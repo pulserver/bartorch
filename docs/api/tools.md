@@ -91,8 +91,7 @@ functions and classes with no BART command behind them.
 ## Corrections
 
 Corrections applied to data or images outside the reconstruction.  Bias field
-and gradient nonlinearity correction resample with SimpleITK
-(`pip install 'bartorch[correct]'`), and spiral deblurring uses Triton on a
+and gradient nonlinearity correction resample with SimpleITK, and spiral deblurring uses Triton on a
 CUDA device when it is installed.  Susceptibility correction runs PyHySCO,
 which is GPL-3.0-only, is not distributed with bartorch and is imported only
 when {obj}`~bartorch.tools.correct_susceptibility` is called
@@ -119,7 +118,7 @@ when {obj}`~bartorch.tools.correct_susceptibility` is called
 ## Rigid motion from navigators
 
 Plane reconstruction by the non-uniform transform of this package, rigid
-registration by SimpleITK (`pip install 'bartorch[motion]'`), and a
+registration by SimpleITK, and a
 constant-velocity extended Kalman filter over the registered poses.
 
 | Object | Description |

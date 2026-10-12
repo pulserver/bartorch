@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import json
 
+import ismrmrd
+import nibabel
 import numpy as np
+import pydicom
 import pytest
 import torch
 
-ismrmrd = pytest.importorskip("ismrmrd")
-pydicom = pytest.importorskip("pydicom")
-nibabel = pytest.importorskip("nibabel")
-
-from bartorch import io  # noqa: E402
+from bartorch import io
 
 # ISMRMRD flag bit positions.
 NOISE, CALIBRATION, NAVIGATION = 19, 20, 17
@@ -416,10 +415,3 @@ def test_a_scaled_nifti_reads_in_its_real_values(tmp_path):
     nibabel.save(image, tmp_path / "s.nii")
     back = io.read_nifti(tmp_path / "s.nii")
     assert back.image[0, 0, 1, 1].item() == pytest.approx(0.5 * 5 + 2.0)
-
-
-def test_a_missing_optional_dependency_names_the_extra():
-    from bartorch.io._optional import require
-
-    with pytest.raises(ImportError, match=r"bartorch\[io\]"):
-        require("a_module_that_is_not_installed")

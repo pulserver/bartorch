@@ -47,7 +47,7 @@ with a leading underscore.  `tests/test_namespace.py` holds this.
 | `interop.py` | The DeepInverse adapter |
 | `tools/` | BART's remaining commands in five sections, and corrections and rigid motion in `tools/_correct/` and `tools/_motion/` |
 | `cli/` | The `bartorch` command line: `_argv.py` reads a `bart` command line, `_apps.py` routes it to an app |
-| `io/` | CFL files, ISMRMRD raw data, DICOM and NIfTI images (`io` extra) |
+| `io/` | CFL files, ISMRMRD raw data, DICOM and NIfTI images |
 | `_abi.py`, `_lib.py`, `_marshal.py`, `_buffer.py` | The ctypes signatures, loading the library, the form of an ABI argument, and a tensor over one of BART's buffers |
 | `_dispatch.py`, `_operator.py`, `_grid.py` | Running a command on tensors, what every operator shares, and what the operations on a grid share |
 | `_flags.py`, `_layout.py` | Axis indices to BART dimensions and bitmasks, and the PyTorch layout of an MRI operator against BART's dimensions |

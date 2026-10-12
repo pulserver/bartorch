@@ -1,7 +1,6 @@
 """Rigid motion estimation from navigators: plane reconstruction, registration and filtering.
 
-Registration is SimpleITK's, an optional dependency (``pip install 'bartorch[motion]'``)
-imported when a registration runs.
+Registration is SimpleITK's, imported when a registration runs.
 """
 
 from __future__ import annotations

@@ -11,7 +11,7 @@ packages, and the susceptibility tour downloads about 2 MB of data into
 `~/.cache/bartorch-examples`:
 
 ```bash
-pip install SimpleITK PyHySCO
+pip install PyHySCO
 ```
 
 | Tour | Contents |
