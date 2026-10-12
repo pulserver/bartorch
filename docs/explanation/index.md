@@ -8,7 +8,7 @@ complete workflows in the {doc}`examples <../auto_examples/index>`.
 
 | Page | Question |
 | --- | --- |
-| {doc}`execution-model` | Which interface fits a task, and what runs underneath it? |
+| {doc}`execution-model` | How do you reach BART from Python, and what runs where? |
 | {doc}`data-layout` | How are arrays, axes, trajectories and Fourier transforms laid out, why, and how is data from elsewhere converted into that layout? |
 | {doc}`inverse-problems` | What is estimated, from what, and by which algorithm? |
 | {doc}`encoding` | What does the MRI forward operator consist of, and how is it represented? |
