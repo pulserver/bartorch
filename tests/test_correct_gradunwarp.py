@@ -136,7 +136,22 @@ def test_from_mrd_takes_the_orientation_and_centre_from_the_acquisition() -> Non
         correct._acquired.direction,
         np.asarray(((0.0, 0.0, -1.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))),
     )
-    np.testing.assert_allclose(correct._acquired.center_mm, (10.0, -20.0, 4.0))
+    # The matrix is even along every axis, so MRD's position is voxel n // 2.
+    np.testing.assert_allclose(
+        correct._acquired.indices_to_scanner(np.array([2.0, 6.0, 8.0])), (10.0, -20.0, 4.0)
+    )
+
+
+def test_from_mrd_places_position_where_pulserver_and_reslice_do() -> None:
+    """MRD's position is the centre of voxel ``n // 2``, odd and even matrices alike."""
+    header = _mrd_header(_dat_payload(), encodings=2)
+    acquisition = _mrd_acquisition(encoding=1)
+    correct = Gradunwarp.from_mrd(header, acquisition)
+    shape = np.asarray(correct.shape)  # (4, 12, 17): one odd axis
+    assert shape[-1] % 2 == 1
+    np.testing.assert_allclose(
+        correct._acquired.indices_to_scanner((shape // 2).astype(float)), acquisition.position
+    )
 
 
 def test_from_mrd_reads_the_coil_table_out_of_the_user_parameters() -> None:
@@ -612,7 +627,9 @@ def test_an_affine_that_is_not_a_voxel_grid_is_refused(affine, shape, message) -
 def test_from_mrd_reads_the_head_of_an_acquisition_that_carries_one() -> None:
     acquisition = SimpleNamespace(head=_mrd_acquisition())
     correct = Gradunwarp.from_mrd(_mrd_header(_dat_payload()), acquisition)
-    np.testing.assert_allclose(correct._acquired.center_mm, (10.0, -20.0, 4.0))
+    np.testing.assert_allclose(
+        correct._acquired.indices_to_scanner(np.array([2.0, 6.0, 8.0])), (10.0, -20.0, 4.0)
+    )
 
 
 def test_from_mrd_refuses_an_acquisition_without_a_direction() -> None:

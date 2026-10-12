@@ -758,7 +758,9 @@ class Gradunwarp:
             An acquisition or its head: ``encoding_space_ref`` selects the
             encoding, ``slice_dir``, ``phase_dir`` and ``read_dir`` the
             orientation of the ``(z, y, x)`` array axes, ``position`` the
-            centre.
+            centre of voxel ``n // 2`` along each axis, where an FFT places
+            the field-of-view centre and as pulserver's DICOM export and
+            :func:`~bartorch.tools.reslice` read it.
         coefficients : str, pathlib.Path, CoefficientAccessor or GradientCoefficients, default=None
             The table, which takes precedence over the header's; text is also
             accepted as bytes.
@@ -808,7 +810,12 @@ class Gradunwarp:
             ],
             axis=1,
         )
-        center = getattr(head, "position", (0.0, 0.0, 0.0))
+        # MRD's position is voxel n // 2; the geometry's centre is (n - 1) / 2,
+        # half a voxel back along every axis of even length.
+        voxel = np.asarray(fov_mm) / np.asarray(shape)
+        offset = (np.asarray(shape) - 1) / 2 - np.asarray(shape) // 2
+        position = np.asarray(getattr(head, "position", (0.0, 0.0, 0.0)), np.float64).ravel()
+        center = position + orientation @ (offset * voxel)
 
         if coefficients is None:
             coefficients = _coefficients_from_header(header)
@@ -821,7 +828,7 @@ class Gradunwarp:
             shape,
             fov_mm,
             orientation,
-            np.asarray(center, dtype=np.float64).ravel(),
+            center,
             **kwargs,
         )
 
