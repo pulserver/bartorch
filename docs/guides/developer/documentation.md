@@ -211,21 +211,29 @@ Prefer a concrete observation or quantitative measure when interpretation is nee
 
 #### Tone
 
-Gallery prose can provide more context than API reference, but should remain concise, technical, and restrained.
+The Course and the Tours talk to the reader as "you", the way an MR scientist
+explains a method to a colleague: the mental model first, then the code that
+builds it one piece at a time, each piece followed by what it does to the
+image. `docs/examples/01-basics/02-from-kspace-to-image.py` is the model.
+
+A lesson opens by picking up from the previous lesson, lists its learning
+objectives, and links the previous and next lessons. It ends with an
+"Exercise" section, a cheap experiment that varies one parameter, and an "As a
+spec" section: a `.. code-block:: text` box stating what the lesson built the
+way you would ask an agent for it.
+
+Every heading, page titles included, names a concept, as a textbook heading
+does: "Coil compression", "Exercise: ACS size", "Division of responsibility";
+not "Fewer channels" or "What bartorch does".
 
 Avoid:
 
-* second-person narration unless genuinely useful;
-* "we" merely to narrate execution;
 * rhetorical questions;
 * enthusiasm and promotional language;
-* conversational transitions;
 * motivational filler;
 * metaphors and personification;
 * repeated previews and recaps;
 * prose whose only purpose is to connect adjacent code blocks.
-
-The intended result is **a reproducible scientific example with concise methodological annotation**. A lesson adds objectives and continuity to this; it does not add narration.
 
 When a sentence merely describes what the next line of code does, it can usually be removed.
 
@@ -262,7 +270,7 @@ Explanatory documentation may:
 
 An explanation page with more than one `##` section opens with a **TL;DR** block directly under its title: a short list of the page's conclusions, each stated as the page states it, with no claim the page does not support. It lets a reader decide whether the page answers their question. A page with a single section may omit it. Landing pages, API reference pages and gallery examples have none.
 
-An explanation page has one obvious purpose and, where appropriate, a conceptual anchor: a figure, table, equation or similarly compact device that carries the page's central idea. A figure is never added for its own sake. Material that another page owns is linked and not repeated: the form of the encoding belongs to {doc}`/explanation/encoding`, the point spread function and the normal operator of a trajectory to {doc}`/explanation/non-cartesian`, and the rule that a backward pass is the adjoint to {doc}`/explanation/differentiation`.
+An explanation page has one obvious purpose and, where appropriate, a conceptual anchor: a figure, table, equation or similarly compact device that carries the page's central idea. A figure is never added for its own sake. Material that another page owns is linked and not repeated: the form of the encoding belongs to {doc}`/explanation/encoding`, the point spread function and the normal operator of a trajectory to {doc}`/explanation/non-cartesian`, and the rule that a backward pass is the adjoint to {doc}`/explanation/learned-reconstruction`.
 
 Where possible, begin from the scientific, mathematical, or computational concept rather than from the Python class hierarchy.
 
@@ -377,7 +385,7 @@ Project-specific terminology and conventions should be documented explicitly and
 
 ### Prose
 
-Prefer precise, declarative scientific prose.
+Prefer precise, declarative scientific prose in the API reference and the explanations; the gallery's register is set under *Tone* above.
 
 Complete sentences are generally preferable to rhetorical fragments. Concision is desirable when it does not remove relevant information.
 

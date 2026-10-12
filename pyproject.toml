@@ -74,12 +74,6 @@ Repository = "https://github.com/pulserver/bartorch"
 Issues = "https://github.com/pulserver/bartorch/issues"
 
 [project.optional-dependencies]
-# deepinv is a source of denoisers, losses and samplers, reached through
-# `priors.ImplicitPrior` and `bartorch.interop.to_deepinv`; nothing else here
-# imports it.
-deepinv = [
-    "deepinv>=0.2",
-]
 # The training stages and augmentation, `bartorch.learning.Reconstruction` and
 # `bartorch.learning.RandomGain`; the networks and the rest of
 # `bartorch.learning` need neither.
@@ -193,8 +187,10 @@ exclude = ["src/bartorch/_abi.py", "src/bartorch/_catalogue.py"]
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["F401"]
 # A gallery example is written in cells, and an import belongs to the cell that
-# introduces what it imports rather than to the top of the file.
-"docs/examples/*" = ["E402"]
+# introduces what it imports rather than to the top of the file.  Its plain
+# `import` lines are set apart from its `from` lines by a blank line, which the
+# import sorter would join.
+"docs/examples/*" = ["E402", "I001"]
 # A help string BART wrote can be longer than any line length on its own.
 "src/bartorch/_catalogue.py" = ["E501"]
 

@@ -15,6 +15,7 @@ library and the operator layer in more detail.
 | {doc}`style` | Python and C conventions |
 | {doc}`documentation` | Documentation types, scientific writing and docstrings |
 | {doc}`terminology` | The vocabulary and conventions used across code and documentation |
+| {doc}`internals/index` | Rules, derivations and measurements behind the explanation pages |
 | {doc}`pull-requests` | What a pull request contains and how it is validated |
 | {doc}`code-of-conduct` | Conduct in project spaces |
 
@@ -30,6 +31,7 @@ pre-commit
 style
 documentation
 terminology
+internals/index
 pull-requests
 code-of-conduct
 ```

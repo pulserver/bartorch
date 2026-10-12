@@ -7,8 +7,8 @@ problems.  A solver is configured by its constructor and called as
 including its step sizes, penalty updates and stopping rules.  An iteration
 block is one step of the same iteration as a `torch.nn.Module`.  A leading
 axis of `y` beyond the codomain of `A` is a batch of independent problems.
-{doc}`../explanation/inverse-problems` states the problems and algorithms, and
-{doc}`../explanation/differentiation` the backward pass of each solver.
+{doc}`../explanation/solvers` states the problems and algorithms, and
+{doc}`../explanation/learned-reconstruction` the backward pass of each solver.
 
 ```{eval-rst}
 .. currentmodule:: bartorch.optim

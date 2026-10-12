@@ -7,7 +7,7 @@ image held on the host, unrolled iterations, the partition of the acquired
 samples for training without a reference, and a voxel-wise uncertainty.  A
 network used as a regularizer is a {obj}`~bartorch.priors.ImplicitPrior`,
 whose `sigma` may be a schedule over the iterations and which with `step=True`
-hands the network the iteration index.  {doc}`../explanation/differentiation`
+hands the network the iteration index.  {doc}`../explanation/learned-reconstruction`
 describes how gradients pass through an unrolled iteration and the memory each
 backward strategy uses.
 

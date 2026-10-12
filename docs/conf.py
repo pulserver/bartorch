@@ -199,6 +199,7 @@ html_sidebars = {
 html_baseurl = f"{PAGES_URL}/{DOCS_VERSION}/"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
+html_js_files = ["capabilities.js"]
 html_favicon = "_static/bartorch-mark.svg"
 
 intersphinx_mapping = (

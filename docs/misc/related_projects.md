@@ -20,4 +20,4 @@
 | [SigPy](https://sigpy.readthedocs.io/) | Python operators, proximal operators and MRI reconstruction apps, implemented in NumPy and CuPy; an independent implementation for checking conventions |
 | [MRpro](https://github.com/PTB-MR/mrpro) | MRI reconstruction implemented in PyTorch itself, with its own operators and data handling |
 | [MRIReco.jl](https://github.com/MagneticResonanceImaging/MRIReco.jl) | MRI reconstruction in Julia |
-| [Pyxu](https://pyxu-org.github.io/) | General computational-imaging framework; its treatment of forward operators, functionals and proximal algorithms is the conceptual reference for {doc}`../explanation/inverse-problems` |
+| [Pyxu](https://pyxu-org.github.io/) | General computational-imaging framework; its treatment of forward operators, functionals and proximal algorithms is the conceptual reference for {doc}`../explanation/regularizers` and {doc}`../explanation/solvers` |
