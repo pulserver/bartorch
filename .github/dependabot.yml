@@ -1,0 +1,34 @@
+version: 2
+updates:
+  # The Actions in .github/workflows pin third-party code that runs with
+  # repository credentials, so these are the updates worth having weekly.
+  - package-ecosystem: github-actions
+    directory: "/"
+    target-branch: main
+    schedule:
+      interval: weekly
+      day: monday
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: "/"
+    target-branch: main
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "python"]
+    commit-message:
+      prefix: "deps"
+    groups:
+      build:
+        patterns: ["scikit-build-core", "setuptools_scm", "setuptools-scm"]
+      dev-tooling:
+        patterns: ["pytest*", "coverage", "ruff", "pre-commit", "codespell"]
+      docs:
+        patterns: ["sphinx*", "myst-parser", "pydata-sphinx-theme", "matplotlib"]

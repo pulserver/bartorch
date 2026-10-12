@@ -1,33 +1,40 @@
 # Code of conduct
 
-This code applies to everyone taking part in the bartorch project: in issues,
-pull requests, reviews, and any other project space.
+## Our pledge
 
-## Standards
+We pledge to make participation in this project a harassment-free experience
+for everyone, regardless of age, body size, visible or invisible disability,
+ethnicity, sex characteristics, gender identity and expression, level of
+experience, education, socio-economic status, nationality, personal
+appearance, race, religion, or sexual identity and orientation.
 
-Participants are expected to:
+## Our standards
 
-- treat others with respect, whatever their background, identity or level of
-  experience;
-- support technical disagreement with evidence, and accept corrections;
-- give and receive constructive feedback on work rather than on people;
-- credit the contributions of others.
+Behaviour that helps:
 
-Unacceptable behaviour includes harassment, discriminatory language, threats,
-sexualised language or attention, personal attacks, and publishing another
-person's private information without their permission.
+- showing empathy and kindness toward other people
+- respecting differing opinions, viewpoints, and experiences
+- giving and gracefully accepting constructive feedback
+- accepting responsibility, apologising to those affected by our mistakes,
+  and learning from the experience
 
-## Reporting and enforcement
+Behaviour that is not acceptable:
 
-Report unacceptable behaviour to the maintainers privately, through the
-contact details on a maintainer's GitHub profile, or to GitHub through its
-[content-reporting mechanism](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam).
-Do not post the details of an incident in a public issue.
+- sexualised language or imagery, and sexual attention or advances of any kind
+- trolling, insulting or derogatory comments, and personal or political attacks
+- public or private harassment
+- publishing others' private information, such as a physical or email address,
+  without their explicit permission
 
-The maintainers review every report, keep the reporter's identity
-confidential, and respond in proportion to the behaviour: a warning, the
-removal of content, or a temporary or permanent exclusion from project spaces.
-A maintainer who is the subject of a report takes no part in handling it.
+## Enforcement
+
+Report abusive, harassing, or otherwise unacceptable behaviour to
+matteo.cencini@gmail.com. All complaints will be reviewed and investigated
+promptly and fairly. The maintainers will respect the privacy and security of
+the reporter of any incident.
+
+Maintainers who do not follow or enforce this code in good faith may face
+temporary or permanent repercussions as determined by other maintainers.
 
 ## Attribution
 

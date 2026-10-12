@@ -9,7 +9,7 @@ bartorch.egg-info/
 # Build trees.  A named one -- build-cpu, build-cuda -- is how two
 # configurations are kept side by side; build_tools/ is source and is not one.
 build/
-build-*/
+/build-*/
 _skbuild/
 .venv/
 
@@ -29,7 +29,6 @@ _skbuild/
 *.hdr
 
 # CMake build artifacts
-bartorch/csrc/build/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
@@ -45,3 +44,6 @@ attic/demos/.ipynb_checkpoints/
 # pytest-cov
 .coverage
 coverage.xml
+
+# Per-user agent settings.
+.claude/settings.local.json

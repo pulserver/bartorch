@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Question or idea
+    url: https://github.com/pulserver/bartorch/discussions
+    about: Ask about usage, or propose something before it is a bug report.
   - name: Security vulnerability
-    url: https://github.com/pulserver/bartorch/security
-    about: Report privately through the Security tab. Do not open a public issue.
+    url: https://github.com/pulserver/bartorch/security/advisories/new
+    about: Report privately. Please do not open a public issue.

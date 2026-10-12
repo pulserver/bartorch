@@ -4,6 +4,11 @@ bartorch embeds BART, the Berkeley Advanced Reconstruction Toolbox, in a
 Python process and drives it on torch tensors. The compiled part is a plain
 C library with a small C ABI; Python reaches it through ctypes.
 
+`SKILLS.md` indexes the skills under `.claude/skills/`: the procedures for
+building and testing the package and for writing documentation. This page
+states the rules; a skill states how a recurring task is carried out under
+them.
+
 ## The shape of the repository
 
 Four directories at the top, and a file belongs to whichever it is: `src/` is

@@ -29,3 +29,14 @@ the next version; earlier releases are not maintained.
 | --- | --- |
 | Default branch and latest release | Yes |
 | Earlier releases | No |
+
+## Scope
+
+In scope: anything that turns data into execution or memory corruption -- a
+CFL, ISMRMRD, DICOM or NIfTI file, a trajectory, or array shapes and values
+passed through the C ABI to BART, FINUFFT or the CUDA kernels, which index raw
+pointers.
+
+Out of scope: Python code a caller hands to the package (a callback operator, a
+network, a prior), which runs in the caller's process by design; and resource
+exhaustion from inputs a caller chose themselves.
