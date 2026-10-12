@@ -62,7 +62,8 @@ with a leading underscore.  `tests/test_namespace.py` holds this.
 | `docs/index.md` | Landing page: the README and the top-level toctree |
 | `docs/guides/user/`, `docs/guides/developer/` | User and developer guides; `docs/guides/developer/internals/` holds the implementation detail behind the explanation pages |
 | `docs/explanation/` | Conceptual explanations |
-| `docs/examples/` | Example scripts, one directory per section with its header `README.rst`, and `README.rst`, the header of the Examples page |
+| `docs/gallery/` | The Examples page and the Course and Tours pages under it, whose toctrees place the example pages in the navigation |
+| `docs/examples/` | Example scripts, one directory per section with its header `README.rst`, and `README.rst`, the header of sphinx-gallery's orphan root page |
 | `docs/api/` | API category pages; their tables list the objects |
 | `docs/api_objects.py` | Collects the objects from the API tables into `docs/api_objects.rst`, which generates one page per object under `docs/generated/` |
 | `docs/_templates/autosummary/` | Templates of the generated object pages |

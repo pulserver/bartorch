@@ -2,7 +2,7 @@
 
 Exact contracts of the public objects: parameters, defaults, shapes, units,
 conventions and restrictions.  Concepts are in {doc}`../explanation/index`,
-complete workflows in the {doc}`examples <../auto_examples/index>`.
+complete workflows in the {doc}`examples <../gallery/index>`.
 
 | Page | Module | Contents |
 | --- | --- | --- |

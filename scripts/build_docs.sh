@@ -8,7 +8,7 @@
 #
 # Rendering imports bartorch from src/, which needs torch but not the compiled
 # library.  Executing the examples needs the compiled library, and the packages
-# `docs/examples/README.rst` names.
+# `docs/gallery/index.md` names.
 
 set -euo pipefail
 

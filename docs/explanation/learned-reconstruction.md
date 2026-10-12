@@ -13,7 +13,7 @@ denoiser in place of a regularizer, an unrolled network trained through its
 iterations, or a loss on the image differentiated with respect to the data.
 The encoding, the data-consistency step and the iteration stay BART's; the
 network replaces a proximal operator. Lessons 10 and 11 of the
-{doc}`Course <../auto_examples/index>` run plug-and-play and MoDL.
+{doc}`Course <../gallery/course>` run plug-and-play and MoDL.
 
 ## Capabilities
 

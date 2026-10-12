@@ -127,13 +127,15 @@ pip install "bartorch[cu12]"  # with CUDA 12; use cu13 for CUDA 13
 
 Wheels are built for Linux x86-64, macOS arm64 and Windows x86-64; the CUDA
 build is Linux x86-64 only. The other extras are listed under
-[Optional dependencies](https://pulserver.github.io/bartorch/stable/guides/user/prerequisites.html#optional-dependencies),
-and source and GPU builds under
-[Installation](https://pulserver.github.io/bartorch/stable/guides/user/installation.html).
+[Optional dependencies](https://pulserver.github.io/bartorch/stable/guides/user/index.html#optional-dependencies),
+GPU builds under
+[Installation](https://pulserver.github.io/bartorch/stable/guides/user/index.html#gpu-builds),
+and source builds in the
+[developer guide](https://pulserver.github.io/bartorch/stable/guides/developer/installation.html).
 
 ## Learn more
 
-- [Course](https://pulserver.github.io/bartorch/stable/auto_examples/index.html):
+- [Course](https://pulserver.github.io/bartorch/stable/gallery/course.html):
   from k-space to an image, then parallel imaging, regularization,
   non-Cartesian and model-based reconstruction, and learned regularization.
   Every lesson opens in Colab.
