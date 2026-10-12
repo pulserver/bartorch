@@ -201,8 +201,8 @@ maps parameter maps to one image per echo. Its unknowns are :math:`T_2` and
 a complex amplitude, carried as three real maps in a bounded
 parameterisation rather than in their own units. So you build a starting
 point from values in physical units with
-:meth:`~bartorch.nlop.SignalModel.initial`, and convert a fit back to
-milliseconds with :meth:`~bartorch.nlop.SignalModel.split`.
+:meth:`~bartorch.nlop.ModelOperator.initial`, and convert a fit back to
+milliseconds with :meth:`~bartorch.nlop.ModelOperator.split`.
 
 .. GENERATED FROM PYTHON SOURCE LINES 271-276
 
@@ -233,8 +233,8 @@ Two-step fit
 
 The conventional route has two steps. Reconstruct every echo by conjugate
 gradients on the SENSE normal equations, then fit the model to the echo
-images voxel by voxel with :func:`bartorch.apps.mobafit`, a Gauss-Newton
-loop over the model alone.
+images voxel by voxel with :func:`bartorch.apps.mobafit`, Levenberg-Marquardt
+over the model alone.
 
 .. GENERATED FROM PYTHON SOURCE LINES 284-305
 
@@ -263,7 +263,7 @@ loop over the model alone.
 
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
       warnings.warn(
-    reconstruct, then fit:   2.9 s
+    reconstruct, then fit:   0.6 s
 
 
 
@@ -302,17 +302,18 @@ Gauss-Newton step requires.
 
  .. code-block:: none
 
-    model inside the operator:   8.3 s
+    model inside the operator:  11.1 s
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 326-340
+.. GENERATED FROM PYTHON SOURCE LINES 326-341
 
 Both routes are Gauss-Newton loops of the same number of steps. They differ
-only in the forward operator that maps the unknowns to the data: the model
-alone, against echo images, or the model followed by the encoding, against
-k-space.
+in the forward operator that maps the unknowns to the data: the model alone,
+against echo images, or the model followed by the encoding, against k-space.
+Without the encoding each voxel is a problem of its own, so ``mobafit``
+solves each step per voxel and damps each voxel separately.
 
 Model-based reconstruction app
 ------------------------------
@@ -324,7 +325,7 @@ the maps in their own units. It scales the data by the rule of
 towards the starting maps rather than towards zero, so its result is not
 identical to the fit above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 340-351
+.. GENERATED FROM PYTHON SOURCE LINES 341-352
 
 .. code-block:: Python
 
@@ -347,12 +348,12 @@ identical to the fit above.
 
  .. code-block:: none
 
-    apps.moba:   9.6 s
+    apps.moba:  12.0 s
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 352-357
+.. GENERATED FROM PYTHON SOURCE LINES 353-358
 
 Map comparison
 --------------
@@ -360,7 +361,7 @@ Map comparison
 Read the three :math:`T_2` maps back and compare them with the phantom,
 inside the head:
 
-.. GENERATED FROM PYTHON SOURCE LINES 357-387
+.. GENERATED FROM PYTHON SOURCE LINES 358-388
 
 .. code-block:: Python
 
@@ -403,7 +404,7 @@ inside the head:
 
  .. code-block:: none
 
-        two-step: median  86.1 ms, relative error 0.483
+        two-step: median  86.2 ms, relative error 0.744
      model-based: median  81.5 ms, relative error 0.007
        apps.moba: median  81.3 ms, relative error 0.057
          phantom: median  81.5 ms
@@ -411,7 +412,7 @@ inside the head:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 388-418
+.. GENERATED FROM PYTHON SOURCE LINES 389-419
 
 The two-step map is dominated by the errors of the echo images: a voxelwise
 fit cannot distinguish residual aliasing from decay, and where a late echo
@@ -444,7 +445,7 @@ Is the error of the two-step route caused by the voxelwise fit or by the
 echo images it is given? Run the same fit on the fully sampled, noise-free
 echo images of the phantom:
 
-.. GENERATED FROM PYTHON SOURCE LINES 418-424
+.. GENERATED FROM PYTHON SOURCE LINES 419-425
 
 .. code-block:: Python
 
@@ -462,12 +463,12 @@ echo images of the phantom:
 
  .. code-block:: none
 
-    voxelwise fit, fully sampled: relative error 0.016
+    voxelwise fit, fully sampled: relative error 0.000
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 425-450
+.. GENERATED FROM PYTHON SOURCE LINES 426-451
 
 On the fully sampled echoes the voxelwise fit reaches a relative error far
 below the two-step result on the undersampled data, of the same order as the
@@ -495,7 +496,7 @@ What this lesson built, stated the way you would ask an agent for it:
    with the sensitivities and patterns (20 steps). Report the median and the
    relative error of T2 inside the head, and show the maps and |error| maps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 452-467
+.. GENERATED FROM PYTHON SOURCE LINES 453-468
 
 References
 ----------
@@ -516,7 +517,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 24.193 seconds)
+   **Total running time of the script:** (0 minutes 24.783 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-quantitative-models.py:

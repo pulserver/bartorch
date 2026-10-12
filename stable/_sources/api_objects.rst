@@ -119,7 +119,7 @@ bartorch.nlop
    CartesianSense
    NoncartesianSense
    CoilSense
-   SignalModel
+   ModelOperator
    InversionRecovery
    MultiEcho
    Bloch
@@ -325,6 +325,7 @@ bartorch.io
    :nosignatures:
 
    read_mrd
+   read_mrd_stream
    read_dicom
    to_dicom
    write_dicom

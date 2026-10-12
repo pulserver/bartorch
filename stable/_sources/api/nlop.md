@@ -37,7 +37,7 @@ to one image per contrast.
 
 | Object | Unknowns | Signal |
 | --- | --- | --- |
-| {obj}`~bartorch.nlop.SignalModel` | Any BlochSim model's parameters | Base class: a BlochSim `ModelOperator` as a nonlinear operator |
+| {obj}`~bartorch.nlop.ModelOperator` | Any signal model's parameters | A signal model over parameter maps, such as `blochsim.ModelOperator`, as a nonlinear operator |
 | {obj}`~bartorch.nlop.InversionRecovery` | $T_1$, optional complex amplitude | Inversion recovery at a series of inversion times |
 | {obj}`~bartorch.nlop.MultiEcho` | $T_2$ or $T_2^*$, optional complex amplitude | Mono-exponential decay at a series of echo times |
 | {obj}`~bartorch.nlop.Bloch` | Any simulated tissue property | Bloch simulation of a BlochSim sequence |

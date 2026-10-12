@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=2b236558"></script>
+    <script src="_static/documentation_options.js?v=be36e789"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.14';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.13" />
+  <meta name="docsearch:version" content="v0.0.14" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -801,8 +801,8 @@ the same objects in tables; this page generates the page of each.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.CoilSense.html#bartorch.nlop.CoilSense" title="bartorch.nlop.CoilSense"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoilSense</span></code></a></p></td>
 <td><p>Product of an image and unknown coil sensitivities before a linear encoding.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SignalModel</span></code></a></p></td>
-<td><p>BlochSim signal model as a nonlinear operator from parameter maps to contrast images.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.nlop.ModelOperator.html#bartorch.nlop.ModelOperator" title="bartorch.nlop.ModelOperator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelOperator</span></code></a></p></td>
+<td><p>Signal model as a nonlinear operator from parameter maps to contrast images.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.nlop.InversionRecovery.html#bartorch.nlop.InversionRecovery" title="bartorch.nlop.InversionRecovery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InversionRecovery</span></code></a></p></td>
 <td><p>Inversion-recovery signal model for T1 mapping.</p></td>
@@ -1287,25 +1287,28 @@ the same objects in tables; this page generates the page of each.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.read_mrd.html#bartorch.io.read_mrd" title="bartorch.io.read_mrd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_mrd</span></code></a></p></td>
 <td><p>Read the readouts of one encoding space of an ISMRMRD HDF5 file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.read_dicom.html#bartorch.io.read_dicom" title="bartorch.io.read_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_dicom</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.read_mrd_stream.html#bartorch.io.read_mrd_stream" title="bartorch.io.read_mrd_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_mrd_stream</span></code></a></p></td>
+<td><p>Read the readouts of one encoding space of an MRD stream, as <a class="reference internal" href="generated/bartorch.io.read_mrd.html#bartorch.io.read_mrd" title="bartorch.io.read_mrd"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_mrd()</span></code></a> reads a file's.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.read_dicom.html#bartorch.io.read_dicom" title="bartorch.io.read_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_dicom</span></code></a></p></td>
 <td><p>Read a DICOM MR image series into a tensor sorted by contrast and slice.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dicom</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dicom</span></code></a></p></td>
 <td><p>Convert a real image to the datasets of one DICOM MR image series.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.write_dicom.html#bartorch.io.write_dicom" title="bartorch.io.write_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_dicom</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.write_dicom.html#bartorch.io.write_dicom" title="bartorch.io.write_dicom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_dicom</span></code></a></p></td>
 <td><p>Write a real image as one DICOM MR image series, a file per image.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_nifti</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.read_nifti.html#bartorch.io.read_nifti" title="bartorch.io.read_nifti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_nifti</span></code></a></p></td>
 <td><p>Read NIfTI images, and the timings of their BIDS sidecars, as contrasts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.write_nifti.html#bartorch.io.write_nifti" title="bartorch.io.write_nifti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_nifti</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.write_nifti.html#bartorch.io.write_nifti" title="bartorch.io.write_nifti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_nifti</span></code></a></p></td>
 <td><p>Write an image as a NIfTI file, and its timings as a BIDS sidecar.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.readcfl.html#bartorch.io.readcfl" title="bartorch.io.readcfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">readcfl</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.readcfl.html#bartorch.io.readcfl" title="bartorch.io.readcfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">readcfl</span></code></a></p></td>
 <td><p>Read the CFL pair <code class="docutils literal notranslate"><span class="pre">name.hdr</span></code> / <code class="docutils literal notranslate"><span class="pre">name.cfl</span></code> into a NumPy array.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.io.writecfl.html#bartorch.io.writecfl" title="bartorch.io.writecfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writecfl</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.io.writecfl.html#bartorch.io.writecfl" title="bartorch.io.writecfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writecfl</span></code></a></p></td>
 <td><p>Write <code class="docutils literal notranslate"><span class="pre">array</span></code> as the CFL pair <code class="docutils literal notranslate"><span class="pre">name.hdr</span></code> / <code class="docutils literal notranslate"><span class="pre">name.cfl</span></code>.</p></td>
 </tr>
 </tbody>

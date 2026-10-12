@@ -1,0 +1,125 @@
+/* Give encoding tables and signatures a comfortable reading width. */
+.bd-main .bd-content .bd-article-container { max-width: 58rem; }
+.sig { overflow-wrap: anywhere; }
+.sphx-glr-thumbcontainer { min-height: 210px; }
+
+/* The landing page is the repository README, whose logo already names the
+   project; the heading above it names the page in the sidebar and is not
+   printed a second time. */
+section#homepage > h1 { display: none; }
+
+/* The logo and the architecture figure come in a light and a dark variant,
+   each drawn on a transparent canvas for its background, so the theme's dark
+   mode needs neither the white card nor the dimming it gives other images. */
+html[data-theme="dark"] .bd-content img.only-dark {
+  background-color: transparent;
+  filter: none;
+}
+
+/* The compact mark heads the sidebar at the height of a line of headings,
+   not at the width of the sidebar. */
+.bd-sidebar-primary .navbar-brand img.logo__image {
+  max-height: 3rem;
+  width: auto;
+}
+.bd-sidebar-primary .navbar-brand { justify-content: flex-start; }
+
+/* The TL;DR block that opens each explanation page. */
+.admonition.tldr {
+  border-color: var(--pst-color-primary);
+}
+.admonition.tldr > .admonition-title {
+  background-color: var(--pst-color-primary-bg);
+}
+.admonition.tldr > .admonition-title::after {
+  color: var(--pst-color-primary);
+}
+.admonition.tldr ul {
+  margin-bottom: 0;
+}
+
+/* The Open in Colab badge under an example's title. */
+img.colab-badge {
+  margin: 0.25rem 0 1rem;
+}
+@media print {
+  img.colab-badge {
+    display: none;
+  }
+}
+
+/* Gallery figures are drawn on a transparent canvas in a grey that reads on
+   either background (docs/gallery_style.py), so the dark theme shows them as
+   they are rather than on a white card, dimmed. */
+html[data-theme="dark"] .bd-content img.sphx-glr-single-img,
+html[data-theme="dark"] .bd-content img.sphx-glr-multi-img {
+  background-color: transparent;
+  filter: none;
+}
+
+/* A code cell that shows several figures lists them one under another at
+   full width, each at the size it was drawn, rather than side by side at
+   less than half of it. */
+ul.sphx-glr-horizontal li { display: block; }
+.bd-content img.sphx-glr-multi-img {
+  display: block;
+  margin: 0 auto 1rem;
+  max-width: 100%;
+}
+
+/* A text block is a spec to paste into an agent: its copy button is shown
+   without hovering, which a touch screen cannot do. */
+div.highlight-text .copybtn {
+  opacity: 1;
+}
+
+/* Running text is justified, on every page and in the gallery's lessons. */
+.bd-article p,
+.bd-article li {
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* A capability's code and test, under its statement. */
+.bd-article .capabilities li > p + p {
+  margin-top: -0.6em;
+  font-size: 0.9em;
+  text-align: left;
+  color: var(--pst-color-text-muted);
+}
+
+/* The capability list reads as a checklist until its evidence is asked for. */
+.bd-article .capabilities.collapsed li > p + p {
+  display: none;
+}
+.bd-article .capabilities.collapsed li {
+  margin-bottom: 0.2em;
+}
+.capabilities-toggle {
+  font-size: 0.85em;
+  padding: 0.2em 0.7em;
+  margin-bottom: 0.6em;
+  border: 1px solid var(--pst-color-border);
+  border-radius: 4px;
+  background: var(--pst-color-surface);
+  color: var(--pst-color-text-base);
+  cursor: pointer;
+}
+
+/* A capability is one statement; justified, its few words spread apart. */
+.bd-article .capabilities li > p {
+  text-align: left;
+}
+
+/* The explanation plots (scripts/make_figures.py) share the gallery's
+   transparent canvas and grey foreground, so the dark theme shows them as
+   they are. */
+html[data-theme="dark"] .bd-content img.plot {
+  background-color: transparent;
+  filter: none;
+}
+
+/* Table cells are too narrow to justify. */
+.bd-article td p, .bd-article th p {
+  text-align: left;
+}

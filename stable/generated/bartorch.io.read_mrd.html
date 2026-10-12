@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=2b236558"></script>
+    <script src="../_static/documentation_options.js?v=be36e789"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.13';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.14';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -68,7 +68,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.13" />
+  <meta name="docsearch:version" content="v0.0.14" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -543,10 +543,13 @@ ISMRMRD does not fix its units.</p></li>
 <span class="pre">readout)</span></code>: the loop counters – <code class="docutils literal notranslate"><span class="pre">repetition</span></code>, <code class="docutils literal notranslate"><span class="pre">phase</span></code>,
 <code class="docutils literal notranslate"><span class="pre">slice</span></code>, <code class="docutils literal notranslate"><span class="pre">contrast</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span></code>, <code class="docutils literal notranslate"><span class="pre">average</span></code>, in that order – the
 header gives more than one position, then the channels; the
-partition axis is present when the header states more than one.
-Zero where nothing was acquired.  For a non-Cartesian space the
-phase encodes are the shots and the readout the samples of each,
-which is how <a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> takes them.</p>
+partition axis is present when there is more than one.  Zero where
+nothing was acquired.  For a non-Cartesian space the phase encodes
+are the shots and the readout the samples of each, which is how
+<a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> takes them; the shots
+and partitions number what the header’s encoding limits state, or
+where it states none, what the readouts’ counters reach, and never
+the encoded matrix, which is the image’s.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">mask</span></code>, <code class="docutils literal notranslate"><span class="pre">reference</span></code></dt><dd><p><code class="docutils literal notranslate"><span class="pre">bool</span></code>, the shape of <code class="docutils literal notranslate"><span class="pre">kspace</span></code> without its coil axis: every
 placed sample, and the samples of parallel-imaging calibration
