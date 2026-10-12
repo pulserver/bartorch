@@ -21,6 +21,7 @@ C-order tensor shape, so `array.T` converts between the two.
 | Object | Description |
 | --- | --- |
 | {obj}`~bartorch.io.read_mrd` | Read one encoding space of an ISMRMRD file into k-space placed by its counters, with the mask, trajectory, noise readouts and affine |
+| {obj}`~bartorch.io.read_mrd_stream` | Read one encoding space of an MRD stream -- the XML header and the acquisitions a scanner sends -- as `read_mrd` reads a file's |
 | {obj}`~bartorch.io.read_dicom` | Read a DICOM MR series, or several as one, into images sorted by contrast and slice, with their timings and affine |
 | {obj}`~bartorch.io.to_dicom` | Convert a real image and its affine to the datasets of one DICOM MR series |
 | {obj}`~bartorch.io.write_dicom` | Write a real image and its affine as a DICOM MR series |

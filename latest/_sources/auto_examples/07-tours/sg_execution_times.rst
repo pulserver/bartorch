@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:28.852** total execution time for 8 files **from auto_examples/07-tours**:
+**00:20.210** total execution time for 8 files **from auto_examples/07-tours**:
 
 .. container::
 
@@ -32,27 +32,27 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``07-epi-susceptibility-distortion.py``)
+     - 00:04.838
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_06-navigator-motion.py` (``06-navigator-motion.py``)
-     - 00:05.884
+     - 00:03.503
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_05-spiral-deblurring.py` (``05-spiral-deblurring.py``)
-     - 00:04.939
+     - 00:03.397
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_08-noise-prewhitening.py` (``08-noise-prewhitening.py``)
-     - 00:04.876
+     - 00:02.873
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_03-bias-field.py` (``03-bias-field.py``)
-     - 00:04.578
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``07-epi-susceptibility-distortion.py``)
-     - 00:03.070
+     - 00:02.669
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py` (``02-epi-ghost-and-ramp-sampling.py``)
-     - 00:02.823
+     - 00:01.518
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_04-gradient-nonlinearity.py` (``04-gradient-nonlinearity.py``)
-     - 00:01.532
+     - 00:00.828
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_01-readout-oversampling-and-apodization.py` (``01-readout-oversampling-and-apodization.py``)
-     - 00:01.150
+     - 00:00.583
      - 0.0

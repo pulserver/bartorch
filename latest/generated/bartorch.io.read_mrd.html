@@ -543,10 +543,13 @@ ISMRMRD does not fix its units.</p></li>
 <span class="pre">readout)</span></code>: the loop counters – <code class="docutils literal notranslate"><span class="pre">repetition</span></code>, <code class="docutils literal notranslate"><span class="pre">phase</span></code>,
 <code class="docutils literal notranslate"><span class="pre">slice</span></code>, <code class="docutils literal notranslate"><span class="pre">contrast</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span></code>, <code class="docutils literal notranslate"><span class="pre">average</span></code>, in that order – the
 header gives more than one position, then the channels; the
-partition axis is present when the header states more than one.
-Zero where nothing was acquired.  For a non-Cartesian space the
-phase encodes are the shots and the readout the samples of each,
-which is how <a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> takes them.</p>
+partition axis is present when there is more than one.  Zero where
+nothing was acquired.  For a non-Cartesian space the phase encodes
+are the shots and the readout the samples of each, which is how
+<a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> takes them; the shots
+and partitions number what the header’s encoding limits state, or
+where it states none, what the readouts’ counters reach, and never
+the encoded matrix, which is the image’s.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">mask</span></code>, <code class="docutils literal notranslate"><span class="pre">reference</span></code></dt><dd><p><code class="docutils literal notranslate"><span class="pre">bool</span></code>, the shape of <code class="docutils literal notranslate"><span class="pre">kspace</span></code> without its coil axis: every
 placed sample, and the samples of parallel-imaging calibration

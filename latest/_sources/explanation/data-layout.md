@@ -35,9 +35,9 @@ and returns.
 - **Computes the NUFFT with a negative exponent and a $1/\sqrt{N}$ scaling, $N$ the number of image voxels.**
 
   Code: {func}`~bartorch.nufft`, {class}`~bartorch.linop.NUFFT`. Tests: *matches an explicit dft on a radial trajectory* (`test_finufft.py`).
-- **Reads ISMRMRD raw data into k-space placed by its counters, with the trajectory converted to grid units.**
+- **Reads ISMRMRD raw data, from a file or a scanner's stream, into k-space placed by its counters, with the trajectory converted to grid units.**
 
-  Code: {func}`~bartorch.io.read_mrd`. Tests: *readouts land where their counters place them*; *a trajectory in cycles per metre becomes grid units*; *a trajectory as a fraction of the bandwidth is scaled by the matrix* (`test_io.py`).
+  Code: {func}`~bartorch.io.read_mrd`, {func}`~bartorch.io.read_mrd_stream`. Tests: *readouts land where their counters place them*; *a stream reads as the file it would be written to*; *a 3d trajectory is not partitioned by the encoded depth*; *a trajectory in cycles per metre becomes grid units*; *a trajectory as a fraction of the bandwidth is scaled by the matrix* (`test_io.py`).
 - **Reads and writes DICOM and NIfTI images with one RAS affine, so an image keeps its position across formats.**
 
   Code: {func}`~bartorch.io.read_dicom`, {func}`~bartorch.io.write_nifti`. Tests: *dicom and nifti agree on where a voxel is*; *nifti stores the affine nibabel reads* (`test_io.py`).
