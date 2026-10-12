@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,15 +548,23 @@
 <dt class="sig sig-object py" id="bartorch.io.write_dicom">
 <span class="sig-prename descclassname"><span class="pre">bartorch.io.</span></span><span class="sig-name descname"><span class="pre">write_dicom</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.io.write_dicom" title="Link to this definition">#</a></dt>
 <dd><p>Write a real image as one DICOM MR image series, a file per image.</p>
-<p>Parameters and conversion are those of <a class="reference internal" href="bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_dicom()</span></code></a>.  Files are named
-<code class="docutils literal notranslate"><span class="pre">EX&lt;StudyID&gt;_&lt;SeriesNumber:02&gt;_&lt;SeriesDescription&gt;_&lt;InstanceNumber:03&gt;.dcm</span></code>
-in the directory <code class="docutils literal notranslate"><span class="pre">path</span></code>, which is created.</p>
+<p>The conversion is that of <a class="reference internal" href="bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_dicom()</span></code></a>.  Files are named
+<code class="docutils literal notranslate"><span class="pre">EX&lt;StudyID&gt;_&lt;SeriesNumber:02&gt;_&lt;SeriesDescription&gt;_&lt;InstanceNumber:03&gt;.dcm</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The files written, in instance order.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Directory to write into; created if absent.</p></li>
+<li><p><strong>image</strong> (<em>torch.Tensor</em><em> or </em><em>numpy.ndarray</em>) – As for <a class="reference internal" href="bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_dicom()</span></code></a>.</p></li>
+<li><p><strong>affine</strong> (<em>torch.Tensor</em><em> or </em><em>numpy.ndarray</em>) – As for <a class="reference internal" href="bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_dicom()</span></code></a>.</p></li>
+<li><p><strong>header</strong> (<em>ismrmrd.xsd.ismrmrdHeader</em><em> or </em><em>pydicom.Dataset</em><em>, </em><em>default=None</em>) – As for <a class="reference internal" href="bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_dicom()</span></code></a>.</p></li>
+<li><p><strong>**fields</strong> – As for <a class="reference internal" href="bartorch.io.to_dicom.html#bartorch.io.to_dicom" title="bartorch.io.to_dicom"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_dicom()</span></code></a>.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of pathlib.Path</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The files written, in instance order.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>

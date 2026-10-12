@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,24 +547,28 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.linop.Hankel">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">Hankel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.Hankel" title="Link to this definition">#</a></dt>
-<dd><p>A sliding window along <code class="docutils literal notranslate"><span class="pre">axis</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">linop_hankelization</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">torch.Tensor.unfold(axis,</span> <span class="pre">window,</span> <span class="pre">1)</span></code> as an operator, and the same
-thing as the trajectory matrix that singular spectrum analysis is built
-on: an axis of <code class="docutils literal notranslate"><span class="pre">n</span></code> becomes <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">-</span> <span class="pre">window</span> <span class="pre">+</span> <span class="pre">1</span></code> positions, each carrying
-the <code class="docutils literal notranslate"><span class="pre">window</span></code> samples that start there.  The codomain is the domain with
-that axis shortened and the window added as a last axis, which is where
-<code class="docutils literal notranslate"><span class="pre">unfold</span></code> puts it.</p>
-<p>BART makes the windows by striding rather than by copying, so the overlap
-costs nothing to build; the adjoint adds each sample back into every
-window it appeared in, which makes this an operator rather than a view.</p>
+<dd><p>Sliding window along <code class="docutils literal notranslate"><span class="pre">axis</span></code> (Hankel matrix), BART’s <code class="docutils literal notranslate"><span class="pre">linop_hankelization</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">torch.Tensor.unfold(axis,</span> <span class="pre">window,</span> <span class="pre">1)</span></code> as an operator: an axis of
+length <code class="docutils literal notranslate"><span class="pre">n</span></code> becomes <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">-</span> <span class="pre">window</span> <span class="pre">+</span> <span class="pre">1</span></code> positions and the window is
+appended as the last axis.  The adjoint sums each sample over every
+window containing it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The domain, C order.</p></li>
-<li><p><strong>axis</strong> (<em>int</em>) – Which axis to slide along.</p></li>
-<li><p><strong>window</strong> (<em>int</em>) – How many samples each position carries.  At most the length of the
-axis; equal to it gives one position.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain, C order.</p></li>
+<li><p><strong>axis</strong> (<em>int</em>) – Axis to slide along.</p></li>
+<li><p><strong>window</strong> (<em>int</em>) – Window length, from 1 to the length of the axis.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Codomain <code class="docutils literal notranslate"><span class="pre">shape</span></code> with <code class="docutils literal notranslate"><span class="pre">axis</span></code> shortened to <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">-</span> <span class="pre">window</span> <span class="pre">+</span> <span class="pre">1</span></code> and
+a trailing axis of length <code class="docutils literal notranslate"><span class="pre">window</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When the window is empty or longer than the axis.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

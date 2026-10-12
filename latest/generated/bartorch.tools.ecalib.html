@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -554,27 +552,29 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Fully sampled calibration data, or k-space with a sampled centre,
-<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> for one slice.</p></li>
-<li><p><strong>maps</strong> (<em>int</em><em>, </em><em>default=None</em>) – How many sets of sensitivities to produce (<code class="docutils literal notranslate"><span class="pre">-m</span></code>); BART’s default is 2.</p></li>
-<li><p><strong>calib_size</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – The calibration region’s size (<code class="docutils literal notranslate"><span class="pre">-r</span></code>), the same on every axis or one
-per axis; BART’s default is 24 on every axis.</p></li>
-<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>default=None</em>) – The singular-value threshold for the calibration matrix (<code class="docutils literal notranslate"><span class="pre">-t</span></code>);
-BART’s default is 0.001.</p></li>
-<li><p><strong>crop</strong> (<em>float</em><em>, </em><em>default=None</em>) – The eigenvalue below which a sensitivity is set to zero (<code class="docutils literal notranslate"><span class="pre">-c</span></code>);
-BART’s default is 0.8.</p></li>
-<li><p><strong>kernel_size</strong> (<em>int</em><em>, </em><em>default=None</em>) – The calibration kernel’s size (<code class="docutils literal notranslate"><span class="pre">-k</span></code>); BART’s default is 6.</p></li>
-<li><p><strong>softsense</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Return the maps without the eigenvalue crop, for soft-SENSE (<code class="docutils literal notranslate"><span class="pre">-S</span></code>).</p></li>
-<li><p><strong>intensity_correction</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Correct for intensity rather than normalising (<code class="docutils literal notranslate"><span class="pre">-I</span></code>).</p></li>
-<li><p><strong>return_eigenvalues</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the eigenvalue map, which BART writes as a second array
-only when asked.</p></li>
+<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – k-space with a fully sampled centre, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> for one slice.</p></li>
+<li><p><strong>maps</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of sets of sensitivities (<code class="docutils literal notranslate"><span class="pre">-m</span></code>); BART’s default is 2.</p></li>
+<li><p><strong>calib_size</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Size of the calibration region (<code class="docutils literal notranslate"><span class="pre">-r</span></code>), one for every axis or one per
+axis in C order; BART’s default is 24 on every axis.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>default=None</em>) – Singular-value threshold of the calibration matrix, which sets the
+size of its null space (<code class="docutils literal notranslate"><span class="pre">-t</span></code>); BART’s default is 0.001.</p></li>
+<li><p><strong>crop</strong> (<em>float</em><em>, </em><em>default=None</em>) – Eigenvalue below which a sensitivity is set to zero (<code class="docutils literal notranslate"><span class="pre">-c</span></code>); BART’s
+default is 0.8.</p></li>
+<li><p><strong>kernel_size</strong> (<em>int</em><em>, </em><em>default=None</em>) – Size of the calibration kernel (<code class="docutils literal notranslate"><span class="pre">-k</span></code>); BART’s default is 6.</p></li>
+<li><p><strong>softsense</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Weight the maps by a smooth function of the eigenvalue about <code class="docutils literal notranslate"><span class="pre">crop</span></code>
+rather than cropping them (Soft-SENSE, <code class="docutils literal notranslate"><span class="pre">-S</span></code>).</p></li>
+<li><p><strong>intensity_correction</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Normalise the maps to unit l1 norm over the coils, times the square
+root of the coil count, rather than unit l2 norm (<code class="docutils literal notranslate"><span class="pre">-I</span></code>).</p></li>
+<li><p><strong>return_eigenvalues</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the eigenvalue maps, BART’s optional second output.</p></li>
 <li><p><strong>**extra</strong> – Further BART <code class="docutils literal notranslate"><span class="pre">ecalib</span></code> options, by name.  <code class="docutils literal notranslate"><span class="pre">e</span></code>, the axis the second
 step is split along, takes an axis of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The sensitivities, and the eigenvalues when asked for, without a <code class="docutils literal notranslate"><span class="pre">z</span></code>
-axis when <code class="docutils literal notranslate"><span class="pre">kspace</span></code> has none.</p>
+<dd class="field-even"><p>The sensitivities, <code class="docutils literal notranslate"><span class="pre">(maps,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> with the <code class="docutils literal notranslate"><span class="pre">maps</span></code> axis
+dropped when it has size one, and the eigenvalue maps when asked for;
+without a <code class="docutils literal notranslate"><span class="pre">z</span></code> axis when <code class="docutils literal notranslate"><span class="pre">kspace</span></code> has none.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor or tuple of torch.Tensor</p>

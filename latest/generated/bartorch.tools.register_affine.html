@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,7 +548,8 @@
 <dt class="sig sig-object py" id="bartorch.tools.register_affine">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">register_affine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.register_affine" title="Link to this definition">#</a></dt>
 <dd><p>Affine transform that maps <code class="docutils literal notranslate"><span class="pre">reference</span></code> onto <code class="docutils literal notranslate"><span class="pre">moved</span></code>, by mutual information.</p>
-<p>Registers magnitudes over a three-level Gaussian pyramid.</p>
+<p>Magnitudes are registered over a three-level Gaussian pyramid.  BART’s
+<code class="docutils literal notranslate"><span class="pre">affinereg</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -571,15 +570,17 @@ translation, or all.</p></li>
 and columns are the last <code class="docutils literal notranslate"><span class="pre">k</span></code> axes in C order.  It maps a position in
 <code class="docutils literal notranslate"><span class="pre">reference</span></code> to the position in <code class="docutils literal notranslate"><span class="pre">moved</span></code> that lands there,
 <code class="docutils literal notranslate"><span class="pre">p_moved</span> <span class="pre">=</span> <span class="pre">A</span> <span class="pre">&#64;</span> <span class="pre">p_ref</span> <span class="pre">+</span> <span class="pre">t</span></code>, each in its own grid’s field-of-view
-units <code class="docutils literal notranslate"><span class="pre">(index</span> <span class="pre">-</span> <span class="pre">n</span> <span class="pre">//</span> <span class="pre">2)</span> <span class="pre">/</span> <span class="pre">n</span></code> (<code class="docutils literal notranslate"><span class="pre">motion/affine.c:152-171</span></code>,
-<code class="docutils literal notranslate"><span class="pre">:428-465</span></code>): content of <code class="docutils literal notranslate"><span class="pre">moved</span></code> displaced by <code class="docutils literal notranslate"><span class="pre">d</span></code> voxels along
-the last axis gives <code class="docutils literal notranslate"><span class="pre">t[-1]</span> <span class="pre">=</span> <span class="pre">d</span> <span class="pre">/</span> <span class="pre">n</span></code>.  This is the convention
-<a class="reference internal" href="bartorch.tools.affine_transform.html#bartorch.tools.affine_transform" title="bartorch.tools.affine_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.affine_transform()</span></code></a> takes:
+units <code class="docutils literal notranslate"><span class="pre">(index</span> <span class="pre">-</span> <span class="pre">n</span> <span class="pre">//</span> <span class="pre">2)</span> <span class="pre">/</span> <span class="pre">n</span></code>: content of <code class="docutils literal notranslate"><span class="pre">moved</span></code> displaced by
+<code class="docutils literal notranslate"><span class="pre">d</span></code> voxels along the last axis gives <code class="docutils literal notranslate"><span class="pre">t[-1]</span> <span class="pre">=</span> <span class="pre">d</span> <span class="pre">/</span> <span class="pre">n</span></code>.
 <code class="docutils literal notranslate"><span class="pre">affine_transform(moved,</span> <span class="pre">matrix,</span> <span class="pre">axes=tuple(range(-k,</span> <span class="pre">0)))</span></code>
 resamples <code class="docutils literal notranslate"><span class="pre">moved</span></code> onto <code class="docutils literal notranslate"><span class="pre">reference</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">transform</span></code> is unknown, an image has a leading axis above one, or
+    only one mask is given or a mask’s shape differs from its image’s.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -551,12 +549,12 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">Conj</span></span><a class="headerlink" href="#bartorch.linop.Conj" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
 <p>Complex conjugation, BART’s <code class="docutils literal notranslate"><span class="pre">linop_zconj</span></code>.</p>
-<p>Conjugation is not linear over the complex numbers, being conjugate
-linear, so this is the operator BART offers under that name.  <code class="docutils literal notranslate"><span class="pre">A.conj()</span></code>
-and <code class="docutils literal notranslate"><span class="pre">A.T</span></code> are built from it rather than from a rule of their own.</p>
+<p>Conjugation is antilinear: linear over the reals, not over the complex
+numbers, so the operator fails a complex dot test on its own.
+<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.conj" title="bartorch.linop.LinearOperator.conj"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LinearOperator.conj()</span></code></a> and <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.T" title="bartorch.linop.LinearOperator.T"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LinearOperator.T</span></code></a> are built from it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The shape it maps to itself, C order.</p>
+<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain and codomain, C order.</p>
 </dd>
 </dl>
 </dd></dl>

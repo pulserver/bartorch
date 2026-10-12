@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**23:58.401** total execution time for 27 files **from all galleries**:
+**27:09.249** total execution time for 27 files **from all galleries**:
 
 .. container::
 
@@ -33,83 +33,83 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py` (``examples/09-learning-workflows/01-networks-for-complex-volumes.py``)
-     - 09:47.034
+     - 08:45.264
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_02-modl-with-admm.py` (``examples/06-learning/02-modl-with-admm.py``)
-     - 03:55.805
+     - 05:03.535
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_03-self-supervised-training.py` (``examples/09-learning-workflows/03-self-supervised-training.py``)
-     - 03:06.110
+     - 04:07.271
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_02-staged-training.py` (``examples/09-learning-workflows/02-staged-training.py``)
-     - 01:52.959
+     - 02:31.474
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_05-uncertainty.py` (``examples/09-learning-workflows/05-uncertainty.py``)
-     - 01:19.472
+     - 01:38.840
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_01-plug-and-play.py` (``examples/06-learning/01-plug-and-play.py``)
-     - 00:40.828
+     - 00:51.929
      - 0.0
    * - :ref:`sphx_glr_auto_examples_08-workflows_03-maps-from-scanner-images.py` (``examples/08-workflows/03-maps-from-scanner-images.py``)
-     - 00:40.022
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py` (``examples/09-learning-workflows/04-annealed-plug-and-play.py``)
-     - 00:34.532
+     - 00:49.866
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05-model-based_01-quantitative-models.py` (``examples/05-model-based/01-quantitative-models.py``)
-     - 00:31.762
+     - 00:47.006
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py` (``examples/09-learning-workflows/04-annealed-plug-and-play.py``)
+     - 00:44.302
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-regularization_01-regularized-reconstruction.py` (``examples/03-regularization/01-regularized-reconstruction.py``)
-     - 00:14.391
+     - 00:17.791
      - 0.0
    * - :ref:`sphx_glr_auto_examples_08-workflows_02-subspace-t1-mapping.py` (``examples/08-workflows/02-subspace-t1-mapping.py``)
-     - 00:12.275
+     - 00:15.041
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-non-cartesian_02-radial-sense.py` (``examples/04-non-cartesian/02-radial-sense.py``)
-     - 00:06.927
+     - 00:08.778
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py` (``examples/02-parallel-imaging/02-nonlinear-inversion.py``)
-     - 00:06.355
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_01-coil-calibration.py` (``examples/02-parallel-imaging/01-coil-calibration.py``)
-     - 00:05.982
+     - 00:07.420
      - 0.0
    * - :ref:`sphx_glr_auto_examples_08-workflows_01-dynamic-golden-angle.py` (``examples/08-workflows/01-dynamic-golden-angle.py``)
-     - 00:05.736
+     - 00:07.254
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_01-basics_02-from-kspace-to-image.py` (``examples/01-basics/02-from-kspace-to-image.py``)
-     - 00:05.312
+   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_01-coil-calibration.py` (``examples/02-parallel-imaging/01-coil-calibration.py``)
+     - 00:07.138
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-regularization_02-operators-and-solvers.py` (``examples/03-regularization/02-operators-and-solvers.py``)
-     - 00:05.109
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``examples/07-tours/07-epi-susceptibility-distortion.py``)
-     - 00:05.041
+     - 00:06.381
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_06-navigator-motion.py` (``examples/07-tours/06-navigator-motion.py``)
-     - 00:04.683
+     - 00:06.356
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_05-spiral-deblurring.py` (``examples/07-tours/05-spiral-deblurring.py``)
-     - 00:04.227
+   * - :ref:`sphx_glr_auto_examples_01-basics_02-from-kspace-to-image.py` (``examples/01-basics/02-from-kspace-to-image.py``)
+     - 00:06.345
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_08-noise-prewhitening.py` (``examples/07-tours/08-noise-prewhitening.py``)
-     - 00:04.058
+     - 00:04.971
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_05-spiral-deblurring.py` (``examples/07-tours/05-spiral-deblurring.py``)
+     - 00:04.880
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_03-bias-field.py` (``examples/07-tours/03-bias-field.py``)
-     - 00:03.486
+     - 00:04.671
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``examples/07-tours/07-epi-susceptibility-distortion.py``)
+     - 00:04.079
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py` (``examples/07-tours/02-epi-ghost-and-ramp-sampling.py``)
-     - 00:02.160
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py` (``examples/04-non-cartesian/01-trajectories-and-transforms.py``)
-     - 00:01.214
+     - 00:02.878
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_04-gradient-nonlinearity.py` (``examples/07-tours/04-gradient-nonlinearity.py``)
-     - 00:01.112
+     - 00:01.636
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py` (``examples/04-non-cartesian/01-trajectories-and-transforms.py``)
+     - 00:01.632
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_01-tensors-and-commands.py` (``examples/01-basics/01-tensors-and-commands.py``)
-     - 00:00.987
+     - 00:01.288
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_01-readout-oversampling-and-apodization.py` (``examples/07-tours/01-readout-oversampling-and-apodization.py``)
-     - 00:00.822
+     - 00:01.221
      - 0.0

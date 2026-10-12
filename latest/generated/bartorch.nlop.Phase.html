@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,12 +547,21 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.nlop.Phase">
 <span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">Phase</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.Phase" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">/</span> <span class="pre">|x|</span></code>, elementwise: BART’s <code class="docutils literal notranslate"><span class="pre">zphsr</span></code>, built out of its two pieces.</p>
-<p>BART’s own <code class="docutils literal notranslate"><span class="pre">nlop_zphsr_create</span></code> chains <code class="docutils literal notranslate"><span class="pre">zabs</span></code> into <code class="docutils literal notranslate"><span class="pre">zdiv</span></code> and then
-calls <code class="docutils literal notranslate"><span class="pre">nlop_dup(x,</span> <span class="pre">0,</span> <span class="pre">0)</span></code>, which trips its own <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&lt;</span> <span class="pre">b</span></code> assertion, so
-the constructor aborts and cannot be used.  The same operator is these two
-pieces put together with the indices the algebra checks: the absolute
-value into the divisor, then the two inputs made one.</p>
+<dd><p>Elementwise <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">/</span> <span class="pre">|x|</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">zphsr</span></code>.</p>
+<p>Built as <a class="reference internal" href="bartorch.nlop.Abs.html#bartorch.nlop.Abs" title="bartorch.nlop.Abs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Abs</span></code></a> chained into the divisor of <a class="reference internal" href="bartorch.nlop.Divide.html#bartorch.nlop.Divide" title="bartorch.nlop.Divide"><code class="xref py py-class docutils literal notranslate"><span class="pre">Divide</span></code></a>, with
+the two inputs tied: BART’s <code class="docutils literal notranslate"><span class="pre">nlop_zphsr_create</span></code> calls
+<code class="docutils literal notranslate"><span class="pre">nlop_dup(x,</span> <span class="pre">0,</span> <span class="pre">0)</span></code>, which fails BART’s own <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&lt;</span> <span class="pre">b</span></code> assertion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain and codomain, C order.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One input and one output of <code class="docutils literal notranslate"><span class="pre">shape</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator">NonlinearOperator</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

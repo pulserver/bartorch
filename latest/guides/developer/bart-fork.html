@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The BART fork &#8212; bartorch</title>
+    <title>BART fork &#8212; bartorch</title>
   
   
   
@@ -198,20 +198,18 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Development workflow</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">The BART fork</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -524,7 +522,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>The BART fork</h1>
+    <h1>BART fork</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -535,8 +533,8 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#branches">Branches</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-belongs-in-the-fork">What belongs in the fork</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#syncing-with-codeberg">Syncing with Codeberg</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#patch-scope">Patch scope</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synchronisation-with-codeberg">Synchronisation with Codeberg</a></li>
 </ul>
             </nav>
         </div>
@@ -548,8 +546,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="the-bart-fork">
-<h1>The BART fork<a class="headerlink" href="#the-bart-fork" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="bart-fork">
+<h1>BART fork<a class="headerlink" href="#bart-fork" title="Link to this heading">#</a></h1>
 <p>BART is developed at <a class="reference external" href="https://codeberg.org/mrirecon/bart">codeberg.org/mrirecon/bart</a>,
 which is the canonical upstream; the GitHub repository <code class="docutils literal notranslate"><span class="pre">mrirecon/bart</span></code> is an
 archived mirror and is not used.  bartorch builds BART from
@@ -590,8 +588,8 @@ git<span class="w"> </span>fetch<span class="w"> </span>upstream<span class="w">
 </pre></div>
 </div>
 </section>
-<section id="what-belongs-in-the-fork">
-<h2>What belongs in the fork<a class="headerlink" href="#what-belongs-in-the-fork" title="Link to this heading">#</a></h2>
+<section id="patch-scope">
+<h2>Patch scope<a class="headerlink" href="#patch-scope" title="Link to this heading">#</a></h2>
 <p>A downstream patch is a generic change to BART: a portability fix, or a hook
 that lets BART be embedded in or extended by another program.  Each patch is
 one commit, or a short series, that is understandable on its own and carries
@@ -603,8 +601,8 @@ FINUFFT, cuFINUFFT and cuFFTDx substitutions, the FFT and BLAS/LAPACK tables,
 and everything that refers to PyTorch or Python.  These are compiled in place
 of BART’s translation units, as <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> lists, not written into the fork.</p>
 </section>
-<section id="syncing-with-codeberg">
-<h2>Syncing with Codeberg<a class="headerlink" href="#syncing-with-codeberg" title="Link to this heading">#</a></h2>
+<section id="synchronisation-with-codeberg">
+<h2>Synchronisation with Codeberg<a class="headerlink" href="#synchronisation-with-codeberg" title="Link to this heading">#</a></h2>
 <p>The fork’s <em>Upstream sync</em> workflow fast-forwards <code class="docutils literal notranslate"><span class="pre">master</span></code> to Codeberg’s
 <code class="docutils literal notranslate"><span class="pre">master</span></code> every week and carries over Codeberg’s new tags; it forces no ref and
 never touches <code class="docutils literal notranslate"><span class="pre">downstream</span></code>.  When <code class="docutils literal notranslate"><span class="pre">downstream</span></code> no longer contains <code class="docutils literal notranslate"><span class="pre">master</span></code>, it
@@ -672,8 +670,8 @@ rebase changes what bartorch builds; the submodule is then moved as
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#branches">Branches</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-belongs-in-the-fork">What belongs in the fork</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#syncing-with-codeberg">Syncing with Codeberg</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#patch-scope">Patch scope</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synchronisation-with-codeberg">Synchronisation with Codeberg</a></li>
 </ul>
   </nav></div>
 

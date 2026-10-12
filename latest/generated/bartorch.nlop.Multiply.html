@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,19 +548,21 @@
 <dt class="sig sig-object py" id="bartorch.nlop.Multiply">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">Multiply</span></span><a class="headerlink" href="#bartorch.nlop.Multiply" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a></p>
-<p>The pointwise product of two inputs, broadcast where either is one.</p>
-<p>BART’s <code class="docutils literal notranslate"><span class="pre">tenmul</span></code>.  This is the operator every multi-argument model is
-built out of: <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>’s is an image of <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">X,</span> <span class="pre">Y)</span></code> times coil profiles
-of <code class="docutils literal notranslate"><span class="pre">(C,</span> <span class="pre">X,</span> <span class="pre">Y)</span></code>, and the derivative by either input is a multiplication
-by the other.</p>
+<p>Pointwise product of two inputs, BART’s <code class="docutils literal notranslate"><span class="pre">tenmul</span></code>.</p>
+<p>The derivative by either input is multiplication by the other.  <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>’s
+model is this product of an image <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> and coil profiles
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>a</strong> (<em>tuple</em><em> of </em><em>int</em>) – The shape of each input, C order, of the same rank.  They broadcast
-the way torch’s do.</p></li>
-<li><p><strong>b</strong> (<em>tuple</em><em> of </em><em>int</em>) – The shape of each input, C order, of the same rank.  They broadcast
-the way torch’s do.</p></li>
+<li><p><strong>a</strong> (<em>tuple</em><em> of </em><em>int</em>) – Shapes of the two inputs, C order and of equal rank; axes of size one
+broadcast.</p></li>
+<li><p><strong>b</strong> (<em>tuple</em><em> of </em><em>int</em>) – Shapes of the two inputs, C order and of equal rank; axes of size one
+broadcast.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the ranks differ or an axis does not broadcast.</p>
 </dd>
 </dl>
 </dd></dl>

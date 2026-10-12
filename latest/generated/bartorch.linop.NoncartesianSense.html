@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -554,77 +552,73 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">NoncartesianSense</span></span><a class="headerlink" href="#bartorch.linop.NoncartesianSense" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
 <p>Non-Cartesian SENSE encoding operator.</p>
-<p>The forward model is</p>
 <div class="math notranslate nohighlight">
 \[A = W \, \mathrm{NUFFT} \, S\]</div>
-<p>with <span class="math notranslate nohighlight">\(S\)</span> multiplication by the coil sensitivities,
-<span class="math notranslate nohighlight">\(\mathrm{NUFFT}\)</span> the type-2 non-uniform Fourier transform along
-<code class="docutils literal notranslate"><span class="pre">traj</span></code>, and <span class="math notranslate nohighlight">\(W\)</span> the diagonal density weighting given by
-<code class="docutils literal notranslate"><span class="pre">weights</span></code>, the identity when none is given.  The transform carries the
-weighting itself, applying it on the forward pass and its conjugate on the
-adjoint, because the Toeplitz normal is built over it.</p>
-<p>With a temporal basis the optimization variable holds subspace
-coefficients, which the basis maps to the acquired frames on the k-space
-side of the transform, as for <a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a>.</p>
-<p>Coils are processed <code class="docutils literal notranslate"><span class="pre">coil_batch</span></code> at a time, so memory held – including
-the doubled grid the Toeplitz normal convolves on – scales with
-<code class="docutils literal notranslate"><span class="pre">coil_batch</span></code> rather than with the number of coils.</p>
-<p>For Cartesian sampling use <a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a>, which is
-this operator over an FFT.</p>
+<p>with <span class="math notranslate nohighlight">\(S\)</span> the coil sensitivities, <span class="math notranslate nohighlight">\(\mathrm{NUFFT}\)</span> the type-2
+non-uniform Fourier transform along <code class="docutils literal notranslate"><span class="pre">traj</span></code> (as <a class="reference internal" href="bartorch.linop.NUFFT.html#bartorch.linop.NUFFT" title="bartorch.linop.NUFFT"><code class="xref py py-class docutils literal notranslate"><span class="pre">NUFFT</span></code></a>) and
+<span class="math notranslate nohighlight">\(W\)</span> the k-space weighting <code class="docutils literal notranslate"><span class="pre">weights</span></code>, conjugated on the adjoint.
+With a subspace basis the image holds coefficients, which the basis maps
+to frames on the k-space side of the transform.  Coils are processed
+<code class="docutils literal notranslate"><span class="pre">coil_batch</span></code> at a time, so memory, including the doubled grid of the
+Toeplitz normal, scales with <code class="docutils literal notranslate"><span class="pre">coil_batch</span></code> rather than the coil count.
+Without <code class="docutils literal notranslate"><span class="pre">traj</span></code> the transform is the centred unitary FFT, which is
+<a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a>’s form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sensitivities</strong> (<em>tensor</em>) – Coil sensitivities <code class="docutils literal notranslate"><span class="pre">([batch,</span> <span class="pre">sets,]</span> <span class="pre">coils,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or their
-k-space kernels with <code class="docutils literal notranslate"><span class="pre">kernels=True</span></code>.  The image carries the sets and
-the samples do not, so several sets encode as
-<code class="docutils literal notranslate"><span class="pre">y[c]</span> <span class="pre">=</span> <span class="pre">sum_m</span> <span class="pre">S[m,</span> <span class="pre">c]</span> <span class="pre">x[m]</span></code>; a batch is carried by both.</p></li>
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">[sets,]</span> <span class="pre">*encoding,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>: the
-batches, then the axis the sensitivities vary along and their sets,
-then the trajectory’s encoding axes – with a basis, its coefficients
-in place of the last – then the spatial axes.</p></li>
-<li><p><strong>traj</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples,</span> <span class="pre">ndim)</span></code> in grid units,
-<code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky</span></code> or <code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky,</span> <span class="pre">kz</span></code>, as <a class="reference internal" href="bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> produces.
-It carries no batch axis, being shared across the batch.</p></li>
-<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape; by default <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">coils,</span> <span class="pre">*encoding,</span> <span class="pre">shots,</span>
-<span class="pre">samples)</span></code>, and on a grid <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">coils,</span> <span class="pre">*encoding,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
-<li><p><strong>kernels</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Read <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> as k-space kernels rather than maps.  The
-operator then applies the maps band-limited to the kernel;
-<a class="reference internal" href="bartorch.maps_to_kernels.html#bartorch.maps_to_kernels" title="bartorch.maps_to_kernels"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.maps_to_kernels()</span></code></a> and <a class="reference internal" href="bartorch.kernels_to_maps.html#bartorch.kernels_to_maps" title="bartorch.kernels_to_maps"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.kernels_to_maps()</span></code></a>
-convert between the two.</p></li>
-<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the normal in closed form rather than as the forward and
-adjoint applications: a convolution with a point spread function.</p></li>
-<li><p><strong>modulated</strong> (<em>bool</em><em>, </em><em>default=False</em>) – On a grid, answer in BART’s uncentred sample convention rather than the
-centred one.  The two differ by an <code class="docutils literal notranslate"><span class="pre">fftmod</span></code> on the sample axes; the
-centred convention is the default and is the one <a class="reference internal" href="bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fft()</span></code></a>
-produces.  Rejected off a grid, where there is only one convention, and
-with <code class="docutils literal notranslate"><span class="pre">kernels</span></code>, the modulation belonging to the whole grid.</p></li>
-<li><p><strong>weights</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Diagonal in k-space, broadcast over <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples)</span></code>,
-applied on the forward pass and conjugated on the adjoint.</p></li>
+<li><p><strong>sensitivities</strong> (<em>tensor</em>) – Coil sensitivities <code class="docutils literal notranslate"><span class="pre">([batch,</span> <span class="pre">sets,]</span> <span class="pre">coils,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or k-space
+kernels with <code class="docutils literal notranslate"><span class="pre">kernels=True</span></code>.  The image carries <code class="docutils literal notranslate"><span class="pre">sets</span></code>, summed as
+<code class="docutils literal notranslate"><span class="pre">y[c]</span> <span class="pre">=</span> <span class="pre">sum_m</span> <span class="pre">S[m,</span> <span class="pre">c]</span> <span class="pre">x[m]</span></code>; both image and samples carry <code class="docutils literal notranslate"><span class="pre">batch</span></code>,
+which is written with its sets axis even for one set.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">[sets,]</span> <span class="pre">*encoding,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>; with a basis,
+the last encoding axis holds the coefficients.</p></li>
+<li><p><strong>traj</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples,</span> <span class="pre">ndim)</span></code> in grid units
+(<code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky[,</span> <span class="pre">kz]</span></code>), as <a class="reference internal" href="bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> returns, shared
+across all batch axes.  Required unless built through
+<a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a>.</p></li>
+<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape, which must be <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">coils,</span> <span class="pre">*encoding,</span>
+<span class="pre">shots,</span> <span class="pre">samples)</span></code>, or <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">coils,</span> <span class="pre">*encoding,</span> <span class="pre">[z,]</span> <span class="pre">y,</span>
+<span class="pre">x)</span></code> on a grid; <code class="docutils literal notranslate"><span class="pre">None</span></code> takes it.</p></li>
+<li><p><strong>kernels</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Read <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> as k-space kernels; the maps applied are then
+band-limited to the kernel support.  See <a class="reference internal" href="bartorch.maps_to_kernels.html#bartorch.maps_to_kernels" title="bartorch.maps_to_kernels"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.maps_to_kernels()</span></code></a>
+and <a class="reference internal" href="bartorch.kernels_to_maps.html#bartorch.kernels_to_maps" title="bartorch.kernels_to_maps"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.kernels_to_maps()</span></code></a>.</p></li>
+<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the normal as a convolution with a point spread function rather
+than as the forward and adjoint transforms.</p></li>
+<li><p><strong>modulated</strong> (<em>bool</em><em>, </em><em>default=False</em>) – On a grid, use BART’s uncentred sample convention (an <code class="docutils literal notranslate"><span class="pre">fftmod</span></code> on
+the sample axes) instead of the centred one <a class="reference internal" href="bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fft()</span></code></a>
+produces.  Rejected with <code class="docutils literal notranslate"><span class="pre">traj</span></code> and with <code class="docutils literal notranslate"><span class="pre">kernels</span></code>.</p></li>
+<li><p><strong>weights</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – k-space weighting, broadcast over <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples)</span></code>.</p></li>
 <li><p><strong>basis</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Temporal subspace basis <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code> over the last encoding
 axis.</p></li>
-<li><p><strong>device</strong> (<em>device</em><em>, </em><em>default=None</em>) – Where the operator is built and does its arithmetic; by default where
-the trajectory is, or the sensitivities on a grid.</p></li>
-<li><p><strong>coil_batch</strong> (<em>int</em><em>, </em><em>default=1</em>) – Coils applied at once; 0 applies every coil together.  A batch that
-does not divide the coils is reduced to one that does.  It changes
-residency and speed, not the result.</p></li>
-<li><p><strong>fold_maps</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the sensitivities inside the normal’s transform, saving two coil
-images per slab.  Takes effect only where the transform works one
-coefficient at a time.</p></li>
-<li><p><strong>ndim</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of spatial axes, where the sensitivities and the image do not
-determine it; off a grid the trajectory does.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Device the operator is built and computes on; <code class="docutils literal notranslate"><span class="pre">None</span></code> takes the
+trajectory’s, or the sensitivities’ on a grid.</p></li>
+<li><p><strong>coil_batch</strong> (<em>int</em><em>, </em><em>default=1</em>) – Coils per slab; 0 applies all coils at once as BART’s own chain, which
+is refused with encoding axes.  A value that does not divide the coil
+count is reduced to the largest divisor of the coil count below it.  Changes memory and
+speed, not the result.</p></li>
+<li><p><strong>fold_maps</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the sensitivities inside the normal’s transform where it works
+one coefficient at a time, saving two coil images per slab.</p></li>
+<li><p><strong>ndim</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of spatial axes (2 or 3) where the trajectory, the
+sensitivities and the image do not determine it.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When the arguments are inconsistent with each other or with the
+    layouts above.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>A trajectory lying on the image’s own z grid – <code class="docutils literal notranslate"><span class="pre">z</span></code> blocks of shots at
-<code class="docutils literal notranslate"><span class="pre">kz</span> <span class="pre">=</span> <span class="pre">j</span> <span class="pre">-</span> <span class="pre">z</span> <span class="pre">//</span> <span class="pre">2</span></code>, each with the same in-plane trajectory and weights –
-is applied as an FFT along z over two-dimensional transforms, given
-<code class="docutils literal notranslate"><span class="pre">coil_batch=1</span></code> and one set; <code class="docutils literal notranslate"><span class="pre">plan.cartesian</span></code> reports it.  Encoding axes
-the image also carries become items, each with its own trajectory and
-normal kernel under one coil loop, which <code class="docutils literal notranslate"><span class="pre">plan.items</span></code> reports.</p>
-<p>With the operator on a card its operands may stay on the host: the image
-crosses once each way per application, the samples and a kernel bank a slab
-at a time, and between applications the card holds the operator alone.</p>
+<p>A stack of shots on the image’s z grid – blocks at whole
+<code class="docutils literal notranslate"><span class="pre">kz</span> <span class="pre">=</span> <span class="pre">j</span> <span class="pre">-</span> <span class="pre">z</span> <span class="pre">//</span> <span class="pre">2</span></code> with the same in-plane trajectory and weights – is
+applied as an FFT along z over two-dimensional transforms when
+<code class="docutils literal notranslate"><span class="pre">coil_batch=1</span></code> and there is one set; <code class="docutils literal notranslate"><span class="pre">plan.cartesian</span></code> reports it.
+Encoding axes the image also carries (no basis contracting them) become
+items, each with its own transform and normal kernel under one coil loop;
+<code class="docutils literal notranslate"><span class="pre">plan.items</span></code> reports them.</p>
+<p>With the operator on a card, image, samples and sensitivities may stay on
+the host: the image crosses once each way per application, the samples
+and sensitivities a slab at a time, and between applications the card
+holds only the operator.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span> <span class="o">=</span> <span class="n">bartorch</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">traj</span><span class="p">(</span><span class="n">readout</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">spokes</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">radial</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">golden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">NoncartesianSense</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="n">traj</span><span class="o">=</span><span class="n">traj</span><span class="p">)</span>        <span class="c1"># maps (4, 64, 64)</span>

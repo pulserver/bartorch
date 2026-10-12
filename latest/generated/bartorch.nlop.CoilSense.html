@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,34 +547,34 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.nlop.CoilSense">
 <span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">CoilSense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.CoilSense" title="Link to this definition">#</a></dt>
-<dd><p>Product of an image and unknown coil sensitivities, through any encoding.</p>
-<p>The general construction rather than BART’s particular model: a product of
-two unknowns in front of any linear operator from coil images to data – a
-wave encoding, a field-corrected one, a subspace one, or one of your own:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_chain</span><span class="p">(</span><span class="n">Multiply</span><span class="p">(</span><span class="n">image_shape</span><span class="p">,</span> <span class="n">coil_shape</span><span class="p">),</span> <span class="n">encoding</span><span class="o">.</span><span class="n">to_nonlinear</span><span class="p">())</span>
-</pre></div>
-</div>
-<p>Unlike <a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a> there is no Sobolev weighting on the coils:
-the sensitivities themselves are the unknown, and nothing constrains them
-to be smooth.  Regularize them by chaining a smoothing operator onto the
-coil input, or use <a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a>, which carries BART’s.</p>
+<dd><p>Product of an image and unknown coil sensitivities before a linear encoding.</p>
+<p>The model <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">E(x</span> <span class="pre">*</span> <span class="pre">s)</span></code> with image <code class="docutils literal notranslate"><span class="pre">x</span></code> and sensitivities <code class="docutils literal notranslate"><span class="pre">s</span></code> both
+unknown, for any linear <code class="docutils literal notranslate"><span class="pre">E</span></code> from coil images to data: a wave encoding,
+a field-corrected or subspace encoding, or any other.  Unlike
+<a class="reference internal" href="bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a> the sensitivities themselves are the unknown, with
+no Sobolev weighting; smoothness is imposed by chaining a smoothing
+operator onto the coil input, if at all.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>encoding</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – From coil images to data.  Its domain is the coil-image shape.</p></li>
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Where the image lives; by default the encoding’s domain with one coil.</p></li>
-<li><p><strong>coil_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Where the sensitivities live; by default the encoding’s domain.</p></li>
+<li><p><strong>encoding</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding from coil images, its domain, to data.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Image shape; the encoding’s domain with one coil.</p></li>
+<li><p><strong>coil_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sensitivity shape; the encoding’s domain.</p></li>
 <li><p><strong>items</strong> (<em>bool</em><em>, </em><em>default=False</em>) – The encoding’s leading axis holds independent items, each with its own
-image and coils; the coils are the next axis.  A Gauss-Newton step then
-applies the model to every item at once and solves each item’s inner
-problem on its own.</p></li>
+image and coils, and the coil axis is the next one.  A Gauss-Newton
+step applies the model to all items at once and solves each item’s
+inner problem on its own.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Two inputs, the image and the coils, and one output, the data.</p>
+<dd class="field-even"><p>Inputs: image, sensitivities.  Output: data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator">NonlinearOperator</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">items</span></code> is set and the image, coil and encoding shapes do not
+    share their leading size.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

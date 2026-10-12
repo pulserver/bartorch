@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -566,11 +564,9 @@ reach the edge of the image’s grid.</p>
 those of <code class="docutils literal notranslate"><span class="pre">field_map</span></code>.</p></li>
 <li><p><strong>field_map</strong> (<em>torch.Tensor</em>) – Off-resonance frequency at each voxel, in Hz, <code class="docutils literal notranslate"><span class="pre">(*spatial)</span></code>.</p></li>
 <li><p><strong>transfer</strong> (<a class="reference internal" href="bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer" title="bartorch.tools.SpiralTransfer"><em>SpiralTransfer</em></a>) – Factorization from <a class="reference internal" href="bartorch.tools.fit_transfer.html#bartorch.tools.fit_transfer" title="bartorch.tools.fit_transfer"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_transfer()</span></code></a>.</p></li>
-<li><p><strong>backend</strong> (<em>{&quot;auto&quot;</em><em>, </em><em>&quot;fft&quot;</em><em>, </em><em>&quot;conv&quot;}</em><em>, </em><em>default='auto'</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;fft&quot;</span></code> applies each term as a k-space multiply; <code class="docutils literal notranslate"><span class="pre">&quot;conv&quot;</span></code>, for a
-separable <code class="docutils literal notranslate"><span class="pre">transfer</span></code> and a CUDA image with Triton installed, as a
-separable circular convolution truncated to the taps holding all but
-1e-5 of the kernel’s energy per axis; <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> chooses <code class="docutils literal notranslate"><span class="pre">&quot;conv&quot;</span></code>
-where it applies and Triton is importable, and <code class="docutils literal notranslate"><span class="pre">&quot;fft&quot;</span></code> otherwise.</p></li>
+<li><p><strong>backend</strong> (<em>{&quot;auto&quot;</em><em>, </em><em>&quot;fft&quot;</em><em>, </em><em>&quot;conv&quot;}</em><em>, </em><em>default='auto'</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;fft&quot;</span></code>: each term a k-space multiply.  <code class="docutils literal notranslate"><span class="pre">&quot;conv&quot;</span></code>: a separable
+circular convolution, for a separable <code class="docutils literal notranslate"><span class="pre">transfer</span></code> and a CUDA image
+with Triton installed.  <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;conv&quot;</span></code> where it applies.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -585,8 +581,10 @@ where it applies and Triton is importable, and <code class="docutils literal not
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Peak memory is one accumulator and one working volume, and for MFI one
-real volume of readout times, independent of the number of terms.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&quot;conv&quot;</span></code> kernels are truncated, per axis, to the taps holding all
+but 1e-5 of their energy.  Peak memory is one accumulator and one working
+volume, and for MFI one real volume of readout times, independent of the
+number of terms.</p>
 </dd></dl>
 
 <section id="examples-using-deblur">

@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.priors.Wavelet';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,15 +550,17 @@
 <dt class="sig sig-object py" id="bartorch.priors.Wavelet">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.priors.</span></span><span class="sig-name descname"><span class="pre">Wavelet</span></span><a class="headerlink" href="#bartorch.priors.Wavelet" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Regularizer</span></code></a></p>
-<p>l1 norm of the wavelet transform over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p>
+<p><span class="math notranslate nohighlight">\(\ell_1\)</span> norm of the wavelet coefficients (BART’s <code class="docutils literal notranslate"><span class="pre">W</span></code>).</p>
+<p><span class="math notranslate nohighlight">\(\lambda \| \Psi x \|_1\)</span>.  The wavelet transform <span class="math notranslate nohighlight">\(\Psi\)</span> is
+inside the proximal operator, so <span class="math notranslate nohighlight">\(G\)</span> is the identity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes to transform, as indices into the image’s shape.</p></li>
-<li><p><strong>weight</strong> (<em>float</em>)</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
 <li><p><strong>joint_axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>)</em>) – Axes along which a coefficient is kept or zeroed together.</p></li>
 <li><p><strong>family</strong> (<em>{'haar'</em><em>, </em><em>'dau2'</em><em>, </em><em>'cdf44'}</em><em>, </em><em>default='dau2'</em>) – Wavelet family.</p></li>
-<li><p><strong>randshift</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Cycle-spin the transform by a random shift between solves.</p></li>
+<li><p><strong>randshift</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Cycle-spin the transform by a random shift at each application.</p></li>
 </ul>
 </dd>
 </dl>

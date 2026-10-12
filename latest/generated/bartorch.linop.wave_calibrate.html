@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,25 +548,21 @@
 <dt class="sig sig-object py" id="bartorch.linop.wave_calibrate">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">wave_calibrate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.wave_calibrate" title="Link to this definition">#</a></dt>
 <dd><p>Fit the wave’s gradient amplitude and delay to a wave-free calibration region.</p>
-<p>The reference is the calibration region acquired without the wave; the
-wave-encoded samples it predicts are the reference transformed to hybrid
-space along the phase encodes, multiplied by <a class="reference internal" href="bartorch.linop.wave_psf.html#bartorch.linop.wave_psf" title="bartorch.linop.wave_psf"><code class="xref py py-func docutils literal notranslate"><span class="pre">wave_psf()</span></code></a> and
-transformed back, all on the grid the samples are given on.  The scale and
-delay of each axis are fitted by nonlinear least squares from 1 and 0,
-comparing on the lines acquired with the wave whose neighbourhood, as far
-as the wave’s largest excursion in lines reaches along each axis, lies
-inside the calibration region.  The k-space outside that region, which the
-reference does not have, is taken as negligible there.</p>
+<p>The model predicts the wave-encoded samples from the reference: inverse
+FFT along the phase encodes, multiplication by <a class="reference internal" href="bartorch.linop.wave_psf.html#bartorch.linop.wave_psf" title="bartorch.linop.wave_psf"><code class="xref py py-func docutils literal notranslate"><span class="pre">wave_psf()</span></code></a>, and FFT
+back.  Per phase-encode axis, scale and delay are fitted by nonlinear
+least squares (<code class="docutils literal notranslate"><span class="pre">scipy.optimize.least_squares</span></code>) starting from 1 and 0.
+The residual is taken on the acquired wave lines whose neighbourhood,
+within the wave’s largest excursion in lines, lies inside the calibration
+region; k-space outside the region is neglected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>reference</strong> (<em>array_like</em>) – Wave-free k-space <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">[kz,]</span> <span class="pre">ky,</span> <span class="pre">readout)</span></code>, zero outside the
-calibration region; the readout is the ADC’s samples in acquisition
-order, as for <code class="docutils literal notranslate"><span class="pre">wave</span></code>.</p></li>
+calibration region, with the readout in acquisition order.</p></li>
 <li><p><strong>wave</strong> (<em>array_like</em>) – Wave-encoded k-space on the same grid, zero where not acquired.</p></li>
-<li><p><strong>trajectory</strong> (<em>array_like</em>) – The nominal wave trajectory, as for <a class="reference internal" href="bartorch.linop.wave_psf.html#bartorch.linop.wave_psf" title="bartorch.linop.wave_psf"><code class="xref py py-func docutils literal notranslate"><span class="pre">wave_psf()</span></code></a>.</p></li>
-<li><p><strong>fov</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Field of view along the phase encodes in metres, one value or
-<code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code>.</p></li>
+<li><p><strong>trajectory</strong> (<em>array_like</em>) – Nominal wave trajectory, as for <a class="reference internal" href="bartorch.linop.wave_psf.html#bartorch.linop.wave_psf" title="bartorch.linop.wave_psf"><code class="xref py py-func docutils literal notranslate"><span class="pre">wave_psf()</span></code></a>.</p></li>
+<li><p><strong>fov</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Field of view along the phase encodes in m, one value or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -580,8 +574,8 @@ relative to nominal and the delay in readout samples, as
 <dd class="field-odd"><p>tuple of float</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – When no acquired line has its neighbourhood inside the calibration
-    region.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – When the shapes disagree, or no acquired line has its neighbourhood
+    inside the calibration region.</p>
 </dd>
 </dl>
 </dd></dl>

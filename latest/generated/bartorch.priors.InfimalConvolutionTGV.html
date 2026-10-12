@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -552,36 +550,37 @@
 <dt class="sig sig-object py" id="bartorch.priors.InfimalConvolutionTGV">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.priors.</span></span><span class="sig-name descname"><span class="pre">InfimalConvolutionTGV</span></span><a class="headerlink" href="#bartorch.priors.InfimalConvolutionTGV" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Regularizer</span></code></a></p>
-<p>Infimal convolution of total generalized variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p>
+<p>Infimal convolution of total generalized variation over <code class="docutils literal notranslate"><span class="pre">axes</span></code> (BART’s <code class="docutils literal notranslate"><span class="pre">V</span></code>).</p>
 <p>The image is split into two components as for
 <a class="reference internal" href="bartorch.priors.InfimalConvolutionTV.html#bartorch.priors.InfimalConvolutionTV" title="bartorch.priors.InfimalConvolutionTV"><code class="xref py py-class docutils literal notranslate"><span class="pre">InfimalConvolutionTV</span></code></a>, each penalized by second-order TGV with its
 own auxiliary vector field:</p>
 <div class="math notranslate nohighlight">
-\[\min_{x, z, u, w} \;
+\[\min_{z, u, w} \; \lambda \Bigl[
     \gamma_1 \bigl( \alpha_1 \| \nabla (x + z) + u \|_1
                   + \alpha_0 \| \mathcal{E} u \|_1 \bigr)
   + \gamma_2 \bigl( \alpha_1 \| \nabla z + w \|_1
-                  + \alpha_0 \| \mathcal{E} w \|_1 \bigr)\]</div>
-<p>with <code class="docutils literal notranslate"><span class="pre">alpha</span></code> giving <span class="math notranslate nohighlight">\((\alpha_1, \alpha_0)\)</span> and <code class="docutils literal notranslate"><span class="pre">gamma</span></code>
-<span class="math notranslate nohighlight">\((\gamma_1, \gamma_2)\)</span> (BART’s <code class="docutils literal notranslate"><span class="pre">ictgv_reg</span></code>).</p>
-<p>Only <a class="reference internal" href="bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a>, <a class="reference internal" href="bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.ADMM</span></code></a> and
-<a class="reference internal" href="bartorch.optim.PRIDU.html#bartorch.optim.PRIDU" title="bartorch.optim.PRIDU"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.PRIDU</span></code></a> accept this term; the auxiliary variables
-extend the optimization variable and BART counts that extension across the
-whole set of terms, so the term cannot be built in isolation.</p>
-<p>The infimal convolution decomposes the image into a component smooth over
-one set of axes and a component smooth over the other, so <code class="docutils literal notranslate"><span class="pre">axes</span></code> must
-name at least one of the image’s last three – BART’s spatial axes – and
-at least one before them, typically subspace coefficients or the frames of
-a time series.</p>
+                  + \alpha_0 \| \mathcal{E} w \|_1 \bigr) \Bigr]\]</div>
+<p>(BART’s <code class="docutils literal notranslate"><span class="pre">ictgv_reg</span></code>), with the same gradient for both components.</p>
+<p>Accepted by <a class="reference internal" href="bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a>, <a class="reference internal" href="bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.ADMM</span></code></a> and
+<a class="reference internal" href="bartorch.optim.PRIDU.html#bartorch.optim.PRIDU" title="bartorch.optim.PRIDU"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.PRIDU</span></code></a> only: the auxiliary variables extend the
+optimization variable, and BART counts them across the whole set of terms,
+so the term cannot be built alone.</p>
+<p><code class="docutils literal notranslate"><span class="pre">axes</span></code> must include at least one of the image’s last three axes (BART’s
+spatial axes) and at least one before them, such as subspace coefficients
+or the frames of a time series.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes to differentiate, as indices into the image’s shape.</p></li>
-<li><p><strong>weight</strong> (<em>float</em>)</p></li>
-<li><p><strong>joint_axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>)</em>)</p></li>
-<li><p><strong>alpha</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>, </em><em>sqrt</em><em>(</em><em>3</em><em>)</em><em>)</em>) – The pair <span class="math notranslate nohighlight">\((\alpha_1, \alpha_0)\)</span> in the objective above.</p></li>
-<li><p><strong>gamma</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>, </em><em>1.0</em><em>)</em>) – The pair <span class="math notranslate nohighlight">\((\gamma_1, \gamma_2)\)</span> in the objective above.</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+<li><p><strong>joint_axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>)</em>) – Axes along which entries are thresholded jointly.</p></li>
+<li><p><strong>alpha</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>, </em><em>sqrt</em><em>(</em><em>3</em><em>)</em><em>)</em>) – <span class="math notranslate nohighlight">\((\alpha_1, \alpha_0)\)</span>.</p></li>
+<li><p><strong>gamma</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>, </em><em>1.0</em><em>)</em>) – <span class="math notranslate nohighlight">\((\gamma_1, \gamma_2)\)</span>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">axes</span></code> lacks a spatial or a non-spatial axis (raised when the term is
+    used in a solve).</p>
 </dd>
 </dl>
 </dd></dl>

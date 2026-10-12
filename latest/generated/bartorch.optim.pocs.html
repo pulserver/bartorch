@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,22 +547,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.optim.pocs">
 <span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">pocs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.pocs" title="Link to this definition">#</a></dt>
-<dd><p>Sweep a list of projections, <code class="docutils literal notranslate"><span class="pre">optim.POCS(projections)(y,</span> <span class="pre">x0=x0)</span></code>.</p>
-<p>Unlike the solvers beside it this one has no encoding argument: what the
-sets are, and what the data is, belong to the projections themselves.</p>
+<dd><p>Projection onto convex sets in one call: <code class="docutils literal notranslate"><span class="pre">optim.POCS(projections,</span> <span class="pre">**settings)(y,</span> <span class="pre">x0=x0)</span></code>.</p>
+<p>The function takes no encoding: the data and the sets belong to the
+projections.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>tensor</em>) – What the iterate looks like.  Without <code class="docutils literal notranslate"><span class="pre">x0</span></code> the sweep starts at zero
-of its shape, where <code class="docutils literal notranslate"><span class="pre">pocs_recon2</span></code> starts.</p></li>
-<li><p><strong>projections</strong> (<em>sequence</em>) – The sets to project onto, as <a class="reference internal" href="bartorch.optim.POCSBlock.html#bartorch.optim.POCSBlock" title="bartorch.optim.POCSBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">POCSBlock</span></code></a> takes
-them: a callable on a tensor, or a <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> term.</p></li>
-<li><p><strong>x0</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Where to start instead.</p></li>
-<li><p><strong>**settings</strong> – Settings of <a class="reference internal" href="bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-class docutils literal notranslate"><span class="pre">POCS</span></code></a>, which is <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> (50).</p></li>
+<li><p><strong>y</strong> (<em>tensor</em>) – Fixes the shape, dtype and device of the zero start; its values are not
+read.</p></li>
+<li><p><strong>projections</strong> (<em>sequence</em>) – Callables on a tensor, or <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> terms, as
+<a class="reference internal" href="bartorch.optim.POCSBlock.html#bartorch.optim.POCSBlock" title="bartorch.optim.POCSBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">POCSBlock</span></code></a> takes them.</p></li>
+<li><p><strong>x0</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Starting iterate; zero of <code class="docutils literal notranslate"><span class="pre">y</span></code>’s shape when omitted.</p></li>
+<li><p><strong>**settings</strong> – Settings of <a class="reference internal" href="bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-class docutils literal notranslate"><span class="pre">POCS</span></code></a>: <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> (50).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The iterate the last sweep left.</p>
+<dd class="field-even"><p>The iterate after the last sweep.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>

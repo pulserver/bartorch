@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -552,36 +550,19 @@
 <dd><p>Resample an image onto the grid of another prescription from header geometry.</p>
 <p>No registration is performed: the transform between the grids is the one
 the two geometries define in patient coordinates.  The leading axes of
-<code class="docutils literal notranslate"><span class="pre">image</span></code> and the real and imaginary parts are components of one vector
-image and are resampled in a single pass.</p>
-<p>A geometry has the fields of an MRD <code class="docutils literal notranslate"><span class="pre">ImageHeader</span></code> (<code class="docutils literal notranslate"><span class="pre">position</span></code>,
-<code class="docutils literal notranslate"><span class="pre">read_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">phase_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">field_of_view</span></code>,
-<code class="docutils literal notranslate"><span class="pre">matrix_size</span></code>), read as attributes or, failing that, as mapping keys.
-Positions and field of view are in millimetres; directions are unit
-vectors in patient coordinates.  Along an axis of <code class="docutils literal notranslate"><span class="pre">n</span></code> voxels the spacing
-is <code class="docutils literal notranslate"><span class="pre">field_of_view</span> <span class="pre">/</span> <span class="pre">matrix_size</span></code> and <code class="docutils literal notranslate"><span class="pre">position</span></code> is the centre of voxel
-<code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">image</span></code> and the real and imaginary parts are resampled in one pass, as
+components of one vector image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>torch.Tensor</em><em> or </em><em>numpy.ndarray</em>) – Real or complex image of shape <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, with <code class="docutils literal notranslate"><span class="pre">x</span></code> the
 readout, <code class="docutils literal notranslate"><span class="pre">y</span></code> the phase-encode and <code class="docutils literal notranslate"><span class="pre">z</span></code> the slice axis.</p></li>
-<li><p><strong>source</strong> – Geometry of <code class="docutils literal notranslate"><span class="pre">image</span></code> and of the grid wanted.  Either one geometry for
-the whole volume, with <code class="docutils literal notranslate"><span class="pre">matrix_size[2]</span></code> voxels of spacing
-<code class="docutils literal notranslate"><span class="pre">field_of_view[2]</span> <span class="pre">/</span> <span class="pre">matrix_size[2]</span></code> along <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code>, or a list
-or tuple of per-plane geometries, one per <code class="docutils literal notranslate"><span class="pre">z</span></code> index.  Plane <code class="docutils literal notranslate"><span class="pre">k</span></code>
-is centred on its own <code class="docutils literal notranslate"><span class="pre">position</span></code>; the slice spacing is the distance
-between consecutive positions and the slice direction runs from the
-first position to the second.  A single plane takes <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code> and
-<code class="docutils literal notranslate"><span class="pre">field_of_view[2]</span></code>.  The in-plane geometry is the first plane’s.</p></li>
-<li><p><strong>target</strong> – Geometry of <code class="docutils literal notranslate"><span class="pre">image</span></code> and of the grid wanted.  Either one geometry for
-the whole volume, with <code class="docutils literal notranslate"><span class="pre">matrix_size[2]</span></code> voxels of spacing
-<code class="docutils literal notranslate"><span class="pre">field_of_view[2]</span> <span class="pre">/</span> <span class="pre">matrix_size[2]</span></code> along <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code>, or a list
-or tuple of per-plane geometries, one per <code class="docutils literal notranslate"><span class="pre">z</span></code> index.  Plane <code class="docutils literal notranslate"><span class="pre">k</span></code>
-is centred on its own <code class="docutils literal notranslate"><span class="pre">position</span></code>; the slice spacing is the distance
-between consecutive positions and the slice direction runs from the
-first position to the second.  A single plane takes <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code> and
-<code class="docutils literal notranslate"><span class="pre">field_of_view[2]</span></code>.  The in-plane geometry is the first plane’s.</p></li>
+<li><p><strong>source</strong> (<em>object</em><em>, or </em><em>list</em><em> or </em><em>tuple</em><em> of </em><em>object</em>) – Geometry of <code class="docutils literal notranslate"><span class="pre">image</span></code> (<code class="docutils literal notranslate"><span class="pre">source</span></code>) and of the grid wanted
+(<code class="docutils literal notranslate"><span class="pre">target</span></code>): one geometry for the volume, or one per <code class="docutils literal notranslate"><span class="pre">z</span></code> index; see
+Notes.</p></li>
+<li><p><strong>target</strong> (<em>object</em><em>, or </em><em>list</em><em> or </em><em>tuple</em><em> of </em><em>object</em>) – Geometry of <code class="docutils literal notranslate"><span class="pre">image</span></code> (<code class="docutils literal notranslate"><span class="pre">source</span></code>) and of the grid wanted
+(<code class="docutils literal notranslate"><span class="pre">target</span></code>): one geometry for the volume, or one per <code class="docutils literal notranslate"><span class="pre">z</span></code> index; see
+Notes.</p></li>
 <li><p><strong>interpolation</strong> (<em>{&quot;linear&quot;</em><em>, </em><em>&quot;nearest&quot;}</em><em>, </em><em>default=&quot;linear&quot;</em>) – Interpolation of the source samples.</p></li>
 <li><p><strong>fill</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Value of target voxels whose centre lies outside the source volume.</p></li>
 </ul>
@@ -604,6 +585,21 @@ other dtypes give float32.</p>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>A geometry has the fields of an MRD <code class="docutils literal notranslate"><span class="pre">ImageHeader</span></code> (<code class="docutils literal notranslate"><span class="pre">position</span></code>,
+<code class="docutils literal notranslate"><span class="pre">read_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">phase_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">field_of_view</span></code>,
+<code class="docutils literal notranslate"><span class="pre">matrix_size</span></code>), read as attributes or, failing that, as mapping keys.
+Positions and field of view are in millimetres; directions are unit
+vectors in patient coordinates.  Along an axis of <code class="docutils literal notranslate"><span class="pre">n</span></code> voxels the spacing
+is <code class="docutils literal notranslate"><span class="pre">field_of_view</span> <span class="pre">/</span> <span class="pre">matrix_size</span></code> and <code class="docutils literal notranslate"><span class="pre">position</span></code> is the centre of voxel
+<code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code>.</p>
+<p>One geometry for the volume has <code class="docutils literal notranslate"><span class="pre">matrix_size[2]</span></code> slices of spacing
+<code class="docutils literal notranslate"><span class="pre">field_of_view[2]</span> <span class="pre">/</span> <span class="pre">matrix_size[2]</span></code> along <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code>.  In a sequence
+of per-plane geometries, plane <code class="docutils literal notranslate"><span class="pre">k</span></code> is centred on its own <code class="docutils literal notranslate"><span class="pre">position</span></code>;
+the slice spacing is the distance between consecutive positions and the
+slice direction runs from the first position to the second.  A single
+plane takes <code class="docutils literal notranslate"><span class="pre">slice_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">field_of_view[2]</span></code>.  The in-plane geometry
+is the first plane’s.</p>
 </dd></dl>
 
 </section>

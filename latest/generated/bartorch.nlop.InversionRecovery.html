@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,26 +547,31 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.nlop.InversionRecovery">
 <span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">InversionRecovery</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.InversionRecovery" title="Link to this definition">#</a></dt>
-<dd><p>T1 from an inversion-recovery series.</p>
-<p>The longitudinal magnetization read at a series of inversion times.  The
-unknowns are <code class="docutils literal notranslate"><span class="pre">T1</span></code> and, with <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, a complex amplitude; the
-Look-Locker parameterisation <code class="docutils literal notranslate"><span class="pre">(Mss,</span> <span class="pre">M0,</span> <span class="pre">R1*)</span></code> describes the same recovery
-in different variables.</p>
+<dd><p>Inversion-recovery signal model for T1 mapping.</p>
+<p>The longitudinal magnetization at a series of inversion times, from
+BlochSim’s <code class="docutils literal notranslate"><span class="pre">InversionRecoverySimulator</span></code>.  The unknowns are <code class="docutils literal notranslate"><span class="pre">T1</span></code> and,
+with <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, a complex amplitude.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>TI</strong> (<em>sequence</em><em> of </em><em>float</em>) – Inversion times, in milliseconds.</p></li>
 <li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>)</em>) – The voxel shape, C order.</p></li>
-<li><p><strong>TR</strong> (<em>float</em><em>, </em><em>default=None</em>) – Repetition time in milliseconds; without one the magnetization is
-fully relaxed when each inversion arrives.</p></li>
-<li><p><strong>bounds</strong> (<em>dict</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">(low,</span> <span class="pre">high)}</span></code>; <code class="docutils literal notranslate"><span class="pre">T1</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">(10,</span> <span class="pre">5000)</span></code> ms, which
-keeps a Gauss-Newton iterate physical.</p></li>
-<li><p><strong>unknown</strong> (<em>sequence</em><em> of </em><em>str</em><em>, </em><em>default=</em><em>(</em><em>'T1'</em><em>,</em><em>)</em>) – What to solve for.  <code class="docutils literal notranslate"><span class="pre">inv_efficiency</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> are the other
-things the model exposes.</p></li>
-<li><p><strong>amplitude</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Carry a complex amplitude multiplying the recovery.</p></li>
-<li><p><strong>subspace</strong> (<em>blochsim.Subspace</em><em>, </em><em>default=None</em>) – Solve in a temporal basis rather than in the contrasts.</p></li>
-<li><p><strong>**scale</strong> – The size of a step in a parameter left unbounded.</p></li>
+<li><p><strong>TR</strong> (<em>float</em><em>, </em><em>default=None</em>) – Repetition time in milliseconds; <code class="docutils literal notranslate"><span class="pre">None</span></code> is full relaxation before
+each inversion.</p></li>
+<li><p><strong>bounds</strong> (<em>dict</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">(low,</span> <span class="pre">high)}</span></code> per unknown, in its units; <code class="docutils literal notranslate"><span class="pre">T1</span></code> defaults to
+<code class="docutils literal notranslate"><span class="pre">(10,</span> <span class="pre">5000)</span></code> ms.  Bounds of properties not in <code class="docutils literal notranslate"><span class="pre">unknown</span></code> are
+dropped.</p></li>
+<li><p><strong>unknown</strong> (<em>sequence</em><em> of </em><em>str</em><em>, </em><em>default=</em><em>(</em><em>'T1'</em><em>,</em><em>)</em>) – Properties solved for, e.g. also <code class="docutils literal notranslate"><span class="pre">inv_efficiency</span></code> or <code class="docutils literal notranslate"><span class="pre">offset</span></code>.</p></li>
+<li><p><strong>amplitude</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Include a complex amplitude multiplying the signal.</p></li>
+<li><p><strong>subspace</strong> (<em>blochsim.Subspace</em><em>, </em><em>default=None</em>) – Temporal basis the prediction is projected through.</p></li>
+<li><p><strong>**scale</strong> – <code class="docutils literal notranslate"><span class="pre">name=value</span></code>: step size of an unbounded parameter.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Domain <code class="docutils literal notranslate"><span class="pre">(channels,</span> <span class="pre">*shape)</span></code>, codomain <code class="docutils literal notranslate"><span class="pre">(len(TI),</span> <span class="pre">*shape)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel">SignalModel</a></p>
 </dd>
 </dl>
 </dd></dl>

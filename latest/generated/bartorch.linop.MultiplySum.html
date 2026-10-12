@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,19 +548,18 @@
 <dt class="sig sig-object py" id="bartorch.linop.MultiplySum">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">MultiplySum</span></span><a class="headerlink" href="#bartorch.linop.MultiplySum" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
-<p>Multiply by a tensor and sum over the axes absent from the codomain.</p>
-<p>BART’s <code class="docutils literal notranslate"><span class="pre">fmac</span></code>.  This is the coil model: with sensitivities of shape
-<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, <code class="docutils literal notranslate"><span class="pre">ishape</span> <span class="pre">(1,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> and <code class="docutils literal notranslate"><span class="pre">oshape</span> <span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> it
-maps an image to coil images, and its adjoint combines coil images with
-the conjugate sensitivities.</p>
+<p>Multiply by a tensor and sum over the axes the codomain reduces, BART’s <code class="docutils literal notranslate"><span class="pre">linop_fmac</span></code>.</p>
+<p>With sensitivities of shape <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, <code class="docutils literal notranslate"><span class="pre">ishape=(1,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">oshape=(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> this is the coil model: image to coil images,
+and the adjoint is the coil combination with conjugate sensitivities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tensor</strong> (<em>tensor</em>) – What to multiply by.</p></li>
-<li><p><strong>ishape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain and codomain, C order.  An axis the domain has and the codomain
-does not is summed over.</p></li>
-<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain and codomain, C order.  An axis the domain has and the codomain
-does not is summed over.</p></li>
+<li><p><strong>tensor</strong> (<em>tensor</em>) – Multiplier, broadcast against the domain and codomain.</p></li>
+<li><p><strong>ishape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain and codomain, C order.  An axis of size one in <code class="docutils literal notranslate"><span class="pre">oshape</span></code>
+and larger in the product is summed over.</p></li>
+<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain and codomain, C order.  An axis of size one in <code class="docutils literal notranslate"><span class="pre">oshape</span></code>
+and larger in the product is summed over.</p></li>
 </ul>
 </dd>
 </dl>

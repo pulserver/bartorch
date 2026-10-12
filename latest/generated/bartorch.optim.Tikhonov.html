@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.optim.Tikhonov';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,24 +550,22 @@
 <dt class="sig sig-object py" id="bartorch.optim.Tikhonov">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">Tikhonov</span></span><a class="headerlink" href="#bartorch.optim.Tikhonov" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
-<p>A quadratic penalty <code class="docutils literal notranslate"><span class="pre">weight</span> <span class="pre">*</span> <span class="pre">||operator</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">bias||^2</span></code>.</p>
-<p>Generalized Tikhonov regularization, minimized by <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a> alongside the
-data-fidelity term.  Without an operator the penalty is on the image
-itself; without a bias it penalizes the norm rather than the distance from
-a reference.</p>
-<p>Every combination remains a linear least-squares problem and is solved by
-conjugate gradients: the terms are stacked beneath the encoding, and the
-normal operator of the stack is the sum of the parts’ normals, so a
-Toeplitz encoding keeps its point spread function convolution.</p>
+<p>Quadratic penalty <span class="math notranslate nohighlight">\(w \| G x - b \|^2\)</span> for <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>.</p>
+<p>Generalized Tikhonov regularization.  <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a> stacks the terms under the
+encoding, so the problem stays linear least squares, the normal operator is
+<span class="math notranslate nohighlight">\(A^H A + \sum_i w_i G_i^H G_i\)</span>, and a Toeplitz encoding keeps its
+point-spread-function convolution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>weight</strong> (<em>float</em>) – The weight, not its square root.  Must not be negative.</p></li>
-<li><p><strong>operator</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – What the penalty is on, mapping the image somewhere.  By default the
-image itself.</p></li>
-<li><p><strong>bias</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – What the penalty pulls towards, of the operator’s codomain shape.  By
-default zero, which is the ordinary penalty on size.</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – <span class="math notranslate nohighlight">\(w\)</span>, the weight of the squared norm (not its square root); at
+least zero.</p></li>
+<li><p><strong>operator</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\(G\)</span>, with domain <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code>; the identity when omitted.</p></li>
+<li><p><strong>bias</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\(b\)</span>, of <code class="docutils literal notranslate"><span class="pre">operator.oshape</span></code>; zero when omitted.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">weight</span></code> is negative.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -575,7 +573,7 @@ default zero, which is the ordinary penalty on size.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="n">terms</span><span class="o">=</span><span class="n">Tikhonov</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">prior</span><span class="p">))(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Penalize the first differences, which is quadratic total variation:</p>
+<p>Penalize the first differences (quadratic total variation):</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="n">terms</span><span class="o">=</span><span class="n">Tikhonov</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">operator</span><span class="o">=</span><span class="n">linop</span><span class="o">.</span><span class="n">Gradient</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">ishape</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))))(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
 </pre></div>
 </div>

@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,27 +548,27 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.tools.traj">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">traj</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.traj" title="Link to this definition">#</a></dt>
-<dd><p>A k-space trajectory, in grid units.</p>
+<dd><p>k-space trajectory in grid units, Cartesian or radial.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>readout</strong> (<em>int</em><em>, </em><em>default=None</em>) – Samples along a readout (<code class="docutils literal notranslate"><span class="pre">-x</span></code>).</p></li>
-<li><p><strong>spokes</strong> (<em>int</em><em>, </em><em>default=None</em>) – Readouts per frame (<code class="docutils literal notranslate"><span class="pre">-y</span></code>).</p></li>
-<li><p><strong>frames</strong> (<em>int</em><em>, </em><em>default=None</em>) – Turns of a multi-shot trajectory (<code class="docutils literal notranslate"><span class="pre">-t</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">conf.turns</span></code>).
-The name here does not describe the flag.</p></li>
-<li><p><strong>radial</strong> (<em>bool</em><em>, </em><em>default=False</em>) – A radial trajectory rather than Cartesian (<code class="docutils literal notranslate"><span class="pre">-r</span></code>).</p></li>
-<li><p><strong>golden</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Golden-angle spacing between spokes (<code class="docutils literal notranslate"><span class="pre">-G</span></code>).</p></li>
-<li><p><strong>turns</strong> (<em>int</em><em>, </em><em>default=None</em>) – SMS multiband factor (<code class="docutils literal notranslate"><span class="pre">-m</span></code>).  The name here does not describe the
-flag either.</p></li>
-<li><p><strong>oversampling</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Correct the transverse gradient error of a radial trajectory
-(<code class="docutils literal notranslate"><span class="pre">-O</span></code>).  Despite the name this is not readout oversampling, which
-is <code class="docutils literal notranslate"><span class="pre">traj</span> <span class="pre">-o</span></code> and reachable through <code class="docutils literal notranslate"><span class="pre">**extra</span></code> as <code class="docutils literal notranslate"><span class="pre">o=factor</span></code>.</p></li>
-<li><p><strong>**extra</strong> – Further BART <code class="docutils literal notranslate"><span class="pre">traj</span></code> flags, by name.</p></li>
+<li><p><strong>readout</strong> (<em>int</em><em>, </em><em>default=None</em>) – Samples per readout (<code class="docutils literal notranslate"><span class="pre">-x</span></code>); BART’s default is 128.</p></li>
+<li><p><strong>spokes</strong> (<em>int</em><em>, </em><em>default=None</em>) – Readouts per frame (<code class="docutils literal notranslate"><span class="pre">-y</span></code>); BART’s default is 128.</p></li>
+<li><p><strong>frames</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of frames along BART’s time axis, each rotated by a fraction of
+the angular increment (<code class="docutils literal notranslate"><span class="pre">-t</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">turns</span></code>); radial only.</p></li>
+<li><p><strong>radial</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Radial spokes rather than Cartesian lines (<code class="docutils literal notranslate"><span class="pre">-r</span></code>).</p></li>
+<li><p><strong>golden</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Golden-angle increment between spokes (<code class="docutils literal notranslate"><span class="pre">-G</span></code>); implies <code class="docutils literal notranslate"><span class="pre">radial</span></code>.</p></li>
+<li><p><strong>turns</strong> (<em>int</em><em>, </em><em>default=None</em>) – Simultaneous multi-slice factor: partitions along BART’s slice axis
+(<code class="docutils literal notranslate"><span class="pre">-m</span></code>); radial only.</p></li>
+<li><p><strong>oversampling</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Correct the transverse gradient error of a radial trajectory (<code class="docutils literal notranslate"><span class="pre">-O</span></code>).
+Readout oversampling is <code class="docutils literal notranslate"><span class="pre">traj</span> <span class="pre">-o</span></code>, passed as <code class="docutils literal notranslate"><span class="pre">o=factor</span></code>.</p></li>
+<li><p><strong>**extra</strong> – Further BART <code class="docutils literal notranslate"><span class="pre">traj</span></code> options, by name.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Coordinates of shape <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code>, which every non-Cartesian
-transform in this package takes.</p>
+<dd class="field-even"><p>Coordinates <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">spokes,</span> <span class="pre">readout,</span> <span class="pre">3)</span></code>, <code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky,</span> <span class="pre">kz</span></code> in grid
+units, with leading axes for <code class="docutils literal notranslate"><span class="pre">frames</span></code> and <code class="docutils literal notranslate"><span class="pre">turns</span></code> when they exceed
+one.  The layout every non-Cartesian transform in this package takes.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>

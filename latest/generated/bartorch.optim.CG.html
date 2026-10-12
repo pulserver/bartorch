@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -555,40 +553,37 @@
 <dt class="sig sig-object py" id="bartorch.optim.CG">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">CG</span></span><a class="headerlink" href="#bartorch.optim.CG" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
-<p>Conjugate gradients for a least-squares problem with quadratic penalties.</p>
-<p>Without terms the problem is</p>
-<div class="math notranslate nohighlight">
-\[\min_x \; \| A x - y \|^2 + \lambda \| x \|^2\]</div>
-<p>the ordinary Tikhonov-regularized least-squares problem.  With terms it
-is</p>
+<p>Conjugate gradients on the normal equations of a quadratic problem.</p>
+<p>Solves</p>
 <div class="math notranslate nohighlight">
 \[\min_x \; \| A x - y \|^2 + \lambda \| x \|^2
       + \sum_i w_i \| G_i x - b_i \|^2\]</div>
-<p>still a linear least-squares problem and so still this iteration.</p>
+<p>where the sum is over the <a class="reference internal" href="bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tikhonov</span></code></a> terms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Tikhonov weight on the image itself, added to the normal operator.</p></li>
-<li><p><strong>terms</strong> (<a class="reference internal" href="bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><em>Tikhonov</em></a><em> or </em><em>iterable</em><em> of </em><a class="reference internal" href="bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><em>Tikhonov</em></a><em>, </em><em>default=None</em>) – Quadratic penalties with an operator, a bias, or both.  See
-<a class="reference internal" href="bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tikhonov</span></code></a>.</p></li>
-<li><p><strong>maxiter</strong> (<em>int</em><em>, </em><em>default=30</em>)</p></li>
+<li><p><strong>lambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – <span class="math notranslate nohighlight">\(\lambda\)</span>, the Tikhonov weight on the image.</p></li>
+<li><p><strong>terms</strong> (<a class="reference internal" href="bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><em>Tikhonov</em></a><em> or </em><em>iterable</em><em> of </em><a class="reference internal" href="bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><em>Tikhonov</em></a><em>, </em><em>default=None</em>) – Quadratic penalties <span class="math notranslate nohighlight">\(w_i \| G_i x - b_i \|^2\)</span>.</p></li>
+<li><p><strong>maxiter</strong> (<em>int</em><em>, </em><em>default=30</em>) – Maximum number of iterations.</p></li>
 <li><p><strong>tol</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Stop once the residual of the normal equations is at most
-<code class="docutils literal notranslate"><span class="pre">tol</span> <span class="pre">*</span> <span class="pre">||A^H</span> <span class="pre">y||</span></code>.  Zero, BART’s default, runs every iteration.</p></li>
-<li><p><strong>cclambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Weight of an identity added to the normal operator.</p></li>
-<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Left preconditioner, <code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>’s <code class="docutils literal notranslate"><span class="pre">precond_op</span></code>: chained onto
-the normal operator and onto the adjoint, so the iteration sees
-<code class="docutils literal notranslate"><span class="pre">M(A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">lambda)</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">M</span> <span class="pre">A^H</span> <span class="pre">y</span></code>.  Must be positive definite –
-BART composes it without symmetrizing.  BART’s own reconstructions
-pass none.</p></li>
+<code class="docutils literal notranslate"><span class="pre">tol</span> <span class="pre">*</span> <span class="pre">||A^H</span> <span class="pre">y||</span></code>; zero, BART’s default, runs every iteration.</p></li>
+<li><p><strong>cclambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Weight of an identity added to the normal operator (<code class="docutils literal notranslate"><span class="pre">lsqr</span></code>’s
+<code class="docutils literal notranslate"><span class="pre">cclambda</span></code>).</p></li>
+<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Left preconditioner <span class="math notranslate nohighlight">\(M\)</span> from <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code> to itself, positive
+definite (<code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>’s <code class="docutils literal notranslate"><span class="pre">precond_op</span></code>); BART’s reconstructions use none.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TypeError</strong> – A term is not a <a class="reference internal" href="bartorch.optim.Tikhonov.html#bartorch.optim.Tikhonov" title="bartorch.optim.Tikhonov"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tikhonov</span></code></a> penalty, such as a proximal
+    regularizer.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>BART’s conjugate gradients takes one weight and nothing else:
-<code class="docutils literal notranslate"><span class="pre">iter2_conjgrad</span></code> asserts that it is handed no regularizing operators and
-no biases, and <code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code> builds <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">lambda</span> <span class="pre">I</span></code>.  So the terms
-are not passed to it – they are built into the operator it is given, by
-stacking them under the encoding.</p>
+<p>BART’s <code class="docutils literal notranslate"><span class="pre">iter2_conjgrad</span></code> takes the weight <span class="math notranslate nohighlight">\(\lambda\)</span> and no
+regularizing operators or biases.  The terms are therefore stacked under the
+encoding, <span class="math notranslate nohighlight">\([A; \sqrt{w_i} G_i] x \approx [y; \sqrt{w_i} b_i]\)</span>, and the
+stacked operator is solved; its normal is applied as the sum of the parts’
+normals.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">)(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="n">terms</span><span class="o">=</span><span class="n">Tikhonov</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">prior</span><span class="p">))(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
@@ -598,15 +593,32 @@ stacking them under the encoding.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.CG.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.CG.__call__" title="Link to this definition">#</a></dt>
-<dd><p>Solve, and with <code class="docutils literal notranslate"><span class="pre">steps</span></code> say how many iterations it took.</p>
-<p>An alternating-direction solver budgets by this count, which is not
-otherwise visible from outside the library.</p>
-<p>When <code class="docutils literal notranslate"><span class="pre">y</span></code> carries a gradient the solve is recorded: the forward pass
-is the same iteration and the same bits, and the backward pass is
-another solve with the same operator, as
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim._autograd</span></code> describes.  A solve can therefore stand
-inside an unrolled network – as the data-consistency layer of a MoDL,
-for instance – and not only at the end of one.</p>
+<dd><p>Solve for the image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>tensor</em>) – Data of <code class="docutils literal notranslate"><span class="pre">A.oshape</span></code>, or <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">*A.oshape)</span></code>; a batch is solved
+one item at a time.</p></li>
+<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding operator.</p></li>
+<li><p><strong>x0</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Starting image of <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code>, or one per batch item; zero when omitted.</p></li>
+<li><p><strong>steps</strong> (<em>list</em><em>, </em><em>default=None</em>) – When given, the number of iterations each solve took is appended to it.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complex64 image of <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code>, with <code class="docutils literal notranslate"><span class="pre">y</span></code>’s batch axis in front.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">y</span></code> requires a gradient the solve is recorded as one operation:
+the forward pass is the library’s iteration, and the backward pass a
+second solve with the same normal operator
+(<a class="reference internal" href="../explanation/learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a>).  The warm start receives no
+gradient.  For a linearization of a nonlinear operator the gradient also
+reaches the point it was linearized at.  The solve can therefore serve as
+the data-consistency layer of an unrolled network.</p>
 </dd></dl>
 
 </dd></dl>

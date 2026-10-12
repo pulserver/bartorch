@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -553,71 +551,69 @@
 <dt class="sig sig-object py" id="bartorch.linop.CartesianSense">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">CartesianSense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.CartesianSense" title="Link to this definition">#</a></dt>
 <dd><p>Cartesian SENSE encoding operator.</p>
-<p>The forward model is</p>
 <div class="math notranslate nohighlight">
 \[A = P F S\]</div>
-<p>with <span class="math notranslate nohighlight">\(S\)</span> multiplication by the coil sensitivities, <span class="math notranslate nohighlight">\(F\)</span> the
-centred unitary Fourier transform over the spatial axes, and <span class="math notranslate nohighlight">\(P\)</span> the
-diagonal sampling operator given by <code class="docutils literal notranslate"><span class="pre">pattern</span></code>.  This is the encoding
-BART uses for Cartesian data.</p>
-<p>With a temporal basis <span class="math notranslate nohighlight">\(\Phi\)</span> of shape <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code> the
-optimization variable holds subspace coefficients, and the basis maps them
-to the acquired frames after the Fourier transform and before sampling:</p>
+<p>with <span class="math notranslate nohighlight">\(S\)</span> the coil sensitivities, <span class="math notranslate nohighlight">\(F\)</span> the centred unitary FFT
+over the spatial axes and <span class="math notranslate nohighlight">\(P\)</span> the sampling pattern.  With a temporal
+basis <span class="math notranslate nohighlight">\(\Phi\)</span> <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code> the image holds subspace
+coefficients (T2 shuffling):</p>
 <div class="math notranslate nohighlight">
 \[y[c, t] = P[t] \odot \sum_a \Phi[a, t] \, F(S[c] \odot x[a])\]</div>
-<p>so the domain carries coefficients where the codomain carries frames.  This
-is the subspace model used for T2 shuffling.</p>
-<p>Given neither a pattern nor a basis the operator reduces to sensitivity
-encoding followed by the Fourier transform, and
-<a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> builds it directly.  Given
-either, the pattern and the basis are applied inside the coil-slab loop
-together with the transform, so the samples are not revisited afterwards.</p>
+<p>The pattern and the basis are applied inside the coil-slab loop of
+<a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a>, whose remaining keyword
+arguments are accepted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sensitivities</strong> (<em>tensor</em>) – Coil sensitivities <code class="docutils literal notranslate"><span class="pre">([batch,</span> <span class="pre">sets,]</span> <span class="pre">coils,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or their
-k-space kernels with <code class="docutils literal notranslate"><span class="pre">kernels=True</span></code>.</p></li>
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The image, <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">[sets,]</span> <span class="pre">[coeffs,]</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.  The
-samples are <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">coils,</span> <span class="pre">[frames,]</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
-<li><p><strong>pattern</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Binary sampling mask, one at acquired positions and zero elsewhere,
-broadcast over one coil’s samples <code class="docutils literal notranslate"><span class="pre">([frames,]</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code> – so
-<code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">1)</span></code> undersamples a phase encode for every coil and batch item.</p></li>
-<li><p><strong>positions</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Instead of a pattern, the acquired phase encodes as integer indices
-<code class="docutils literal notranslate"><span class="pre">([frames,]</span> <span class="pre">shots,</span> <span class="pre">d)</span></code>: <code class="docutils literal notranslate"><span class="pre">(y,)</span></code> in 2D, <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code> in 3D,
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> for padding where frames sample different numbers.  The samples
-are then <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">coils,</span> <span class="pre">[frames,]</span> <span class="pre">shots,</span> <span class="pre">readout)</span></code>, the whole
-readout along each phase encode, and nothing the size of the
-phase-encode plane is held for them.</p></li>
-<li><p><strong>readout</strong> (<em>{&quot;kspace&quot;</em><em>, </em><em>&quot;image&quot;}</em><em>, </em><em>default='kspace'</em>) – With positions, whether the samples are in k-space along the readout
-or already transformed back along it (hybrid space).  Either way the
-volume is not transformed along the readout: the samples are.</p></li>
+<li><p><strong>sensitivities</strong> (<em>tensor</em>) – Coil sensitivities <code class="docutils literal notranslate"><span class="pre">([batch,</span> <span class="pre">sets,]</span> <span class="pre">coils,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or k-space
+kernels with <code class="docutils literal notranslate"><span class="pre">kernels=True</span></code>.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">[sets,]</span> <span class="pre">[coeffs,]</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.  The samples
+are <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">coils,</span> <span class="pre">[frames,]</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
+<li><p><strong>pattern</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Binary sampling mask broadcast over one coil’s samples
+<code class="docutils literal notranslate"><span class="pre">([frames,]</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>; <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">1)</span></code> samples whole readouts.</p></li>
+<li><p><strong>positions</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Alternative to <code class="docutils literal notranslate"><span class="pre">pattern</span></code>: integer indices of the acquired phase
+encodes, <code class="docutils literal notranslate"><span class="pre">([frames,]</span> <span class="pre">shots,</span> <span class="pre">d)</span></code> with <code class="docutils literal notranslate"><span class="pre">d</span></code> indexing <code class="docutils literal notranslate"><span class="pre">(y,)</span></code> in 2D or
+<code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code> in 3D, and <code class="docutils literal notranslate"><span class="pre">-1</span></code> padding frames with fewer shots.  The
+samples are then <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">coils,</span> <span class="pre">[frames,]</span> <span class="pre">shots,</span> <span class="pre">x)</span></code>.</p></li>
+<li><p><strong>readout</strong> (<em>{&quot;kspace&quot;</em><em>, </em><em>&quot;image&quot;}</em><em>, </em><em>default='kspace'</em>) – With <code class="docutils literal notranslate"><span class="pre">positions</span></code>, whether the samples are in k-space along the
+readout or already inverse-transformed along it (hybrid space).</p></li>
 <li><p><strong>basis</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Temporal subspace basis <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code>.</p></li>
-<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the normal in closed form rather than as the forward and
-adjoint applications; see the notes.</p></li>
-<li><p><strong>kernels</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Read <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> as k-space kernels rather than maps.</p></li>
-<li><p><strong>coil_batch</strong> (<em>int</em><em>, </em><em>default=1</em>) – Coils applied at once; 0 applies every coil together.</p></li>
-<li><p><strong>modulated</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Answer in BART’s uncentred sample convention rather than the centred
-one.  The two differ by an <code class="docutils literal notranslate"><span class="pre">fftmod</span></code> on the sample axes; the centred
-convention is the default and is the one <a class="reference internal" href="bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fft()</span></code></a> produces.</p></li>
-<li><p><strong>device</strong> (<em>device</em><em>, </em><em>default=None</em>) – Where the operator is built and does its arithmetic.</p></li>
-<li><p><strong>ndim</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of spatial axes, where the sensitivities and the image do not
-determine it.</p></li>
-<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape, where it is not the default above.</p></li>
-<li><p><strong>fold_maps</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the sensitivities inside the normal’s transform where the
-arrangement allows it.</p></li>
+<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – With a pattern, positions or a basis, apply the normal in closed form
+(see Notes) rather than as the forward and adjoint applications.</p></li>
+<li><p><strong>kernels</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Read <code class="docutils literal notranslate"><span class="pre">sensitivities</span></code> as k-space kernels.</p></li>
+<li><p><strong>coil_batch</strong> (<em>int</em><em>, </em><em>default=1</em>) – Coils per slab; 0 applies all coils at once.</p></li>
+<li><p><strong>modulated</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Use BART’s uncentred sample convention (an <code class="docutils literal notranslate"><span class="pre">fftmod</span></code> on the sample
+axes) instead of the centred one <a class="reference internal" href="bartorch.fft.html#bartorch.fft" title="bartorch.fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.fft()</span></code></a> produces.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Device the operator is built and computes on; <code class="docutils literal notranslate"><span class="pre">None</span></code> takes the
+sensitivities’.</p></li>
+<li><p><strong>ndim</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of spatial axes (2 or 3) where the sensitivities and the image
+do not determine it.</p></li>
+<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape, which must be the default above.</p></li>
+<li><p><strong>fold_maps</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the sensitivities inside the normal’s transform where possible.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – When <code class="docutils literal notranslate"><span class="pre">traj</span></code> is given, when both <code class="docutils literal notranslate"><span class="pre">pattern</span></code> and <code class="docutils literal notranslate"><span class="pre">positions</span></code> are,
+    or when <code class="docutils literal notranslate"><span class="pre">readout</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;image&quot;</span></code> without <code class="docutils literal notranslate"><span class="pre">positions</span></code>.</p></li>
+<li><p><strong>NotImplementedError</strong> – For <code class="docutils literal notranslate"><span class="pre">positions</span></code> with <code class="docutils literal notranslate"><span class="pre">modulated=True</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>With a pattern or a basis, <code class="docutils literal notranslate"><span class="pre">toeplitz</span></code> gives the normal as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">A</span><span class="o">^</span><span class="n">H</span> <span class="n">A</span> <span class="n">x</span><span class="p">)[</span><span class="n">k</span><span class="s1">'] = sum_k ( sum_t |P[t]|^2 conj(B[k'</span><span class="p">,</span><span class="n">t</span><span class="p">])</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">t</span><span class="p">]</span> <span class="p">)</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>between transforms along only the axes the pattern varies on.  The sum
-over the frames is done once, when the operator is built, so an iteration
-never makes the frames, and a pattern flat along the readout never
-transforms it.  In BART’s modulated convention the samples differ from the
-centred ones by a phase of modulus one, which leaves this normal as it is.</p>
+<p>The Toeplitz normal is</p>
+<div class="math notranslate nohighlight">
+\[(A^H A x)[a'] = \sum_a \Big( \sum_t |P[t]|^2 \,
+    \overline{\Phi[a', t]} \, \Phi[a, t] \Big) x[a]\]</div>
+<p>with the kernel in parentheses applied in k-space, between transforms
+along only the axes the pattern varies on.
+The sum over frames is computed once at build time, so iterations never
+form the frames, and a pattern constant along the readout is never
+transformed along it.  The modulated convention differs by a unit-modulus
+phase on the samples and leaves the normal unchanged.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">CartesianSense</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">pattern</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>          <span class="c1"># mask (y, 1)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">bartorch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">CG</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">)(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>

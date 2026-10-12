@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -558,11 +556,12 @@ the field is zero are set to zero.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>torch.Tensor</em>) – Real 2D or 3D magnitude image, typically after coil combination.</p></li>
-<li><p><strong>mask</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Voxels the field is estimated over, shaped like <code class="docutils literal notranslate"><span class="pre">image</span></code>.  <code class="docutils literal notranslate"><span class="pre">None</span></code>
-uses Otsu’s threshold of the image.</p></li>
+<li><p><strong>mask</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Nonzero over the voxels the field is estimated from, shaped like
+<code class="docutils literal notranslate"><span class="pre">image</span></code>; Otsu’s threshold of the image if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><strong>shrink_factor</strong> (<em>int</em><em>, </em><em>default=4</em>) – Downsampling factor of the grid the field is fitted on.</p></li>
 <li><p><strong>iterations</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>50</em><em>, </em><em>50</em><em>, </em><em>50</em><em>, </em><em>50</em><em>)</em>) – Maximum iterations per fitting level, coarsest first.</p></li>
-<li><p><strong>fitting_levels</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of fitting levels; <code class="docutils literal notranslate"><span class="pre">len(iterations)</span></code> if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>fitting_levels</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of fitting levels, at most <code class="docutils literal notranslate"><span class="pre">len(iterations)</span></code>; the first
+entries of <code class="docutils literal notranslate"><span class="pre">iterations</span></code> are used.  <code class="docutils literal notranslate"><span class="pre">len(iterations)</span></code> if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><strong>return_field</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the field.</p></li>
 </ul>
 </dd>

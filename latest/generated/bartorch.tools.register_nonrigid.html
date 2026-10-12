@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,7 +548,7 @@
 <dt class="sig sig-object py" id="bartorch.tools.register_nonrigid">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">register_nonrigid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.register_nonrigid" title="Link to this definition">#</a></dt>
 <dd><p>Displacement field from <code class="docutils literal notranslate"><span class="pre">reference</span></code> into <code class="docutils literal notranslate"><span class="pre">moved</span></code>, by greedy SyN or TV-L1 optical flow.</p>
-<p>Registers magnitudes.</p>
+<p>Magnitudes are registered.  BART’s <code class="docutils literal notranslate"><span class="pre">estmotion</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -570,11 +568,15 @@ displacement in voxels along <code class="docutils literal notranslate"><span cl
 <code class="docutils literal notranslate"><span class="pre">moved(p</span> <span class="pre">+</span> <span class="pre">field[p])</span> <span class="pre">≈</span> <span class="pre">reference(p)</span></code>.  What <a class="reference internal" href="bartorch.tools.warp.html#bartorch.tools.warp" title="bartorch.tools.warp"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.warp()</span></code></a>
 takes: <code class="docutils literal notranslate"><span class="pre">warp(moved,</span> <span class="pre">field,</span> <span class="pre">axes)</span></code> resamples <code class="docutils literal notranslate"><span class="pre">moved</span></code> onto
 <code class="docutils literal notranslate"><span class="pre">reference</span></code>.</p></li>
-<li><p><strong>inverse_field</strong> (<em>torch.Tensor or None</em>) – Same layout, <code class="docutils literal notranslate"><span class="pre">reference(p</span> <span class="pre">+</span> <span class="pre">inverse_field[p])</span> <span class="pre">≈</span> <span class="pre">moved(p)</span></code>.  <code class="docutils literal notranslate"><span class="pre">None</span></code>
-with <code class="docutils literal notranslate"><span class="pre">optical_flow</span></code>: BART computes no inverse there
-(<code class="docutils literal notranslate"><span class="pre">estmotion.c:275</span></code>).</p></li>
+<li><p><strong>inverse_field</strong> (<em>torch.Tensor or None</em>) – Same layout, <code class="docutils literal notranslate"><span class="pre">reference(p</span> <span class="pre">+</span> <span class="pre">inverse_field[p])</span> <span class="pre">≈</span> <span class="pre">moved(p)</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code>
+with <code class="docutils literal notranslate"><span class="pre">optical_flow</span></code>, for which BART computes no inverse.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the images differ in shape or have more than eight axes, <code class="docutils literal notranslate"><span class="pre">levels</span></code>
+    is outside one to five, or <code class="docutils literal notranslate"><span class="pre">tv_weight</span></code> or <code class="docutils literal notranslate"><span class="pre">max_flow</span></code> is given
+    without <code class="docutils literal notranslate"><span class="pre">optical_flow</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

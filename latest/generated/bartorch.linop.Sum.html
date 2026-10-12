@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -551,17 +549,14 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">Sum</span></span><a class="headerlink" href="#bartorch.linop.Sum" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
 <p>Sum over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">linop_sum</span></code>.</p>
-<p>The summed axes are kept with size one rather than dropped, as BART does,
-so the result broadcasts back against the input.  Its
-adjoint is <a class="reference internal" href="bartorch.linop.Repeat.html#bartorch.linop.Repeat" title="bartorch.linop.Repeat"><code class="xref py py-class docutils literal notranslate"><span class="pre">Repeat</span></code></a>.</p>
-<p>BART attaches a closed-form pseudo-inverse to this operator, but it
-answers for <a class="reference internal" href="bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledSum</span></code></a>’s scaling, so
-<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.pinv" title="bartorch.linop.LinearOperator.pinv"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pinv()</span></code></a> takes the solver here.</p>
+<p>The summed axes are kept with size one.  The adjoint is <a class="reference internal" href="bartorch.linop.Repeat.html#bartorch.linop.Repeat" title="bartorch.linop.Repeat"><code class="xref py py-class docutils literal notranslate"><span class="pre">Repeat</span></code></a>.
+<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.pinv" title="bartorch.linop.LinearOperator.pinv"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pinv()</span></code></a> uses the solver: BART’s
+closed form on this operator is <a class="reference internal" href="bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledSum</span></code></a>’s.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The shape it sums over, C order.</p></li>
-<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Which axes to sum, as indices into <code class="docutils literal notranslate"><span class="pre">shape</span></code>.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain, C order.</p></li>
+<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes to sum.</p></li>
 </ul>
 </dd>
 </dl>

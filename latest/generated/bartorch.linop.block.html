@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,17 +547,21 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.linop.block">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.block" title="Link to this definition">#</a></dt>
-<dd><p>A block matrix of operators.</p>
-<p>Every operator in a row shares a codomain and every operator in a column
-shares a domain; the row is <a class="reference internal" href="bartorch.linop.hstack.html#bartorch.linop.hstack" title="bartorch.linop.hstack"><code class="xref py py-func docutils literal notranslate"><span class="pre">hstack()</span></code></a> and the rows together are
-<a class="reference internal" href="bartorch.linop.concatenate.html#bartorch.linop.concatenate" title="bartorch.linop.concatenate"><code class="xref py py-func docutils literal notranslate"><span class="pre">concatenate()</span></code></a>.</p>
+<dd><p>Block matrix of operators.</p>
+<p>Each row is <a class="reference internal" href="bartorch.linop.hstack.html#bartorch.linop.hstack" title="bartorch.linop.hstack"><code class="xref py py-func docutils literal notranslate"><span class="pre">hstack()</span></code></a>-ed and the rows are <a class="reference internal" href="bartorch.linop.concatenate.html#bartorch.linop.concatenate" title="bartorch.linop.concatenate"><code class="xref py py-func docutils literal notranslate"><span class="pre">concatenate()</span></code></a>-d.
+Operators in a row share a codomain; operators in a column share a domain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rows</strong> (<em>sequence</em><em> of </em><em>sequence</em><em> of </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – The blocks, row by row.  Rows must be the same length.</p></li>
-<li><p><strong>axis</strong> (<em>int</em><em>, </em><em>default=0</em>) – Which axis grows, in the domain within a row and in the codomain
-between rows.</p></li>
+<li><p><strong>rows</strong> (<em>sequence</em><em> of </em><em>sequence</em><em> of </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – The blocks, row by row, every row the same length.</p></li>
+<li><p><strong>axis</strong> (<em>int</em><em>, </em><em>default=0</em>) – Axis split in the domain and concatenated in the codomain.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – When <code class="docutils literal notranslate"><span class="pre">rows</span></code> is empty or ragged.</p>
 </dd>
 </dl>
 </dd></dl>

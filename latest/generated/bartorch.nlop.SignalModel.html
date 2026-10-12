@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -534,6 +532,7 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel"><code class="docutils literal notranslate"><span class="pre">SignalModel</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.channels"><code class="docutils literal notranslate"><span class="pre">SignalModel.channels</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.contrasts"><code class="docutils literal notranslate"><span class="pre">SignalModel.contrasts</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.names"><code class="docutils literal notranslate"><span class="pre">SignalModel.names</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.initial"><code class="docutils literal notranslate"><span class="pre">SignalModel.initial()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.split"><code class="docutils literal notranslate"><span class="pre">SignalModel.split()</span></code></a></li>
@@ -556,29 +555,39 @@
 <dt class="sig sig-object py" id="bartorch.nlop.SignalModel">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">SignalModel</span></span><a class="headerlink" href="#bartorch.nlop.SignalModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a></p>
-<p>A BlochSim signal model as a BART nonlinear operator.</p>
-<p>The operator maps parameter maps to one image per contrast.  What it does
-at each point is BlochSim’s: <code class="xref py py-meth docutils literal notranslate"><span class="pre">A()</span></code> for
-the value, <code class="docutils literal notranslate"><span class="pre">A_jvp</span></code> for the derivative and <code class="docutils literal notranslate"><span class="pre">A_vjp</span></code> for its adjoint, none
-of which builds a Jacobian – the model is voxel-diagonal, so one
-forward-mode pass gives the whole volume’s derivative whatever the
-parameter count.</p>
+<p>BlochSim signal model as a nonlinear operator from parameter maps to contrast images.</p>
+<p>The value, derivative and adjoint are BlochSim’s
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">A()</span></code>, <code class="docutils literal notranslate"><span class="pre">A_jvp</span></code> and <code class="docutils literal notranslate"><span class="pre">A_vjp</span></code>.  The
+domain is <code class="docutils literal notranslate"><span class="pre">(channels,</span> <span class="pre">*shape)</span></code>: the model’s variables (bounded
+parameters in their transformed form, the amplitude as real and imaginary
+parts) in the real part of a complex tensor, in the order of
+<a class="reference internal" href="#bartorch.nlop.SignalModel.names" title="bartorch.nlop.SignalModel.names"><code class="xref py py-attr docutils literal notranslate"><span class="pre">names</span></code></a>.  The codomain is <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">*shape)</span></code>.
+<a class="reference internal" href="#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> and <a class="reference internal" href="#bartorch.nlop.SignalModel.split" title="bartorch.nlop.SignalModel.split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">split()</span></code></a> convert from and to named maps in
+physical units.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>blochsim.recon.ModelOperator</em>) – The signal model, with its unknowns, bounds and scales already set.</p></li>
-<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>)</em>) – The voxel shape, C order – <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code>, <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, whatever the
-maps are.  The operator’s domain is <code class="docutils literal notranslate"><span class="pre">(channels,</span> <span class="pre">*shape)</span></code> and its
-codomain <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">*shape)</span></code>.</p></li>
-<li><p><strong>contrasts</strong> (<em>int</em><em>, </em><em>default=None</em>) – How many images the model returns.  Measured from the model when it
-is not given.</p></li>
+<li><p><strong>model</strong> (<em>blochsim.recon.ModelOperator</em>) – Signal model with its unknowns, bounds and scales set.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=</em><em>(</em><em>)</em>) – Voxel shape, C order.</p></li>
+<li><p><strong>contrasts</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of contrast images; evaluated from the model when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bartorch.nlop.SignalModel.channels">
 <span class="sig-name descname"><span class="pre">channels</span></span><a class="headerlink" href="#bartorch.nlop.SignalModel.channels" title="Link to this definition">#</a></dt>
-<dd><p>Map channels the domain carries, in BlochSim’s order.</p>
+<dd><p>Number of channels of the domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bartorch.nlop.SignalModel.contrasts">
+<span class="sig-name descname"><span class="pre">contrasts</span></span><a class="headerlink" href="#bartorch.nlop.SignalModel.contrasts" title="Link to this definition">#</a></dt>
+<dd><p>Number of contrast images of the codomain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -607,26 +616,46 @@ is not given.</p></li>
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.nlop.SignalModel.names">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bartorch.nlop.SignalModel.names" title="Link to this definition">#</a></dt>
-<dd><p>What each channel of the domain is, in order.</p>
+<dd><p>Name of each channel of the domain, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.nlop.SignalModel.initial">
 <span class="sig-name descname"><span class="pre">initial</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.SignalModel.initial" title="Link to this definition">#</a></dt>
-<dd><p>Maps to start from, in this operator’s layout.</p>
-<p>Accepts the arguments of
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code> – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">value}</span></code> in
-each property’s own units – and returns a complex tensor of
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">ishape</span></code>.</p>
+<dd><p>Pack starting maps into the operator’s domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**values</strong> – <code class="docutils literal notranslate"><span class="pre">name=value</span></code> in each property’s physical units, as
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code> takes them; a scalar
+or a map of the voxel shape.  Properties not given take the
+model’s default.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complex64 tensor of <code class="xref py py-attr docutils literal notranslate"><span class="pre">ishape</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.nlop.SignalModel.split">
 <span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.SignalModel.split" title="Link to this definition">#</a></dt>
-<dd><p>The named maps <code class="docutils literal notranslate"><span class="pre">x</span></code> stands for, in their own units.</p>
-<p>The inverse of the packing <a class="reference internal" href="#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> does: what a fit returns is
-the variables actually solved for, and this turns them back
-into a T1 in milliseconds and a complex amplitude.</p>
+<dd><p>Unpack a tensor of the domain into named maps in physical units.</p>
+<p>The inverse of <a class="reference internal" href="#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a>; only the real part of <code class="docutils literal notranslate"><span class="pre">x</span></code> is read.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Tensor of <code class="xref py py-attr docutils literal notranslate"><span class="pre">ishape</span></code>, such as a fit’s result.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One map of the voxel shape per unknown, e.g. <code class="docutils literal notranslate"><span class="pre">T1</span></code> in ms and a
+complex <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict of str to torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -665,6 +694,7 @@ into a T1 in milliseconds and a complex amplitude.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel"><code class="docutils literal notranslate"><span class="pre">SignalModel</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.channels"><code class="docutils literal notranslate"><span class="pre">SignalModel.channels</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.contrasts"><code class="docutils literal notranslate"><span class="pre">SignalModel.contrasts</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.names"><code class="docutils literal notranslate"><span class="pre">SignalModel.names</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.initial"><code class="docutils literal notranslate"><span class="pre">SignalModel.initial()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.nlop.SignalModel.split"><code class="docutils literal notranslate"><span class="pre">SignalModel.split()</span></code></a></li>

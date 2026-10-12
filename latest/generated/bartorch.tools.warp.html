@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,28 +547,30 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.tools.warp">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">warp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.warp" title="Link to this definition">#</a></dt>
-<dd><p>Pull <code class="docutils literal notranslate"><span class="pre">input</span></code> through a displacement field: <code class="docutils literal notranslate"><span class="pre">out[p]</span> <span class="pre">=</span> <span class="pre">input(p</span> <span class="pre">+</span> <span class="pre">displacement[p])</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">p</span></code> and the displacement are in voxels along <code class="docutils literal notranslate"><span class="pre">axes</span></code>; the grid is
-zero outside <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n</span> <span class="pre">-</span> <span class="pre">1]</span></code>.  BART’s <code class="docutils literal notranslate"><span class="pre">interpolate</span> <span class="pre">-D</span></code>.</p>
+<dd><p>Resample <code class="docutils literal notranslate"><span class="pre">input</span></code> through a displacement field: <code class="docutils literal notranslate"><span class="pre">out[p]</span> <span class="pre">=</span> <span class="pre">input(p</span> <span class="pre">+</span> <span class="pre">displacement[p])</span></code>.</p>
+<p>Positions and displacements are in voxels along <code class="docutils literal notranslate"><span class="pre">axes</span></code>; the grid is zero
+outside <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n</span> <span class="pre">-</span> <span class="pre">1]</span></code>.  BART’s <code class="docutils literal notranslate"><span class="pre">interpolate</span> <span class="pre">-D</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>torch.Tensor</em>)</p></li>
-<li><p><strong>displacement</strong> (<em>torch.Tensor</em>) – Real field of shape <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">len(axes))</span></code>; component <code class="docutils literal notranslate"><span class="pre">i</span></code> of the last
-axis is the displacement along <code class="docutils literal notranslate"><span class="pre">axes[i]</span></code>.  The leading shape is
-aligned right against <code class="docutils literal notranslate"><span class="pre">input.shape</span></code>, equal to it along <code class="docutils literal notranslate"><span class="pre">axes</span></code> and
-one or equal elsewhere.</p></li>
-<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – The last <code class="docutils literal notranslate"><span class="pre">len(axes)</span></code> axes, in any order: BART interpolates along the
-first <code class="docutils literal notranslate"><span class="pre">len(axes)</span></code> BART dims whatever the flags
-(motion/displacement.c:117).</p></li>
-<li><p><strong>order</strong> (<em>{0</em><em>, </em><em>1</em><em>, </em><em>3}</em><em>, </em><em>default=1</em>) – Nearest neighbour, linear, or Keys cubic; see <code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate()</span></code>.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Image to resample.</p></li>
+<li><p><strong>displacement</strong> (<em>torch.Tensor</em>) – Real, <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">len(axes))</span></code>: component <code class="docutils literal notranslate"><span class="pre">i</span></code> is the displacement along
+<code class="docutils literal notranslate"><span class="pre">axes[i]</span></code>.  The leading shape aligns right against <code class="docutils literal notranslate"><span class="pre">input.shape</span></code>,
+equal to it along <code class="docutils literal notranslate"><span class="pre">axes</span></code> and one or equal elsewhere.</p></li>
+<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – The last <code class="docutils literal notranslate"><span class="pre">len(axes)</span></code> axes, in any order.</p></li>
+<li><p><strong>order</strong> (<em>{0</em><em>, </em><em>1</em><em>, </em><em>3}</em><em>, </em><em>default=1</em>) – Nearest neighbour, linear, or Keys cubic; see
+<a class="reference internal" href="bartorch.interpolate.html#bartorch.interpolate" title="bartorch.interpolate"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.interpolate()</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Same shape as <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p>
+<dd class="field-even"><p>The shape of <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">axes</span></code> are not the trailing axes or <code class="docutils literal notranslate"><span class="pre">displacement</span></code> does not
+    match <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

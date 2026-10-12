@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.optim.ISTBlock';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -555,40 +555,66 @@
 <dt class="sig sig-object py" id="bartorch.optim.ISTBlock">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">ISTBlock</span></span><a class="headerlink" href="#bartorch.optim.ISTBlock" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>One step of iterative soft thresholding, <code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>’s <code class="docutils literal notranslate"><span class="pre">ist</span></code>.</p>
-<p>Thresholds, then steps along <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span> <span class="pre">-</span> <span class="pre">(A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">cclambda)</span> <span class="pre">x</span></code>;
-<a class="reference internal" href="#bartorch.optim.ISTBlock.output" title="bartorch.optim.ISTBlock.output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code></a> thresholds once more, as BART does after its loop.  With
-<code class="docutils literal notranslate"><span class="pre">eigen</span></code> the step is divided by the largest eigenvalue, estimated at
-<a class="reference internal" href="#bartorch.optim.ISTBlock.start" title="bartorch.optim.ISTBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start()</span></code></a>.</p>
-<p>The term’s proximal operator is applied to the image, so its transform
-must be the identity: <a class="reference internal" href="#bartorch.optim.ISTBlock.start" title="bartorch.optim.ISTBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start()</span></code></a> refuses a term such as
-<a class="reference internal" href="bartorch.priors.FourierL1.html#bartorch.priors.FourierL1" title="bartorch.priors.FourierL1"><code class="xref py py-class docutils literal notranslate"><span class="pre">FourierL1</span></code></a>, <a class="reference internal" href="bartorch.priors.Laplace.html#bartorch.priors.Laplace" title="bartorch.priors.Laplace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Laplace</span></code></a>
-or <a class="reference internal" href="bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><code class="xref py py-class docutils literal notranslate"><span class="pre">TotalVariation</span></code></a>, which <a class="reference internal" href="bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a>
-and <a class="reference internal" href="bartorch.optim.PRIDUBlock.html#bartorch.optim.PRIDUBlock" title="bartorch.optim.PRIDUBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">PRIDUBlock</span></code></a> take.</p>
+<p>One iteration of iterative soft thresholding, BART’s <code class="docutils literal notranslate"><span class="pre">ist</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p>
+<p>With <span class="math notranslate nohighlight">\(z = \operatorname{prox}_{\tau g}(x)\)</span>, a step is</p>
+<div class="math notranslate nohighlight">
+\[x \leftarrow z - \tau \bigl( M (A^H A + \lambda) z - M A^H y \bigr),\]</div>
+<p>and <a class="reference internal" href="#bartorch.optim.ISTBlock.output" title="bartorch.optim.ISTBlock.output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code></a> applies the proximal operator once more, as BART does
+after its loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prior</strong> (<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em> or </em><a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><em>ImplicitPrior</em></a>) – The single term <span class="math notranslate nohighlight">\(g\)</span>; its transform must be the identity.</p></li>
+<li><p><strong>step</strong> (<em>float</em><em>, </em><em>default=0.95</em>) – Step size <span class="math notranslate nohighlight">\(\tau\)</span>.</p></li>
+<li><p><strong>eigen</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Divide the step by <a class="reference internal" href="bartorch.optim.maxeigen.html#bartorch.optim.maxeigen" title="bartorch.optim.maxeigen"><code class="xref py py-func docutils literal notranslate"><span class="pre">maxeigen()</span></code></a> of the normal
+operator, estimated in <a class="reference internal" href="#bartorch.optim.ISTBlock.start" title="bartorch.optim.ISTBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start()</span></code></a>.</p></li>
+<li><p><strong>cclambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – <span class="math notranslate nohighlight">\(\lambda\)</span>, the weight of an identity added to the normal operator.</p></li>
+<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Left preconditioner <span class="math notranslate nohighlight">\(M\)</span> from <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code> to itself, positive
+definite (<code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>’s <code class="docutils literal notranslate"><span class="pre">precond_op</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Not exactly one term; at <a class="reference internal" href="#bartorch.optim.ISTBlock.start" title="bartorch.optim.ISTBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start()</span></code></a>, a term whose transform is not
+    the identity, such as <a class="reference internal" href="bartorch.priors.FourierL1.html#bartorch.priors.FourierL1" title="bartorch.priors.FourierL1"><code class="xref py py-class docutils literal notranslate"><span class="pre">FourierL1</span></code></a>,
+    <a class="reference internal" href="bartorch.priors.Laplace.html#bartorch.priors.Laplace" title="bartorch.priors.Laplace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Laplace</span></code></a> or
+    <a class="reference internal" href="bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><code class="xref py py-class docutils literal notranslate"><span class="pre">TotalVariation</span></code></a>, which <a class="reference internal" href="bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a> and
+    <a class="reference internal" href="bartorch.optim.PRIDUBlock.html#bartorch.optim.PRIDUBlock" title="bartorch.optim.PRIDUBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">PRIDUBlock</span></code></a> take.</p></li>
+<li><p><strong>TypeError</strong> – A term with auxiliary variables.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.ISTBlock.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.ISTBlock.start" title="Link to this definition">#</a></dt>
-<dd><p>The run’s state: the start, and <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code> kept for every step.</p>
+<dd><p>Initial state of a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>tensor</em>) – Data of <code class="docutils literal notranslate"><span class="pre">A.oshape</span></code>, or <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">*A.oshape)</span></code>.</p></li>
+<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding operator.</p></li>
+<li><p><strong>x0</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Starting image; zero when omitted, as in BART.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The start and <span class="math notranslate nohighlight">\(M A^H y\)</span>, kept for every step.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>State</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.ISTBlock.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.ISTBlock.forward" title="Link to this definition">#</a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
+<dd><p>Take one iteration from <code class="docutils literal notranslate"><span class="pre">state</span></code>; returns the next state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.ISTBlock.output">
 <span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.ISTBlock.output" title="Link to this definition">#</a></dt>
-<dd><p>The image, thresholded once more, as <code class="docutils literal notranslate"><span class="pre">italgo_config</span></code> leaves <code class="docutils literal notranslate"><span class="pre">last</span></code> false.</p>
+<dd><p>Image of <code class="docutils literal notranslate"><span class="pre">state</span></code>, with the proximal operator applied once more, as in BART.</p>
 </dd></dl>
 
 </dd></dl>

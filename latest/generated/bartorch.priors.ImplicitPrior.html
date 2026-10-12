@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -561,67 +559,58 @@
 <dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.priors.</span></span><span class="sig-name descname"><span class="pre">ImplicitPrior</span></span><a class="headerlink" href="#bartorch.priors.ImplicitPrior" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>A denoiser substituted for a <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> regularizer.</p>
-<p>The proximal operator is <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma)</span></code> independently of the step,
-as plug-and-play regularization defines it, or <code class="docutils literal notranslate"><span class="pre">denoiser(x)</span></code> where no
-<code class="docutils literal notranslate"><span class="pre">sigma</span></code> is given.  Unlike a BART proximal operator this one is
-differentiable, so a solve containing it can be differentiated end to end.</p>
-<p>The denoiser receives a leading batch axis, of length one for a single
-image.  <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Parameter</span></code>, fixed until
-<code class="docutils literal notranslate"><span class="pre">requires_grad_()</span></code> is called.</p>
-<p>A sequence of <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is a schedule, one noise level per iteration and
-the last repeated beyond its end: the annealed plug-and-play iteration,
-which starts with a strong denoiser and weakens it as the data-consistent
-estimate improves.  With <code class="docutils literal notranslate"><span class="pre">step</span></code> the denoiser is also given the iteration
-index, as <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma,</span> <span class="pre">step=k)</span></code> or <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">step=k)</span></code>, which
-is how a network shared by the iterations of an unrolled reconstruction
-adapts to each (<a class="reference internal" href="bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.UNet</span></code></a> with <code class="docutils literal notranslate"><span class="pre">steps=True</span></code>).
-Either makes each iteration a different map, which
-<a class="reference internal" href="bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a> refuses.</p>
-<p><code class="docutils literal notranslate"><span class="pre">transform</span></code> is the linear operator <span class="math notranslate nohighlight">\(G\)</span> of a term <span class="math notranslate nohighlight">\(g(G x)\)</span>,
-as a regularizer built by BART also carries.  The denoiser is then applied
-on the codomain of <span class="math notranslate nohighlight">\(G\)</span> rather than to the image, and the
-alternating-direction and primal-dual iterations split the variable at
-<span class="math notranslate nohighlight">\(G x\)</span>, introducing one auxiliary variable and one dual variable per
-term and adding <span class="math notranslate nohighlight">\(G^H G\)</span> to the x-update.  This accommodates a prior
-learned in a representation other than the optimization variable, such as
-contrast-weighted images obtained from subspace coefficient maps.  Without
-it <span class="math notranslate nohighlight">\(G\)</span> is the identity and the denoiser is applied to the image.</p>
+<p>Denoiser in place of a regularization term’s proximal operator (plug-and-play).</p>
+<p>The proximal step is <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma)</span></code>, or <code class="docutils literal notranslate"><span class="pre">denoiser(x)</span></code> without a
+<code class="docutils literal notranslate"><span class="pre">sigma</span></code>, independently of the solver’s step size.  Unlike BART’s proximal
+operators it is differentiable, so a solve containing it can be
+differentiated end to end.  The proximal solvers of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>
+take it in place of a term.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">transform</span></code>, the term is <span class="math notranslate nohighlight">\(g(G x)\)</span>: the denoiser is applied on
+the codomain of <span class="math notranslate nohighlight">\(G\)</span>, and the alternating-direction and primal-dual
+iterations split the variable at <span class="math notranslate nohighlight">\(G x\)</span>, as for a BART term with a
+transform.  This places a prior learned in another representation, such as
+contrast-weighted images synthesized from subspace coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>denoiser</strong> (<em>callable</em>) – Called as <code class="docutils literal notranslate"><span class="pre">denoiser(x)</span></code>, or as <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma)</span></code> when a
-<code class="docutils literal notranslate"><span class="pre">sigma</span></code> is given.  Without <code class="docutils literal notranslate"><span class="pre">spatial</span></code> it receives the complex
-<code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">*shape)</span></code> tensor as it stands, where <code class="docutils literal notranslate"><span class="pre">shape</span></code> is the image’s
-shape or, with a <code class="docutils literal notranslate"><span class="pre">transform</span></code>, the codomain of <span class="math notranslate nohighlight">\(G\)</span>.  With
-<code class="docutils literal notranslate"><span class="pre">spatial</span></code> it is an image-restoration network on real
-<code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> planes of order unity – a <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>,
-<code class="docutils literal notranslate"><span class="pre">monai</span></code> or local <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code> – and the conversion is
-done here.</p></li>
-<li><p><strong>sigma</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – The noise level the denoiser is asked for, in the units its own
-convention states; a sequence gives one per iteration.</p></li>
-<li><p><strong>transform</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\(G\)</span>, mapping the image to the domain the denoiser is applied on.
-Only the iterations given a term’s transform use it; see
-<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.transform_is_identity" title="bartorch.priors.Regularizer.transform_is_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bartorch.priors.Regularizer.transform_is_identity()</span></code></a>.</p></li>
-<li><p><strong>spatial</strong> (<em>{2</em><em>, </em><em>3}</em><em>, </em><em>default=None</em>) – Trailing axes the network operates on: 2 for a network trained on
-slices, 3 for one trained on volumes.  The axes in front of them are
-folded into the network’s batch axis.  <code class="docutils literal notranslate"><span class="pre">None</span></code> passes the complex
-tensor unconverted.</p></li>
-<li><p><strong>channels</strong> (<em>{1</em><em>, </em><em>2</em><em>, </em><em>3}</em><em>, </em><em>default=1</em>) – Input channels of the network: 1 for grayscale, 3 for RGB (a plane is
-repeated and the three outputs averaged), 2 for a network taking the
-real and imaginary planes jointly, as MoDL’s does.  Only with
-<code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
-<li><p><strong>parts</strong> (<em>{&quot;channels&quot;</em><em>, </em><em>&quot;separate&quot;</em><em>, </em><em>&quot;magnitude&quot;}</em><em>, </em><em>default=None</em>) – How the complex values become real planes: the real and imaginary
-parts as the network’s two channels, each part denoised on its own in
-one call over a doubled batch, or the modulus denoised with the phase
-kept.  Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;channels&quot;</span></code> for two channels and <code class="docutils literal notranslate"><span class="pre">&quot;separate&quot;</span></code>
-otherwise.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
-<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Scale each image to unit peak modulus around the call; <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is
-then in units of that peak.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
+<li><p><strong>denoiser</strong> (<em>callable</em>) – Called as <code class="docutils literal notranslate"><span class="pre">denoiser(x)</span></code> or <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma)</span></code>, with <code class="docutils literal notranslate"><span class="pre">step=k</span></code>
+added under <code class="docutils literal notranslate"><span class="pre">step</span></code>.  Without <code class="docutils literal notranslate"><span class="pre">spatial</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code> is the complex tensor
+<code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">*shape)</span></code>, with <code class="docutils literal notranslate"><span class="pre">shape</span></code> the image’s or the codomain of
+<span class="math notranslate nohighlight">\(G\)</span>; with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>, a network on real
+<code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> tensors of order unity, such as a
+<code class="docutils literal notranslate"><span class="pre">deepinv</span></code> or <code class="docutils literal notranslate"><span class="pre">monai</span></code> model.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – Noise level passed to the denoiser, in its own units.  A sequence is a
+schedule, one per iteration, the last repeated beyond its end.  Held as
+a frozen <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Parameter</span></code>.</p></li>
+<li><p><strong>transform</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\(G\)</span>, with domain the image; the identity when omitted.</p></li>
+<li><p><strong>spatial</strong> (<em>{2</em><em>, </em><em>3}</em><em>, </em><em>default=None</em>) – Trailing axes the network takes; the axes in front are folded into its
+batch axis.  <code class="docutils literal notranslate"><span class="pre">None</span></code> passes the complex tensor unconverted.</p></li>
+<li><p><strong>channels</strong> (<em>{1</em><em>, </em><em>2</em><em>, </em><em>3}</em><em>, </em><em>default=1</em>) – Input channels of the network: 1 for grayscale, 3 for RGB (the plane is
+repeated and the three outputs averaged), 2 for the real and imaginary
+parts jointly.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
+<li><p><strong>parts</strong> (<em>{&quot;channels&quot;</em><em>, </em><em>&quot;separate&quot;</em><em>, </em><em>&quot;magnitude&quot;}</em><em>, </em><em>default=None</em>) – Real and imaginary parts as two channels, each part denoised separately
+in one call, or the modulus denoised with the phase kept.
+<code class="docutils literal notranslate"><span class="pre">&quot;channels&quot;</span></code> for two channels and <code class="docutils literal notranslate"><span class="pre">&quot;separate&quot;</span></code> otherwise when
+omitted.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Divide each image by its peak modulus around the call, so <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is
+relative to that peak.  Only with <code class="docutils literal notranslate"><span class="pre">spatial</span></code>.</p></li>
 <li><p><strong>step</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Pass the iteration index to the denoiser as <code class="docutils literal notranslate"><span class="pre">step</span></code>.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – <code class="docutils literal notranslate"><span class="pre">denoiser</span></code> is not callable.</p></li>
+<li><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">channels</span></code>, <code class="docutils literal notranslate"><span class="pre">parts</span></code> or <code class="docutils literal notranslate"><span class="pre">normalize</span></code> without <code class="docutils literal notranslate"><span class="pre">spatial</span></code>, or an
+    inconsistent combination of them; a <code class="docutils literal notranslate"><span class="pre">sigma</span></code> that is empty or not
+    one-dimensional.</p></li>
+</ul>
+</dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">sigma</span></code> schedule or <code class="docutils literal notranslate"><span class="pre">step=True</span></code> makes each iteration a different
+map (annealed plug-and-play, or a network shared by the iterations of an
+unrolled reconstruction, such as <a class="reference internal" href="bartorch.learning.UNet.html#bartorch.learning.UNet" title="bartorch.learning.UNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.UNet</span></code></a> with
+<code class="docutils literal notranslate"><span class="pre">steps=True</span></code>); <a class="reference internal" href="bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a> refuses both.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">deepinv.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRUNet</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">prior</span> <span class="o">=</span> <span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span><span class="p">(</span><span class="n">DRUNet</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">spatial</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -643,27 +632,64 @@ then in units of that peak.  Only with <code class="docutils literal notranslate
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior.prox">
 <span class="sig-name descname"><span class="pre">prox</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.ImplicitPrior.prox" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply the denoiser to <code class="docutils literal notranslate"><span class="pre">x</span></code>; <code class="docutils literal notranslate"><span class="pre">gamma</span></code> is ignored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>tensor</em>) – Of <a class="reference internal" href="#bartorch.priors.ImplicitPrior.prox_shape" title="bartorch.priors.ImplicitPrior.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a>, or with a leading batch axis.</p></li>
+<li><p><strong>gamma</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Ignored: the denoising strength is <code class="docutils literal notranslate"><span class="pre">sigma</span></code>.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Image shape, which tells a single <code class="docutils literal notranslate"><span class="pre">x</span></code> from a batch; without it <code class="docutils literal notranslate"><span class="pre">x</span></code>
+is a single item.</p></li>
+<li><p><strong>iteration</strong> (<em>int</em><em>, </em><em>default=0</em>) – Iteration index, which selects the <code class="docutils literal notranslate"><span class="pre">sigma</span></code> of a schedule and is passed
+as <code class="docutils literal notranslate"><span class="pre">step</span></code> under <code class="docutils literal notranslate"><span class="pre">step=True</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Of <code class="docutils literal notranslate"><span class="pre">x</span></code>’s shape.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior.prox_shape">
 <span class="sig-name descname"><span class="pre">prox_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.ImplicitPrior.prox_shape" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Shape the denoiser is applied on: the image’s, or the codomain of <code class="docutils literal notranslate"><span class="pre">transform</span></code>.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior.apply_transform">
 <span class="sig-name descname"><span class="pre">apply_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.ImplicitPrior.apply_transform" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply <span class="math notranslate nohighlight">\(G\)</span>, <span class="math notranslate nohighlight">\(G^H\)</span> or <span class="math notranslate nohighlight">\(G^H G\)</span> to <code class="docutils literal notranslate"><span class="pre">x</span></code>, recorded for autograd.</p>
+<p>The identity without <code class="docutils literal notranslate"><span class="pre">transform</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Input of the mode, with or without a leading batch axis, applied item
+by item.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Image shape, checked against the domain of <span class="math notranslate nohighlight">\(G\)</span>.</p></li>
+<li><p><strong>mode</strong> (<em>{&quot;forward&quot;</em><em>, </em><em>&quot;adjoint&quot;</em><em>, </em><em>&quot;normal&quot;}</em><em>, </em><em>default=&quot;forward&quot;</em>) – <span class="math notranslate nohighlight">\(G\)</span>, <span class="math notranslate nohighlight">\(G^H\)</span> or <span class="math notranslate nohighlight">\(G^H G\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior.transform_is_identity">
 <span class="sig-name descname"><span class="pre">transform_is_identity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.ImplicitPrior.transform_is_identity" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Whether the term has no <code class="docutils literal notranslate"><span class="pre">transform</span></code>.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.ImplicitPrior.rewind">
 <span class="sig-name descname"><span class="pre">rewind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.ImplicitPrior.rewind" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Do nothing: the term draws no random shifts.</p>
+</dd></dl>
 
 </dd></dl>
 

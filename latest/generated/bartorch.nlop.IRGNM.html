@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -554,33 +552,35 @@
 <dt class="sig sig-object py" id="bartorch.nlop.IRGNM">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">IRGNM</span></span><a class="headerlink" href="#bartorch.nlop.IRGNM" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
-<p>Iteratively regularized Gauss-Newton for <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code>, looping <a class="reference internal" href="bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a>.</p>
-<p>Each step linearizes at the current point and solves</p>
+<p>Iteratively regularized Gauss-Newton solver for <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code>.</p>
+<p>Each step linearizes <code class="docutils literal notranslate"><span class="pre">F</span></code> at the current iterate and solves</p>
 <p><code class="docutils literal notranslate"><span class="pre">min_u</span> <span class="pre">||DF</span> <span class="pre">u</span> <span class="pre">-</span> <span class="pre">r||^2</span> <span class="pre">+</span> <span class="pre">alpha</span> <span class="pre">||u||^2</span> <span class="pre">+</span> <span class="pre">R(u)</span></code></p>
-<p>where <code class="docutils literal notranslate"><span class="pre">r</span></code> is the residual carried to the linearization; the weight is
-then divided by <code class="docutils literal notranslate"><span class="pre">redu</span></code>, down to <code class="docutils literal notranslate"><span class="pre">alpha_min</span></code>.  <code class="docutils literal notranslate"><span class="pre">R</span></code> is whatever the
-inner solver regularizes with, and is nothing at all for conjugate
-gradients.</p>
+<p>for the residual <code class="docutils literal notranslate"><span class="pre">r</span></code> carried to the linearization; <code class="docutils literal notranslate"><span class="pre">alpha</span></code> is then
+decayed towards <code class="docutils literal notranslate"><span class="pre">alpha_min</span></code> by <code class="docutils literal notranslate"><span class="pre">redu</span></code>.  <code class="docutils literal notranslate"><span class="pre">R</span></code> is the regularization of
+the inner solver, and absent for conjugate gradients.  The solver loops
+<a class="reference internal" href="bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a>, which documents the two forms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=8</em>) – Gauss-Newton steps.</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Initial Tikhonov weight.</p></li>
-<li><p><strong>alpha_min</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – What the weight decays towards.</p></li>
-<li><p><strong>alpha_min0</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – A floor the decayed weight is never taken below.  Only the second
-form has it; BART’s <code class="docutils literal notranslate"><span class="pre">irgnm</span></code> does not.</p></li>
-<li><p><strong>redu</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – Factor the weight is divided by after each step.</p></li>
-<li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=30</em>) – Conjugate-gradient iterations per step, for the built-in solver.</p></li>
-<li><p><strong>cg_tol</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Conjugate-gradient tolerance per step, for the built-in solver.</p></li>
-<li><p><strong>inner</strong> (<em>solver</em><em> or </em><em>None</em><em>, </em><em>default=None</em>) – A configured solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> for the linearized
-problem, whose regularizers become the <code class="docutils literal notranslate"><span class="pre">R</span></code> above.  <code class="docutils literal notranslate"><span class="pre">None</span></code> runs
-BART’s first form, with the inverse inside the library, as <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>
-does.</p></li>
-<li><p><strong>fuse</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Lower a coil composition so that its encoding is applied once as its
-normal operator.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Tikhonov weight of the first step.</p></li>
+<li><p><strong>alpha_min</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Limit the weight decays towards.</p></li>
+<li><p><strong>alpha_min0</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Lower bound on the decayed weight; used only with <code class="docutils literal notranslate"><span class="pre">inner</span></code>.</p></li>
+<li><p><strong>redu</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – Decay factor of the weight per step.</p></li>
+<li><p><strong>cg_maxiter</strong> (<em>int</em><em>, </em><em>default=30</em>) – Conjugate-gradient iterations per step without <code class="docutils literal notranslate"><span class="pre">inner</span></code>.</p></li>
+<li><p><strong>cg_tol</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Conjugate-gradient tolerance per step without <code class="docutils literal notranslate"><span class="pre">inner</span></code>.</p></li>
+<li><p><strong>inner</strong> (<em>solver</em><em>, </em><em>default=None</em>) – Configured solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> for the linearized
+problem, whose regularizers are <code class="docutils literal notranslate"><span class="pre">R</span></code>.  <code class="docutils literal notranslate"><span class="pre">None</span></code> solves it by
+conjugate gradients inside the library, as <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> does.</p></li>
+<li><p><strong>fuse</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the encoding of a coil model as its normal operator; see
+<a class="reference internal" href="bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock.plan" title="bartorch.nlop.IRGNMBlock.plan"><code class="xref py py-meth docutils literal notranslate"><span class="pre">IRGNMBlock.plan()</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>The two forms agree in exact arithmetic but not to the bit: without
+<code class="docutils literal notranslate"><span class="pre">inner</span></code> the result matches BART’s <code class="docutils literal notranslate"><span class="pre">iter4_irgnm</span></code>, and with
+<code class="docutils literal notranslate"><span class="pre">inner=optim.CG()</span></code> it matches <code class="docutils literal notranslate"><span class="pre">iter4_irgnm2</span></code>.</p>
 <p class="rubric">Examples</p>
 <p>Plain, which is <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nlop</span><span class="o">.</span><span class="n">IRGNM</span><span class="p">(</span><span class="n">iterations</span><span class="o">=</span><span class="mi">8</span><span class="p">)(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
@@ -605,28 +605,19 @@ normal operator.</p></li>
 <span class="gp">... </span><span class="p">)(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
 </pre></div>
 </div>
-<p class="rubric">Notes</p>
-<p>The two forms are the same method and not the same arithmetic.  The first
-carries <code class="docutils literal notranslate"><span class="pre">alpha</span> <span class="pre">(xref</span> <span class="pre">-</span> <span class="pre">x)</span></code> into the right-hand side and solves for a
-step; the second shifts by <code class="docutils literal notranslate"><span class="pre">xref</span></code>, carries an extra <code class="docutils literal notranslate"><span class="pre">DF</span> <span class="pre">(x</span> <span class="pre">-</span> <span class="pre">xref)</span></code>
-into the residual, and solves for the iterate itself.  They agree in exact
-arithmetic and differ in the last bits, so a run with <code class="docutils literal notranslate"><span class="pre">inner=</span></code> will not
-reproduce one without it.  Each reproduces BART’s own loop of its form –
-<code class="docutils literal notranslate"><span class="pre">iter4_irgnm</span></code> and, with <code class="docutils literal notranslate"><span class="pre">inner=optim.CG()</span></code>, <code class="docutils literal notranslate"><span class="pre">iter4_irgnm2</span></code> – and the
-suite holds both to that.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.nlop.IRGNM.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.IRGNM.__call__" title="Link to this definition">#</a></dt>
-<dd><p>Fit <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code>.</p>
+<dd><p>Solve <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Data of <code class="docutils literal notranslate"><span class="pre">F.oshape</span></code>, with an optional batch axis in front.</p></li>
-<li><p><strong>F</strong> (<a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><em>NonlinearOperator</em></a><em> or </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – The forward model, with a bundle; a linear one is converted with
+<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Data of <code class="docutils literal notranslate"><span class="pre">F.oshape</span></code>, with an optional leading batch axis.</p></li>
+<li><p><strong>F</strong> (<a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><em>NonlinearOperator</em></a><em> or </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Forward model; a linear one is converted with
 <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.to_nonlinear" title="bartorch.linop.LinearOperator.to_nonlinear"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_nonlinear()</span></code></a>.</p></li>
-<li><p><strong>x0</strong> (<em>torch.Tensor</em><em> or </em><em>tuple</em><em> of </em><em>torch.Tensor</em><em>, </em><em>default=None</em>) – Starting point; see <a class="reference internal" href="bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock.start" title="bartorch.nlop.IRGNMBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">IRGNMBlock.start()</span></code></a>.</p></li>
-<li><p><strong>xref</strong> (<em>torch.Tensor</em><em> or </em><em>tuple</em><em> of </em><em>torch.Tensor</em><em>, </em><em>default=None</em>) – Regularization centre.  Without one the steps are regularized
-towards zero, as BART does.</p></li>
+<li><p><strong>x0</strong> (<em>torch.Tensor</em><em> or </em><em>tuple</em><em> of </em><em>torch.Tensor</em><em>, </em><em>default=None</em>) – Start; see <a class="reference internal" href="bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock.start" title="bartorch.nlop.IRGNMBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">IRGNMBlock.start()</span></code></a>.</p></li>
+<li><p><strong>xref</strong> (<em>torch.Tensor</em><em> or </em><em>tuple</em><em> of </em><em>torch.Tensor</em><em>, </em><em>default=None</em>) – Regularization centre; <code class="docutils literal notranslate"><span class="pre">None</span></code> regularizes towards zero, as BART
+does.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

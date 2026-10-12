@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,26 +547,26 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.linop.Gradient">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">Gradient</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.Gradient" title="Link to this definition">#</a></dt>
-<dd><p>Finite differences along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, stacked on a new leading axis.</p>
-<p>BART’s <code class="docutils literal notranslate"><span class="pre">linop_grad</span></code>.  The codomain is <code class="docutils literal notranslate"><span class="pre">(len(axes),</span> <span class="pre">*shape)</span></code>: one
-difference per axis, side by side, which is the operator a total-variation term is
-built on.</p>
-<p>The difference is the forward one and the boundary is circular: component
-<code class="docutils literal notranslate"><span class="pre">i</span></code> at the last index along its axis is the first entry minus the last,
-not zero.  So the operator has a null space – a constant maps to zero –
-as a gradient does.</p>
-<p><strong>The components come out in ascending axis order</strong>, whatever order
-<code class="docutils literal notranslate"><span class="pre">axes</span></code> names them in.  BART stacks them by bit position, and its bits
-run the opposite way to C-order axes, so this reverses that with BART’s
-own <code class="docutils literal notranslate"><span class="pre">linop_flip</span></code> rather than leaving the caller to discover that
-<code class="docutils literal notranslate"><span class="pre">axes=(0,</span> <span class="pre">1)</span></code> puts axis 1 first.</p>
+<dd><p>Forward finite differences along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">linop_grad</span></code>.</p>
+<p>The boundary is circular: at the last index along an axis the difference
+is the first entry minus the last.  Constants are the null space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The domain, C order.</p></li>
-<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Which axes to difference along.  Order does not matter: BART takes a
-set of axes, and the result is ordered by axis either way.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain, C order.</p></li>
+<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes to difference along, each at most once.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Codomain <code class="docutils literal notranslate"><span class="pre">(len(axes),</span> <span class="pre">*shape)</span></code>.  The components are in ascending
+axis order, whatever the order of <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When an axis is named twice, or the new axis would exceed BART’s
+    dimension count.</p>
 </dd>
 </dl>
 </dd></dl>

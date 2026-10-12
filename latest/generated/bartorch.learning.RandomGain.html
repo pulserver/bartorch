@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.learning.RandomGain';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -553,22 +553,21 @@
 <dt class="sig sig-object py" id="bartorch.learning.RandomGain">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.learning.</span></span><span class="sig-name descname"><span class="pre">RandomGain</span></span><a class="headerlink" href="#bartorch.learning.RandomGain" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RandomTransform</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">IntensityTransform</span></code></p>
-<p>Multiply every image of a subject by one random complex gain.</p>
-<p>The images are complex values laid out as real channels by
-<a class="reference internal" href="bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><code class="xref py py-func docutils literal notranslate"><span class="pre">as_real()</span></code></a>, real parts first: a channel count of
-<code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">k</span></code> is <code class="docutils literal notranslate"><span class="pre">k</span></code> complex images.  The gain is <code class="docutils literal notranslate"><span class="pre">exp(s)</span> <span class="pre">exp(i</span> <span class="pre">phi)</span></code>, with
-<code class="docutils literal notranslate"><span class="pre">phi</span></code> uniform in <code class="docutils literal notranslate"><span class="pre">phase</span></code> and <code class="docutils literal notranslate"><span class="pre">s</span></code> uniform in <code class="docutils literal notranslate"><span class="pre">log_scale</span></code>, and the
-same for every image of the subject, so that a degraded input and its
-reference, or an image and the k-space made from it, stay consistent.
-The spatial transforms of <code class="docutils literal notranslate"><span class="pre">torchio</span></code> apply to the real and imaginary
-channels as they are, since interpolating each part is interpolating
-the complex value; its other intensity transforms do not respect the
-complex structure.</p>
+<p>Multiply every image of a subject by one random complex gain (<code class="docutils literal notranslate"><span class="pre">torchio</span></code> transform).</p>
+<p>The images hold complex values as real channels, laid out by
+<a class="reference internal" href="bartorch.learning.as_real.html#bartorch.learning.as_real" title="bartorch.learning.as_real"><code class="xref py py-func docutils literal notranslate"><span class="pre">as_real()</span></code></a>: <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">k</span></code> channels are <code class="docutils literal notranslate"><span class="pre">k</span></code> complex
+images, real parts first.  The gain is <span class="math notranslate nohighlight">\(e^{s} e^{i \varphi}\)</span>, with
+<span class="math notranslate nohighlight">\(\varphi\)</span> uniform in <code class="docutils literal notranslate"><span class="pre">phase</span></code> and <span class="math notranslate nohighlight">\(s\)</span> uniform in
+<code class="docutils literal notranslate"><span class="pre">log_scale</span></code>, the same for every image of the subject, so a degraded input
+and its reference stay consistent.  <code class="docutils literal notranslate"><span class="pre">torchio</span></code>’s spatial transforms apply
+to the real and imaginary channels as they are; its other intensity
+transforms do not respect the complex structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=pi</em>) – Range of <code class="docutils literal notranslate"><span class="pre">phi</span></code> in radians; a single value <code class="docutils literal notranslate"><span class="pre">d</span></code> is <code class="docutils literal notranslate"><span class="pre">(-d,</span> <span class="pre">d)</span></code>.</p></li>
-<li><p><strong>log_scale</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=0.0</em>) – Range of <code class="docutils literal notranslate"><span class="pre">s</span></code>; a single value <code class="docutils literal notranslate"><span class="pre">d</span></code> is <code class="docutils literal notranslate"><span class="pre">(-d,</span> <span class="pre">d)</span></code>.</p></li>
+<li><p><strong>phase</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=pi</em>) – Range of <span class="math notranslate nohighlight">\(\varphi\)</span>, in radians; a single value <code class="docutils literal notranslate"><span class="pre">d</span></code> is
+<code class="docutils literal notranslate"><span class="pre">(-d,</span> <span class="pre">d)</span></code>.</p></li>
+<li><p><strong>log_scale</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=0.0</em>) – Range of <span class="math notranslate nohighlight">\(s\)</span>; a single value <code class="docutils literal notranslate"><span class="pre">d</span></code> is <code class="docutils literal notranslate"><span class="pre">(-d,</span> <span class="pre">d)</span></code>.</p></li>
 <li><p><strong>**kwargs</strong> – Passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">torchio.transforms.Transform</span></code>.</p></li>
 </ul>
 </dd>

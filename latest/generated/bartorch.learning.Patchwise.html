@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -554,47 +552,44 @@
 <dt class="sig sig-object py" id="bartorch.learning.Patchwise">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.learning.</span></span><span class="sig-name descname"><span class="pre">Patchwise</span></span><a class="headerlink" href="#bartorch.learning.Patchwise" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>A network applied to an image one patch at a time, on its own device.</p>
-<p>The image stays where it is – normally the host – and is cut into
-non-overlapping patches over its trailing <code class="docutils literal notranslate"><span class="pre">len(patch)</span></code> axes, which are
-copied to the device a few at a time, passed through the network under
-automatic mixed precision, and copied back into place.  What the device
-holds at any moment is the network and <code class="docutils literal notranslate"><span class="pre">batch</span></code> patches, or, while
-<code class="docutils literal notranslate"><span class="pre">overlap</span></code> is in effect, two groups of <code class="docutils literal notranslate"><span class="pre">batch</span></code> patches and the outputs
-not yet placed, so a volume or
-a time series of volumes larger than the device’s memory goes through a
-network trained on patches of it.  The result is on the input’s device,
-in single precision, and differentiable with respect to both the input
+<p>Network applied to an image patch by patch on its own device.</p>
+<p>The image stays on its device, normally the host, and is cut into
+non-overlapping patches over its trailing <code class="docutils literal notranslate"><span class="pre">len(patch)</span></code> axes.  Groups of
+<code class="docutils literal notranslate"><span class="pre">batch</span></code> patches are copied to <code class="docutils literal notranslate"><span class="pre">device</span></code>, passed through the network under
+automatic mixed precision and copied back into place, so a volume or a time
+series of volumes larger than the device’s memory passes through a network
+trained on patches.  The device holds the network and <code class="docutils literal notranslate"><span class="pre">batch</span></code> patches, or
+under <code class="docutils literal notranslate"><span class="pre">overlap</span></code> two groups and the outputs not yet placed.  The result is
+float32 on the input’s device and differentiable with respect to the input
 and the weights.</p>
-<p>Before cutting, the image is padded with zeros by a random offset in front
-of each axis, drawn anew at every call from PyTorch’s generator, and by
-whatever completes the last patch behind it.  The seams therefore fall in
-a different place at each iteration of a reconstruction and are not
-reinforced; with <code class="docutils literal notranslate"><span class="pre">shift=False</span></code> they are always at multiples of the patch.
-Drawing from PyTorch’s generator is what lets
-<a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a> recompute a checkpointed step
-exactly.</p>
-<p>The network is moved to <code class="docutils literal notranslate"><span class="pre">device</span></code> before every call if it is not there,
-so a training loop that moves the whole model elsewhere does not move it;
-its parameters stay the same objects, and an optimizer holding them is
-unaffected.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">shift</span></code> the patch grid is offset by a random amount at every call,
+drawn from PyTorch’s generator, so seams fall in a different place at each
+iteration of a reconstruction, and <a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a>
+recomputes a checkpointed step exactly.  The image is zero-padded by the
+offset in front and to a whole patch behind.</p>
+<p>The network is moved to <code class="docutils literal notranslate"><span class="pre">device</span></code> at every call if it is elsewhere, so a
+training loop that moves the whole model does not move it; its parameters
+remain the same objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>net</strong> (<em>nn.Module</em>) – Called on <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">[frames,]</span> <span class="pre">*patch)</span></code> as <code class="docutils literal notranslate"><span class="pre">net(x)</span></code>,
-<code class="docutils literal notranslate"><span class="pre">net(x,</span> <span class="pre">sigma)</span></code> or with the keywords this module is called with.</p></li>
-<li><p><strong>patch</strong> (<em>sequence</em><em> of </em><em>int</em>) – Patch extent along each trailing axis, 2 or 3 of them.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Where the network runs; the first CUDA device when there is one, and
-the host otherwise.</p></li>
-<li><p><strong>dtype</strong> (<em>torch.dtype</em><em> or </em><em>None</em><em> or </em><em>&quot;auto&quot;</em><em>, </em><em>default=&quot;auto&quot;</em>) – Precision of automatic mixed precision on the device.  <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> is
-bfloat16 on a card that supports it and float16 on one that does not,
-such as a T4, and no mixed precision on the host.</p></li>
+<li><p><strong>net</strong> (<em>nn.Module</em>) – Called on <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">[frames,]</span> <span class="pre">*patch)</span></code> as <code class="docutils literal notranslate"><span class="pre">net(x)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">net(x,</span> <span class="pre">sigma)</span></code>, with the keywords this module is called with.</p></li>
+<li><p><strong>patch</strong> (<em>sequence</em><em> of </em><em>int</em>) – Patch extent along each trailing axis, two or three of them.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Where the network runs; the first CUDA device when there is one, the
+host otherwise.</p></li>
+<li><p><strong>dtype</strong> (<em>torch.dtype</em><em> or </em><em>None</em><em> or </em><em>&quot;auto&quot;</em><em>, </em><em>default=&quot;auto&quot;</em>) – Precision of automatic mixed precision; <code class="docutils literal notranslate"><span class="pre">None</span></code> disables it.
+<code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> is bfloat16 on a card that supports it, float16 on one that
+does not (such as a T4), and none on the host.</p></li>
 <li><p><strong>batch</strong> (<em>int</em><em>, </em><em>default=1</em>) – Patches per call of the network.</p></li>
-<li><p><strong>shift</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether the patch grid is offset at random at every call.</p></li>
-<li><p><strong>overlap</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether, without gradient and with the image on the host and the
-network on a card, the copies of one chunk of patches run while the
-network computes on another, on a second stream.</p></li>
+<li><p><strong>shift</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Offset the patch grid at random at every call.</p></li>
+<li><p><strong>overlap</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Without gradient, with the image on the host and the network on a card,
+copy one group of patches on a second stream while the network computes
+on another.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">patch</span></code> not of two or three positive extents, or <code class="docutils literal notranslate"><span class="pre">batch</span></code> below one.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -605,9 +600,23 @@ network computes on another, on a second stream.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.learning.Patchwise.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Patchwise.forward" title="Link to this definition">#</a></dt>
-<dd><p>Apply the network over every patch of <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">...,</span> <span class="pre">*patch-axes)</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">sigma</span></code> and any keyword given one value per item of <code class="docutils literal notranslate"><span class="pre">x</span></code> are
-repeated for each of that item’s patches.</p>
+<dd><p>Apply the network to every patch of <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">...,</span> <span class="pre">*patched)</span></code>, with the patched axes last.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em> or </em><em>torch.Tensor</em><em>, </em><em>default=None</em>) – Passed to the network; one value per item of <code class="docutils literal notranslate"><span class="pre">x</span></code> is repeated for each
+of that item’s patches.</p></li>
+<li><p><strong>**keywords</strong> – Passed to the network, repeated per patch like <code class="docutils literal notranslate"><span class="pre">sigma</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Float32, of <code class="docutils literal notranslate"><span class="pre">x</span></code>’s shape, on <code class="docutils literal notranslate"><span class="pre">x</span></code>’s device.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

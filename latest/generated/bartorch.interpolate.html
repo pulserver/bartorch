@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -554,18 +552,16 @@
 the <code class="docutils literal notranslate"><span class="pre">axes</span></code>, where <code class="docutils literal notranslate"><span class="pre">w</span></code> is the kernel of <code class="docutils literal notranslate"><span class="pre">order</span></code>.  Positions are array
 indices: <code class="docutils literal notranslate"><span class="pre">coord</span> <span class="pre">=</span> <span class="pre">2.0</span></code> is the sample <code class="docutils literal notranslate"><span class="pre">input[2]</span></code>.  The grid is
 zero outside <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n</span> <span class="pre">-</span> <span class="pre">1]</span></code>, so a position within one kernel radius of
-the edge is weighted against zeros.</p>
+the edge is weighted against zeros.  BART’s <code class="docutils literal notranslate"><span class="pre">interpolate</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>torch.Tensor</em>)</p></li>
-<li><p><strong>coord</strong> (<em>torch.Tensor</em>) – Real positions of shape <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">len(axes))</span></code>; component <code class="docutils literal notranslate"><span class="pre">i</span></code> of the
-last axis is the position along <code class="docutils literal notranslate"><span class="pre">axes[i]</span></code>.  The leading shape is
-aligned right against <code class="docutils literal notranslate"><span class="pre">input.shape</span></code>: along each of <code class="docutils literal notranslate"><span class="pre">axes</span></code> it is
-the output size, along every other axis it is one (the positions are
-shared) or the input’s size.  Along an axis outside the last three
-(<code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">interpolate</span> <span class="pre">-x</span></code> sizes only BART dims 0-2) the output size
-must equal the input’s.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Array to sample.</p></li>
+<li><p><strong>coord</strong> (<em>torch.Tensor</em>) – Real positions <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">len(axes))</span></code>: component <code class="docutils literal notranslate"><span class="pre">i</span></code> is the position
+along <code class="docutils literal notranslate"><span class="pre">axes[i]</span></code>.  The leading shape aligns right against
+<code class="docutils literal notranslate"><span class="pre">input.shape</span></code>: the output size along each of <code class="docutils literal notranslate"><span class="pre">axes</span></code>, and one
+(shared positions) or the input’s size elsewhere.  Along an axis
+before the last three, the output size must equal the input’s.</p></li>
 <li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes interpolated over.</p></li>
 <li><p><strong>order</strong> (<em>{0</em><em>, </em><em>1</em><em>, </em><em>3}</em><em>, </em><em>default=1</em>) – Nearest neighbour (rounding half up), linear, or Keys cubic
 with <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">-1/2</span></code>.</p></li>
@@ -577,6 +573,9 @@ there.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">coord</span></code> does not match <code class="docutils literal notranslate"><span class="pre">input</span></code> as described.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

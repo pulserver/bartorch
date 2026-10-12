@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -551,23 +549,22 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">Matrix</span></span><a class="headerlink" href="#bartorch.linop.Matrix" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
 <p>Multiplication by a matrix along one axis, BART’s <code class="docutils literal notranslate"><span class="pre">linop_matrix</span></code>.</p>
-<p>The matrix is an array like any other: it contracts the axis the domain
-and the codomain differ along and broadcasts over the axes it has only one
-of, so one operator can carry a different matrix per slice.</p>
+<p>The contracted axis has size one in the codomain and the produced axis
+size one in the domain.  The matrix is broadcast over its axes of size
+one and may vary along the others, for instance one matrix per slice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>matrix</strong> (<em>tensor</em>) – The matrix, with the domain’s size along the axis it contracts and the
-codomain’s along the axis it produces.</p></li>
-<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order, with the same number of axes.</p></li>
-<li><p><strong>ishape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order, with the same number of axes.</p></li>
+<li><p><strong>matrix</strong> (<em>tensor</em>) – Same rank as the operator: the domain’s size along the contracted
+axis, the codomain’s along the produced axis.</p></li>
+<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order, with the same rank.</p></li>
+<li><p><strong>ishape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order, with the same rank.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>A basis of <code class="docutils literal notranslate"><span class="pre">k</span></code> functions over <code class="docutils literal notranslate"><span class="pre">t</span></code> samples, applied along the first
-axis of <code class="docutils literal notranslate"><span class="pre">(t,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">B</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">basis</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+<p>A basis <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">t)</span></code> applied to <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">t,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, giving <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">1,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">B</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">basis</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>

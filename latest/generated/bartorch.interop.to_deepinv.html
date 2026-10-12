@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,20 +547,27 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.interop.to_deepinv">
 <span class="sig-prename descclassname"><span class="pre">bartorch.interop.</span></span><span class="sig-name descname"><span class="pre">to_deepinv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.interop.to_deepinv" title="Link to this definition">#</a></dt>
-<dd><p>A <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a> as a <code class="docutils literal notranslate"><span class="pre">deepinv.physics.LinearPhysics</span></code>.</p>
-<p>A tensor with one more axis than the operator’s shape is treated as a
-batch and applied item by item.  <code class="docutils literal notranslate"><span class="pre">A_dagger</span></code> solves by
-<a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.CG</span></code></a>.</p>
+<dd><p>Wrap a <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a> as a <code class="docutils literal notranslate"><span class="pre">deepinv.physics.LinearPhysics</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">A_adjoint</span></code> apply the operator and its adjoint, differentiably;
+a tensor with one more axis than the operator’s shape is a batch, applied
+item by item.  <code class="docutils literal notranslate"><span class="pre">A_dagger</span></code> solves by <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.CG</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>op</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Kept alive as long as the physics.</p></li>
-<li><p><strong>**kwargs</strong> – <code class="docutils literal notranslate"><span class="pre">maxiter</span></code>, <code class="docutils literal notranslate"><span class="pre">lambda_</span></code> and <code class="docutils literal notranslate"><span class="pre">tol</span></code> for <code class="docutils literal notranslate"><span class="pre">A_dagger</span></code>, overridable per
-call, and anything <code class="docutils literal notranslate"><span class="pre">LinearPhysics</span></code> takes.</p></li>
+<li><p><strong>op</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Operator, kept alive as long as the physics.</p></li>
+<li><p><strong>**kwargs</strong> – <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> (30), <code class="docutils literal notranslate"><span class="pre">lambda_</span></code> (0.0) and <code class="docutils literal notranslate"><span class="pre">tol</span></code> (1e-6), the defaults of
+<code class="docutils literal notranslate"><span class="pre">A_dagger</span></code>, each overridable per call; anything else is passed to
+<code class="docutils literal notranslate"><span class="pre">LinearPhysics</span></code>, such as a <code class="docutils literal notranslate"><span class="pre">noise_model</span></code>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>deepinv.physics.LinearPhysics</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The physics, with the operator as its <code class="docutils literal notranslate"><span class="pre">op</span></code> attribute.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>deepinv.physics.LinearPhysics</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ImportError</strong> – <code class="docutils literal notranslate"><span class="pre">deepinv</span></code> is not installed.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,18 +547,19 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.linop.hstack">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">hstack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.hstack" title="Link to this definition">#</a></dt>
-<dd><p>Split the input between the operators and add up what they return.</p>
-<p><code class="docutils literal notranslate"><span class="pre">[A</span> <span class="pre">B]</span> <span class="pre">&#64;</span> <span class="pre">[x;</span> <span class="pre">y]</span> <span class="pre">=</span> <span class="pre">A</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">B</span> <span class="pre">y</span></code>, which pylops calls <code class="docutils literal notranslate"><span class="pre">HStack</span></code>: the
-operators share a codomain, and their domains agree except along <code class="docutils literal notranslate"><span class="pre">axis</span></code>.</p>
-<p>BART has no constructor for this, and it needs none: the adjoint of
-stacking the codomains is stacking the domains, so this is
-<code class="docutils literal notranslate"><span class="pre">concatenate([op.H</span> <span class="pre">for</span> <span class="pre">op</span> <span class="pre">in</span> <span class="pre">ops],</span> <span class="pre">axis).H</span></code> and stays one BART operator.</p>
+<dd><p>Split the input between the operators along <code class="docutils literal notranslate"><span class="pre">axis</span></code> and sum the outputs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[A</span> <span class="pre">B]</span> <span class="pre">&#64;</span> <span class="pre">[x;</span> <span class="pre">y]</span> <span class="pre">=</span> <span class="pre">A</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">B</span> <span class="pre">y</span></code>; pylops’ <code class="docutils literal notranslate"><span class="pre">HStack</span></code>.  Built as
+<code class="docutils literal notranslate"><span class="pre">concatenate([op.H</span> <span class="pre">for</span> <span class="pre">op</span> <span class="pre">in</span> <span class="pre">ops],</span> <span class="pre">axis).H</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ops</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – At least one.  All must have the same codomain.</p></li>
-<li><p><strong>axis</strong> (<em>int</em><em>, </em><em>default=0</em>) – Which axis of the domain grows, as an index into it.</p></li>
+<li><p><strong>ops</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – At least one, with a common codomain and domains equal except along
+<code class="docutils literal notranslate"><span class="pre">axis</span></code>.</p></li>
+<li><p><strong>axis</strong> (<em>int</em><em>, </em><em>default=0</em>) – Domain axis the input is split along.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
 </dd>
 </dl>
 </dd></dl>

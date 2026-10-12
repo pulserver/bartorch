@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.optim.maxeigen';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,30 +549,37 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.optim.maxeigen">
 <span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">maxeigen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.maxeigen" title="Link to this definition">#</a></dt>
-<dd><p>Power-iteration estimate of the largest eigenvalue of the normal operator.</p>
-<p>The quantity a proximal step is scaled by.  The power
-iteration starts from a random vector drawn from BART’s own generator, so
-an iteration written outside the library must request it here, at the point
-in the sequence the library would have reached it; otherwise the subsequent
-draws – a wavelet term’s random cycle spinning, for instance – differ.</p>
+<dd><p>Estimate the largest eigenvalue of the normal operator by power iteration.</p>
+<p>The operator is <span class="math notranslate nohighlight">\(M (A^H A + \lambda I) + \sum_j G_j^H G_j\)</span>, as BART’s
+<code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code> and <code class="docutils literal notranslate"><span class="pre">iter2_chambolle_pock</span></code> form it, with <span class="math notranslate nohighlight">\(M\)</span> the
+preconditioner and <span class="math notranslate nohighlight">\(G_j\)</span> the terms’ transforms.  A solver given
+<code class="docutils literal notranslate"><span class="pre">eigen=True</span></code> divides its step by this value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – The encoding.  Its normal is the operator, with <code class="docutils literal notranslate"><span class="pre">cclambda</span></code> on the
-diagonal, as <code class="docutils literal notranslate"><span class="pre">lsqr</span></code> builds it.</p></li>
-<li><p><strong>terms</strong> (<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em> or </em><em>iterable</em><em> of </em><a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em>, </em><em>default=None</em>) – Terms whose transforms are added to the normal operator.  The
-primal-dual iteration estimates over these; the proximal iterations
-estimate over the encoding alone.</p></li>
-<li><p><strong>cclambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Weight of an identity added to the normal operator.</p></li>
-<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Chained onto the normal before the terms are added, as <code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>
-chains it.</p></li>
-<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=30</em>) – Power iterations; BART takes thirty.</p></li>
+<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding operator.</p></li>
+<li><p><strong>terms</strong> (<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em> or </em><em>iterable</em><em> of </em><a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em>, </em><em>default=None</em>) – Terms whose <span class="math notranslate nohighlight">\(G_j^H G_j\)</span> is added.  The primal-dual iteration
+passes its dual terms; the proximal-gradient iterations pass none.</p></li>
+<li><p><strong>cclambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\(M\)</span>, from <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code> to itself.</p></li>
+<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=30</em>) – Power iterations; BART uses 30.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The estimated eigenvalue.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – The library could not form the operator or run the iteration.</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>The starting vector is drawn from BART’s process-wide random generator.  An
+iteration written outside the library calls this where BART’s own loop
+would, so that later draws – a wavelet term’s random shifts, for
+instance – follow the same sequence.</p>
 </dd></dl>
 
 </section>

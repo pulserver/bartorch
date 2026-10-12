@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -572,14 +570,11 @@ proportional to <span class="math notranslate nohighlight">\(|k|\)</span>, it ne
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>timing</strong> (<a class="reference internal" href="bartorch.tools.ReadoutTiming.html#bartorch.tools.ReadoutTiming" title="bartorch.tools.ReadoutTiming"><em>ReadoutTiming</em></a>) – Time map of the readout.</p></li>
 <li><p><strong>band</strong> (<em>float</em>) – Half-width of the off-resonance range, in Hz.</p></li>
-<li><p><strong>terms</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of terms; <a class="reference internal" href="bartorch.tools.deblur.html#bartorch.tools.deblur" title="bartorch.tools.deblur"><code class="xref py py-func docutils literal notranslate"><span class="pre">deblur()</span></code></a> costs one k-space multiply or
-separable convolution per term.  <code class="docutils literal notranslate"><span class="pre">None</span></code> takes the fewest terms whose
-<a class="reference internal" href="bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer.error" title="bartorch.tools.SpiralTransfer.error"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SpiralTransfer.error()</span></code></a> is at most <code class="docutils literal notranslate"><span class="pre">tolerance</span></code>, starting from
-<span class="math notranslate nohighlight">\(\lceil 2.5\, \Delta f\, T \rceil\)</span> rounded up to an odd number,
-with <span class="math notranslate nohighlight">\(\Delta f\)</span> the band and <span class="math notranslate nohighlight">\(T\)</span> the readout duration: the
-number of frequencies of Gadgetron’s <code class="docutils literal notranslate"><span class="pre">MFIOperator</span></code>.</p></li>
+<li><p><strong>terms</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of terms, each one k-space multiply or separable convolution in
+<a class="reference internal" href="bartorch.tools.deblur.html#bartorch.tools.deblur" title="bartorch.tools.deblur"><code class="xref py py-func docutils literal notranslate"><span class="pre">deblur()</span></code></a>.  <code class="docutils literal notranslate"><span class="pre">None</span></code> searches for the fewest within
+<code class="docutils literal notranslate"><span class="pre">tolerance</span></code>; see Notes.</p></li>
 <li><p><strong>tolerance</strong> (<em>float</em><em>, </em><em>default=0.01</em>) – Largest <a class="reference internal" href="bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer.error" title="bartorch.tools.SpiralTransfer.error"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SpiralTransfer.error()</span></code></a> accepted when <code class="docutils literal notranslate"><span class="pre">terms</span></code> is
-<code class="docutils literal notranslate"><span class="pre">None</span></code>; ignored otherwise.  The search stops at 64 terms.</p></li>
+<code class="docutils literal notranslate"><span class="pre">None</span></code>; ignored otherwise.</p></li>
 <li><p><strong>frequencies</strong> (<em>int</em><em>, </em><em>default=65</em>) – Number of tabulated frequencies spanning <code class="docutils literal notranslate"><span class="pre">[-band,</span> <span class="pre">band]</span></code>.</p></li>
 <li><p><strong>method</strong> (<em>{&quot;mfi&quot;</em><em>, </em><em>&quot;separable&quot;}</em><em>, </em><em>default='mfi'</em>) – The k-space basis, as described in <a class="reference internal" href="bartorch.tools.SpiralTransfer.html#bartorch.tools.SpiralTransfer" title="bartorch.tools.SpiralTransfer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpiralTransfer</span></code></a>.</p></li>
 </ul>
@@ -595,6 +590,13 @@ number of frequencies of Gadgetron’s <code class="docutils literal notranslate
 <dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">terms</span></code> is below one or <code class="docutils literal notranslate"><span class="pre">method</span></code> is unknown.</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">terms</span></code>, the search starts from
+<span class="math notranslate nohighlight">\(\lceil 2.5\, \Delta f\, T \rceil\)</span> rounded up to an odd number,
+with <span class="math notranslate nohighlight">\(\Delta f\)</span> the band and <span class="math notranslate nohighlight">\(T\)</span> the readout duration, which is
+the number of frequencies of Gadgetron’s <code class="docutils literal notranslate"><span class="pre">MFIOperator</span></code>, and adds one
+term at a time until the error is within <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> or 64 terms are
+reached.</p>
 <p class="rubric">References</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="id2" role="doc-footnote">

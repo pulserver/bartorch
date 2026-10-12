@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -554,36 +552,37 @@
 <dd><p>Wave point-spread function from the wave’s phase-encode trajectory.</p>
 <div class="math notranslate nohighlight">
 \[\mathrm{psf}[r, t] = \exp\left(-2\pi i \sum_a s_a k_a(t - d_a) \, r_a\right)\]</div>
-<p>over the voxel positions <span class="math notranslate nohighlight">\(r\)</span> along the phase encodes and the readout
-samples <span class="math notranslate nohighlight">\(t\)</span>, the layout <a class="reference internal" href="bartorch.linop.WaveSense.html#bartorch.linop.WaveSense" title="bartorch.linop.WaveSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">WaveSense()</span></code></a> takes as
-<code class="docutils literal notranslate"><span class="pre">psf=</span></code>.  Unlike the sine and cosine waves <code class="docutils literal notranslate"><span class="pre">WaveSense</span></code> constructs, any
-waveform is accepted, such as a tapered wave.</p>
+<p>over voxel positions <span class="math notranslate nohighlight">\(r\)</span> along the phase encodes and readout samples
+<span class="math notranslate nohighlight">\(t\)</span>, in the layout <a class="reference internal" href="bartorch.linop.WaveSense.html#bartorch.linop.WaveSense" title="bartorch.linop.WaveSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">WaveSense()</span></code></a> takes as
+<code class="docutils literal notranslate"><span class="pre">psf</span></code>.  Any waveform is accepted, for instance a tapered wave.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>trajectory</strong> (<em>array_like</em>) – The wave’s k-space coordinates along the phase encodes, in cycles/m,
-at each ADC sample of the readout in acquisition order:
-<code class="docutils literal notranslate"><span class="pre">(readout,</span> <span class="pre">encodes)</span></code>, the encodes ordered <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code> in 3D and
-<code class="docutils literal notranslate"><span class="pre">(y,)</span></code> in 2D.  <code class="docutils literal notranslate"><span class="pre">readout</span></code> is the oversampled readout <code class="docutils literal notranslate"><span class="pre">WaveSense</span></code>
-takes.</p></li>
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The image’s spatial shape <code class="docutils literal notranslate"><span class="pre">([z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code> before readout oversampling.</p></li>
-<li><p><strong>fov</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Field of view along the phase encodes in metres, one value or
-<code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code>.  Voxel <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code> is at the centre.</p></li>
+<li><p><strong>trajectory</strong> (<em>array_like</em>) – Wave k-space coordinates along the phase encodes in cycles/m, one row
+per ADC sample in acquisition order: <code class="docutils literal notranslate"><span class="pre">(readout,</span> <span class="pre">encodes)</span></code> with the
+encodes <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code> in 3D or <code class="docutils literal notranslate"><span class="pre">(y,)</span></code> in 2D.  <code class="docutils literal notranslate"><span class="pre">readout</span></code> is the
+oversampled readout length.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Spatial image shape <code class="docutils literal notranslate"><span class="pre">([z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code> before readout oversampling.</p></li>
+<li><p><strong>fov</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Field of view along the phase encodes in m, one value or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code>.
+Voxel <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code> is at the centre.</p></li>
 <li><p><strong>scale</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=1.0</em>) – Gradient amplitude relative to nominal, one value or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code>.</p></li>
-<li><p><strong>delay</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=0.0</em>) – How much later than the ADC each wave runs, in readout samples, one
-value or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code>.  Applied as a linear phase on the trajectory’s
-spectrum, which takes the trajectory as periodic over the readout, as
-a balanced wave inside the ADC window is.</p></li>
-<li><p><strong>centred</strong> (<em>bool</em><em>, </em><em>default=True</em>) – The readout in acquisition order, for <code class="docutils literal notranslate"><span class="pre">WaveSense(centred=True)</span></code>.
-False reorders it for BART’s uncentred transform, whose sample <code class="docutils literal notranslate"><span class="pre">k</span></code>
-is frequency <code class="docutils literal notranslate"><span class="pre">k</span></code> modulo the readout length.</p></li>
+<li><p><strong>delay</strong> (<em>float</em><em> or </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=0.0</em>) – Delay of each wave relative to the ADC in readout samples, one value
+or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code>.  Applied as a linear phase on the trajectory’s
+spectrum, so the trajectory is taken as periodic over the readout.</p></li>
+<li><p><strong>centred</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Readout in acquisition order, for <code class="docutils literal notranslate"><span class="pre">WaveSense(centred=True)</span></code>.  False
+applies <code class="docutils literal notranslate"><span class="pre">ifftshift</span></code> along the readout, for BART’s uncentred
+transform.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">([z,]</span> <span class="pre">y,</span> <span class="pre">readout)</span></code>, complex128.</p>
+<dd class="field-even"><p>The point spread function, complex128.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tensor</p>
+<dd class="field-odd"><p>tensor, shape ([z,] y, readout)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When the trajectory’s axes do not match the phase encodes, or the
+    readout is shorter than <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

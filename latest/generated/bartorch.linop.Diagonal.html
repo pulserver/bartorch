@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -553,24 +551,31 @@
 <dt class="sig sig-object py" id="bartorch.linop.Diagonal">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">Diagonal</span></span><a class="headerlink" href="#bartorch.linop.Diagonal" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
-<p>Pointwise multiplication by <code class="docutils literal notranslate"><span class="pre">diag</span></code>, broadcast over the axes where it is one.</p>
-<p>BART’s <code class="docutils literal notranslate"><span class="pre">cdiag</span></code>.</p>
+<p>Pointwise multiplication by <code class="docutils literal notranslate"><span class="pre">diag</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">linop_cdiag</span></code>.</p>
+<p>The adjoint multiplies by <code class="docutils literal notranslate"><span class="pre">conj(diag)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>diag</strong> (<em>tensor</em>) – The diagonal.  Every axis is either the operator’s size along that
-axis or one, and the ones are broadcast.</p></li>
-<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The shape the operator works on, C order.</p></li>
+<li><p><strong>diag</strong> (<em>tensor</em>) – The diagonal, with the operator’s rank; each axis is the operator’s
+size or one, and size-one axes are broadcast.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain and codomain, C order.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.Diagonal.set">
 <span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.Diagonal.set" title="Link to this definition">#</a></dt>
-<dd><p>Replace the values, in place, keeping the operator’s identity.</p>
-<p><code class="docutils literal notranslate"><span class="pre">values</span></code> has the shape the operator was built with.  A solve or a
-step assembled over this operator is unaffected structurally and needs
-no rebuild; only what it computes changes.</p>
+<dd><p>Replace the values in place, without rebuilding the operator.</p>
+<p>Compositions, normals and solvers built over this operator apply the
+new values from their next application.  The values are copied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>values</strong> (<em>tensor</em>) – Same shape as the values the operator was built with.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – When BART refuses to write the values.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

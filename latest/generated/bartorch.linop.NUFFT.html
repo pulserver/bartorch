@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -552,35 +550,40 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">NUFFT</span></span><a class="headerlink" href="#bartorch.linop.NUFFT" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a></p>
 <p>Non-uniform FFT from images to samples along a trajectory.</p>
+<p>Type-2 transform with a negative exponent, scaled by one over the square
+root of the number of voxels, as BART’s <code class="docutils literal notranslate"><span class="pre">nufft</span></code>; computed by FINUFFT
+(cuFINUFFT on a card) through BART’s <code class="docutils literal notranslate"><span class="pre">nufft_create</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>traj</strong> (<em>tensor</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples,</span> <span class="pre">ndim)</span></code> in grid units,
-<code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky</span></code> or <code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky,</span> <span class="pre">kz</span></code>, as <a class="reference internal" href="bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> produces.
-A <code class="docutils literal notranslate"><span class="pre">kz</span></code> that is zero everywhere makes the transform two-dimensional.
-The encoding axes are whatever the samples vary along besides the
-shots – frames, echoes, cardiac phases – in any number.</p></li>
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">*encoding,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>: two spatial axes for
-a two-dimensional trajectory and three for a three-dimensional one.
-The batches – coils, slices, anything transformed alike – are
-whatever leads the encoding axes, and each is transformed on its own.</p></li>
-<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape; by default <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples)</span></code>.</p></li>
-<li><p><strong>weights</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Diagonal in k-space, broadcast over <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples)</span></code>,
-applied on the forward pass and conjugated on the adjoint.</p></li>
+<li><p><strong>traj</strong> (<em>tensor</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples,</span> <span class="pre">ndim)</span></code> in grid units
+(<code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky[,</span> <span class="pre">kz]</span></code>), as <a class="reference internal" href="bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> returns.  A <code class="docutils literal notranslate"><span class="pre">kz</span></code>
+that is zero everywhere makes the transform two-dimensional.  The
+encoding axes are any further axes the samples vary along (frames,
+echoes, cardiac phases).</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">*encoding,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.  Leading batch axes
+(coils, slices) are transformed independently.</p></li>
+<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape, which must be <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">*encoding,</span> <span class="pre">shots,</span>
+<span class="pre">samples)</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> takes it.</p></li>
+<li><p><strong>weights</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – k-space weighting, broadcast over <code class="docutils literal notranslate"><span class="pre">(*encoding,</span> <span class="pre">shots,</span> <span class="pre">samples)</span></code>;
+applied on the forward and conjugated on the adjoint.</p></li>
 <li><p><strong>basis</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Temporal subspace basis <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code> over the last encoding
-axis, which is <code class="docutils literal notranslate"><span class="pre">coeffs</span></code> long in the image and <code class="docutils literal notranslate"><span class="pre">frames</span></code> long in
-k-space.  The weights and the basis belong to the operator because its
-Toeplitz normal is built over both.</p></li>
-<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the normal in closed form rather than as the forward and
-adjoint applications: a convolution with a point spread function.</p></li>
-<li><p><strong>oversampling</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Oversampling of FINUFFT’s fine grid, BART’s <code class="docutils literal notranslate"><span class="pre">-o</span></code>.  Zero uses the
-library’s setting, a quarter over by default.  On a device only 2 and
-1.25 are accepted; any other value plans on the host and fails there.</p></li>
-<li><p><strong>width</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Kernel width in grid points, BART’s <code class="docutils literal notranslate"><span class="pre">-w</span></code>.  FINUFFT sizes its kernel
-from the tolerance, so the width is carried as the tolerance that gives
-it, no tighter than single precision reaches.  Zero keeps the library’s
-tolerance.</p></li>
+axis, which has length <code class="docutils literal notranslate"><span class="pre">coeffs</span></code> in the image and <code class="docutils literal notranslate"><span class="pre">frames</span></code> in
+k-space.</p></li>
+<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the normal as a convolution with a point spread function rather
+than as the forward and adjoint transforms.  The point spread function
+includes <code class="docutils literal notranslate"><span class="pre">weights</span></code> and <code class="docutils literal notranslate"><span class="pre">basis</span></code>.</p></li>
+<li><p><strong>oversampling</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Upsampling factor of FINUFFT’s fine grid, BART’s <code class="docutils literal notranslate"><span class="pre">-o</span></code>; 0 takes the
+library setting (1.25 by default).  On a card only 2 and 1.25 are
+accepted.</p></li>
+<li><p><strong>width</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Spreading-kernel width in fine-grid points, BART’s <code class="docutils literal notranslate"><span class="pre">-w</span></code>, converted to
+the FINUFFT tolerance that gives it and clamped at single precision;
+0 keeps the library tolerance.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When the trajectory, image, sample shape, weights or basis are
+    inconsistent.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

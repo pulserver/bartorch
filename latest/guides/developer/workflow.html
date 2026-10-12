@@ -66,7 +66,7 @@
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="The BART fork" href="bart-fork.html" />
+    <link rel="next" title="BART fork" href="bart-fork.html" />
     <link rel="prev" title="Repository layout" href="layout.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -198,20 +198,18 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="layout.html">Repository layout</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -534,12 +532,12 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-change">Making a change</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#change-procedure">Change procedure</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generated-files">Generated files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-bart-submodule">Updating the BART submodule</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-finufft-submodule">Updating the FINUFFT submodule</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#published-documentation">Published documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bart-submodule-updates">BART submodule updates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#finufft-submodule-updates">FINUFFT submodule updates</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-a-topic-branch">Updating a topic branch</a></li>
 </ul>
             </nav>
         </div>
@@ -553,16 +551,17 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="development-workflow">
 <h1>Development workflow<a class="headerlink" href="#development-workflow" title="Link to this heading">#</a></h1>
-<p>Describe a substantial change to the public API in an issue before opening a
-pull request.  Small fixes and documentation corrections can go directly to a
+<p>A substantial change to the public API is described in an issue before a pull
+request is opened; small fixes and documentation corrections go directly to a
 pull request.  Work on a topic branch of a fork, one coherent change per
 branch.</p>
-<section id="making-a-change">
-<h2>Making a change<a class="headerlink" href="#making-a-change" title="Link to this heading">#</a></h2>
+<section id="change-procedure">
+<h2>Change procedure<a class="headerlink" href="#change-procedure" title="Link to this heading">#</a></h2>
 <ol class="arabic">
-<li><p>Read <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> and the implementation and tests of the code being changed.</p></li>
-<li><p>Change the code and the documentation of any public behaviour it affects.
-Do not edit generated files by hand.</p></li>
+<li><p>Read <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code>, and the implementation and tests of the code being
+changed.</p></li>
+<li><p>Change the code and the documentation of the public behaviour it affects.
+Generated files are regenerated, not edited.</p></li>
 <li><p>Run the checks:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -572,7 +571,7 @@ Do not edit generated files by hand.</p></li>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Python</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">./scripts/lint.sh</span></code> (<code class="docutils literal notranslate"><span class="pre">--fix</span></code> applies ruff’s formatting and fixes)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">./scripts/lint.sh</span></code>: ruff’s format and lint checks and codespell; <code class="docutils literal notranslate"><span class="pre">--fix</span></code> applies ruff’s formatting and fixes</p></td>
 </tr>
 <tr class="row-odd"><td><p>Any code</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">./scripts/run_tests.sh</span></code>, or a subset of the suite during development</p></td>
@@ -581,57 +580,85 @@ Do not edit generated files by hand.</p></li>
 <td><p>The full suite; <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/check_device.py</span></code> on a machine with a CUDA device</p></td>
 </tr>
 <tr class="row-odd"><td><p>Documentation</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">./scripts/build_docs.sh</span></code>, and <code class="docutils literal notranslate"><span class="pre">./scripts/build_docs.sh</span> <span class="pre">--execute</span></code> for changed examples</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">./scripts/build_docs.sh</span></code> (warnings are errors), and <code class="docutils literal notranslate"><span class="pre">./scripts/build_docs.sh</span> <span class="pre">--execute</span></code> for changed examples</p></td>
 </tr>
-<tr class="row-even"><td><p>The PDF manual</p></td>
+<tr class="row-even"><td><p>PDF manual</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">./scripts/build_docs_pdf.sh</span></code>, after <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">playwright</span> <span class="pre">install</span> <span class="pre">chromium</span></code></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </li>
-<li><p>Commit, push to the fork, and open a pull request as described in
-<a class="reference internal" href="pull-requests.html"><span class="doc">Pull requests</span></a>.</p></li>
+<li><p>Commit, push to the fork, and open a pull request (<a class="reference internal" href="pull-requests.html"><span class="doc">Pull requests</span></a>).</p></li>
 </ol>
+<p>A topic branch takes upstream changes by rebasing, which rewrites its history:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>fetch<span class="w"> </span>upstream
+git<span class="w"> </span>rebase<span class="w"> </span>upstream/main
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
+</pre></div>
+</div>
 </section>
 <section id="generated-files">
 <h2>Generated files<a class="headerlink" href="#generated-files" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code> is generated from <code class="docutils literal notranslate"><span class="pre">src/csrc/include/bartorch.h</span></code> by
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/gen_abi.py</span></code>, and <code class="docutils literal notranslate"><span class="pre">src/bartorch/_catalogue.py</span></code> from BART’s
-command declarations by <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/gen_catalogue.py</span></code>.  <code class="docutils literal notranslate"><span class="pre">run_tests.sh</span></code>
-regenerates both before the suite, and <code class="docutils literal notranslate"><span class="pre">tests/test_abi.py</span></code> and
-<code class="docutils literal notranslate"><span class="pre">tests/test_catalogue.py</span></code> fail when the checked-in files differ from what the
-generators write.  The logo, the compact mark, the architecture figure and the
-encoding figure in <code class="docutils literal notranslate"><span class="pre">docs/_static/</span></code> are written by
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/make_artwork.py</span></code>; the logo’s sources and their terms are listed
-in <a class="reference internal" href="../../misc/license.html"><span class="doc">License and third-party notices</span></a>.</p>
-<p>The documentation is published by the docs workflow into the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code>
-branch, one directory per version: <code class="docutils literal notranslate"><span class="pre">latest</span></code> from <code class="docutils literal notranslate"><span class="pre">main</span></code>, and <code class="docutils literal notranslate"><span class="pre">vX.Y.Z</span></code> from a
-release tag, which <code class="docutils literal notranslate"><span class="pre">scripts/publish_docs.py</span></code> also copies to <code class="docutils literal notranslate"><span class="pre">stable</span></code> when it is
-the newest release.  The site root redirects to <code class="docutils literal notranslate"><span class="pre">stable</span></code>, or to <code class="docutils literal notranslate"><span class="pre">latest</span></code>
-before the first release, and the version switcher reads <code class="docutils literal notranslate"><span class="pre">versions.json</span></code>
-beside the directories.</p>
-<p>The documentation’s own build products – <code class="docutils literal notranslate"><span class="pre">docs/generated/</span></code>,
-<code class="docutils literal notranslate"><span class="pre">docs/api_objects.rst</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/auto_examples/</span></code> and the PDF manual – are not
-tracked; <code class="docutils literal notranslate"><span class="pre">./scripts/build_docs.sh</span> <span class="pre">--clean</span></code> removes them.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Generator</p></th>
+<th class="head"><p>Test holding it</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/gen_abi.py</span></code>, from <code class="docutils literal notranslate"><span class="pre">src/csrc/include/bartorch.h</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/test_abi.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_catalogue.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/gen_catalogue.py</span></code>, from BART’s command declarations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/test_catalogue.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Logo, mark, architecture and encoding figures in <code class="docutils literal notranslate"><span class="pre">docs/_static/</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/make_artwork.py</span></code></p></td>
+<td><p>None</p></td>
+</tr>
+<tr class="row-odd"><td><p>Plots in <code class="docutils literal notranslate"><span class="pre">docs/_static/figures/</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/make_figures.py</span> <span class="pre">[module]</span></code>, from <code class="docutils literal notranslate"><span class="pre">scripts/figures/</span></code></p></td>
+<td><p>None</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">run_tests.sh</span></code> regenerates both Python files before the suite.  The logo’s
+sources and their terms are listed in <a class="reference internal" href="../../misc/license.html"><span class="doc">License and third-party notices</span></a>.  The
+documentation’s build products, <code class="docutils literal notranslate"><span class="pre">docs/generated/</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/api_objects.rst</span></code>,
+<code class="docutils literal notranslate"><span class="pre">docs/auto_examples/</span></code> and the PDF manual, are not tracked;
+<code class="docutils literal notranslate"><span class="pre">./scripts/build_docs.sh</span> <span class="pre">--clean</span></code> removes them.</p>
 </section>
-<section id="updating-the-bart-submodule">
-<h2>Updating the BART submodule<a class="headerlink" href="#updating-the-bart-submodule" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">external/bart</span></code> is a revision of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code>, whose
-branches and sync procedure are described in <a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>.  Moving it to a
-newer revision is a change of its own: sync the fork, update the submodule
-pointer, regenerate the catalogue, and review the resulting API differences.  <code class="docutils literal notranslate"><span class="pre">tests/test_tools.py</span></code> requires every BART command
+<section id="published-documentation">
+<h2>Published documentation<a class="headerlink" href="#published-documentation" title="Link to this heading">#</a></h2>
+<p>The docs workflow publishes into the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch, one directory per
+version: <code class="docutils literal notranslate"><span class="pre">latest</span></code> from <code class="docutils literal notranslate"><span class="pre">main</span></code>, and <code class="docutils literal notranslate"><span class="pre">vX.Y.Z</span></code> from a release tag, which
+<code class="docutils literal notranslate"><span class="pre">scripts/publish_docs.py</span></code> also copies to <code class="docutils literal notranslate"><span class="pre">stable</span></code> when it is the newest
+release.  The site root redirects to <code class="docutils literal notranslate"><span class="pre">stable</span></code>, or to <code class="docutils literal notranslate"><span class="pre">latest</span></code> before the first
+release, and the version switcher reads <code class="docutils literal notranslate"><span class="pre">versions.json</span></code> beside the
+directories.</p>
+</section>
+<section id="bart-submodule-updates">
+<h2>BART submodule updates<a class="headerlink" href="#bart-submodule-updates" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">external/bart</span></code> pins a revision of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code>
+(<a class="reference internal" href="bart-fork.html"><span class="doc">BART fork</span></a>).  Moving it is a change of its own: sync the fork, update the
+submodule pointer, run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/gen_catalogue.py</span></code>, and review the
+resulting API differences.  <code class="docutils literal notranslate"><span class="pre">tests/test_tools.py</span></code> requires every BART command
 to be wrapped by hand, generated into <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code>, or listed as
 private with a reason in <code class="docutils literal notranslate"><span class="pre">src/bartorch/_coverage.py</span></code>.</p>
 </section>
-<section id="updating-the-finufft-submodule">
-<h2>Updating the FINUFFT submodule<a class="headerlink" href="#updating-the-finufft-submodule" title="Link to this heading">#</a></h2>
+<section id="finufft-submodule-updates">
+<h2>FINUFFT submodule updates<a class="headerlink" href="#finufft-submodule-updates" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">external/finufft</span></code> is upstream FINUFFT at one commit, unmodified.  Moving it is
-a change of its own: pick a commit whose upstream CI is green, update the
+a change of its own: choose a commit whose upstream CI passed, update the
 submodule pointer, record the commit and the reason in the pull request, and
-run the suite on every platform; <code class="docutils literal notranslate"><span class="pre">tests/test_finufft.py</span></code> holds the transform
+run the suite on every platform.  <code class="docutils literal notranslate"><span class="pre">tests/test_finufft.py</span></code> holds the transform
 against explicit discrete Fourier sums and against BART’s gridder.  A change
-FINUFFT itself needs goes upstream rather than into the checkout.</p>
+FINUFFT needs goes upstream, not into the checkout.</p>
 </section>
 <section id="tests">
 <h2>Tests<a class="headerlink" href="#tests" title="Link to this heading">#</a></h2>
@@ -640,16 +667,6 @@ FFT or DFT, an explicit sum, a closed-form signal, a finite difference or an
 adjoint identity.  Comparing two entry points into the same BART
 implementation establishes nothing about its correctness.  Tests are pytest
 functions whose names state the property tested.</p>
-</section>
-<section id="updating-a-topic-branch">
-<h2>Updating a topic branch<a class="headerlink" href="#updating-a-topic-branch" title="Link to this heading">#</a></h2>
-<p>A topic branch is updated with upstream changes by:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>fetch<span class="w"> </span>upstream
-git<span class="w"> </span>rebase<span class="w"> </span>upstream/main
-git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
-</pre></div>
-</div>
-<p>Rebase only a branch whose history is yours to rewrite.</p>
 </section>
 </section>
 
@@ -678,7 +695,7 @@ git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">The BART fork</p>
+        <p class="prev-next-title">BART fork</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -700,12 +717,12 @@ git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-change">Making a change</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#change-procedure">Change procedure</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generated-files">Generated files</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-bart-submodule">Updating the BART submodule</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-finufft-submodule">Updating the FINUFFT submodule</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#published-documentation">Published documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bart-submodule-updates">BART submodule updates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#finufft-submodule-updates">FINUFFT submodule updates</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-a-topic-branch">Updating a topic branch</a></li>
 </ul>
   </nav></div>
 

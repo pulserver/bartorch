@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -555,21 +553,24 @@
 <dt class="sig sig-object py" id="bartorch.optim.POCSBlock">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">POCSBlock</span></span><a class="headerlink" href="#bartorch.optim.POCSBlock" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>One sweep of the projections, <code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>’s <code class="docutils literal notranslate"><span class="pre">pocs</span></code>.</p>
-<p>Every projection is applied in turn, in place, and the sweep is the whole
-of a step: <code class="docutils literal notranslate"><span class="pre">pocs</span></code> takes no step size, keeps no momentum and reads no
-residual, so the state is the iterate alone.  Repeating the sweep is the
-method, which is what <a class="reference internal" href="bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-class docutils literal notranslate"><span class="pre">POCS</span></code></a> does.</p>
-<p>The projections carry the data and the encoding – <code class="docutils literal notranslate"><span class="pre">pocsense</span></code>’s are the
-measured samples, the range of the coil sensitivities and a sparsity
-threshold – so <code class="docutils literal notranslate"><span class="pre">A</span></code> is not read.  It is accepted, and ignored, so that
-the block has the calling convention the others have and
-<a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.Unrolled</span></code></a> can stack it.</p>
+<p>One sweep of projections onto convex sets, BART’s <code class="docutils literal notranslate"><span class="pre">pocs</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p>
+<p>A step applies every projection in turn; there is no step size, momentum or
+residual, so the state is the iterate alone.  The projections carry the data
+and the encoding – for <code class="docutils literal notranslate"><span class="pre">pocsense</span></code>, the measured samples, the range of the
+coil sensitivities and a sparsity threshold – so <code class="docutils literal notranslate"><span class="pre">A</span></code> is accepted and
+ignored, giving the block the calling convention of the others for
+<a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.learning.Unrolled</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>projections</strong> (<em>sequence</em>) – The sets to project onto, applied in the order given.  Each is a
-callable mapping a tensor to a tensor, or a <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code>
-term, which is taken as its proximal operator at <code class="docutils literal notranslate"><span class="pre">mu</span> <span class="pre">=</span> <span class="pre">1</span></code>.</p>
+<dd class="field-odd"><p><strong>projections</strong> (<em>sequence</em>) – Applied in the order given.  Each is a callable mapping a tensor to a
+tensor, or a <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> term, applied as its proximal
+operator at unit step.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – A projection is neither callable nor a term.</p></li>
+<li><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">projections</span></code> is empty.</p></li>
+</ul>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -582,29 +583,21 @@ term, which is taken as its proximal operator at <code class="docutils literal n
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.POCSBlock.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.POCSBlock.start" title="Link to this definition">#</a></dt>
-<dd><p>The run’s state.</p>
-<p><code class="docutils literal notranslate"><span class="pre">pocs_recon2</span></code> clears its result and lets the first projection put
-the data in, so a run without <code class="docutils literal notranslate"><span class="pre">x0</span></code> starts at zero of <code class="docutils literal notranslate"><span class="pre">y</span></code>’s shape.</p>
+<dd><p>Initial state: <code class="docutils literal notranslate"><span class="pre">x0</span></code>, or zero of <code class="docutils literal notranslate"><span class="pre">y</span></code>’s shape, as <code class="docutils literal notranslate"><span class="pre">pocs_recon2</span></code> starts.</p>
+<p><code class="docutils literal notranslate"><span class="pre">y</span></code> fixes the shape, dtype and device of the zero start; its values are
+not read.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.POCSBlock.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.POCSBlock.forward" title="Link to this definition">#</a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
+<dd><p>Apply every projection once; returns the next state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.POCSBlock.output">
 <span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.POCSBlock.output" title="Link to this definition">#</a></dt>
-<dd><p>The iterate.  <code class="docutils literal notranslate"><span class="pre">pocs</span></code> leaves it where the last projection put it.</p>
+<dd><p>The iterate as the last projection left it.</p>
 </dd></dl>
 
 </dd></dl>

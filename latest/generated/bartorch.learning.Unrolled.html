@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -556,59 +554,52 @@
 <dt class="sig sig-object py" id="bartorch.learning.Unrolled">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.learning.</span></span><span class="sig-name descname"><span class="pre">Unrolled</span></span><a class="headerlink" href="#bartorch.learning.Unrolled" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>Unrolled network formed by applying an iteration block <code class="docutils literal notranslate"><span class="pre">iterations</span></code> times.</p>
-<p>The block implements one step of a BART iteration and this module
-implements the loop over it.  With every parameter frozen the stack
-reproduces the corresponding solver bit for bit; calling
-<code class="docutils literal notranslate"><span class="pre">requires_grad_()</span></code> on a step size, a penalty weight or a denoiser’s
-weights makes the stack a trainable network.  MoDL is this module applied
-to an <a class="reference internal" href="bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a> whose single term is a
+<p>Unrolled network: an iteration block applied a fixed number of times.</p>
+<p>With every parameter frozen the stack reproduces the corresponding solver
+bit for bit; <code class="docutils literal notranslate"><span class="pre">requires_grad_()</span></code> on a step size, a penalty weight or a
+denoiser’s weights makes it trainable.  One block shared by every iteration
+shares the weights; a sequence of blocks gives each iteration its own.
+MoDL is an <a class="reference internal" href="bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a> whose single term is an
 <a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a>.</p>
-<p>A single block shared by every iteration gives the weight sharing usual in
-unrolled networks; a sequence of blocks gives each iteration its own
-parameters.</p>
-<p><code class="docutils literal notranslate"><span class="pre">detach</span></code> and <code class="docutils literal notranslate"><span class="pre">checkpoint</span></code> select how the backward pass is taken.
-Neither alters the value the network computes:</p>
+<p><code class="docutils literal notranslate"><span class="pre">detach</span></code> and <code class="docutils literal notranslate"><span class="pre">checkpoint</span></code> select the backward pass without changing the
+value computed:</p>
 <ul class="simple">
-<li><p>end to end, the default, records the whole stack.  Memory grows as the
-iteration count times the storage of one step.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">detach=True</span></code> starts each iteration from a detached state, so that the
-graph never spans two iterations.  Combined with a loss on each image
-yielded by <a class="reference internal" href="#bartorch.learning.Unrolled.steps" title="bartorch.learning.Unrolled.steps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">steps()</span></code></a>, this is greedy per-iteration training, whose
-memory is independent of the iteration count.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code> retains the states between iterations and recomputes
-the interior of a step during the backward pass.  The gradient is the
-end-to-end one and each block is applied twice.</p></li>
+<li><p>by default the whole stack is recorded, and memory grows with the number
+of iterations;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">detach=True</span></code> starts each iteration from a detached state; with a loss
+on each image <a class="reference internal" href="#bartorch.learning.Unrolled.steps" title="bartorch.learning.Unrolled.steps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">steps()</span></code></a> yields, this is greedy per-iteration
+training, with memory independent of the number of iterations;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code> keeps the states between iterations and recomputes
+each step in the backward pass, giving the end-to-end gradient at the
+cost of a second application of every block.</p></li>
 </ul>
-<p>These correspond to the stages in which a large unrolled network is
-trained: a denoiser pretrained in isolation, then greedy per-iteration
-training, then end-to-end fine-tuning with gradient checkpointing.
-<a class="reference internal" href="bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a> is an alternative with bounded memory:
-it drives the block to its fixed point and differentiates there, with no
-iteration count to unroll.</p>
+<p><a class="reference internal" href="bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.FixedPoint</span></code></a> is the alternative without an iteration
+count, differentiated at the fixed point.
+<a class="reference internal" href="../explanation/learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a> compares the strategies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>block</strong> (<em>nn.Module</em><em> or </em><em>sequence</em><em> of </em><em>nn.Module</em>) – One of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>’s iteration blocks, or a sequence of
-them, one per iteration.</p></li>
-<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of applications of a single shared block.  Omitted for a
-sequence, whose length gives the count.</p></li>
-<li><p><strong>detach</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Whether each iteration starts from a detached state.</p></li>
-<li><p><strong>checkpoint</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Whether the interior of an iteration is recomputed during the backward
-pass rather than stored.</p></li>
+<li><p><strong>block</strong> (<em>nn.Module</em><em> or </em><em>sequence</em><em> of </em><em>nn.Module</em>) – One of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>’s iteration blocks, or one per iteration.</p></li>
+<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of applications of a shared block; the sequence’s length for a
+sequence.</p></li>
+<li><p><strong>detach</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Start each iteration from a detached state.</p></li>
+<li><p><strong>checkpoint</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Recompute each iteration in the backward pass rather than store it.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – A shared block without <code class="docutils literal notranslate"><span class="pre">iterations</span></code>, an empty sequence, an
+    <code class="docutils literal notranslate"><span class="pre">iterations</span></code> that differs from the sequence’s length, or fewer than
+    one iteration.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Checkpointing recomputes a step, and the gradient is correct only if the
-recomputation reproduces it.  PyTorch’s random state is restored for the
-recomputation, so dropout in a denoiser is reproduced.  A BART term that
-draws random shifts from BART’s own generator, such as
-<a class="reference internal" href="bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wavelet</span></code></a> or
-<a class="reference internal" href="bartorch.priors.LocallyLowRank.html#bartorch.priors.LocallyLowRank" title="bartorch.priors.LocallyLowRank"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocallyLowRank</span></code></a> with <code class="docutils literal notranslate"><span class="pre">randshift=True</span></code>, draws
-new shifts, and the gradient then does not correspond to the forward
-pass.  This is not checked: <code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code> is valid only for steps
-that are deterministic or draw from PyTorch’s generator.</p>
+<p>A checkpointed step is correct only if its recomputation reproduces it.
+PyTorch’s random state is restored for the recomputation, so dropout is
+reproduced; a BART term that draws random shifts from BART’s generator,
+such as <a class="reference internal" href="bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wavelet</span></code></a> or
+<a class="reference internal" href="bartorch.priors.LocallyLowRank.html#bartorch.priors.LocallyLowRank" title="bartorch.priors.LocallyLowRank"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocallyLowRank</span></code></a> with <code class="docutils literal notranslate"><span class="pre">randshift=True</span></code>, is not,
+and the gradient then does not belong to the forward pass.  This is not
+checked.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">block</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">ADMMBlock</span><span class="p">(</span><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span><span class="p">(</span><span class="n">denoiser</span><span class="p">),</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">cg_maxiter</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">block</span><span class="o">.</span><span class="n">rho</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">()</span>
@@ -619,28 +610,34 @@ that are deterministic or draw from PyTorch’s generator.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.learning.Unrolled.block">
 <span class="sig-name descname"><span class="pre">block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Unrolled.block" title="Link to this definition">#</a></dt>
-<dd><p>The block applied at iteration <code class="docutils literal notranslate"><span class="pre">k</span></code>: the shared one, or its own.</p>
+<dd><p>The block applied at iteration <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.learning.Unrolled.steps">
 <span class="sig-name descname"><span class="pre">steps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Unrolled.steps" title="Link to this definition">#</a></dt>
-<dd><p>Yield the image after each iteration in turn.</p>
-<p>A loss taken on each yielded image, with <code class="docutils literal notranslate"><span class="pre">detach</span></code> set, gives greedy
-per-iteration training.  <a class="reference internal" href="#bartorch.learning.Unrolled.forward" title="bartorch.learning.Unrolled.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">forward()</span></code></a> returns the last of them.</p>
+<dd><p>Yield the image after each iteration.</p>
+<p>Takes the arguments of <a class="reference internal" href="#bartorch.learning.Unrolled.forward" title="bartorch.learning.Unrolled.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">forward()</span></code></a>.  A loss on each yielded image, with
+<code class="docutils literal notranslate"><span class="pre">detach=True</span></code>, is greedy per-iteration training.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.learning.Unrolled.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.learning.Unrolled.forward" title="Link to this definition">#</a></dt>
-<dd><p>Reconstruct <code class="docutils literal notranslate"><span class="pre">y</span></code>, returning the image left by the last iteration.</p>
+<dd><p>Run the iterations and return the last image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Measured data, with or without a leading batch axis.</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Data, with or without a leading batch axis.</p></li>
 <li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding operator, shared by every item of a batch.</p></li>
-<li><p><strong>x0</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Starting point of the iteration; zero by default, as in BART.</p></li>
+<li><p><strong>x0</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Starting image; zero when omitted, as in BART.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The image after the last iteration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>

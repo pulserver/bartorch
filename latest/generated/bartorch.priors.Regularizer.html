@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -536,6 +534,7 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer"><code class="docutils literal notranslate"><span class="pre">Regularizer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.kind"><code class="docutils literal notranslate"><span class="pre">Regularizer.kind</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.weight"><code class="docutils literal notranslate"><span class="pre">Regularizer.weight</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.axes"><code class="docutils literal notranslate"><span class="pre">Regularizer.axes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.joint_axes"><code class="docutils literal notranslate"><span class="pre">Regularizer.joint_axes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.count"><code class="docutils literal notranslate"><span class="pre">Regularizer.count</span></code></a></li>
@@ -566,23 +565,21 @@
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.priors.</span></span><span class="sig-name descname"><span class="pre">Regularizer</span></span><a class="headerlink" href="#bartorch.priors.Regularizer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Regularization functional with a proximal operator built by BART.</p>
-<p>A regularizer represents <span class="math notranslate nohighlight">\(g(G x)\)</span>: a linear transform <span class="math notranslate nohighlight">\(G\)</span> and
-the proximal operator of a functional <span class="math notranslate nohighlight">\(g\)</span> acting on its codomain.
-<span class="math notranslate nohighlight">\(G\)</span> is the identity for terms that penalize the image directly, and
-for terms carrying their own transform inside the proximal operator, such
-as <a class="reference internal" href="bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wavelet</span></code></a>; it is a genuine operator for terms
-such as <a class="reference internal" href="bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><code class="xref py py-class docutils literal notranslate"><span class="pre">TotalVariation</span></code></a>, whose functional acts on
-finite differences.  Both come from BART’s <code class="docutils literal notranslate"><span class="pre">opt_reg_configure</span></code>.</p>
-<p>Only the alternating-direction and primal-dual iterations are given
-<span class="math notranslate nohighlight">\(G\)</span>; see <a class="reference internal" href="#bartorch.priors.Regularizer.transform_is_identity" title="bartorch.priors.Regularizer.transform_is_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform_is_identity()</span></code></a>.</p>
-<p>Both are built per image shape and cached, and handed to a solver as they
-are, so solving twice with the same term builds nothing the second time.</p>
+<p>Regularization term <span class="math notranslate nohighlight">\(g(G x)\)</span> whose proximal operator and transform BART builds.</p>
+<p><span class="math notranslate nohighlight">\(G\)</span> is a linear transform and <span class="math notranslate nohighlight">\(g\)</span> a functional on its codomain,
+both from BART’s <code class="docutils literal notranslate"><span class="pre">opt_reg_configure</span></code>.  <span class="math notranslate nohighlight">\(G\)</span> is the identity for a
+term on the image itself and for a term whose transform is inside its
+proximal operator, such as <a class="reference internal" href="bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wavelet</span></code></a>; it is a
+proper operator for a term such as <a class="reference internal" href="bartorch.priors.TotalVariation.html#bartorch.priors.TotalVariation" title="bartorch.priors.TotalVariation"><code class="xref py py-class docutils literal notranslate"><span class="pre">TotalVariation</span></code></a>,
+whose functional acts on finite differences.  Only the alternating-direction
+and primal-dual iterations apply <span class="math notranslate nohighlight">\(G\)</span>; see
+<a class="reference internal" href="#bartorch.priors.Regularizer.transform_is_identity" title="bartorch.priors.Regularizer.transform_is_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform_is_identity()</span></code></a>.</p>
+<p>Both are built per image shape and cached, so solving twice with the same
+term builds nothing the second time.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.kind">
 <span class="sig-name descname"><span class="pre">kind</span></span><a class="headerlink" href="#bartorch.priors.Regularizer.kind" title="Link to this definition">#</a></dt>
-<dd><p>BART’s identifier for the regularizer, the letter <code class="docutils literal notranslate"><span class="pre">opt_reg_configure</span></code>
-selects it by.</p>
+<dd><p>BART’s letter for the term, as <code class="docutils literal notranslate"><span class="pre">-R</span></code> takes it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -591,9 +588,21 @@ selects it by.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bartorch.priors.Regularizer.weight">
+<span class="sig-name descname"><span class="pre">weight</span></span><a class="headerlink" href="#bartorch.priors.Regularizer.weight" title="Link to this definition">#</a></dt>
+<dd><p>The term’s weight <span class="math notranslate nohighlight">\(\lambda\)</span>, relative to data divided by
+<a class="reference internal" href="bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">data_scaling()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.axes">
 <span class="sig-name descname"><span class="pre">axes</span></span><a class="headerlink" href="#bartorch.priors.Regularizer.axes" title="Link to this definition">#</a></dt>
-<dd><p>Axes the term works over, as indices into the image’s shape.</p>
+<dd><p>Axes the transform acts over, as indices into the image’s shape.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple of int</p>
@@ -604,7 +613,8 @@ selects it by.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.joint_axes">
 <span class="sig-name descname"><span class="pre">joint_axes</span></span><a class="headerlink" href="#bartorch.priors.Regularizer.joint_axes" title="Link to this definition">#</a></dt>
-<dd><p>Axes along which the term acts jointly.</p>
+<dd><p>Axes along which entries are thresholded jointly, as one <span class="math notranslate nohighlight">\(\ell_2\)</span>
+norm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple of int</p>
@@ -615,7 +625,7 @@ selects it by.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.count">
 <span class="sig-name descname"><span class="pre">count</span></span><a class="headerlink" href="#bartorch.priors.Regularizer.count" title="Link to this definition">#</a></dt>
-<dd><p>Entries an NIHT term keeps; zero for every other term.</p>
+<dd><p>For an NIHT term, the percentage of entries kept; zero otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -635,61 +645,83 @@ selects it by.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.build">
 <span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.build" title="Link to this definition">#</a></dt>
-<dd><p>The BART operator for this term over an image of C-order <code class="docutils literal notranslate"><span class="pre">shape</span></code>.</p>
-<p>Built on first use for each shape.  A term that draws random shifts
-is built once per <code class="docutils literal notranslate"><span class="pre">item</span></code> of a batch, so that each item draws the
-sequence it would draw alone.  The returned handle is owned by this
-term and freed with it.</p>
+<dd><p>Handle of BART’s operator for this term over an image of C-order <code class="docutils literal notranslate"><span class="pre">shape</span></code>.</p>
+<p>Built on first use for each shape and cached.  A term that draws random
+shifts is built once per batch <code class="docutils literal notranslate"><span class="pre">item</span></code>, so that each item draws the
+sequence it would draw alone.  The handle is owned by the term and freed
+with it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape.</p></li>
+<li><p><strong>item</strong> (<em>int</em><em>, </em><em>default=0</em>) – Batch item.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The handle.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – BART could not build the term over <code class="docutils literal notranslate"><span class="pre">shape</span></code>.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.prox_shape">
 <span class="sig-name descname"><span class="pre">prox_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.prox_shape" title="Link to this definition">#</a></dt>
-<dd><p>The C-order shape this term’s proximal operator works on.</p>
-<p>The image’s, for a term that carries its own transform inside the
-proximal operator, a wavelet term included.  A term
-whose transform is in front instead answers with the transform’s
-codomain: total variation thresholds the components of a gradient, and
-those are an axis of their own.</p>
+<dd><p>C-order shape of the domain of the proximal operator, for an image of <code class="docutils literal notranslate"><span class="pre">image_shape</span></code>.</p>
+<p>The image’s shape when <span class="math notranslate nohighlight">\(G\)</span> is the identity, wavelet terms included;
+otherwise the codomain of <span class="math notranslate nohighlight">\(G\)</span>, which for total variation carries the
+gradient components on an axis of their own in front.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple of int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.prox">
 <span class="sig-name descname"><span class="pre">prox</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.prox" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">prox_{gamma</span> <span class="pre">g}(x)</span></code>, the operator BART’s solvers apply.</p>
-<p>Exposed directly so that an iteration written outside the library
-applies the same proximal operator the library would have.</p>
-<p>Raises a <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code> for a tensor that requires a gradient: no
-backward pass is implemented for BART’s proximal operators, and
-treating one as the identity would zero the gradient path through the
-regularizer.  Use <a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> for a
-differentiable proximal step, or <a class="reference internal" href="#bartorch.priors.Regularizer.detach" title="bartorch.priors.Regularizer.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">detach()</span></code></a> to hold this one fixed.</p>
+<dd><p>Apply the proximal operator <span class="math notranslate nohighlight">\(\operatorname{prox}_{\gamma g}\)</span> as BART’s solvers do.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>tensor</em>) – Of <a class="reference internal" href="#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a>, which for most terms is the image’s.</p></li>
-<li><p><strong>gamma</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The step the proximal operator is taken at.  The term’s own weight
-is already in the operator, so this is only the step.</p></li>
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – The image the term was configured for, when that is not what <code class="docutils literal notranslate"><span class="pre">x</span></code>
-is shaped like – which is the case for total variation, whose
-proximal operator works on the components of a gradient.  By
-default <code class="docutils literal notranslate"><span class="pre">x</span></code>’s own shape, which is right for every other term.</p></li>
-<li><p><strong>item</strong> (<em>int</em><em>, </em><em>default=0</em>) – Which item of a batch <code class="docutils literal notranslate"><span class="pre">x</span></code> is; a term that draws random shifts
-keeps a generator per item.</p></li>
+<li><p><strong>x</strong> (<em>tensor</em>) – Of <a class="reference internal" href="#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a>, the image’s shape for most terms.</p></li>
+<li><p><strong>gamma</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Step <span class="math notranslate nohighlight">\(\gamma\)</span>; the term’s weight is already in <span class="math notranslate nohighlight">\(g\)</span>.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Image shape the term is configured for, when it differs from
+<code class="docutils literal notranslate"><span class="pre">x.shape</span></code>, as for total variation; <code class="docutils literal notranslate"><span class="pre">x.shape</span></code> when omitted.</p></li>
+<li><p><strong>item</strong> (<em>int</em><em>, </em><em>default=0</em>) – Batch item <code class="docutils literal notranslate"><span class="pre">x</span></code> is; a term that draws random shifts keeps a generator
+per item.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complex64, of <code class="docutils literal notranslate"><span class="pre">x</span></code>’s shape.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient: BART’s proximal operators have no backward
+    pass.  Use <a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> for a differentiable
+    proximal step, or <a class="reference internal" href="#bartorch.priors.Regularizer.detach" title="bartorch.priors.Regularizer.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">detach()</span></code></a> to hold this one fixed.  Also raised
+    for an <code class="docutils literal notranslate"><span class="pre">x</span></code> not of <a class="reference internal" href="#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – BART could not apply the operator.</p></li>
+</ul>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>This is the proximal operator alone.  A term may also carry a linear
-transform in front of it – see <a class="reference internal" href="#bartorch.priors.Regularizer.transform" title="bartorch.priors.Regularizer.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code></a> – in which case a
-solver computes <code class="docutils literal notranslate"><span class="pre">prox(transform(x))</span></code>.  BART’s <code class="docutils literal notranslate"><span class="pre">iter2_ist</span></code> applies
-the proximal operator to the image and ignores the transform entirely,
-so IST and FISTA admit only terms whose transform is the identity; a
-total-variation term is excluded, its proximal operator not being
-shaped like an image.</p>
+<p>This is the proximal operator alone; a solver applying the term computes
+it on <span class="math notranslate nohighlight">\(G x\)</span> (<a class="reference internal" href="#bartorch.priors.Regularizer.apply_transform" title="bartorch.priors.Regularizer.apply_transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply_transform()</span></code></a>).  BART’s IST and FISTA apply
+it to the image and ignore <span class="math notranslate nohighlight">\(G\)</span>, so they take only terms whose
+transform is the identity.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">prox</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
 </pre></div>
@@ -699,47 +731,54 @@ shaped like an image.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.apply_transform">
 <span class="sig-name descname"><span class="pre">apply_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.apply_transform" title="Link to this definition">#</a></dt>
-<dd><p>This term’s transform applied to <code class="docutils literal notranslate"><span class="pre">x</span></code>, without making an operator of it.</p>
-<p><a class="reference internal" href="#bartorch.priors.Regularizer.transform" title="bartorch.priors.Regularizer.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code></a> cannot answer for the gradient family – their
-components live on an axis past BART’s sixteen – and those are exactly
-the terms an alternating-direction solver is for.  This applies the
-transform over the shapes <a class="reference internal" href="#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a> reports instead, which a
-tensor can hold at any rank.</p>
+<dd><p>Apply <span class="math notranslate nohighlight">\(G\)</span>, its adjoint or <span class="math notranslate nohighlight">\(G^H G\)</span> to <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
+<p>Works at any rank, including total variation’s, whose codomain exceeds
+BART’s 16 dimensions and so has no <a class="reference internal" href="#bartorch.priors.Regularizer.transform" title="bartorch.priors.Regularizer.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code></a> operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>tensor</em>) – The image for <code class="docutils literal notranslate"><span class="pre">&quot;forward&quot;</span></code>, the proximal operator’s domain for
-<code class="docutils literal notranslate"><span class="pre">&quot;adjoint&quot;</span></code>, the image for <code class="docutils literal notranslate"><span class="pre">&quot;normal&quot;</span></code>.</p></li>
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – What the term was configured for; by default <code class="docutils literal notranslate"><span class="pre">x</span></code>’s own shape,
-which is right whenever the transform starts from the image.</p></li>
-<li><p><strong>mode</strong> (<em>{&quot;forward&quot;</em><em>, </em><em>&quot;adjoint&quot;</em><em>, </em><em>&quot;normal&quot;}</em><em>, </em><em>default='forward'</em>)</p></li>
+<li><p><strong>x</strong> (<em>tensor</em>) – The image for <code class="docutils literal notranslate"><span class="pre">&quot;forward&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;normal&quot;</span></code>, of <a class="reference internal" href="#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a> for
+<code class="docutils literal notranslate"><span class="pre">&quot;adjoint&quot;</span></code>.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Image shape the term is configured for; <code class="docutils literal notranslate"><span class="pre">x.shape</span></code> when omitted, which
+holds for <code class="docutils literal notranslate"><span class="pre">&quot;forward&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;normal&quot;</span></code>.</p></li>
+<li><p><strong>mode</strong> (<em>{&quot;forward&quot;</em><em>, </em><em>&quot;adjoint&quot;</em><em>, </em><em>&quot;normal&quot;}</em><em>, </em><em>default=&quot;forward&quot;</em>) – <span class="math notranslate nohighlight">\(G\)</span>, <span class="math notranslate nohighlight">\(G^H\)</span> or <span class="math notranslate nohighlight">\(G^H G\)</span>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complex64.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – An unknown <code class="docutils literal notranslate"><span class="pre">mode</span></code>, or <code class="docutils literal notranslate"><span class="pre">x</span></code> not of the shape <code class="docutils literal notranslate"><span class="pre">mode</span></code> takes.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Recorded for autograd when <code class="docutils literal notranslate"><span class="pre">x</span></code> carries a gradient: the backward pass
-is the transpose, which is the other of <code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">adjoint</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">normal</span></code> itself.  An unrolled network differentiates through the
-transform this way; the proximal operator behind it is BART’s and has
-no implemented backward pass, which is why
-<a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> exists.</p>
+<p>Recorded for autograd when <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient: the backward pass of
+<code class="docutils literal notranslate"><span class="pre">&quot;forward&quot;</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;adjoint&quot;</span></code> and vice versa, and <code class="docutils literal notranslate"><span class="pre">&quot;normal&quot;</span></code> is its own.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.transform">
 <span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.transform" title="Link to this definition">#</a></dt>
-<dd><p>The operator BART puts in front of this term’s proximal operator.</p>
-<p>The identity for a term that carries its transform inside the proximal
-operator instead.  The shapes do not say which arrangement a term is:
-the Laplace term’s transform is a real convolution whose codomain is
-shaped like the image, so a caller inferring the arrangement from the
-shape would omit it without noticing.</p>
+<dd><p>The transform <span class="math notranslate nohighlight">\(G\)</span> as a <a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a>.</p>
+<p>The identity for a term whose transform is inside its proximal operator.
+The shapes do not tell the two arrangements apart: the Laplace term’s
+transform is a convolution whose codomain has the image’s shape.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(G\)</span>, from the image to <a class="reference internal" href="#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a>.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – The transform’s rank exceeds BART’s 16 dimensions, as for total
+    variation; <a class="reference internal" href="#bartorch.priors.Regularizer.apply_transform" title="bartorch.priors.Regularizer.apply_transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply_transform()</span></code></a> applies it instead.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -747,25 +786,33 @@ shape would omit it without noticing.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.rewind">
 <span class="sig-name descname"><span class="pre">rewind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.rewind" title="Link to this definition">#</a></dt>
-<dd><p>Put this term’s own random generator back to where it started.</p>
-<p>A wavelet threshold spins its transform by a shift drawn from a
-generator of its own, seeded at one when BART makes the operator.  The
-tool builds a fresh operator per run; a term here is kept, so a solve
-rewinds it and a reused term answers as the tool does.  Every solver
-does this before it iterates, whether the loop is BART’s or written
-out here; a term with no such generator is left alone.</p>
+<dd><p>Reset the term’s own random generator, for an image of <code class="docutils literal notranslate"><span class="pre">image_shape</span></code>.</p>
+<p>A wavelet or locally low-rank term shifts its transform by a draw from a
+generator seeded when BART builds the operator.  <code class="docutils literal notranslate"><span class="pre">pics</span></code> builds a fresh
+operator per run; every solver here rewinds its terms before it iterates,
+so a reused term draws as the command does.  A term without a generator
+is unaffected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.transform_is_identity">
 <span class="sig-name descname"><span class="pre">transform_is_identity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.transform_is_identity" title="Link to this definition">#</a></dt>
-<dd><p>Whether the term’s linear transform is the identity, as BART decides it.</p>
-<p>Decided by <code class="docutils literal notranslate"><span class="pre">linop_is_identity</span></code> on the operator, not by comparing
-shapes: the Laplace term’s transform is a convolution on the image’s
-own shape, and total variation’s has a rank BART cannot hand over at
-all.  <code class="docutils literal notranslate"><span class="pre">iter2_chambolle_pock</span></code> asks this of the first term before
-treating it as the primal proximal step rather than a dual one.</p>
+<dd><p>Whether <span class="math notranslate nohighlight">\(G\)</span> is the identity, as BART’s <code class="docutils literal notranslate"><span class="pre">linop_is_identity</span></code> decides.</p>
+<p>Decided on the operator, not from shapes: the Laplace term’s transform is
+a convolution on the image’s own shape.  <code class="docutils literal notranslate"><span class="pre">iter2_chambolle_pock</span></code> asks this
+of the first term to choose it as the primal proximal step.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Image shape.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True when <span class="math notranslate nohighlight">\(G\)</span> is the identity.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
@@ -775,14 +822,19 @@ treating it as the primal proximal step rather than a dual one.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.priors.Regularizer.detach">
 <span class="sig-name descname"><span class="pre">detach</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.Regularizer.detach" title="Link to this definition">#</a></dt>
-<dd><p>This term with its proximal step detached, for a differentiated solve.</p>
-<p>No backward pass is implemented for BART’s proximal operators, so
-<a class="reference internal" href="#bartorch.priors.Regularizer.prox" title="bartorch.priors.Regularizer.prox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox()</span></code></a> raises on a tensor that requires a gradient rather than
-contributing an incorrect one.  The detached term thresholds exactly as
-before, and the gradient obtained is the one the iteration has with
-this term held fixed: the use is a solve in which a differentiable
-denoiser occupies one term and a BART term another, and only the
-denoiser is trained.</p>
+<dd><p>Return this term with its proximal step detached from the autograd graph.</p>
+<p>The detached term thresholds exactly as before, and the gradient obtained
+is the iteration’s with this term held fixed: the use is a solve in which a
+differentiable denoiser occupies one term and a BART term another, and
+only the denoiser is trained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A view of this term whose <a class="reference internal" href="#bartorch.priors.Regularizer.prox" title="bartorch.priors.Regularizer.prox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox()</span></code></a> detaches its input.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer">Regularizer</a></p>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optim</span><span class="o">.</span><span class="n">admm</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="p">[</span><span class="n">denoiser</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()])</span>
 </pre></div>
@@ -824,6 +876,7 @@ denoiser is trained.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer"><code class="docutils literal notranslate"><span class="pre">Regularizer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.kind"><code class="docutils literal notranslate"><span class="pre">Regularizer.kind</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.weight"><code class="docutils literal notranslate"><span class="pre">Regularizer.weight</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.axes"><code class="docutils literal notranslate"><span class="pre">Regularizer.axes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.joint_axes"><code class="docutils literal notranslate"><span class="pre">Regularizer.joint_axes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.priors.Regularizer.count"><code class="docutils literal notranslate"><span class="pre">Regularizer.count</span></code></a></li>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Editable and source installation &#8212; bartorch</title>
+    <title>Development installation &#8212; bartorch</title>
   
   
   
@@ -67,7 +67,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Repository layout" href="layout.html" />
-    <link rel="prev" title="Development prerequisites" href="prerequisites.html" />
+    <link rel="prev" title="Developer guide" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -198,20 +198,18 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Editable and source installation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -524,7 +522,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Editable and source installation</h1>
+    <h1>Development installation</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -534,8 +532,10 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#toolchain">Toolchain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-clone">Repository clone</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#editable-installation">Editable installation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-testing-without-installing">Building and testing without installing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-builds">Local builds</a></li>
 </ul>
             </nav>
         </div>
@@ -547,43 +547,82 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="editable-and-source-installation">
-<h1>Editable and source installation<a class="headerlink" href="#editable-and-source-installation" title="Link to this heading">#</a></h1>
-<p>Fork <a class="reference external" href="https://github.com/pulserver/bartorch">pulserver/bartorch</a> and clone the
-fork with its submodules:</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="development-installation">
+<h1>Development installation<a class="headerlink" href="#development-installation" title="Link to this heading">#</a></h1>
+<section id="toolchain">
+<h2>Toolchain<a class="headerlink" href="#toolchain" title="Link to this heading">#</a></h2>
+<p>A checkout is built with the toolchain of a source build, listed with the
+build’s CMake options under <a class="reference internal" href="../user/installation.html#source-builds"><span class="std std-ref">Source builds</span></a>, and with Git, for the
+submodules <code class="docutils literal notranslate"><span class="pre">external/bart</span></code> and <code class="docutils literal notranslate"><span class="pre">external/finufft</span></code>.  A CUDA build has two
+further requirements:</p>
+<ul class="simple">
+<li><p>a host compiler <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> accepts, named by <code class="docutils literal notranslate"><span class="pre">CUDAHOSTCXX</span></code> when the compiler that
+builds BART is newer (CUDA 12.6 accepts GCC 13 at the newest; BART needs
+GCC 14 or clang);</p></li>
+<li><p>optionally MathDx, for the paired Toeplitz kernels (cuFFTDx) the CUDA wheels
+carry: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">nvidia-mathdx==25.6.0</span></code> and
+<code class="docutils literal notranslate"><span class="pre">-DBARTORCH_MATHDX_DIR=&lt;site-packages&gt;/nvidia/mathdx</span></code>.</p></li>
+</ul>
+</section>
+<section id="repository-clone">
+<h2>Repository clone<a class="headerlink" href="#repository-clone" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/YOUR-USERNAME/bartorch.git
 <span class="nb">cd</span><span class="w"> </span>bartorch
 git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/pulserver/bartorch.git
 </pre></div>
 </div>
-<p>An existing clone is completed with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">--recursive</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">--recursive</span></code> completes an existing clone.</p>
+</section>
 <section id="editable-installation">
 <h2>Editable installation<a class="headerlink" href="#editable-installation" title="Link to this heading">#</a></h2>
+<p>Install PyTorch first (<a class="reference internal" href="../user/installation.html"><span class="doc">Installation</span></a>), then:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span><span class="nv">CXX</span><span class="o">=</span>clang++<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">'.[dev]'</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pre-commit<span class="w"> </span><span class="s1">'codespell[toml]'</span><span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
 </pre></div>
 </div>
-<p>compiles the library through scikit-build-core into <code class="docutils literal notranslate"><span class="pre">build/&lt;wheel</span> <span class="pre">tag&gt;/</span></code> and
-installs the package in editable mode, with pytest, numpydoc and ruff.  The
-pre-commit hooks, the spelling check and the documentation build need</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pre-commit<span class="w"> </span><span class="s1">'codespell[toml]'</span><span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
-</pre></div>
-</div>
-<p>With CUDA:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">'.[dev]'</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--config-settings<span class="o">=</span>cmake.define.BARTORCH_CUDA<span class="o">=</span>ON
+<p>The first command compiles the library through scikit-build-core into
+<code class="docutils literal notranslate"><span class="pre">build/&lt;wheel</span> <span class="pre">tag&gt;/</span></code> and installs the package with pytest, pytest-xdist,
+numpydoc, ruff and SimpleITK; with CUDA, add
+<code class="docutils literal notranslate"><span class="pre">--config-settings=cmake.define.BARTORCH_CUDA=ON</span></code>.  The second installs the
+pre-commit hooks’ runner, the spelling check, and the documentation and
+gallery requirements.</p>
+<p>Some tests skip unless an optional package is present:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bartorch[mkl,io,learning]'</span><span class="w"> </span>deepinv<span class="w"> </span>PyHySCO<span class="w"> </span>PyWavelets
 </pre></div>
 </div>
 </section>
-<section id="building-and-testing-without-installing">
-<h2>Building and testing without installing<a class="headerlink" href="#building-and-testing-without-installing" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">./scripts/run_tests.sh</span></code> builds the library into <code class="docutils literal notranslate"><span class="pre">build/local</span></code>, regenerates the
-checked-in generated files, and runs the suite against <code class="docutils literal notranslate"><span class="pre">src/</span></code>; arguments after
-its options are passed to pytest:</p>
+<section id="local-builds">
+<h2>Local builds<a class="headerlink" href="#local-builds" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">./scripts/run_tests.sh</span></code> builds the library into <code class="docutils literal notranslate"><span class="pre">build/local</span></code> (only what
+changed), regenerates the generated files, and runs the suite against <code class="docutils literal notranslate"><span class="pre">src/</span></code>
+without installing; arguments after its options go to pytest.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./scripts/run_tests.sh
 ./scripts/run_tests.sh<span class="w"> </span>tests/test_solve.py<span class="w"> </span>-k<span class="w"> </span>pics
 <span class="nv">BARTORCH_BUILD_DIR</span><span class="o">=</span><span class="nv">$PWD</span>/build-clang<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span><span class="nv">CXX</span><span class="o">=</span>clang++<span class="w"> </span>./scripts/run_tests.sh<span class="w"> </span>--rebuild
-./scripts/run_tests.sh<span class="w"> </span>--cuda<span class="w">          </span><span class="c1"># configure with BART's CUDA kernels</span>
+./scripts/run_tests.sh<span class="w"> </span>--cuda
 </pre></div>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--rebuild</span></code></p></td>
+<td><p>Configure the build directory again before building</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--cuda</span></code></p></td>
+<td><p>Configure with <code class="docutils literal notranslate"><span class="pre">-DBARTORCH_CUDA=ON</span></code>; implies <code class="docutils literal notranslate"><span class="pre">--rebuild</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--no-build</span></code></p></td>
+<td><p>Run against the library as it stands</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--no-generate</span></code></p></td>
+<td><p>Skip regenerating <code class="docutils literal notranslate"><span class="pre">_abi.py</span></code> and <code class="docutils literal notranslate"><span class="pre">_catalogue.py</span></code></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <p>The same steps by hand:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build/local<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
@@ -592,11 +631,11 @@ cmake<span class="w"> </span>--build<span class="w"> </span>build/local<span cla
 <span class="nv">BARTORCH_LIBRARY</span><span class="o">=</span><span class="nv">$PWD</span>/build/local/libbartorch.so<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>pytest<span class="w"> </span>tests/
 </pre></div>
 </div>
-<p>On macOS the library is <code class="docutils literal notranslate"><span class="pre">libbartorch.dylib</span></code>, and on Windows
-<code class="docutils literal notranslate"><span class="pre">libbartorch.dll</span></code>.  Keep builds with different compilers or CUDA settings in
-separate build directories.  CUDA tests skip
-without a device; on a machine with one, <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/check_device.py</span></code>
-checks the device path in dependency order.</p>
+<p>The library is <code class="docutils literal notranslate"><span class="pre">libbartorch.dylib</span></code> on macOS and <code class="docutils literal notranslate"><span class="pre">libbartorch.dll</span></code> on Windows;
+<code class="docutils literal notranslate"><span class="pre">run_tests.sh</span></code> handles Linux and macOS.  Keep builds with different compilers
+or CUDA settings in separate build directories.  The CUDA tests skip without a
+device; on a machine with one, <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">scripts/check_device.py</span></code> checks the
+device path in dependency order.</p>
 </section>
 </section>
 
@@ -612,12 +651,12 @@ checks the device path in dependency order.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="prerequisites.html"
+       href="index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Development prerequisites</p>
+        <p class="prev-next-title">Developer guide</p>
       </div>
     </a>
     <a class="right-next"
@@ -647,8 +686,10 @@ checks the device path in dependency order.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#toolchain">Toolchain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-clone">Repository clone</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#editable-installation">Editable installation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-testing-without-installing">Building and testing without installing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-builds">Local builds</a></li>
 </ul>
   </nav></div>
 

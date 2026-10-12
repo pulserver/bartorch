@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,25 +548,24 @@
 <dt class="sig sig-object py" id="bartorch.tools.affine_transform">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">affine_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.affine_transform" title="Link to this definition">#</a></dt>
 <dd><p>Resample <code class="docutils literal notranslate"><span class="pre">input</span></code> on an affinely mapped grid: <code class="docutils literal notranslate"><span class="pre">out(u)</span> <span class="pre">=</span> <span class="pre">input(matrix</span> <span class="pre">&#64;</span> <span class="pre">[u,</span> <span class="pre">1])</span></code>.</p>
-<p>The matrix maps output positions to input positions.  Positions are in
-units of each grid’s own field of view with the origin at index
-<code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code>: voxel <code class="docutils literal notranslate"><span class="pre">p</span></code> of a grid of <code class="docutils literal notranslate"><span class="pre">n</span></code> sits at <code class="docutils literal notranslate"><span class="pre">(p</span> <span class="pre">-</span> <span class="pre">n</span> <span class="pre">//</span> <span class="pre">2)</span> <span class="pre">/</span> <span class="pre">n</span></code>
-(motion/affine.c:25, 152, 466).  A translation of <code class="docutils literal notranslate"><span class="pre">t</span></code> therefore moves
+<p>The matrix maps output positions to input positions, each in units of its
+own grid’s field of view with the origin at index <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code>: voxel <code class="docutils literal notranslate"><span class="pre">p</span></code>
+of a grid of <code class="docutils literal notranslate"><span class="pre">n</span></code> is at <code class="docutils literal notranslate"><span class="pre">(p</span> <span class="pre">-</span> <span class="pre">n</span> <span class="pre">//</span> <span class="pre">2)</span> <span class="pre">/</span> <span class="pre">n</span></code>.  A translation <code class="docutils literal notranslate"><span class="pre">t</span></code> moves
 the content by <code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">*</span> <span class="pre">n</span></code> voxels, and the identity with an <code class="docutils literal notranslate"><span class="pre">oshape</span></code>
-other than the input’s rescales the whole field of view onto the new
-grid.  The grid is zero outside <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n</span> <span class="pre">-</span> <span class="pre">1]</span></code>.  BART’s
-<code class="docutils literal notranslate"><span class="pre">interpolate</span> <span class="pre">-A</span></code>, which is limited to three dims.</p>
+other than the input’s rescales the field of view onto the new grid.  The
+grid is zero outside <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n</span> <span class="pre">-</span> <span class="pre">1]</span></code>.  BART’s <code class="docutils literal notranslate"><span class="pre">interpolate</span> <span class="pre">-A</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Two or three spatial axes, optionally after leading axes of size one.</p></li>
-<li><p><strong>matrix</strong> (<em>torch.Tensor</em>) – Real <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">k</span> <span class="pre">+</span> <span class="pre">1)</span></code> or homogeneous <code class="docutils literal notranslate"><span class="pre">(k</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">k</span> <span class="pre">+</span> <span class="pre">1)</span></code> matrix,
-<code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">=</span> <span class="pre">len(axes)</span></code>, acting on column vectors <code class="docutils literal notranslate"><span class="pre">[u_0,</span> <span class="pre">...,</span> <span class="pre">u_{k-1},</span> <span class="pre">1]</span></code>
-whose entry <code class="docutils literal notranslate"><span class="pre">i</span></code> is the position along <code class="docutils literal notranslate"><span class="pre">axes[i]</span></code>.</p></li>
-<li><p><strong>axes</strong> (<em>tuple</em><em> of </em><em>int</em>) – The last two or three axes, in the order the matrix’s rows and
-columns refer to them.</p></li>
-<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Output size of the last <code class="docutils literal notranslate"><span class="pre">k</span></code> axes, in C order; by default
-the input’s.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Two or three spatial axes, after leading axes of size one only.</p></li>
+<li><p><strong>matrix</strong> (<em>torch.Tensor</em>) – Real <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">k</span> <span class="pre">+</span> <span class="pre">1)</span></code> or homogeneous <code class="docutils literal notranslate"><span class="pre">(k</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">k</span> <span class="pre">+</span> <span class="pre">1)</span></code>, <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">=</span>
+<span class="pre">len(axes)</span></code>, acting on column vectors <code class="docutils literal notranslate"><span class="pre">[u_0,</span> <span class="pre">...,</span> <span class="pre">u_{k-1},</span> <span class="pre">1]</span></code> with
+<code class="docutils literal notranslate"><span class="pre">u_i</span></code> the position along <code class="docutils literal notranslate"><span class="pre">axes[i]</span></code>.</p></li>
+<li><p><strong>axes</strong> (<em>tuple</em><em> of </em><em>int</em>) – The last two or three axes, in the order of the matrix’s rows and
+columns.</p></li>
+<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Output size of the last <code class="docutils literal notranslate"><span class="pre">k</span></code> axes, C order; the input’s by default.</p></li>
+<li><p><strong>order</strong> (<em>{0</em><em>, </em><em>1</em><em>, </em><em>3}</em><em>, </em><em>default=1</em>) – Nearest neighbour, linear, or Keys cubic; see
+<a class="reference internal" href="bartorch.interpolate.html#bartorch.interpolate" title="bartorch.interpolate"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.interpolate()</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -576,6 +573,11 @@ the input’s.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">axes</span></code> are not the last two or three, a leading axis exceeds one,
+    or <code class="docutils literal notranslate"><span class="pre">matrix</span></code> has the wrong shape or a homogeneous last row other than
+    <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">...,</span> <span class="pre">0,</span> <span class="pre">1]</span></code>.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

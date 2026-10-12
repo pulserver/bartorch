@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,17 +547,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.tools.psnr">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">psnr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.psnr" title="Link to this definition">#</a></dt>
-<dd><p>Peak signal-to-noise ratio of the magnitudes in decibels, averaged over images .</p>
+<dd><p>Peak signal-to-noise ratio of the magnitudes, in decibels, averaged over images.</p>
 <p>Per image over <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>: <code class="docutils literal notranslate"><span class="pre">20</span> <span class="pre">log10</span> <span class="pre">max|reference|</span> <span class="pre">-</span> <span class="pre">10</span> <span class="pre">log10</span>
 <span class="pre">mean</span> <span class="pre">(|input|</span> <span class="pre">-</span> <span class="pre">|reference|)²</span></code>, magnitudes being the root sum of squares
-over the coil axis; then the mean over every other axis
-(<code class="docutils literal notranslate"><span class="pre">nn/losses.c:54-100</span></code>).</p>
+over the coil axis; then the mean over every other axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reference</strong> (<em>torch.Tensor</em>) – C order <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>; a plain <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image serves.</p></li>
-<li><p><strong>input</strong> (<em>torch.Tensor</em>) – C order <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>; a plain <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image serves.</p></li>
+<li><p><strong>reference</strong> (<em>torch.Tensor</em>) – <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or a <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or a <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PSNR in decibels.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>

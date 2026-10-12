@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.priors.nlmeans';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,22 +549,36 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.priors.nlmeans">
 <span class="sig-prename descclassname"><span class="pre">bartorch.priors.</span></span><span class="sig-name descname"><span class="pre">nlmeans</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.nlmeans" title="Link to this definition">#</a></dt>
-<dd><p>Non-local means filter along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p>
-<p>Each voxel becomes <code class="docutils literal notranslate"><span class="pre">sum_j</span> <span class="pre">w_ij</span> <span class="pre">y_j</span> <span class="pre">/</span> <span class="pre">sum_j</span> <span class="pre">w_ij</span></code> over the <code class="docutils literal notranslate"><span class="pre">j</span></code> within
-<code class="docutils literal notranslate"><span class="pre">patch_distance</span></code> of it along every axis in <code class="docutils literal notranslate"><span class="pre">axes</span></code>, with <code class="docutils literal notranslate"><span class="pre">w_ij</span> <span class="pre">=</span> <span class="pre">exp(-sum_o</span>
-<span class="pre">g_o</span> <span class="pre">|y_(i+o)</span> <span class="pre">-</span> <span class="pre">y_(j+o)|^2</span> <span class="pre">/</span> <span class="pre">(2</span> <span class="pre">h^2</span> <span class="pre">||g||_2))</span></code>: <code class="docutils literal notranslate"><span class="pre">o</span></code> runs over a patch of
-<code class="docutils literal notranslate"><span class="pre">patch_length</span></code> per axis and <code class="docutils literal notranslate"><span class="pre">g</span></code> is a Gaussian of standard deviation <code class="docutils literal notranslate"><span class="pre">a</span></code> over
-it.  The image is reflected at its edges.</p>
+<dd><p>Non-local means filter along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">nlmeans</span></code>.</p>
+<p>Each voxel becomes <span class="math notranslate nohighlight">\(\sum_j w_{ij} y_j / \sum_j w_{ij}\)</span> over the
+voxels <span class="math notranslate nohighlight">\(j\)</span> within <code class="docutils literal notranslate"><span class="pre">patch_distance</span></code> of it along every axis of
+<code class="docutils literal notranslate"><span class="pre">axes</span></code>, with</p>
+<div class="math notranslate nohighlight">
+\[w_{ij} = \exp\Bigl( -\frac{\sum_o g_o |y_{i+o} - y_{j+o}|^2}{2 h^2 \|g\|_2} \Bigr),\]</div>
+<p>where <span class="math notranslate nohighlight">\(o\)</span> runs over a patch of <code class="docutils literal notranslate"><span class="pre">patch_length</span></code> per axis and
+<span class="math notranslate nohighlight">\(g\)</span> is a Gaussian of standard deviation <code class="docutils literal notranslate"><span class="pre">a</span></code> over it.  The image is
+reflected at its edges.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>patch_length</strong> (<em>int</em><em>, </em><em>default=None</em>) – Odd patch length per axis; BART’s default is 5.</p></li>
-<li><p><strong>patch_distance</strong> (<em>int</em><em>, </em><em>default=None</em>) – Search radius per axis; BART’s default is 5.  Zero returns <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p></li>
-<li><p><strong>h</strong> (<em>float</em><em>, </em><em>default=None</em>) – Filter strength in the units of <code class="docutils literal notranslate"><span class="pre">input</span></code>’s values; BART’s default
-is 0.04.  A large <code class="docutils literal notranslate"><span class="pre">h</span></code> makes the filter a box mean.</p></li>
-<li><p><strong>a</strong> (<em>float</em><em>, </em><em>default=None</em>) – Standard deviation of <code class="docutils literal notranslate"><span class="pre">g</span></code>, in voxels; BART’s default is
-<code class="docutils literal notranslate"><span class="pre">(patch_length</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">4</span></code>.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Image <span class="math notranslate nohighlight">\(y\)</span>.</p></li>
+<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes the patches and the search span.</p></li>
+<li><p><strong>patch_length</strong> (<em>int</em><em>, </em><em>default=None</em>) – Odd patch length per axis; BART’s 5 when omitted.</p></li>
+<li><p><strong>patch_distance</strong> (<em>int</em><em>, </em><em>default=None</em>) – Search radius per axis; BART’s 5 when omitted.  Zero returns <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p></li>
+<li><p><strong>h</strong> (<em>float</em><em>, </em><em>default=None</em>) – Filter strength, in the units of <code class="docutils literal notranslate"><span class="pre">input</span></code>’s values; BART’s 0.04 when
+omitted.  A large <code class="docutils literal notranslate"><span class="pre">h</span></code> makes the filter a box mean.</p></li>
+<li><p><strong>a</strong> (<em>float</em><em>, </em><em>default=None</em>) – Standard deviation of <span class="math notranslate nohighlight">\(g\)</span>, in voxels; <code class="docutils literal notranslate"><span class="pre">(patch_length</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">4</span></code>
+when omitted.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filtered image, of <code class="docutils literal notranslate"><span class="pre">input</span></code>’s shape.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – An even <code class="docutils literal notranslate"><span class="pre">patch_length</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

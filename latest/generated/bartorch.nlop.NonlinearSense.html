@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -561,61 +559,54 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">NonlinearSense</span></span><a class="headerlink" href="#bartorch.nlop.NonlinearSense" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a></p>
 <p>Joint image and coil-sensitivity forward model, BART’s <code class="docutils literal notranslate"><span class="pre">noir</span></code>.</p>
-<p>The operator has <strong>two</strong> inputs, the image and the coil representation, and
-one output, the data.  Its derivative with respect to either input is a
-linear operator (<a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator.linearize" title="bartorch.nlop.NonlinearOperator.linearize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">linearize()</span></code></a>), and a
-Gauss-Newton step solves the linearized problem over both jointly.</p>
-<p>The coil unknown is not the sensitivity maps.  It is a k-space
-representation <span class="math notranslate nohighlight">\(\hat{s}\)</span> of them, from which the maps follow by the
-Sobolev weighting</p>
+<p>Two inputs, the image and the coil coefficients, and one output.  The coil
+input is not the sensitivity maps but a k-space representation
+<span class="math notranslate nohighlight">\(\hat{s}\)</span> of them, mapped to the maps by the Sobolev weighting</p>
 <div class="math notranslate nohighlight">
-\[S = \mathcal{F}^{-1} \left[ \, \kappa \,
+\[S = \mathcal{F}^{-1} \left[ \, c \,
     (1 + a |k|^2)^{-b/2} \, \hat{s} \, \right]\]</div>
-<p>with <code class="docutils literal notranslate"><span class="pre">sobolev</span></code> giving <span class="math notranslate nohighlight">\((a, b)\)</span> and <code class="docutils literal notranslate"><span class="pre">c</span></code> the scale
-<span class="math notranslate nohighlight">\(\kappa\)</span> (BART’s <code class="docutils literal notranslate"><span class="pre">noir_calc_weights</span></code>).  The weighting is part of
-the model, so the estimated variable is smoothness-regularized by
-construction and the Gauss-Newton step needs no separate penalty on the
-coils.  <a class="reference internal" href="#bartorch.nlop.NonlinearSense.coils" title="bartorch.nlop.NonlinearSense.coils"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coils</span></code></a> is the linear operator mapping fitted coefficients to
-sensitivities.</p>
-<p>Off the grid the model is asymmetric, as BART builds it: it returns gridded
-coil images rather than samples, so a measurement must be gridded to match.
-<a class="reference internal" href="#bartorch.nlop.NonlinearSense.prepare" title="bartorch.nlop.NonlinearSense.prepare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare()</span></code></a> does that, and is a no-op on a grid, where the model
-returns k-space directly.</p>
+<p>(BART’s <code class="docutils literal notranslate"><span class="pre">noir_calc_weights</span></code>), so the coils are smooth by construction
+and a Gauss-Newton step needs no separate penalty on them.  <a class="reference internal" href="#bartorch.nlop.NonlinearSense.coils" title="bartorch.nlop.NonlinearSense.coils"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coils</span></code></a>
+maps fitted coefficients to sensitivities.</p>
+<p>On a grid the output is k-space.  Off the grid, as BART builds the model,
+the output is the gridded coil images, <code class="docutils literal notranslate"><span class="pre">nufft^H</span></code> of k-space;
+<a class="reference internal" href="#bartorch.nlop.NonlinearSense.prepare" title="bartorch.nlop.NonlinearSense.prepare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare()</span></code></a> brings a measurement to that form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Coil-image shape, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*spatial)</span></code>, C order – the same shape the
-linear encodings take.  The image itself is this with one coil.</p></li>
-<li><p><strong>pattern</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Binary sampling mask, one at acquired positions and zero elsewhere,
-on a grid.  Without one the acquisition is treated as fully sampled.</p></li>
-<li><p><strong>trajectory</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in grid units, <code class="docutils literal notranslate"><span class="pre">kx,</span> <span class="pre">ky,</span> <span class="pre">kz</span></code>, as
-<a class="reference internal" href="bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> produces.  Giving one selects the
-non-Cartesian model.</p></li>
-<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape.  Off the grid it defaults to the trajectory’s with the
-image’s coil axes in front, as the NUFFT’s does; on the grid it is the
-coil-image shape.</p></li>
-<li><p><strong>coil_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Where the sensitivities live and where their coefficients do; both
-default to the coil-image shape.</p></li>
-<li><p><strong>coefficient_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Where the sensitivities live and where their coefficients do; both
-default to the coil-image shape.</p></li>
-<li><p><strong>weights</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Diagonal in k-space applied to the samples, off the grid; its
-conjugate is applied on the adjoint.</p></li>
-<li><p><strong>basis</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Temporal subspace basis <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code> over the last encoding
-axis, off the grid.  The Cartesian model does not take one.</p></li>
-<li><p><strong>mask</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – A support the image is restricted to.</p></li>
-<li><p><strong>sobolev</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>220.0</em><em>, </em><em>32.0</em><em>)</em>) – <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> of the coil weighting <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code>; BART’s
-<code class="docutils literal notranslate"><span class="pre">220,</span> <span class="pre">32</span></code>.</p></li>
-<li><p><strong>c</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The scale on that weighting, BART’s <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+<li><p><strong>image_shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Coil-image shape <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*spatial)</span></code>, C order, as the linear
+encodings take it.  The image input is this shape with one coil.</p></li>
+<li><p><strong>pattern</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Sampling mask on the grid, one at acquired positions; <code class="docutils literal notranslate"><span class="pre">None</span></code> on a
+grid is all ones.  Off the grid it is passed to BART as is and may not
+be combined with <code class="docutils literal notranslate"><span class="pre">basis</span></code>.</p></li>
+<li><p><strong>trajectory</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in grid units, as
+<a class="reference internal" href="bartorch.tools.traj.html#bartorch.tools.traj" title="bartorch.tools.traj"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.traj()</span></code></a> produces; selects the non-Cartesian model.</p></li>
+<li><p><strong>kspace_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Sample shape.  Default: <code class="docutils literal notranslate"><span class="pre">image_shape</span></code> on a grid,
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*trajectory.shape[:-1],</span> <span class="pre">1)</span></code> off it.</p></li>
+<li><p><strong>coil_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Shapes of the sensitivities and of their coefficients; both default to
+<code class="docutils literal notranslate"><span class="pre">image_shape</span></code>.</p></li>
+<li><p><strong>coefficient_shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Shapes of the sensitivities and of their coefficients; both default to
+<code class="docutils literal notranslate"><span class="pre">image_shape</span></code>.</p></li>
+<li><p><strong>weights</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – k-space diagonal applied to the samples off the grid; its conjugate is
+applied in the adjoint.</p></li>
+<li><p><strong>basis</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Temporal subspace basis <code class="docutils literal notranslate"><span class="pre">(coefficients,</span> <span class="pre">frames)</span></code> over the last
+encoding axis; off the grid only.</p></li>
+<li><p><strong>mask</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Support the image is restricted to.</p></li>
+<li><p><strong>sobolev</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=</em><em>(</em><em>220.0</em><em>, </em><em>32.0</em><em>)</em>) – <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span></code> of the coil weighting; BART’s defaults.</p></li>
+<li><p><strong>c</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Scale of the coil weighting.</p></li>
 <li><p><strong>real</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Constrain the image to be real.</p></li>
 <li><p><strong>sos</strong> (<em>bool</em><em>, </em><em>default=False</em>) – BART’s sum-of-squares variant of the coil weighting.</p></li>
-<li><p><strong>oversampling_coils</strong> (<em>float</em><em>, </em><em>default=None</em>) – Fit the coils on a finer grid than the image.  By default whichever
-<code class="docutils literal notranslate"><span class="pre">nlinv</span></code> uses: two off the grid, one on it.</p></li>
-<li><p><strong>oversampled_coils</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Return them on that grid rather than on the image’s.</p></li>
-<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Apply the normal in closed form rather than as the forward and
-adjoint applications: a convolution with a point spread function, off
-the grid.</p></li>
-<li><p><strong>optimized</strong> (<em>bool</em><em>, </em><em>default=False</em>) – BART’s <code class="docutils literal notranslate"><span class="pre">noir2_noncart_optimized_create</span></code>, off the grid.</p></li>
+<li><p><strong>oversampling_coils</strong> (<em>float</em><em>, </em><em>default=None</em>) – Grid oversampling of the coil coefficients; <code class="docutils literal notranslate"><span class="pre">None</span></code> takes <code class="docutils literal notranslate"><span class="pre">nlinv</span></code>’s
+choice, 2 off the grid and 1 on it.</p></li>
+<li><p><strong>oversampled_coils</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Return the sensitivities on the oversampled grid rather than the
+image’s.</p></li>
+<li><p><strong>toeplitz</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Off the grid, apply the normal operator as a convolution with a point
+spread function rather than as a NUFFT and its adjoint.</p></li>
+<li><p><strong>optimized</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Off the grid, BART’s <code class="docutils literal notranslate"><span class="pre">noir2_noncart_optimized_create</span></code>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">basis</span></code> is given on a grid, or with <code class="docutils literal notranslate"><span class="pre">pattern</span></code> off the grid.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -628,44 +619,53 @@ the grid.</p></li>
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.nlop.NonlinearSense.coils">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coils</span></span><a class="headerlink" href="#bartorch.nlop.NonlinearSense.coils" title="Link to this definition">#</a></dt>
-<dd><p>the Sobolev weighting and the transform.</p>
-<p>A fit returns coefficients; applying this operator gives the
-sensitivity maps they represent.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Coil coefficients to sensitivities</p>
-</dd>
-</dl>
+<dd><p>Linear operator from coil coefficients to sensitivity maps.</p>
+<p>The Sobolev weighting followed by the inverse Fourier transform.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.nlop.NonlinearSense.image">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#bartorch.nlop.NonlinearSense.image" title="Link to this definition">#</a></dt>
-<dd><p>The image’s own linear part – the mask, and the real constraint if asked for.</p>
+<dd><p>support mask and real constraint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Linear operator applied to the image input</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.nlop.NonlinearSense.data">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#bartorch.nlop.NonlinearSense.data" title="Link to this definition">#</a></dt>
-<dd><p>From what the model returns to the measurement.</p>
-<p>Off the grid this is the NUFFT, whose adjoint grids a measurement into
-the coil images the model returns; on the grid it is the identity.
-<a class="reference internal" href="#bartorch.nlop.NonlinearSense.prepare" title="bartorch.nlop.NonlinearSense.prepare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare()</span></code></a> is the one call that matters.</p>
+<dd><p>Linear operator from the model’s output to k-space.</p>
+<p>The NUFFT off the grid, whose adjoint is <a class="reference internal" href="#bartorch.nlop.NonlinearSense.prepare" title="bartorch.nlop.NonlinearSense.prepare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare()</span></code></a>; the identity
+on a grid.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.nlop.NonlinearSense.transform">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transform</span></span><a class="headerlink" href="#bartorch.nlop.NonlinearSense.transform" title="Link to this definition">#</a></dt>
-<dd><p>The transform from coil images to k-space, without the model in front of it.</p>
+<dd><p>Linear operator from coil images to k-space, the encoding after the product.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.nlop.NonlinearSense.prepare">
 <span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.NonlinearSense.prepare" title="Link to this definition">#</a></dt>
-<dd><p>The measurement in the shape the model returns.</p>
-<p>Off the grid this is <code class="docutils literal notranslate"><span class="pre">nufft^H(kspace)</span></code>, as <code class="docutils literal notranslate"><span class="pre">noir2_recon</span></code> applies
-before the first Gauss-Newton step; on the grid the measurement is
-returned unchanged.</p>
+<dd><p>Bring a measurement to the model’s output.</p>
+<p>Off the grid this is <code class="docutils literal notranslate"><span class="pre">nufft^H(kspace)</span></code>, as <code class="docutils literal notranslate"><span class="pre">noir2_recon</span></code> applies it
+before the first Gauss-Newton step; on a grid <code class="docutils literal notranslate"><span class="pre">kspace</span></code> is returned
+unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Measurement of <code class="xref py py-attr docutils literal notranslate"><span class="pre">kspace_shape</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor of <code class="xref py py-attr docutils literal notranslate"><span class="pre">oshape</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

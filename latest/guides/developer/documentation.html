@@ -200,20 +200,18 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="style.html">Coding style</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Documentation</a></li>
@@ -545,13 +543,13 @@
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-and-gallery">Examples and gallery</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#explain-decisions-not-execution">Explain decisions, not execution</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#decisions-and-execution">Decisions and execution</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#theory-in-examples">Theory in examples</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#code-comments">Code comments</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tone">Tone</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#figures">Figures</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#running-an-example-in-colab">Running an example in Colab</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#colab-notebooks">Colab notebooks</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-and-concepts">Explanation and concepts</a><ul class="nav section-nav flex-column">
@@ -578,8 +576,8 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#developer-documentation">Developer documentation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-existing-documentation">Editing existing documentation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-reviewing-documentation">Building and reviewing documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#revision-of-existing-documentation">Revision of existing documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-build-and-review">Documentation build and review</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#review-checklist">Review checklist</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">API reference</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Examples and gallery</a></li>
@@ -722,8 +720,8 @@ A = PFS,
 <li><p>brief interpretation when the result is not self-evident.</p></li>
 </ol>
 <p>These elements need not become separate headings, particularly for short examples.</p>
-<section id="explain-decisions-not-execution">
-<h4>Explain decisions, not execution<a class="headerlink" href="#explain-decisions-not-execution" title="Link to this heading">#</a></h4>
+<section id="decisions-and-execution">
+<h4>Decisions and execution<a class="headerlink" href="#decisions-and-execution" title="Link to this heading">#</a></h4>
 <p>Prose should explain decisions whose significance is scientific, mathematical, numerical, or specific to the library.</p>
 <p>Useful explanations include:</p>
 <ul class="simple">
@@ -822,8 +820,8 @@ not “Fewer channels” or “What bartorch does”.</p>
 <p>Gallery figures take their typography, canvas and colours from <code class="docutils literal notranslate"><span class="pre">docs/gallery_style.py</span></code>, which sphinx-gallery applies before every example. A script does not set font sizes or DPI. Figures are drawn on a transparent canvas in a mid grey that reads on both themes; the images inside them stay opaque.</p>
 <p>A complex image, such as a coil sensitivity map, is drawn with <code class="docutils literal notranslate"><span class="pre">gallery_style.domain</span></code>, which maps phase to hue and magnitude to brightness, with <code class="docutils literal notranslate"><span class="pre">gallery_style.phase_bar</span></code> as its key. Magnitude-only reconstructions are drawn as magnitudes. A map is not split into a magnitude figure and a separate phase figure.</p>
 </section>
-<section id="running-an-example-in-colab">
-<h4>Running an example in Colab<a class="headerlink" href="#running-an-example-in-colab" title="Link to this heading">#</a></h4>
+<section id="colab-notebooks">
+<h4>Colab notebooks<a class="headerlink" href="#colab-notebooks" title="Link to this heading">#</a></h4>
 <p>Every example page carries an <strong>Open in Colab</strong> badge under its title; <code class="docutils literal notranslate"><span class="pre">docs/colab.py</span></code> inserts it when the page is built, so a script does not carry one itself. The badge opens a copy of the example’s notebook, published with the site under <code class="docutils literal notranslate"><span class="pre">&lt;version&gt;/_colab/</span></code>, whose first two cells are a note and a <code class="docutils literal notranslate"><span class="pre">%pip</span> <span class="pre">install</span></code> of bartorch and the packages the example imports. The notebook offered for download on the page has no such cells. A section whose examples import more than the common set lists those packages in <code class="docutils literal notranslate"><span class="pre">SECTION_PACKAGES</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/colab.py</span></code>.</p>
 </section>
 </section>
@@ -1076,8 +1074,8 @@ Spatial axis along which the finite difference is evaluated.</p>
 <p>Distinguish current design rationale from historical narration.</p>
 <p>Abandoned alternatives, transient development reasoning, and change history generally belong in issue trackers, design records, release notes, or repository history unless they are necessary to understand a current constraint.</p>
 </section>
-<section id="editing-existing-documentation">
-<h2>Editing existing documentation<a class="headerlink" href="#editing-existing-documentation" title="Link to this heading">#</a></h2>
+<section id="revision-of-existing-documentation">
+<h2>Revision of existing documentation<a class="headerlink" href="#revision-of-existing-documentation" title="Link to this heading">#</a></h2>
 <p>Documentation maintenance is semantic editing, not indiscriminate rewriting.</p>
 <p>Before making a substantive change:</p>
 <ol class="arabic simple">
@@ -1093,8 +1091,8 @@ Spatial axis along which the finite difference is evaluated.</p>
 <p>Conversely, documentation that is already precise and appropriate should not be rewritten merely to impose a different wording.</p>
 <p>When documentation and implementation appear to disagree, establish the intended behavior before changing the documentation.</p>
 </section>
-<section id="building-and-reviewing-documentation">
-<h2>Building and reviewing documentation<a class="headerlink" href="#building-and-reviewing-documentation" title="Link to this heading">#</a></h2>
+<section id="documentation-build-and-review">
+<h2>Documentation build and review<a class="headerlink" href="#documentation-build-and-review" title="Link to this heading">#</a></h2>
 <p>Substantial documentation changes should be reviewed in rendered form.</p>
 <p>Where supported by the project:</p>
 <ol class="arabic simple">
@@ -1225,13 +1223,13 @@ Spatial axis along which the finite difference is evaluated.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-and-gallery">Examples and gallery</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#explain-decisions-not-execution">Explain decisions, not execution</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#decisions-and-execution">Decisions and execution</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#theory-in-examples">Theory in examples</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#code-comments">Code comments</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tone">Tone</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#figures">Figures</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#running-an-example-in-colab">Running an example in Colab</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#colab-notebooks">Colab notebooks</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-and-concepts">Explanation and concepts</a><ul class="nav section-nav flex-column">
@@ -1258,8 +1256,8 @@ Spatial axis along which the finite difference is evaluated.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#developer-documentation">Developer documentation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-existing-documentation">Editing existing documentation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-reviewing-documentation">Building and reviewing documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#revision-of-existing-documentation">Revision of existing documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-build-and-review">Documentation build and review</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#review-checklist">Review checklist</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">API reference</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Examples and gallery</a></li>

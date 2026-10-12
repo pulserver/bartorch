@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.priors.tgv';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,21 +549,36 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.priors.tgv">
 <span class="sig-prename descclassname"><span class="pre">bartorch.priors.</span></span><span class="sig-name descname"><span class="pre">tgv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.priors.tgv" title="Link to this definition">#</a></dt>
-<dd><p>Second-order total generalized variation denoising along <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p>
-<p>Approximates <code class="docutils literal notranslate"><span class="pre">argmin_{x,z}</span> <span class="pre">0.5</span> <span class="pre">||x</span> <span class="pre">-</span> <span class="pre">y||_2^2</span> <span class="pre">+</span> <span class="pre">lamda</span> <span class="pre">*</span> <span class="pre">(alpha1</span> <span class="pre">||D</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">z||_1</span> <span class="pre">+</span>
-<span class="pre">alpha0</span> <span class="pre">||E</span> <span class="pre">z||_1)</span></code>, where <code class="docutils literal notranslate"><span class="pre">D</span></code> is the periodic gradient along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code> a
-vector field and <code class="docutils literal notranslate"><span class="pre">E</span> <span class="pre">z</span> <span class="pre">=</span> <span class="pre">(D</span> <span class="pre">z</span> <span class="pre">+</span> <span class="pre">(D</span> <span class="pre">z)^T)</span> <span class="pre">/</span> <span class="pre">2</span></code> its symmetrized gradient; each
-<code class="docutils literal notranslate"><span class="pre">||.||_1</span></code> sums over voxels an l2 norm over derivative directions.  BART runs 100
-ADMM iterations with <code class="docutils literal notranslate"><span class="pre">rho</span> <span class="pre">=</span> <span class="pre">0.1</span></code>.  Only <code class="docutils literal notranslate"><span class="pre">x</span></code> is returned; the mean of <code class="docutils literal notranslate"><span class="pre">input</span></code>
-is preserved.</p>
+<dd><p>Second-order total generalized variation denoising along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART’s <code class="docutils literal notranslate"><span class="pre">tgv</span></code>.</p>
+<p>Approximates</p>
+<div class="math notranslate nohighlight">
+\[\min_{x, z} \; \tfrac12 \| x - y \|_2^2
+    + \lambda \bigl( \alpha_1 \| D x - z \|_1 + \alpha_0 \| E z \|_1 \bigr)\]</div>
+<p>with <span class="math notranslate nohighlight">\(D\)</span> the periodic gradient along <code class="docutils literal notranslate"><span class="pre">axes</span></code>, <span class="math notranslate nohighlight">\(z\)</span> a vector
+field and <span class="math notranslate nohighlight">\(E z = (D z + (D z)^T) / 2\)</span> its symmetrized gradient; each
+<span class="math notranslate nohighlight">\(\| \cdot \|_1\)</span> sums over voxels an <span class="math notranslate nohighlight">\(\ell_2\)</span> norm over
+derivative directions.  BART runs 100 ADMM iterations with
+<span class="math notranslate nohighlight">\(\rho = 0.1\)</span>.  The mean of <code class="docutils literal notranslate"><span class="pre">input</span></code> is preserved.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>torch.Tensor</em>) – At most 15 axes.</p></li>
-<li><p><strong>alpha</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em><em>, </em><em>default=None</em>) – The pair <code class="docutils literal notranslate"><span class="pre">(alpha1,</span> <span class="pre">alpha0)</span></code>; BART’s default is <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">sqrt(3))</span></code>.</p></li>
-<li><p><strong>tvscales</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – Nonzero weight on the derivative along each axis in <code class="docutils literal notranslate"><span class="pre">axes</span></code>, in the same
-order, applied in both <code class="docutils literal notranslate"><span class="pre">D</span></code> and <code class="docutils literal notranslate"><span class="pre">E</span></code>.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Image <span class="math notranslate nohighlight">\(y\)</span>, of at most 15 axes.</p></li>
+<li><p><strong>lamda</strong> (<em>float</em>) – <span class="math notranslate nohighlight">\(\lambda\)</span>, in the units of <code class="docutils literal notranslate"><span class="pre">input</span></code>’s values.</p></li>
+<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes along which differences are taken.</p></li>
+<li><p><strong>alpha</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\((\alpha_1, \alpha_0)\)</span>; BART’s <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">sqrt(3))</span></code> when omitted.</p></li>
+<li><p><strong>tvscales</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – Nonzero weight of the derivative along each axis of <code class="docutils literal notranslate"><span class="pre">axes</span></code>, in the
+same order, applied in both <span class="math notranslate nohighlight">\(D\)</span> and <span class="math notranslate nohighlight">\(E\)</span>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Denoised image <span class="math notranslate nohighlight">\(x\)</span>, of <code class="docutils literal notranslate"><span class="pre">input</span></code>’s shape.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – More than 15 axes; <code class="docutils literal notranslate"><span class="pre">tvscales</span></code> not one nonzero value per axis, or more
+    than five.</p>
 </dd>
 </dl>
 </dd></dl>

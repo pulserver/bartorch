@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.tools.nlinv';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,36 +550,42 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.tools.nlinv">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">nlinv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.nlinv" title="Link to this definition">#</a></dt>
-<dd><p>Nonlinear inversion: the image and the sensitivities together.</p>
+<dd><p>Image and coil sensitivities estimated jointly by nonlinear inversion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Under-sampled k-space, C order.</p></li>
-<li><p><strong>maxiter</strong> (<em>int</em><em>, </em><em>default=None</em>) – Gauss-Newton steps (<code class="docutils literal notranslate"><span class="pre">-i</span></code>).</p></li>
-<li><p><strong>maps</strong> (<em>int</em><em>, </em><em>default=None</em>) – How many sets of sensitivities to estimate (<code class="docutils literal notranslate"><span class="pre">-m</span></code>).</p></li>
-<li><p><strong>traj</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Non-Cartesian trajectory (<code class="docutils literal notranslate"><span class="pre">-t</span></code>).</p></li>
-<li><p><strong>pattern</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Sampling pattern (<code class="docutils literal notranslate"><span class="pre">-p</span></code>).</p></li>
-<li><p><strong>basis</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Subspace basis (<code class="docutils literal notranslate"><span class="pre">-B</span></code>).</p></li>
-<li><p><strong>initial</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Warm start (<code class="docutils literal notranslate"><span class="pre">-I</span></code>).</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=None</em>) – The <code class="docutils literal notranslate"><span class="pre">a</span></code> of the Sobolev coil weighting <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code>
-(<code class="docutils literal notranslate"><span class="pre">-a</span></code>), not the first step’s regularization weight – that is
-<code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">--alpha</span></code>, reachable through <code class="docutils literal notranslate"><span class="pre">**extra</span></code>.</p></li>
+<li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Undersampled k-space, <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p></li>
+<li><p><strong>maxiter</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of Gauss-Newton steps (<code class="docutils literal notranslate"><span class="pre">-i</span></code>); BART’s default is 8.</p></li>
+<li><p><strong>maps</strong> (<em>int</em><em>, </em><em>default=None</em>) – Number of sets of sensitivities, ENLIVE (<code class="docutils literal notranslate"><span class="pre">-m</span></code>).</p></li>
+<li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Non-Cartesian trajectory <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in grid units (<code class="docutils literal notranslate"><span class="pre">-t</span></code>).</p></li>
+<li><p><strong>pattern</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Sampling pattern (<code class="docutils literal notranslate"><span class="pre">-p</span></code>).</p></li>
+<li><p><strong>basis</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Temporal subspace basis (<code class="docutils literal notranslate"><span class="pre">-B</span></code>).</p></li>
+<li><p><strong>initial</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Initial image and sensitivities (<code class="docutils literal notranslate"><span class="pre">-I</span></code>).</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">a</span></code> of the Sobolev weighting <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">a</span> <span class="pre">|k|^2)^(-b/2)</span></code> of the
+sensitivities (<code class="docutils literal notranslate"><span class="pre">-a</span></code>).  The regularization weight of the first
+Gauss-Newton step is <code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">--alpha</span></code>, passed through <code class="docutils literal notranslate"><span class="pre">**extra</span></code>.</p></li>
 <li><p><strong>real</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Constrain the image to be real (<code class="docutils literal notranslate"><span class="pre">-c</span></code>).</p></li>
-<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Divide the image by the root sum of squares of the sensitivities, as
-<code class="docutils literal notranslate"><span class="pre">nlinv</span></code> does unless told not to.  BART spells this the
-other way round, as <code class="docutils literal notranslate"><span class="pre">-N</span></code> for “do not normalize”.</p></li>
-<li><p><strong>return_sensitivities</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the sensitivities, which BART writes as a second array.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Multiply the image by the root sum of squares of the sensitivities
+over the coils (see Notes); <code class="docutils literal notranslate"><span class="pre">False</span></code> is BART’s <code class="docutils literal notranslate"><span class="pre">-N</span></code>.</p></li>
+<li><p><strong>return_sensitivities</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Also return the sensitivities, BART’s optional second output.</p></li>
 <li><p><strong>**extra</strong> – Further BART <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> options, by name.  <code class="docutils literal notranslate"><span class="pre">s</span></code>, the axes the
 sensitivities are constant along, takes axes of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The image, and the sensitivities when asked for.</p>
+<dd class="field-even"><p>The image, without the coil axis and with the sets of <code class="docutils literal notranslate"><span class="pre">maps</span></code>
+combined, and the sensitivities when asked for.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor or tuple of torch.Tensor</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code> and one set of sensitivities, the returned image is
+<span class="math notranslate nohighlight">\(\rho \sqrt{\sum_c |s_c|^2}\)</span>: the magnitude of the coil images
+<span class="math notranslate nohighlight">\(\rho s_c\)</span> combined by root sum of squares, with the phase of
+<span class="math notranslate nohighlight">\(\rho\)</span>.  With several sets combined it is
+<span class="math notranslate nohighlight">\(\sqrt{\sum_c |\sum_m \rho_m s_{m,c}|^2}\)</span>, which is real.</p>
 </dd></dl>
 
 <section id="examples-using-nlinv">

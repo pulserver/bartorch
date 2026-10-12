@@ -52,6 +52,8 @@
     <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/bartorch.optim.FISTA';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
@@ -196,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -552,24 +552,30 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">FISTA</span></span><a class="headerlink" href="#bartorch.optim.FISTA" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bartorch.optim.IST.html#bartorch.optim.IST" title="bartorch.optim.IST"><code class="xref py py-class docutils literal notranslate"><span class="pre">IST</span></code></a></p>
 <p>Fast iterative soft thresholding, looping <a class="reference internal" href="bartorch.optim.FISTABlock.html#bartorch.optim.FISTABlock" title="bartorch.optim.FISTABlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">FISTABlock</span></code></a>.</p>
+<p>Solves <span class="math notranslate nohighlight">\(\min_x \tfrac12 \| A x - y \|^2 + g(x)\)</span> with Nesterov
+momentum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>regularizers</strong> (<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em> or </em><a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><em>ImplicitPrior</em></a><em>, </em><em>default=None</em>) – Exactly one term, whose transform is the identity: the iteration
-applies its proximal operator to the image.</p></li>
-<li><p><strong>maxiter</strong> (<em>int</em><em>, </em><em>default=30</em>)</p></li>
-<li><p><strong>step</strong> (<em>float</em><em>, </em><em>default=0.95</em>) – Step size.</p></li>
-<li><p><strong>eigen</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Scale the step by the largest eigenvalue of the normal operator,
-estimated with 30 power iterations.</p></li>
-<li><p><strong>hogwild</strong> (<em>bool</em><em>, </em><em>default=False</em>) – BART’s <code class="docutils literal notranslate"><span class="pre">hogwild</span></code> setting.</p></li>
-<li><p><strong>pqr</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – Acceleration parameters <code class="docutils literal notranslate"><span class="pre">(p,</span> <span class="pre">q,</span> <span class="pre">r)</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code>
-keeps BART’s.</p></li>
+<li><p><strong>regularizers</strong> (<a class="reference internal" href="bartorch.priors.Regularizer.html#bartorch.priors.Regularizer" title="bartorch.priors.Regularizer"><em>Regularizer</em></a><em> or </em><a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><em>ImplicitPrior</em></a><em>, </em><em>default=None</em>) – The single term <span class="math notranslate nohighlight">\(g\)</span>; its transform must be the identity.</p></li>
+<li><p><strong>maxiter</strong> (<em>int</em><em>, </em><em>default=30</em>) – Number of iterations.</p></li>
+<li><p><strong>step</strong> (<em>float</em><em>, </em><em>default=0.95</em>) – Step size <span class="math notranslate nohighlight">\(\tau\)</span> of the gradient step.</p></li>
+<li><p><strong>eigen</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Divide the step by <a class="reference internal" href="bartorch.optim.maxeigen.html#bartorch.optim.maxeigen" title="bartorch.optim.maxeigen"><code class="xref py py-func docutils literal notranslate"><span class="pre">maxeigen()</span></code></a> of the normal operator.</p></li>
+<li><p><strong>hogwild</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Halve the step after 10 iterations, and again after each further 20,
+40, … iterations.</p></li>
+<li><p><strong>pqr</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – <span class="math notranslate nohighlight">\((p, q, r)\)</span> of the momentum update
+<span class="math notranslate nohighlight">\(t_{k+1} = (p + \sqrt{q + r t_k^2}) / 2\)</span>; <code class="docutils literal notranslate"><span class="pre">None</span></code> is BART’s
+<code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">4)</span></code>.</p></li>
 <li><p><strong>cclambda</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Weight of an identity added to the normal operator.</p></li>
-<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Left preconditioner, <code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>’s <code class="docutils literal notranslate"><span class="pre">precond_op</span></code>: chained onto
-the normal operator and onto the adjoint, so the iteration sees
-<code class="docutils literal notranslate"><span class="pre">M(A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">lambda)</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">M</span> <span class="pre">A^H</span> <span class="pre">y</span></code>.  Must be positive definite –
-BART composes it without symmetrizing.  BART’s own reconstructions
-pass none.</p></li>
+<li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Left preconditioner <span class="math notranslate nohighlight">\(M\)</span> from <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code> to itself, positive
+definite (<code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>’s <code class="docutils literal notranslate"><span class="pre">precond_op</span></code>); BART’s reconstructions use none.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Not exactly one term; at the call, a term whose transform is not the
+    identity.</p></li>
+<li><p><strong>TypeError</strong> – A term with auxiliary variables.</p></li>
 </ul>
 </dd>
 </dl>

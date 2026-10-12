@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -553,12 +551,22 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Array to resize.</p></li>
 <li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Full output shape, one size per axis of <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p></li>
-<li><p><strong>anchor</strong> (<em>{&quot;center&quot;</em><em>, </em><em>&quot;front&quot;</em><em>, </em><em>&quot;start&quot;}</em><em>, </em><em>default='center'</em>) – What is kept in place.  <code class="docutils literal notranslate"><span class="pre">&quot;center&quot;</span></code> keeps index <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code>
-at <code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">//</span> <span class="pre">2</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;front&quot;</span></code> keeps the last element and crops or
-pads at the beginning; <code class="docutils literal notranslate"><span class="pre">&quot;start&quot;</span></code> keeps the first element and crops or
-pads at the end.</p></li>
+<li><p><strong>anchor</strong> (<em>{&quot;center&quot;</em><em>, </em><em>&quot;front&quot;</em><em>, </em><em>&quot;start&quot;}</em><em>, </em><em>default='center'</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;center&quot;</span></code> keeps index <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">//</span> <span class="pre">2</span></code> at <code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">//</span> <span class="pre">2</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;front&quot;</span></code> keeps
+the last element in place and crops or pads at the beginning;
+<code class="docutils literal notranslate"><span class="pre">&quot;start&quot;</span></code> keeps the first element and crops or pads at the end.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The shape <code class="docutils literal notranslate"><span class="pre">oshape</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">oshape</span></code> does not have one size of at least one per axis, or
+    <code class="docutils literal notranslate"><span class="pre">anchor</span></code> is unknown.</p>
 </dd>
 </dl>
 </dd></dl>

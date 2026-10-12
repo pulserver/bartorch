@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,30 +548,26 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.optim.data_scaling">
 <span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">data_scaling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.data_scaling" title="Link to this definition">#</a></dt>
-<dd><p>Normalization factor for the data of a reconstruction.</p>
+<dd><p>Estimate the factor by which BART’s reconstructions divide the data.</p>
 <p>Dividing the data by it makes a regularization weight independent of the
-data’s overall scale, and is the normalization BART’s own reconstructions
-apply before solving.</p>
+data’s overall scale.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Data as the solve will see it: for a Cartesian encoding, after the
-sampling pattern and <code class="docutils literal notranslate"><span class="pre">fftmod(...,</span> <span class="pre">inverse=True)</span></code>.  Coils must be on
-their own axis in BART’s layout rather than the squeezed layout an
-operator takes, because the estimate is read off the k-space centre and
-a misplaced coil axis moves it.</p></li>
-<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – The encoding.  With one, the estimate used for a non-Cartesian
-acquisition: the spread of <code class="docutils literal notranslate"><span class="pre">|A^H</span> <span class="pre">y|</span></code> from its order statistics.
-Without one, the k-space-centre estimate BART’s <code class="docutils literal notranslate"><span class="pre">estscaling</span></code>
-makes, used for a Cartesian acquisition.</p></li>
-<li><p><strong>percentile</strong> (<em>float</em><em>, </em><em>default=None</em>) – Take this percentile of the sorted magnitudes instead of BART’s
-rule.</p></li>
-<li><p><strong>compat</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Take the median, as BART’s older estimate did.  Only with <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Data as the solve takes it: for a Cartesian encoding, after the sampling
+pattern and <code class="docutils literal notranslate"><span class="pre">fftmod(...,</span> <span class="pre">inverse=True)</span></code>.  Without <code class="docutils literal notranslate"><span class="pre">A</span></code> the coils are
+on their own axis in BART’s layout, not squeezed as an operator takes
+them, since the estimate is read from the k-space centre.</p></li>
+<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Encoding operator.  With one, the estimate is taken from <code class="docutils literal notranslate"><span class="pre">|A^H</span> <span class="pre">y|</span></code>,
+as for a non-Cartesian acquisition; without one, from the k-space
+centre, as BART’s <code class="docutils literal notranslate"><span class="pre">estscaling</span></code> does.</p></li>
+<li><p><strong>percentile</strong> (<em>float</em><em>, </em><em>default=None</em>) – Percentile of the sorted magnitudes to take in place of BART’s rule.</p></li>
+<li><p><strong>compat</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Take the median, BART’s legacy estimate.  Only with <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The scaling.  Zero means the estimate failed, and a scaling of one
-should be used instead.</p>
+<dd class="field-even"><p>The scaling.  Zero when the estimate failed, which <code class="docutils literal notranslate"><span class="pre">pics</span></code> replaces
+by one.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
@@ -587,9 +581,9 @@ at most 32 samples along each axis, corrected for the region’s size, and the
 maximum exceeds the 90th percentile by at least twice the difference
 between the 90th percentile and the median.  With <code class="docutils literal notranslate"><span class="pre">A</span></code> the same rule is
 applied to the magnitudes of <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code>.</p>
-<p>The solution of a solve on scaled data is divided by the same factor;
-multiplying it by the scaling puts it back into the units of the data, as
-<code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-S</span></code> and <a class="reference internal" href="bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> do.</p>
+<p>A solve on the divided data returns the image divided by the same factor;
+multiplying by the scaling restores the data’s units, as <code class="docutils literal notranslate"><span class="pre">pics</span> <span class="pre">-S</span></code> and
+<a class="reference internal" href="bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> do.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">bartorch</span><span class="o">.</span><span class="n">fftmod</span><span class="p">(</span><span class="n">kspace</span> <span class="o">*</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">),</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">data_scaling</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>

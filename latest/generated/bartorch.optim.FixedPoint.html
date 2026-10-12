@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -533,6 +531,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.FixedPoint"><code class="docutils literal notranslate"><span class="pre">FixedPoint</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.FixedPoint.iterations"><code class="docutils literal notranslate"><span class="pre">FixedPoint.iterations</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.FixedPoint.forward"><code class="docutils literal notranslate"><span class="pre">FixedPoint.forward()</span></code></a></li>
 </ul>
 </li>
@@ -553,16 +552,47 @@
 <dt class="sig sig-object py" id="bartorch.optim.FixedPoint">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bartorch.optim.</span></span><span class="sig-name descname"><span class="pre">FixedPoint</span></span><a class="headerlink" href="#bartorch.optim.FixedPoint" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">block</span></code> iterated to its fixed point: a deep-equilibrium model.</p>
-<p>The forward iterations run outside the graph until the moving state changes
-by at most <code class="docutils literal notranslate"><span class="pre">tol</span></code> of its norm, or for <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> steps.  Differentiation
-is implicit rather than through the unrolled run: one step is taken from
-the fixed point, and the vector-Jacobian products of that step are iterated
-to their own fixed point, so memory does not grow with the iteration count.
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">iterations</span></code> is the last forward pass’s count.</p>
-<p>A step that is not the same map at every iteration – FISTA’s momentum, a
-moving <code class="docutils literal notranslate"><span class="pre">rho</span></code>, adaptive or decaying step sizes – has no fixed point and
-is rejected.</p>
+<p>Iteration block run to its fixed point and differentiated there (deep equilibrium).</p>
+<p>The forward iterations run without recording until the state changes by at
+most <code class="docutils literal notranslate"><span class="pre">tol</span></code> of its norm, or for <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> steps.  The backward pass takes
+one recorded step from the fixed point and iterates the vector-Jacobian
+product of that step to its own fixed point, so memory does not grow with the
+iteration count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block</strong> (<em>nn.Module</em>) – One of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>’s iteration blocks.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em><em>, </em><em>default=100</em>) – Maximum number of forward iterations.</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>default=1e-4</em>) – Relative change of the state at which the forward iteration stops.</p></li>
+<li><p><strong>backward_iter</strong> (<em>int</em><em>, </em><em>default=None</em>) – Maximum number of backward iterations; <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> when omitted.</p></li>
+<li><p><strong>backward_tol</strong> (<em>float</em><em>, </em><em>default=None</em>) – Relative change at which the backward iteration stops; <code class="docutils literal notranslate"><span class="pre">tol</span></code> when
+omitted.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bartorch.optim.FixedPoint.iterations">
+<span class="sig-name descname"><span class="pre">iterations</span></span><a class="headerlink" href="#bartorch.optim.FixedPoint.iterations" title="Link to this definition">#</a></dt>
+<dd><p>Forward iterations taken by the last call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TypeError</strong> – <code class="docutils literal notranslate"><span class="pre">block</span></code> is a <a class="reference internal" href="bartorch.optim.FISTABlock.html#bartorch.optim.FISTABlock" title="bartorch.optim.FISTABlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">FISTABlock</span></code></a>, whose momentum makes every step a
+    different map.</p></li>
+<li><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">block</span></code> has no fixed point for another reason: a moving or scheduled
+    <code class="docutils literal notranslate"><span class="pre">rho</span></code>, adaptive or relaxed step sizes, or an
+    <a class="reference internal" href="bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> with a <code class="docutils literal notranslate"><span class="pre">sigma</span></code> schedule or
+    <code class="docutils literal notranslate"><span class="pre">step=True</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">deq</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">FixedPoint</span><span class="p">(</span><span class="n">optim</span><span class="o">.</span><span class="n">PRIDUBlock</span><span class="p">(</span><span class="n">priors</span><span class="o">.</span><span class="n">ImplicitPrior</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)),</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">deq</span><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">square</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
@@ -571,15 +601,24 @@ is rejected.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.optim.FixedPoint.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.FixedPoint.forward" title="Link to this definition">#</a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
+<dd><p>Iterate the block from <code class="docutils literal notranslate"><span class="pre">block.start(y,</span> <span class="pre">A,</span> <span class="pre">x0)</span></code> and return the image at the fixed point.</p>
+<p>The result is recorded for autograd only when <code class="docutils literal notranslate"><span class="pre">y</span></code> requires a gradient or
+the block has trainable parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Data.</p></li>
+<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding operator.</p></li>
+<li><p><strong>x0</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Starting image; zero when omitted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The image at the fixed point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -616,6 +655,7 @@ registered hooks while the latter silently ignores them.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.FixedPoint"><code class="docutils literal notranslate"><span class="pre">FixedPoint</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.FixedPoint.iterations"><code class="docutils literal notranslate"><span class="pre">FixedPoint.iterations</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.FixedPoint.forward"><code class="docutils literal notranslate"><span class="pre">FixedPoint.forward()</span></code></a></li>
 </ul>
 </li>

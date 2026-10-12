@@ -67,7 +67,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Development workflow" href="workflow.html" />
-    <link rel="prev" title="Editable and source installation" href="installation.html" />
+    <link rel="prev" title="Development installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -198,20 +198,18 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Development installation</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -534,7 +532,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-python-package">The Python package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-package">Python package</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-sources">Documentation sources</a></li>
 </ul>
             </nav>
@@ -559,7 +557,7 @@ its scripts under <code class="docutils literal notranslate"><span class="pre">s
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">external/bart/</span></code></p></td>
-<td><p>BART, a Git submodule of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code> (<a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>)</p></td>
+<td><p>BART, a Git submodule of the downstream fork <code class="docutils literal notranslate"><span class="pre">pulserver/bart</span></code> (<a class="reference internal" href="bart-fork.html"><span class="doc">BART fork</span></a>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">external/finufft/</span></code></p></td>
 <td><p>FINUFFT and cuFINUFFT, a Git submodule of upstream <code class="docutils literal notranslate"><span class="pre">flatironinstitute/finufft</span></code> at one reviewed commit, built by its own CMake and linked into the library (<code class="docutils literal notranslate"><span class="pre">cmake/finufft.cmake</span></code>)</p></td>
@@ -570,23 +568,29 @@ its scripts under <code class="docutils literal notranslate"><span class="pre">s
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/include/bartorch.h</span></code></p></td>
 <td><p>The C ABI, the only header the Python side sees</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/abi/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/compat/</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">cblas.h</span></code>, <code class="docutils literal notranslate"><span class="pre">lapacke.h</span></code> and <code class="docutils literal notranslate"><span class="pre">fftw3.h</span></code> BART includes, and the OpenMP import definitions for Windows</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/abi/</span></code></p></td>
 <td><p>Command execution, the in-memory CFL registry, CUDA stream ordering</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/ops/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/ops/</span></code></p></td>
 <td><p>Operators, the encoding executor, and the configuration of BART’s iterative solve as <code class="docutils literal notranslate"><span class="pre">pics</span></code> sets it up</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/substitute/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/csrc/substitute/</span></code></p></td>
 <td><p>Components compiled in place of BART’s: the FINUFFT NUFFT, point spread functions, the FFT and BLAS/LAPACK tables</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/</span></code></p></td>
 <td><p>The Python package; private modules begin with an underscore</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_catalogue.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/bartorch/_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_catalogue.py</span></code></p></td>
 <td><p>Generated from the header and from BART’s command declarations</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/cuda/</span></code></p></td>
+<td><p>The packages <code class="docutils literal notranslate"><span class="pre">bartorch-cuda12</span></code> and <code class="docutils literal notranslate"><span class="pre">bartorch-cuda13</span></code>: the same CMake project built with CUDA</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scripts/</span></code></p></td>
-<td><p>Scripts run by hand: tests, lint, documentation, generators, device checks, artwork</p></td>
+<td><p>Scripts run by hand: tests, lint, documentation, generators, device checks, benchmarks, artwork and figures</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cmake/</span></code></p></td>
 <td><p>Build helpers: FINUFFT’s configuration, and the OpenMP runtime the library binds to</p></td>
@@ -611,10 +615,10 @@ pointers and reversed dimension vectors through ctypes, which is why one wheel
 per platform serves every Python and PyTorch version.  Changes to BART’s
 behaviour are made by replacing a translation unit or by a compile definition,
 never by editing the submodule checkout; <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> lists each replacement.
-A change that belongs in BART itself goes to the fork, as <a class="reference internal" href="bart-fork.html"><span class="doc">The BART fork</span></a>
+A change that belongs in BART itself goes to the fork, as <a class="reference internal" href="bart-fork.html"><span class="doc">BART fork</span></a>
 describes.</p>
-<section id="the-python-package">
-<h2>The Python package<a class="headerlink" href="#the-python-package" title="Link to this heading">#</a></h2>
+<section id="python-package">
+<h2>Python package<a class="headerlink" href="#python-package" title="Link to this heading">#</a></h2>
 <p>Every public interface is flat: <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> and each subpackage export their
 names from <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, and every module beneath them is private, named
 with a leading underscore.  <code class="docutils literal notranslate"><span class="pre">tests/test_namespace.py</span></code> holds this.</p>
@@ -637,23 +641,29 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">apps/</span></code></p></td>
 <td><p>BART’s reconstructions assembled from operators and solvers</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">learning/</span></code>, <code class="docutils literal notranslate"><span class="pre">interop.py</span></code></p></td>
-<td><p>Unrolled iterations and channel conversions, and the DeepInverse adapter</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">learning/</span></code></p></td>
+<td><p>Networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and the Lightning training stages in <code class="docutils literal notranslate"><span class="pre">_training.py</span></code> (<code class="docutils literal notranslate"><span class="pre">learning</span></code> extra)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tools/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">interop.py</span></code></p></td>
+<td><p>The DeepInverse adapter</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tools/</span></code></p></td>
 <td><p>BART’s remaining commands in five sections, and corrections and rigid motion in <code class="docutils literal notranslate"><span class="pre">tools/_correct/</span></code> and <code class="docutils literal notranslate"><span class="pre">tools/_motion/</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cli/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cli/</span></code></p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> command line: <code class="docutils literal notranslate"><span class="pre">_argv.py</span></code> reads a <code class="docutils literal notranslate"><span class="pre">bart</span></code> command line, <code class="docutils literal notranslate"><span class="pre">_apps.py</span></code> routes it to an app</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">io/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">io/</span></code></p></td>
 <td><p>CFL files, ISMRMRD raw data, DICOM and NIfTI images (<code class="docutils literal notranslate"><span class="pre">io</span></code> extra)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_lib.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_marshal.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_buffer.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_abi.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_lib.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_marshal.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_buffer.py</span></code></p></td>
 <td><p>The ctypes signatures, loading the library, the form of an ABI argument, and a tensor over one of BART’s buffers</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_dispatch.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_operator.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_grid.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_dispatch.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_operator.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_grid.py</span></code></p></td>
 <td><p>Running a command on tensors, what every operator shares, and what the operations on a grid share</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_flags.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_layout.py</span></code></p></td>
+<td><p>Axis indices to BART dimensions and bitmasks, and the PyTorch layout of an MRI operator against BART’s dimensions</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_backend.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_finufft.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_cuda.py</span></code></p></td>
 <td><p>The BLAS, LAPACK and FFT sources, and the controls of the NUFFT substitution and of the device</p></td>
@@ -681,7 +691,7 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
 <td><p>Landing page: the README and the top-level toctree</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">docs/guides/user/</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/guides/developer/</span></code></p></td>
-<td><p>User and developer guides</p></td>
+<td><p>User and developer guides; <code class="docutils literal notranslate"><span class="pre">docs/guides/developer/internals/</span></code> holds the implementation detail behind the explanation pages</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs/explanation/</span></code></p></td>
 <td><p>Conceptual explanations</p></td>
@@ -724,7 +734,7 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Editable and source installation</p>
+        <p class="prev-next-title">Development installation</p>
       </div>
     </a>
     <a class="right-next"
@@ -754,7 +764,7 @@ with a leading underscore.  <code class="docutils literal notranslate"><span cla
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-python-package">The Python package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-package">Python package</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-sources">Documentation sources</a></li>
 </ul>
   </nav></div>

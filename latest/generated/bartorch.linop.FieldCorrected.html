@@ -198,20 +198,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -552,58 +550,55 @@
 <dt class="sig sig-object py" id="bartorch.linop.FieldCorrected">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">FieldCorrected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.FieldCorrected" title="Link to this definition">#</a></dt>
 <dd><p>Off-resonance-corrected encoding operator, by time segmentation.</p>
-<p>A voxel off resonance by <span class="math notranslate nohighlight">\(f\)</span> accrues a phase
-<span class="math notranslate nohighlight">\(e^{+i 2 \pi f t}\)</span> by the acquisition time <span class="math notranslate nohighlight">\(t\)</span> of each sample,
-so the exact operator applies a different transform per sample and is not a
-single transform at all.  Time segmentation approximates it as a short sum
-of ordinary encodings, each preceded by a spatial weight and followed by a
-sample weight:</p>
+<p>A voxel off resonance by <span class="math notranslate nohighlight">\(f\)</span> accrues phase <span class="math notranslate nohighlight">\(e^{+i 2 \pi f t}\)</span>
+at sample time <span class="math notranslate nohighlight">\(t\)</span>.  Time segmentation approximates the exact
+operator by</p>
 <div class="math notranslate nohighlight">
 \[A = \sum_{l=1}^{L} \operatorname{diag}(b_l) \, E \,
     \operatorname{diag}(c_l)\]</div>
-<p>This is <code class="docutils literal notranslate"><span class="pre">linop_plus</span></code> over <code class="docutils literal notranslate"><span class="pre">linop_chain</span></code>, so the result is one BART
-operator for any <code class="docutils literal notranslate"><span class="pre">E</span></code>.  It therefore wraps any encoding –
-<a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a>, <a class="reference internal" href="bartorch.linop.WaveSense.html#bartorch.linop.WaveSense" title="bartorch.linop.WaveSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">WaveSense()</span></code></a> or
-<a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a>; the non-Cartesian case
-corresponds to mirtorch’s <code class="docutils literal notranslate"><span class="pre">Gmri</span></code>.</p>
-<p>The segment coefficients come from <code class="docutils literal notranslate"><span class="pre">mri-nufft</span></code>.  Fitting them is a
-least-squares problem over a histogram of the field map, for which BART has
-no primitive.</p>
+<p>for any encoding <span class="math notranslate nohighlight">\(E\)</span> (<a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a>,
+<a class="reference internal" href="bartorch.linop.WaveSense.html#bartorch.linop.WaveSense" title="bartorch.linop.WaveSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">WaveSense()</span></code></a>,
+<a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a>); the non-Cartesian case is
+mirtorch’s <code class="docutils literal notranslate"><span class="pre">Gmri</span></code>.  The coefficients are fitted by <code class="docutils literal notranslate"><span class="pre">mri-nufft</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>encoding</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – The encoding without off-resonance.</p></li>
+<li><p><strong>encoding</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding without off-resonance.</p></li>
 <li><p><strong>field_map</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Off-resonance in Hz, broadcastable to the encoding’s domain.</p></li>
-<li><p><strong>readout_time</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – When each sample is taken, in seconds, broadcastable to the encoding’s
-codomain.  Reciprocal units to <code class="docutils literal notranslate"><span class="pre">field_map</span></code>.</p></li>
-<li><p><strong>mask</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Where the field map is meaningful; everywhere by default.  The fit
-weights the histogram by it, so a mask excluding air concentrates the
-segments on tissue.  A field map with a single value under the mask is
-rejected: there is nothing to segment, and the correction reduces to a
-single phase.</p></li>
-<li><p><strong>segments</strong> (<em>int</em><em>, </em><em>default=-1</em>) – How many terms the sum has.  <code class="docutils literal notranslate"><span class="pre">-1</span></code> lets <code class="docutils literal notranslate"><span class="pre">mri-nufft</span></code> choose from the
-spread of the field map and the readout length.</p></li>
-<li><p><strong>method</strong> (<em>str</em><em>, </em><em>default='svd'</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;svd&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;mti&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;mfi&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">mri-nufft</span></code>’s three factorizations.</p></li>
-<li><p><strong>coefficients</strong> (<em>tuple</em><em> of </em><em>tensor</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">(b,</span> <span class="pre">c)</span></code> already computed, of shapes <code class="docutils literal notranslate"><span class="pre">(L,</span> <span class="pre">*codomain)</span></code> and
-<code class="docutils literal notranslate"><span class="pre">(L,</span> <span class="pre">*domain)</span></code> up to broadcasting.  Given these, nothing is fitted
-and <code class="docutils literal notranslate"><span class="pre">field_map</span></code> is not needed.</p></li>
+<li><p><strong>readout_time</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Sample times in s, broadcastable to the encoding’s codomain.</p></li>
+<li><p><strong>mask</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Support of the field map; the fit weights the field-map histogram by
+it.  <code class="docutils literal notranslate"><span class="pre">None</span></code> is everywhere.</p></li>
+<li><p><strong>segments</strong> (<em>int</em><em>, </em><em>default=-1</em>) – Number of terms <span class="math notranslate nohighlight">\(L\)</span>; -1 lets <code class="docutils literal notranslate"><span class="pre">mri-nufft</span></code> choose from the
+field-map range and the readout length.</p></li>
+<li><p><strong>method</strong> (<em>{&quot;svd&quot;</em><em>, </em><em>&quot;mti&quot;</em><em>, </em><em>&quot;mfi&quot;}</em><em>, </em><em>default='svd'</em>) – <code class="docutils literal notranslate"><span class="pre">mri-nufft</span></code> factorization.</p></li>
+<li><p><strong>coefficients</strong> (<em>tuple</em><em> of </em><em>tensor</em><em>, </em><em>default=None</em>) – Precomputed <code class="docutils literal notranslate"><span class="pre">(b,</span> <span class="pre">c)</span></code> of shapes <code class="docutils literal notranslate"><span class="pre">(L,</span> <span class="pre">*codomain)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">(L,</span> <span class="pre">*domain)</span></code>, up to broadcasting; replaces the fit, and
+<code class="docutils literal notranslate"><span class="pre">field_map</span></code> and <code class="docutils literal notranslate"><span class="pre">readout_time</span></code> are not needed.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – When neither <code class="docutils literal notranslate"><span class="pre">coefficients</span></code> nor both <code class="docutils literal notranslate"><span class="pre">field_map</span></code> and
+    <code class="docutils literal notranslate"><span class="pre">readout_time</span></code> are given, when <code class="docutils literal notranslate"><span class="pre">b</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span></code> differ in term
+    count, or when the field map has a single value under the mask.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Over a <a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> with no basis, sets or
-encoding axes, and sample weights varying along the shots and the readout
-alone, the sum lowers to a single operator: the spatial weights expand the
-image into one image per segment, and the segments’ sample weights act as a
-basis over the samples.  Its normal is then the Toeplitz one over the basis’s packed
-Gram, with the spatial weights on either side – a point-spread function
-per pair of segments rather than two transforms per segment per coil.</p>
-<p>Over <a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a> with a pattern or a basis, and over
-<a class="reference internal" href="bartorch.linop.WaveSense.html#bartorch.linop.WaveSense" title="bartorch.linop.WaveSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">WaveSense()</span></code></a>, the segments are folded into the coil-slab loop around
-each slab’s transform instead, and the normal is the forward and adjoint
-applications; on a grid the closed form would save no transform.  Weights
-varying along the batches, the coils, the sets or the coefficients leave
-the sum over the whole encoding, as for any other encoding.</p>
+<p>Over a <a class="reference internal" href="bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense" title="bartorch.linop.NoncartesianSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoncartesianSense</span></code></a> without basis, sets or
+encoding axes, with sample weights varying along the shots and the
+readout only, the sum is lowered to one operator: the spatial weights
+expand the image to one image per segment, the sample weights act as a
+basis over the samples, and the normal is a Toeplitz convolution per pair
+of segments.</p>
+<p>Over <a class="reference internal" href="bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a> with a pattern or a basis,
+and over <a class="reference internal" href="bartorch.linop.WaveSense.html#bartorch.linop.WaveSense" title="bartorch.linop.WaveSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">WaveSense()</span></code></a>, the segments are applied
+around each slab’s transform in the coil-slab loop, and the normal is the
+forward and adjoint applications.</p>
+<p>Otherwise, or when the weights vary along the batches, coils, sets or
+coefficients, the result is BART’s sum of chains, and
+<code class="docutils literal notranslate"><span class="pre">plan.contraction</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;chained&quot;</span></code>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">E</span> <span class="o">=</span> <span class="n">CartesianSense</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">pattern</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">FieldCorrected</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">b0_hz</span><span class="p">,</span> <span class="n">readout_time</span><span class="o">=</span><span class="n">times</span><span class="p">,</span> <span class="n">segments</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>

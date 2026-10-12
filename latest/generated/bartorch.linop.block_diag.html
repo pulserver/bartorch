@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,17 +547,20 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.linop.block_diag">
 <span class="sig-prename descclassname"><span class="pre">bartorch.linop.</span></span><span class="sig-name descname"><span class="pre">block_diag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.block_diag" title="Link to this definition">#</a></dt>
-<dd><p>Give each operator its own part of the input and its own part of the output.</p>
-<p>BART’s <code class="docutils literal notranslate"><span class="pre">linop_stack</span></code>, folded over the sequence.  The domains are laid end
-to end along <code class="docutils literal notranslate"><span class="pre">domain_axis</span></code> and the codomains along <code class="docutils literal notranslate"><span class="pre">axis</span></code>; both default
-to the first, and each side must agree off the axis it grows along.</p>
+<dd><p>Block-diagonal operator over <code class="docutils literal notranslate"><span class="pre">ops</span></code>.</p>
+<p>Each operator maps its own part of the input to its own part of the
+output.  BART’s <code class="docutils literal notranslate"><span class="pre">linop_stack</span></code>, folded over the sequence.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ops</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – At least one.</p></li>
-<li><p><strong>axis</strong> (<em>int</em><em>, </em><em>default=0</em>) – Which axis of the codomain grows.</p></li>
-<li><p><strong>domain_axis</strong> (<em>int</em><em>, </em><em>default=None</em>) – Which axis of the domain grows; <code class="docutils literal notranslate"><span class="pre">axis</span></code> when left out.</p></li>
+<li><p><strong>ops</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – At least one.  Domains must agree except along <code class="docutils literal notranslate"><span class="pre">domain_axis</span></code> and
+codomains except along <code class="docutils literal notranslate"><span class="pre">axis</span></code>.</p></li>
+<li><p><strong>axis</strong> (<em>int</em><em>, </em><em>default=0</em>) – Codomain axis the outputs are concatenated along.</p></li>
+<li><p><strong>domain_axis</strong> (<em>int</em><em>, </em><em>default=None</em>) – Domain axis the inputs are concatenated along; <code class="docutils literal notranslate"><span class="pre">None</span></code> takes <code class="docutils literal notranslate"><span class="pre">axis</span></code>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
 </dd>
 </dl>
 </dd></dl>

@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,17 +547,18 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.tools.roi_stat">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">roi_stat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.roi_stat" title="Link to this definition">#</a></dt>
-<dd><p>Statistic of <code class="docutils literal notranslate"><span class="pre">input</span></code> over the region <code class="docutils literal notranslate"><span class="pre">roi</span></code>.</p>
+<dd><p>Statistic of <code class="docutils literal notranslate"><span class="pre">input</span></code> over the region <code class="docutils literal notranslate"><span class="pre">roi</span></code>.  BART’s <code class="docutils literal notranslate"><span class="pre">roistat</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>roi</strong> (<em>torch.Tensor</em>) – Weights, binary for the plain statistics.  Broadcasts against
-<code class="docutils literal notranslate"><span class="pre">input</span></code>; an axis where <code class="docutils literal notranslate"><span class="pre">roi</span></code> has size one and <code class="docutils literal notranslate"><span class="pre">input</span></code> does not
-(or the reverse, several regions along it) is kept.</p></li>
-<li><p><strong>stat</strong> (<em>{&quot;count&quot;</em><em>, </em><em>&quot;sum&quot;</em><em>, </em><em>&quot;mean&quot;</em><em>, </em><em>&quot;std&quot;</em><em>, </em><em>&quot;energy&quot;</em><em>, </em><em>&quot;variance&quot;}</em><em>, </em><em>default='mean'</em>) – <code class="docutils literal notranslate"><span class="pre">count</span></code> is the sum of the weights; <code class="docutils literal notranslate"><span class="pre">sum</span></code> of the weighted
-values; <code class="docutils literal notranslate"><span class="pre">mean</span></code> their ratio; <code class="docutils literal notranslate"><span class="pre">energy</span></code> the sum of
-squared deviations from the mean, not of squared values;
-<code class="docutils literal notranslate"><span class="pre">variance</span></code> energy over count; <code class="docutils literal notranslate"><span class="pre">std</span></code> its root.</p></li>
+<li><p><strong>roi</strong> (<em>torch.Tensor</em>) – Weights, binary for the plain statistics, broadcasting against
+<code class="docutils literal notranslate"><span class="pre">input</span></code>.  An axis where only one of the two exceeds one (several
+images, or several regions) is kept in the result.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Values the statistic is taken of.</p></li>
+<li><p><strong>stat</strong> (<em>{&quot;count&quot;</em><em>, </em><em>&quot;sum&quot;</em><em>, </em><em>&quot;mean&quot;</em><em>, </em><em>&quot;std&quot;</em><em>, </em><em>&quot;energy&quot;</em><em>, </em><em>&quot;variance&quot;}</em><em>, </em><em>default='mean'</em>) – <code class="docutils literal notranslate"><span class="pre">count</span></code> is the sum of the weights, <code class="docutils literal notranslate"><span class="pre">sum</span></code> that of the weighted
+values, <code class="docutils literal notranslate"><span class="pre">mean</span></code> their ratio; <code class="docutils literal notranslate"><span class="pre">energy</span></code> is the sum of squared
+deviations from the mean, <code class="docutils literal notranslate"><span class="pre">variance</span></code> energy over count, <code class="docutils literal notranslate"><span class="pre">std</span></code> its
+root.</p></li>
 <li><p><strong>bessel</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Divide by count minus one; <code class="docutils literal notranslate"><span class="pre">std</span></code> and <code class="docutils literal notranslate"><span class="pre">variance</span></code> only.</p></li>
 </ul>
 </dd>
@@ -570,6 +569,10 @@ otherwise.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">stat</span></code> is unknown, <code class="docutils literal notranslate"><span class="pre">bessel</span></code> is given for another statistic, or
+    the shapes do not broadcast.</p>
 </dd>
 </dl>
 </dd></dl>

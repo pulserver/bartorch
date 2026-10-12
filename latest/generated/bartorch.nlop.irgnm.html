@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,25 +548,24 @@
 <dt class="sig sig-object py" id="bartorch.nlop.irgnm">
 <span class="sig-prename descclassname"><span class="pre">bartorch.nlop.</span></span><span class="sig-name descname"><span class="pre">irgnm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.nlop.irgnm" title="Link to this definition">#</a></dt>
 <dd><p>Solve <code class="docutils literal notranslate"><span class="pre">F(x)</span> <span class="pre">=</span> <span class="pre">y</span></code> by iteratively regularized Gauss-Newton.</p>
-<p>Linearizes <code class="docutils literal notranslate"><span class="pre">F</span></code> at the current iterate and solves the linearized problem
-under a Tikhonov weight that decays from <code class="docutils literal notranslate"><span class="pre">alpha</span></code> towards <code class="docutils literal notranslate"><span class="pre">alpha_min</span></code>,
-so early steps are strongly regularized and later ones are not.</p>
+<p>Functional form of <a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>tensor</em>) – Data of <code class="docutils literal notranslate"><span class="pre">F.oshapes[0]</span></code>.</p></li>
-<li><p><strong>F</strong> (<a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><em>NonlinearOperator</em></a>) – The forward model.</p></li>
-<li><p><strong>x0</strong> (<em>tensor</em><em> or </em><em>tuple</em><em> of </em><em>tensor</em><em>, </em><em>default=None</em>) – Starting iterate; without one the model’s own initial value is used.</p></li>
-<li><p><strong>xref</strong> (<em>tensor</em><em> or </em><em>tuple</em><em> of </em><em>tensor</em><em>, </em><em>default=None</em>) – Regularization centre the steps are pulled towards; without one they
-are regularized towards zero.</p></li>
-<li><p><strong>inner</strong> (<em>solver</em><em>, </em><em>default=None</em>) – Solver for the linearized problem, from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>.  Without
-one it is solved by conjugate gradients inside the library.</p></li>
-<li><p><strong>**settings</strong> – Settings of <a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a>, among them <code class="docutils literal notranslate"><span class="pre">iterations</span></code> (8), <code class="docutils literal notranslate"><span class="pre">alpha</span></code>,
-<code class="docutils literal notranslate"><span class="pre">alpha_min</span></code> and <code class="docutils literal notranslate"><span class="pre">redu</span></code>.</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Data of <code class="docutils literal notranslate"><span class="pre">F.oshape</span></code>, with an optional leading batch axis.</p></li>
+<li><p><strong>F</strong> (<a class="reference internal" href="bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><em>NonlinearOperator</em></a><em> or </em><a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Forward model.</p></li>
+<li><p><strong>x0</strong> (<em>torch.Tensor</em><em> or </em><em>tuple</em><em> of </em><em>torch.Tensor</em><em>, </em><em>default=None</em>) – Start; <code class="docutils literal notranslate"><span class="pre">None</span></code> starts with the first input ones and the others zero,
+as <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> does.  See <a class="reference internal" href="bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock.start" title="bartorch.nlop.IRGNMBlock.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">IRGNMBlock.start()</span></code></a>.</p></li>
+<li><p><strong>xref</strong> (<em>torch.Tensor</em><em> or </em><em>tuple</em><em> of </em><em>torch.Tensor</em><em>, </em><em>default=None</em>) – Regularization centre; <code class="docutils literal notranslate"><span class="pre">None</span></code> regularizes towards zero.</p></li>
+<li><p><strong>inner</strong> (<em>solver</em><em>, </em><em>default=None</em>) – Solver from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code> for the linearized problem; <code class="docutils literal notranslate"><span class="pre">None</span></code>
+uses conjugate gradients inside the library.</p></li>
+<li><p><strong>**settings</strong> – Other parameters of <a class="reference internal" href="bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a>: <code class="docutils literal notranslate"><span class="pre">iterations</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alpha_min</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha_min0</span></code>, <code class="docutils literal notranslate"><span class="pre">redu</span></code>, <code class="docutils literal notranslate"><span class="pre">cg_maxiter</span></code>, <code class="docutils literal notranslate"><span class="pre">cg_tol</span></code>,
+<code class="docutils literal notranslate"><span class="pre">fuse</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The solution, one tensor per input of <code class="docutils literal notranslate"><span class="pre">F</span></code>.</p>
+<dd class="field-even"><p>Complex64 solution, one tensor per input of <code class="docutils literal notranslate"><span class="pre">F</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor or tuple of torch.Tensor</p>

@@ -128,7 +128,7 @@ A substantial example will often include:
 
 These elements need not become separate headings, particularly for short examples.
 
-#### Explain decisions, not execution
+#### Decisions and execution
 
 Prose should explain decisions whose significance is scientific, mathematical, numerical, or specific to the library.
 
@@ -243,7 +243,7 @@ Gallery figures take their typography, canvas and colours from `docs/gallery_sty
 
 A complex image, such as a coil sensitivity map, is drawn with `gallery_style.domain`, which maps phase to hue and magnitude to brightness, with `gallery_style.phase_bar` as its key. Magnitude-only reconstructions are drawn as magnitudes. A map is not split into a magnitude figure and a separate phase figure.
 
-#### Running an example in Colab
+#### Colab notebooks
 
 Every example page carries an **Open in Colab** badge under its title; `docs/colab.py` inserts it when the page is built, so a script does not carry one itself. The badge opens a copy of the example's notebook, published with the site under `<version>/_colab/`, whose first two cells are a note and a `%pip install` of bartorch and the packages the example imports. The notebook offered for download on the page has no such cells. A section whose examples import more than the common set lists those packages in `SECTION_PACKAGES` in `docs/colab.py`.
 
@@ -540,7 +540,7 @@ Distinguish current design rationale from historical narration.
 
 Abandoned alternatives, transient development reasoning, and change history generally belong in issue trackers, design records, release notes, or repository history unless they are necessary to understand a current constraint.
 
-## Editing existing documentation
+## Revision of existing documentation
 
 Documentation maintenance is semantic editing, not indiscriminate rewriting.
 
@@ -560,7 +560,7 @@ Conversely, documentation that is already precise and appropriate should not be 
 
 When documentation and implementation appear to disagree, establish the intended behavior before changing the documentation.
 
-## Building and reviewing documentation
+## Documentation build and review
 
 Substantial documentation changes should be reviewed in rendered form.
 

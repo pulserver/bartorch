@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -550,12 +548,11 @@
 <dt class="sig sig-object py" id="bartorch.iwt">
 <span class="sig-prename descclassname"><span class="pre">bartorch.</span></span><span class="sig-name descname"><span class="pre">iwt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.iwt" title="Link to this definition">#</a></dt>
 <dd><p>Wavelet synthesis along <code class="docutils literal notranslate"><span class="pre">axes</span></code>: coefficients from <a class="reference internal" href="bartorch.fwt.html#bartorch.fwt" title="bartorch.fwt"><code class="xref py py-func docutils literal notranslate"><span class="pre">fwt()</span></code></a> back to samples.</p>
-<p><code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">wavelet</span> <span class="pre">-a</span></code> runs the synthesis filter bank, which inverts
-<a class="reference internal" href="bartorch.fwt.html#bartorch.fwt" title="bartorch.fwt"><code class="xref py py-func docutils literal notranslate"><span class="pre">fwt()</span></code></a> (<code class="docutils literal notranslate"><span class="pre">iwt(fwt(x))</span> <span class="pre">==</span> <span class="pre">x</span></code>) for every wavelet.  It is a left
-inverse, not the adjoint, although BART’s wavelet linop uses it as its
-adjoint: synthesis ignores the reflected samples the analysis read
-(<code class="docutils literal notranslate"><span class="pre">wavelet_up3</span></code>, <code class="docutils literal notranslate"><span class="pre">src/wavelet/wavelet.c</span></code>).  The two coincide only for
-<code class="docutils literal notranslate"><span class="pre">&quot;haar&quot;</span></code> when every level’s length is even, where the transform is
+<p>The synthesis filter bank of <code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">wavelet</span> <span class="pre">-a</span></code> inverts <a class="reference internal" href="bartorch.fwt.html#bartorch.fwt" title="bartorch.fwt"><code class="xref py py-func docutils literal notranslate"><span class="pre">fwt()</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">iwt(fwt(x))</span> <span class="pre">==</span> <span class="pre">x</span></code>) for every wavelet.  It is a left inverse, not the
+adjoint, although BART’s wavelet operator uses it as its adjoint: synthesis
+ignores the reflected samples the analysis read.  The two coincide only
+for <code class="docutils literal notranslate"><span class="pre">&quot;haar&quot;</span></code> when every level’s length is even, where the transform is
 orthogonal.  <code class="docutils literal notranslate"><span class="pre">&quot;cdf97&quot;</span></code> runs <code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">cdf97</span> <span class="pre">-i</span></code>, the exact inverse of a
 biorthogonal transform that is not orthogonal.</p>
 <dl class="field-list simple">
@@ -567,6 +564,16 @@ axes not in <code class="docutils literal notranslate"><span class="pre">axes</s
 <li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Transformed axes, as indices into <code class="docutils literal notranslate"><span class="pre">oshape</span></code>.</p></li>
 <li><p><strong>wavelet</strong> (<em>{&quot;haar&quot;</em><em>, </em><em>&quot;dau2&quot;</em><em>, </em><em>&quot;cdf44&quot;</em><em>, </em><em>&quot;cdf97&quot;}</em><em>, </em><em>default='dau2'</em>) – As for <a class="reference internal" href="bartorch.fwt.html#bartorch.fwt" title="bartorch.fwt"><code class="xref py py-func docutils literal notranslate"><span class="pre">fwt()</span></code></a>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Samples of shape <code class="docutils literal notranslate"><span class="pre">oshape</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">input</span></code> does not have the coefficient layout <a class="reference internal" href="bartorch.fwt.html#bartorch.fwt" title="bartorch.fwt"><code class="xref py py-func docutils literal notranslate"><span class="pre">fwt()</span></code></a> gives
+    for <code class="docutils literal notranslate"><span class="pre">oshape</span></code> and <code class="docutils literal notranslate"><span class="pre">axes</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

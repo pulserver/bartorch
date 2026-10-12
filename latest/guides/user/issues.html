@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reporting issues &#8212; bartorch</title>
+    <title>Issue reports &#8212; bartorch</title>
   
   
   
@@ -67,7 +67,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Questions and proposals" href="discussions.html" />
-    <link rel="prev" title="From BART and sigpy" href="from-bart-sigpy.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -198,20 +198,18 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Reporting issues</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/documentation.html">Documentation</a></li>
@@ -522,7 +520,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Reporting issues</h1>
+    <h1>Issue reports</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -536,39 +534,38 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="reporting-issues">
-<h1>Reporting issues<a class="headerlink" href="#reporting-issues" title="Link to this heading">#</a></h1>
-<p>Bugs, documentation defects and feature requests are filed on the
+  <section class="tex2jax_ignore mathjax_ignore" id="issue-reports">
+<h1>Issue reports<a class="headerlink" href="#issue-reports" title="Link to this heading">#</a></h1>
+<p>Bugs, documentation defects and feature requests go to the
 <a class="reference external" href="https://github.com/pulserver/bartorch/issues/new/choose">issue tracker</a>, whose
 forms ask for the information below.  Search the existing issues for the error
 message and the function name first.</p>
 <p>A bug report contains:</p>
 <ul class="simple">
 <li><p>the observed and the expected behaviour, with the complete traceback;</p></li>
-<li><p>a minimal script on synthetic data — <a class="reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.phantom()</span></code></a>, or a
-random tensor with a fixed seed — rather than acquired data;</p></li>
+<li><p>a minimal script on synthetic data, <a class="reference internal" href="../../generated/bartorch.tools.phantom.html#bartorch.tools.phantom" title="bartorch.tools.phantom"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.phantom()</span></code></a> or a
+random tensor with a fixed seed, rather than acquired data;</p></li>
 <li><p>the shapes, dtypes and devices of the inputs, the axis and trajectory
 conventions assumed, and the options used, including regularization terms
 and Fourier-transform normalization;</p></li>
-<li><p>the bartorch version (<code class="docutils literal notranslate"><span class="pre">bartorch.__version__</span></code>) or commit, the output of
-<a class="reference internal" href="../../generated/bartorch.build_info.html#bartorch.build_info" title="bartorch.build_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.build_info()</span></code></a> and <a class="reference internal" href="../../generated/bartorch.bart_version.html#bartorch.bart_version" title="bartorch.bart_version"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.bart_version()</span></code></a>, the Python and
-PyTorch versions, the operating system and the installation command;</p></li>
-<li><p>for a source build, the repository and BART commits:
-<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">rev-parse</span> <span class="pre">HEAD</span></code> and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">-C</span> <span class="pre">external/bart</span> <span class="pre">rev-parse</span> <span class="pre">HEAD</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bartorch.__version__</span></code>, the output of <a class="reference internal" href="../../generated/bartorch.build_info.html#bartorch.build_info" title="bartorch.build_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.build_info()</span></code></a> (which
+includes the BART and FINUFFT versions compiled in), the Python and PyTorch
+versions, the operating system and the installation command;</p></li>
+<li><p>for a build from a checkout, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">rev-parse</span> <span class="pre">HEAD</span></code> and
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">-C</span> <span class="pre">external/bart</span> <span class="pre">rev-parse</span> <span class="pre">HEAD</span></code>;</p></li>
 <li><p>on a CUDA device, the GPU model, the driver version, <code class="docutils literal notranslate"><span class="pre">torch.version.cuda</span></code>,
-and the values of <code class="docutils literal notranslate"><span class="pre">torch.cuda.is_available()</span></code> and
-<a class="reference internal" href="../../generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.cuda_available()</span></code></a>;</p></li>
-<li><p>for non-Cartesian problems, the FINUFFT and cuFINUFFT versions.</p></li>
+<code class="docutils literal notranslate"><span class="pre">torch.cuda.is_available()</span></code> and <a class="reference internal" href="../../generated/bartorch.cuda_available.html#bartorch.cuda_available" title="bartorch.cuda_available"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.cuda_available()</span></code></a>.</p></li>
 </ul>
 <p>If importing bartorch or loading its library fails, report that error; the
-diagnostic functions above need the library.  A numerical discrepancy report
-states the reference it was compared with — an independent implementation, an
-explicit sum, a closed form — and the relative error observed.  A performance
-report states the problem size, the thread count, whether the timing includes
-warm-up and device synchronization, and the peak memory.</p>
-<p>Share only data you may publish.  Remove patient identifiers, credentials and
-private paths from logs.  Report a security vulnerability privately, as
-described in <a class="reference internal" href="security.html"><span class="doc">Security</span></a>, not as an issue.</p>
+functions above need the library.</p>
+<p>A numerical discrepancy report states the reference compared with (an
+independent implementation, an explicit sum, a closed form) and the relative
+error observed.  A performance report states the problem size, the thread
+count, whether the timing includes warm-up and device synchronization, and the
+peak memory.</p>
+<p>Share only data you may publish, and remove patient identifiers, credentials
+and private paths from logs.  A security vulnerability is reported privately
+(<a class="reference internal" href="security.html"><span class="doc">Security</span></a>), not as an issue.</p>
 </section>
 
 
@@ -583,12 +580,12 @@ described in <a class="reference internal" href="security.html"><span class="doc
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="from-bart-sigpy.html"
+       href="installation.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">From BART and sigpy</p>
+        <p class="prev-next-title">Installation</p>
       </div>
     </a>
     <a class="right-next"

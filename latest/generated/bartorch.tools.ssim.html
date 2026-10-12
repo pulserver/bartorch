@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -549,22 +547,30 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bartorch.tools.ssim">
 <span class="sig-prename descclassname"><span class="pre">bartorch.tools.</span></span><span class="sig-name descname"><span class="pre">ssim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.tools.ssim" title="Link to this definition">#</a></dt>
-<dd><p>Mean structural similarity of the magnitudes .</p>
+<dd><p>Mean structural similarity of the magnitudes.</p>
 <p>Magnitudes are the root sum of squares over the coil axis, and each image
 is divided by the maximum magnitude of its <code class="docutils literal notranslate"><span class="pre">reference</span></code>.  SSIM with
 <code class="docutils literal notranslate"><span class="pre">k1</span> <span class="pre">=</span> <span class="pre">0.01</span></code>, <code class="docutils literal notranslate"><span class="pre">k2</span> <span class="pre">=</span> <span class="pre">0.03</span></code>, dynamic range one and population
 statistics over a uniform 7x7 window in <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code>, at every position the
 window fits whole (no padding), averaged over those positions, over <code class="docutils literal notranslate"><span class="pre">z</span></code>
-and over every other axis (<code class="docutils literal notranslate"><span class="pre">networks/losses.c:304-327</span></code>,
-<code class="docutils literal notranslate"><span class="pre">nn/losses.c:151-285</span></code>).</p>
+and over every other axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reference</strong> (<em>torch.Tensor</em>) – C order <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>; a plain <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image serves.
-<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">x</span></code> are at least seven.</p></li>
-<li><p><strong>input</strong> (<em>torch.Tensor</em>) – C order <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>; a plain <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image serves.
-<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">x</span></code> are at least seven.</p></li>
+<li><p><strong>reference</strong> (<em>torch.Tensor</em>) – <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or a <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image; <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">x</span></code> at
+least seven.</p></li>
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – <code class="docutils literal notranslate"><span class="pre">(...,</span> <span class="pre">coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, or a <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> image; <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">x</span></code> at
+least seven.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mean SSIM, at most one.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">y</span></code> or <code class="docutils literal notranslate"><span class="pre">x</span></code> is below seven.</p>
 </dd>
 </dl>
 </dd></dl>

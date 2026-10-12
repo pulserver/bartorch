@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -554,18 +552,20 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kernel</strong> (<em>tensor</em>) – What to convolve with, with one axis per axis of <code class="docutils literal notranslate"><span class="pre">shape</span></code>; an axis it
-has only one of is left alone.</p></li>
-<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – The domain, C order.</p></li>
-<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Which axes to convolve along.</p></li>
-<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>default='same'</em>) – How the ends are treated, under numpy’s names: <code class="docutils literal notranslate"><span class="pre">&quot;wrap&quot;</span></code> (circular),
-<code class="docutils literal notranslate"><span class="pre">&quot;same&quot;</span></code> (the input’s size, truncated), <code class="docutils literal notranslate"><span class="pre">&quot;valid&quot;</span></code> (only where the
-kernel fits) or <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> (extended).</p></li>
-<li><p><strong>direction</strong> (<em>str</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;symmetric&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;causal&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;anticausal&quot;</span></code>.  BART only plans a
-<code class="docutils literal notranslate"><span class="pre">&quot;valid&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> convolution as a causal one, so leaving this
-out picks causal for those two and symmetric for the others rather
-than failing inside BART’s planner.</p></li>
+<li><p><strong>kernel</strong> (<em>tensor</em>) – Same rank as <code class="docutils literal notranslate"><span class="pre">shape</span></code>.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Domain, C order.</p></li>
+<li><p><strong>axes</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>int</em>) – Axes to convolve along.</p></li>
+<li><p><strong>mode</strong> (<em>{&quot;wrap&quot;</em><em>, </em><em>&quot;same&quot;</em><em>, </em><em>&quot;valid&quot;</em><em>, </em><em>&quot;full&quot;}</em><em>, </em><em>default='same'</em>) – Boundary handling, under numpy’s names: circular, truncated to the
+input size, only where the kernel fits, or extended.</p></li>
+<li><p><strong>direction</strong> (<em>{&quot;symmetric&quot;</em><em>, </em><em>&quot;causal&quot;</em><em>, </em><em>&quot;anticausal&quot;}</em><em>, </em><em>default=None</em>) – Kernel alignment.  <code class="docutils literal notranslate"><span class="pre">None</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;causal&quot;</span></code> for <code class="docutils literal notranslate"><span class="pre">&quot;valid&quot;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, the only direction BART accepts for those modes, and
+<code class="docutils literal notranslate"><span class="pre">&quot;symmetric&quot;</span></code> otherwise.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – For an unknown mode or direction, a non-causal <code class="docutils literal notranslate"><span class="pre">&quot;valid&quot;</span></code> or
+    <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> convolution, or a kernel whose rank differs from the
+    domain’s.</p>
 </dd>
 </dl>
 </dd></dl>

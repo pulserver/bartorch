@@ -196,20 +196,18 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/user/index.html">User guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Prerequisites and supported platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/prerequisites.html">Requirements and supported platforms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/from-bart-sigpy.html">From BART and sigpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/user/issues.html">Issue reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/discussions.html">Questions and proposals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/user/security.html">Security</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/prerequisites.html">Development prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Editable and source installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">The BART fork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pre-commit.html">Pre-commit hooks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
@@ -625,53 +623,96 @@ operands are.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.forward" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code>, without recording for autograd.</p>
-<p><code class="docutils literal notranslate"><span class="pre">out</span></code> is written in place when given; for a BART-backed operator it
-must be a contiguous complex64 tensor of <code class="xref py py-attr docutils literal notranslate"><span class="pre">oshape</span></code> on the input’s
-device.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code> without recording for autograd.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>tensor</em><em>, </em><em>shape ishape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape oshape</em><em>, </em><em>default=None</em>) – Written in place when given.  For a BART-backed operator, a
+contiguous complex64 tensor on the input’s device.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">out</span></code> when given.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tensor, shape oshape</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.adjoint">
 <span class="sig-name descname"><span class="pre">adjoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.adjoint" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code>, without recording for autograd.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code> without recording for autograd.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>tensor</em><em>, </em><em>shape oshape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape ishape</em><em>, </em><em>default=None</em>) – Written in place when given, as for <a class="reference internal" href="#bartorch.linop.LinearOperator.forward" title="bartorch.linop.LinearOperator.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">forward()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape ishape</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.normal">
 <span class="sig-name descname"><span class="pre">normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.normal" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">x</span></code>.</p>
-<p>A BART-backed operator applies its own normal, which for a
-non-Cartesian encoding built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code> is a convolution
-with a point spread function.  Otherwise <code class="docutils literal notranslate"><span class="pre">adjoint(forward(x))</span></code>.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">x</span></code>.</p>
+<p>A BART-backed operator applies BART’s normal, which for an encoding
+built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code> is a convolution with a point spread
+function; a Python-defined one computes <code class="docutils literal notranslate"><span class="pre">adjoint(forward(x))</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>tensor</em><em>, </em><em>shape ishape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape ishape</em><em>, </em><em>default=None</em>) – Written in place when given, as for <a class="reference internal" href="#bartorch.linop.LinearOperator.forward" title="bartorch.linop.LinearOperator.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">forward()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape ishape</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.from_callbacks">
 <em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_callbacks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.from_callbacks" title="Link to this definition">#</a></dt>
-<dd><p>An operator from Python functions, applied through BART.</p>
-<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> maps <code class="docutils literal notranslate"><span class="pre">ishape</span></code> to <code class="docutils literal notranslate"><span class="pre">oshape</span></code> and <code class="docutils literal notranslate"><span class="pre">adjoint</span></code> back; <code class="docutils literal notranslate"><span class="pre">normal</span></code>,
-where a cheaper form exists, is <code class="docutils literal notranslate"><span class="pre">adjoint(forward(x))</span></code> in one.  Each
-receives a view of BART’s buffer, and every application crosses into Python.</p>
+<dd><p>Build a BART operator from Python functions.</p>
+<p>Each function receives a view of BART’s buffer, without a copy, and
+returns a tensor; every application calls back into Python.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oshape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order.</p></li>
+<li><p><strong>ishape</strong> (<em>tuple</em><em> of </em><em>int</em>) – Codomain and domain, C order.</p></li>
+<li><p><strong>forward</strong> (<em>callable</em>) – <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">A</span> <span class="pre">x</span></code>, from <code class="docutils literal notranslate"><span class="pre">ishape</span></code> to <code class="docutils literal notranslate"><span class="pre">oshape</span></code>.</p></li>
+<li><p><strong>adjoint</strong> (<em>callable</em>) – <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">-&gt;</span> <span class="pre">A^H</span> <span class="pre">y</span></code>, from <code class="docutils literal notranslate"><span class="pre">oshape</span></code> to <code class="docutils literal notranslate"><span class="pre">ishape</span></code>.</p></li>
+<li><p><strong>normal</strong> (<em>callable</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">A^H</span> <span class="pre">A</span> <span class="pre">x</span></code> in one function; <code class="docutils literal notranslate"><span class="pre">None</span></code> chains <code class="docutils literal notranslate"><span class="pre">adjoint</span></code>
+onto <code class="docutils literal notranslate"><span class="pre">forward</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator">LinearOperator</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.plan">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plan</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.plan" title="Link to this definition">#</a></dt>
 <dd><p>The encoding form this operator was lowered into, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-<p>Diagnostic: reading it changes nothing about the operator.  An MRI
-encoding reports what the planner chose for it – the transform, the
-element-wise factors on each side of it, the contraction, what is
-streamed, how the normal is applied, and which executor path ran it.
-The algebra carries the plan through, so a composition with one
-encoding in it reports that encoding’s plan; anything else has none.</p>
-<p><code class="docutils literal notranslate"><span class="pre">plan.fused</span></code> is the field to check: it is false where the coil-slab
-loop could not take the form and where a sum of terms was left as a
-chain, both of which give the same numbers several times slower.
-<code class="docutils literal notranslate"><span class="pre">plan.executor</span></code> is read back from the library after the build, so it
-reports the path that ran rather than the one intended.</p>
-<p>Accessing this on a composition builds it, since the plan is decided by
-lowering and lowering is what building does.</p>
+<p>An MRI encoding reports the transform, the element-wise factors on
+each side of it, the contraction, what is streamed, how the normal is
+applied and which executor built it.  A composition containing exactly
+one encoding reports that encoding’s plan; any other operator has none.</p>
+<p><code class="docutils literal notranslate"><span class="pre">plan.fused</span></code> is false where the coil-slab loop could not take the
+form or a sum of terms was left as a chain: the same result, computed
+more slowly.  <code class="docutils literal notranslate"><span class="pre">plan.executor</span></code> is read back from the library after
+the build.  Reading the property on a composition builds it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bartorch.linop._form.Plan or None</p>
@@ -690,9 +731,9 @@ lowering and lowering is what building does.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.H">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">H</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.H" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span></code>, from BART’s own adjoint constructor.</p>
-<p>The result is a BART operator rather than a Python wrapper, so
-<code class="docutils literal notranslate"><span class="pre">A.H</span> <span class="pre">&#64;</span> <span class="pre">B</span></code> is one operator and its normal is <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">A^H</span></code>.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span></code>, from BART’s adjoint constructor.</p>
+<p>The result is a BART operator: <code class="docutils literal notranslate"><span class="pre">A.H</span> <span class="pre">&#64;</span> <span class="pre">B</span></code> is one operator, and the
+normal of <code class="docutils literal notranslate"><span class="pre">A.H</span></code> is <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">A^H</span></code>.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -711,8 +752,8 @@ lowering and lowering is what building does.</p>
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.gram">
 <span class="sig-name descname"><span class="pre">gram</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.gram" title="Link to this definition">#</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span></code> as an operator.</p>
-<p>BART’s own, so an encoding built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code> gives the
-point-spread convolution rather than the two applications.</p>
+<p>BART’s normal: for an encoding built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code>, the
+convolution with a point spread function.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -724,25 +765,37 @@ point-spread convolution rather than the two applications.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.opnorm">
 <span class="sig-name descname"><span class="pre">opnorm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.opnorm" title="Link to this definition">#</a></dt>
-<dd><p>The spectral norm, by BART’s power iteration on <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span></code>.</p>
-<p>BART starts the iteration from its process-global generator, so this
-returns a slightly different number each time it is called.  It is an
-estimate: what a step size or a Lipschitz constant needs, not an exact
-singular value.</p>
+<dd><p>Estimate the spectral norm by BART’s power iteration on <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">A</span></code>.</p>
+<p>The starting vector comes from BART’s process-global generator, so
+repeated calls differ slightly.  Accurate enough for a step size or a
+Lipschitz constant, not an exact singular value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – When the power iteration does not converge.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.__call__" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code>, recorded for autograd when <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient.</p>
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span></code>, recorded for autograd when <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient.</p>
+<p>The backward pass applies <a class="reference internal" href="#bartorch.linop.LinearOperator.adjoint" title="bartorch.linop.LinearOperator.adjoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjoint()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Array of <code class="xref py py-attr docutils literal notranslate"><span class="pre">ishape</span></code>.</p></li>
-<li><p><strong>out</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Contiguous complex64 array of <code class="xref py py-attr docutils literal notranslate"><span class="pre">oshape</span></code> to write into, so that
-repeated applications reuse one buffer.  Not allowed when <code class="docutils literal notranslate"><span class="pre">x</span></code>
-requires a gradient.</p></li>
+<li><p><strong>x</strong> (<em>tensor</em><em>, </em><em>shape ishape</em>) – Input.</p></li>
+<li><p><strong>out</strong> (<em>tensor</em><em>, </em><em>shape oshape</em><em>, </em><em>default=None</em>) – Contiguous complex64 tensor written in place.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape oshape</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – When <code class="docutils literal notranslate"><span class="pre">out</span></code> is given and <code class="docutils literal notranslate"><span class="pre">x</span></code> requires a gradient.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -762,25 +815,25 @@ requires a gradient.</p></li>
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.dim_size">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dim_size</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.dim_size" title="Link to this definition">#</a></dt>
-<dd><p>How many elements the domain holds.</p>
+<dd><p>Number of elements in the domain.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.codim_size">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">codim_size</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.codim_size" title="Link to this definition">#</a></dt>
-<dd><p>How many elements the codomain holds.</p>
+<dd><p>Number of elements in the codomain.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.dim_rank">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dim_rank</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.dim_rank" title="Link to this definition">#</a></dt>
-<dd><p>How many axes the domain has.</p>
+<dd><p>Number of axes of the domain.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.codim_rank">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">codim_rank</span></span><a class="headerlink" href="#bartorch.linop.LinearOperator.codim_rank" title="Link to this definition">#</a></dt>
-<dd><p>How many axes the codomain has.</p>
+<dd><p>Number of axes of the codomain.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -792,29 +845,30 @@ requires a gradient.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="bartorch.linop.LinearOperator.pinv">
 <span class="sig-name descname"><span class="pre">pinv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.linop.LinearOperator.pinv" title="Link to this definition">#</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">(A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">damp</span> <span class="pre">I)^-1</span> <span class="pre">A^H</span> <span class="pre">y</span></code>, the damped least-squares solution.</p>
-<p>Solved in closed form where BART has one that has been checked, and by
-<a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.optim.CG</span></code></a> otherwise; the same quantity either way.</p>
-<p>BART offers the closed form through a <code class="docutils literal notranslate"><span class="pre">norm_inv</span></code>, which only
-<cite>linops/sum.c</cite> carries, and that routine divides by a count
-<cite>linop_sum_create</cite> overwrites afterwards – so it answers for a
-differently scaled operator than the one it is attached to.  A class
-therefore opts in through <code class="xref py py-attr docutils literal notranslate"><span class="pre">_exact_pinv</span></code> once a test holds the
-closed form and the solver to the same answer, and only
-<a class="reference internal" href="bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledSum</span></code></a> does.  Everything else takes the
-solver, chains, sums and adjoints included, since those drop the
-<code class="docutils literal notranslate"><span class="pre">norm_inv</span></code> regardless.</p>
+<dd><p>Solve <code class="docutils literal notranslate"><span class="pre">(A^H</span> <span class="pre">A</span> <span class="pre">+</span> <span class="pre">damp</span> <span class="pre">I)</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">A^H</span> <span class="pre">y</span></code>, the damped least-squares problem.</p>
+<p><a class="reference internal" href="bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledSum</span></code></a> is solved by BART’s closed-form
+pseudo-inverse; every other operator, including compositions, by
+<a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>torch.Tensor</em>) – Array of <code class="xref py py-attr docutils literal notranslate"><span class="pre">oshape</span></code>.</p></li>
-<li><p><strong>damp</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The Tikhonov weight, <code class="docutils literal notranslate"><span class="pre">CG</span></code>’s <code class="docutils literal notranslate"><span class="pre">lambda_</span></code>.</p></li>
-<li><p><strong>**kwargs</strong> – Passed to <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>, with <code class="docutils literal notranslate"><span class="pre">x0</span></code> as the warm
-start.  Refused when the closed form applies, because there is
-then no solver for them to configure.</p></li>
+<li><p><strong>y</strong> (<em>tensor</em><em>, </em><em>shape oshape</em>) – Data.</p></li>
+<li><p><strong>damp</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – Tikhonov weight, <code class="docutils literal notranslate"><span class="pre">CG</span></code>’s <code class="docutils literal notranslate"><span class="pre">lambda_</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to <a class="reference internal" href="bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a>; <code class="docutils literal notranslate"><span class="pre">x0</span></code> is the warm start.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor, shape ishape</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TypeError</strong> – When <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> are given and the closed form applies.</p>
+</dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>BART attaches a closed form (<code class="docutils literal notranslate"><span class="pre">norm_inv</span></code>) only in <code class="docutils literal notranslate"><span class="pre">linops/sum.c</span></code>,
+and it is correct for <code class="docutils literal notranslate"><span class="pre">linop_scaled_sum</span></code> alone: for the plain sum it
+solves a differently scaled problem.  <a class="reference internal" href="bartorch.linop.Sum.html#bartorch.linop.Sum" title="bartorch.linop.Sum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sum</span></code></a>
+therefore takes the solver.</p>
 </dd></dl>
 
 </dd></dl>
