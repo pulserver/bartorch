@@ -425,7 +425,8 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     ``-i`` counts Gauss-Newton steps over BART's own coefficients, which
     BlochSim's bounded parameterisation needs several times more of, so it is
     not something the app takes; the app's own count applies.  ``--liniter``
-    counts conjugate-gradient steps in both.  Without ``--init`` the app
+    counts the conjugate-gradient steps of each linearized problem, which the
+    app solves directly per voxel, so it changes nothing there.  Without ``--init`` the app
     starts from its own values, since the command's start of zero is no
     relaxation time; ``-M`` has no such start and is routed with one.
     """
@@ -436,8 +437,7 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     which = _only(options.pop("m", [1]))
     if mode == "G" and which == 2:
         # Two decays that differ only by fat's share of the signal are nearly
-        # one; the Gauss-Newton weight towards the middle of each bound walks
-        # the pair off where the command's unbounded rates stay.
+        # one, and the bounded fit does not separate them.
         raise Unsupported("mobafit -m 2 does not converge in the app's bounded variables")
     if mode == "G" and which not in _WATER_FAT:
         raise Unsupported(f"mobafit -m {which} is not a multi-echo model")
@@ -447,8 +447,7 @@ def _mobafit(options: dict[str, list[Any]], inputs: list, outputs: int) -> Call:
     if "a" in options:
         options.pop("a")
         made["magnitude"] = True
-    if "liniter" in options:
-        made["cg_maxiter"] = _only(options.pop("liniter"))
+    options.pop("liniter", None)
     given = _only(options.pop("init")) if "init" in options else None
     if options:
         raise Unsupported(f"mobafit {sorted(options)} is not something the app takes")

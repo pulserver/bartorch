@@ -37,8 +37,8 @@ from bartorch.nlop._mri import (
 from bartorch.nlop._simulation import (
     Bloch,
     InversionRecovery,
+    ModelOperator,
     MultiEcho,
-    SignalModel,
 )
 
 __all__ = [
@@ -64,7 +64,7 @@ __all__ = [
     "Phase",
     "Power",
     "RootSumOfSquares",
-    "SignalModel",
+    "ModelOperator",
     "SmoothAbs",
     "Sqrt",
     "SumOfSquares",

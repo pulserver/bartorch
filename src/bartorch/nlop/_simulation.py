@@ -1,9 +1,10 @@
 """Signal models from BlochSim, as BART nonlinear operators.
 
-:class:`SignalModel` bridges BlochSim's
-:class:`~blochsim.recon.ModelOperator` -- a model's value, its
-Jacobian-vector product and its adjoint product, none of which builds a
-Jacobian -- onto the three things BART's ``nlop_s`` asks for.
+:class:`ModelOperator` takes a signal model over parameter maps -- its value,
+Jacobian-vector product and adjoint product, none of which builds a Jacobian
+-- onto the three things BART's ``nlop_s`` asks for.  BlochSim's
+:class:`~blochsim.ModelOperator` is the model this package is written and
+tested against.
 :func:`InversionRecovery`, :func:`MultiEcho` and :func:`Bloch` are the
 quantitative models built on BlochSim's simulators, in BlochSim's
 parameterisation.  The suite holds their curves and their fits against BART's
@@ -29,13 +30,13 @@ import torch
 from bartorch._operator import Shape
 from bartorch.nlop._callback import _Callback
 
-__all__ = ["Bloch", "SignalModel", "InversionRecovery", "MultiEcho"]
+__all__ = ["Bloch", "ModelOperator", "InversionRecovery", "MultiEcho"]
 
 
 def _operator(acquisition, unknown, bounds, scale, amplitude, subspace):
-    from blochsim.recon import ModelOperator
+    from blochsim import ModelOperator as BlochSimOperator
 
-    return ModelOperator(
+    return BlochSimOperator(
         acquisition,
         *unknown,
         bounds=bounds,
@@ -45,22 +46,28 @@ def _operator(acquisition, unknown, bounds, scale, amplitude, subspace):
     )
 
 
-class SignalModel(_Callback):
-    """BlochSim signal model as a nonlinear operator from parameter maps to contrast images.
+class ModelOperator(_Callback):
+    """Signal model as a nonlinear operator from parameter maps to contrast images.
 
-    The value, derivative and adjoint are BlochSim's
-    :meth:`~blochsim.recon.ModelOperator.A`, ``A_jvp`` and ``A_vjp``.  The
-    domain is ``(channels, *shape)``: the model's variables (bounded
-    parameters in their transformed form, the amplitude as real and imaginary
-    parts) in the real part of a complex tensor, in the order of
+    The value, derivative and adjoint are the model's ``A``, ``A_jvp`` and
+    ``A_vjp``.  The domain is ``(channels, *shape)``: the model's variables
+    (bounded parameters in their transformed form, the amplitude as real and
+    imaginary parts) in the real part of a complex tensor, in the order of
     :attr:`names`.  The codomain is ``(contrasts, *shape)``.
     :meth:`initial` and :meth:`split` convert from and to named maps in
     physical units.
 
     Parameters
     ----------
-    model : blochsim.recon.ModelOperator
-        Signal model with its unknowns, bounds and scales set.
+    model : object
+        Signal model over real parameter maps stacked on the last axis, such
+        as :class:`blochsim.ModelOperator`.  It provides ``channels`` and
+        ``names``; ``A(x)``, ``(..., channels)`` to ``(..., contrasts)``;
+        ``A_jvp(x, d)`` and ``A_vjp(x, v)``, the Jacobian-vector product and
+        its adjoint under the real inner product; ``initial(shape, **values)``
+        and ``split(x)``, from and to named maps in physical units; and
+        optionally ``bounds``, ``{name: (low, high)}``, which
+        :func:`~bartorch.apps.moba` reads to smooth a map.
     shape : tuple of int, default=()
         Voxel shape, C order.
     contrasts : int, default=None
@@ -75,12 +82,12 @@ class SignalModel(_Callback):
 
     Examples
     --------
-    >>> from blochsim.recon import ModelOperator
+    >>> import blochsim
     >>> from blochsim.simulators import MultiEchoSimulator
-    >>> model = ModelOperator(
+    >>> model = blochsim.ModelOperator(
     ...     MultiEchoSimulator(TE=echo_times), "T2", bounds={"T2": (10.0, 300.0)}
     ... )
-    >>> M = SignalModel(model, (128, 128))
+    >>> M = nlop.ModelOperator(model, (128, 128))
     >>> M.ishape, M.oshape
     ((3, 128, 128), (8, 128, 128))
     >>> images = M(M.initial(T2=80.0))
@@ -183,7 +190,7 @@ class SignalModel(_Callback):
         ----------
         **values
             ``name=value`` in each property's physical units, as
-            :meth:`~blochsim.recon.ModelOperator.initial` takes them; a scalar
+            :meth:`~blochsim.ModelOperator.initial` takes them; a scalar
             or a map of the voxel shape.  Properties not given take the
             model's default.
 
@@ -215,14 +222,15 @@ class SignalModel(_Callback):
         return self.model.split(maps)
 
     def __repr__(self) -> str:
+        acquisition = getattr(self.model, "acquisition", self.model)
         return (
-            f"SignalModel({type(self.model.acquisition).__name__}, {self.voxels}, "
-            f"unknown={list(self.model.unknown)})"
+            f"ModelOperator({type(acquisition).__name__}, {self.voxels}, "
+            f"unknown={list(getattr(self.model, 'unknown', self.names))})"
         )
 
 
 def _from(acquisition, unknown, shape, bounds, scale, amplitude, subspace, contrasts):
-    return SignalModel(
+    return ModelOperator(
         _operator(acquisition, unknown, bounds, scale, amplitude, subspace),
         shape,
         contrasts,
@@ -239,7 +247,7 @@ def InversionRecovery(  # noqa: N802  (it is a constructor)
     amplitude: bool = True,
     subspace: Any = None,
     **scale: float,
-) -> SignalModel:
+) -> ModelOperator:
     """Inversion-recovery signal model for T1 mapping.
 
     The longitudinal magnetization at a series of inversion times, from
@@ -270,7 +278,7 @@ def InversionRecovery(  # noqa: N802  (it is a constructor)
 
     Returns
     -------
-    SignalModel
+    ModelOperator
         Domain ``(channels, *shape)``, codomain ``(len(TI), *shape)``.
     """
     from blochsim.simulators import InversionRecoverySimulator
@@ -296,7 +304,7 @@ def MultiEcho(  # noqa: N802  (it is a constructor)
     amplitude: bool = True,
     subspace: Any = None,
     **scale: float,
-) -> SignalModel:
+) -> ModelOperator:
     """Mono-exponential multi-echo signal model for T2 or T2* mapping.
 
     The transverse decay at a series of echo times, from BlochSim's
@@ -324,7 +332,7 @@ def MultiEcho(  # noqa: N802  (it is a constructor)
 
     Returns
     -------
-    SignalModel
+    ModelOperator
         Domain ``(channels, *shape)``, codomain ``(len(TE), *shape)``.
     """
     from blochsim.simulators import MultiEchoSimulator
@@ -352,7 +360,7 @@ def Bloch(  # noqa: N802  (it is a constructor)
     subspace: Any = None,
     contrasts: int | None = None,
     **scale: float,
-) -> SignalModel:
+) -> ModelOperator:
     """Signal model of any BlochSim simulator.
 
     For sequences without a closed-form signal equation, such as a fast
@@ -383,7 +391,7 @@ def Bloch(  # noqa: N802  (it is a constructor)
 
     Returns
     -------
-    SignalModel
+    ModelOperator
         Domain ``(channels, *shape)``, codomain ``(contrasts, *shape)``.
 
     Examples

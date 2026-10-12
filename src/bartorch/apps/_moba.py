@@ -14,12 +14,13 @@ from bartorch.nlop._basic import Multiply
 __all__ = ["moba"]
 
 #: Gauss-Newton steps.  The command takes eight (moba/moba.c:17) over its own
-#: coefficients; BlochSim's bounded parameterisation needs more, as
-#: :func:`~bartorch.apps.mobafit` sets out for the same reason.
+#: coefficients, which ``--scale`` brings to order one; a bounded variable
+#: moves slowly while the Tikhonov weight is large, so BlochSim's
+#: parameterisation needs more.
 _ITERATIONS = 20
 
-#: Conjugate-gradient steps per linearized problem, as :func:`~bartorch.apps.mobafit`
-#: takes them.
+#: Conjugate-gradient steps per linearized problem, the command's ``--liniter``
+#: default (mobafit.c:246).
 _CG_MAXITER = 50
 
 #: Conjugate-gradient steps of the contrast images the data scaling is read off.
@@ -59,7 +60,7 @@ def _joint(sense: nlop.NonlinearSense, model: NonlinearOperator) -> NonlinearOpe
     return _chain(made, sense.transform.to_nonlinear(), output=0, input=0)
 
 
-def _scale(model: nlop.SignalModel, images) -> float:
+def _scale(model: nlop.ModelOperator, images) -> float:
     """What the data is divided by: BART's scaling rule over images of the data.
 
     The rule is the one :func:`bartorch.optim.data_scaling` applies, so that
@@ -80,11 +81,11 @@ def _scale(model: nlop.SignalModel, images) -> float:
 _INSIDE = 1e-3
 
 
-def _inside(model: nlop.SignalModel, named: dict[str, Any]) -> dict[str, Any]:
+def _inside(model: nlop.ModelOperator, named: dict[str, Any]) -> dict[str, Any]:
     """``named`` with each bounded property clamped strictly inside its bound."""
     clamped = dict(named)
     for name, value in named.items():
-        low, high = model.model.bounds.get(name, (None, None))
+        low, high = getattr(model.model, "bounds", {}).get(name, (None, None))
         if low is None and high is None:
             continue
         width = high - low if low is not None and high is not None else None
@@ -97,7 +98,7 @@ def _inside(model: nlop.SignalModel, named: dict[str, Any]) -> dict[str, Any]:
     return clamped
 
 
-def _smoothing(model: nlop.SignalModel, smooth) -> linop.LinearOperator | None:
+def _smoothing(model: nlop.ModelOperator, smooth) -> linop.LinearOperator | None:
     """The model's input from the variables solved for: the smooth properties
     through the Sobolev weighting, the rest as they are."""
     if not smooth:
@@ -162,7 +163,7 @@ def _given(kspace, sensitivities, model, traj, pattern):
 
 def moba(
     kspace: torch.Tensor,
-    model: nlop.SignalModel,
+    model: nlop.ModelOperator,
     sensitivities: torch.Tensor | None = None,
     *,
     traj: torch.Tensor | None = None,
@@ -188,7 +189,7 @@ def moba(
     Without ``sensitivities`` the coils are a second unknown, shared by the
     contrasts and represented as in :class:`~bartorch.nlop.NonlinearSense`,
     under a Sobolev weighting.  The model is BlochSim's
-    (:class:`~bartorch.nlop.SignalModel`), so the result is named maps in
+    (:class:`~bartorch.nlop.ModelOperator`), so the result is named maps in
     physical units rather than the command's coefficients.
 
     Parameters
@@ -198,7 +199,7 @@ def moba(
         order of the model's acquisition.  ``*samples`` is the voxel shape on
         a grid, and ``traj.shape[:-1]`` without a leading contrast axis along
         a trajectory.
-    model : bartorch.nlop.SignalModel
+    model : bartorch.nlop.ModelOperator
         Signal model on the voxel shape, ``(y, x)`` or ``(z, y, x)``.
     sensitivities : torch.Tensor, default=None
         Coil sensitivities ``(coils, *voxels)``, shared by the contrasts;
@@ -254,7 +255,7 @@ def moba(
         Also return the estimated sensitivities.
     **values
         Starting values ``name=value`` in physical units, as
-        :meth:`~bartorch.nlop.SignalModel.initial` takes them, with an
+        :meth:`~bartorch.nlop.ModelOperator.initial` takes them, with an
         amplitude in the units of ``kspace``.
 
     Returns

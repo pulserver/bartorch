@@ -251,11 +251,11 @@ def test_an_arbitrary_simulator_has_a_working_adjoint():
 
 
 def test_a_model_operator_can_be_handed_over_directly():
-    from blochsim.recon import ModelOperator
+    from blochsim import ModelOperator
     from blochsim.simulators import MultiEchoSimulator
 
     model = ModelOperator(MultiEchoSimulator(TE=(10.0, 40.0)), "T2", bounds={"T2": (1.0, 500.0)})
-    M = nlop.SignalModel(model, (2, 2))
+    M = nlop.ModelOperator(model, (2, 2))
     assert M.ishape == (3, 2, 2) and M.oshape == (2, 2, 2)
     assert "MultiEchoSimulator" in repr(M)
 
@@ -477,3 +477,43 @@ def test_the_step_over_a_model_carries_a_gradient_by_its_iterate():
     block.output(state, M).abs().square().sum().backward()
     assert torch.isfinite(iterate.grad).all()
     assert iterate.grad.abs().max() > 0
+
+
+def test_any_model_with_the_products_is_an_operator():
+    """The contract is the products, not BlochSim's class.
+
+    A hand-written exponential decay in plain torch, with its derivative and
+    adjoint written out, passes the dot test like a BlochSim model does.
+    """
+    echoes = torch.tensor([10.0, 20.0, 40.0])
+
+    class Decay:
+        channels = 1
+        names = ("R2",)
+
+        def A(self, x):
+            return torch.exp(-x * 1e-3 * echoes)
+
+        def A_jvp(self, x, d):
+            return -1e-3 * echoes * self.A(x) * d
+
+        def A_vjp(self, x, v):
+            return (-1e-3 * echoes * self.A(x) * v).sum(-1, keepdim=True)
+
+        def initial(self, shape=(), **values):
+            return torch.full((*shape, 1), float(values.get("R2", 20.0)))
+
+        def split(self, x):
+            return {"R2": x[..., 0]}
+
+    M = nlop.ModelOperator(Decay(), (2, 2))
+    assert M.ishape == (1, 2, 2) and M.oshape == (3, 2, 2)
+    point = M.initial(R2=25.0)
+    torch.testing.assert_close(M.split(M.initial(R2=25.0))["R2"], torch.full((2, 2), 25.0))
+    torch.testing.assert_close(
+        M.forward(point).real, torch.exp(-25e-3 * echoes)[:, None, None].expand(3, 2, 2)
+    )
+    u = _rand(*M.ishape).real.to(torch.complex64)
+    v = _rand(*M.oshape).real.to(torch.complex64)
+    assert _inner(M._derivative(u), v) == pytest.approx(_inner(u, M._adjoint(v)), rel=1e-3)
+    assert "Decay" in repr(M)

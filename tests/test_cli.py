@@ -308,12 +308,14 @@ def test_a_magnitude_mobafit_writes_the_commands_coefficients(tmp_path, monkeypa
         assert _relative(np.abs(theirs[..., coefficient].squeeze()), expected) < 1e-4
 
 
-def test_mobafits_conjugate_gradient_count_is_the_apps(tmp_path, monkeypatch):
+def test_mobafits_conjugate_gradient_count_changes_nothing_the_app_solves_directly(
+    tmp_path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
     _, times, series, _ = _FITS["T"]
     _series(times, series)
     where, plan = route("mobafit", ["-T", "--liniter", "7", "t", "y", "x"])
-    assert where == "app" and plan["call"].keywords["cg_maxiter"] == 7
+    assert where == "app" and "cg_maxiter" not in plan["call"].keywords
 
 
 def _written(name: str, array: np.ndarray) -> str:

@@ -8,7 +8,7 @@ deepinv is neither a dependency nor an extra: denoisers, losses and samplers
 come from it through `priors.ImplicitPrior` and `bartorch.interop`, which import
 it on first use, and a caller installs it.
 
-blochsim is a dependency because `nlop.SignalModel`
+blochsim is a dependency because `nlop.ModelOperator`
 turns any of its simulators into a BART nonlinear operator, and
 `nlop.InversionRecovery`, `nlop.MultiEcho` and `nlop.Bloch` are `moba`'s
 families written on it, so every quantitative reconstruction here imports it.
@@ -56,7 +56,7 @@ def test_blochsim_is_a_dependency_and_not_an_extra():
     """Every quantitative reconstruction here goes through it."""
     project = _pyproject()["project"]
     assert _requirements(project["dependencies"], "blochsim"), (
-        "nlop.SignalModel turns a BlochSim simulator into a BART operator and "
+        "nlop.ModelOperator turns a BlochSim simulator into a BART operator and "
         "the moba families are written on it; blochsim belongs in dependencies, "
         "not in optional-dependencies"
     )
@@ -67,7 +67,7 @@ def test_blochsim_is_a_dependency_and_not_an_extra():
 
 def test_the_models_really_do_reach_blochsim():
     """The claim the requirement rests on, rather than the requirement alone."""
-    from blochsim.recon import ModelOperator
+    from blochsim import ModelOperator
 
     from bartorch import nlop
 

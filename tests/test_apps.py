@@ -411,41 +411,36 @@ def test_the_fit_is_taken_from_where_it_is_started():
     assert float(one.median()) < float(other.median())
 
 
-def test_mobafit_regularizes_towards_zero_in_the_models_variables_by_default():
-    """Zero in the model's variables is the middle of each bound and no
-    amplitude, so stating that as the reference changes nothing."""
+def test_mobafit_finds_what_scipy_finds():
+    """Per voxel, the least-squares minimum scipy's trust-region solver reaches
+    from the same start over the same bounded variables."""
+    import numpy as np
+    from scipy.optimize import least_squares
+
     from bartorch import nlop
 
-    t2 = _two_halves(60.0, 110.0)
-    images = torch.exp(-torch.tensor(ECHO_TIMES)[:, None, None] / t2).to(torch.complex64)
-    model = nlop.MultiEcho(ECHO_TIMES, (FIT_SIZE, FIT_SIZE))
-    low, high = model.model.bounds["T2"]
+    generator = torch.Generator().manual_seed(0)
+    t2 = 30.0 + 200.0 * torch.rand(6, generator=generator)
+    times = torch.tensor(ECHO_TIMES)
+    clean = 1.5 * torch.exp(-times[:, None] / t2)
+    images = (clean + 0.01 * torch.randn(clean.shape, generator=generator)).to(torch.complex64)
+    model = nlop.MultiEcho(ECHO_TIMES, (6,))
 
-    default = apps.mobafit(images, model, iterations=3, T2=80.0)
-    middle = {"T2": 0.5 * (low + high), "amplitude": 0.0}
-    stated = apps.mobafit(images, model, iterations=3, T2=80.0, reference=middle)
+    fitted = apps.mobafit(images, model, T2=80.0)["T2"]
 
-    for name, value in default.items():
-        torch.testing.assert_close(stated[name], value)
+    inner = model.model
+    start = model.initial(T2=80.0).real.movedim(0, -1)
+    data = images.mT / float(images.abs().max())
+    for voxel in range(6):
 
+        def residual(z, voxel=voxel):
+            x = torch.as_tensor(z, dtype=torch.float32)[None]
+            r = inner.A(x)[0] - data[voxel]
+            return torch.cat((r.real, r.imag)).double().numpy()
 
-def test_a_heavily_weighted_reference_pulls_the_fitted_decay_towards_it():
-    """With a weight that does not decay, a reference of no decay at all -- an
-    R2 of zero, clamped inside the bound -- draws every voxel above the T2 a
-    reference of a fast decay draws it to."""
-    from bartorch import nlop
-
-    t2 = _two_halves(60.0, 110.0)
-    images = torch.exp(-torch.tensor(ECHO_TIMES)[:, None, None] / t2).to(torch.complex64)
-    model = nlop.MultiEcho(ECHO_TIMES, (FIT_SIZE, FIT_SIZE))
-    settings = {"alpha": 1e3, "alpha_min": 1e3, "redu": 1.0, "T2": 80.0}
-
-    slow = apps.mobafit(images, model, **settings, reference={"T2": float("inf"), "amplitude": 1.0})
-    fast = apps.mobafit(images, model, **settings, reference={"T2": 20.0, "amplitude": 1.0})
-
-    assert bool((slow["T2"] > fast["T2"]).all())
-    assert bool((slow["T2"] > t2).all())
-    assert bool((fast["T2"] < t2).all())
+        found = least_squares(residual, start[voxel].double().numpy(), diff_step=1e-3)
+        theirs = inner.split(torch.as_tensor(found.x, dtype=torch.float32)[None])["T2"]
+        np.testing.assert_allclose(float(fitted[voxel]), float(theirs[0]), rtol=1e-3)
 
 
 # --- moba ------------------------------------------------------------------

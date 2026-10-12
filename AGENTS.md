@@ -1012,7 +1012,8 @@ Signal simulation is the exception in the other direction: it is BlochSim's,
 not BART's.  `bloch`, `epg`, `sim`, `signal`, `mobasig`, `pulse` and `seq` are
 private, because what a command returns is a curve and what a fit needs is a
 model -- a forward it can differentiate, with bounds and a starting state --
-which is what `nlop`'s `SignalModel` is over a BlochSim simulator.  The
+which is what `nlop.ModelOperator` is over `blochsim.ModelOperator`, or over any
+object with the same value, derivative and adjoint products.  The
 commands stay reachable through `_call.build` so a test can pin BlochSim's
 physics against BART's: its closed forms in `tests/test_signal_models.py` and
 `tests/test_nlop_blochsim.py`, its Bloch simulation -- FLASH, balanced
@@ -1038,14 +1039,18 @@ product computed with a fused multiply-add does not round where two multiplies
 and a sum round, which is a difference an Apple Silicon runner shows and an
 x86 one does not.
 
-`apps.mobafit` is where that decision shows on the surface: it is `mobafit`'s
-method -- the Gauss-Newton loop over the same linearized least-squares problem
--- over a model that is BlochSim's, so it answers in named maps in their own
-units rather than in a stack of BART's coefficients, and it and `apps.moba`
-are the apps not held to their commands' bits.  Its default of twenty Gauss-Newton steps is what a
-bounded parameterisation needs: the command affords five because `--scale`
-brings its coefficients to order one, and five over a bounded variable answer
-430 ms for a decay of 60 and one of 110 alike.
+`apps.mobafit` is where that decision shows on the surface, and the one place
+the rule bends.  It fits a model that is BlochSim's, so it answers in named
+maps in their own units rather than in a stack of BART's coefficients, and it
+and `apps.moba` are the apps not held to their commands' bits.  Its method is
+not the command's: with no encoding the linearized problem is block diagonal,
+one small system per voxel, so it is Levenberg-Marquardt with each voxel's
+system solved directly, its own damping and its own acceptance.  The command's
+conjugate gradients over the whole image converge at the pace of the
+worst-conditioned voxel and stop with those voxels still pulled towards the
+Tikhonov reference; on a multi-echo decay with a noise-floor offset, a
+thousand voxels, that is a 6 % median error in T2 in 8 s against 2.4 % in
+1.2 s.
 
 So `priors/` computes nothing, and the iterations write out only their
 steps: the proximal steps, one block each in `optim/_blocks.py`, and the
