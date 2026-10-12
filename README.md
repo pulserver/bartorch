@@ -36,7 +36,7 @@ operator and a solver, built for you.
   <img src="https://raw.githubusercontent.com/pulserver/bartorch/main/docs/_static/architecture.svg" alt="bartorch architecture" width="760">
 </picture></p>
 
-## Architecture
+## How it works
 
 1. You pass a tensor. A C-order tensor of shape `(coils, z, y, x)` holds the
    same bytes as a BART array of dimensions `[x, y, z, coils]`, so bartorch
@@ -130,7 +130,7 @@ build is Linux x86-64 only. More functionality and faster backends come as
 optional dependencies, listed in
 [Installation](https://pulserver.github.io/bartorch/stable/guides/user/installation.html).
 
-## Documentation
+## Learn more
 
 - [Course](https://pulserver.github.io/bartorch/stable/auto_examples/index.html):
   from k-space to an image, then parallel imaging, regularization,
@@ -139,7 +139,7 @@ optional dependencies, listed in
 - [Documentation](https://pulserver.github.io/bartorch/stable/), for every
   function, operator and option.
 
-## Citation
+## How to cite
 
 bartorch has no publication of its own. Please cite BART
 ([Uecker et al., doi:10.5281/zenodo.592960](https://doi.org/10.5281/zenodo.592960))
