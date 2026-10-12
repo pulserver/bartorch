@@ -18,22 +18,25 @@
 .. _sphx_glr_auto_examples_05-model-based_01-quantitative-models.py:
 
 
-====================================
-Parameter maps straight from k-space
-====================================
+=====================================
+9. Nonlinear inversion for T2 mapping
+=====================================
 
-This lesson estimates a :math:`T_2` map from an undersampled multi-echo
-spin-echo acquisition in two ways, and compares them: reconstructing an image
-per echo and fitting the decay voxel by voxel afterwards, and fitting the
-signal model directly to the k-space data. The aim is to show why the second,
-model-based reconstruction, tolerates undersampling that ruins the first.
+In lesson 8 you reconstructed one image from undersampled radial data, and in
+lesson 4 you solved a model that is nonlinear in its unknowns, image times
+coil sensitivities, by Gauss-Newton. In this lesson you apply both to
+quantitative imaging. You estimate a :math:`T_2` map from an undersampled
+multi-echo spin-echo scan twice: first by reconstructing an image per echo
+and fitting the decay voxel by voxel, then by fitting the signal model
+directly to the k-space data, and you compare the accuracy of the two at the
+same undersampling.
 
-In a multi-echo spin-echo (CPMG) acquisition the signal of each voxel decays
-from echo to echo as :math:`M_0 \exp(-\mathrm{TE}/T_2)`. Undersampling each
-echo shortens the scan, but a reconstruction of each echo on its own is an
-ill-posed problem, and its aliasing and noise differ from echo to echo; a
-voxelwise fit cannot tell them apart from decay, and carries them into the
-map. The model-based approach [#sumpf]_ [#wang]_ puts the signal model inside
+In a multi-echo spin-echo (CPMG) scan the signal of each voxel decays from
+echo to echo as :math:`M_0 \exp(-\mathrm{TE}/T_2)`. With each echo
+undersampled, each echo image is a separate ill-posed reconstruction with its
+own aliasing and noise, and a voxelwise fit cannot distinguish those from
+decay.
+Model-based reconstruction [#sumpf]_ [#wang]_ puts the signal model inside
 the forward operator,
 
 .. math::
@@ -41,119 +44,124 @@ the forward operator,
    y_{c,e} = P_e F \, (S_c \cdot M_e(\theta)),
 
 where :math:`P_e` is the sampling pattern of echo :math:`e`, :math:`F` the
-Fourier transform, :math:`S_c` the sensitivity of coil :math:`c`,
-:math:`M` the signal model and :math:`\theta` the parameter maps, and solves
-for :math:`\theta` from the k-space data of all echoes at once. The unknowns
-are then three real maps rather than eight complex images, and every echo
-constrains all of them. The operator is nonlinear in :math:`\theta`, so the
-problem is solved by the iteratively regularized Gauss-Newton method of
-:doc:`../02-parallel-imaging/02-nonlinear-inversion`, over a different model.
-
-The model here is :class:`bartorch.nlop.MultiEcho`, a BlochSim simulator as a
-BART nonlinear operator. The phantom and the coil sensitivities are built as
-in :doc:`../01-basics/02-from-kspace-to-image`; the cell that does it is
-hidden on this page and present in the script this page can be downloaded as.
+Fourier transform, :math:`S_c` the sensitivity of coil :math:`c`, :math:`M`
+the signal model and :math:`\theta` the parameter maps. You then solve for
+:math:`\theta` from the k-space of all echoes at once. The unknowns are three
+real maps rather than eight complex images, and every echo constrains all of
+them. The operator is nonlinear in :math:`\theta`, so you solve it with the
+iteratively regularized Gauss-Newton method (IRGNM) of lesson 4, over a
+different model.
 
 **Learning objectives**
 
-- Represent a relaxation model as a BlochSim-backed
-  :class:`bartorch.nlop.SignalModel`.
-- Fit it to reconstructed echo images, and directly to k-space by composing
-  it with the encoding, with :class:`bartorch.nlop.IRGNM`.
-- Run the same fits through :func:`bartorch.apps.mobafit` and
-  :func:`bartorch.apps.moba`.
+- Write a :math:`T_2` decay as a signal model,
+  :class:`bartorch.nlop.MultiEcho`, a BlochSim simulator wrapped as a BART
+  nonlinear operator.
+- Fit it to reconstructed echo images with :func:`bartorch.apps.mobafit`,
+  and directly to k-space by composing it with the encoding and solving with
+  :class:`bartorch.nlop.IRGNM`.
+- Run the k-space fit in one call with :func:`bartorch.apps.moba`.
 - Explain, from the echo images and the error maps, why the model-based fit
   is more accurate at the same undersampling.
 
-It follows :doc:`../04-non-cartesian/02-radial-sense`; the Gauss-Newton solver
-is that of :doc:`../02-parallel-imaging/02-nonlinear-inversion`. The next
-lesson, :doc:`../06-learning/01-plug-and-play`, replaces a specified
-regularizer with a learned denoiser. The Tours
+Previous: :doc:`../04-non-cartesian/02-radial-sense`. Next:
+:doc:`../06-learning/01-plug-and-play`, where you replace a penalty you wrote
+down with a learned denoiser. The Tours
 :doc:`../08-workflows/02-subspace-t1-mapping` and
 :doc:`../08-workflows/03-maps-from-scanner-images` apply a linear subspace
 model and the same signal model to DICOM images.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-148
+.. GENERATED FROM PYTHON SOURCE LINES 57-165
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 166-175
+
+Multi-echo phantom
+------------------
+
+The object is the BrainWeb slice of lesson 2 on a 64 matrix, described by
+two maps: a proton-density amplitude and a :math:`T_2` per voxel, each
+combined from the tissue classes in the voxel by membership. Eight spin
+echoes are acquired 12.5 ms apart. The echo images follow the
+mono-exponential decay, written out explicitly here rather than taken from
+the model that is fitted below.
+
+.. GENERATED FROM PYTHON SOURCE LINES 175-198
 
 .. code-block:: Python
 
-
-    import csv
     import time
-    from pathlib import Path
 
-    import brainweb_dl
-    import numpy as np
     import torch
-    from brainweb_dl import get_mri
 
-    import bartorch
     import bartorch.tools as bt
+
     from bartorch import apps, linop, nlop, optim
 
-    SIZE = 64
-    COILS = 8
     ECHOES = 8
-    ACCELERATION = 4
-
     ECHO_TIMES = torch.tensor([12.5 * (echo + 1) for echo in range(ECHOES)])  # ms
 
+    decay = torch.exp(-ECHO_TIMES[:, None, None] / t2[None])
+    contrasts = (amplitude[None] * decay).to(torch.complex64)
+    print(f"echo images {tuple(contrasts.shape)}: (echo, y, x)")
 
 
 
 
 
+.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_001.png
+   :alt: amplitude, $T_2$
+   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_001.png
+   :class: sphx-glr-single-img
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-156
+.. rst-class:: sphx-glr-script-out
 
-Phantom
--------
+ .. code-block:: none
 
-The :math:`T_2` of each tissue class from the BrainWeb table, combined by
-membership, and the echo images from the mono-exponential decay
-:math:`M_0 \exp(-\mathrm{TE}/T_2)` written out here rather than taken from
-the model that will be fitted.
-
-.. GENERATED FROM PYTHON SOURCE LINES 157-229
-
-.. code-block:: Python
+    echo images (8, 64, 64): (echo, y, x)
 
 
 
 
-    contrasts = (amplitude[None] * torch.exp(-ECHO_TIMES[:, None, None] / t2[None])).to(torch.complex64)
+.. GENERATED FROM PYTHON SOURCE LINES 199-214
 
+These are the maps to be estimated. In the BrainWeb table white matter
+has a :math:`T_2` of 70 ms and grey matter 83 ms; the cerebrospinal fluid in
+the ventricles, at 329 ms, saturates the window, which is chosen to spread
+white and grey matter over the colour scale [#fuderer]_.
 
+Echo undersampling
+------------------
 
+Each echo is sampled at a quarter of the phase encodes (:math:`R = 4`):
+eight fully sampled central lines and the rest drawn at random, with a
+different draw per echo, so that the missing lines differ between echoes.
+The echoes are a batch of the encoding rather than an axis inside it: they
+share the coils and the transform and differ only in the pattern. So the
+encoding :math:`E` is the Cartesian SENSE operator of lesson 6 followed by
+a diagonal that applies each echo's pattern to its samples.
 
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 230-241
-
-Acquisition
------------
-
-Eight echoes at an echo spacing of 12.5 ms, each sampled at a quarter of the
-phase encodes (:math:`R = 4`) around eight fully sampled central lines, with
-a different random draw per echo, so that the missing phase encodes differ
-between echoes. The echoes are a batch of the encoding rather than an axis
-inside it: the sensitivities and the transform are shared, and only the
-pattern differs, so the operator is the Cartesian SENSE encoding of
-:doc:`../03-regularization/02-operators-and-solvers` with the pattern of
-each echo applied to its samples.
-
-.. GENERATED FROM PYTHON SOURCE LINES 242-283
+.. GENERATED FROM PYTHON SOURCE LINES 214-256
 
 .. code-block:: Python
 
+    ACCELERATION = 4
 
 
-
-    encoding = linop.CartesianSense(sensitivities, (ECHOES, SIZE, SIZE), ndim=2)
-    E = linop.Diagonal(lines.to(torch.complex64), encoding.oshape) @ encoding
+    encoding = linop.CartesianSense(
+        sensitivities,
+        (ECHOES, SIZE, SIZE),
+        ndim=2,
+    )
+    pattern = linop.Diagonal(lines.to(torch.complex64), encoding.oshape)
+    E = pattern @ encoding
 
     measured = bt.noise(E(contrasts), n=1e-6, s=9)
     data = measured / float(E.H(measured).abs().max())
@@ -163,9 +171,10 @@ each echo applied to its samples.
 
 
 
-.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_001.png
+
+.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_002.png
    :alt: sampled phase encodes (white)
-   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_001.png
+   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_002.png
    :class: sphx-glr-single-img
 
 
@@ -178,21 +187,26 @@ each echo applied to its samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 284-292
+.. GENERATED FROM PYTHON SOURCE LINES 257-271
+
+Each row is one echo, each white column an acquired phase encode. The
+central block is common to all echoes; outside it, each echo has its own
+lines, so the aliasing differs from echo to echo.
 
 The signal model
 ----------------
 
-:class:`bartorch.nlop.MultiEcho` maps parameter maps to one image per echo.
-Its unknowns are :math:`T_2` and a complex amplitude, carried as three real
-maps in a bounded parameterisation rather than in their own units, so
-:meth:`~bartorch.nlop.SignalModel.initial` builds a starting point from
-values and :meth:`~bartorch.nlop.SignalModel.split` reads the fit back.
+:class:`bartorch.nlop.MultiEcho` is the decay as a nonlinear operator: it
+maps parameter maps to one image per echo. Its unknowns are :math:`T_2` and
+a complex amplitude, carried as three real maps in a bounded
+parameterisation rather than in their own units. So you build a starting
+point from values in physical units with
+:meth:`~bartorch.nlop.SignalModel.initial`, and convert a fit back to
+milliseconds with :meth:`~bartorch.nlop.SignalModel.split`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 293-299
+.. GENERATED FROM PYTHON SOURCE LINES 271-276
 
 .. code-block:: Python
-
 
     M = nlop.MultiEcho([float(te) for te in ECHO_TIMES], (SIZE, SIZE))
     start = M.initial(T2=80.0)
@@ -212,33 +226,72 @@ values and :meth:`~bartorch.nlop.SignalModel.split` reads the fit back.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 300-310
+.. GENERATED FROM PYTHON SOURCE LINES 277-284
 
-Two routes
-----------
+Two-step fit
+------------
 
-The first reconstructs the echo images by conjugate gradients on the SENSE
-normal equations and fits the model to them voxel by voxel, which is what
-:func:`bartorch.apps.mobafit` does given the images. The second composes the
-model with the encoding and fits the k-space with
-:class:`bartorch.nlop.IRGNM`. Both are Gauss-Newton loops of the same number
-of steps and differ only in the forward operator that maps the unknowns to
-the data.
+The conventional route has two steps. Reconstruct every echo by conjugate
+gradients on the SENSE normal equations, then fit the model to the echo
+images voxel by voxel with :func:`bartorch.apps.mobafit`, a Gauss-Newton
+loop over the model alone.
 
-.. GENERATED FROM PYTHON SOURCE LINES 311-323
+.. GENERATED FROM PYTHON SOURCE LINES 284-305
 
 .. code-block:: Python
-
 
     STEPS = 20
 
     start_time = time.perf_counter()
     images = optim.CG(maxiter=40)(data, E)
     two_step = apps.mobafit(images, M, iterations=STEPS, T2=80.0)
-    print(f"reconstruct, then fit:     {time.perf_counter() - start_time:5.1f} s")
+    print(f"reconstruct, then fit: {time.perf_counter() - start_time:5.1f} s")
+
+
+
+
+
+.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_003.png
+   :alt: TE = 12.5 ms, TE = 50.0 ms, TE = 100.0 ms
+   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_003.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+      warnings.warn(
+    reconstruct, then fit:   4.0 s
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 306-320
+
+These images are the input of the voxelwise fit. Each reconstructed echo
+carries residual aliasing and noise, different in every echo because every
+echo has its own pattern. At the later echoes the signal has decayed and
+the relative error grows, so the late echoes, which determine :math:`T_2`
+most, are also the least accurate.
+
+Model-based forward operator
+----------------------------
+
+The model-based route composes the model with the encoding, ``E @ M``, and
+fits the k-space directly with :class:`bartorch.nlop.IRGNM`, the
+Gauss-Newton solver of lesson 4. The derivative of the composition is the
+encoding applied to the derivative of the model, which is the derivative a
+Gauss-Newton step requires.
+
+.. GENERATED FROM PYTHON SOURCE LINES 320-325
+
+.. code-block:: Python
 
     start_time = time.perf_counter()
-    model_based = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)(data, E @ M, x0=start)
+    solver = nlop.IRGNM(iterations=STEPS, cg_maxiter=100, cg_tol=0.1)
+    model_based = solver(data, E @ M, x0=start)
     print(f"model inside the operator: {time.perf_counter() - start_time:5.1f} s")
 
 
@@ -249,72 +302,42 @@ the data.
 
  .. code-block:: none
 
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
-      warnings.warn(
-    reconstruct, then fit:       5.8 s
-    model inside the operator:  16.8 s
+    model inside the operator:  11.2 s
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 324-330
+.. GENERATED FROM PYTHON SOURCE LINES 326-340
 
-``E @ M`` composes a linear operator with a nonlinear one; the derivative of
-the composition at a point is the encoding applied to the derivative of the
-model, which is the derivative a Gauss-Newton step requires.
+Both routes are Gauss-Newton loops of the same number of steps. They differ
+only in the forward operator that maps the unknowns to the data: the model
+alone, against echo images, or the model followed by the encoding, against
+k-space.
 
-The echo images of the first route show what its fit is given. They are
-compared here with the fully sampled echo images of the phantom.
+Model-based reconstruction app
+------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 331-346
-
-
-
-
-.. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_002.png
-   :alt: TE = 12.5 ms, TE = 50.0 ms, TE = 100.0 ms
-   :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_002.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 347-358
-
-Each reconstructed echo carries residual aliasing and noise, which differ
-from echo to echo because each echo has its own sampling pattern. At the
-later echoes the signal has decayed and the relative error grows, so the
-late echoes, which determine :math:`T_2` most, are also the least accurate.
-
-:func:`bartorch.apps.moba` assembles the model-based composition from the
+:func:`bartorch.apps.moba` assembles the model-based fit from the
 k-space, the model, the sensitivities and the sampling pattern, and returns
 the maps in their own units. It scales the data by the rule of
-:func:`bartorch.optim.data_scaling` and regularizes each step towards the
-starting maps rather than towards zero, so its result is not identical to
-the fit above.
+:func:`bartorch.optim.data_scaling` and regularizes each Gauss-Newton step
+towards the starting maps rather than towards zero, so its result is not
+identical to the fit above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 359-377
+.. GENERATED FROM PYTHON SOURCE LINES 340-351
 
 .. code-block:: Python
 
-
     start_time = time.perf_counter()
-    one_call = apps.moba(measured, M, sensitivities, pattern=lines, iterations=STEPS, T2=80.0)
-    print(f"apps.moba:                 {time.perf_counter() - start_time:5.1f} s")
-
-    estimates = {
-        "two-step": two_step["T2"],
-        "model-based": M.split(model_based)["T2"],
-        "apps.moba": one_call["T2"],
-    }
-
-    for name, estimate in estimates.items():
-        error = float((estimate[support] - t2[support]).norm() / t2[support].norm())
-        median = float(estimate[support].median())
-        print(f"{name:>22}  median {median:5.1f} ms   relative error {error:.3f}")
-
-    print(f"{'phantom':>22}  median {float(t2[support].median()):5.1f} ms")
+    one_call = apps.moba(
+        measured,
+        M,
+        sensitivities,
+        pattern=lines,
+        iterations=STEPS,
+        T2=80.0,
+    )
+    print(f"apps.moba: {time.perf_counter() - start_time:5.1f} s")
 
 
 
@@ -324,16 +347,36 @@ the fit above.
 
  .. code-block:: none
 
-    apps.moba:                  16.9 s
-                  two-step  median  86.1 ms   relative error 0.483
-               model-based  median  81.5 ms   relative error 0.007
-                 apps.moba  median  81.3 ms   relative error 0.057
-                   phantom  median  81.5 ms
+    apps.moba:  12.0 s
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 378-396
+.. GENERATED FROM PYTHON SOURCE LINES 352-357
+
+Map comparison
+--------------
+
+Read the three :math:`T_2` maps back and compare them with the phantom,
+inside the head:
+
+.. GENERATED FROM PYTHON SOURCE LINES 357-387
+
+.. code-block:: Python
+
+    estimates = {
+        "two-step": two_step["T2"],
+        "model-based": M.split(model_based)["T2"],
+        "apps.moba": one_call["T2"],
+    }
+
+    truth = t2[support]
+    for name, estimate in estimates.items():
+        error = float((estimate[support] - truth).norm() / truth.norm())
+        median = float(estimate[support].median())
+        print(f"{name:>12}: median {median:5.1f} ms, relative error {error:.3f}")
+    print(f"{'phantom':>12}: median {float(truth.median()):5.1f} ms")
+
 
 
 
@@ -343,48 +386,116 @@ the fit above.
 
     *
 
-      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_003.png
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_004.png
          :alt: reference, two-step, model-based, apps.moba
-         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_003.png
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_004.png
          :class: sphx-glr-multi-img
 
     *
 
-      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_004.png
+      .. image-sg:: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_005.png
          :alt: $T_2$ error, two-step, model-based, apps.moba
-         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_004.png
+         :srcset: /auto_examples/05-model-based/images/sphx_glr_01-quantitative-models_005.png
          :class: sphx-glr-multi-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+        two-step: median  86.1 ms, relative error 0.483
+     model-based: median  81.5 ms, relative error 0.007
+       apps.moba: median  81.3 ms, relative error 0.057
+         phantom: median  81.5 ms
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 397-419
 
-The two-step :math:`T_2` map is dominated by the errors of the echo images:
-a voxelwise fit cannot distinguish residual aliasing from decay, and in
-voxels where a late echo is too bright or too dark the fitted :math:`T_2` is
-far off. The model-based fits reach a much lower error from the same data,
-since the model admits only images that decay exponentially from echo to
-echo, and the aliasing of eight different sampling patterns is not such an
-image. The fit inside the operator reproduces the phantom almost exactly,
-because every voxel of the phantom decays with a single :math:`T_2`, as the
-model assumes; a measured voxel holding two tissues decays with two, and a
-single exponential cannot represent it. :func:`bartorch.apps.moba`
-regularizes each Gauss-Newton step towards the starting maps, and its
-residual error is largest where :math:`T_2` is farthest from the starting
-value of 80 ms: in cerebrospinal fluid and the scalp. The maps are drawn with
-the navia colormap [#fuderer]_ in a window that spans white and grey matter.
+.. GENERATED FROM PYTHON SOURCE LINES 388-418
 
-Since the maps are the solver's unknowns, a regularizer passed to the
-linearized problem -- the ``inner`` solver of :func:`bartorch.apps.moba` --
+The two-step map is dominated by the errors of the echo images: a voxelwise
+fit cannot distinguish residual aliasing from decay, and where a late echo
+is too bright or too dark the fitted :math:`T_2` is far off. Its median is
+close to the phantom's, but its relative error is the largest of the three.
+The model-based fits reach a much lower error from the same data, because
+the model admits only echo images that decay exponentially, and the
+aliasing of eight different sampling patterns is not such an image.
+
+The fit inside the operator reproduces the phantom almost exactly, because
+every voxel of the phantom decays with a single :math:`T_2`, as the model
+assumes. A measured voxel holding two tissues decays with two, and a single
+exponential cannot represent it. :func:`bartorch.apps.moba` regularizes
+each Gauss-Newton step towards the starting maps, and its residual error is
+largest where :math:`T_2` is farthest from the starting value of 80 ms: in
+the cerebrospinal fluid of the ventricles and at the scalp.
+
+Because the maps are the solver's unknowns, a regularizer passed to the
+linearized problem, the ``inner`` solver of :func:`bartorch.apps.moba`,
 penalizes the maps rather than the echo images. Without ``sensitivities``,
 :func:`bartorch.apps.moba` estimates the coils jointly with the maps, as
-:doc:`../02-parallel-imaging/02-nonlinear-inversion` estimates them jointly
-with an image. :doc:`../../explanation/nonlinear` explains the model-based
-approach in more detail.
+lesson 4 estimates them jointly with an image.
+:doc:`../../explanation/nonlinear` describes the model-based approach in
+more detail.
 
-.. GENERATED FROM PYTHON SOURCE LINES 422-437
+Exercise: fully sampled echoes
+------------------------------
+
+Is the error of the two-step route caused by the voxelwise fit or by the
+echo images it is given? Run the same fit on the fully sampled, noise-free
+echo images of the phantom:
+
+.. GENERATED FROM PYTHON SOURCE LINES 418-424
+
+.. code-block:: Python
+
+    fully_sampled = apps.mobafit(contrasts, M, iterations=STEPS, T2=80.0)
+
+    estimate = fully_sampled["T2"][support]
+    error = float((estimate - truth).norm() / truth.norm())
+    print(f"voxelwise fit, fully sampled: relative error {error:.3f}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    voxelwise fit, fully sampled: relative error 0.016
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 425-450
+
+On the fully sampled echoes the voxelwise fit reaches a relative error far
+below the two-step result on the undersampled data, of the same order as the
+model-based fit. The fit itself is therefore not the limitation; the
+undersampling artefacts of the echo images are. Try fitting the
+undersampled echo images with more Gauss-Newton steps, or with fewer
+echoes, for example ``images[:4]`` with a model built on the first four
+echo times, and compare the errors.
+
+As a spec
+---------
+
+What this lesson built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   Estimate a T2 map from an undersampled 2D multi-echo spin-echo scan with
+   bartorch: 8 echoes at TE = 12.5, 25, ..., 100 ms, 8 coils, 64x64 matrix,
+   R = 4 per echo with 8 central lines and a different random pattern per
+   echo. Encode with linop.CartesianSense over (echo, y, x) followed by a
+   linop.Diagonal of the patterns. Model the decay with
+   nlop.MultiEcho(TE, (64, 64)), starting at T2 = 80 ms. Compare (a) CG
+   (40 iterations) per echo followed by apps.mobafit, (b) nlop.IRGNM on
+   E @ M (20 steps, inner CG 100 iterations, tol 0.1), and (c) apps.moba
+   with the sensitivities and patterns (20 steps). Report the median and the
+   relative error of T2 inside the head, and show the maps and |error| maps.
+
+.. GENERATED FROM PYTHON SOURCE LINES 452-467
 
 References
 ----------
@@ -405,7 +516,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 40.729 seconds)
+   **Total running time of the script:** (0 minutes 31.762 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-quantitative-models.py:

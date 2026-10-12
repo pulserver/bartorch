@@ -18,126 +18,89 @@
 .. _sphx_glr_auto_examples_03-regularization_01-regularized-reconstruction.py:
 
 
-==========================
-Regularized reconstruction
-==========================
+=========================
+5. Choosing a regularizer
+=========================
 
-This lesson compares three regularization terms on the same undersampled,
-noisy SENSE acquisition, shows how the choice of the regularization weight
-trades residual noise and aliasing against loss of detail, and combines two
-terms in one reconstruction.
+In lesson 2 you reconstructed an undersampled scan with a wavelet penalty at a
+weight of 0.004, both fixed without justification. In this lesson you
+choose them. You reconstruct one noisy, undersampled SENSE
+acquisition with three different penalties, sweep the weight of each, and
+compare under- and over-regularized images. Then you
+combine two penalties in one reconstruction.
 
-At high acceleration, or low SNR, the SENSE problem is ill-conditioned: the
-encoding does not determine the image, and a plain least-squares fit amplifies
-the noise by the g-factor. A reconstruction therefore adds prior knowledge
-about the image as a penalty,
+The mental model: at high acceleration or low SNR, the SENSE problem is
+ill-conditioned: the data do not determine the image uniquely, and a plain
+least-squares fit amplifies the noise by the g-factor. You therefore add prior
+knowledge about the image as a penalty,
 
 .. math::
 
    \hat{x} = \arg\min_x \tfrac12 \| A x - y \|_2^2 + \lambda\, g(G x),
 
-with :math:`A` the SENSE encoding, :math:`g` a convex functional,
+where :math:`A` is the SENSE encoding, :math:`g` a convex function,
 :math:`G` a linear transform and :math:`\lambda` the regularization weight.
-Tikhonov regularization favours a small image, a wavelet :math:`\ell_1`
-penalty an image that is sparse in a wavelet basis, as in compressed sensing,
-and total variation (TV) an image that is piecewise constant.
-:mod:`bartorch.priors` provides BART's terms :math:`g(Gx)` as objects, and
-:func:`bartorch.apps.pics` solves the problem with the iteration each term
-admits. :doc:`../../explanation/inverse-problems` introduces the formulation
-and the algorithms.
+Tikhonov regularization favours a small image; a wavelet :math:`\ell_1`
+penalty favours an image that is sparse in a wavelet basis, as in compressed
+sensing; total variation (TV) favours one that is piecewise constant. The
+weight sets the balance between data consistency and the penalty.
+:doc:`../../explanation/regularizers` introduces the penalties and
+:doc:`../../explanation/solvers` the algorithms.
 
 **Learning objectives**
 
 - Pass regularization terms from :mod:`bartorch.priors` to
-  :func:`bartorch.apps.pics`, and choose a solver the term admits.
-- Compare Tikhonov, wavelet :math:`\ell_1` and total-variation
-  regularization on the same data, by their images and error maps.
-- Select a regularization weight by the error against a reference, and
-  recognize under- and over-regularization in the image.
+  :func:`bartorch.apps.pics`, with a solver the term admits.
+- Compare Tikhonov, wavelet :math:`\ell_1` and TV regularization on the same
+  data, by their images and error maps.
+- Choose a regularization weight by the error against a reference, and
+  recognise under- and over-regularization in the image.
 - Combine two terms in one reconstruction.
 
-The previous lessons, :doc:`../01-basics/02-from-kspace-to-image` and
-:doc:`../02-parallel-imaging/01-coil-calibration`, reconstructed with a fixed
-weight. The next lesson, :doc:`02-operators-and-solvers`, assembles the same
-reconstruction from an operator, a term and a solver.
+Previous: :doc:`../02-parallel-imaging/02-nonlinear-inversion`. Next:
+:doc:`02-operators-and-solvers`, where you build the operator, the term and
+the solver that ``pics`` puts together, and run them yourself.
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-136
+.. GENERATED FROM PYTHON SOURCE LINES 47-175
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 176-186
+
+Simulated acquisition
+---------------------
+
+The object, the coils and the sampling are those of lesson 2: the BrainWeb
+slice [#brainweb]_, eight channels, and one phase-encoding line in three
+around a fully sampled ACS block of 24 lines. The one change is the noise,
+three times stronger: complex Gaussian noise of variance
+:math:`3 \times 10^{-4}` per sample of the unitary transform of an image
+whose peak is one. At this level the noise amplified by the inversion, and
+not only the aliasing, sets the error of an unregularized reconstruction.
+
+.. GENERATED FROM PYTHON SOURCE LINES 186-202
 
 .. code-block:: Python
 
-
-    import csv
-    from pathlib import Path
-
-    import brainweb_dl
-    import numpy as np
     import torch
-    from brainweb_dl import get_mri
 
     import bartorch
     import bartorch.tools as bt
+
     from bartorch import apps, priors
 
-    SIZE = 192
-    COILS = 8
     ACCELERATION = 3
     CALIBRATION = 24
 
+    clean = bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True)
+    kspace = bt.noise(clean, n=3e-4, s=42)
+    measured = kspace[:, None] * simulate(ACCELERATION, CALIBRATION)
 
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 137-141
-
-The phantom is the BrainWeb [#brainweb]_ slice of
-:doc:`../01-basics/02-from-kspace-to-image`, with the same eight-channel
-sensitivities; the cell that builds both is hidden on this page and present in
-the script this page can be downloaded as.
-
-.. GENERATED FROM PYTHON SOURCE LINES 142-213
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 214-224
-
-Acquisition
------------
-
-A third of the phase encodes (:math:`R = 3`), drawn at random from a
-variable density around a fully sampled ACS region of 24 lines, as in
-:doc:`../01-basics/02-from-kspace-to-image`. The noise is three times
-stronger than in that lesson: complex Gaussian noise of variance
-:math:`3 \times 10^{-4}` per sample of the unitary transform of an image whose
-peak is one. At this level noise amplification, and not only aliasing,
-determines the error of an unregularized reconstruction.
-
-.. GENERATED FROM PYTHON SOURCE LINES 225-242
-
-.. code-block:: Python
-
-
-    kspace = bt.noise(bartorch.fft(sensitivities * image, axes=(-2, -1), unitary=True), n=3e-4, s=42)
-
-    encodes = torch.arange(SIZE) - SIZE // 2
-    centre = (encodes.abs() < CALIBRATION // 2).to(torch.float32)
-    drawn = torch.multinomial(
-        (1.0 + 2.0 * encodes.abs() / SIZE) ** -3.0 * (1.0 - centre),
-        SIZE // ACCELERATION - CALIBRATION,
-        replacement=False,
-        generator=torch.Generator().manual_seed(11),
-    )
-    lines = centre.clone()
-    lines[drawn] = 1.0
-
-    measured = kspace[:, None] * lines.reshape(SIZE, 1).to(torch.complex64)
     maps = bt.ecalib(measured, maps=1, calib_size=CALIBRATION, crop=0.8)
 
 
@@ -147,31 +110,30 @@ determines the error of an unregularized reconstruction.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 243-261
+.. GENERATED FROM PYTHON SOURCE LINES 203-221
 
-Three terms
------------
+Tikhonov, wavelet and TV penalties
+----------------------------------
 
-Tikhonov regularization, :math:`g(x) = \tfrac12\|x\|_2^2`, is the ``l2``
-argument of ``pics`` and keeps the problem quadratic, so conjugate gradients
-solve it. The wavelet term :math:`\|\Psi x\|_1` promotes an image whose
-wavelet coefficients are sparse [#lustig]_; its transform is orthogonal and
-is applied inside its proximal operator, so FISTA [#beck]_ solves it. Total
-variation, :math:`\sum_r \|(\nabla x)_r\|_2`, promotes a piecewise-constant
-image [#block]_; the finite-difference operator :math:`\nabla` has no such
-closed-form proximal operator, so TV requires a splitting method, here ADMM
-[#boyd]_. The axes of a term are the tensor axes it acts along, here the two
-spatial axes.
+Each penalty admits particular solvers; ``pics`` takes the term and the
+solver:
 
-Each term is run over a range of weights. The weights are relative to the
-data divided by the scaling :func:`bartorch.optim.data_scaling` estimates,
-which ``pics`` applies, so the same weight means the same thing for data of
-a different overall scale.
+- Tikhonov, :math:`g(x) = \tfrac12\|x\|_2^2`, is the ``l2`` argument. It
+  keeps the problem quadratic, so conjugate gradients solve it.
+- The wavelet term :math:`\|\Psi x\|_1` [#lustig]_ is
+  :class:`bartorch.priors.Wavelet`. Its transform is orthogonal and sits
+  inside its proximal operator, so FISTA [#beck]_ solves it.
+- Total variation, :math:`\sum_r \|(\nabla x)_r\|_2` [#block]_, is
+  :class:`bartorch.priors.TotalVariation`. The finite differences
+  :math:`\nabla` have no such closed-form proximal operator, so TV needs a
+  splitting method, here ADMM [#boyd]_.
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-296
+The first argument of a term is the tensor axes it acts along, here the two
+image axes. You run each penalty over four weights:
+
+.. GENERATED FROM PYTHON SOURCE LINES 221-277
 
 .. code-block:: Python
-
 
     sweeps = {
         "Tikhonov": [0.01, 0.03, 0.1, 0.3],
@@ -180,48 +142,31 @@ a different overall scale.
     }
 
 
-    def reconstruct(name, weight):
+    def reconstruct(name, weight, data=measured):
         if name == "Tikhonov":
-            return apps.pics(measured, maps, l2=weight, maxiter=100)
+            return apps.pics(data, maps, l2=weight, maxiter=100)
         if name == "wavelet":
             term, solver = priors.Wavelet((-1, -2), weight), "fista"
         else:
             term, solver = priors.TotalVariation((-1, -2), weight), "admm"
-        return apps.pics(measured, maps, regularizers=term, solver=solver, maxiter=100)
+        return apps.pics(data, maps, regularizers=term, solver=solver, maxiter=100)
 
 
-    reconstructions = {
+    def nrmse(estimate):
+        return bt.nrmse(image.abs(), estimate.abs(), scaled=True)
+
+
+    results = {
         name: {weight: reconstruct(name, weight) for weight in weights}
         for name, weights in sweeps.items()
     }
-    errors_by_weight = {
-        name: {w: bt.nrmse(image.abs(), x.abs(), scaled=True) for w, x in results.items()}
-        for name, results in reconstructions.items()
-    }
-
-    best = {name: min(values, key=values.get) for name, values in errors_by_weight.items()}
+    scores = {}
+    for name, sweep in results.items():
+        scores[name] = {weight: nrmse(x) for weight, x in sweep.items()}
+    best = {name: min(sweep, key=sweep.get) for name, sweep in scores.items()}
     for name, weight in best.items():
-        estimate = reconstructions[name][weight]
-        error = errors_by_weight[name][weight]
-        similarity = bt.ssim(image.abs(), scaled(estimate, image))
-        print(f"{name:>16}  weight {weight:<6}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
+        print(f"{name:>16}: best weight {weight}, NRMSE {scores[name][weight]:.3f}")
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-            Tikhonov  weight 0.03    NRMSE 0.082  SSIM 0.783
-             wavelet  weight 0.006   NRMSE 0.056  SSIM 0.867
-     total variation  weight 0.006   NRMSE 0.059  SSIM 0.926
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 297-323
 
 
 
@@ -232,7 +177,7 @@ a different overall scale.
     *
 
       .. image-sg:: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_001.png
-         :alt: reference, Tikhonov, $\lambda$ = 0.03, wavelet, $\lambda$ = 0.006, total variation, $\lambda$ = 0.006
+         :alt: the object, Tikhonov, $\lambda$ = 0.03, wavelet, $\lambda$ = 0.006, total variation, $\lambda$ = 0.006
          :srcset: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_001.png
          :class: sphx-glr-multi-img
 
@@ -246,38 +191,46 @@ a different overall scale.
     *
 
       .. image-sg:: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_003.png
-         :alt: reference, enlarged, Tikhonov, wavelet, total variation
+         :alt: the object, enlarged, Tikhonov, wavelet, total variation
          :srcset: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_003.png
          :class: sphx-glr-multi-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+            Tikhonov: best weight 0.03, NRMSE 0.082
+             wavelet: best weight 0.006, NRMSE 0.056
+     total variation: best weight 0.006, NRMSE 0.059
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 324-344
 
-The Tikhonov reconstruction retains amplified noise and the incoherent
-aliasing of the random sampling across the whole head: a quadratic penalty
-that is strong enough to suppress them also blurs the image, so its best
-weight leaves them in. Both sparsity-promoting terms remove most of the
-noise while keeping the tissue boundaries, which the error maps show as a
-much darker background inside the brain. They differ in their residual
-artefacts: in the enlarged region the wavelet penalty leaves a blotchy
-residual texture in white matter, and total variation renders the gradual
-intensity variations within white matter as patches of constant intensity
-(staircasing).
+.. GENERATED FROM PYTHON SOURCE LINES 278-298
+
+You see each penalty at its best weight, then the error maps on one scale,
+then the occipital cortex enlarged. Tikhonov leaves the amplified noise and
+the incoherent aliasing of the random sampling across the whole head: a
+quadratic penalty strong enough to remove them would blur the image too,
+so its best weight leaves them in. The two sparsity penalties remove most
+of the noise and keep the tissue boundaries, which is the much darker error
+inside the brain. Their residual artefacts differ in the enlarged region:
+the wavelet penalty leaves a blotchy texture in white matter, and TV turns
+the gradual intensity changes within white matter into patches of constant
+intensity (staircasing).
 
 The regularization weight
 -------------------------
 
-A weight that is too small leaves the noise in; one that is too large
-removes image detail with it, and the error against the reference has a
-minimum between the two. The sweep above spans a factor of ten or more
-for each term. It is possible here because the phantom is known; for
-measured data the weight is chosen by a criterion that does not require the
-reference, or fixed once for a protocol.
+Too small a weight leaves the noise in; too large a weight takes image
+detail out with it. The error against the truth has a minimum in between,
+and the sweep above spans a factor of ten or more for each penalty to find
+it. You can do that here because you know the truth; for measured data you
+choose the weight by a criterion that needs no reference, or fix it once
+for a protocol.
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-366
+.. GENERATED FROM PYTHON SOURCE LINES 298-319
 
 
 
@@ -303,29 +256,28 @@ reference, or fixed once for a protocol.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 367-383
+.. GENERATED FROM PYTHON SOURCE LINES 320-336
 
-Each curve has an interior minimum. The weights of the Tikhonov term and of
-the two :math:`\ell_1` terms are not comparable with each other, because the
-functionals differ; only the location of each minimum is meaningful. At its
-minimum each sparsity-promoting term reaches a lower error than Tikhonov
-regularization at its own minimum, for this image and this noise level.
+Each curve has its minimum inside the sweep. You cannot compare weights
+across penalties, because the functions differ; only where each minimum
+lies means something. At its minimum, each sparsity penalty reaches a lower
+error than Tikhonov at its own, for this image and this noise level.
 
-The three TV reconstructions show the two failure modes. At the smallest
-weight the noise and the incoherent aliasing remain; at the largest the
-cortex is flattened into patches of constant intensity and thin gyri merge.
+The three TV images show both failure modes. At the smallest weight
+the noise and the aliasing remain. At the largest, the cortex is flattened
+into patches of constant intensity and thin gyri merge.
 
-Combining terms
----------------
+Combined penalties
+------------------
 
-``regularizers`` accepts a list, whose terms are summed. ADMM splits the
-variable once per term with a nontrivial transform, so it accepts any
-combination; FISTA accepts only terms whose transform is the identity.
+``regularizers`` also takes a list, and the terms are added. ADMM splits
+the variable once per term with a transform of its own, so it takes any
+combination; FISTA takes only terms whose transform is the identity. Here
+is wavelet plus TV, each at half its best weight:
 
-.. GENERATED FROM PYTHON SOURCE LINES 384-397
+.. GENERATED FROM PYTHON SOURCE LINES 336-348
 
 .. code-block:: Python
-
 
     combined = apps.pics(
         measured,
@@ -337,7 +289,7 @@ combination; FISTA accepts only terms whose transform is the identity.
         solver="admm",
         maxiter=100,
     )
-    print(f"wavelet + TV  NRMSE {bt.nrmse(image.abs(), combined.abs(), scaled=True):.3f}")
+    print(f"wavelet + TV: NRMSE {nrmse(combined):.3f}")
 
 
 
@@ -347,23 +299,86 @@ combination; FISTA accepts only terms whose transform is the identity.
 
  .. code-block:: none
 
-    wavelet + TV  NRMSE 0.058
+    wavelet + TV: NRMSE 0.058
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 398-406
+.. GENERATED FROM PYTHON SOURCE LINES 349-361
 
-With each weight halved the sum reaches an error comparable to either term
-alone. Whether a combination improves on its parts depends on the image and
-the weights, and is established by a comparison such as the one above rather
-than assumed.
+The sum reaches an error comparable to either penalty alone. Whether a
+combination beats its parts depends on the image and the weights, and you
+find out with a comparison like the one above rather than by assuming it.
 
-:func:`bartorch.apps.pics` builds three objects -- the encoding operator, the
-terms and the iteration -- and runs BART's solver on them. The next lesson,
-:doc:`02-operators-and-solvers`, builds them separately.
+``nrmse(..., scaled=True)`` fits one global factor before comparing, so it
+compares the shape of the image and not its overall scale.
 
-.. GENERATED FROM PYTHON SOURCE LINES 409-432
+Exercise: noise level and weight
+--------------------------------
+
+Does the best weight depend on the noise? Sweep the wavelet weights again on
+the same scan with a third of the noise and with three times as much:
+
+.. GENERATED FROM PYTHON SOURCE LINES 361-385
+
+.. code-block:: Python
+
+    levels = {1e-4: {}, 3e-4: scores["wavelet"], 1e-3: {}}
+    for level, sweep in levels.items():
+        if sweep:
+            continue
+        noisy = bt.noise(clean, n=level, s=42)
+        data = noisy[:, None] * simulate(ACCELERATION, CALIBRATION)
+        for weight in sweeps["wavelet"]:
+            sweep[weight] = nrmse(reconstruct("wavelet", weight, data))
+
+
+
+
+
+.. image-sg:: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_006.png
+   :alt: 01 regularized reconstruction
+   :srcset: /auto_examples/03-regularization/images/sphx_glr_01-regularized-reconstruction_006.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    noise 0.0001: best wavelet weight 0.003
+    noise 0.0003: best wavelet weight 0.006
+    noise 0.001: best wavelet weight 0.012
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 386-408
+
+The best weight moves with the noise: in this sweep it is 0.003 at a third
+of the noise, 0.006 at the level used above, and 0.012 at three times the
+noise, and the error at every weight rises with the noise. At the lowest
+noise the minimum lies at the smallest weight of the sweep, so the best
+weight there may be smaller still; extend the sweep downwards to find it. A
+weight chosen for one SNR is therefore not the best for another.
+
+As a spec
+---------
+
+What this lesson built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   With bartorch, reconstruct a 2D Cartesian 8-channel k-space, undersampled
+   3-fold along y around a 24-line ACS block, with ESPIRiT maps (bt.ecalib,
+   crop 0.8) and apps.pics, 100 iterations each: Tikhonov (l2) at
+   0.01-0.3 with CG, priors.Wavelet over the last two axes at 0.003-0.03
+   with FISTA, and priors.TotalVariation at 0.002-0.04 with ADMM. Pick each
+   weight by the lowest NRMSE against the reference (scaled=True), show the
+   images and error maps at the best weights, and run wavelet + TV at half
+   of each best weight with ADMM.
+
+.. GENERATED FROM PYTHON SOURCE LINES 410-433
 
 References
 ----------
@@ -392,7 +407,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 11.108 seconds)
+   **Total running time of the script:** (0 minutes 14.391 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_01-regularized-reconstruction.py:

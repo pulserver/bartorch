@@ -3,38 +3,35 @@
 Parameter maps from scanner images
 ==================================
 
-This example estimates a :math:`T_2` map from the magnitude images a scanner
-exports, without access to the raw data: a multi-echo spin-echo series is read
-from DICOM, the decay is fitted voxel by voxel, and the map is written back as
-a DICOM series of the same study and as a NIfTI volume. The aim is to show the
-geometry and the acquisition timings passing from the scanner's files to the
-fit and on to the output unchanged, so that the map overlays the images it was
-computed from.
+In this tour you estimate a :math:`T_2` map from the magnitude images a
+scanner exports, without the raw data: you read a multi-echo spin-echo
+series from DICOM, fit the decay voxel by voxel, and write the map back as a
+DICOM series of the same study and as a NIfTI volume. The geometry and the
+echo times pass from the scanner's files through the fit to the output
+unchanged, so the map overlays the images it was computed from.
 
-Many protocols export each echo of a multi-echo acquisition, or each
-inversion time of an inversion-recovery experiment, as a DICOM series of its
-own. :func:`bartorch.io.read_dicom` reads several series as one, sorts the
-images into contrasts by their echo, inversion and repetition times, and
-returns those times with the images: they are the sampling points of the
-signal model. The images and the model are then those of
-:doc:`../05-model-based/01-quantitative-models`, minus the Fourier encoding: the fit of
-:func:`bartorch.apps.mobafit` is Gauss-Newton on the signal equation alone.
+Besides the pixel values, the fit needs the contrast timings and the geometry,
+and both are stored in the DICOM headers. Many protocols export each echo of a
+multi-echo acquisition, or each inversion time of an inversion-recovery
+experiment, as a DICOM series of its own. :func:`bartorch.io.read_dicom` reads
+several series as one, sorts the images into contrasts by their echo,
+inversion and repetition times, and returns those times with the images: they
+are the sampling points of the signal model. The fit is that of lesson 9
+without the Fourier encoding: :func:`bartorch.apps.mobafit` runs Gauss-Newton
+on the signal equation alone.
 
-A magnitude image is not Gaussian where the signal is small: its noise is
-Rician and has a positive floor, which a decay model fitted to it reads as a
-longer :math:`T_2`. :func:`~bartorch.apps.mobafit` with ``magnitude=True``
-fits the magnitude of the model to the magnitude of the data, which removes
-the phase from the problem but not the floor; the echoes here stay above it.
+The noise of a magnitude image is Rician where the signal is small and has a
+positive floor, which a decay model fitted to it reads as a longer
+:math:`T_2`. With ``magnitude=True``, :func:`~bartorch.apps.mobafit` fits the
+magnitude of the model to the magnitude of the data, which takes the phase out
+of the problem but not the floor; here the echoes stay above it.
 
-The input series is simulated in a hidden cell and written to a temporary
-directory, standing in for an export from the scanner.
-
-**Prerequisites.** :doc:`../05-model-based/01-quantitative-models`.
+Prerequisites: lesson 9, :doc:`../05-model-based/01-quantitative-models`.
 
 **Learning objectives**
 
-- Read a multi-echo series stored as one DICOM series per echo, with its echo
-  times and its voxel-to-world affine.
+- Read a multi-echo series stored as one DICOM series per echo, with its
+  echo times and its voxel-to-world affine.
 - Fit :class:`bartorch.nlop.MultiEcho` to magnitude images with
   :func:`bartorch.apps.mobafit`.
 - Write the map as a DICOM series of the same study, and as NIfTI, in the
@@ -44,24 +41,21 @@ directory, standing in for an export from the scanner.
 # %%
 
 # sphinx_gallery_start_ignore
+import tempfile
+from pathlib import Path
+
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
 from cmap import Colormap
+
+from bartorch import io
 
 WIDTH = 7.8  # inches, the width of the documentation column
 # One perceptually uniform colormap per relaxation parameter (Fuderer et al.,
 # Magn Reson Med 2025), the one the quantitative-models lesson reads T2 in.
 NAVIA = Colormap("crameri:navia").to_matplotlib()
-# sphinx_gallery_end_ignore
 
-import tempfile
-from pathlib import Path
-
-import numpy as np
-import torch
-
-from bartorch import apps, io, nlop
-
-# sphinx_gallery_start_ignore
 # A transverse slice of concentric tissue compartments -- scalp fat, grey and
 # white matter, and ventricles of cerebrospinal fluid -- with the T2 and the
 # proton density of each at 3 T, imaged by a CPMG train of eight echoes 10 ms
@@ -71,15 +65,15 @@ SIZE, ECHO_TIMES = 128, 10.0 * np.arange(1, 9)
 y, x = np.mgrid[-1 : 1 : SIZE * 1j, -1 : 1 : SIZE * 1j]
 radius = np.hypot(x / 0.78, y / 0.92)
 ventricle = np.hypot((np.abs(x) - 0.12) / 0.08, (y + 0.05) / 0.25) < 1
-compartments = [  # (region, T2 [ms], proton density)
-    ((radius > 0.9) & (radius < 1.0), 45.0, 0.9),  # fat
-    ((radius > 0.62) & (radius <= 0.9), 85.0, 0.8),  # grey matter
-    ((radius <= 0.62) & ~ventricle, 70.0, 0.7),  # white matter
-    (ventricle & (radius <= 0.62), 250.0, 1.0),  # cerebrospinal fluid
-]
+compartments = {  # name: (region, T2 [ms], proton density)
+    "fat": ((radius > 0.9) & (radius < 1.0), 45.0, 0.9),
+    "grey matter": ((radius > 0.62) & (radius <= 0.9), 85.0, 0.8),
+    "white matter": ((radius <= 0.62) & ~ventricle, 70.0, 0.7),
+    "CSF": (ventricle & (radius <= 0.62), 250.0, 1.0),
+}
 T2 = np.zeros((SIZE, SIZE))
 M0 = np.zeros((SIZE, SIZE))
-for region, t2, density in compartments:
+for region, t2, density in compartments.values():
     T2[region], M0[region] = t2, density
 support = M0 > 0
 
@@ -114,27 +108,33 @@ for number, (te, image) in enumerate(zip(ECHO_TIMES, magnitude), start=101):
 # sphinx_gallery_end_ignore
 
 # %%
+# DICOM export
+# ------------
 #
-# Reading the series
-# ------------------
+# The input is a scanner export: a CPMG multi-echo spin-echo acquisition of
+# eight echoes, 10 ms apart, stored as one DICOM series per echo, numbered 101
+# to 108. The slice is a simple head phantom of scalp fat, grey and white
+# matter and two ventricles of cerebrospinal fluid, tilted by 12 degrees about
+# the left-right axis, as a slice aligned to the AC-PC line is. The code that
+# writes the export is hidden; ``scanner`` is its folder.
 #
-# The export holds one series per echo, numbered 101 to 108. Asked for all of
-# them, :func:`~bartorch.io.read_dicom` returns the images as
-# ``(contrasts, slices, rows, columns)`` in order of echo time, the echo times
-# themselves in milliseconds, and the affine from voxel indices to RAS
-# millimetres; every echo has to cover the same slices.
+# Series import
+# -------------
+#
+# :func:`~bartorch.io.read_dicom` reads all eight series at once. It returns
+# the images as ``(contrasts, slices, rows, columns)`` in order of echo time,
+# the echo times themselves in milliseconds, and the affine from voxel
+# indices to RAS millimetres. Every echo has to cover the same slices.
+import torch
+
+from bartorch import apps, io, nlop
 
 echoes = io.read_dicom(scanner, series=range(101, 109))
 te = echoes.timings["echo_time"]
 
 print(f"images {tuple(echoes.image.shape)}, TE {te.tolist()} ms")
-print("voxel size", " x ".join(f"{v:.1f}" for v in echoes.affine[:3, :3].norm(dim=0)), "mm")
-
-# %%
-#
-# The images of three of the echoes, on one window: the cerebrospinal fluid in
-# the ventricles, with the longest :math:`T_2`, keeps its signal across the
-# train while the scalp fat loses most of it.
+voxel = echoes.affine[:3, :3].norm(dim=0)
+print("voxel size", " x ".join(f"{v:.1f}" for v in voxel), "mm")
 
 # sphinx_gallery_start_ignore
 shown = (0, 3, 7)
@@ -148,36 +148,43 @@ plt.show()
 # sphinx_gallery_end_ignore
 
 # %%
+# Three of the echoes, on one window. The cerebrospinal fluid in the
+# ventricles, with the longest :math:`T_2`, keeps its signal across the train,
+# while the scalp fat loses most of it.
 #
-# Fitting the decay
-# -----------------
+# Decay fitting
+# -------------
 #
-# :class:`bartorch.nlop.MultiEcho` is built on the echo times the files state
-# and on the in-plane shape of the slice. The fit is voxel by voxel, so the
-# slice axis is dropped here; a volume is fitted the same way with the model
-# built on ``(slices, rows, columns)``. DICOM stores intensities in arbitrary
-# units; the fit scales the echoes to unit peak and returns the amplitude in
-# the units of the files.
-
+# Build :class:`bartorch.nlop.MultiEcho` on the echo times the files state
+# and on the in-plane shape of the slice. The fit is voxel by voxel, so you
+# can drop the slice axis; for a volume, build the model on
+# ``(slices, rows, columns)`` instead. DICOM intensities are in arbitrary
+# units: the fit scales the echoes to unit peak and returns the amplitude in
+# the units of the files. The map is set to zero where the first echo is
+# below 5 % of the peak, outside the head.
 images = echoes.image[:, 0].to(torch.complex64)
 M = nlop.MultiEcho(te.tolist(), tuple(images.shape[1:]))
 maps = apps.mobafit(images, M, magnitude=True, T2=80.0)
-t2 = torch.where(images[0].abs() > 0.05 * images.abs().max(), maps["T2"], torch.zeros(()))
 
-for (region, truth, _), name in zip(compartments, ("fat", "grey matter", "white matter", "CSF")):
-    inner = torch.from_numpy(region)
-    print(f"{name:>13}: T2 {float(t2[inner].median()):6.1f} ms against {truth:5.1f} ms")
+head = images[0].abs() > 0.05 * images.abs().max()
+t2 = torch.where(head, maps["T2"], torch.zeros(()))
+
+for name, (region, truth, _) in compartments.items():
+    median = float(t2[torch.from_numpy(region)].median())
+    print(f"{name:>13}: T2 {median:6.1f} ms, simulated {truth:5.1f} ms")
 
 # %%
+# DICOM output
+# ------------
 #
-# Writing the map
-# ---------------
-#
-# The map goes back to DICOM as a series of the same study: the first
-# echo's dataset lends its patient, study and frame of reference, and the
-# series gets a number and a description of its own. ``ImageType`` marks it as
-# derived. NIfTI stores the same affine, which is what a registration or a
-# segmentation package reads.
+# You write the map back to DICOM as a series of the same study: passing the
+# first echo's dataset as ``header`` lends the new series its patient, study
+# and frame of reference, and you give it a number and a description of its
+# own. ``ImageType`` marks it as derived. NIfTI stores the same affine, and
+# that is what a registration or segmentation package reads.
+import tempfile
+
+from pathlib import Path
 
 output = Path(tempfile.mkdtemp())
 io.write_dicom(
@@ -191,17 +198,13 @@ io.write_dicom(
 )
 io.write_nifti(output / "t2-map.nii.gz", t2, echoes.affine)
 
-written = io.read_dicom(output / "t2-map")
-same_study = written.header.StudyInstanceUID == echoes.header.StudyInstanceUID
-print(f"patient {written.header.PatientID}, same study {same_study}")
-print(f"largest affine difference {float((written.affine - echoes.affine).abs().max()):.1e} mm")
-
 # %%
-#
-# The map read back from the DICOM series beside the :math:`T_2` the images
-# were simulated with, and the difference between them. The error is largest
-# in the cerebrospinal fluid, where eight echoes over 80 ms sample only the
-# start of a 250 ms decay.
+# Reading the series back confirms the study and the geometry:
+written = io.read_dicom(output / "t2-map")
+study = written.header.StudyInstanceUID == echoes.header.StudyInstanceUID
+shift = float((written.affine - echoes.affine).abs().max())
+print(f"patient {written.header.PatientID}, same study {study}")
+print(f"largest affine difference {shift:.1e} mm")
 
 # sphinx_gallery_start_ignore
 figure, axes = plt.subplots(1, 2, figsize=(0.85 * WIDTH, 0.85 * WIDTH / 2 + 0.4))
@@ -220,3 +223,26 @@ axis.set_axis_off()
 figure.colorbar(error, ax=axis, fraction=0.046, label="$|\\Delta T_2|$ [ms]")
 plt.show()
 # sphinx_gallery_end_ignore
+
+# %%
+# The map you read back from DICOM, beside the :math:`T_2` the images were
+# simulated with, and the difference between the two. The error is largest
+# in the cerebrospinal fluid, where eight echoes over 80 ms sample only the
+# start of a 250 ms decay.
+#
+# As a spec
+# ---------
+#
+# What this tour built, stated the way you would ask an agent for it:
+#
+# .. code-block:: text
+#
+#    Estimate a T2 map from a multi-echo spin-echo exported as one DICOM
+#    series per echo (series 101-108), with bartorch. Read all series with
+#    io.read_dicom, taking the echo times from echoes.timings["echo_time"]
+#    and the geometry from echoes.affine. Fit nlop.MultiEcho on those echo
+#    times with apps.mobafit(magnitude=True, T2=80.0), and zero the map
+#    where the first echo is below 5 % of the peak. Write the map with
+#    io.write_dicom as series 201 of the same study (header=echoes.header,
+#    ImageType DERIVED) and with io.write_nifti, both in the input affine.
+#    Read the DICOM back and check the study UID and the affine.

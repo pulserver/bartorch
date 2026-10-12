@@ -5,15 +5,13 @@
 Basics
 ------
 
-The course starts from the data a scanner delivers, multichannel k-space, and
-reconstructs an image from it.  The first lesson relates PyTorch tensors to
-BART's arrays and commands, simulates an acquisition with BART's analytical
-phantom and verifies the centring and scaling of BART's FFT against NumPy.  The
-second reconstructs an undersampled Cartesian acquisition through the three
-steps every later section builds on: coil compression, calibration of the coil
-sensitivity maps by ESPIRiT, and a regularized SENSE reconstruction.  The
-signal model is derived in :doc:`/explanation/encoding`, and the array
-conventions are stated in :doc:`/explanation/data-layout`.
+You start from the data a scanner gives you, multichannel k-space, and end
+with an image. Lesson 1 shows how BART's arrays look as PyTorch tensors and how
+you call a BART command on them. Lesson 2 reconstructs an undersampled
+Cartesian scan through the three steps the rest of the Course builds on:
+channel compression, coil sensitivities from ESPIRiT, and a regularized SENSE
+reconstruction. :doc:`/explanation/encoding` derives the signal model, and
+:doc:`/explanation/data-layout` lists the array layouts.
 
 
 .. raw:: html
@@ -29,7 +27,7 @@ conventions are stated in :doc:`/explanation/data-layout`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This first lesson establishes how MR data from BART appear in Python: how a multichannel image and its k-space are laid out as tensors, which Fourier convention BART uses to go from k-space to the image, and how a BART command is called. Every later lesson relies on these conventions. A reconstruction that is off by a factor of \sqrt{N}, or by a half-voxel shift from a misplaced k-space centre, is a consequence of misreading one of them.">
+    <div class="sphx-glr-thumbcontainer" tooltip="If you have used BART before, you know its arrays as CFL files on disk and its commands as programs you call from a shell. bartorch runs the same BART inside your Python process: every command is a Python function that takes and returns torch.Tensor objects, with no files and no subprocess in between. In this lesson you see what your data look like on that side: how a multichannel image and its k-space are laid out as tensors, which Fourier transform takes one to the other, and how a BART command line maps onto a function call.">
 
 .. only:: html
 
@@ -40,13 +38,13 @@ conventions are stated in :doc:`/explanation/data-layout`.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Tensors and commands</div>
+      <div class="sphx-glr-thumbnail-title">1. Your data as tensors</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an undersampled Cartesian brain acquisition from its multichannel k-space to a coil-combined image, and shows what each step of a parallel-imaging and compressed-sensing pipeline contributes. Scan time in Cartesian MRI is proportional to the number of phase-encoding lines; skipping lines shortens the scan by the acceleration factor R, but violates the Nyquist criterion and folds the image onto itself. Recovering an unaliased image from such data is what the receive coil array, and prior knowledge of the image, are used for.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 1 you saw how BART&#x27;s arrays look as tensors and how its FFT takes a fully sampled k-space to an image. A real scan is rarely fully sampled: you skip phase-encoding lines to shorten it, and the image folds onto itself. In this lesson you reconstruct such a scan, one step at a time, and after each step you look at what it did to the image.">
 
 .. only:: html
 
@@ -57,7 +55,7 @@ conventions are stated in :doc:`/explanation/data-layout`.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">From k-space to image</div>
+      <div class="sphx-glr-thumbnail-title">2. From k-space to an image</div>
     </div>
 
 

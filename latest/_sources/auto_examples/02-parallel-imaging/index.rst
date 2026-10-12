@@ -5,17 +5,15 @@
 Parallel imaging
 ----------------
 
-Parallel imaging recovers an image from k-space undersampled along the
-phase-encoding directions by exploiting the spatial sensitivities of a receive
-array.  A SENSE reconstruction is only as accurate as its coil sensitivity
-maps.  This section treats their estimation from the autocalibration (ACS)
-region, by direct division and by ESPIRiT, and the joint estimation of image
-and sensitivities by nonlinear inversion when the ACS region is too small for a
-separate calibration.  The prewhitening of correlated channel noise, a
-correction applied before this estimation, is the tour
-:doc:`/auto_examples/07-tours/08-noise-prewhitening`.
-:doc:`/explanation/encoding` derives the SENSE model and
-:doc:`/explanation/nonlinear` the joint estimation.
+A SENSE reconstruction is only as good as its coil sensitivities. In lesson 3
+you estimate them from the autocalibration region, by direct division and by
+ESPIRiT, and see what a poor estimate does to the image. In lesson 4 the
+calibration region is too small for that, and you estimate the image and the
+sensitivities together by nonlinear inversion. If your channels carry
+correlated noise, whiten them first: the tour
+:doc:`/auto_examples/07-tours/08-noise-prewhitening` shows how.
+:doc:`/explanation/encoding` and :doc:`/explanation/nonlinear` give the
+background.
 
 
 .. raw:: html
@@ -31,7 +29,7 @@ correction applied before this estimation, is the tour
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson compares three ways of estimating the receive sensitivities of a coil array from the undersampled acquisition itself, and shows how the size of the fully sampled calibration region decides which of them can be used. A SENSE reconstruction [#sense]_ inverts">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 2 you estimated the coil sensitivities with ESPIRiT from a block of 24 central lines and passed them to pics without examining them. SENSE [#sense]_ solves">
 
 .. only:: html
 
@@ -42,13 +40,13 @@ correction applied before this estimation, is the tour
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Coil sensitivity calibration</div>
+      <div class="sphx-glr-thumbnail-title">3. Coil sensitivities</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an image and the coil sensitivities together from undersampled data whose fully sampled central region is too small for a separate calibration, and then writes the same reconstruction out as a nonlinear operator and a Gauss-Newton solver.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 3 you saw ESPIRiT fail with eight ACS lines while nonlinear inversion kept working, because it fits the sensitivities to every acquired sample rather than to the ACS block alone. In this lesson you keep only six central lines, too few for any separate calibration, and reconstruct the image and the sensitivities together.">
 
 .. only:: html
 
@@ -59,7 +57,7 @@ correction applied before this estimation, is the tour
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Nonlinear inversion</div>
+      <div class="sphx-glr-thumbnail-title">4. Joint reconstruction of image and sensitivity maps</div>
     </div>
 
 

@@ -18,129 +18,101 @@
 .. _sphx_glr_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py:
 
 
-===========================
-Trajectories and transforms
-===========================
+==================================
+7. Basics of non-Cartesian imaging
+==================================
 
-This lesson introduces the building blocks of non-Cartesian reconstruction:
-radial, golden-angle and spiral trajectories, the non-uniform fast Fourier
-transform (NUFFT) that samples an image along them, the density compensation
-that an adjoint (gridding) reconstruction needs, and the point spread function
-(PSF) that describes the undersampling artefacts.
+In lessons 2 to 6 every sample sat on the Cartesian grid, so the FFT and its
+inverse were all the Fourier transforms you needed. In this lesson you leave
+the grid. You sample the same brain slice along radial and spiral
+trajectories, reconstruct it by gridding, and see what each step of that
+reconstruction does to the image.
 
-Non-Cartesian trajectories sample k-space along curves rather than on a grid.
-Radial and spiral readouts start at the k-space centre, which makes them
-robust to motion and flow and lets them oversample the low spatial
-frequencies; they are the basis of real-time, ultrashort-echo-time and
-free-breathing imaging. Their samples do not lie on the Cartesian grid, so
-the FFT is replaced by the NUFFT. Every non-Cartesian transform in bartorch is
-computed by FINUFFT [#finufft]_, which evaluates
+The mental model: a radial or spiral readout starts at the centre of k-space
+and traces a curve through it, so its samples do not lie on a grid and the FFT
+cannot compute them. The non-uniform FFT (NUFFT) takes its place. Every
+non-Cartesian transform in bartorch is computed by FINUFFT [#finufft]_, which
+evaluates
 
 .. math::
 
    y_j = \frac{1}{\sqrt{N}} \sum_{m} x_m \,
    \exp\!\Big(-2\pi i \sum_d \frac{k_{j,d}\, m_d}{n_d}\Big)
 
-to a requested tolerance, with the sum over the :math:`N` voxels :math:`m`
-of an image of :math:`n_d` voxels along dimension :math:`d`, and
-:math:`k_j` in grid units. The spreading kernel and the deapodization are
-FINUFFT's, sized from the tolerance: :doc:`../../explanation/non-cartesian`
-states the conventions and the accuracy.
-
-The phantom is built as in :doc:`../01-basics/02-from-kspace-to-image`; the
-cell that does it is hidden on this page and present in the script this page can
-be downloaded as.
+to a requested tolerance. The sum runs over the :math:`N` voxels :math:`m` of
+an image with :math:`n_d` voxels along dimension :math:`d`, and :math:`k_j` is
+the position of sample :math:`j` in grid units.
+:doc:`../../explanation/non-cartesian` states the conventions and the
+accuracy.
 
 **Learning objectives**
 
 - Generate radial and golden-angle trajectories in grid units with
-  :func:`bartorch.tools.traj`, and a spiral trajectory directly.
+  :func:`bartorch.tools.traj`, and a spiral trajectory by hand.
 - Apply :func:`bartorch.nufft` and :func:`bartorch.nufft_adjoint`, and check
   the transform against the sum that defines it.
 - Explain why a gridding reconstruction needs density compensation, and
   compute the weights analytically and with :func:`bartorch.estimate_density`.
-- Compare the normal operator as a convolution with the transform pair, and
-  relate the PSF of an undersampled radial trajectory to its streak
-  artefacts.
+- Apply the normal operator :math:`A^H A` as a convolution, and relate the
+  point spread function (PSF) of an undersampled radial trajectory to its
+  streaks.
 
-It follows :doc:`../03-regularization/02-operators-and-solvers`. The next
-lesson, :doc:`02-radial-sense`, reconstructs an undersampled radial
-acquisition.
+Previous: :doc:`../03-regularization/02-operators-and-solvers`. Next:
+:doc:`02-radial-sense`, where you remove the streaks of an undersampled radial
+scan with the coils and a penalty.
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-200
+.. GENERATED FROM PYTHON SOURCE LINES 47-137
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 138-159
+
+Radial trajectory
+-----------------
+
+The object is the BrainWeb slice of lesson 2 [#brainweb]_ on a 128 by 128
+grid, acquired with a single receive coil of uniform sensitivity, so that
+the trajectory is the only encoding.
+
+A trajectory in bartorch is a tensor of shape ``(*encoding, shots,
+samples, 3)`` holding the k-space position of every sample in grid units:
+one unit is one k-space cell of the image, so a readout of ``SIZE`` samples
+runs from :math:`-n/2` to :math:`n/2` for an image of :math:`n` voxels. The
+last axis is :math:`(k_x, k_y, k_z)`; :math:`k_z` is zero throughout here,
+and that is what makes the transform two-dimensional.
+
+You can space the spokes of a radial scan in two ways. Uniformly, at
+:math:`\pi` over their number, they tile k-space evenly once all of them are
+acquired. At the golden angle, every next spoke falls into the largest gap
+left by the previous ones, so *any* run of consecutive spokes tiles k-space
+nearly evenly [#winkelmann]_. That is what lets you cut a golden-angle scan
+into frames after you have acquired it, as the Tour
+:doc:`../08-workflows/01-dynamic-golden-angle` does.
+
+.. GENERATED FROM PYTHON SOURCE LINES 159-192
 
 .. code-block:: Python
 
-
-    import csv
     import time
-    from pathlib import Path
 
-    import brainweb_dl
-    import numpy as np
     import torch
-    from brainweb_dl import get_mri
 
     import bartorch
     import bartorch.tools as bt
+
     from bartorch import linop
 
-    SIZE = 128
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 201-218
-
-Trajectories
-------------
-
-A trajectory is ``(*encoding, shots, samples, 3)`` in grid units: the
-coordinates of every sample, in units of the k-space cell of the image it
-encodes, so a readout of ``SIZE`` samples runs from :math:`-n/2` to
-:math:`n/2` for an image of :math:`n` voxels along the readout. The third
-component is :math:`k_z`, zero throughout for a two-dimensional trajectory,
-and whether it is used determines whether the transform is two- or
-three-dimensional.
-
-Successive spokes are separated either by :math:`\pi` over their number,
-which tiles k-space uniformly for one frame, or by the golden angle, which
-tiles it approximately uniformly for *any* number of consecutive spokes
-[#winkelmann]_. Only
-the second lets an acquisition be cut into frames after it was measured, as
-:doc:`../08-workflows/01-dynamic-golden-angle` does.
-
-.. GENERATED FROM PYTHON SOURCE LINES 219-227
-
-.. code-block:: Python
-
-
-    SPOKES = 201  # pi/2 * SIZE, the number at which radial sampling is not undersampled
+    SPOKES = 201  # pi/2 * SIZE: enough spokes not to undersample the edge
 
     uniform = bt.traj(readout=SIZE, spokes=SPOKES, radial=True)
     golden = bt.traj(readout=SIZE, spokes=SPOKES, radial=True, golden=True)
+    print(f"trajectory {tuple(golden.shape)}: (spokes, samples, 3)")
 
-    print(f"{tuple(golden.shape)}: {SPOKES} shots of {SIZE} samples")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    (201, 128, 3): 201 shots of 128 samples
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 228-247
 
 
 
@@ -151,45 +123,47 @@ the second lets an acquisition be cut into frames after it was measured, as
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    trajectory (201, 128, 3): (spokes, samples, 3)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 248-256
+
+.. GENERATED FROM PYTHON SOURCE LINES 193-206
+
+You see the first 24 spokes of each scan. The uniform ones cover a narrow
+wedge, because they are spaced for 201 spokes and you would need all of them
+to fill the disc. The golden-angle ones already spread over every direction.
 
 The transform
 -------------
 
-:func:`bartorch.nufft` samples an image along a trajectory and
-:func:`bartorch.nufft_adjoint` maps samples back onto a grid. The samples an
-acquisition would measure are the transform of the image; below they are
-checked against the sum that defines them, evaluated in double precision over
-one spoke, which is a reference outside BART and outside FINUFFT.
+:func:`bartorch.nufft` samples an image along a trajectory, and
+:func:`bartorch.nufft_adjoint` takes samples back onto the grid. Since
+FINUFFT computes the transform only to a tolerance, check it once against
+the sum that defines it, evaluated by hand in double precision over the
+first spoke. That sum is computed without BART or FINUFFT, so it is an
+independent reference.
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-279
+.. GENERATED FROM PYTHON SOURCE LINES 206-219
 
 .. code-block:: Python
-
 
     samples = bartorch.nufft(image, golden)
     print(f"samples {tuple(samples.shape)}")
 
-    spoke = golden[0].real.to(torch.float64)
-    axis_y, axis_x = torch.meshgrid(
-        torch.arange(SIZE) - SIZE // 2, torch.arange(SIZE) - SIZE // 2, indexing="ij"
-    )
-    phase = (
-        -2j
-        * np.pi
-        / SIZE
-        * (
-            spoke[:, 0:1] * axis_x.reshape(1, -1).to(torch.float64)
-            + spoke[:, 1:2] * axis_y.reshape(1, -1).to(torch.float64)
-        )
-    )
-    explicit = torch.exp(phase) @ image.to(torch.complex128).reshape(-1, 1) / SIZE
+    spoke = golden[0].real.double()  # (samples, 3)
+    m = torch.arange(SIZE, dtype=torch.float64) - SIZE // 2
+    my, mx = torch.meshgrid(m, m, indexing="ij")
+    km = spoke[:, :1] * mx.reshape(1, -1) + spoke[:, 1:2] * my.reshape(1, -1)
+    fourier = torch.exp(-2j * torch.pi / SIZE * km)
+    explicit = fourier @ image.reshape(-1, 1).to(torch.complex128) / SIZE
 
-    difference = float((explicit - samples[0]).abs().max() / explicit.abs().max())
-    print(f"largest relative difference from the explicit sum: {difference:.1e}")
+    error = (explicit - samples[0]).abs().max() / explicit.abs().max()
+    print(f"largest relative difference from the sum: {float(error):.1e}")
 
 
 
@@ -200,54 +174,57 @@ one spoke, which is a reference outside BART and outside FINUFFT.
  .. code-block:: none
 
     samples (201, 128, 1)
-    largest relative difference from the explicit sum: 1.9e-04
+    largest relative difference from the sum: 1.9e-04
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 280-295
+.. GENERATED FROM PYTHON SOURCE LINES 220-237
 
-The transform is planned to a tolerance rather than computed exactly, and the
-difference above is within the tolerance it was planned with: a thousandth by
-default, on a grid a quarter larger than the image. The default is chosen for
-reconstruction, where the transform's error is intended to stay small beside
-the effect of noise and undersampling; :class:`bartorch.linop.NUFFT` takes
-``oversampling`` and ``width`` where more accuracy is needed.
+The difference sits within the tolerance the transform was planned with: a
+thousandth by default, on a grid a quarter larger than the image. That is
+meant for reconstruction, where the transform's error stays small beside the
+noise and the undersampling; :class:`bartorch.linop.NUFFT` takes
+``oversampling`` and ``width`` when you need more accuracy.
 
 Density compensation
 --------------------
 
 The adjoint is not the inverse. Every spoke passes through the centre of
-k-space, so the radial sampling density falls as :math:`1/\lvert k \rvert`
-and the adjoint overweights low frequencies. The weight that compensates for
-it is the inverse sampling density [#pipe]_, which for radial sampling is
-proportional to the distance from the centre.
+k-space, so the sample density is highest there and decreases outwards: the
+sampling density of a radial scan falls as :math:`1/\lvert k \rvert`. The
+adjoint sums the samples unweighted, so it overweights the low frequencies.
+To undo that you weight each sample by the inverse of the sampling density
+[#pipe]_, which for radial sampling is the ramp :math:`\lvert k \rvert`. The
+clamp keeps a small weight on the samples at the centre, which would
+otherwise not count at all.
 
-.. GENERATED FROM PYTHON SOURCE LINES 296-303
+.. GENERATED FROM PYTHON SOURCE LINES 237-262
 
 .. code-block:: Python
 
 
-    radius = torch.linalg.norm(golden.real[..., :2], dim=-1, keepdim=True)
-    weights = radius.clamp(min=0.25).to(torch.complex64)
 
-    plain = bartorch.nufft_adjoint(samples, golden, image_shape=(SIZE, SIZE))
-    compensated = bartorch.nufft_adjoint(samples * weights, golden, image_shape=(SIZE, SIZE))
-
-
+    def ramp(trajectory):
+        """The radial density compensation, |k| per sample."""
+        k = torch.linalg.norm(trajectory.real[..., :2], dim=-1, keepdim=True)
+        return k.clamp(min=0.25).to(torch.complex64)
 
 
+    shape = (SIZE, SIZE)
+    plain = bartorch.nufft_adjoint(samples, golden, image_shape=shape)
+    compensated = bartorch.nufft_adjoint(
+        samples * ramp(golden),
+        golden,
+        image_shape=shape,
+    )
 
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 304-315
 
 
 
 
 .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_002.png
-   :alt: gridding reconstruction, 201 golden-angle spokes, reference, adjoint, no compensation, density compensated
+   :alt: gridding reconstruction, 201 golden-angle spokes, the object, adjoint, no weights, ramp weights
    :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_002.png
    :class: sphx-glr-single-img
 
@@ -255,37 +232,38 @@ proportional to the distance from the centre.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 316-333
+.. GENERATED FROM PYTHON SOURCE LINES 263-279
 
-The uncompensated adjoint is the image convolved with the point spread
-function, the inverse Fourier transform of the sampling density; the density
-is concentrated at the centre of k-space, so the result is blurred. The
-compensated adjoint resolves the tissue boundaries. Neither recovers the
-k-space the trajectory does not reach: a radial acquisition samples a disc,
-so the frequencies in the corners of the Cartesian grid are missing whatever
+Without weights the image is blurred: it is the object convolved with the
+PSF of the trajectory, which is broad because the sample density is
+concentrated at the centre of k-space. With the ramp weights the tissue
+boundaries are resolved.
+Neither image recovers what the trajectory never reaches: a radial scan
+covers a disc, so the corners of the Cartesian k-space are missing whatever
 the weights are.
 
 Estimated density
 -----------------
 
-The ramp :math:`\lvert k \rvert` is the density of an ideal radial
-trajectory. :func:`bartorch.estimate_density` estimates the density of any
-trajectory by the fixed-point iteration of Pipe and Menon [#pipe]_, evaluated
-with the same non-uniform transforms, and returns weights for each sample.
-It takes the coordinates as ``(..., samples, 2)``, so the spokes are
-flattened into one list of samples.
+The ramp is the density of an ideal radial trajectory. For any other
+trajectory, :func:`bartorch.estimate_density` estimates the weights with
+the fixed-point iteration of Pipe and Menon [#pipe]_, which runs on the
+same NUFFTs. It takes the coordinates as ``(..., samples, 2)``, so you
+flatten the spokes into one list of samples and reshape the weights back.
 
-.. GENERATED FROM PYTHON SOURCE LINES 334-342
+.. GENERATED FROM PYTHON SOURCE LINES 279-289
 
 .. code-block:: Python
 
-
-    estimated = bartorch.estimate_density(golden.real[..., :2].reshape(-1, 2), (SIZE, SIZE))
+    flat = golden.real[..., :2].reshape(-1, 2)
+    estimated = bartorch.estimate_density(flat, shape)
     estimated = estimated.reshape(SPOKES, SIZE, 1).to(torch.complex64)
 
-    for name, density in (("ramp", weights), ("Pipe-Menon", estimated)):
-        adjoint = bartorch.nufft_adjoint(samples * density, golden, image_shape=(SIZE, SIZE))
-        print(f"{name:>10}  NRMSE {bt.nrmse(image.abs(), adjoint.abs(), scaled=True):.3f}")
+    for name, density in (("ramp", ramp(golden)), ("Pipe-Menon", estimated)):
+        weighted = samples * density
+        adjoint = bartorch.nufft_adjoint(weighted, golden, image_shape=shape)
+        nrmse = bt.nrmse(image.abs(), adjoint.abs(), scaled=True)
+        print(f"{name:>10}  NRMSE {nrmse:.3f}")
 
 
 
@@ -301,66 +279,51 @@ flattened into one list of samples.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 343-350
+.. GENERATED FROM PYTHON SOURCE LINES 290-301
 
-For a radial trajectory the two weightings give similar errors, both of
-which include the k-space corners the disc does not cover. The estimate
-matters where no closed form is at hand. A spiral interleaf is not
-generated by :func:`bartorch.tools.traj`, and is written here as an
-Archimedean spiral: sixteen interleaves reaching :math:`\pm n/2`, with
-:math:`n / 32` turns each so that adjacent turns are one grid unit apart,
-the radial Nyquist spacing, and 1024 samples per interleaf.
+For a radial trajectory the two weightings give similar errors, and both
+include the corners the disc does not cover. The estimate is needed where
+no closed form is available, as for a spiral.
 
-.. GENERATED FROM PYTHON SOURCE LINES 351-382
+Spiral trajectory
+-----------------
+
+:func:`bartorch.tools.traj` does not generate spirals, so you write one
+yourself: sixteen Archimedean interleaves reaching :math:`\pm n/2`, each
+with :math:`n/32` turns so that neighbouring turns of the whole set are one
+grid unit apart (the Nyquist spacing), and 1024 samples per interleaf.
+
+.. GENERATED FROM PYTHON SOURCE LINES 301-350
 
 .. code-block:: Python
-
 
     INTERLEAVES, READOUT = 16, 1024
 
     progress = torch.linspace(0.0, 1.0, READOUT)
     radius = SIZE / 2 * progress
-    angle = 2 * np.pi * SIZE / (2 * INTERLEAVES) * progress
-    spiral = torch.stack(
-        [
-            torch.stack(
-                [
-                    radius * torch.cos(angle + 2 * np.pi * arm / INTERLEAVES),
-                    radius * torch.sin(angle + 2 * np.pi * arm / INTERLEAVES),
-                    torch.zeros(READOUT),
-                ],
-                dim=-1,
-            )
-            for arm in range(INTERLEAVES)
-        ]
-    )
+    turns = SIZE / (2 * INTERLEAVES)
+    arms = []
+    for arm in range(INTERLEAVES):
+        angle = 2 * torch.pi * (turns * progress + arm / INTERLEAVES)
+        kx, ky = radius * torch.cos(angle), radius * torch.sin(angle)
+        arms.append(torch.stack([kx, ky, torch.zeros(READOUT)], dim=-1))
+    spiral = torch.stack(arms)  # (interleaves, samples, 3)
 
     spiral_samples = bartorch.nufft(image, spiral)
-    spiral_density = bartorch.estimate_density(spiral[..., :2].reshape(-1, 2), (SIZE, SIZE))
-    spiral_density = spiral_density.reshape(INTERLEAVES, READOUT, 1).to(torch.complex64)
+    flat = spiral[..., :2].reshape(-1, 2)
+    spiral_density = bartorch.estimate_density(flat, shape)
+    spiral_density = spiral_density.reshape(INTERLEAVES, READOUT, 1)
+    spiral_density = spiral_density.to(torch.complex64)
 
-    spiral_plain = bartorch.nufft_adjoint(spiral_samples, spiral, image_shape=(SIZE, SIZE))
+    spiral_plain = bartorch.nufft_adjoint(spiral_samples, spiral, image_shape=shape)
     spiral_compensated = bartorch.nufft_adjoint(
-        spiral_samples * spiral_density, spiral, image_shape=(SIZE, SIZE)
+        spiral_samples * spiral_density, spiral, image_shape=shape
     )
-    for name, adjoint in (("adjoint", spiral_plain), ("compensated", spiral_compensated)):
-        print(f"spiral {name:>12}  NRMSE {bt.nrmse(image.abs(), adjoint.abs(), scaled=True):.3f}")
+    spirals = {"no weights": spiral_plain, "Pipe-Menon": spiral_compensated}
+    for name, adjoint in spirals.items():
+        nrmse = bt.nrmse(image.abs(), adjoint.abs(), scaled=True)
+        print(f"spiral, {name:>10}  NRMSE {nrmse:.3f}")
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    spiral      adjoint  NRMSE 0.693
-    spiral  compensated  NRMSE 0.089
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 383-406
 
 
 
@@ -371,48 +334,55 @@ the radial Nyquist spacing, and 1024 samples per interleaf.
     *
 
       .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
-         :alt: 16 interleaves, interleaf 1 in blue, weight along interleaf 1
+         :alt: 16 interleaves, the first in blue, Pipe-Menon weight along the first
          :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_003.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_004.png
-         :alt: reference, spiral, no compensation, spiral, compensated
+         :alt: the object, spiral, no weights, spiral, Pipe-Menon
          :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_004.png
          :class: sphx-glr-multi-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    spiral, no weights  NRMSE 0.693
+    spiral, Pipe-Menon  NRMSE 0.089
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 407-425
 
-The estimated weight of an Archimedean spiral grows with the radius: the
-interleaves are separated by a constant distance while the arc length
-traversed per sample grows, so the samples are densest at the centre. The
-weight oscillates with the period of the turns, levels off in the outer part
-of k-space, and drops over the last samples, where the outermost turn has no
-neighbour outside it. Without compensation the spiral adjoint is dominated
-by the densely sampled low spatial frequencies and appears as a blurred,
-low-contrast image; with the estimated weights the tissue contrast and the
-edges are restored, which the NRMSE printed above quantifies.
+.. GENERATED FROM PYTHON SOURCE LINES 351-370
+
+The weight grows with :math:`\lvert k \rvert`: the interleaves stay a
+constant distance apart while each sample covers a longer stretch of arc,
+so the samples are densest at the centre. It ripples with the period of the
+turns, levels off in the outer part of k-space, and drops over the last
+samples, where the outermost turn has no neighbour outside it. Without the
+weights the spiral image is a low-contrast blur, as the radial one was; with
+them the tissue contrast and the edges are restored, and the NRMSE printed
+above drops accordingly.
 
 The normal operator
 -------------------
 
-:class:`bartorch.linop.NUFFT` is the transform as an operator, and carries the
-weights and a subspace basis where there are any, because its normal operator
-:math:`A^H A` is built over both. That normal is a convolution with a point
-spread function on a doubled grid rather than a transform each way
-[#fessler2005]_, which is what a solver applies once per iteration.
+An iterative reconstruction applies :math:`A^H A` once per iteration, and
+for a NUFFT that costs a forward and an adjoint transform. Alternatively,
+:math:`A^H A` is a convolution of the image with the PSF, which is computed
+once on a grid twice the size of the image [#fessler2005]_ (the Toeplitz
+embedding). :class:`bartorch.linop.NUFFT` is the transform as an operator,
+and ``A.gram()`` applies its normal operator as that convolution. The
+timing below compares both forms:
 
-.. GENERATED FROM PYTHON SOURCE LINES 426-444
+.. GENERATED FROM PYTHON SOURCE LINES 370-388
 
 .. code-block:: Python
 
-
-    A = linop.NUFFT(golden, image_shape=(SIZE, SIZE))
+    A = linop.NUFFT(golden, image_shape=shape)
 
     repeats = 5
     start = time.perf_counter()
@@ -425,9 +395,10 @@ spread function on a doubled grid rather than a transform each way
         pair = A.H(A(image))
     transforms = (time.perf_counter() - start) / repeats
 
+    difference = (toeplitz - pair).abs().max() / pair.abs().max()
     print(f"A^H A as a convolution   {1e3 * convolution:6.1f} ms")
     print(f"A^H A as two transforms  {1e3 * transforms:6.1f} ms")
-    print(f"relative difference      {float((toeplitz - pair).abs().max() / pair.abs().max()):.1e}")
+    print(f"relative difference      {float(difference):.1e}")
 
 
 
@@ -437,38 +408,35 @@ spread function on a doubled grid rather than a transform each way
 
  .. code-block:: none
 
-    A^H A as a convolution      1.1 ms
-    A^H A as two transforms     0.9 ms
+    A^H A as a convolution      0.8 ms
+    A^H A as two transforms     0.7 ms
     relative difference      2.7e-03
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 445-451
+.. GENERATED FROM PYTHON SOURCE LINES 389-399
 
-The two agree to a small multiple of the transform's tolerance.
+The two agree to a small multiple of the transform's tolerance, and the
+convolution is the faster of the two.
 
-:func:`bartorch.tools.psf` computes that function on its own. Its extent is
-the aliasing the trajectory produces: for a fully sampled radial trajectory
-it is a central peak with a low, broad skirt, and undersampling raises the
-skirt into the streaks a radial reconstruction is known for.
+The point spread function
+-------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 452-456
+:func:`bartorch.tools.psf` computes that PSF on its own: the adjoint
+reconstruction of a point object sampled along the trajectory. The
+reconstructed image is the object convolved with it. Compare the full scan
+with one of an eighth of the spokes:
+
+.. GENERATED FROM PYTHON SOURCE LINES 399-420
 
 .. code-block:: Python
 
+    full = bt.traj(readout=SIZE, spokes=SPOKES, radial=True, golden=True)
+    eighth = bt.traj(readout=SIZE, spokes=SPOKES // 8, radial=True, golden=True)
+    fully_sampled = bt.psf(full)
+    undersampled = bt.psf(eighth)
 
-    fully_sampled = bt.psf(bt.traj(readout=SIZE, spokes=SPOKES, radial=True, golden=True))
-    undersampled = bt.psf(bt.traj(readout=SIZE, spokes=SPOKES // 8, radial=True, golden=True))
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 457-474
 
 
 
@@ -482,16 +450,95 @@ skirt into the streaks a radial reconstruction is known for.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 475-478
+.. GENERATED FROM PYTHON SOURCE LINES 421-431
 
-A reconstruction that uses all of this -- the transform, the weights, the
-sensitivities and the normal operator -- is
-:doc:`02-radial-sense`.
+On a logarithmic scale, the PSF of the full scan is a sharp central peak on
+a low, even skirt. With an eighth of the spokes the skirt breaks up into
+bright lines radiating from the centre. Convolving the object with this PSF
+produces the streaks of an undersampled radial image.
 
-.. GENERATED FROM PYTHON SOURCE LINES 481-502
+Exercise: angular undersampling
+-------------------------------
+
+Repeat the gridding reconstruction with the ramp weights for fewer and more
+spokes than 201, and compare the error and the images:
+
+.. GENERATED FROM PYTHON SOURCE LINES 431-463
+
+.. code-block:: Python
+
+    counts = (25, 50, 100, 201, 400)
+    scores, images = [], {}
+    for count in counts:
+        trajectory = bt.traj(readout=SIZE, spokes=count, radial=True, golden=True)
+        acquired = bartorch.nufft(image, trajectory)
+        gridded = bartorch.nufft_adjoint(
+            acquired * ramp(trajectory),
+            trajectory,
+            image_shape=shape,
+        )
+        scores.append(bt.nrmse(image.abs(), gridded.abs(), scaled=True))
+        images[count] = gridded
+
+
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_006.png
+         :alt: 01 trajectories and transforms
+         :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_006.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_007.png
+         :alt: 25 spokes, 50 spokes, 100 spokes
+         :srcset: /auto_examples/04-non-cartesian/images/sphx_glr_01-trajectories-and-transforms_007.png
+         :class: sphx-glr-multi-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 464-486
+
+Below 201 spokes the error rises with every halving, and the images show
+why: streaks across the whole field of view, denser and brighter the fewer
+spokes you keep. Above 201 the error barely moves: undersampling no longer
+limits it, and what remains includes the corners of k-space the disc never
+covers. Try the same with uniform spokes (drop ``golden=True``), or with
+fewer spiral interleaves.
+
+As a spec
+---------
+
+What this lesson built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   With bartorch, sample a 128x128 complex image along a 2D golden-angle
+   radial trajectory of 201 spokes of 128 samples (bt.traj, grid units),
+   with bartorch.nufft, and check one spoke against the explicit DFT in
+   float64. Reconstruct by gridding with bartorch.nufft_adjoint, without
+   weights, with the ramp |k| (clamped at 0.25) and with
+   bartorch.estimate_density, and report each NRMSE. Repeat for a
+   16-interleaf Archimedean spiral of 1024 samples. Time linop.NUFFT's
+   A.gram() against A.H(A(x)), and compare bt.psf for 201 and 25 spokes.
+
+.. GENERATED FROM PYTHON SOURCE LINES 488-514
 
 References
 ----------
+
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+   Evans AC. Design and construction of a realistic digital brain phantom.
+   *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
 
 .. [#finufft] Barnett AH, Magland J, af Klinteberg L. A parallel nonuniform fast
    Fourier transform library based on an "exponential of semicircle" kernel.
@@ -515,7 +562,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.435 seconds)
+   **Total running time of the script:** (0 minutes 1.214 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py:

@@ -18,31 +18,31 @@
 .. _sphx_glr_auto_examples_06-learning_02-modl-with-admm.py:
 
 
-====================
-MoDL, on BART's ADMM
-====================
+================================
+11. Training an unrolled network
+================================
 
-This lesson trains an unrolled reconstruction network for undersampled
-Cartesian SENSE: a small convolutional denoiser placed in the proximal step of
-BART's alternating-direction iteration, with the whole iteration trained end
-to end against fully sampled images. The aim is to show how a learned
-regularizer is combined with the physical encoding model -- coil
-sensitivities, Fourier transform and sampling pattern -- so that the network
-only has to remove what the data leave undetermined, and how such a network is
-trained with standard tools.
+In lesson 10 the proximal step of ADMM was a denoiser pretrained on
+photographs, never trained on MR images or on the residual aliasing of an
+undersampled scan. In this lesson you train the denoiser through the
+iteration: a fixed number of ADMM steps is unrolled into one network, which
+is fitted end to end against fully sampled images.
 
-MoDL [#modl]_ writes a reconstruction as an alternation between a learned denoiser and a
-data-consistency step, and trains the denoiser through it. As published the
-alternation is half-quadratic splitting, which is
+This is MoDL [#modl]_. The encoding model, the SENSE operator :math:`A` with
+its coil sensitivities, Fourier transform and sampling pattern, stays fixed,
+and the network is trained only for the part of the image that the data
+leave undetermined. As
+published, MoDL alternates a learned denoiser :math:`D_w` and a
+data-consistency step (half-quadratic splitting):
 
 .. math::
 
    z^{k} &= D_w(x^{k}) \\
-   x^{k+1} &= \arg\min_x \; \|A x - y\|_2^2 + \lambda \|x - z^{k}\|_2^2,
+   x^{k+1} &= \arg\min_x \; \|A x - y\|_2^2 + \lambda \|x - z^{k}\|_2^2.
 
-the second line a conjugate-gradient solve of :math:`(A^H A + \lambda) x = A^H
-y + \lambda z^{k}`. The alternating direction method of multipliers
-[#boyd]_ is the same splitting with a dual variable :math:`u` carried along:
+The second line is a conjugate-gradient solve of
+:math:`(A^H A + \lambda) x = A^H y + \lambda z^{k}`. ADMM [#boyd]_ is the same
+splitting with a dual variable :math:`u` carried along,
 
 .. math::
 
@@ -50,93 +50,77 @@ y + \lambda z^{k}`. The alternating direction method of multipliers
    z^{k+1} &= D_w(x^{k+1} + u^{k}) \\
    u^{k+1} &= u^{k} + x^{k+1} - z^{k+1},
 
-MoDL is therefore this iteration with :math:`u` fixed at zero. The dual
-variable accumulates the mismatch between the data-consistent and the denoised
-iterate, so that a fixed point of the iteration solves the constrained problem
-rather than the penalized one.
+so MoDL is ADMM with :math:`u` held at zero. The dual variable accumulates
+the mismatch between the data-consistent and the denoised image, so that a
+fixed point satisfies the data constraint rather than a penalized version of
+it.
 
-The iteration itself is BART's. :class:`bartorch.optim.ADMMBlock` implements
-``admm.c``'s step, including the conjugate-gradient x-update that MoDL's own
-implementation writes out, and :class:`bartorch.learning.Unrolled` applies it
-repeatedly. The network supplies the proximal step, through
-:class:`bartorch.priors.ImplicitPrior`; the penalty parameter :math:`\rho` is a
-parameter of the block and is trained with the network's weights.
+:class:`bartorch.optim.ADMMBlock` is one step of BART's ``admm.c``,
+conjugate-gradient x-update included, and :class:`bartorch.learning.Unrolled`
+repeats it. The network enters the proximal step through
+:class:`bartorch.priors.ImplicitPrior`, as the pretrained one did in lesson
+10, and :math:`\rho` is trained with its weights.
 
 **Learning objectives**
 
-- Place a network in the proximal step of :class:`bartorch.optim.ADMMBlock`
+- Put a network in the proximal step of :class:`bartorch.optim.ADMMBlock`
   through :class:`bartorch.priors.ImplicitPrior`.
 - Unroll the iteration with :class:`bartorch.learning.Unrolled` and train it
-  end to end with ``lightning``.
-- Reduce the memory of a deeper unrolled network by checkpointing or by
+  end to end with ``lightning``, on data held and augmented by ``torchio``.
+- Cut the memory of a deeper unrolled network with checkpointing or
   per-iteration training.
 
-It follows :doc:`01-plug-and-play`, which used a pretrained denoiser without
-training. This lesson ends the course; the Tours of
-:doc:`../09-learning-workflows/index` extend it to complex volumes, staged and
-self-supervised training, annealed plug-and-play and uncertainty.
+Previous: :doc:`01-plug-and-play`. Next: the Tours on
+:doc:`/auto_examples/index`, where you continue with standalone topics; those
+in :doc:`../09-learning-workflows/index` cover networks for complex volumes,
+staged and self-supervised training, annealed plug-and-play and
+uncertainty.
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-171
+.. GENERATED FROM PYTHON SOURCE LINES 62-178
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 179-192
+
+Training images
+---------------
+
+You need fully sampled images to train against. Here they are 32 axial
+slices of one BrainWeb subject [#brainweb]_, rendered as
+:math:`T_1`-weighted spin-echo images with a smooth phase, as in lesson 2;
+the code is hidden. You split them by position, not at random: the first 24
+train and the last 8 validate, so that no validation slice has a
+near-duplicate neighbour in the training set.
+
+One subject, 24 slices and one sampling pattern are a phantom, not a
+training set. The trained weights are not expected to generalise; the
+lesson is about the construction.
+
+.. GENERATED FROM PYTHON SOURCE LINES 192-209
 
 .. code-block:: Python
 
-
-    import csv
-    from pathlib import Path
-
-    import brainweb_dl
     import lightning
-    import numpy as np
     import torch
     import torchio
-    from brainweb_dl import get_mri
-    from monai.metrics import PSNRMetric, SSIMMetric
-    from torch.utils.data import DataLoader
 
     import bartorch
     import bartorch.tools as bt
-    from bartorch import learning, linop, optim, priors
 
-    SIZE = 128
-    COILS = 8
-    SLICES = 32  # axial slices taken from the volume
-    ITERATIONS = 5  # unrolled steps, MoDL's K
-    EPOCHS = 15
+    from bartorch import learning, linop, optim, priors
+    from monai.metrics import PSNRMetric, SSIMMetric
+    from torch.utils.data import DataLoader
 
     _ = torch.manual_seed(0)
 
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 172-185
-
-Images
-------
-
-Axial slices of one BrainWeb subject, each converted into a
-:math:`T_1`-weighted spin-echo image as in
-:doc:`../01-basics/02-from-kspace-to-image` and given a smooth phase, so that
-no step below depends on the image being real. The slices are split into
-training and validation sets by position rather than at random: the first
-twenty-four slices train and the last eight validate.
-
-One subject, twenty-four slices and a single sampling pattern constitute a
-phantom. The weights obtained below are not expected to generalize, and the
-page demonstrates the construction rather than a trained model.
-
-.. GENERATED FROM PYTHON SOURCE LINES 186-247
-
-.. code-block:: Python
-
-
     train_images = images[:24]
     valid_images = images[24:]
-
-    print(f"{len(train_images)} slices to train on, {len(valid_images)} to validate on")
+    print(f"{len(train_images)} slices to train, {len(valid_images)} to validate")
 
 
 
@@ -146,42 +130,37 @@ page demonstrates the construction rather than a trained model.
 
  .. code-block:: none
 
-    24 slices to train on, 8 to validate on
+    24 slices to train, 8 to validate
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 248-256
+.. GENERATED FROM PYTHON SOURCE LINES 210-218
 
-Acquisition
------------
+The acquisition
+---------------
 
-Eight channels of BART's analytical head coil, and a variable-density random
-undersampling of the phase encodes with a fully sampled k-space centre. The
-pattern is shared by every slice, so a single operator serves the whole
-dataset; a pattern that differs between items requires one operator per
+Eight channels of BART's analytical head coil and a variable-density random
+undersampling of the phase encodes, with the central 8 always acquired. The
+pattern is the same for every slice, so one operator serves the whole
+dataset. If each item had its own pattern, you would need one operator per
 item.
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-275
+.. GENERATED FROM PYTHON SOURCE LINES 218-238
 
 .. code-block:: Python
 
-
+    COILS = 8
     ACCELERATION = 4
     CENTRE = 8  # phase encodes always acquired
 
     sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
-    sensitivities = sensitivities / bartorch.rss(sensitivities, axes=(0,), keepdim=True)
+    sensitivities /= bartorch.rss(sensitivities, axes=(0,), keepdim=True)
 
-    density = torch.exp(-0.5 * ((torch.arange(SIZE) - SIZE / 2) / (SIZE / 6)) ** 2)
-    density = density / density.sum() * (SIZE / ACCELERATION)
-    lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(1)) < density
-    lines[SIZE // 2 - CENTRE // 2 : SIZE // 2 + CENTRE // 2] = True
     pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
 
     A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
-
-    print(f"{int(lines.sum())} of {SIZE} phase encodes, {SIZE / int(lines.sum()):.1f}-fold")
+    print(f"{int(lines.sum())} of {SIZE} phase encodes")
     print(f"A: {A.ishape} -> {A.oshape}")
 
 
@@ -192,33 +171,33 @@ item.
 
  .. code-block:: none
 
-    34 of 128 phase encodes, 3.8-fold
+    34 of 128 phase encodes
     A: (128, 128) -> (8, 128, 128)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-281
+.. GENERATED FROM PYTHON SOURCE LINES 239-244
 
-The measured k-space of a slice is :math:`A x` with additive complex
-Gaussian noise. An operator is constructed for a single image, so a batch is
-applied item by item; the iteration blocks in :mod:`bartorch.optim` do the
-same internally, and the network below therefore accepts a batch where the
-operator does not.
+The k-space of a slice is :math:`A x` plus complex Gaussian noise. ``A`` is
+built for one image, so you apply it to a batch item by item. The blocks in
+:mod:`bartorch.optim` do the same inside, which is why the network below
+accepts a batch even though the operator does not. ``measure`` also returns
+:math:`A^H y`, the image the unrolled network starts from.
 
-.. GENERATED FROM PYTHON SOURCE LINES 282-294
+.. GENERATED FROM PYTHON SOURCE LINES 244-269
 
 .. code-block:: Python
-
 
     NOISE = 0.005
 
 
     def measure(images, generator=None):
-        """Simulate k-space for each image, with the adjoint reconstruction to start from."""
+        """Images, their noisy k-space and the adjoint reconstructions."""
         x = torch.stack(list(images))
         y = torch.stack([A(item) for item in x])
-        y = y + NOISE * torch.randn(y.shape, dtype=torch.complex64, generator=generator)
+        noise = torch.randn(y.shape, dtype=torch.complex64, generator=generator)
+        y = y + NOISE * noise
         return x, y, torch.stack([A.H(item) for item in y])
 
 
@@ -226,51 +205,64 @@ operator does not.
 
 
 
+.. image-sg:: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_001.png
+   :alt: training, training, sampling pattern, validation, $A^H y$
+   :srcset: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_001.png
+   :class: sphx-glr-single-img
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 295-311
 
-Dataset
--------
 
-``torchio`` holds the images and augments them. Its ``ScalarImage`` requires
+.. GENERATED FROM PYTHON SOURCE LINES 270-289
+
+Two training slices, the sampling pattern (phase encoding vertical), and
+what the network starts from on a validation slice: :math:`A^H y`, with the
+aliasing of the random undersampling and the noise.
+
+The dataset
+-----------
+
+``torchio`` holds the images and augments them. Its ``ScalarImage`` wants
 a real tensor of shape ``(channels, width, height, depth)``;
 :func:`bartorch.learning.as_real` and :func:`~bartorch.learning.as_complex`
-convert between that layout and a complex image, the real and imaginary parts
-becoming the two channels and a slice a volume one voxel deep.
+convert between that and a complex image, with the real and imaginary parts
+as the two channels and the slice as a volume one voxel deep.
 
-Augmentation is the reason to prefer it to a plain list. A transform is drawn
-per subject and applied to every image of that subject, so an image and
-anything that must remain registered with it -- coil sensitivities, parameter
-maps -- are transformed consistently. Here each subject holds one image, and
-the transform is a flip and a rotation of at most eight degrees, which
-preserve the tissue statistics the denoiser is trained on while varying the
-orientation.
+Why ``torchio`` and not a plain list? It draws one random transform per
+subject and applies it to every image of that subject, so anything that has
+to stay registered with the image (coil sensitivities, parameter maps) is
+transformed with it. Here each subject holds one image, and the transform is
+a flip and a rotation of at most eight degrees: the tissue the denoiser
+learns stays the same, its orientation varies.
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-343
+.. GENERATED FROM PYTHON SOURCE LINES 289-326
 
 .. code-block:: Python
-
 
     augmentation = torchio.Compose(
         [
             torchio.RandomFlip(axes=(0,), flip_probability=0.5),
-            torchio.RandomAffine(scales=0, degrees=(0, 0, 0, 0, -8, 8), translation=0),
+            torchio.RandomAffine(
+                scales=0,
+                degrees=(0, 0, 0, 0, -8, 8),
+                translation=0,
+            ),
         ]
     )
 
 
     def subjects(images):
         return [
-            torchio.Subject(image=torchio.ScalarImage(tensor=learning.as_real(image)[..., None]))
-            for image in images
+            torchio.Subject(image=torchio.ScalarImage(tensor=real))
+            for real in (learning.as_real(image)[..., None] for image in images)
         ]
 
 
     def collate(batch):
-        """Collate subjects into images, simulated k-space and adjoint reconstructions."""
-        return measure(learning.as_complex(subject["image"][torchio.DATA][..., 0]) for subject in batch)
+        """Simulate k-space for a batch of subjects."""
+        planes = (subject["image"][torchio.DATA][..., 0] for subject in batch)
+        return measure(learning.as_complex(plane) for plane in planes)
 
 
     train_loader = DataLoader(
@@ -280,7 +272,9 @@ orientation.
         collate_fn=collate,
     )
     valid_loader = DataLoader(
-        torchio.SubjectsDataset(subjects(valid_images)), batch_size=2, collate_fn=collate
+        torchio.SubjectsDataset(subjects(valid_images)),
+        batch_size=2,
+        collate_fn=collate,
     )
 
 
@@ -290,39 +284,39 @@ orientation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 344-364
+.. GENERATED FROM PYTHON SOURCE LINES 327-346
 
-Network
--------
+The network
+-----------
 
 Three objects:
 
-* ``deepinv``'s ``DnCNN`` [#dncnn]_, a residual convolutional denoiser of the family
-  MoDL's own five-layer network belongs to. It is an ``nn.Module`` operating
-  on real images.
-* :class:`bartorch.priors.ImplicitPrior`, which presents the network as a
-  regularization term. ``spatial=2, channels=2`` converts between the
-  network's layout and a complex image: two channels for the real and
-  imaginary parts, the batch axes folded, and each image scaled to unit peak
-  modulus around the call.
-* :class:`bartorch.learning.Unrolled`, which applies the ADMM step
-  ``ITERATIONS`` times. A single block is shared by every iteration, the
-  weight sharing MoDL specifies, and ``rho`` is made differentiable, MoDL's
-  learned :math:`\lambda`.
+* ``deepinv``'s ``DnCNN`` [#dncnn]_, a residual convolutional denoiser of
+  the family MoDL's own five-layer network belongs to. It is a plain
+  ``nn.Module`` on real images.
+* :class:`~bartorch.priors.ImplicitPrior` presents it as a regularization
+  term. ``spatial=2, channels=2`` sets the layout: real and imaginary
+  parts as two channels, the batch axes folded, and each image scaled to
+  unit peak modulus around the call.
+* :class:`~bartorch.learning.Unrolled` applies the ADMM step ``ITERATIONS``
+  times. One block is shared by every iteration, which is MoDL's weight
+  sharing, and ``rho``, MoDL's :math:`\lambda`, is made trainable.
 
-``alpha=1.0`` disables BART's over-relaxation, so that the step is the
-iteration written above; ``cg_maxiter`` is the x-update budget, MoDL's ten.
+``alpha=1.0`` turns off BART's over-relaxation, so the step is the iteration
+written at the top; ``cg_maxiter`` is the budget of the x-update, MoDL's
+ten conjugate-gradient steps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 365-383
+.. GENERATED FROM PYTHON SOURCE LINES 346-365
 
 .. code-block:: Python
 
-
     from deepinv.models import DnCNN
+
+    ITERATIONS = 5  # unrolled steps, MoDL's K
 
 
     def modl():
-        """Construct an unrolled network and return it with the block it shares."""
+        """An unrolled network, and the block it shares."""
         network = DnCNN(in_channels=2, out_channels=2, depth=5, pretrained=None)
         prior = priors.ImplicitPrior(network, spatial=2, channels=2)
         block = optim.ADMMBlock(prior, rho=0.05, alpha=1.0, cg_maxiter=10)
@@ -349,27 +343,29 @@ iteration written above; ``cg_maxiter`` is the x-update budget, MoDL's ten.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 384-391
+.. GENERATED FROM PYTHON SOURCE LINES 366-374
 
 Training
 --------
 
-``lightning`` runs the loop. The module is the ordinary supervised one: a
-forward pass, a loss against the fully sampled image, and metrics from
-``monai``. The loss is taken on a tensor and requires nothing of the
-reconstruction that produced it.
+``lightning`` runs the loop, and the module is an ordinary supervised one:
+a forward pass, a loss against the fully sampled image, and metrics from
+``monai``. The loss is computed on a tensor and requires nothing of the
+reconstruction that produced it. The gradient is propagated through the
+denoiser, the conjugate-gradient solves and :math:`\rho`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 392-436
+.. GENERATED FROM PYTHON SOURCE LINES 374-419
 
 .. code-block:: Python
 
+    EPOCHS = 15
 
     psnr = PSNRMetric(max_val=1.0)
     ssim = SSIMMetric(spatial_dims=2, data_range=1.0)
 
 
     class Reconstruction(lightning.LightningModule):
-        """Supervised training of an unrolled network against fully sampled images."""
+        """Supervised training of an unrolled network."""
 
         def __init__(self, model, lr=1e-3):
             super().__init__()
@@ -418,47 +414,43 @@ reconstruction that produced it.
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:16 • 0:00:00 0.73it/s loss: 0.000 psnr:
-                                                                   32.696 ssim:     
-                                                                   0.885            
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:12 • 0:00:00 0.96it/s loss: 0.000 psnr:
+                                                                   32.748 ssim:     
+                                                                   0.890            
     rho ended at 0.027
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 437-445
+.. GENERATED FROM PYTHON SOURCE LINES 420-427
 
 Results
 -------
 
-Three reconstructions of the same k-space serve as references: the adjoint,
-which the network is started from; a conjugate-gradient SENSE fit, which
-minimizes the data term alone; and the same ADMM iteration with a wavelet
-penalty in place of the denoiser, run for fifty iterations rather than
-five.
+You compare the trained network with three reconstructions of the same
+validation k-space: the adjoint it starts from; conjugate-gradient SENSE,
+which fits the data term alone; and the same ADMM iteration with a wavelet
+penalty in place of the network, run for fifty iterations rather than five.
 
-.. GENERATED FROM PYTHON SOURCE LINES 446-478
+.. GENERATED FROM PYTHON SOURCE LINES 427-477
 
 .. code-block:: Python
-
 
     torch.manual_seed(7)
     truth, kspace, adjoint = measure(valid_images)
 
     with torch.no_grad():
-        learnedrecon = model(kspace, A, x0=adjoint)
+        unrolled = model(kspace, A, x0=adjoint)
 
     cg = torch.stack([optim.cg(item, A, maxiter=30) for item in kspace])
-    wavelet = torch.stack(
-        [
-            optim.admm(item, A, priors.Wavelet(axes=(-1, -2), weight=0.002), maxiter=50, rho=0.1)
-            for item in kspace
-        ]
+    wavelet = priors.Wavelet(axes=(-1, -2), weight=0.002)
+    admm = torch.stack(
+        [optim.admm(item, A, wavelet, maxiter=50, rho=0.1) for item in kspace],
     )
 
 
     def quality(estimate):
-        """PSNR and SSIM of a batch of magnitudes against the reference magnitudes."""
+        """Mean PSNR and SSIM of a batch of magnitudes against the truth."""
         a, b = estimate.abs()[:, None], truth.abs()[:, None]
         return float(psnr(a, b).mean()), float(ssim(a, b).mean())
 
@@ -466,8 +458,8 @@ five.
     rows = {
         "adjoint": adjoint,
         "CG SENSE": cg,
-        "ADMM, wavelet": wavelet,
-        f"MoDL, K={ITERATIONS}": learnedrecon,
+        "ADMM, wavelet": admm,
+        f"MoDL, K={ITERATIONS}": unrolled,
     }
     for name, estimate in rows.items():
         made = quality(estimate)
@@ -477,41 +469,8 @@ five.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-             adjoint   PSNR 23.71 dB   SSIM 0.679
-            CG SENSE   PSNR 29.69 dB   SSIM 0.681
-       ADMM, wavelet   PSNR 31.64 dB   SSIM 0.898
-           MoDL, K=5   PSNR 32.70 dB   SSIM 0.884
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 479-485
-
-The table is not a comparison of methods. Fifteen epochs over twenty-four
-slices of one subject, set against a wavelet penalty of fifty iterations with
-a manually chosen weight, supports no conclusion about either on measured
-data. A quantitative comparison would
-require many subjects, validation on subjects excluded from training, and a
-fixed reconstruction time.
-
-.. GENERATED FROM PYTHON SOURCE LINES 488-516
-
-
-
-
 .. rst-class:: sphx-glr-horizontal
 
-
-    *
-
-      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_001.png
-         :alt: reference, adjoint, CG SENSE, MoDL, K=5
-         :srcset: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_001.png
-         :class: sphx-glr-multi-img
 
     *
 
@@ -523,77 +482,88 @@ fixed reconstruction time.
     *
 
       .. image-sg:: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_003.png
-         :alt: reference, enlarged, CG SENSE, ADMM, wavelet, MoDL, K=5
+         :alt: truth, CG SENSE, ADMM, wavelet, MoDL, K=5
          :srcset: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_003.png
          :class: sphx-glr-multi-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+             adjoint   PSNR 23.71 dB   SSIM 0.679
+            CG SENSE   PSNR 29.69 dB   SSIM 0.681
+       ADMM, wavelet   PSNR 31.64 dB   SSIM 0.898
+           MoDL, K=5   PSNR 32.75 dB   SSIM 0.889
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 517-526
 
-The adjoint shows the aliasing of the random undersampling and the noise.
-CG-SENSE removes most of the aliasing and amplifies the noise, most visibly
-in the error map. The wavelet penalty and the unrolled network both suppress
-the noise and leave their largest errors at the bright, thin scalp. After
-fifteen epochs the network, with five iterations, is close to the wavelet
-penalty with fifty: the two images differ little in the enlarged region.
-The network sees the data only through the x-update of each iteration,
-which holds the image to the measured k-space, so what it contributes is
-limited to what the undersampling and the noise leave undetermined.
+.. GENERATED FROM PYTHON SOURCE LINES 478-527
 
-.. GENERATED FROM PYTHON SOURCE LINES 529-560
+The error maps share one scale. CG SENSE removes most of the aliasing but
+amplifies the noise, which covers the whole field of view. The wavelet
+penalty and the unrolled network both suppress it, and both leave their
+largest errors at the bright, thin scalp. In the enlarged region the two
+differ little; the network has the higher PSNR, the wavelet penalty the
+slightly higher SSIM. Training also lowered :math:`\rho` from 0.05 to about
+0.026, which weights the network's output less against the data in each
+x-update than at the start.
 
-Differentiating a deeper stack
-------------------------------
+Do not read the table as a comparison of methods. Fifteen epochs over 24
+slices of one subject, against a wavelet penalty with a hand-picked weight,
+says nothing about either on measured data. For that you would need many
+subjects, validation on subjects left out of training, and a fixed
+reconstruction time.
 
-Five iterations of a two-dimensional encoding record a graph of modest size.
-Ten iterations of a three-dimensional non-Cartesian encoding do not, and the
-memory is dominated by the denoiser's activations: the backward pass of an
-operator is a further application of that operator and stores nothing growing
-with the iteration count, whereas a convolutional network stores every
-activation, once per iteration.
+Deeper unrolled stack
+---------------------
+
+Five iterations of a 2D encoding record a computational graph of modest
+size. Ten iterations of a 3D non-Cartesian encoding do not, and the memory
+is dominated by the denoiser. The backward pass of an operator is one more
+application of that operator and stores nothing that grows with the
+iteration count; a convolutional network stores every activation, once per
+iteration.
 
 :class:`~bartorch.learning.Unrolled` provides two alternatives, neither of
-which changes the forward value
-(:doc:`../../explanation/differentiation`):
+which changes the forward value (:doc:`../../explanation/learned-reconstruction`):
 
-* ``detach=True`` starts each iteration from a detached state, so that the
-  graph spans one iteration. With a loss on each image yielded by
-  :meth:`~bartorch.learning.Unrolled.steps`, this is greedy per-iteration
-  training, whose memory is independent of the iteration count.
-* ``checkpoint=True`` retains the states between iterations and recomputes
-  the interior of a step during the backward pass. The gradient is the
-  end-to-end one and each block is applied twice.
+* ``detach=True`` starts each iteration from a detached state, so the graph
+  spans one iteration. With a loss on each image that
+  :meth:`~bartorch.learning.Unrolled.steps` yields, that is greedy
+  per-iteration training, and its memory does not depend on the iteration
+  count.
+* ``checkpoint=True`` keeps only the states between iterations and
+  recomputes the interior of each step during the backward pass. The
+  gradient is the end-to-end one, and each block is applied twice.
 
-Pretraining the denoiser in isolation, then greedy per-iteration training,
-then end-to-end fine-tuning with checkpointing, is the staged schedule
-reported for a fully three-dimensional unrolled reconstruction [#urman]_,
-and the subject of :doc:`../09-learning-workflows/02-staged-training`.
-Greedy training does not apply
-to the ADMM step: its image is the x-update, which depends on the denoiser
-only through the previous iteration's auxiliary variable, and a detached
-start removes that dependence. The staged-training example uses a proximal-gradient
-step, whose image is the denoiser's output.
+Pretraining the denoiser alone, then greedy per-iteration training, then
+end-to-end fine-tuning with checkpointing is the staged schedule reported
+for a fully 3D unrolled reconstruction [#urman]_; the Tour
+:doc:`../09-learning-workflows/02-staged-training` follows it. Greedy
+training does not suit the ADMM step: its image is the x-update, which
+depends on the denoiser only through the previous iteration's auxiliary
+variable, and a detached start cuts that dependence. That Tour uses a
+proximal-gradient step instead, whose image is the denoiser's output.
 
-.. GENERATED FROM PYTHON SOURCE LINES 563-567
+Compare the gradient of ``rho`` with and without checkpointing. ``rho``
+enters every iteration and every conjugate-gradient solve, so its gradient
+is propagated through all of them:
 
-The gradient of ``rho`` with checkpointing is compared below with the
-gradient recorded over the whole stack. ``rho`` enters every iteration and
-the conjugate-gradient solve of each x-update, so its gradient propagates
-through all of them.
-
-.. GENERATED FROM PYTHON SOURCE LINES 568-581
+.. GENERATED FROM PYTHON SOURCE LINES 527-543
 
 .. code-block:: Python
-
 
     x, y, start = measure(valid_images[:1])
     made = []
 
     for recompute in (False, True):
-        stack = learning.Unrolled(block, iterations=ITERATIONS, checkpoint=recompute)
+        stack = learning.Unrolled(
+            block,
+            iterations=ITERATIONS,
+            checkpoint=recompute,
+        )
         for parameter in stack.parameters():
             parameter.grad = None
         (stack(y, A, x0=start) - x).abs().square().mean().backward()
@@ -609,23 +579,92 @@ through all of them.
 
  .. code-block:: none
 
-    rho's gradient: 0.000585573 recorded, 0.000585573 recomputed
+    rho's gradient: 0.000688128 recorded, 0.000688128 recomputed
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 582-587
+.. GENERATED FROM PYTHON SOURCE LINES 544-559
+
+The two gradients agree to every printed digit: checkpointing changes the
+memory, not the result.
 
 A third alternative is not to unroll. :class:`bartorch.optim.FixedPoint`
-drives the block to its fixed point and differentiates there by solving the
-adjoint fixed-point equation, so that its memory is that of a single step
-irrespective of the iteration count. This is a deep-equilibrium model [#deq]_, of
-which the stack above is the truncated form.
+runs the block to its fixed point and differentiates there, by solving the
+adjoint fixed-point equation, so its memory is that of one step whatever
+the iteration count. That is a deep-equilibrium model [#deq]_, and the
+stack you trained is its truncated form.
 
-.. GENERATED FROM PYTHON SOURCE LINES 590-614
+Exercise: iterations beyond training
+------------------------------------
+
+The block was trained for five iterations. Wrap the same trained block in
+a new :class:`~bartorch.learning.Unrolled` with fewer or more iterations
+and evaluate it on the validation slices; this needs forward passes only.
+
+.. GENERATED FROM PYTHON SOURCE LINES 559-578
+
+.. code-block:: Python
+
+    depths = (1, 2, 3, 5, 8, 12)
+    scores = []
+    with torch.no_grad():
+        for depth in depths:
+            stack = learning.Unrolled(block, iterations=depth)
+            scores.append(quality(stack(kspace, A, x0=adjoint))[0])
+
+
+
+
+
+.. image-sg:: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_004.png
+   :alt: 02 modl with admm
+   :srcset: /auto_examples/06-learning/images/sphx_glr_02-modl-with-admm_004.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 579-606
+
+PSNR rises up to the five iterations the block was trained for and falls
+beyond them: at 8 and 12 iterations it is below the wavelet penalty again.
+Training fitted the block to the iterates of a five-step stack and
+constrained nothing after the fifth, so the unrolled network is not a
+convergent iteration. If the iteration count has to be free at inference,
+:class:`~bartorch.optim.FixedPoint` is the formulation that trains for it.
+
+As a spec
+---------
+
+What this lesson built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   Train a MoDL-style unrolled reconstruction for 2D Cartesian SENSE
+   (128x128, 8 coils, variable-density pattern of 34 of 128 lines including
+   the central 8, known sensitivities, k-space noise 0.005) with bartorch.
+   Wrap deepinv's
+   DnCNN (2 in/out channels, depth 5, untrained) as
+   priors.ImplicitPrior(spatial=2, channels=2), put it in
+   optim.ADMMBlock(rho=0.05, alpha=1.0, cg_maxiter=10) with rho trainable,
+   and unroll 5 iterations with learning.Unrolled. Hold the images in
+   torchio (random flip, rotation up to 8 degrees), simulate k-space in the
+   collate function, and train with lightning (Adam, lr 1e-3, 15 epochs,
+   batch 2, squared error against the fully sampled image, monai PSNR and
+   SSIM on validation). Compare against CG SENSE and wavelet ADMM, and check
+   that checkpoint=True reproduces the gradient of rho.
+
+.. GENERATED FROM PYTHON SOURCE LINES 608-637
 
 References
 ----------
+
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+   Evans AC. Design and construction of a realistic digital brain phantom.
+   *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
 
 .. [#modl] Aggarwal HK, Mani MP, Jacob M. MoDL: model-based deep learning
    architecture for inverse problems. *IEEE Trans Med Imaging* 38(2):394-405
@@ -652,7 +691,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 55.554 seconds)
+   **Total running time of the script:** (3 minutes 55.805 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:

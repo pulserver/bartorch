@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -63,6 +63,7 @@
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/generated/bartorch.linop.CartesianSense.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -215,49 +216,59 @@
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pull-requests.html">Pull requests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/code-of-conduct.html">Code of conduct</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -621,28 +632,28 @@ centred ones by a phase of modulus one, which leaves this normal as it is.</p>
 
 <section id="examples-using-cartesiansense">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">CartesianSense</span></code><a class="headerlink" href="#examples-using-cartesiansense" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This lesson rebuilds the reconstruction of the previous lessons from its parts -- the encoding operator, the regularization term and the iterative algorithm -- instead of calling a BART application, and shows that the result is identical."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">Operators and solvers</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Operators and solvers</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson estimates a T_2 map from an undersampled multi-echo spin-echo acquisition in two ways, and compares them: reconstructing an image per echo and fitting the decay voxel by voxel afterwards, and fitting the signal model directly to the k-space data. The aim is to show why the second, model-based reconstruction, tolerates undersampling that ruins the first."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Parameter maps straight from k-space</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson regularizes an undersampled, noisy Cartesian SENSE reconstruction with a pretrained image denoiser in place of a specified penalty, and compares the result with total-variation regularization of the same data. The aim is to show how a denoiser enters a proximal iteration, what it improves on a hand-crafted penalty, and how its noise level plays the role of the regularization weight."><img alt="" src="../_images/sphx_glr_01-plug-and-play_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html"><span class="doc">Plug-and-play denoisers</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Plug-and-play denoisers</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="This lesson trains an unrolled reconstruction network for undersampled Cartesian SENSE: a small convolutional denoiser placed in the proximal step of BART&#x27;s alternating-direction iteration, with the whole iteration trained end to end against fully sampled images. The aim is to show how a learned regularizer is combined with the physical encoding model -- coil sensitivities, Fourier transform and sampling pattern -- so that the network only has to remove what the data leave undetermined, and how such a network is trained with standard tools."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
-<p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">MoDL, on BART’s ADMM</span></a></p>
-  <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration."><img alt="" src="../_images/sphx_glr_02-staged-training_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lesson 5 you handed pics the data, the maps and a penalty, and it did the rest. In this lesson you assemble the same reconstruction from its parts. You build the SENSE encoding operator, check its adjoint, run the solver on it, and obtain exactly what pics returns, bit for bit. Then you extend the operator with one written in Python, and differentiate through it."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html"><span class="doc">6. Custom encoding and solver</span></a></p>
+  <div class="sphx-glr-thumbnail-title">6. Custom encoding and solver</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 8 you reconstructed one image from undersampled radial data, and in lesson 4 you solved a model that is nonlinear in its unknowns, image times coil sensitivities, by Gauss-Newton. In this lesson you apply both to quantitative imaging. You estimate a T_2 map from an undersampled multi-echo spin-echo scan twice: first by reconstructing an image per echo and fitting the decay voxel by voxel, then by fitting the signal model directly to the k-space data, and you compare the accuracy of the two at the same undersampling."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">9. Nonlinear inversion for T2 mapping</span></a></p>
+  <div class="sphx-glr-thumbnail-title">9. Nonlinear inversion for T2 mapping</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 9 the prior knowledge was a signal model; in lesson 5 it was an explicit penalty, a wavelet or total-variation term with a weight. In this lesson the prior is a pretrained denoising network, used in place of the penalty inside the same ADMM and FISTA iterations."><img alt="" src="../_images/sphx_glr_01-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html"><span class="doc">10. Plug-and-play reconstruction</span></a></p>
+  <div class="sphx-glr-thumbnail-title">10. Plug-and-play reconstruction</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 the proximal step of ADMM was a denoiser pretrained on photographs, never trained on MR images or on the residual aliasing of an undersampled scan. In this lesson you train the denoiser through the iteration: a fixed number of ADMM steps is unrolled into one network, which is fitted end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
+<p><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html"><span class="doc">11. Training an unrolled network</span></a></p>
+  <div class="sphx-glr-thumbnail-title">11. Training an unrolled network</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 11 you trained an unrolled network end to end, which keeps the activations of every iteration in memory for the backward pass. For a 2D slice that memory is affordable; for a 3D volume, or a series of them, it exceeds a single GPU. In this tour you train an unrolled network for fourfold undersampled, eight-channel Cartesian brain data in three stages whose memory is bounded by one iteration, and you check that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration."><img alt="" src="../_images/sphx_glr_02-staged-training_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/09-learning-workflows/02-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p>
   <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 02-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains."><img alt="" src="../_images/sphx_glr_03-self-supervised-training_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="The networks of lesson 11 and of 02-staged-training learn from fully sampled reference images. Dynamic and high-dimensional acquisitions -- a cine, a functional run, a fingerprinting series -- are rarely acquired fully sampled: undersampling is what makes them fit in a breath-hold or a scan time, so you have no reference to train against. In this tour you train the unrolled network of 02-staged-training from undersampled k-space alone and measure how much of the supervised network&#x27;s image quality it keeps."><img alt="" src="../_images/sphx_glr_03-self-supervised-training_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/09-learning-workflows/03-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p>
   <div class="sphx-glr-thumbnail-title">Training without a reference</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_04-annealed-plug-and-play_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 you plugged a denoiser someone else had trained, on photographs, into ADMM at one noise level you chose. In this tour you train the denoiser yourself, on MR images alone and without any encoding, and use it as the regularizer of an ADMM reconstruction whose denoising strength decreases over the iterations. You then apply the same network, unchanged, at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_04-annealed-plug-and-play_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/09-learning-workflows/04-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
   <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain."><img alt="" src="../_images/sphx_glr_05-uncertainty_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="A learned reconstruction returns an image without saying where it may be wrong. Where the undersampling leaves the image underdetermined, the network fills in what its training data suggest, and a hallucinated structure looks like real anatomy. In this tour you attach a voxel-wise error bar to the unrolled reconstruction of 02-staged-training, calibrate it so that it contains the true error in a stated fraction of voxels, and look at where in the head the reconstruction is least certain."><img alt="" src="../_images/sphx_glr_05-uncertainty_thumb.png" />
 <p><a class="reference internal" href="../auto_examples/09-learning-workflows/05-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p>
   <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
 </div></div></section>

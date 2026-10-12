@@ -5,23 +5,20 @@
 Learned regularization
 ----------------------
 
-A learned reconstruction replaces the hand-specified regularization term by a
-neural network and keeps the encoding operator and the data consistency of the
-iterative reconstruction.  This section covers the two ways a network enters
-BART's iterations: plug-and-play reconstruction, in which a pretrained denoiser
-takes the place of the proximal operator of ADMM and FISTA without any
-training, and an unrolled network trained through BART's ADMM (MoDL).
-Networks for complex volumes, staged and self-supervised training, annealed
-plug-and-play and uncertainty are the tours of
-:doc:`/auto_examples/09-learning-workflows/index`.
-:doc:`/explanation/learned-reconstruction` describes where a network enters a
+A learned reconstruction keeps the encoding operator and the data consistency
+of an iterative reconstruction, and puts a network where the regularizer was.
+In lesson 10 you take a pretrained denoiser and use it inside BART's ADMM and
+FISTA, with no training at all: plug-and-play. In lesson 11 you train a network
+through BART's ADMM, end to end (MoDL). The tours of
+:doc:`/auto_examples/09-learning-workflows/index` go further.
+:doc:`/explanation/learned-reconstruction` explains where a network enters a
 reconstruction.
 
-The section additionally requires::
+These lessons also need::
 
     pip install lightning torchio monai deepinv
 
-The first lesson downloads the DRUNet weights ``deepinv`` distributes.
+Lesson 10 downloads the DRUNet weights that ``deepinv`` distributes.
 
 
 .. raw:: html
@@ -37,7 +34,7 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson regularizes an undersampled, noisy Cartesian SENSE reconstruction with a pretrained image denoiser in place of a specified penalty, and compares the result with total-variation regularization of the same data. The aim is to show how a denoiser enters a proximal iteration, what it improves on a hand-crafted penalty, and how its noise level plays the role of the regularization weight.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 9 the prior knowledge was a signal model; in lesson 5 it was an explicit penalty, a wavelet or total-variation term with a weight. In this lesson the prior is a pretrained denoising network, used in place of the penalty inside the same ADMM and FISTA iterations.">
 
 .. only:: html
 
@@ -48,13 +45,13 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Plug-and-play denoisers</div>
+      <div class="sphx-glr-thumbnail-title">10. Plug-and-play reconstruction</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson trains an unrolled reconstruction network for undersampled Cartesian SENSE: a small convolutional denoiser placed in the proximal step of BART&#x27;s alternating-direction iteration, with the whole iteration trained end to end against fully sampled images. The aim is to show how a learned regularizer is combined with the physical encoding model -- coil sensitivities, Fourier transform and sampling pattern -- so that the network only has to remove what the data leave undetermined, and how such a network is trained with standard tools.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 the proximal step of ADMM was a denoiser pretrained on photographs, never trained on MR images or on the residual aliasing of an undersampled scan. In this lesson you train the denoiser through the iteration: a fixed number of ADMM steps is unrolled into one network, which is fitted end to end against fully sampled images.">
 
 .. only:: html
 
@@ -65,7 +62,7 @@ The first lesson downloads the DRUNet weights ``deepinv`` distributes.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">MoDL, on BART's ADMM</div>
+      <div class="sphx-glr-thumbnail-title">11. Training an unrolled network</div>
     </div>
 
 

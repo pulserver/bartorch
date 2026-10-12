@@ -18,214 +18,191 @@
 .. _sphx_glr_auto_examples_06-learning_01-plug-and-play.py:
 
 
-=======================
-Plug-and-play denoisers
-=======================
+================================
+10. Plug-and-play reconstruction
+================================
 
-This lesson regularizes an undersampled, noisy Cartesian SENSE reconstruction
-with a pretrained image denoiser in place of a specified penalty, and compares
-the result with total-variation regularization of the same data. The aim is to
-show how a denoiser enters a proximal iteration, what it improves on a
-hand-crafted penalty, and how its noise level plays the role of the
-regularization weight.
+In lesson 9 the prior knowledge was a signal model; in lesson 5 it was an
+explicit penalty, a wavelet or total-variation term with a weight. In this
+lesson the prior is a pretrained denoising network, used in place of the
+penalty inside the same ADMM and FISTA iterations.
 
-A proximal iteration such as ADMM or FISTA uses the regularization term only
-through its proximal operator,
+ADMM and FISTA use the penalty :math:`g` only through its proximal operator,
 
 .. math::
 
-   \operatorname{prox}_{\gamma g}(v) = \arg\min_x \; \tfrac12 \|x - v\|_2^2 + \gamma\, g(x),
+   \operatorname{prox}_{\gamma g}(v) = \arg\min_x \; \tfrac12 \|x - v\|_2^2
+   + \gamma\, g(x).
 
-which is the maximum a posteriori estimate of an image :math:`x` observed as
+This is the maximum a posteriori estimate of an image observed as
 :math:`v` in white Gaussian noise, under the prior :math:`\exp(-g)`: the
-proximal operator is a denoiser. Plug-and-play regularization
-[#venkatakrishnan]_ [#ahmad]_ replaces it by any image denoiser
-:math:`D_\sigma`, without writing down :math:`g`. Each iteration alternates a
-step towards consistency with the measured k-space and a denoising step; the
-noise level :math:`\sigma` of the denoiser takes the role of the
-regularization weight.
+proximal operator is a denoiser. Plug-and-play (PnP) regularization
+[#venkatakrishnan]_ [#ahmad]_ replaces it by an image denoiser
+:math:`D_\sigma`, without an explicit :math:`g`. Each iteration alternates a
+data-consistency step on the measured k-space and a denoising step, and the
+denoiser's noise level :math:`\sigma` takes the role of the regularization
+weight.
 
-The denoiser is DRUNet [#zhang]_, a convolutional network with the weights
-distributed by ``deepinv``, trained for Gaussian denoising of natural
-grayscale photographs, not of MR images.
-:class:`bartorch.priors.ImplicitPrior` converts between the complex image of
-the reconstruction and the real planes the network takes; the iterations are
-:func:`bartorch.optim.admm` and :func:`bartorch.optim.fista`, unchanged.
-
-The phantom is the BrainWeb slice of
-:doc:`../03-regularization/01-regularized-reconstruction`; the cell that builds
-it is hidden on this page and present in the downloadable script.
+The denoiser here is DRUNet [#zhang]_, with the weights ``deepinv``
+distributes. It was trained to remove Gaussian noise from grayscale
+photographs, not from MR images.
 
 **Learning objectives**
 
 - Wrap a pretrained denoiser as :class:`bartorch.priors.ImplicitPrior` and
-  pass it to :func:`bartorch.optim.admm` and :func:`bartorch.optim.fista` in
+  hand it to :func:`bartorch.optim.admm` and :func:`bartorch.optim.fista` in
   place of a :mod:`bartorch.priors` term.
-- Compare the result with total-variation regularization on the same data,
-  in the images, the error maps and an enlarged region.
-- Vary the denoiser's noise level and recognize under- and
+- Compare the result with total variation on the same data, in the images,
+  the error maps and an enlarged region.
+- Change the denoiser's noise level and recognise under- and
   over-regularization.
 
-It follows :doc:`../05-model-based/01-quantitative-models`. The next lesson,
-:doc:`02-modl-with-admm`, trains the denoiser through the iteration.
+Previous: :doc:`../05-model-based/01-quantitative-models`. Next:
+:doc:`02-modl-with-admm`, where you train the denoiser through the iteration
+instead of using a pretrained one.
 
-The pretrained weights, about 125 MB, are downloaded on the first call. The
-network runs once per iteration, which dominates the run time of this example
-on a CPU.
+The pretrained weights, about 125 MB, are downloaded the first time you run
+this. The network runs once per iteration, and on a CPU that is most of the
+run time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-225
+.. GENERATED FROM PYTHON SOURCE LINES 51-191
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 192-207
+
+Simulated acquisition
+---------------------
+
+The object is the BrainWeb slice [#brainweb]_ of lessons 2 and 5, a
+:math:`T_1`-weighted spin-echo image, here at 128 by 128; the code that
+builds it is hidden. You acquire a quarter of the phase encodes
+(:math:`R = 4`), drawn at random around a 16-line ACS block, with eight
+channels of BART's analytical head coil and complex Gaussian noise of
+variance :math:`10^{-3}`. At that acceleration and noise level, both noise
+amplification and incoherent aliasing limit a reconstruction without a
+prior.
+
+The SENSE operator uses the sensitivities the data were simulated with, so
+that the reconstructions below differ only in the prior. Lesson 3 is about
+estimating them.
+
+.. GENERATED FROM PYTHON SOURCE LINES 207-235
 
 .. code-block:: Python
 
-
-    import csv
-    from pathlib import Path
-
-    import brainweb_dl
-    import numpy as np
     import torch
-    from brainweb_dl import get_mri
-    from deepinv.models import DRUNet
 
     import bartorch
     import bartorch.tools as bt
+
     from bartorch import linop, optim, priors
 
-    SIZE = 128
     COILS = 8
     ACCELERATION = 4
     CALIBRATION = 16
 
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 226-238
-
-Acquisition
------------
-
-A quarter of the phase encodes (:math:`R = 4`), drawn from a variable
-density around a fully sampled ACS region of 16 lines, with complex Gaussian
-noise of variance :math:`10^{-3}` per sample of the unitary transform: the
-acquisition of :doc:`../03-regularization/01-regularized-reconstruction`,
-where both noise amplification and incoherent aliasing limit an
-unregularized reconstruction. The sensitivities are the ones the data were
-simulated with, so that the comparison below concerns the regularization
-alone; :doc:`../02-parallel-imaging/01-coil-calibration` compares their
-estimation.
-
-.. GENERATED FROM PYTHON SOURCE LINES 239-255
-
-.. code-block:: Python
-
-
-    encodes = torch.arange(SIZE) - SIZE // 2
-    centre = (encodes.abs() < CALIBRATION // 2).to(torch.float32)
-    drawn = torch.multinomial(
-        (1.0 + 2.0 * encodes.abs() / SIZE) ** -3.0 * (1.0 - centre),
-        SIZE // ACCELERATION - CALIBRATION,
-        replacement=False,
-        generator=torch.Generator().manual_seed(11),
-    )
-    lines = centre.clone()
-    lines[drawn] = 1.0
-    pattern = lines.reshape(SIZE, 1).to(torch.complex64)
+    sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+    sensitivities /= bartorch.rss(sensitivities, axes=(0,), keepdim=True)
+    pattern = simulate(ACCELERATION, CALIBRATION)  # (y, 1)
 
     A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
     data = bt.noise(A(image), n=1e-3, s=42) * pattern
+    zero_filled = A.H(data)
 
 
 
 
 
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 256-262
-
-A specified regularizer
------------------------
-
-Total variation under ADMM is the reference point, at the best of the
-weights 0.002, 0.005, 0.01 and 0.02 judged by NRMSE and SSIM against the
-phantom.
-
-.. GENERATED FROM PYTHON SOURCE LINES 263-266
-
-.. code-block:: Python
-
-
-    total_variation = optim.admm(data, A, priors.TotalVariation((-1, -2), 0.01), maxiter=60, rho=0.1)
+.. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_001.png
+   :alt: the object, sampling pattern, zero-filled
+   :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_001.png
+   :class: sphx-glr-single-img
 
 
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 236-247
 
+The zero-filled image, :math:`A^H y`, carries the incoherent aliasing of
+the random sampling, spread over the whole field of view, on top of the
+thermal noise. The orange box marks the region enlarged below.
 
+Explicit penalty
+----------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 267-276
+The reference is total variation under ADMM, as in lesson 5. Of the
+weights 0.002, 0.005, 0.01 and 0.02, 0.005 gives the lowest NRMSE against
+the phantom and 0.02 the highest SSIM; 0.01 is within 0.001 of that NRMSE
+with an SSIM close to the highest, and is used here.
 
-A denoiser as the proximal step
--------------------------------
-
-``spatial=2`` states that the network operates on two-dimensional planes of
-shape ``(n, channels, y, x)``. :class:`~bartorch.priors.ImplicitPrior` scales
-each image to unit peak modulus, denoises its real and imaginary parts as
-two grayscale planes, and scales the result back, so ``sigma`` is in units of
-the image's peak. The network is evaluated without gradients, since nothing
-is trained here. Each iteration costs one application of the network.
-
-.. GENERATED FROM PYTHON SOURCE LINES 277-299
+.. GENERATED FROM PYTHON SOURCE LINES 247-263
 
 .. code-block:: Python
 
+    total_variation = optim.admm(
+        data,
+        A,
+        priors.TotalVariation((-1, -2), 0.01),
+        maxiter=60,
+        rho=0.1,
+    )
+
+
+
+
+
+.. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_002.png
+   :alt: total variation, its error
+   :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_002.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 264-281
+
+Total variation removes most of the aliasing and the noise. At this weight
+it still leaves a blotchy texture across the brain and flattens gradual
+intensity changes into patches, the piecewise-constant images that total
+variation favours.
+
+Denoiser as prior
+-----------------
+
+The network takes real planes of shape ``(n, channels, y, x)``; your image
+is complex. :class:`~bartorch.priors.ImplicitPrior` bridges the two:
+``spatial=2`` says the network works on 2D planes, and around each call the
+prior scales the image to unit peak modulus, denoises its real and imaginary
+parts as two grayscale planes, and scales the result back. So ``sigma`` is
+in units of the image's peak.
+
+Nothing is trained here, so you evaluate the network without gradients.
+You run the same prior under ADMM and under FISTA.
+
+.. GENERATED FROM PYTHON SOURCE LINES 281-314
+
+.. code-block:: Python
+
+    from deepinv.models import DRUNet
 
     ITERATIONS = 30
 
-    denoiser = DRUNet(in_channels=1, out_channels=1, pretrained="download").eval()
+    denoiser = DRUNet(in_channels=1, out_channels=1, pretrained="download")
+    denoiser = denoiser.eval()
     prior = priors.ImplicitPrior(denoiser, sigma=0.05, spatial=2)
 
     with torch.no_grad():
         admm = optim.admm(data, A, prior, maxiter=ITERATIONS, rho=0.2)
         fista = optim.fista(data, A, prior, maxiter=ITERATIONS)
 
-    reconstructions = {
-        "zero-filled": A.H(data),
-        "total variation": total_variation,
-        "DRUNet, ADMM": admm,
-        "DRUNet, FISTA": fista,
-    }
-
-    for name, estimate in reconstructions.items():
-        error = bt.nrmse(image.abs(), estimate.abs(), scaled=True)
-        similarity = bt.ssim(image.abs(), scaled(estimate, image))
-        print(f"{name:>16}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<02:28, 879kB/s]     20%|██        | 25.1M/125M [00:00<00:00, 128MB/s]     38%|███▊      | 47.1M/125M [00:00<00:00, 170MB/s]     55%|█████▌    | 68.9M/125M [00:00<00:00, 191MB/s]     76%|███████▌  | 94.4M/125M [00:00<00:00, 217MB/s]     95%|█████████▍| 118M/125M [00:00<00:00, 227MB/s]     100%|██████████| 125M/125M [00:00<00:00, 191MB/s]
-         zero-filled  NRMSE 0.199  SSIM 0.482
-     total variation  NRMSE 0.161  SSIM 0.754
-        DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
-       DRUNet, FISTA  NRMSE 0.135  SSIM 0.898
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 300-332
 
 
 
@@ -235,84 +212,55 @@ is trained here. Each iteration costs one application of the network.
 
     *
 
-      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_001.png
-         :alt: reference, zero-filled, total variation, DRUNet, ADMM
-         :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_002.png
-         :alt: zero-filled error, total variation error, DRUNet, ADMM error, DRUNet, FISTA error
-         :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_002.png
-         :class: sphx-glr-multi-img
-
-    *
-
       .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_003.png
-         :alt: reference, enlarged, total variation, DRUNet, ADMM, DRUNet, FISTA
+         :alt: total variation error, DRUNet, ADMM error, DRUNet, FISTA error
          :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_003.png
          :class: sphx-glr-multi-img
 
+    *
+
+      .. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_004.png
+         :alt: truth, total variation, DRUNet, ADMM, DRUNet, FISTA
+         :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_004.png
+         :class: sphx-glr-multi-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<06:07, 355kB/s]      1%|          | 640k/125M [00:00<01:18, 1.65MB/s]      2%|▏         | 1.88M/125M [00:00<00:26, 4.80MB/s]      4%|▍         | 5.00M/125M [00:00<00:09, 12.6MB/s]     12%|█▏        | 14.8M/125M [00:00<00:03, 37.7MB/s]     32%|███▏      | 40.1M/125M [00:00<00:00, 103MB/s]      46%|████▌     | 57.4M/125M [00:00<00:00, 125MB/s]     57%|█████▋    | 70.8M/125M [00:01<00:00, 101MB/s]     66%|██████▌   | 82.0M/125M [00:01<00:00, 90.8MB/s]     76%|███████▌  | 94.5M/125M [00:01<00:00, 100MB/s]      85%|████████▍ | 105M/125M [00:01<00:00, 91.9MB/s]     94%|█████████▍| 118M/125M [00:01<00:00, 94.0MB/s]    100%|██████████| 125M/125M [00:01<00:00, 72.9MB/s]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 333-361
+.. GENERATED FROM PYTHON SOURCE LINES 315-333
 
-The zero-filled image shows the incoherent aliasing of the random sampling
-and the noise. Total variation removes most of both, but at its best weight it
-leaves a blotchy texture across the brain and
-flattens the gradual intensity variations into patches. The plug-and-play
-reconstruction under ADMM removes the noise and the aliasing while keeping
-the tissue boundaries, and its error map is darker inside the brain; in the
-enlarged region the ventricles and the larger cortical folds are delineated,
-although the finest sulci are lost. Under FISTA, at the same :math:`\sigma`,
-the same denoiser produces a much smoother image, in which the cortical
-folds have disappeared, and its error lies along every tissue boundary.
+The error maps are on one scale. Under ADMM the denoiser removes the noise
+and the aliasing and keeps the tissue boundaries, and its error map is
+darker inside the brain than the total-variation one. In the enlarged region
+the ventricles and the larger cortical folds are there, though the finest
+sulci are lost. Under FISTA, at the same :math:`\sigma`, the same denoiser
+gives a much smoother image: the cortical folds are gone, and its error runs
+along every tissue boundary.
 
-The two iterations differ in the step before the denoiser: FISTA takes a
-gradient step of fixed length on the data term, ADMM solves a quadratic
+The two iterations differ in the step before the denoiser. FISTA takes a
+gradient step of fixed length on the data term; ADMM solves a least-squares
 problem that holds the image to the data with weight :math:`\rho`. The
-denoiser is therefore applied to different images, and its effective
-strength differs between the two iterations at the same :math:`\sigma`. A
-fixed :math:`\sigma` makes neither iteration the minimization of a known
-objective, so the number of iterations and :math:`\rho` enter the result,
-and are parameters to be chosen like the weight of a specified term. The
-printed SSIM ranks the over-smoothed FISTA image above the ADMM image: a
-single figure of merit does not replace looking at the images.
+denoiser is therefore applied to different images, and the same
+:math:`\sigma` has a different effective strength. With a
+fixed :math:`\sigma` neither iteration minimises a known objective, so the
+iteration count and :math:`\rho` are part of the result, and you choose
+them as you would choose the weight of a penalty.
 
-The noise level
----------------
+The numbers:
 
-:math:`\sigma` is the strength of the prior. A denoiser asked for less noise
-than the iterate contains leaves residual noise and aliasing in place; one
-asked for more removes image detail with them.
-
-.. GENERATED FROM PYTHON SOURCE LINES 362-383
+.. GENERATED FROM PYTHON SOURCE LINES 333-335
 
 .. code-block:: Python
 
-
-    levels = (0.02, 0.05, 0.12)
-    with torch.no_grad():
-        sweep = {
-            sigma: admm
-            if sigma == 0.05
-            else optim.admm(
-                data,
-                A,
-                priors.ImplicitPrior(denoiser, sigma=sigma, spatial=2),
-                maxiter=ITERATIONS,
-                rho=0.2,
-            )
-            for sigma in levels
-        }
-
-    for sigma, estimate in sweep.items():
-        error = bt.nrmse(image.abs(), estimate.abs(), scaled=True)
-        similarity = bt.ssim(image.abs(), scaled(estimate, image))
-        print(f"sigma {sigma:.2f}  NRMSE {error:.3f}  SSIM {similarity:.3f}")
+    report(reconstructions)
 
 
 
@@ -322,43 +270,105 @@ asked for more removes image detail with them.
 
  .. code-block:: none
 
-    sigma 0.02  NRMSE 0.139  SSIM 0.734
-    sigma 0.05  NRMSE 0.103  SSIM 0.893
-    sigma 0.12  NRMSE 0.127  SSIM 0.886
+         zero-filled  NRMSE 0.199  SSIM 0.482
+     total variation  NRMSE 0.161  SSIM 0.754
+        DRUNet, ADMM  NRMSE 0.103  SSIM 0.893
+       DRUNet, FISTA  NRMSE 0.135  SSIM 0.898
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 384-393
+.. GENERATED FROM PYTHON SOURCE LINES 336-346
+
+SSIM ranks the over-smoothed FISTA image above the ADMM one. One figure of
+merit does not replace looking at the images.
+
+Exercise: denoiser noise level
+------------------------------
+
+:math:`\sigma` is the strength of the prior. A :math:`\sigma` below the
+noise level of the iterate leaves noise and aliasing in place; one above it
+removes image detail as well. Run ADMM at a smaller and a larger
+:math:`\sigma` and compare with 0.05:
+
+.. GENERATED FROM PYTHON SOURCE LINES 346-368
+
+.. code-block:: Python
+
+    levels = (0.02, 0.05, 0.12)
+    sweep = {0.05: admm}
+    with torch.no_grad():
+        for sigma in (0.02, 0.12):
+            sweep[sigma] = optim.admm(
+                data,
+                A,
+                priors.ImplicitPrior(denoiser, sigma=sigma, spatial=2),
+                maxiter=ITERATIONS,
+                rho=0.2,
+            )
+
+    report({f"sigma {sigma:.2f}": sweep[sigma] for sigma in levels})
 
 
 
 
-.. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_004.png
+
+.. image-sg:: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_005.png
    :alt: $\sigma$ = 0.02 (too small), $\sigma$ = 0.05, $\sigma$ = 0.12 (too large)
-   :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_004.png
+   :srcset: /auto_examples/06-learning/images/sphx_glr_01-plug-and-play_005.png
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+          sigma 0.02  NRMSE 0.139  SSIM 0.734
+          sigma 0.05  NRMSE 0.103  SSIM 0.893
+          sigma 0.12  NRMSE 0.127  SSIM 0.886
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 394-403
+
+.. GENERATED FROM PYTHON SOURCE LINES 369-396
 
 At the smallest :math:`\sigma` the noise and the aliasing remain as a
 mottled texture; at the largest the cortex is smoothed into uniform white
-matter and small structures disappear; the printed errors have their
-minimum in between.
+matter and small structures disappear. The printed errors have their
+minimum at 0.05. You can repeat the sweep under FISTA and compare where
+its minimum lies.
 
-The denoiser was not trained on MR images, nor for the residual aliasing an
-undersampled acquisition leaves, which is not white Gaussian noise. The next
-lesson, :doc:`02-modl-with-admm`, trains a network inside the iteration, on
-the acquisition it is applied to.
+DRUNet was trained neither on MR images nor on the residual aliasing an
+undersampled scan leaves, which is not white Gaussian noise. In lesson 11
+you train a network for exactly that, inside the iteration.
 
-.. GENERATED FROM PYTHON SOURCE LINES 406-422
+As a spec
+---------
+
+What this lesson built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   Reconstruct a 2D Cartesian SENSE acquisition (128x128, 8 coils, R=4,
+   16-line ACS, known sensitivities) with bartorch, using a pretrained
+   denoiser as the prior. Build A with linop.CartesianSense. Load deepinv's
+   DRUNet (1 channel, pretrained weights) in eval mode and wrap it as
+   priors.ImplicitPrior(denoiser, sigma=0.05, spatial=2). Under
+   torch.no_grad, run optim.admm (30 iterations, rho=0.2) and optim.fista
+   (30 iterations) with it. Compare against optim.admm with
+   priors.TotalVariation over the last two axes (weight 0.01, 60
+   iterations, rho=0.1). Report NRMSE and SSIM of the magnitudes after a
+   global least-squares scale, and repeat ADMM at sigma 0.02 and 0.12.
+
+.. GENERATED FROM PYTHON SOURCE LINES 398-419
 
 References
 ----------
+
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+   Evans AC. Design and construction of a realistic digital brain phantom.
+   *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
 
 .. [#venkatakrishnan] Venkatakrishnan SV, Bouman CA, Wohlberg B. Plug-and-play
    priors for model based reconstruction. *IEEE Global Conference on Signal and
@@ -377,7 +387,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 50.505 seconds)
+   **Total running time of the script:** (0 minutes 40.828 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

@@ -22,98 +22,79 @@
 Dynamic golden-angle radial MRI
 ===============================
 
-This example reconstructs a dynamic contrast-enhanced series from one
-continuous golden-angle radial acquisition, cut into frames of thirteen spokes
-each. Each frame on its own is undersampled fifteenfold and cannot be
-reconstructed; the series can, because consecutive frames are strongly
-correlated, and a total-variation penalty along the time axis states that
-correlation. The example compares frame-by-frame gridding with this joint
-reconstruction on the images and on the time-intensity curve a perfusion
-analysis would use.
+In this tour you reconstruct a dynamic contrast-enhanced series from one
+continuous golden-angle radial acquisition, which you cut into frames of
+thirteen spokes each after the scan. On its own, each frame is undersampled
+about fifteenfold, and its gridding reconstruction is dominated by streaks.
+Consecutive frames, however, show the same anatomy and differ by a slow
+change of contrast, so you reconstruct all frames jointly with a penalty on
+the temporal variation of the series. You compare frame-by-frame gridding
+with that joint reconstruction on the images, on an x-t profile, and on the
+time-intensity curve a perfusion analysis would read.
 
-In a golden-angle acquisition [#winkelmann]_ each spoke is rotated from the
-previous one by :math:`180^\circ / \phi \approx 111.25^\circ`, with
-:math:`\phi` the golden ratio, so that any block of consecutive spokes covers
-k-space approximately uniformly, whatever its length and wherever it starts.
-The acquisition therefore runs without interruption, and the temporal
-resolution is chosen at reconstruction: fewer spokes per frame give a finer
-temporal resolution and stronger streak artefacts. Combined with parallel
-imaging and a sparsity penalty along time, this is GRASP [#feng]_.
+The acquisition uses the golden angle [#winkelmann]_: each spoke is rotated
+from the previous one by :math:`180^\circ / \phi \approx 111.25^\circ`,
+with :math:`\phi` the golden ratio, so any block of consecutive spokes covers
+k-space approximately uniformly, independent of its length and starting
+point. You therefore acquire without interruption and choose the temporal
+resolution at reconstruction: fewer spokes per frame give finer temporal
+resolution and stronger streaks. Combined with parallel imaging and a
+sparsity penalty along time, this is GRASP [#feng]_.
 
-The encoding is that of :doc:`../04-non-cartesian/02-radial-sense` with a frame axis added: the
+The encoding is the radial SENSE of lesson 8 with a frame axis added: the
 image is ``(frames, y, x)``, the trajectory indexes frames as well as spokes,
-and the coil sensitivities are shared by all frames. The phantom and the coil
-sensitivities are built as in :doc:`../01-basics/02-from-kspace-to-image`; the
-cell that does it is hidden on this page and present in the script this page
-can be downloaded as.
+and all frames share the coil sensitivities.
 
-**Prerequisites.** :doc:`../04-non-cartesian/01-trajectories-and-transforms` and
+Prerequisites: lessons 7 and 8,
+:doc:`../04-non-cartesian/01-trajectories-and-transforms` and
 :doc:`../04-non-cartesian/02-radial-sense`.
 
 **Learning objectives**
 
-- Divide a continuous golden-angle acquisition into frames after the fact.
+- Cut a continuous golden-angle acquisition into frames after the fact.
 - Build an encoding whose image and trajectory carry a frame axis.
 - Regularize along time with a total-variation term over the frame axis.
-- Compare frame-by-frame gridding with the joint reconstruction in the
-  images, in an x-t profile and in the time-intensity curve of a region.
+- Compare frame-by-frame gridding with the joint reconstruction on the
+  images, on an x-t profile and on the time-intensity curve of a region.
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-130
+.. GENERATED FROM PYTHON SOURCE LINES 43-142
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 143-153
+
+Contrast-enhanced series
+------------------------
+
+The object is the BrainWeb slice [#brainweb]_ of the course lessons with a
+bolus of contrast agent passing through it. A gamma-variate curve gives the
+first-pass concentration over time, and each tissue enhances in proportion
+to its blood volume: strongly in grey matter, weakly in white matter, not at
+all in cerebrospinal fluid. The series is smooth in time and has the same
+anatomy in every frame; the temporal penalty below relies on both
+properties. The code that builds it is hidden.
+
+.. GENERATED FROM PYTHON SOURCE LINES 153-179
 
 .. code-block:: Python
 
-
-    import csv
-    from pathlib import Path
-
-    import brainweb_dl
-    import numpy as np
-    import torch
-    from brainweb_dl import get_mri
-
-    import bartorch
-    import bartorch.tools as bt
-    from bartorch import linop, optim, priors
-
-    SIZE = 128
-    COILS = 8
     FRAMES = 16
     SPOKES = 13  # per frame
 
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 131-141
-
-A contrast-enhanced series
---------------------------
-
-The phantom is the BrainWeb slice of the course lessons with a contrast
-agent bolus passing through it. A gamma-variate curve describes the
-first-pass concentration over time, and each tissue enhances in proportion
-to its blood volume: strongly in grey matter, weakly in white matter, and not
-at all in cerebrospinal fluid. The series is therefore smooth in time, with
-the same anatomy in every frame, which is the structure the temporal penalty
-exploits.
-
-.. GENERATED FROM PYTHON SOURCE LINES 142-230
-
-.. code-block:: Python
-
-
+    # Relative enhancement at the peak of the bolus, per tissue class.
     CLASSES = {"grey matter": ("GM", 0.8), "white matter": ("WM", 0.25)}
 
 
 
 
 
-
 .. image-sg:: /auto_examples/08-workflows/images/sphx_glr_01-dynamic-golden-angle_001.png
-   :alt: phantom: before, during and after the first pass, frame 0, frame 4, frame 15
+   :alt: the object before, during and after the first pass, frame 0, frame 4, frame 15
    :srcset: /auto_examples/08-workflows/images/sphx_glr_01-dynamic-golden-angle_001.png
    :class: sphx-glr-single-img
 
@@ -121,30 +102,51 @@ exploits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-242
+.. GENERATED FROM PYTHON SOURCE LINES 180-193
+
+The cortex enhances most at the peak of the first pass, in frame 4, and
+is close to its baseline again in the last frame.
 
 Acquisition
 -----------
 
-``FRAMES * SPOKES`` spokes are generated as one golden-angle trajectory and
-reshaped, so that the first axis indexes frames and the second the spokes
-within a frame. With :math:`\pi/2 \times 128 \approx 201` spokes needed for
-a fully sampled frame, thirteen spokes undersample each frame by a factor of
-about fifteen. The image varies along the frame axis, so the operator holds
-one NUFFT per frame, all applied inside the same loop over the coils. The
-noise is that of the Cartesian course lessons, of variance :math:`10^{-4}` per
-sample.
+You generate ``FRAMES * SPOKES`` spokes as one golden-angle trajectory and
+reshape it, so that the first axis indexes frames and the second the spokes
+within a frame. A fully sampled frame of 128 readout points needs about
+:math:`\pi/2 \times 128 \approx 201` spokes, so thirteen undersample each
+frame about fifteenfold. The coils are BART's analytical eight-channel head
+coil, normalized as in lesson 2, and the noise has the variance of the
+Cartesian lessons, :math:`10^{-4}` per sample.
 
-.. GENERATED FROM PYTHON SOURCE LINES 243-260
+.. GENERATED FROM PYTHON SOURCE LINES 193-223
 
 .. code-block:: Python
 
+    import torch
 
-    trajectory = bt.traj(readout=SIZE, spokes=FRAMES * SPOKES, radial=True, golden=True)
+    import bartorch
+    import bartorch.tools as bt
+
+    from bartorch import linop, optim, priors
+
+    COILS = 8
+
+    trajectory = bt.traj(
+        readout=SIZE,
+        spokes=FRAMES * SPOKES,
+        radial=True,
+        golden=True,
+    )
     trajectory = trajectory.reshape(FRAMES, SPOKES, SIZE, 3)
 
+    sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
+    sensitivities /= bartorch.rss(sensitivities, axes=(0,), keepdim=True)
 
-    A = linop.NoncartesianSense(sensitivities, (FRAMES, SIZE, SIZE), traj=trajectory)
+    A = linop.NoncartesianSense(
+        sensitivities,
+        (FRAMES, SIZE, SIZE),
+        traj=trajectory,
+    )
     measured = bt.noise(A(series), n=1e-4, s=3)
 
     print(f"{A.ishape} -> {A.oshape}")
@@ -164,37 +166,42 @@ sample.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 261-276
+.. GENERATED FROM PYTHON SOURCE LINES 224-243
 
-``plan.items`` is the number of frames the encoding carries, each with its
-own transform.
+The image varies along the frame axis, so the operator holds one NUFFT per
+frame and applies them all inside the same loop over the coils;
+``plan.items`` is the number of frames it carries.
 
-Reconstruction
---------------
+Gridding and regularized reconstruction
+---------------------------------------
 
-Two reconstructions of the same data. The first treats the frames as
-independent: the adjoint of the encoding applied to density-compensated
-samples, which is the gridding reconstruction of thirteen spokes per frame,
-with the coils combined by the sensitivities. The second solves for the
-whole series at once, with a total-variation penalty along the frame axis:
-the solution is the series that explains all the data and changes least from
-frame to frame. The streak pattern of each frame is different, because each
-frame has different spokes, so it has a large temporal total variation and
-is suppressed, while the anatomy, which is the same in every frame, is not.
+The first treats the frames as independent: the adjoint of the encoding
+applied to density-compensated samples, which is gridding of thirteen
+spokes per frame, with the coils combined by their sensitivities. The
+density compensation is the ramp :math:`|k|`, floored at a quarter of its
+maximum.
 
-.. GENERATED FROM PYTHON SOURCE LINES 277-287
+The second solves for the whole series at once, with a total-variation
+penalty along the frame axis: the solution is the series consistent with
+all the data that has the least total variation from frame to frame. Each
+frame has different spokes and therefore a different streak pattern, which
+has a large temporal total variation and is suppressed; the anatomy is the
+same in every frame and is retained.
+
+.. GENERATED FROM PYTHON SOURCE LINES 243-254
 
 .. code-block:: Python
 
-
-    weights = torch.linalg.norm(trajectory.real[..., :2], dim=-1).clamp(min=0.25)
-    gridded = A.H(measured * weights.to(torch.complex64))
+    density = torch.linalg.norm(trajectory.real[..., :2], dim=-1).clamp(min=0.25)
+    gridded = A.H(measured * density.to(torch.complex64))
 
     data = measured / optim.data_scaling(measured[..., None], A=A)
-    temporal = optim.ADMM(priors.TotalVariation(axes=(-3,), weight=0.02), maxiter=30)(data, A)
+    temporal_tv = priors.TotalVariation(axes=(-3,), weight=0.02)
+    temporal = optim.ADMM(temporal_tv, maxiter=30)(data, A)
 
     for name, volume in (("gridding", gridded), ("temporal TV", temporal)):
-        print(f"{name:>12}  NRMSE over all frames {bt.nrmse(series.abs(), volume, scaled=True):.3f}")
+        nrmse = bt.nrmse(series.abs(), volume, scaled=True)
+        print(f"{name:>12}: NRMSE over all frames {nrmse:.3f}")
 
 
 
@@ -204,20 +211,20 @@ is suppressed, while the anatomy, which is the same in every frame, is not.
 
  .. code-block:: none
 
-        gridding  NRMSE over all frames 0.449
-     temporal TV  NRMSE over all frames 0.126
+        gridding: NRMSE over all frames 0.449
+     temporal TV: NRMSE over all frames 0.126
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 288-292
+.. GENERATED FROM PYTHON SOURCE LINES 255-259
 
-The frame axis is ``-3``, the axis in front of the two spatial ones. A term
-given ``(-1, -2)`` would penalize the spatial gradient instead, and one given
-all three would penalize both; the axes a term acts on are the whole
-difference between a spatial and a temporal regularizer.
+The frame axis is ``-3``, the one in front of the two spatial axes. Given
+``(-1, -2)`` the same term would penalize the spatial gradient instead, and
+given all three it would penalize both: the axes a term acts on are the
+whole difference between a spatial and a temporal regularizer.
 
-.. GENERATED FROM PYTHON SOURCE LINES 293-313
+.. GENERATED FROM PYTHON SOURCE LINES 259-279
 
 
 
@@ -243,19 +250,19 @@ difference between a spatial and a temporal regularizer.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 314-323
+.. GENERATED FROM PYTHON SOURCE LINES 280-289
 
-In the gridding reconstruction the streaks of thirteen spokes dominate the
-frame, and only the ventricles and the outline of the head are recognizable.
-The joint reconstruction recovers the anatomy and the enhanced cortex; its
-residual error is small and concentrated at the tissue boundaries, which
-carry the high spatial frequencies each frame samples most sparsely.
+In the gridded frame the streaks of thirteen spokes dominate, and only the
+ventricles and the outline of the head are recognizable. The joint
+reconstruction recovers the anatomy and the enhanced cortex. Its residual
+error is small and concentrated at the tissue boundaries, which carry
+the high spatial frequencies each frame samples most sparsely.
 
 An x-t profile, one line of the image plotted against time, shows the time
 axis directly. The line below runs left to right through the ventricles and
 the grey matter on either side.
 
-.. GENERATED FROM PYTHON SOURCE LINES 324-344
+.. GENERATED FROM PYTHON SOURCE LINES 289-309
 
 
 
@@ -269,26 +276,25 @@ the grey matter on either side.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-358
+.. GENERATED FROM PYTHON SOURCE LINES 310-323
 
 In the reference profile the grey matter brightens and fades over a few
 frames, while cerebrospinal fluid and the scalp stay constant. Gridding
 shows the same enhancement under a different streak pattern in every frame,
-so the profile changes from one row to the next even where the object does
-not; temporal total variation removes that variation and keeps the time
+so the profile varies from frame to frame where the object is constant.
+Temporal total variation removes that variation and retains the time
 course.
 
-Time-intensity curve
---------------------
+Time-intensity curves
+---------------------
 
-A perfusion study reports the signal in a region as a function of time, so
-the reconstructions are compared on that curve too. The region is the grey
-matter, where the enhancement is strongest.
+A perfusion study reports the mean signal in a region as a function of
+time, so you compare the two reconstructions on that curve too, in the grey
+matter where the enhancement is strongest.
 
-.. GENERATED FROM PYTHON SOURCE LINES 359-386
+.. GENERATED FROM PYTHON SOURCE LINES 323-348
 
 .. code-block:: Python
-
 
     region = memberships[CLASS["GM"]] > 0.6
 
@@ -298,11 +304,10 @@ matter, where the enhancement is strongest.
         "temporal TV": scaled(temporal, series),
     }
     truth = curves["reference"][:, region].mean(-1)
-    for name, volume in curves.items():
-        if name == "reference":
-            continue
-        enhancement = volume[:, region].mean(-1)
-        print(f"{name:>12}  curve NRMSE {float((enhancement - truth).norm() / truth.norm()):.3f}")
+    for name in ("gridding", "temporal TV"):
+        enhancement = curves[name][:, region].mean(-1)
+        error = float((enhancement - truth).norm() / truth.norm())
+        print(f"{name:>12}: curve NRMSE {error:.3f}")
 
 
 
@@ -318,24 +323,88 @@ matter, where the enhancement is strongest.
 
  .. code-block:: none
 
-        gridding  curve NRMSE 0.153
-     temporal TV  curve NRMSE 0.039
+        gridding: curve NRMSE 0.153
+     temporal TV: curve NRMSE 0.039
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 387-395
+.. GENERATED FROM PYTHON SOURCE LINES 349-363
 
-Averaged over the grey matter, the streaks largely cancel, and gridding
-recovers the shape of the curve but not its level: part of the signal of
-each frame is spread into streaks across the field of view, outside the
-region. The joint reconstruction follows the reference curve closely, with
-the peak slightly attenuated and the baseline slightly raised: a temporal
-total-variation penalty flattens a signal change that lasts only a few
-frames more than any other feature, and a larger weight trades more of the
-peak for less noise.
+Averaged over the grey matter the streaks largely cancel, and gridding
+reproduces the shape of the curve but not its level: part of each frame's
+signal is spread into streaks across the field of view, outside the region.
+The joint reconstruction follows the reference closely, with the peak
+attenuated and the late frames slightly raised. A temporal total-variation
+penalty attenuates a change that lasts only a few frames, and a larger
+weight trades more of the peak for less noise.
 
-.. GENERATED FROM PYTHON SOURCE LINES 398-411
+Exercise: retrospective frame length
+------------------------------------
+
+Because the spokes follow the golden angle, the same data can be regrouped
+into longer frames. Join two or four frames into one, grid each, and compare
+with the reference averaged over the same frames:
+
+.. GENERATED FROM PYTHON SOURCE LINES 363-378
+
+.. code-block:: Python
+
+    for join in (1, 2, 4):
+        frames = FRAMES // join
+        traj_j = trajectory.reshape(frames, join * SPOKES, SIZE, 3)
+        data_j = measured.reshape(COILS, frames, join * SPOKES, SIZE)
+        A_j = linop.NoncartesianSense(
+            sensitivities,
+            (frames, SIZE, SIZE),
+            traj=traj_j,
+        )
+        k = torch.linalg.norm(traj_j.real[..., :2], dim=-1).clamp(min=0.25)
+        gridded_j = A_j.H(data_j * k.to(torch.complex64))
+        reference_j = series.abs().reshape(frames, join, SIZE, SIZE).mean(1)
+        nrmse = bt.nrmse(reference_j, gridded_j, scaled=True)
+        print(f"{join * SPOKES} spokes, {frames:2d} frames: NRMSE {nrmse:.3f}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    13 spokes, 16 frames: NRMSE 0.449
+    26 spokes,  8 frames: NRMSE 0.295
+    52 spokes,  4 frames: NRMSE 0.202
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 379-400
+
+The NRMSE falls with the frame length, at the cost of temporal resolution:
+with 52 spokes per frame the rise of the bolus, frames 0 to 4, spans two
+frames. Repeat the comparison with the joint reconstruction, or vary the
+weight of the temporal term and observe the attenuation of the peak.
+
+As a spec
+---------
+
+What this tour built, stated the way you would ask an agent for it:
+
+.. code-block:: text
+
+   Reconstruct a dynamic 2D series of 16 frames, 128 x 128, from one
+   golden-angle radial acquisition of 16 * 13 spokes (bt.traj with
+   golden=True, reshaped to (frames, spokes, readout, 3)), 8 coils, with
+   bartorch. Encode with linop.NoncartesianSense over (frames, y, x).
+   Reconstruct (a) frame by frame, as the adjoint of density-compensated
+   data (|k| floored at 0.25), and (b) jointly, with optim.ADMM (30
+   iterations) and priors.TotalVariation over the frame axis (-3), weight
+   0.02, on data divided by optim.data_scaling. Report NRMSE over all
+   frames and of the mean grey-matter time-intensity curve.
+
+.. GENERATED FROM PYTHON SOURCE LINES 402-420
 
 References
 ----------
@@ -351,10 +420,15 @@ References
    fast and flexible dynamic volumetric MRI. *Magn Reson Med* 72(3):707-717
    (2014). https://doi.org/10.1002/mrm.24980
 
+.. [#brainweb] Collins DL, Zijdenbos AP, Kollokian V, Sled JG, Kabani NJ, Holmes CJ,
+   Evans AC. Design and construction of a realistic digital brain phantom.
+   *IEEE Trans Med Imaging* 17(3):463-468 (1998).
+   https://doi.org/10.1109/42.712135
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.813 seconds)
+   **Total running time of the script:** (0 minutes 5.736 seconds)
 
 
 .. _sphx_glr_download_auto_examples_08-workflows_01-dynamic-golden-angle.py:

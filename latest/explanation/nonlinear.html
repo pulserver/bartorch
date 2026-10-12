@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Nonlinear forward models &#8212; bartorch</title>
+    <title>Model-based reconstruction &#8212; bartorch</title>
   
   
   
@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -63,12 +63,13 @@
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/explanation/nonlinear.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Differentiation through reconstruction" href="differentiation.html" />
-    <link rel="prev" title="Non-Cartesian sampling" href="non-cartesian.html" />
+    <link rel="next" title="Learned reconstruction" href="learned-reconstruction.html" />
+    <link rel="prev" title="Solvers" href="solvers.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -217,49 +218,59 @@
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pull-requests.html">Pull requests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/code-of-conduct.html">Code of conduct</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Explanation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="solvers.html">Solvers</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance.html">Performance</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -515,7 +526,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Nonlinear forward models</h1>
+    <h1>Model-based reconstruction</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -525,11 +536,15 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-nonlinear-models">Two nonlinear models</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#iteratively-regularized-gauss-newton">Iteratively regularized Gauss-Newton</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#identifiability">Identifiability</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#approaches-to-parameter-mapping">Approaches to parameter mapping</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#signal-models-and-their-derivatives">Signal models and their derivatives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#capabilities">Capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#division-of-responsibility">Division of responsibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#method">Method</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gauss-newton-step">Gauss-Newton step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sobolev-weighting">Sobolev weighting</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bounded-parameters">Bounded parameters</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
             </nav>
@@ -542,204 +557,135 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="nonlinear-forward-models">
-<h1>Nonlinear forward models<a class="headerlink" href="#nonlinear-forward-models" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="model-based-reconstruction">
+<h1>Model-based reconstruction<a class="headerlink" href="#model-based-reconstruction" title="Link to this heading">#</a></h1>
 <div class="tldr admonition">
 <p class="admonition-title">TL;DR</p>
 <ul class="simple">
-<li><p>Joint estimation of the image and the coil sensitivities (<code class="docutils literal notranslate"><span class="pre">nlinv</span></code>) and model-based parameter estimation (<code class="docutils literal notranslate"><span class="pre">moba</span></code>) have forward operators that are nonlinear in the unknowns.</p></li>
-<li><p>Both are solved by iteratively regularized Gauss-Newton: each step solves a linearized least-squares problem with a Tikhonov term whose weight decreases geometrically, and the number of steps acts as a regularization parameter.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">nlinv</span></code> resolves the ambiguity between image and sensitivities with a Sobolev weighting of the coils; the data term of a signal model is nonconvex in its parameters, so the result depends on the starting point.</p></li>
-<li><p>A model-based reconstruction estimates parameter maps directly; a subspace reconstruction keeps the forward model linear and fits the parameters afterwards.</p></li>
+<li><p>A forward model nonlinear in its unknowns, image times coils (<code class="docutils literal notranslate"><span class="pre">nlinv</span></code>) or parameter maps through a signal model (<code class="docutils literal notranslate"><span class="pre">moba</span></code>), is a <a class="reference internal" href="../generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a> with a derivative and its adjoint.</p></li>
+<li><p><a class="reference internal" href="../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a> solves it by iteratively regularized Gauss-Newton, BART’s own loop, with BlochSim signal models whose bounds keep every iterate physical.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">moba</span></code> and <code class="docutils literal notranslate"><span class="pre">mobafit</span></code> apps fit those models and answer in named maps; a command line they cannot express runs as BART’s command.</p></li>
 </ul>
 </div>
-<p><a class="reference internal" href="inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a> assumes a known, linear forward operator.  Two common
-MRI reconstructions do not satisfy that assumption: the coil sensitivities can
-be unknowns alongside the image, and the image can be a function of physical
-parameters.  Both lead to a nonlinear operator <span class="math notranslate nohighlight">\(F\)</span> and are solved by the same
-Gauss-Newton method.</p>
-<section id="two-nonlinear-models">
-<h2>Two nonlinear models<a class="headerlink" href="#two-nonlinear-models" title="Link to this heading">#</a></h2>
-<p><strong>Joint estimation of image and sensitivities.</strong>  When the acquisition has no
-autocalibration (ACS) region large enough for a separate calibration, or the
-coil sensitivity maps are to be estimated from all of the data, both are
-unknowns:</p>
-<div class="math notranslate nohighlight">
-\[
-y_c = P F \left( S_c \cdot x \right).
-\]</div>
-<p>The operator is bilinear: linear in <span class="math notranslate nohighlight">\(x\)</span> for fixed <span class="math notranslate nohighlight">\(S\)</span>, linear in <span class="math notranslate nohighlight">\(S\)</span> for fixed
-<span class="math notranslate nohighlight">\(x\)</span>, and nonlinear in the pair.  This is <strong>nonlinear inversion</strong>, BART’s
-<code class="docutils literal notranslate"><span class="pre">nlinv</span></code>,<a class="footnote-reference brackets" href="#nlinv" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> which <a class="reference internal" href="../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.nlinv()</span></code></a> runs; its sensitivities
-are the calibration for a subsequent linear reconstruction.</p>
-<p><strong>Model-based parameter estimation.</strong>  A quantitative experiment acquires a
-series of contrasts whose dependence on tissue parameters <span class="math notranslate nohighlight">\(\theta\)</span> is given by
-a signal model <span class="math notranslate nohighlight">\(M\)</span> — a mono-exponential decay in <span class="math notranslate nohighlight">\(T_2\)</span>, an inversion recovery
-in <span class="math notranslate nohighlight">\(T_1\)</span>, or a Bloch simulation of the sequence:</p>
-<div class="math notranslate nohighlight">
-\[
-y_{c,e} = P_e F \left( S_c \cdot M_e(\theta) \right),
-\]</div>
-<p>with <span class="math notranslate nohighlight">\(e\)</span> the contrast index.  The unknowns are the parameter maps.  This is
-<strong>model-based reconstruction</strong>, BART’s <code class="docutils literal notranslate"><span class="pre">moba</span></code>,<a class="footnote-reference brackets" href="#block" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#sumpf" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#wang" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> which
-<a class="reference internal" href="../generated/bartorch.apps.moba.html#bartorch.apps.moba" title="bartorch.apps.moba"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.moba()</span></code></a> performs over a BlochSim signal model;
-<a class="reference internal" href="../generated/bartorch.apps.mobafit.html#bartorch.apps.mobafit" title="bartorch.apps.mobafit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.mobafit()</span></code></a> fits the same models voxel by voxel to
-reconstructed images.</p>
-<p>A Gauss-Newton solver requires the value <span class="math notranslate nohighlight">\(F(x)\)</span>, the derivative <span class="math notranslate nohighlight">\(DF_x\)</span> at a
-point as a linear operator, and its adjoint <span class="math notranslate nohighlight">\(DF_x^H\)</span>.  A
-<a class="reference internal" href="../generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a> provides the three, and
-<code class="docutils literal notranslate"><span class="pre">F.linearize(x)</span></code> returns <span class="math notranslate nohighlight">\(DF_x\)</span> as a <a class="reference internal" href="../generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a>.</p>
-</section>
-<section id="iteratively-regularized-gauss-newton">
-<h2>Iteratively regularized Gauss-Newton<a class="headerlink" href="#iteratively-regularized-gauss-newton" title="Link to this heading">#</a></h2>
-<p>Each Gauss-Newton step replaces <span class="math notranslate nohighlight">\(F\)</span> by its linearization at the current iterate
-<span class="math notranslate nohighlight">\(x_k\)</span> and solves the resulting linear problem with a Tikhonov term centred on a
-reference <span class="math notranslate nohighlight">\(x_{\mathrm{ref}}\)</span>:</p>
-<div class="math notranslate nohighlight">
-\[
-x_{k+1} = \arg\min_x \;
-\left\lVert DF_{x_k}(x - x_k) - \left(y - F(x_k)\right) \right\rVert_2^2
-+ \alpha_k \lVert x - x_{\mathrm{ref}} \rVert_2^2 ,
-\]</div>
-<p>that is,
-<span class="math notranslate nohighlight">\(x_{k+1} = x_k + (DF^H DF + \alpha_k I)^{-1}\left[DF^H (y - F(x_k)) - \alpha_k (x_k - x_{\mathrm{ref}})\right]\)</span>
-with <span class="math notranslate nohighlight">\(DF = DF_{x_k}\)</span>.  The weight decreases geometrically,
-<span class="math notranslate nohighlight">\(\alpha_{k+1} = (\alpha_k - \alpha_{\min})/q + \alpha_{\min}\)</span> with <span class="math notranslate nohighlight">\(q = 2\)</span> by
-default.<a class="footnote-reference brackets" href="#bakushinsky" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>  The early steps are strongly regularized and change
-the iterate only along well-determined directions; later steps admit the
-poorly determined ones.  The number of steps is a regularization parameter:
-stopping early gives a smoother estimate, and continuing eventually fits the
-noise.</p>
-<p><a class="reference internal" href="../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a> implements this loop and
-<a class="reference internal" href="../generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a> one step of it.  Without an inner solver
-the linear problem is solved by conjugate gradients inside BART, as in
-<code class="docutils literal notranslate"><span class="pre">nlinv</span></code>; with <code class="docutils literal notranslate"><span class="pre">inner=</span></code> it is passed to a solver of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>, and
-that solver’s regularization terms add a penalty to the step.</p>
-</section>
-<section id="identifiability">
-<h2>Identifiability<a class="headerlink" href="#identifiability" title="Link to this heading">#</a></h2>
-<p>The bilinear model has a symmetry: <span class="math notranslate nohighlight">\(S_c \cdot x\)</span> is unchanged by
-<span class="math notranslate nohighlight">\(S_c \mapsto \gamma S_c\)</span> and <span class="math notranslate nohighlight">\(x \mapsto x / \gamma\)</span> for any nonzero function
-<span class="math notranslate nohighlight">\(\gamma(r)\)</span>, so the data do not determine how structure is shared between the
-two factors.  <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> resolves this with the prior knowledge that
-sensitivities are smooth, built into the model: the coil unknown is a k-space
-representation <span class="math notranslate nohighlight">\(\hat{s}\)</span>, and the sensitivities are</p>
-<div class="math notranslate nohighlight">
-\[
-S = \mathcal{F}^{-1}\!\left[ (1 + a \lvert k \rvert^2)^{-b/2}\, \hat{s} \right],
-\]</div>
-<p>a <strong>Sobolev weighting</strong> that attenuates the high spatial frequencies of the
-coil estimate.  The IRGNM penalty on <span class="math notranslate nohighlight">\(\hat{s}\)</span> is then a penalty on the
-Sobolev norm of <span class="math notranslate nohighlight">\(S\)</span>, and the image receives the high-frequency structure.  The
-product <span class="math notranslate nohighlight">\(x \cdot \sqrt{\sum_c \lvert S_c \rvert^2}\)</span> is invariant to <span class="math notranslate nohighlight">\(\gamma\)</span>
-up to its phase, which is why <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> reports the image multiplied by the
-root sum of squares of the estimated sensitivities.
-<a class="reference internal" href="../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a> is this model;
-<a class="reference internal" href="../generated/bartorch.nlop.CoilSense.html#bartorch.nlop.CoilSense" title="bartorch.nlop.CoilSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CoilSense()</span></code></a> is the unweighted product in front of any
-linear encoding, which leaves the regularization of the coils to the caller.</p>
-<p>Signal models have no such symmetry — the model fixes the meaning of each
-map — but the data term is nonconvex in <span class="math notranslate nohighlight">\(\theta\)</span>, so the result depends on the
-starting point.  The models of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.nlop</span></code> impose bounds by solving
-for a transformed variable, so that every iterate stays within the bounds;
-<a class="reference internal" href="../generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a> builds a starting point from
-parameter values and <a class="reference internal" href="../generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.split" title="bartorch.nlop.SignalModel.split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">split()</span></code></a> converts a
-solution back to named maps in physical units.</p>
-</section>
-<section id="approaches-to-parameter-mapping">
-<h2>Approaches to parameter mapping<a class="headerlink" href="#approaches-to-parameter-mapping" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Approach</p></th>
-<th class="head"><p>Unknown</p></th>
-<th class="head"><p>Forward model</p></th>
-<th class="head"><p>Cross-contrast information in the reconstruction</p></th>
-<th class="head"><p>Problem</p></th>
-<th class="head"><p>Output</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Reconstruction, then voxel-wise fit</p></td>
-<td><p>One image per contrast</p></td>
-<td><p>Linear, <span class="math notranslate nohighlight">\(P_e F S\)</span></p></td>
-<td><p>Only through a joint regularizer, if one is used; none if the contrasts are reconstructed separately</p></td>
-<td><p>Linear reconstruction, then a nonlinear fit per voxel</p></td>
-<td><p>Contrast images, then parameter maps</p></td>
-</tr>
-<tr class="row-odd"><td><p>Subspace reconstruction</p></td>
-<td><p>Coefficient maps of a low-dimensional basis <span class="math notranslate nohighlight">\(\Phi\)</span></p></td>
-<td><p>Linear, <span class="math notranslate nohighlight">\(P_e F S\, \Phi\)</span></p></td>
-<td><p>The signal evolution is restricted to the span of <span class="math notranslate nohighlight">\(\Phi\)</span><a class="footnote-reference brackets" href="#huang" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#tamir" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p></td>
-<td><p>Linear; convex with a convex regularizer</p></td>
-<td><p>Coefficient maps, then parameter maps by dictionary matching or fitting</p></td>
-</tr>
-<tr class="row-even"><td><p>Model-based reconstruction</p></td>
-<td><p>Parameter maps <span class="math notranslate nohighlight">\(\theta\)</span></p></td>
-<td><p>Nonlinear, <span class="math notranslate nohighlight">\(P_e F S\, M(\theta)\)</span></p></td>
-<td><p>The signal model couples every contrast to the same parameters</p></td>
-<td><p>Nonlinear, nonconvex</p></td>
-<td><p>Parameter maps</p></td>
-</tr>
-</tbody>
-</table>
+<p>You meet a nonlinear forward model when the coil sensitivities are unknowns
+alongside the image, or when the image is a function of tissue parameters such
+as <span class="math notranslate nohighlight">\(T_1\)</span> or <span class="math notranslate nohighlight">\(T_2\)</span>. Model-based reconstruction fits the parameter maps directly
+to k-space, <span class="math notranslate nohighlight">\(y_{c,e} = P_e F (S_c \cdot M_e(\theta))\)</span>, so every contrast
+constrains the same few maps. Lesson 4 of the <a class="reference internal" href="../auto_examples/index.html"><span class="doc">Course</span></a>
+estimates image and coils jointly, and lesson 9 fits a <span class="math notranslate nohighlight">\(T_2\)</span> map to k-space.</p>
+<section id="capabilities">
+<h2>Capabilities<a class="headerlink" href="#capabilities" title="Link to this heading">#</a></h2>
+<div class="capabilities docutils container">
+<ul>
+<li><p><strong>Represents a nonlinear operator with its value, its derivative at a point and the adjoint of that derivative, composable with linear operators by <code class="docutils literal notranslate"><span class="pre">&#64;</span></code>.</strong></p>
+<p>Code: <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.nlop</span></code>. Tests: <em>a derivative agrees with a finite difference</em>; <em>a Jacobian is a linear operator with the adjoint identity</em>; <em>a linear operator still composes with a nonlinear one</em> (<code class="docutils literal notranslate"><span class="pre">test_nlop_algebra.py</span></code>).</p>
+</li>
+<li><p><strong>Runs iteratively regularized Gauss-Newton with the same arithmetic as BART’s own loop, to the last bit.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a>. Tests: <em>the loop without an inner solver is the first form to the last bit</em>; <em>the Python loop with conjugate gradients is the library to the last bit</em> (<code class="docutils literal notranslate"><span class="pre">test_nlop_irgnm.py</span></code>).</p>
+</li>
+<li><p><strong>Solves each linearized problem with any solver of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.optim</span></code>, whose regularization terms then penalize the step.</strong></p>
+<p>Code: <code class="docutils literal notranslate"><span class="pre">IRGNM(inner=...)</span></code>. Tests: <em>an unregularized inner solver reaches the same answer</em>; <em>a threshold pulls the answer away from the unregularized one</em> (<code class="docutils literal notranslate"><span class="pre">test_nlop_irgnm.py</span></code>).</p>
+</li>
+<li><p><strong>Estimates image and coil sensitivities jointly, as <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> does, with the coils under a Sobolev weighting.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.nlop.NonlinearSense.html#bartorch.nlop.NonlinearSense" title="bartorch.nlop.NonlinearSense"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearSense</span></code></a>, <a class="reference internal" href="../generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-func docutils literal notranslate"><span class="pre">nlinv()</span></code></a>. Tests: <em>a Cartesian fit is the nlinv tool to the last bit</em>; <em>the coil weighting damps high spatial frequencies</em> (<code class="docutils literal notranslate"><span class="pre">test_nlop_mri.py</span></code>).</p>
+</li>
+<li><p><strong>Wraps BlochSim signal models (inversion recovery, multi-echo decay, any simulated sequence) as nonlinear operators, without forming a Jacobian.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel" title="bartorch.nlop.SignalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SignalModel</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.MultiEcho.html#bartorch.nlop.MultiEcho" title="bartorch.nlop.MultiEcho"><code class="xref py py-func docutils literal notranslate"><span class="pre">MultiEcho()</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.Bloch.html#bartorch.nlop.Bloch" title="bartorch.nlop.Bloch"><code class="xref py py-func docutils literal notranslate"><span class="pre">Bloch()</span></code></a>. Tests: <em>the multi-echo decay is what BART computes</em>; <em>the adjoint is the adjoint of the derivative</em> (<code class="docutils literal notranslate"><span class="pre">test_nlop_blochsim.py</span></code>); <em>the Look-Locker recovery is BART’s</em> (<code class="docutils literal notranslate"><span class="pre">test_signal_models.py</span></code>).</p>
+</li>
+<li><p><strong>Keeps each bounded parameter inside its bounds at every iterate, and returns named maps in their own units.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.initial" title="bartorch.nlop.SignalModel.initial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial()</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.SignalModel.html#bartorch.nlop.SignalModel.split" title="bartorch.nlop.SignalModel.split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">split()</span></code></a>. Tests: <em>a bound keeps every iterate physical</em>; <em>a starting point and the maps it stands for round trip</em> (<code class="docutils literal notranslate"><span class="pre">test_nlop_blochsim.py</span></code>).</p>
+</li>
+<li><p><strong>Fits a signal model voxel by voxel to images, or directly to k-space with known or jointly estimated coils.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.apps.mobafit.html#bartorch.apps.mobafit" title="bartorch.apps.mobafit"><code class="xref py py-func docutils literal notranslate"><span class="pre">mobafit()</span></code></a>, <a class="reference internal" href="../generated/bartorch.apps.moba.html#bartorch.apps.moba" title="bartorch.apps.moba"><code class="xref py py-func docutils literal notranslate"><span class="pre">moba()</span></code></a>. Tests: <em>a decay is fitted to the time it was made from</em>; <em>moba fits the decay behind known coils</em>; <em>moba estimates the coils with the decay</em> (<code class="docutils literal notranslate"><span class="pre">test_apps.py</span></code>).</p>
+</li>
+<li><p><strong>Answers a <code class="docutils literal notranslate"><span class="pre">moba</span></code> or <code class="docutils literal notranslate"><span class="pre">mobafit</span></code> command line with the app, to the tolerance of a fit, and sends one the app cannot express to BART’s command.</strong></p>
+<p>Code: <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.cli</span></code>. Tests: <em>moba writes the command’s maps to the tolerance of a fit</em>; <em>a moba the app cannot express goes to the command</em>; <em>a mobafit the app cannot express goes to the command</em> (<code class="docutils literal notranslate"><span class="pre">test_cli.py</span></code>).</p>
+</li>
+</ul>
 </div>
-<p>A model-based reconstruction estimates fewer unknowns from the same data —
-for a multi-echo experiment, a few maps rather than one image per echo — and
-applies regularization to the maps.  This improves the estimate when the
-model describes the signal; a signal the model does not describe, such as
-partial volume of two tissues or an imperfect refocusing, becomes a bias in
-the maps.  A subspace reconstruction restricts the signal to a basis derived
-from a dictionary of simulated signals, keeps a linear forward model, and
-defers the nonlinear estimation of the parameters to a separate step.
-<a class="reference internal" href="../auto_examples/08-workflows/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a> and
-<a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">Parameter maps straight from k-space</span></a> apply the
-second and third routes.</p>
 </section>
-<section id="signal-models-and-their-derivatives">
-<h2>Signal models and their derivatives<a class="headerlink" href="#signal-models-and-their-derivatives" title="Link to this heading">#</a></h2>
-<p>The signal models — <a class="reference internal" href="../generated/bartorch.nlop.InversionRecovery.html#bartorch.nlop.InversionRecovery" title="bartorch.nlop.InversionRecovery"><code class="xref py py-func docutils literal notranslate"><span class="pre">InversionRecovery()</span></code></a>,
-<a class="reference internal" href="../generated/bartorch.nlop.MultiEcho.html#bartorch.nlop.MultiEcho" title="bartorch.nlop.MultiEcho"><code class="xref py py-func docutils literal notranslate"><span class="pre">MultiEcho()</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.Bloch.html#bartorch.nlop.Bloch" title="bartorch.nlop.Bloch"><code class="xref py py-func docutils literal notranslate"><span class="pre">Bloch()</span></code></a> — are
-<a class="reference external" href="https://github.com/pulserver/blochsim">BlochSim</a> simulators presented as
-BART nonlinear operators.  A signal model is voxel-wise: the signal of a voxel
-depends only on that voxel’s parameters, so one forward-mode automatic
-differentiation pass gives the derivative for the whole volume and no Jacobian
-matrix is formed.  <a class="reference internal" href="../generated/bartorch.nlop.TorchOperator.html#bartorch.nlop.TorchOperator" title="bartorch.nlop.TorchOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">TorchOperator</span></code></a> does the same for any
-differentiable PyTorch function.  Composition with <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> places a model in front
-of an encoding; the derivative of <code class="docutils literal notranslate"><span class="pre">E</span> <span class="pre">&#64;</span> <span class="pre">M</span></code> at <span class="math notranslate nohighlight">\(\theta\)</span> is <span class="math notranslate nohighlight">\(E\, DM_\theta\)</span>.
-<a class="reference internal" href="differentiation.html"><span class="doc">Differentiation through reconstruction</span></a> describes how gradients pass through the Gauss-Newton
-steps themselves.</p>
+<section id="division-of-responsibility">
+<h2>Division of responsibility<a class="headerlink" href="#division-of-responsibility" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>BART</strong>: the Gauss-Newton step and its conjugate-gradient inverse, the
+<code class="docutils literal notranslate"><span class="pre">noir</span></code> coil model, and the <code class="docutils literal notranslate"><span class="pre">moba</span></code> and <code class="docutils literal notranslate"><span class="pre">mobafit</span></code> commands a command line falls
+back to.</p></li>
+<li><p><strong>bartorch</strong>: the operator algebra, the step written out in Python, and the
+apps that assemble <code class="docutils literal notranslate"><span class="pre">moba</span></code> and <code class="docutils literal notranslate"><span class="pre">mobafit</span></code> from them.</p></li>
+<li><p><strong>BlochSim</strong>: the signal models, their derivatives and the bounded
+parameterisation.</p></li>
+</ul>
+</section>
+<section id="method">
+<h2>Method<a class="headerlink" href="#method" title="Link to this heading">#</a></h2>
+<img alt="Left, the eight echoes of one voxel with the decay fitted after Gauss-Newton steps 2, 6 and 16; right, the median relative T2 error over sixteen steps beside the Tikhonov weight, which halves each step" class="plot" src="../_images/model-irgnm.svg" />
+<p>A <span class="math notranslate nohighlight">\(T_2\)</span> decay fitted voxel by voxel by <a class="reference internal" href="../generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a>
+from a start of 80 ms, regularized towards the middle of the <span class="math notranslate nohighlight">\(T_2\)</span> bound
+(<code class="docutils literal notranslate"><span class="pre">scripts/figures/model.py</span></code>). The early, strongly weighted steps stay near
+the centre; the error falls once <span class="math notranslate nohighlight">\(\alpha_k\)</span> is small enough for the data to
+dominate.</p>
+<section id="gauss-newton-step">
+<h3>Gauss-Newton step<a class="headerlink" href="#gauss-newton-step" title="Link to this heading">#</a></h3>
+<p>Each step linearizes <span class="math notranslate nohighlight">\(F\)</span> at the iterate <span class="math notranslate nohighlight">\(x_k\)</span> and solves a Tikhonov-regularized
+least-squares problem centred on <span class="math notranslate nohighlight">\(x_{\mathrm{ref}}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[
+x_{k+1} = x_k + (DF^H DF + \alpha_k I)^{-1}\left[DF^H (y - F(x_k)) - \alpha_k (x_k - x_{\mathrm{ref}})\right],
+\]</div>
+<p>with <span class="math notranslate nohighlight">\(DF = DF_{x_k}\)</span>. The weight decays geometrically,
+<span class="math notranslate nohighlight">\(\alpha_{k+1} = (\alpha_k - \alpha_{\min})/q + \alpha_{\min}\)</span>, with <span class="math notranslate nohighlight">\(q = 2\)</span> by
+default.<a class="footnote-reference brackets" href="#bakushinsky" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> The number of steps
+is a regularization parameter: stopping early gives a smoother estimate.</p>
+</section>
+<section id="sobolev-weighting">
+<h3>Sobolev weighting<a class="headerlink" href="#sobolev-weighting" title="Link to this heading">#</a></h3>
+<p>In <span class="math notranslate nohighlight">\(S_c \cdot x\)</span> any nonzero function can move from the coils to the image
+without changing the data. <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> solves for the coils as k-space
+coefficients <span class="math notranslate nohighlight">\(\hat{s}\)</span> with <span class="math notranslate nohighlight">\(S = \mathcal{F}^{-1}[(1 + a|k|^2)^{-b/2}\hat{s}]\)</span>,
+so the penalty on <span class="math notranslate nohighlight">\(\hat{s}\)</span> is a Sobolev norm of <span class="math notranslate nohighlight">\(S\)</span> and the image receives the
+high spatial frequencies.<a class="footnote-reference brackets" href="#nlinv" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <code class="docutils literal notranslate"><span class="pre">moba</span></code> uses the same weighting for its coils,
+and <code class="docutils literal notranslate"><span class="pre">apps.moba(smooth=...)</span></code> applies it to a parameter map such as B1 or B0.</p>
+</section>
+<section id="bounded-parameters">
+<h3>Bounded parameters<a class="headerlink" href="#bounded-parameters" title="Link to this heading">#</a></h3>
+<p>A bounded parameter is solved for through a transformed variable: a scaled
+sigmoid for a two-sided bound, a softplus for a one-sided one. Every iterate
+then maps inside the bound, and a millisecond relaxation time and a
+dimensionless fraction take steps of comparable size. The data term remains
+nonconvex in <span class="math notranslate nohighlight">\(\theta\)</span>, so the result depends on the start.<a class="footnote-reference brackets" href="#sumpf" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> Which
+command lines the apps answer, and why the others go to BART, is listed in
+<a class="reference internal" href="../guides/developer/internals/model-based.html"><span class="doc">Model-based command routing</span></a>.</p>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">4. Joint reconstruction of image and sensitivity maps</span></a>: image
+and coils by Gauss-Newton.</p></li>
+<li><p><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html"><span class="doc">9. Nonlinear inversion for T2 mapping</span></a>: a <span class="math notranslate nohighlight">\(T_2\)</span> map
+by voxel-wise fit and by fit to k-space.</p></li>
+<li><p><a class="reference internal" href="../auto_examples/08-workflows/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a>: the linear
+alternative, a subspace reconstruction followed by a fit.</p></li>
+<li><p><a class="reference internal" href="../api/nlop.html"><span class="doc">Nonlinear operators</span></a> and <a class="reference internal" href="../api/apps.html"><span class="doc">Reconstruction pipelines</span></a>: the operators, the signal
+models, IRGNM and the apps.</p></li>
+</ul>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 </section>
 </section>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="nlinv" role="doc-footnote">
+<aside class="footnote brackets" id="bakushinsky" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Uecker M, Hohage T, Block KT, Frahm J. Image reconstruction by regularized nonlinear inversion—joint estimation of coil sensitivities and image content. <em>Magn Reson Med</em> 60(3):674–682 (2008). <a class="reference external" href="https://doi.org/10.1002/mrm.21691">doi:10.1002/mrm.21691</a></p>
+<p>Bakushinsky AB, Kokurin MY. <em>Iterative Methods for Approximate Solution of Inverse Problems.</em> Springer (2004). <a class="reference external" href="https://doi.org/10.1007/978-1-4020-3122-9">doi:10.1007/978-1-4020-3122-9</a></p>
 </aside>
-<aside class="footnote brackets" id="block" role="doc-footnote">
+<aside class="footnote brackets" id="nlinv" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
-<p>Block KT, Uecker M, Frahm J. Model-based iterative reconstruction for radial fast spin-echo MRI. <em>IEEE Trans Med Imaging</em> 28(11):1759–1769 (2009). <a class="reference external" href="https://doi.org/10.1109/TMI.2009.2023119">doi:10.1109/TMI.2009.2023119</a></p>
+<p>Uecker M, Hohage T, Block KT, Frahm J. Image reconstruction by regularized nonlinear inversion—joint estimation of coil sensitivities and image content. <em>Magn Reson Med</em> 60(3):674–682 (2008). <a class="reference external" href="https://doi.org/10.1002/mrm.21691">doi:10.1002/mrm.21691</a></p>
 </aside>
 <aside class="footnote brackets" id="sumpf" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p>Sumpf TJ, Uecker M, Boretius S, Frahm J. Model-based nonlinear inverse reconstruction for T2 mapping using highly undersampled spin-echo MRI. <em>J Magn Reson Imaging</em> 34(2):420–428 (2011). <a class="reference external" href="https://doi.org/10.1002/jmri.22634">doi:10.1002/jmri.22634</a></p>
-</aside>
-<aside class="footnote brackets" id="wang" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
-<p>Wang X, Tan Z, Scholand N, Roeloffs V, Uecker M. Physics-based reconstruction methods for magnetic resonance imaging. <em>Phil Trans R Soc A</em> 379(2200):20200196 (2021). <a class="reference external" href="https://doi.org/10.1098/rsta.2020.0196">doi:10.1098/rsta.2020.0196</a></p>
-</aside>
-<aside class="footnote brackets" id="bakushinsky" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
-<p>Bakushinsky AB, Kokurin MY. <em>Iterative Methods for Approximate Solution of Inverse Problems.</em> Springer (2004). <a class="reference external" href="https://doi.org/10.1007/978-1-4020-3122-9">doi:10.1007/978-1-4020-3122-9</a></p>
-</aside>
-<aside class="footnote brackets" id="huang" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
-<p>Huang C, Graff CG, Clarkson EW, Bilgin A, Altbach MI. T2 mapping from highly undersampled data by reconstruction of principal component coefficient maps using compressed sensing. <em>Magn Reson Med</em> 67(5):1355–1366 (2012). <a class="reference external" href="https://doi.org/10.1002/mrm.23128">doi:10.1002/mrm.23128</a></p>
-</aside>
-<aside class="footnote brackets" id="tamir" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">7</a><span class="fn-bracket">]</span></span>
-<p>Tamir JI, Uecker M, Chen W, Lai P, Alley MT, Vasanawala SS, Lustig M. T2 shuffling: sharp, multicontrast, volumetric fast spin-echo imaging. <em>Magn Reson Med</em> 77(1):180–195 (2017). <a class="reference external" href="https://doi.org/10.1002/mrm.26102">doi:10.1002/mrm.26102</a></p>
 </aside>
 </aside>
 
@@ -755,20 +701,20 @@ steps themselves.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="non-cartesian.html"
+       href="solvers.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Non-Cartesian sampling</p>
+        <p class="prev-next-title">Solvers</p>
       </div>
     </a>
     <a class="right-next"
-       href="differentiation.html"
+       href="learned-reconstruction.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Differentiation through reconstruction</p>
+        <p class="prev-next-title">Learned reconstruction</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -790,11 +736,15 @@ steps themselves.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-nonlinear-models">Two nonlinear models</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#iteratively-regularized-gauss-newton">Iteratively regularized Gauss-Newton</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#identifiability">Identifiability</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#approaches-to-parameter-mapping">Approaches to parameter mapping</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#signal-models-and-their-derivatives">Signal models and their derivatives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#capabilities">Capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#division-of-responsibility">Division of responsibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#method">Method</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gauss-newton-step">Gauss-Newton step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sobolev-weighting">Sobolev weighting</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bounded-parameters">Bounded parameters</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>

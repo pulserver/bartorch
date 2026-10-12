@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>From k-space to image &#8212; bartorch</title>
+    <title>2. From k-space to an image &#8212; bartorch</title>
   
   
   
@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -63,12 +63,13 @@
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../_static/capabilities.js?v=421ebb92"></script>
     <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/auto_examples/01-basics/02-from-kspace-to-image.html" />
     <link rel="icon" href="../../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Parallel imaging" href="../02-parallel-imaging/index.html" />
-    <link rel="prev" title="Tensors and commands" href="01-tensors-and-commands.html" />
+    <link rel="prev" title="1. Your data as tensors" href="01-tensors-and-commands.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -217,49 +218,59 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/terminology.html">Terminology and conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../guides/developer/internals/performance.html">Backends and timings</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/pull-requests.html">Pull requests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/developer/code-of-conduct.html">Code of conduct</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/index.html">Explanation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../explanation/differentiation.html">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/performance.html">Performance</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Basics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">From k-space to image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">2. From k-space to an image</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -515,7 +526,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>From k-space to image</h1>
+    <h1>2. From k-space to an image</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -525,12 +536,14 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#phantom">Phantom</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coils">Coils</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#channel-compression">Channel compression</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sensitivity-calibration">Sensitivity calibration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reconstruction">Reconstruction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulated-acquisition">Simulated acquisition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#undersampling">Undersampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coil-compression">Coil compression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coil-sensitivities">Coil sensitivities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sense">SENSE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressed-sensing">Compressed sensing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-acceleration-factor">Exercise: acceleration factor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#as-a-spec">As a spec</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
             </nav>
@@ -548,235 +561,150 @@
 <p><a class="reference internal" href="#sphx-glr-download-auto-examples-01-basics-02-from-kspace-to-image-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="from-k-space-to-image">
-<span id="sphx-glr-auto-examples-01-basics-02-from-kspace-to-image-py"></span><h1>From k-space to image<a class="headerlink" href="#from-k-space-to-image" title="Link to this heading">#</a></h1>
+<section class="sphx-glr-example-title" id="from-k-space-to-an-image">
+<span id="sphx-glr-auto-examples-01-basics-02-from-kspace-to-image-py"></span><h1>2. From k-space to an image<a class="headerlink" href="#from-k-space-to-an-image" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/latest/_colab/01-basics/02-from-kspace-to-image.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
-<p>This lesson reconstructs an undersampled Cartesian brain acquisition from its
-multichannel k-space to a coil-combined image, and shows what each step of a
-parallel-imaging and compressed-sensing pipeline contributes. Scan time in
-Cartesian MRI is proportional to the number of phase-encoding lines; skipping
-lines shortens the scan by the acceleration factor <span class="math notranslate nohighlight">\(R\)</span>, but violates the
-Nyquist criterion and folds the image onto itself. Recovering an unaliased
-image from such data is what the receive coil array, and prior knowledge of
-the image, are used for.</p>
-<p>The acquisition is simulated from a BrainWeb tissue segmentation and the eight
-channels of BART’s head-coil model, with one line in three acquired along the
-phase-encoding direction. The pipeline consists of coil compression,
-sensitivity calibration by ESPIRiT, and a regularized least-squares fit of the
-SENSE forward model</p>
+<p>In lesson 1 you saw how BART’s arrays look as tensors and how its FFT takes a
+fully sampled k-space to an image. A real scan is rarely fully sampled: you
+skip phase-encoding lines to shorten it, and the image folds onto itself. In
+this lesson you reconstruct such a scan, one step at a time, and after each
+step you look at what it did to the image.</p>
+<p>The pipeline is the one most of the course builds on: compress the channels,
+estimate the coil sensitivities, and solve the SENSE model</p>
 <div class="math notranslate nohighlight">
 \[y = P F S x + \varepsilon,\]</div>
-<p>with <span class="math notranslate nohighlight">\(S\)</span> the coil sensitivities, <span class="math notranslate nohighlight">\(F\)</span> the Fourier transform,
-<span class="math notranslate nohighlight">\(P\)</span> the sampling operator that keeps the acquired phase encodes, and
-<span class="math notranslate nohighlight">\(\varepsilon\)</span> complex Gaussian noise. <a class="reference internal" href="../../explanation/encoding.html"><span class="doc">The MRI encoding operator</span></a>
-states the model and <a class="reference internal" href="../../explanation/inverse-problems.html"><span class="doc">Inverse problems and their solvers</span></a> the estimator.</p>
-<p>Shapes are C order, so a Cartesian k-space is <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> with the
-readout along <code class="docutils literal notranslate"><span class="pre">x</span></code> and the phase encoding along <code class="docutils literal notranslate"><span class="pre">y</span></code>; see
-<a class="reference internal" href="../../explanation/data-layout.html"><span class="doc">Data layout and conventions</span></a>.</p>
+<p>where <span class="math notranslate nohighlight">\(S\)</span> multiplies by the coil sensitivities, <span class="math notranslate nohighlight">\(F\)</span> is the Fourier
+transform, <span class="math notranslate nohighlight">\(P\)</span> keeps the phase encodes you acquired, and
+<span class="math notranslate nohighlight">\(\varepsilon\)</span> is noise. <a class="reference internal" href="../../explanation/encoding.html"><span class="doc">Encoding operators</span></a> derives the
+model.</p>
 <p><strong>Learning objectives</strong></p>
 <ul class="simple">
-<li><p>Simulate a multichannel Cartesian acquisition from a tissue segmentation.</p></li>
-<li><p>Undersample the phase-encoding direction with a variable-density pattern
-around a fully sampled autocalibration (ACS) region.</p></li>
+<li><p>Recognise the aliasing of an undersampled Cartesian scan.</p></li>
 <li><p>Compress the channels with <a class="reference internal" href="../../generated/bartorch.tools.cc.html#bartorch.tools.cc" title="bartorch.tools.cc"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.cc()</span></code></a> and estimate their
-sensitivities with <a class="reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ecalib()</span></code></a>.</p></li>
-<li><p>Reconstruct with <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a>, with a Tikhonov and with a
-wavelet sparsity penalty, and compare the results by error maps, NRMSE and
-SSIM.</p></li>
+sensitivities with <a class="reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ecalib()</span></code></a> (ESPIRiT).</p></li>
+<li><p>Reconstruct with <a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a>, first as SENSE and then with a
+wavelet penalty (compressed sensing), and compare the two to the truth.</p></li>
+<li><p>See how far each one goes as you skip more lines.</p></li>
 </ul>
-<p>It builds on the conventions of <a class="reference internal" href="01-tensors-and-commands.html"><span class="doc">Tensors and commands</span></a>. The sections
-after it examine calibration, regularization and the operator form of each
-step in turn; the next lesson, <a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a>,
-compares sensitivity estimators.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w">
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="w">
-</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">brainweb_dl</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mri</span><span class="w">
+<p>Previous: <a class="reference internal" href="01-tensors-and-commands.html"><span class="doc">1. Your data as tensors</span></a>. Next:
+<a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html"><span class="doc">3. Coil sensitivities</span></a>, where you look more closely
+at where the coil sensitivities come from.</p>
+<section id="simulated-acquisition">
+<h2>Simulated acquisition<a class="headerlink" href="#simulated-acquisition" title="Link to this heading">#</a></h2>
+<p>The object is a slice of the BrainWeb brain <a class="footnote-reference brackets" href="#brainweb" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, rendered as a
+<span class="math notranslate nohighlight">\(T_1\)</span>-weighted spin-echo image; how it is built does not matter here,
+so that code is hidden. You acquire it with BART’s analytical eight-channel
+head coil: every channel sees the image through its own sensitivity, and
+the scanner records the Fourier transform of each channel image, plus
+thermal noise.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w">
 </span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">bartorch</span><span class="nn">.</span><span class="nn">tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span><span class="w">
+</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">bartorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">apps</span><span class="p">,</span> <span class="n">priors</span><span class="w">
-</span></pre></div></div>
-<section id="phantom">
-<h2>Phantom<a class="headerlink" href="#phantom" title="Link to this heading">#</a></h2>
-<p>BrainWeb <a class="footnote-reference brackets" href="#brainweb" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> publishes a segmentation rather than an image: one membership map
-per tissue class, from which a table of relaxation times and proton
-densities gives the signal of a chosen acquisition. The volume
-<code class="docutils literal notranslate"><span class="pre">brainweb-dl</span></code> returns is indexed <code class="docutils literal notranslate"><span class="pre">(inferior-superior,</span> <span class="pre">posterior-anterior,</span>
-<span class="pre">left-right)</span></code>, so its first axis selects an axial slice, and an image is
-drawn from its first row down, so flipping it puts anterior at the top.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">192</span><span class="w">
+</span><span class="w">
 </span><span class="n">COILS</span> <span class="o">=</span> <span class="mi">8</span><span class="w">
-</span><span class="n">SLICE</span> <span class="o">=</span> <span class="mi">90</span>  <span class="c1"># axial, through the lateral ventricles</span><span class="w">
-</span><span class="n">TISSUES</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># everything the table gives relaxation times</span><span class="w">
 </span><span class="w">
-</span><span class="n">table</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">brainweb_dl</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">data</span><span class="s2">&quot;</span> <span class="o">/</span> <span class="s2">&quot;</span><span class="s2">brainweb1_tissues.csv</span><span class="s2">&quot;</span><span class="w">
-</span><span class="n">entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="n">tissue_t1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">T1 (ms)</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">TISSUES</span><span class="p">)</span><span class="p">]</span><span class="w">
-</span><span class="n">tissue_t2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">T2 (ms)</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">TISSUES</span><span class="p">)</span><span class="p">]</span><span class="w">
-</span><span class="n">tissue_pd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">PD (ms)</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">TISSUES</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span><span class="n">sensitivities</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><span class="n">bt</span><span class="o">.</span><span class="n">coils</span></a><span class="p">(</span><span class="n">t</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><span class="n">bt</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">D</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">COILS</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">sensitivities</span> <span class="o">/</span><span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="w">
-</span><span class="n">fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">get_mri</span><span class="p">(</span><span class="n">sub_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">contrast</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">fuzzy</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">[</span><span class="n">SLICE</span><span class="p">]</span><span class="p">)</span><span class="p">[</span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">TISSUES</span><span class="p">)</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span></pre></div></div>
-<p>The slice is cropped to a square field of view around the head and resampled
-to the matrix reconstructed here. The crop leaves a margin, as a real field
-of view does: the aliased copies of an undersampled acquisition then fall
-partly outside the head.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">MARGIN</span> <span class="o">=</span> <span class="mf">0.25</span><span class="w">
-</span></pre></div></div>
-<p>A membership-weighted average of the table gives <span class="math notranslate nohighlight">\(T_1\)</span>, <span class="math notranslate nohighlight">\(T_2\)</span> and
-the proton density at every voxel, and the spin-echo signal</p>
-<div class="math notranslate nohighlight">
-\[S = \rho \, \left(1 - e^{-T_R/T_1}\right) e^{-T_E/T_2}\]</div>
-<p>turns those into the image the experiment measures. At a short repetition
-time and a short echo time the contrast is <span class="math notranslate nohighlight">\(T_1\)</span>-weighted: white matter
-bright, cerebrospinal fluid dark, subcutaneous fat brightest of all.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">TR</span><span class="p">,</span> <span class="n">TE</span> <span class="o">=</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">12.0</span>  <span class="c1"># ms</span><span class="w">
-</span><span class="w">
-</span><span class="n">weights</span> <span class="o">=</span> <span class="n">memberships</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">tissue_pd</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="w">
-</span><span class="n">share</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span><span class="w">
-</span><span class="n">T1</span> <span class="o">=</span> <span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">tissue_t1</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">share</span><span class="w">
-</span><span class="n">T2</span> <span class="o">=</span> <span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">tissue_t2</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">share</span><span class="w">
-</span><span class="n">proton_density</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="n">signal</span> <span class="o">=</span> <span class="p">(</span><span class="w">
-</span>    <span class="n">proton_density</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">TR</span> <span class="o">/</span> <span class="n">T1</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span><span class="p">)</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">TE</span> <span class="o">/</span> <span class="n">T2</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="p">)</span><span class="w">
-</span><span class="n">signal</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">T1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">/</span> <span class="n">signal</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="c1"># A smooth quadratic phase stands in for the transmit and off-resonance phase</span><span class="w">
-</span><span class="c1"># of a real object, so that nothing below depends on the image being real.</span><span class="w">
-</span><span class="n">grid_y</span><span class="p">,</span> <span class="n">grid_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="w">
-</span>    <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">ij</span><span class="s2">&quot;</span><span class="w">
-</span><span class="p">)</span><span class="w">
-</span><span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">signal</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.8</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="n">grid_x</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">grid_y</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="w">
-</span></pre></div></div>
-</section>
-<section id="coils">
-<h2>Coils<a class="headerlink" href="#coils" title="Link to this heading">#</a></h2>
-<p>Each receive channel measures the object weighted by its complex sensitivity
-profile, <span class="math notranslate nohighlight">\(x_c = S_c x\)</span>. The sensitivities here are BART’s analytical
-head coil, evaluated on the image grid that <a class="reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.grid()</span></code></a>
-describes. Dividing them by their root sum of squares over the channels
-normalizes <span class="math notranslate nohighlight">\(\sum_c |S_c|^2\)</span> to one, so that the optimal coil
-combination of the coil images is the image itself and a reconstruction can
-be compared against it directly. Complex Gaussian noise is then added to
-every k-space sample, as thermal noise is in the receiver chain.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">sensitivities</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.coils.html#bartorch.tools.coils" title="bartorch.tools.coils"><span class="n">bt</span><span class="o">.</span><span class="n">coils</span></a><span class="p">(</span><span class="n">t</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.grid.html#bartorch.tools.grid" title="bartorch.tools.grid"><span class="n">bt</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">D</span><span class="o">=</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">COILS</span><span class="p">)</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="w">
-</span><span class="n">sensitivities</span> <span class="o">=</span> <span class="n">sensitivities</span> <span class="o">/</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">sensitivities</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="n">coil_images</span> <span class="o">=</span> <span class="n">sensitivities</span> <span class="o">*</span> <span class="n">image</span><span class="w">
-</span><span class="n">kspace</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">coil_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">kspace</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.fft.html#bartorch.fft" title="bartorch.fft"><span class="n">bartorch</span><span class="o">.</span><span class="n">fft</span></a><span class="p">(</span><span class="n">sensitivities</span> <span class="o">*</span> <span class="n">image</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">kspace</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.noise.html#bartorch.tools.noise" title="bartorch.tools.noise"><span class="n">bt</span><span class="o">.</span><span class="n">noise</span></a><span class="p">(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">k-space </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">kspace</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">: (coils, y, x)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_02-from-kspace-to-image_001.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_001.png" alt="$T_1$, $T_2$, proton density, $T_1$-weighted image" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-from-kspace-to-image_002.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_002.png" alt="channel 2, channel 4, channel 6" class = "sphx-glr-multi-img"/></li>
-</ul>
-<p>The first figure is the ground truth: the relaxation maps, drawn with the
-perceptually uniform colormaps recommended for relaxometry <a class="footnote-reference brackets" href="#fuderer" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> –
-lipari for <span class="math notranslate nohighlight">\(T_1\)</span>, navia for <span class="math notranslate nohighlight">\(T_2\)</span> – and with a window that stops
-short of cerebrospinal fluid, the proton density, and the
-<span class="math notranslate nohighlight">\(T_1\)</span>-weighted image they give. The second shows three of the eight
-sensitivities as complex images, with the phase in colour, the magnitude in
-brightness and the outline of the head. Each magnitude is highest near its
-coil element and falls off across the head; the phase varies smoothly. These
-spatial variations are the extra encoding that parallel imaging uses to
-separate aliased voxels.
-<a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a> compares how they are
-estimated.</p>
+<img src="../../_images/sphx_glr_02-from-kspace-to-image_001.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_001.png" alt="the object, channel 2 sensitivity" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>k-space (8, 192, 192): (coils, y, x)
+</pre></div>
+</div>
+<p>On the right is one channel’s sensitivity: brightness is its magnitude,
+colour its phase. It is strong near its coil element and weak across the
+head. Because every channel sees a different part of the head, the eight of
+them together carry spatial information that a single coil does not, and
+that is what lets you skip lines below.</p>
+<p>Dividing the sensitivities by their root sum of squares makes the best
+combination of the channel images equal to the image itself, so you can
+compare every reconstruction below directly with <code class="docutils literal notranslate"><span class="pre">image</span></code>.</p>
 </section>
-<section id="sampling">
-<h2>Sampling<a class="headerlink" href="#sampling" title="Link to this heading">#</a></h2>
-<p>The readout is fully sampled, since it costs no scan time, and a subset of
-the phase encodes is acquired. The lines are drawn at random from a
-variable density that is highest at the k-space centre, where most of the
-signal energy is, with a block of 24 central lines, the autocalibration
-signal (ACS) region, acquired in full. ESPIRiT reads its calibration matrix
-from the ACS region, so an acquisition without one would need a separate
-calibration scan. The pattern is a column vector along the phase-encoding
-direction: it broadcasts over the readout and over the channels.</p>
+<section id="undersampling">
+<h2>Undersampling<a class="headerlink" href="#undersampling" title="Link to this heading">#</a></h2>
+<p>You keep every readout sample, since they cost no scan time, and acquire one
+phase-encoding line in three. The lines are drawn at random, more densely
+near the centre of k-space where most of the signal is, around a fully
+sampled block of 24 central lines: the autocalibration (ACS) region, from
+which you will estimate the coil sensitivities. The pattern is a column, so
+it broadcasts over the readout and the channels.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">ACCELERATION</span> <span class="o">=</span> <span class="mi">3</span><span class="w">
 </span><span class="n">CALIBRATION</span> <span class="o">=</span> <span class="mi">24</span><span class="w">
 </span><span class="w">
-</span><span class="n">encodes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">SIZE</span><span class="p">)</span> <span class="o">-</span> <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="w">
-</span><span class="n">profile</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">encodes</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">SIZE</span><span class="p">)</span> <span class="o">*</span><span class="o">*</span> <span class="o">-</span><span class="mf">3.0</span><span class="w">
-</span><span class="n">centre</span> <span class="o">=</span> <span class="p">(</span><span class="n">encodes</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CALIBRATION</span> <span class="o">/</span><span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="w">
-</span><span class="n">drawn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="w">
-</span>    <span class="n">profile</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">centre</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>    <span class="n">SIZE</span> <span class="o">/</span><span class="o">/</span> <span class="n">ACCELERATION</span> <span class="o">-</span> <span class="n">CALIBRATION</span><span class="p">,</span><span class="w">
-</span>    <span class="n">replacement</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w">
-</span>    <span class="n">generator</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span><span class="p">)</span><span class="w">
-</span><span class="n">lines</span> <span class="o">=</span> <span class="n">centre</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">lines</span><span class="p">[</span><span class="n">drawn</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="w">
-</span><span class="w">
-</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="w">
-</span><span class="n">measured</span> <span class="o">=</span> <span class="n">kspace</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">pattern</span><span class="w">
-</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">SIZE</span><span class="si">}</span><span class="s2"> phase encodes acquired, R = </span><span class="si">{</span><span class="n">SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">lines</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">simulate</span><span class="p">(</span><span class="n">ACCELERATION</span><span class="p">,</span> <span class="n">CALIBRATION</span><span class="p">)</span>  <span class="c1"># (y, 1), ones on acquired lines</span><span class="w">
+</span><span class="n">measured</span> <span class="o">=</span> <span class="n">kspace</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">pattern</span>  <span class="c1"># (coils, z, y, x), as BART expects</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">SIZE</span><span class="si">}</span><span class="s2"> lines acquired</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>63 of 192 phase encodes acquired, R = 3.0
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>63 of 192 lines acquired
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_02-from-kspace-to-image_003.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_003.png" alt="sampling pattern, acquired k-space, channel 0" class = "sphx-glr-single-img"/><p>In the pattern (readout horizontal, phase encoding vertical) every acquired
-phase encode is a full line; the lines cluster towards the centre and the
-ACS band is dense.</p>
+<p>The simplest thing you can do with these data is to transform each channel
+back as it is, with zeros in the missing lines, and combine the channels by
+root sum of squares:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">channel_images</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.ifft.html#bartorch.ifft" title="bartorch.ifft"><span class="n">bartorch</span><span class="o">.</span><span class="n">ifft</span></a><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">zero_filled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">channel_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../../_images/sphx_glr_02-from-kspace-to-image_002.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_002.png" alt="sampling pattern, acquired k-space, zero-filled" class = "sphx-glr-single-img"/><p>Readout runs horizontally, phase encoding vertically. The zero-filled image
+is the aliasing you have to remove: every missing line leaves a faint copy
+of the head, smeared along the phase-encoding direction.</p>
 </section>
-<section id="channel-compression">
-<h2>Channel compression<a class="headerlink" href="#channel-compression" title="Link to this heading">#</a></h2>
-<p>Eight channels carry less independent information than eight images: the
-sensitivities overlap, and the singular value spectrum of the calibration
-matrix falls off. <a class="reference internal" href="../../generated/bartorch.tools.cc.html#bartorch.tools.cc" title="bartorch.tools.cc"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.cc()</span></code></a> returns the matrix that projects
-the channels onto their leading singular vectors <a class="footnote-reference brackets" href="#huangcc" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, the virtual
-coils, and <a class="reference internal" href="../../generated/bartorch.tools.ccapply.html#bartorch.tools.ccapply" title="bartorch.tools.ccapply"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ccapply()</span></code></a> applies it. Calibration, the
-encoding operator and every iteration then cost six channels rather than
-eight, at a negligible loss of the encoding capacity of the array.</p>
+<section id="coil-compression">
+<h2>Coil compression<a class="headerlink" href="#coil-compression" title="Link to this heading">#</a></h2>
+<p>Eight channels carry less than eight images’ worth of information, because
+their sensitivities overlap. <a class="reference internal" href="../../generated/bartorch.tools.cc.html#bartorch.tools.cc" title="bartorch.tools.cc"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.cc()</span></code></a> finds the
+combinations of channels that carry most of it <a class="footnote-reference brackets" href="#huangcc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> and
+<a class="reference internal" href="../../generated/bartorch.tools.ccapply.html#bartorch.tools.ccapply" title="bartorch.tools.ccapply"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.ccapply()</span></code></a> projects the data onto them. Six virtual
+channels lose almost nothing, and every later step works on six channels
+instead of eight.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">VIRTUAL</span> <span class="o">=</span> <span class="mi">6</span><span class="w">
 </span><span class="w">
 </span><span class="n">matrix</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.cc.html#bartorch.tools.cc" title="bartorch.tools.cc"><span class="n">bt</span><span class="o">.</span><span class="n">cc</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">VIRTUAL</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">CALIBRATION</span><span class="p">)</span><span class="w">
 </span><span class="n">compressed</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ccapply.html#bartorch.tools.ccapply" title="bartorch.tools.ccapply"><span class="n">bt</span><span class="o">.</span><span class="n">ccapply</span></a><span class="p">(</span><span class="n">measured</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">VIRTUAL</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">measured</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> channels -&gt; </span><span class="si">{</span><span class="n">compressed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>8 channels -&gt; 6
+</pre></div>
+</div>
 </section>
-<section id="sensitivity-calibration">
-<h2>Sensitivity calibration<a class="headerlink" href="#sensitivity-calibration" title="Link to this heading">#</a></h2>
-<p>ESPIRiT <a class="footnote-reference brackets" href="#espirit" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> estimates the sensitivities from the ACS region alone:
-it builds a calibration matrix from all k-space neighbourhoods (kernels) in
-the region, and obtains the sensitivities at each voxel as the eigenvector
-of an operator derived from that matrix whose eigenvalue is one. Outside the
-object no eigenvalue is close to one; <code class="docutils literal notranslate"><span class="pre">crop</span></code> sets the maps to zero where
-the eigenvalue falls below it, which keeps the background out of the
-reconstruction.</p>
+<section id="coil-sensitivities">
+<h2>Coil sensitivities<a class="headerlink" href="#coil-sensitivities" title="Link to this heading">#</a></h2>
+<p>ESPIRiT <a class="footnote-reference brackets" href="#espirit" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> estimates the sensitivities from the ACS region alone.
+<code class="docutils literal notranslate"><span class="pre">crop</span></code> sets them to zero where ESPIRiT finds no signal, which keeps the
+background out of the reconstruction. Lesson 3 looks inside this step.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">maps</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><span class="n">bt</span><span class="o">.</span><span class="n">ecalib</span></a><span class="p">(</span><span class="n">compressed</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">calib_size</span><span class="o">=</span><span class="n">CALIBRATION</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">maps </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">maps</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
+<img src="../../_images/sphx_glr_02-from-kspace-to-image_003.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_003.png" alt="virtual channel 0, virtual channel 2, virtual channel 4" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>maps (6, 1, 192, 192)
+</pre></div>
+</div>
 </section>
-<section id="reconstruction">
-<h2>Reconstruction<a class="headerlink" href="#reconstruction" title="Link to this heading">#</a></h2>
-<p>Three reconstructions of the same data are compared.</p>
-<ul class="simple">
-<li><p>The <strong>zero-filled</strong> reconstruction sets the missing phase encodes to zero,
-inverse-transforms each channel and combines them by root sum of squares.
-It uses no model of the encoding, so every missing line leaves aliasing.</p></li>
-<li><p><strong>SENSE</strong> <a class="footnote-reference brackets" href="#sense" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> solves <span class="math notranslate nohighlight">\(\min_x \|PFSx - y\|_2^2 +
-\lambda\|x\|_2^2\)</span> by conjugate gradients. The sensitivities unfold the
-aliasing, but the inversion amplifies the noise by the g-factor, which is
-highest where the coils cannot distinguish aliased voxels.</p></li>
-<li><p><strong>Compressed sensing</strong> <a class="footnote-reference brackets" href="#lustig" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> replaces the Tikhonov term by an
-<span class="math notranslate nohighlight">\(\ell_1\)</span> penalty on the wavelet coefficients, solved by FISTA
-<a class="footnote-reference brackets" href="#beck" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>. The random undersampling makes the aliasing incoherent, i.e.
-noise-like in the wavelet domain, and the sparsity penalty removes it
-together with the amplified noise.</p></li>
-</ul>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">channel_images</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.ifft.html#bartorch.ifft" title="bartorch.ifft"><span class="n">bartorch</span><span class="o">.</span><span class="n">ifft</span></a><span class="p">(</span><span class="n">compressed</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">unitary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span><span class="n">zero_filled</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.rss.html#bartorch.rss" title="bartorch.rss"><span class="n">bartorch</span><span class="o">.</span><span class="n">rss</span></a><span class="p">(</span><span class="n">channel_images</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span><span class="w">
-</span><span class="n">sense</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">compressed</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="w">
-</span><span class="n">wavelet</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="w">
+<section id="sense">
+<h2>SENSE<a class="headerlink" href="#sense" title="Link to this heading">#</a></h2>
+<p>With the sensitivities you can solve the model at the top of the page.
+<a class="reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.apps.pics()</span></code></a> does it the way BART’s <code class="docutils literal notranslate"><span class="pre">pics</span></code> command does;
+with only <code class="docutils literal notranslate"><span class="pre">l2</span></code>, a small Tikhonov weight, it is SENSE <a class="footnote-reference brackets" href="#id7" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>, solved by
+conjugate gradients:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">sense</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">compressed</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../../_images/sphx_glr_02-from-kspace-to-image_004.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_004.png" alt="zero-filled, SENSE, SENSE error" class = "sphx-glr-single-img"/><p>The folded copies are gone. What is left is noise, strongest in the middle
+of the head where the coils are least distinct and the inversion amplifies
+it most (the g-factor), and a speckle of residual aliasing from the random
+sampling.</p>
+</section>
+<section id="compressed-sensing">
+<h2>Compressed sensing<a class="headerlink" href="#compressed-sensing" title="Link to this heading">#</a></h2>
+<p>Random sampling makes the leftover aliasing look like noise, and a brain
+image is sparse in a wavelet basis while noise is not. So you can ask
+<code class="docutils literal notranslate"><span class="pre">pics</span></code> for the image that fits the data <em>and</em> has few wavelet
+coefficients <a class="footnote-reference brackets" href="#lustig" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>: give it a <a class="reference internal" href="../../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-class docutils literal notranslate"><span class="pre">bartorch.priors.Wavelet</span></code></a> term
+over the two image axes, and let FISTA <a class="footnote-reference brackets" href="#beck" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> solve it.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">wavelet</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="w">
 </span>    <span class="n">compressed</span><span class="p">,</span><span class="w">
 </span>    <span class="n">maps</span><span class="p">,</span><span class="w">
 </span>    <span class="n">regularizers</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">)</span><span class="p">,</span><span class="w">
@@ -784,41 +712,69 @@ together with the amplified noise.</p></li>
 </span>    <span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<p>The sensitivities ESPIRiT estimates and the ones the acquisition was
-simulated with differ by a phase that varies from voxel to voxel, so the
-reconstructed image does too, and the comparison is between magnitudes.
-<code class="docutils literal notranslate"><span class="pre">pics</span></code> returns the image in the units of the k-space rather than those of
-the simulated object, so <a class="reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><code class="xref py py-func docutils literal notranslate"><span class="pre">bartorch.tools.nrmse()</span></code></a> is called with
-<code class="docutils literal notranslate"><span class="pre">scaled=True</span></code>, which fits a global factor before comparing.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">zero-filled</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">zero_filled</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">SENSE</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">sense</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">wavelet CS</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">wavelet</span><span class="p">}</span><span class="w">
-</span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span>    <span class="n">error</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
-</span>    <span class="n">similarity</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><span class="n">bt</span><span class="o">.</span><span class="n">ssim</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span><span class="p">)</span><span class="w">
-</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">  NRMSE </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  SSIM </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_02-from-kspace-to-image_005.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_005.png" alt="zero-filled error, SENSE error, wavelet CS error" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_02-from-kspace-to-image_006.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_006.png" alt="truth, zero-filled, SENSE, wavelet CS" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The error maps are on one scale. The wavelet penalty removes most of the
+noise and the speckle; in the enlarged region behind the ventricles the
+cortex is sharp and the white matter smooth. The NRMSE and SSIM say the
+same:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">nrmse</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ssim</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ssim.html#bartorch.tools.ssim" title="bartorch.tools.ssim"><span class="n">bt</span><span class="o">.</span><span class="n">ssim</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">: NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, SSIM </span><span class="si">{</span><span class="n">ssim</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>zero-filled  NRMSE 0.129  SSIM 0.541
-      SENSE  NRMSE 0.101  SSIM 0.737
- wavelet CS  NRMSE 0.044  SSIM 0.926
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>zero-filled: NRMSE 0.130, SSIM 0.520
+      SENSE: NRMSE 0.101, SSIM 0.737
+ wavelet CS: NRMSE 0.044, SSIM 0.926
 </pre></div>
 </div>
-<ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_02-from-kspace-to-image_004.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_004.png" alt="reference, zero-filled, SENSE, wavelet CS" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-from-kspace-to-image_005.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_005.png" alt="zero-filled error, SENSE error, wavelet CS error" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_02-from-kspace-to-image_006.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_006.png" alt="reference, enlarged, zero-filled, SENSE, wavelet CS" class = "sphx-glr-multi-img"/></li>
-</ul>
-<p>The zero-filled image carries the aliasing of the missing phase encodes as
-blurring and ghosting along the vertical, phase-encoding direction. SENSE
-removes the coherent aliasing, but its error map shows noise amplified in
-the centre of the head, where the coil sensitivities are least distinct, and
-incoherent residual artefacts of the random sampling. The wavelet penalty
-suppresses both; in the enlarged region the cortical folding and the
-ventricle boundaries are sharper and the background of the brain is smooth.
-The NRMSE and SSIM printed above quantify the same ordering.</p>
-<p>How much the penalty removes depends on its weight, which is chosen here and
-not estimated: a larger weight removes more noise and more fine texture with
-it. <a class="reference internal" href="../02-parallel-imaging/01-coil-calibration.html"><span class="doc">Coil sensitivity calibration</span></a> compares sensitivity
-estimators, and <a class="reference internal" href="../03-regularization/01-regularized-reconstruction.html"><span class="doc">Regularized reconstruction</span></a>
-varies the weight.</p>
+<p><code class="docutils literal notranslate"><span class="pre">scaled=True</span></code> fits one global factor before comparing, so that only the
+shape of the error counts and not the overall scale of the image. You
+compare magnitudes because ESPIRiT’s maps can carry a different phase from
+the true ones, and the image then carries it too.</p>
+<p>The wavelet weight, 0.004, is a choice: a larger one removes more noise and
+more fine detail with it. Lesson 5 shows how to choose it.</p>
+</section>
+<section id="exercise-acceleration-factor">
+<h2>Exercise: acceleration factor<a class="headerlink" href="#exercise-acceleration-factor" title="Link to this heading">#</a></h2>
+<p>How far can you push the acceleration? Rerun the same two reconstructions
+with every third, fourth, fifth and sixth line, keeping the ACS block:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">accelerations</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span><span class="w">
+</span><span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">SENSE</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="p">]</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">wavelet CS</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="p">]</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span> <span class="n">R</span> <span class="ow">in</span> <span class="n">accelerations</span><span class="p">:</span><span class="w">
+</span>    <span class="n">acquired</span> <span class="o">=</span> <span class="n">kspace</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">simulate</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">CALIBRATION</span><span class="p">)</span><span class="w">
+</span>    <span class="n">data</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ccapply.html#bartorch.tools.ccapply" title="bartorch.tools.ccapply"><span class="n">bt</span><span class="o">.</span><span class="n">ccapply</span></a><span class="p">(</span><span class="n">acquired</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">VIRTUAL</span><span class="p">)</span><span class="w">
+</span>    <span class="n">maps_R</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.ecalib.html#bartorch.tools.ecalib" title="bartorch.tools.ecalib"><span class="n">bt</span><span class="o">.</span><span class="n">ecalib</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">calib_size</span><span class="o">=</span><span class="n">CALIBRATION</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span><span class="w">
+</span>    <span class="n">sense_R</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">maps_R</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="w">
+</span>    <span class="n">wavelet_R</span> <span class="o">=</span> <a class="sphx-glr-backref-module-bartorch-apps sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.apps.pics.html#bartorch.apps.pics" title="bartorch.apps.pics"><span class="n">apps</span><span class="o">.</span><span class="n">pics</span></a><span class="p">(</span><span class="w">
+</span>        <span class="n">data</span><span class="p">,</span><span class="w">
+</span>        <span class="n">maps_R</span><span class="p">,</span><span class="w">
+</span>        <span class="n">regularizers</span><span class="o">=</span><a class="sphx-glr-backref-module-bartorch-priors sphx-glr-backref-type-py-class reference internal" href="../../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><span class="n">priors</span><span class="o">.</span><span class="n">Wavelet</span></a><span class="p">(</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>        <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">fista</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="p">(</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">SENSE</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sense_R</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="s2">wavelet CS</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">wavelet_R</span><span class="p">)</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>        <span class="n">scores</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a class="sphx-glr-backref-module-bartorch-tools sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.tools.nrmse.html#bartorch.tools.nrmse" title="bartorch.tools.nrmse"><span class="n">bt</span><span class="o">.</span><span class="n">nrmse</span></a><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">estimate</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../../_images/sphx_glr_02-from-kspace-to-image_007.png" srcset="../../_images/sphx_glr_02-from-kspace-to-image_007.png" alt="02 from kspace to image" class = "sphx-glr-single-img"/><p>Both errors grow with the acceleration. The wavelet penalty stays ahead
+everywhere, but its lead shrinks: with fewer lines there is less incoherence
+for it to exploit and more of the image itself is missing. Try another
+weight, or a smaller ACS block, and see which one breaks first.</p>
+</section>
+<section id="as-a-spec">
+<h2>As a spec<a class="headerlink" href="#as-a-spec" title="Link to this heading">#</a></h2>
+<p>What this lesson built, stated the way you would ask an agent for it:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Reconstruct a 2D Cartesian multichannel k-space of shape (coils, 1, y, x),
+undersampled along y with a fully sampled 24-line ACS block, with bartorch.
+Compress to 6 virtual channels with bt.cc and bt.ccapply, estimate one set
+of ESPIRiT maps with bt.ecalib (crop 0.8), then reconstruct with
+apps.pics twice: SENSE (l2=0.001, 60 CG iterations) and wavelet
+compressed sensing (priors.Wavelet over the last two axes, weight 0.004,
+FISTA, 100 iterations). Report NRMSE and SSIM of both magnitudes against
+the reference after a global least-squares scale.
+</pre></div>
+</div>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
@@ -830,46 +786,40 @@ Evans AC. Design and construction of a realistic digital brain phantom.
 <em>IEEE Trans Med Imaging</em> 17(3):463-468 (1998).
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
-<aside class="footnote brackets" id="fuderer" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
-<p>Fuderer M, Wichtmann B, Crameri F, de Souza NM, Baeßler B, Gulani V,
-et al. Color-map recommendation for MR relaxometry maps. <em>Magn Reson Med</em>
-93(2):490-506 (2025). <a class="reference external" href="https://doi.org/10.1002/mrm.30290">https://doi.org/10.1002/mrm.30290</a></p>
-</aside>
 <aside class="footnote brackets" id="huangcc" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
 <p>Huang F, Vijayakumar S, Li Y, Hertel S, Duensing GR. A software channel
 compression technique for faster reconstruction with many channels.
 <em>Magn Reson Imaging</em> 26(1):133-141 (2008).
 <a class="reference external" href="https://doi.org/10.1016/j.mri.2007.04.010">https://doi.org/10.1016/j.mri.2007.04.010</a></p>
 </aside>
 <aside class="footnote brackets" id="espirit" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p>Uecker M, Lai P, Murphy MJ, Virtue P, Elad M, Pauly JM, Vasanawala SS,
 Lustig M. ESPIRiT – an eigenvalue approach to autocalibrating parallel
 MRI: where SENSE meets GRAPPA. <em>Magn Reson Med</em> 71(3):990-1001 (2014).
 <a class="reference external" href="https://doi.org/10.1002/mrm.24751">https://doi.org/10.1002/mrm.24751</a></p>
 </aside>
-<aside class="footnote brackets" id="sense" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
 <p>Pruessmann KP, Weiger M, Scheidegger MB, Boesiger P. SENSE: sensitivity
 encoding for fast MRI. <em>Magn Reson Med</em> 42(5):952-962 (1999).
 <a class="reference external" href="https://doi.org/10.1002/(SICI)1522-2594(199911)42:5%3C952::AID-MRM16%3E3.0.CO;2-S">https://doi.org/10.1002/(SICI)1522-2594(199911)42:5%3C952::AID-MRM16%3E3.0.CO;2-S</a></p>
 </aside>
 <aside class="footnote brackets" id="lustig" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
 <p>Lustig M, Donoho D, Pauly JM. Sparse MRI: the application of compressed
 sensing for rapid MR imaging. <em>Magn Reson Med</em> 58(6):1182-1195 (2007).
 <a class="reference external" href="https://doi.org/10.1002/mrm.21391">https://doi.org/10.1002/mrm.21391</a></p>
 </aside>
 <aside class="footnote brackets" id="beck" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">7</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
 <p>Beck A, Teboulle M. A fast iterative shrinkage-thresholding algorithm for
 linear inverse problems. <em>SIAM J Imaging Sci</em> 2(1):183-202 (2009).
 <a class="reference external" href="https://doi.org/10.1137/080716542">https://doi.org/10.1137/080716542</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.517 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.312 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-basics-02-from-kspace-to-image-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/dc66295dee30ddba7503ef64f9d262a0/02-from-kspace-to-image.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-from-kspace-to-image.ipynb</span></code></a></p>
@@ -902,7 +852,7 @@ linear inverse problems. <em>SIAM J Imaging Sci</em> 2(1):183-202 (2009).
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tensors and commands</p>
+        <p class="prev-next-title">1. Your data as tensors</p>
       </div>
     </a>
     <a class="right-next"
@@ -932,12 +882,14 @@ linear inverse problems. <em>SIAM J Imaging Sci</em> 2(1):183-202 (2009).
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#phantom">Phantom</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coils">Coils</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#channel-compression">Channel compression</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sensitivity-calibration">Sensitivity calibration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reconstruction">Reconstruction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulated-acquisition">Simulated acquisition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#undersampling">Undersampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coil-compression">Coil compression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coil-sensitivities">Coil sensitivities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sense">SENSE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compressed-sensing">Compressed sensing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-acceleration-factor">Exercise: acceleration factor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#as-a-spec">As a spec</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>

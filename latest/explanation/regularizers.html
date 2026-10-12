@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Differentiation through reconstruction &#8212; bartorch</title>
+    <title>Regularizers &#8212; bartorch</title>
   
   
   
@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70a1ed8f" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -54,7 +54,7 @@
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'explanation/differentiation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'explanation/regularizers';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
@@ -63,12 +63,13 @@
             true;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/explanation/differentiation.html" />
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/latest/explanation/regularizers.html" />
     <link rel="icon" href="../_static/bartorch-mark.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Learned reconstruction" href="learned-reconstruction.html" />
-    <link rel="prev" title="Nonlinear forward models" href="nonlinear.html" />
+    <link rel="next" title="Solvers" href="solvers.html" />
+    <link rel="prev" title="Non-Cartesian transform" href="non-cartesian.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -217,49 +218,59 @@
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/pull-requests.html">Pull requests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/developer/code-of-conduct.html">Code of conduct</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Explanation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="execution-model.html">Interfaces and execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data-layout.html">Data layout and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="inverse-problems.html">Inverse problems and their solvers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="encoding.html">The MRI encoding operator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="non-cartesian.html">Non-Cartesian sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nonlinear.html">Nonlinear forward models</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Differentiation through reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nonlinear.html">Model-based reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance.html">Performance</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/01-basics/index.html">Basics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">Tensors and commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">From k-space to image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/02-parallel-imaging/index.html">Parallel imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">Coil sensitivity calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">Nonlinear inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/03-regularization/index.html">Regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">Regularized reconstruction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">Operators and solvers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/04-non-cartesian/index.html">Non-Cartesian imaging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">Trajectories and transforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">Radial SENSE reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/05-model-based/index.html">Model-based reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">Parameter maps straight from k-space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/06-learning/index.html">Learned regularization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">Plug-and-play denoisers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">MoDL, on BART’s ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/07-tours/index.html">Tours: acquisition and corrections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -385,7 +396,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/explanation/differentiation.md" target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/explanation/regularizers.md" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -402,7 +413,7 @@
       
       
       
-      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fexplanation/differentiation.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fexplanation/regularizers.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -432,7 +443,7 @@
       
       
       
-      <li><a href="../_sources/explanation/differentiation.md" target="_blank"
+      <li><a href="../_sources/explanation/regularizers.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -515,7 +526,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Differentiation through reconstruction</h1>
+    <h1>Regularizers</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -525,12 +536,15 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operators">Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#solvers-and-iterations">Solvers and iterations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terms-excluded-from-differentiation">Terms excluded from differentiation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unrolled-networks">Unrolled networks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-point-differentiation">Fixed-point differentiation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#capabilities">Capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#division-of-responsibility">Division of responsibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#method">Method</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proximal-operators-of-the-terms">Proximal operators of the terms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#terms-on-a-transformed-variable">Terms on a transformed variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implicit-priors">Implicit priors</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
 </ul>
             </nav>
         </div>
@@ -542,202 +556,147 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="differentiation-through-reconstruction">
-<h1>Differentiation through reconstruction<a class="headerlink" href="#differentiation-through-reconstruction" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="regularizers">
+<h1>Regularizers<a class="headerlink" href="#regularizers" title="Link to this heading">#</a></h1>
 <div class="tldr admonition">
 <p class="admonition-title">TL;DR</p>
 <ul class="simple">
-<li><p>The backward pass of a linear operator is its adjoint, <span class="math notranslate nohighlight">\(A^H g\)</span>, and that of a nonlinear operator is <span class="math notranslate nohighlight">\(DF_x^H g\)</span>.</p></li>
-<li><p>Conjugate gradients are differentiated implicitly, at constant memory; the proximal iterations and ADMM are unrolled, with memory linear in the iteration count.</p></li>
-<li><p>BART’s proximal operators have no backward pass: <a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> replaces one with a differentiable denoiser, and <a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.detach" title="bartorch.priors.Regularizer.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Regularizer.detach()</span></code></a> holds one fixed.</p></li>
-<li><p><a class="reference internal" href="../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a> applies a fixed number of iteration blocks, differentiated end to end, per iteration, or with checkpointing; <a class="reference internal" href="../generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedPoint</span></code></a> differentiates at a fixed point with constant memory.</p></li>
+<li><p>A solver uses a regularizer only through its proximal operator; for an <span class="math notranslate nohighlight">\(\ell_1\)</span> penalty that operator is soft thresholding.</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code> builds each of BART’s terms as <span class="math notranslate nohighlight">\(g(Gx)\)</span>; a term whose <span class="math notranslate nohighlight">\(G\)</span> is not the identity, such as total variation, decides which solver you can use.</p></li>
+<li><p>An <a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> puts a denoiser in place of the proximal operator.</p></li>
 </ul>
 </div>
-<p>A reconstruction written with operators and solvers can be part of a larger
-PyTorch computation: a loss on the reconstructed image can be differentiated
-with respect to the data, to learned parameters of the iteration, or to the
-point at which a nonlinear model is linearized.  This page states how each
-object computes its backward pass, which parts are excluded from
-differentiation, and how memory grows with the number of iterations.  The
-functions of <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.tools</span></code> record nothing for autograd.</p>
-<section id="operators">
-<h2>Operators<a class="headerlink" href="#operators" title="Link to this heading">#</a></h2>
-<p>For a complex tensor PyTorch propagates the conjugate Wirtinger gradient, so
-the vector–Jacobian product of <span class="math notranslate nohighlight">\(y = Ax\)</span> with incoming gradient <span class="math notranslate nohighlight">\(g\)</span> is
-<span class="math notranslate nohighlight">\(A^H g\)</span>, not <span class="math notranslate nohighlight">\(A^T g\)</span>.  Applying a <a class="reference internal" href="../generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code></a> to a
-tensor that requires a gradient records the application with the adjoint as
-its backward pass; the test suite compares this with PyTorch’s own gradient of
-a matrix multiplication and checks that the transpose would differ.</p>
-<p>For a <a class="reference internal" href="../generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator" title="bartorch.nlop.NonlinearOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearOperator</span></code></a> the backward pass at <span class="math notranslate nohighlight">\(x\)</span> is
-<span class="math notranslate nohighlight">\(DF_x^H g\)</span>, the adjoint of the derivative at the evaluated point.
-<code class="docutils literal notranslate"><span class="pre">F.linearize(x)</span></code> returns <span class="math notranslate nohighlight">\(DF_x\)</span> as a linear operator that holds <span class="math notranslate nohighlight">\(x\)</span>: applying
-it is differentiable with respect to its argument and to <span class="math notranslate nohighlight">\(x\)</span>.</p>
-</section>
-<section id="solvers-and-iterations">
-<h2>Solvers and iterations<a class="headerlink" href="#solvers-and-iterations" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Object</p></th>
-<th class="head"><p>Forward computation</p></th>
-<th class="head"><p>Backward pass</p></th>
-<th class="head"><p>Memory in the iteration count</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.CG.html#bartorch.optim.CG" title="bartorch.optim.CG"><code class="xref py py-class docutils literal notranslate"><span class="pre">CG</span></code></a></p></td>
-<td><p>BART’s conjugate gradients, inside the library</p></td>
-<td><p>Implicit: one further CG solve with the same normal operator, then one application of <span class="math notranslate nohighlight">\(A\)</span></p></td>
-<td><p>Constant</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.optim.IST.html#bartorch.optim.IST" title="bartorch.optim.IST"><code class="xref py py-class docutils literal notranslate"><span class="pre">IST</span></code></a>, <a class="reference internal" href="../generated/bartorch.optim.FISTA.html#bartorch.optim.FISTA" title="bartorch.optim.FISTA"><code class="xref py py-class docutils literal notranslate"><span class="pre">FISTA</span></code></a>, <a class="reference internal" href="../generated/bartorch.optim.PRIDU.html#bartorch.optim.PRIDU" title="bartorch.optim.PRIDU"><code class="xref py py-class docutils literal notranslate"><span class="pre">PRIDU</span></code></a>, <a class="reference internal" href="../generated/bartorch.optim.POCS.html#bartorch.optim.POCS" title="bartorch.optim.POCS"><code class="xref py py-class docutils literal notranslate"><span class="pre">POCS</span></code></a></p></td>
-<td><p>The iteration block applied <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> times in Python</p></td>
-<td><p>Unrolled: every step is recorded</p></td>
-<td><p>Linear</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.ADMM.html#bartorch.optim.ADMM" title="bartorch.optim.ADMM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ADMM</span></code></a></p></td>
-<td><p>As above</p></td>
-<td><p>Unrolled; each x-update, a CG solve, is differentiated implicitly by one further solve</p></td>
-<td><p>Linear</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a> without <code class="docutils literal notranslate"><span class="pre">inner</span></code></p></td>
-<td><p>Gauss-Newton steps; the inverse in each is BART’s <code class="docutils literal notranslate"><span class="pre">norm_inv</span></code></p></td>
-<td><p>Each step recorded; the inverse differentiated implicitly with respect to the data, the iterate, <span class="math notranslate nohighlight">\(x_{\mathrm{ref}}\)</span> and <span class="math notranslate nohighlight">\(\alpha\)</span></p></td>
-<td><p>Linear in the steps</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.nlop.IRGNM.html#bartorch.nlop.IRGNM" title="bartorch.nlop.IRGNM"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNM</span></code></a>, <a class="reference internal" href="../generated/bartorch.nlop.IRGNMBlock.html#bartorch.nlop.IRGNMBlock" title="bartorch.nlop.IRGNMBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">IRGNMBlock</span></code></a> with <code class="docutils literal notranslate"><span class="pre">inner</span></code></p></td>
-<td><p>The inner solver on the linearized problem</p></td>
-<td><p>That solver’s route, including the dependence of <span class="math notranslate nohighlight">\(DF_x\)</span> on the iterate</p></td>
-<td><p>Linear in the steps</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a></p></td>
-<td><p>A fixed number of iteration blocks</p></td>
-<td><p>See the table below</p></td>
-<td><p>See the table below</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedPoint</span></code></a></p></td>
-<td><p>A block iterated to its fixed point, without recording</p></td>
-<td><p>Implicit differentiation at the fixed point</p></td>
-<td><p>Constant</p></td>
-</tr>
-</tbody>
-</table>
+<p>An undersampled or noisy acquisition does not determine the image on its own,
+so you add a penalty that expresses what you know about it: few significant
+wavelet coefficients, piecewise-constant intensity, low rank across a contrast
+axis. You choose the term and its weight <span class="math notranslate nohighlight">\(\lambda\)</span>; the solver
+(<a class="reference internal" href="solvers.html"><span class="doc">Solvers</span></a>) does the rest. Lesson 5 of the
+<a class="reference internal" href="../auto_examples/index.html"><span class="doc">Course</span></a> compares three terms and sweeps their
+weights, and lesson 10 replaces the term with a denoising network.</p>
+<section id="capabilities">
+<h2>Capabilities<a class="headerlink" href="#capabilities" title="Link to this heading">#</a></h2>
+<div class="capabilities docutils container">
+<ul>
+<li><p><strong>Builds every regularization term BART’s <code class="docutils literal notranslate"><span class="pre">pics</span></code> accepts, from an object with axes rather than a <code class="docutils literal notranslate"><span class="pre">-R</span></code> string.</strong></p>
+<p>Code: <code class="xref py py-mod docutils literal notranslate"><span class="pre">bartorch.priors</span></code>. Tests: <em>the terms are the ones barts parser knows</em>; <em>a term is the string the parser reads</em>; <em>an axis is an axis and not a bitmask</em>; <em>every term bart has can be asked for</em> (<code class="docutils literal notranslate"><span class="pre">test_solve.py</span></code>).</p>
+</li>
+<li><p><strong>Applies a term’s proximal operator on its own, with the bits BART’s solvers get from it.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.prox" title="bartorch.priors.Regularizer.prox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox()</span></code></a>. Tests: <em>a term applied here is the one bart iterates with</em>; <em>the l1 term is a soft threshold at gamma times its weight</em> (<code class="docutils literal notranslate"><span class="pre">test_priors.py</span></code>).</p>
+</li>
+<li><p><strong>Soft-thresholds a tensor element-wise or jointly over axes, and hard-thresholds it.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.soft_thresh.html#bartorch.soft_thresh" title="bartorch.soft_thresh"><code class="xref py py-func docutils literal notranslate"><span class="pre">soft_thresh()</span></code></a>, <a class="reference internal" href="../generated/bartorch.hard_thresh.html#bartorch.hard_thresh" title="bartorch.hard_thresh"><code class="xref py py-func docutils literal notranslate"><span class="pre">hard_thresh()</span></code></a>. Tests: <em>soft thresh is its closed form</em>; <em>joint soft thresh shrinks by the norm over the joint axes</em>; <em>hard thresh keeps what exceeds the threshold</em> (<code class="docutils literal notranslate"><span class="pre">test_wavelet_thresh.py</span></code>).</p>
+</li>
+<li><p><strong>Reports each term’s transform <span class="math notranslate nohighlight">\(G\)</span> and the shape its proximal operator works on.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.transform_is_identity" title="bartorch.priors.Regularizer.transform_is_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform_is_identity()</span></code></a>, <a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.prox_shape" title="bartorch.priors.Regularizer.prox_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox_shape()</span></code></a>. Tests: <em>a wavelet term carries its transform inside the proximal operator</em>; <em>total variation thresholds the components of a gradient</em>; <em>the laplace term carries a real transform in front of it</em> (<code class="docutils literal notranslate"><span class="pre">test_priors.py</span></code>).</p>
+</li>
+<li><p><strong>Builds a term once per image shape and hands the same operator to every solve.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.build" title="bartorch.priors.Regularizer.build"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build()</span></code></a>. Tests: <em>a term builds its operator once per shape</em> (<code class="docutils literal notranslate"><span class="pre">test_priors.py</span></code>); <em>a term is built once and handed over as it stands</em> (<code class="docutils literal notranslate"><span class="pre">test_solve.py</span></code>).</p>
+</li>
+<li><p><strong>Cycle-spins the wavelet term by a random shift before every application, as BART’s <code class="docutils literal notranslate"><span class="pre">pics</span></code> does, unless <code class="docutils literal notranslate"><span class="pre">randshift=False</span></code>.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wavelet</span></code></a>. Tests: <em>cycle spinning makes the wavelet threshold a random one</em> (<code class="docutils literal notranslate"><span class="pre">test_priors.py</span></code>); <em>cycle spinning is on as it is for the tool</em> (<code class="docutils literal notranslate"><span class="pre">test_solve.py</span></code>).</p>
+</li>
+<li><p><strong>Refuses a tensor that requires a gradient in BART’s proximal operators, which have no backward pass.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.prox" title="bartorch.priors.Regularizer.prox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prox()</span></code></a>. Tests: <em>the proximal operator refuses a gradient rather than dropping one</em> (<code class="docutils literal notranslate"><span class="pre">test_priors.py</span></code>).</p>
+</li>
+<li><p><strong>Applies a denoiser in place of a term, on the image or on the codomain of a transform you give.</strong></p>
+<p>Code: <a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a>. Tests: <em>a denoiser stands where a term would</em> (<code class="docutils literal notranslate"><span class="pre">test_optim_functional.py</span></code>); <em>the alternating direction step splits where the denoiser acts</em> (<code class="docutils literal notranslate"><span class="pre">test_priors.py</span></code>).</p>
+</li>
+</ul>
 </div>
-<p><strong>Implicit differentiation of a linear solve.</strong>  With
-<span class="math notranslate nohighlight">\(N = A^H A + \lambda I\)</span>, the solution <span class="math notranslate nohighlight">\(x = N^{-1} A^H y\)</span> is linear in <span class="math notranslate nohighlight">\(y\)</span>,
-and its vector–Jacobian product is <span class="math notranslate nohighlight">\(A N^{-1} g\)</span>.  The backward pass is exact
-for the solution of the normal equations; for a solve truncated by <code class="docutils literal notranslate"><span class="pre">maxiter</span></code>
-or <code class="docutils literal notranslate"><span class="pre">tol</span></code> it is the gradient of that solution, not of the returned iterate, and
-the backward solve is itself truncated.  The starting point receives no
-gradient, and neither do the data held by the operator — sensitivities,
-trajectory, a term’s weight — except through a linearized nonlinear operator,
-where the dependence on the linearization point is included.  No second
-derivatives are available.</p>
-<p><strong>Explicit unrolling</strong> records every operation of every iteration.  The
-backward pass of an operator application is a further application of the
-adjoint and stores nothing beyond its input, so the stored graph is dominated
-by the activations of any network in the iteration.</p>
 </section>
-<section id="terms-excluded-from-differentiation">
-<h2>Terms excluded from differentiation<a class="headerlink" href="#terms-excluded-from-differentiation" title="Link to this heading">#</a></h2>
-<p>BART’s proximal operators have no backward pass.
-<a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.prox" title="bartorch.priors.Regularizer.prox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Regularizer.prox</span></code></a> raises an error
-for an input that requires a gradient rather than contribute a wrong one, so a
-solver whose term is a BART regularizer cannot be differentiated through that
-term.  The following objects permit differentiation:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Object</p></th>
-<th class="head"><p>Effect</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a></p></td>
-<td><p>Replaces the proximal operator by a differentiable denoiser, as in plug-and-play reconstruction;<a class="footnote-reference brackets" href="#pnp" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> the denoiser’s parameters receive gradients.  With <code class="docutils literal notranslate"><span class="pre">spatial=</span></code>, a network on real <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">channels,</span> <span class="pre">*spatial)</span></code> planes is applied to the complex image, with the conversion and the unit-peak scaling recorded by autograd</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.priors.Regularizer.html#bartorch.priors.Regularizer.detach" title="bartorch.priors.Regularizer.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Regularizer.detach()</span></code></a></p></td>
-<td><p>Applies a BART term’s proximal operator to a detached input: the term acts in the forward pass and is held fixed in the backward pass, for a solve in which another term is learned</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>The residual norms that drive adaptive steps — an adaptive ADMM penalty, an
-adaptive primal-dual step size — are detached: they control the iteration and
-contribute no gradient.</p>
+<section id="division-of-responsibility">
+<h2>Division of responsibility<a class="headerlink" href="#division-of-responsibility" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>BART</strong>: each term’s proximal operator and transform, built by
+<code class="docutils literal notranslate"><span class="pre">opt_reg_configure</span></code>, including the wavelet, thresholding and low-rank code.</p></li>
+<li><p><strong>bartorch</strong>: the term objects and their axes, the proximal operator as a
+function, and the conversion between a complex image and the real planes a
+network takes.</p></li>
+<li><p><strong>Your network, or deepinv’s and MONAI’s</strong>: the denoiser behind an
+<a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a>.</p></li>
+</ul>
 </section>
-<section id="unrolled-networks">
-<h2>Unrolled networks<a class="headerlink" href="#unrolled-networks" title="Link to this heading">#</a></h2>
-<p><a class="reference internal" href="../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a> applies an iteration block a fixed number
-of times.  With all parameters frozen it reproduces the corresponding solver;
-calling <code class="docutils literal notranslate"><span class="pre">requires_grad_()</span></code> on a step size, a regularization weight or a denoiser’s
-parameters makes it a trainable network, such as MoDL.<a class="footnote-reference brackets" href="#modl" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Setting</p></th>
-<th class="head"><p>Recorded graph</p></th>
-<th class="head"><p>Memory</p></th>
-<th class="head"><p>Gradient</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>default</p></td>
-<td><p>Every iteration</p></td>
-<td><p>Proportional to the iteration count</p></td>
-<td><p>End to end</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">detach=True</span></code></p></td>
-<td><p>One iteration; each starts from a detached state</p></td>
-<td><p>One iteration</p></td>
-<td><p>Of each iteration alone; with a loss on each image from <a class="reference internal" href="../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled.steps" title="bartorch.learning.Unrolled.steps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">steps()</span></code></a>, greedy per-iteration training</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">checkpoint=True</span></code></p></td>
-<td><p>The states between iterations; each iteration is recomputed in the backward pass</p></td>
-<td><p>The states plus one iteration</p></td>
-<td><p>End to end, at the cost of a second forward pass per iteration</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Checkpointing assumes that recomputing a step reproduces it.  A term that draws
-random shifts, such as a wavelet term with cycle spinning, draws new shifts on
-recomputation, so checkpointing is valid only for deterministic steps.
-The staged procedure that combines the settings is described in
-<a class="reference internal" href="learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a>.</p>
+<section id="method">
+<h2>Method<a class="headerlink" href="#method" title="Link to this heading">#</a></h2>
+<p>The regularized estimate is</p>
+<div class="math notranslate nohighlight">
+\[
+\hat{x} = \arg\min_x \; \tfrac12 \lVert Ax - y \rVert_2^2 + \lambda\, g(Gx),
+\]</div>
+<p>and a proximal solver alternates a step on the data term with the proximal
+operator of the penalty,</p>
+<div class="math notranslate nohighlight">
+\[
+\operatorname{prox}_{\tau\lambda g}(v) = \arg\min_u \; \tfrac12 \lVert u - v \rVert_2^2 + \tau\lambda\, g(u),
+\]</div>
+<p>the point closest to <span class="math notranslate nohighlight">\(v\)</span> that also keeps <span class="math notranslate nohighlight">\(g\)</span> small. For <span class="math notranslate nohighlight">\(g = \lVert\cdot\rVert_1\)</span>
+it is soft thresholding,
+<span class="math notranslate nohighlight">\(\operatorname{prox}(v)_i = \frac{v_i}{\lvert v_i\rvert}\max(\lvert v_i\rvert - \tau\lambda, 0)\)</span>:
+entries with modulus below <span class="math notranslate nohighlight">\(\tau\lambda\)</span> are set to zero, the others are shrunk
+by <span class="math notranslate nohighlight">\(\tau\lambda\)</span>, and the phase is kept. Applied to wavelet coefficients, it
+keeps the few large ones that carry the edges and removes the many small ones
+that carry the noise.</p>
+<a class="plot reference internal image-reference" href="../_images/reg-proximal-operator.svg"><img alt="Top left, soft thresholding as a function of its input for thresholds 0.5, 1 and 2, zero within the threshold and parallel to the identity outside it. Top right, the Haar coefficients of a noisy piecewise-constant signal, with the 33 that survive a threshold of 0.3 marked. Bottom, the noisy signal and the output of the wavelet term's proximal operator, which follows the noiseless steps." class="plot" src="../_images/reg-proximal-operator.svg" style="width: 100%;" />
+</a>
+<p>The figure is computed with <a class="reference internal" href="../generated/bartorch.soft_thresh.html#bartorch.soft_thresh" title="bartorch.soft_thresh"><code class="xref py py-func docutils literal notranslate"><span class="pre">soft_thresh()</span></code></a>,
+<a class="reference internal" href="../generated/bartorch.fwt.html#bartorch.fwt" title="bartorch.fwt"><code class="xref py py-func docutils literal notranslate"><span class="pre">fwt()</span></code></a> and a <a class="reference internal" href="../generated/bartorch.priors.Wavelet.html#bartorch.priors.Wavelet" title="bartorch.priors.Wavelet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wavelet</span></code></a> term with the
+Haar wavelet and no random shift. <code class="docutils literal notranslate"><span class="pre">term.prox(x,</span> <span class="pre">gamma)</span></code> thresholds at <code class="docutils literal notranslate"><span class="pre">gamma</span></code>
+times the term’s weight: the weight is part of the term, and <code class="docutils literal notranslate"><span class="pre">gamma</span></code> is the
+solver’s step.</p>
+<section id="proximal-operators-of-the-terms">
+<h3>Proximal operators of the terms<a class="headerlink" href="#proximal-operators-of-the-terms" title="Link to this heading">#</a></h3>
+<p>For <span class="math notranslate nohighlight">\(\tfrac{\lambda}{2}\lVert x\rVert_2^2\)</span> (<a class="reference internal" href="../generated/bartorch.priors.L2.html#bartorch.priors.L2" title="bartorch.priors.L2"><code class="xref py py-class docutils literal notranslate"><span class="pre">L2</span></code></a>) the
+proximal operator is the scaling <span class="math notranslate nohighlight">\(v/(1+\tau\lambda)\)</span>. Total variation
+thresholds the finite differences jointly, the components of each voxel’s
+gradient by their Euclidean norm (isotropic TV). The locally low-rank term
+soft-thresholds the singular values of image blocks, and
+<a class="reference internal" href="../generated/bartorch.priors.NonNegative.html#bartorch.priors.NonNegative" title="bartorch.priors.NonNegative"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonNegative</span></code></a> projects onto the set it names.
+<code class="docutils literal notranslate"><span class="pre">joint_axes</span></code> makes any thresholding term shrink a group of entries by its norm,
+for example across coils or contrasts. The wavelet term transforms, thresholds
+and transforms back.</p>
 </section>
-<section id="fixed-point-differentiation">
-<h2>Fixed-point differentiation<a class="headerlink" href="#fixed-point-differentiation" title="Link to this heading">#</a></h2>
-<p><a class="reference internal" href="../generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedPoint</span></code></a> iterates a block <span class="math notranslate nohighlight">\(z \mapsto \Phi(z)\)</span>
-without recording until the relative change is below a tolerance, and
-differentiates the fixed point <span class="math notranslate nohighlight">\(z^\star = \Phi(z^\star)\)</span> implicitly — a deep
-equilibrium model.<a class="footnote-reference brackets" href="#deq" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#gilton" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>  The vector–Jacobian product solves
-<span class="math notranslate nohighlight">\(w = J^H w + g\)</span>, with <span class="math notranslate nohighlight">\(J\)</span> the Jacobian of one step at <span class="math notranslate nohighlight">\(z^\star\)</span>, by the
-fixed-point iteration <span class="math notranslate nohighlight">\(w \leftarrow J^H w + g\)</span>, which converges when the
-spectral radius of <span class="math notranslate nohighlight">\(J\)</span> is below one.  Memory is that of a single step,
-independent of the iteration count.  An iteration that does not apply the same
-map <span class="math notranslate nohighlight">\(\Phi\)</span> at every step is not a fixed-point iteration and is refused: FISTA’s
-momentum, a moving ADMM penalty, adaptive or decaying primal-dual steps.</p>
+<section id="terms-on-a-transformed-variable">
+<h3>Terms on a transformed variable<a class="headerlink" href="#terms-on-a-transformed-variable" title="Link to this heading">#</a></h3>
+<p>When <span class="math notranslate nohighlight">\(G\)</span> is unitary, <span class="math notranslate nohighlight">\(\operatorname{prox}_{g\circ G}(v) = G^H \operatorname{prox}_g(Gv)\)</span>.
+The wavelet and locally low-rank terms use this form: they apply their
+transform inside the proximal operator and report <span class="math notranslate nohighlight">\(G = I\)</span>. The step is exact
+for the Haar wavelet on even lengths and non-overlapping blocks without random
+shifts, and an approximation with the redundant Daubechies and CDF wavelets,
+overlapping blocks or cycle spinning. For a general <span class="math notranslate nohighlight">\(G\)</span>, such as the
+finite differences of total variation, the Fourier transform of
+<a class="reference internal" href="../generated/bartorch.priors.FourierL1.html#bartorch.priors.FourierL1" title="bartorch.priors.FourierL1"><code class="xref py py-class docutils literal notranslate"><span class="pre">FourierL1</span></code></a> or the Laplacian of
+<a class="reference internal" href="../generated/bartorch.priors.Laplace.html#bartorch.priors.Laplace" title="bartorch.priors.Laplace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Laplace</span></code></a>, <span class="math notranslate nohighlight">\(g\circ G\)</span> has no closed-form proximal
+operator: the solver has to apply <span class="math notranslate nohighlight">\(G\)</span> itself, which IST and FISTA do not and
+ADMM and the primal-dual method do. Total generalized variation and the two
+infimal convolutions also add auxiliary variables to <span class="math notranslate nohighlight">\(x\)</span> and go to the same
+two solvers. The table in <a class="reference internal" href="../api/priors.html"><span class="doc">Regularization and denoising</span></a> lists <span class="math notranslate nohighlight">\(G\)</span> for every term, and
+<a class="reference internal" href="solvers.html"><span class="doc">Solvers</span></a> turns it into the choice of solver.</p>
 </section>
-<section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<section id="implicit-priors">
+<h3>Implicit priors<a class="headerlink" href="#implicit-priors" title="Link to this heading">#</a></h3>
+<p>Plug-and-play reconstruction replaces <span class="math notranslate nohighlight">\(\operatorname{prox}_{\tau\lambda g}\)</span> with
+a denoiser <span class="math notranslate nohighlight">\(D_\sigma\)</span>, called as <code class="docutils literal notranslate"><span class="pre">denoiser(x,</span> <span class="pre">sigma)</span></code> with no explicit <span class="math notranslate nohighlight">\(g\)</span>.
+<a class="reference internal" href="../generated/bartorch.priors.ImplicitPrior.html#bartorch.priors.ImplicitPrior" title="bartorch.priors.ImplicitPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplicitPrior</span></code></a> is accepted wherever a proximal term is; with
+<code class="docutils literal notranslate"><span class="pre">spatial=</span></code> it hands the network real planes of order unity and converts the
+result back, and with <code class="docutils literal notranslate"><span class="pre">transform=</span></code> it is applied to <span class="math notranslate nohighlight">\(Gx\)</span>, for a network trained
+on contrast-weighted images while the solver works on subspace coefficients.
+Unlike BART’s proximal operators it is differentiable, so a solve containing
+it can be trained end to end (<a class="reference internal" href="learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a>).</p>
 </section>
 </section>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="pnp" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Venkatakrishnan SV, Bouman CA, Wohlberg B. Plug-and-play priors for model based reconstruction. <em>IEEE Global Conference on Signal and Information Processing</em> 945–948 (2013). <a class="reference external" href="https://doi.org/10.1109/GlobalSIP.2013.6737048">doi:10.1109/GlobalSIP.2013.6737048</a></p>
-</aside>
-<aside class="footnote brackets" id="modl" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
-<p>Aggarwal HK, Mani MP, Jacob M. MoDL: model-based deep learning architecture for inverse problems. <em>IEEE Trans Med Imaging</em> 38(2):394–405 (2019). <a class="reference external" href="https://doi.org/10.1109/TMI.2018.2865356">doi:10.1109/TMI.2018.2865356</a></p>
-</aside>
-<aside class="footnote brackets" id="deq" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
-<p>Bai S, Kolter JZ, Koltun V. Deep equilibrium models. <em>Advances in Neural Information Processing Systems</em> 32:688–699 (2019). <a class="reference external" href="https://arxiv.org/abs/1909.01377">arXiv:1909.01377</a></p>
-</aside>
-<aside class="footnote brackets" id="gilton" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
-<p>Gilton D, Ongie G, Willett R. Deep equilibrium architectures for inverse problems in imaging. <em>IEEE Trans Comput Imaging</em> 7:1123–1133 (2021). <a class="reference external" href="https://doi.org/10.1109/TCI.2021.3118944">doi:10.1109/TCI.2021.3118944</a></p>
-</aside>
-</aside>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../auto_examples/03-regularization/01-regularized-reconstruction.html"><span class="doc">5. Choosing a regularizer</span></a>:
+Tikhonov, wavelet and total-variation terms on one acquisition, and their
+weights.</p></li>
+<li><p><a class="reference internal" href="../auto_examples/06-learning/01-plug-and-play.html"><span class="doc">10. Plug-and-play reconstruction</span></a>: a pretrained denoiser
+in place of the term.</p></li>
+<li><p><a class="reference internal" href="../api/priors.html"><span class="doc">Regularization and denoising</span></a>: every term, its functional, its transform and the
+solvers that take it.</p></li>
+</ul>
+</section>
+</section>
 
 
                 </article>
@@ -751,20 +710,20 @@ momentum, a moving ADMM penalty, adaptive or decaying primal-dual steps.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="nonlinear.html"
+       href="non-cartesian.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Nonlinear forward models</p>
+        <p class="prev-next-title">Non-Cartesian transform</p>
       </div>
     </a>
     <a class="right-next"
-       href="learned-reconstruction.html"
+       href="solvers.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Learned reconstruction</p>
+        <p class="prev-next-title">Solvers</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -786,12 +745,15 @@ momentum, a moving ADMM penalty, adaptive or decaying primal-dual steps.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operators">Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#solvers-and-iterations">Solvers and iterations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terms-excluded-from-differentiation">Terms excluded from differentiation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unrolled-networks">Unrolled networks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-point-differentiation">Fixed-point differentiation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#capabilities">Capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#division-of-responsibility">Division of responsibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#method">Method</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proximal-operators-of-the-terms">Proximal operators of the terms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#terms-on-a-transformed-variable">Terms on a transformed variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implicit-priors">Implicit priors</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
 </ul>
   </nav></div>
 

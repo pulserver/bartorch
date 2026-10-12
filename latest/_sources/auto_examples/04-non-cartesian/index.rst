@@ -5,16 +5,14 @@
 Non-Cartesian imaging
 ---------------------
 
-Radial and spiral trajectories sample k-space off the Cartesian grid.  Their
-Fourier transform is a non-uniform FFT (NUFFT), their adjoint approximates an
-inverse only after density compensation, and the normal operator of an
-iterative reconstruction becomes a convolution with the point spread function
-of the trajectory.  This section introduces trajectories, the NUFFT, density
-compensation and the point spread function, and reconstructs an undersampled
-golden-angle radial acquisition by non-Cartesian SENSE, with coil sensitivities
-estimated from the radial data.  The extension to a time series with a temporal
-regularizer is the tour :doc:`/auto_examples/08-workflows/01-dynamic-golden-angle`.
-:doc:`/explanation/non-cartesian` defines the transform and its accuracy.
+Radial and spiral trajectories sample k-space off the grid, so the Fourier
+transform becomes a NUFFT. In lesson 7 you meet trajectories, the NUFFT,
+density compensation and the point spread function. In lesson 8 you
+reconstruct an undersampled golden-angle radial scan by non-Cartesian SENSE,
+with coil sensitivities estimated from the radial data themselves. The tour
+:doc:`/auto_examples/08-workflows/01-dynamic-golden-angle` extends it to a time
+series. :doc:`/explanation/non-cartesian` defines the transform and its
+accuracy.
 
 
 .. raw:: html
@@ -30,7 +28,7 @@ regularizer is the tour :doc:`/auto_examples/08-workflows/01-dynamic-golden-angl
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson introduces the building blocks of non-Cartesian reconstruction: radial, golden-angle and spiral trajectories, the non-uniform fast Fourier transform (NUFFT) that samples an image along them, the density compensation that an adjoint (gridding) reconstruction needs, and the point spread function (PSF) that describes the undersampling artefacts.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lessons 2 to 6 every sample sat on the Cartesian grid, so the FFT and its inverse were all the Fourier transforms you needed. In this lesson you leave the grid. You sample the same brain slice along radial and spiral trajectories, reconstruct it by gridding, and see what each step of that reconstruction does to the image.">
 
 .. only:: html
 
@@ -41,13 +39,13 @@ regularizer is the tour :doc:`/auto_examples/08-workflows/01-dynamic-golden-angl
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Trajectories and transforms</div>
+      <div class="sphx-glr-thumbnail-title">7. Basics of non-Cartesian imaging</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This lesson reconstructs an undersampled golden-angle radial acquisition with eight receive coils: the density-compensated gridding reconstruction first, then an iterative SENSE reconstruction with coil sensitivities estimated from the radial data themselves, with and without a total-variation penalty. The aim is to see which of the streak artefacts of radial undersampling the coil encoding removes, which the regularization removes, and what each costs.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 7 you computed radial trajectories, the NUFFT, density compensation and the point spread function, and saw that omitting spokes produces streak artefacts. In this lesson you reconstruct an undersampled golden-angle radial scan with eight receive coils: you estimate the coil sensitivities from the radial data, then reconstruct by gridding, by iterative SENSE, and by SENSE with a total-variation penalty.">
 
 .. only:: html
 
@@ -58,7 +56,7 @@ regularizer is the tour :doc:`/auto_examples/08-workflows/01-dynamic-golden-angl
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Radial SENSE reconstruction</div>
+      <div class="sphx-glr-thumbnail-title">8. Radial SENSE</div>
     </div>
 
 

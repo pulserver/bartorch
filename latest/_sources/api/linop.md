@@ -7,7 +7,7 @@ normal operator $A^H A$.  Operators combine by `A @ B` (composition), `A + B`,
 (restriction of the codomain); each result is a {obj}`~bartorch.linop.LinearOperator`,
 and a composition of BART-backed operators is built as one BART operator.
 {doc}`../explanation/encoding` describes the MRI encoding these operators
-implement and {doc}`../explanation/differentiation` their autograd behaviour.
+implement and {doc}`../explanation/learned-reconstruction` their autograd behaviour.
 
 ```{eval-rst}
 .. currentmodule:: bartorch.linop

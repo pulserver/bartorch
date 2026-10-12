@@ -5,16 +5,17 @@
 Tours: learning workflows
 -------------------------
 
-Training strategies and uses of a learned regularizer that follow from the two
-lessons of :doc:`/auto_examples/06-learning/index`: networks for complex
-multi-contrast volumes applied patch by patch, staged training of an unrolled
-network within the memory of one iteration, self-supervised training from
-undersampled data alone, plug-and-play with an annealed noise level, and
-calibrated voxel-wise uncertainty.
-:doc:`/explanation/learned-reconstruction` describes where a network enters a
-reconstruction.
+What comes after lessons 10 and 11, when you train and use a learned
+regularizer on real problems.
 
-The section additionally requires::
+- Networks for complex multi-contrast volumes, applied patch by patch.
+- Training an unrolled network in stages, within the memory of one iteration.
+- Self-supervised training from undersampled data alone.
+- Plug-and-play with a noise level that anneals over the iterations.
+- Voxel-wise uncertainty, calibrated.
+
+:doc:`/explanation/learned-reconstruction` explains where a network enters a
+reconstruction. These tours also need::
 
     pip install lightning torchio monai deepinv
 
@@ -32,7 +33,7 @@ The section additionally requires::
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train a 3D convolutional denoiser on patches of a complex, multi-contrast brain volume, apply it to a whole volume of another subject patch by patch, as it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no visible seams.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lessons 10 and 11 your network denoised one complex 2D slice. The data you most need a learned reconstruction for are larger: a 3D volume of several contrasts, the subspace coefficients of MR fingerprinting, the frames of a cine. In this tour you train a 3D denoiser on patches of a complex, multi-contrast brain volume, apply it to the whole volume of another subject patch by patch, the way it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no seams.">
 
 .. only:: html
 
@@ -49,7 +50,7 @@ The section additionally requires::
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train an unrolled reconstruction network for fourfold undersampled, eight-channel Cartesian brain data within the memory of one iteration, and show that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 11 you trained an unrolled network end to end, which keeps the activations of every iteration in memory for the backward pass. For a 2D slice that memory is affordable; for a 3D volume, or a series of them, it exceeds a single GPU. In this tour you train an unrolled network for fourfold undersampled, eight-channel Cartesian brain data in three stages whose memory is bounded by one iteration, and you check that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration.">
 
 .. only:: html
 
@@ -66,7 +67,7 @@ The section additionally requires::
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train the unrolled network of 02-staged-training from undersampled k-space alone, with no fully sampled reference, and measure how much of the supervised network&#x27;s image quality it retains.">
+    <div class="sphx-glr-thumbcontainer" tooltip="The networks of lesson 11 and of 02-staged-training learn from fully sampled reference images. Dynamic and high-dimensional acquisitions -- a cine, a functional run, a fingerprinting series -- are rarely acquired fully sampled: undersampling is what makes them fit in a breath-hold or a scan time, so you have no reference to train against. In this tour you train the unrolled network of 02-staged-training from undersampled k-space alone and measure how much of the supervised network&#x27;s image quality it keeps.">
 
 .. only:: html
 
@@ -83,7 +84,7 @@ The section additionally requires::
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Train one denoiser on images alone, without any encoding, and use it as the regularizer of an ADMM reconstruction at any undersampling, with the denoising strength decreasing over the iterations; show that it holds up at an acceleration where CG-SENSE breaks down.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 you plugged a denoiser someone else had trained, on photographs, into ADMM at one noise level you chose. In this tour you train the denoiser yourself, on MR images alone and without any encoding, and use it as the regularizer of an ADMM reconstruction whose denoising strength decreases over the iterations. You then apply the same network, unchanged, at an acceleration where CG-SENSE breaks down.">
 
 .. only:: html
 
@@ -100,7 +101,7 @@ The section additionally requires::
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Aim. Attach a voxel-wise error bar to a learned reconstruction of undersampled data, calibrated so that it contains the true error in a stated fraction of voxels, and see where in the head the reconstruction is least certain.">
+    <div class="sphx-glr-thumbcontainer" tooltip="A learned reconstruction returns an image without saying where it may be wrong. Where the undersampling leaves the image underdetermined, the network fills in what its training data suggest, and a hallucinated structure looks like real anatomy. In this tour you attach a voxel-wise error bar to the unrolled reconstruction of 02-staged-training, calibrate it so that it contains the true error in a stated fraction of voxels, and look at where in the head the reconstruction is least certain.">
 
 .. only:: html
 
