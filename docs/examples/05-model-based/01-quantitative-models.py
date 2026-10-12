@@ -266,8 +266,8 @@ plt.show()
 # a complex amplitude, carried as three real maps in a bounded
 # parameterisation rather than in their own units. So you build a starting
 # point from values in physical units with
-# :meth:`~bartorch.nlop.SignalModel.initial`, and convert a fit back to
-# milliseconds with :meth:`~bartorch.nlop.SignalModel.split`.
+# :meth:`~bartorch.nlop.ModelOperator.initial`, and convert a fit back to
+# milliseconds with :meth:`~bartorch.nlop.ModelOperator.split`.
 M = nlop.MultiEcho([float(te) for te in ECHO_TIMES], (SIZE, SIZE))
 start = M.initial(T2=80.0)
 
@@ -279,8 +279,8 @@ print(f"unknowns {M.names}: {M.ishapes[0]} -> {M.oshapes[0]}")
 #
 # The conventional route has two steps. Reconstruct every echo by conjugate
 # gradients on the SENSE normal equations, then fit the model to the echo
-# images voxel by voxel with :func:`bartorch.apps.mobafit`, a Gauss-Newton
-# loop over the model alone.
+# images voxel by voxel with :func:`bartorch.apps.mobafit`, Levenberg-Marquardt
+# over the model alone.
 STEPS = 20
 
 start_time = time.perf_counter()
@@ -324,9 +324,10 @@ print(f"model inside the operator: {time.perf_counter() - start_time:5.1f} s")
 
 # %%
 # Both routes are Gauss-Newton loops of the same number of steps. They differ
-# only in the forward operator that maps the unknowns to the data: the model
-# alone, against echo images, or the model followed by the encoding, against
-# k-space.
+# in the forward operator that maps the unknowns to the data: the model alone,
+# against echo images, or the model followed by the encoding, against k-space.
+# Without the encoding each voxel is a problem of its own, so ``mobafit``
+# solves each step per voxel and damps each voxel separately.
 #
 # Model-based reconstruction app
 # ------------------------------

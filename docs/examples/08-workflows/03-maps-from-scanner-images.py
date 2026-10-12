@@ -17,8 +17,8 @@ experiment, as a DICOM series of its own. :func:`bartorch.io.read_dicom` reads
 several series as one, sorts the images into contrasts by their echo,
 inversion and repetition times, and returns those times with the images: they
 are the sampling points of the signal model. The fit is that of lesson 9
-without the Fourier encoding: :func:`bartorch.apps.mobafit` runs Gauss-Newton
-on the signal equation alone.
+without the Fourier encoding: :func:`bartorch.apps.mobafit` runs
+Levenberg-Marquardt on the signal equation alone, one voxel at a time.
 
 The noise of a magnitude image is Rician where the signal is small and has a
 positive floor, which a decay model fitted to it reads as a longer

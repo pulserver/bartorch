@@ -31,12 +31,12 @@ estimates image and coils jointly, and lesson 9 fits a $T_2$ map to k-space.
 - **Estimates image and coil sensitivities jointly, as `nlinv` does, with the coils under a Sobolev weighting.**
 
   Code: {class}`~bartorch.nlop.NonlinearSense`, {func}`~bartorch.tools.nlinv`. Tests: *a Cartesian fit is the nlinv tool to the last bit*; *the coil weighting damps high spatial frequencies* (`test_nlop_mri.py`).
-- **Wraps BlochSim signal models (inversion recovery, multi-echo decay, any simulated sequence) as nonlinear operators, without forming a Jacobian.**
+- **Wraps a signal model over parameter maps (inversion recovery, multi-echo decay, any BlochSim simulator) as a nonlinear operator, from its value, derivative and adjoint products, without forming a Jacobian.**
 
-  Code: {class}`~bartorch.nlop.SignalModel`, {func}`~bartorch.nlop.MultiEcho`, {func}`~bartorch.nlop.Bloch`. Tests: *the multi-echo decay is what BART computes*; *the adjoint is the adjoint of the derivative* (`test_nlop_blochsim.py`); *the Look-Locker recovery is BART's* (`test_signal_models.py`).
+  Code: {class}`~bartorch.nlop.ModelOperator`, {func}`~bartorch.nlop.MultiEcho`, {func}`~bartorch.nlop.Bloch`. Tests: *the multi-echo decay is what BART computes*; *the adjoint is the adjoint of the derivative*; *any model with the products is an operator* (`test_nlop_blochsim.py`); *the Look-Locker recovery is BART's* (`test_signal_models.py`).
 - **Keeps each bounded parameter inside its bounds at every iterate, and returns named maps in their own units.**
 
-  Code: {meth}`~bartorch.nlop.SignalModel.initial`, {meth}`~bartorch.nlop.SignalModel.split`. Tests: *a bound keeps every iterate physical*; *a starting point and the maps it stands for round trip* (`test_nlop_blochsim.py`).
+  Code: {meth}`~bartorch.nlop.ModelOperator.initial`, {meth}`~bartorch.nlop.ModelOperator.split`. Tests: *a bound keeps every iterate physical*; *a starting point and the maps it stands for round trip* (`test_nlop_blochsim.py`).
 - **Fits a signal model voxel by voxel to images, or directly to k-space with known or jointly estimated coils.**
 
   Code: {func}`~bartorch.apps.mobafit`, {func}`~bartorch.apps.moba`. Tests: *a decay is fitted to the time it was made from*; *moba fits the decay behind known coils*; *moba estimates the coils with the decay* (`test_apps.py`).
@@ -52,7 +52,8 @@ estimates image and coils jointly, and lesson 9 fits a $T_2$ map to k-space.
   `noir` coil model, and the `moba` and `mobafit` commands a command line falls
   back to.
 - **bartorch**: the operator algebra, the step written out in Python, and the
-  apps that assemble `moba` and `mobafit` from them.
+  apps that assemble `moba` from them, and `mobafit`'s per-voxel
+  Levenberg-Marquardt.
 - **BlochSim**: the signal models, their derivatives and the bounded
   parameterisation.
 
