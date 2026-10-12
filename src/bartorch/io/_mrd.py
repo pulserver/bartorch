@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+from importlib import import_module
 from typing import Any, NamedTuple
 
 import numpy as np
 import torch
 
 from ._geometry import mrd_affine
-from ._optional import require
 
 #: Loop counters that become k-space axes when the header states more than one
 #: position along them, outermost first.  ``segment`` indexes part of one
@@ -171,8 +171,8 @@ def read_mrd(
 
 def _load(path: str, group: str) -> tuple[Any, np.ndarray]:
     """The parsed header and the readout records of one group of an ISMRMRD file."""
-    h5py = require("h5py")
-    xsd = require("ismrmrd.xsd")
+    h5py = import_module("h5py")
+    xsd = import_module("ismrmrd.xsd")
     with h5py.File(path, "r") as file:
         if group not in file or "xml" not in file[group]:
             raise ValueError(f"{path} has no ISMRMRD header in group {group!r}")

@@ -10,11 +10,6 @@ import torch
 
 from bartorch.tools import RigidRegistration, reconstruct_navigator
 
-needs_simpleitk = pytest.mark.skipif(
-    importlib.util.find_spec("SimpleITK") is None,
-    reason="rigid registration needs the motion extra",
-)
-
 
 def radial(size: int, samples: int = 64, spokes: int = 48) -> np.ndarray:
     """A radial plane trajectory ``(1, spokes * samples, 2)`` in grid units of ``size``."""
@@ -86,7 +81,6 @@ def test_three_planes_on_three_trajectories_each_come_back(device) -> None:
         assert np.corrcoef(recovered.ravel(), truth.ravel())[0, 1] > 0.9
 
 
-@needs_simpleitk
 def test_the_planes_can_be_registered() -> None:
     """Sample, grid, register, and get the shift back."""
     truth = phantom()

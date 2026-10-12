@@ -12,11 +12,6 @@ import torch
 from bartorch.tools import GradientCoefficients, Gradunwarp
 from bartorch.tools._correct._gradunwarp import _evaluate_harmonics
 
-needs_simpleitk = pytest.mark.skipif(
-    importlib.util.find_spec("SimpleITK") is None,
-    reason="resampling needs SimpleITK, the correct extra",
-)
-
 
 class StubAccessor:
     """A coefficient source that is not a file, as an integration would be.
@@ -194,7 +189,6 @@ def test_affine_geometry_preserves_oblique_physical_grid() -> None:
     np.testing.assert_allclose(correct._acquired.fov_mm, (9.6, 15.0, 24.0))
 
 
-@needs_simpleitk
 def test_zero_coefficients_are_identity_for_real_and_complex_batches() -> None:
     angle = np.deg2rad(20.0)
     direction = np.asarray(
@@ -214,7 +208,6 @@ def test_zero_coefficients_are_identity_for_real_and_complex_batches() -> None:
     np.testing.assert_allclose(correct.jacobian_grid, 1.0)
 
 
-@needs_simpleitk
 def test_the_corrected_image_keeps_the_dtype_and_device_of_the_input(device) -> None:
     direction = np.asarray(((1.0, 0.0), (0.0, 1.0), (0.0, 0.0)))
     correct = Gradunwarp(_zero_coefficients(), (7, 8), (70.0, 80.0), direction)
@@ -224,7 +217,6 @@ def test_the_corrected_image_keeps_the_dtype_and_device_of_the_input(device) -> 
     assert result.device == image.device
 
 
-@needs_simpleitk
 def test_a_target_grid_corrects_and_reslices_in_one_step() -> None:
     direction = np.asarray(((1.0, 0.0), (0.0, 1.0), (0.0, 0.0)))
     correct = Gradunwarp(
@@ -291,7 +283,6 @@ def test_cartesian_dat_recurrence_matches_second_order_solid_harmonics() -> None
     )
 
 
-@needs_simpleitk
 def test_compiled_3d_jacobian_uses_all_three_physical_derivatives() -> None:
     alpha = np.zeros((3, 2, 2))
     beta = np.zeros_like(alpha)
@@ -492,7 +483,6 @@ def test_clearing_the_cache_recomputes_the_same_grid() -> None:
     np.testing.assert_array_equal(correct.source_grid, first)
 
 
-@needs_simpleitk
 def test_an_integer_image_comes_back_as_float32() -> None:
     correct = Gradunwarp(_zero_coefficients(), (6, 7), (60.0, 70.0))
     result = correct(torch.ones(6, 7, dtype=torch.int32))
@@ -500,7 +490,6 @@ def test_an_integer_image_comes_back_as_float32() -> None:
     torch.testing.assert_close(result, torch.ones(6, 7), atol=2e-5, rtol=0)
 
 
-@needs_simpleitk
 def test_an_image_of_another_matrix_is_refused() -> None:
     correct = Gradunwarp(_zero_coefficients(), (6, 7), (60.0, 70.0))
     with pytest.raises(ValueError, match="trailing shape must match"):

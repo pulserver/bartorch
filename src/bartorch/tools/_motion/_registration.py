@@ -19,12 +19,8 @@ __all__ = [
 
 
 def _simpleitk():
-    try:
-        import SimpleITK
-    except ImportError as error:
-        raise ImportError(
-            "rigid registration requires SimpleITK: pip install 'bartorch[motion]'"
-        ) from error
+    import SimpleITK
+
     return SimpleITK
 
 

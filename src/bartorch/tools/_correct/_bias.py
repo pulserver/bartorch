@@ -9,12 +9,8 @@ __all__ = ["bias_field_correct"]
 
 
 def _simpleitk():
-    try:
-        import SimpleITK
-    except ImportError as error:
-        raise ImportError(
-            "bias field correction requires SimpleITK: pip install 'bartorch[correct]'"
-        ) from error
+    import SimpleITK
+
     return SimpleITK
 
 
@@ -59,8 +55,6 @@ def bias_field_correct(
 
     Raises
     ------
-    ImportError
-        If SimpleITK is not installed.
     ValueError
         If ``image`` is not 2D or 3D, or ``shrink_factor`` is not positive.
 

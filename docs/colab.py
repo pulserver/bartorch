@@ -26,7 +26,7 @@ PACKAGES = ["brainweb-dl", "matplotlib", "cmap"]
 SECTION_PACKAGES = {
     "06-learning": ["lightning", "torchio", "monai", "deepinv"],
     "09-learning-workflows": ["lightning", "torchio", "monai", "deepinv"],
-    "07-tours": ["SimpleITK", "PyHySCO"],
+    "07-tours": ["PyHySCO"],
 }
 
 #: The gallery's output directory under the documentation sources.
