@@ -195,18 +195,32 @@ def _toctree(page: Path) -> list[str]:
     return entries
 
 
-def test_the_user_guide_holds_installation_and_support_pages_only():
-    """Concepts and conventions are explanation pages, not user-guide pages."""
+def test_the_user_guide_is_one_page_of_platforms_installation_and_help():
+    """Concepts are explanation pages; source builds belong to the developer guide."""
     user = DOCS / "guides" / "user"
+    assert [p.name for p in user.glob("*.md")] == ["index.md"]
+    text = (user / "index.md").read_text(encoding="utf-8")
+    headings = [line for line in text.splitlines() if line.startswith("## ")]
+    assert headings == ["## Supported platforms", "## Installation", "## Getting help"]
+    assert "{toctree}" not in text
+
+
+def test_the_developer_guide_lists_its_pages_in_order():
+    developer = DOCS / "guides" / "developer"
     pages = [
-        "prerequisites",
         "installation",
-        "issues",
-        "discussions",
-        "security",
+        "workflow",
+        "style",
+        "documentation",
+        "terminology",
+        "internals/index",
+        "layout",
+        "bart-fork",
     ]
-    assert _toctree(user / "index.md") == pages
-    assert sorted(p.stem for p in user.glob("*.md")) == sorted([*pages, "index"])
+    assert _toctree(developer / "index.md") == pages
+    assert sorted(p.stem for p in developer.glob("*.md")) == sorted(
+        [*(page for page in pages if "/" not in page), "index"]
+    )
 
 
 def _gallery_sections() -> list[str]:
@@ -222,42 +236,62 @@ def _gallery_sections() -> list[str]:
 #: The gallery sections that are the course, read in order; the rest are Tours.
 COURSE_SECTIONS = 6
 
-
-def _landing_tables() -> tuple[list[str], list[str]]:
-    """The sections linked under the Course and under the Tours on the Examples page."""
-    root = (DOCS / "examples" / "README.rst").read_text(encoding="utf-8")
-    course, tours = root.split("\nTours\n-----\n")
-    assert "\nCourse\n------\n" in course
-
-    def linked(text):
-        """Each section in the order its first link appears: a lesson or the section itself."""
-        targets = [
-            line.split("`")[1].rstrip(">").split("<")[-1]
-            for line in text.splitlines()
-            if ":doc:`" in line and ("`0" in line or "<0" in line)
-        ]
-        sections = [f"{target.split('/')[0]}/index" for target in targets]
-        return list(dict.fromkeys(sections))
-
-    return linked(course), linked(tours)
+GALLERY = DOCS / "gallery"
 
 
-def test_the_examples_page_is_the_gallery_root_and_links_every_section():
-    """Examples > section > example: the sidebar enters the gallery at its root."""
-    sections = _gallery_sections()
+def _examples(sections: list[str]) -> list[str]:
+    """The example pages of the given gallery sections, in the order sphinx-gallery writes them."""
+    return [
+        f"/auto_examples/{section}/{script.stem}"
+        for section in sections
+        for script in sorted((DOCS / "examples" / section).glob("*.py"))
+    ]
+
+
+def _linked(text: str) -> list[str]:
+    """The pages linked from the first column of the tables in a Markdown text, in order."""
+    return [
+        line.split("`")[1].rsplit("<", 1)[-1].rstrip(">")
+        for line in text.splitlines()
+        if line.startswith("| {doc}`")
+    ]
+
+
+def test_the_gallery_sections_are_the_directories_on_disk():
     on_disk = sorted(p.parent.name for p in (DOCS / "examples").glob("*/README.rst"))
-    assert sorted(sections) == on_disk
-    assert "auto_examples/index" in _toctree(DOCS / "index.md")
-    assert not (DOCS / "examples" / "index.md").exists()
+    assert sorted(_gallery_sections()) == on_disk
+
+
+def test_the_course_page_lists_and_holds_every_lesson_in_order():
+    lessons = _examples(_gallery_sections()[:COURSE_SECTIONS])
+    assert _linked((GALLERY / "course.md").read_text(encoding="utf-8")) == lessons
+    assert _toctree(GALLERY / "course.md") == lessons
+
+
+def test_the_tours_page_lists_and_holds_every_tour_in_order():
+    tours = _examples(_gallery_sections()[COURSE_SECTIONS:])
+    assert tours, "there are no tours"
+    assert _linked((GALLERY / "tours.md").read_text(encoding="utf-8")) == tours
+    assert _toctree(GALLERY / "tours.md") == tours
 
 
 def test_the_examples_page_lists_the_course_and_then_the_tours():
-    """The Course table covers the first sections in order, the Tours table the rest."""
-    sections = [f"{section}/index" for section in _gallery_sections()]
-    course, tours = _landing_tables()
-    assert course == sections[:COURSE_SECTIONS]
-    assert tours == sections[COURSE_SECTIONS:]
-    assert tours, "the Tours table is empty"
+    """Examples > Course > lessons and Examples > Tours > tours, as the sidebar reads."""
+    sections = _gallery_sections()
+    text = (GALLERY / "index.md").read_text(encoding="utf-8")
+    course, tours = text.split("\n## Tours\n")
+    assert "\n## Course\n" in course
+    assert _linked(course) == _examples(sections[:COURSE_SECTIONS])
+    assert _linked(tours) == _examples(sections[COURSE_SECTIONS:])
+    assert _toctree(GALLERY / "index.md") == ["course", "tours"]
+
+
+def test_the_gallery_root_is_an_orphan_outside_the_navigation():
+    """sphinx-gallery writes its root index as an orphan; nothing puts it back in a toctree."""
+    for page in DOCS.rglob("*.md"):
+        if "auto_examples" in page.parts or "generated" in page.parts:
+            continue
+        assert "auto_examples/index" not in _toctree(page), page
 
 
 def test_the_sidebar_lists_the_six_sections_in_order():
@@ -265,7 +299,7 @@ def test_the_sidebar_lists_the_six_sections_in_order():
         "guides/user/index",
         "guides/developer/index",
         "explanation/index",
-        "auto_examples/index",
+        "gallery/index",
         "api/index",
         "misc/index",
     ]

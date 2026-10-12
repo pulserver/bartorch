@@ -18,8 +18,3 @@ against an independent field map.
 - Correct the susceptibility distortion of a 3 T EPI pair with reversed phase
   encoding, downloaded from OpenNeuro.
 - Prewhiten correlated channel noise, and measure the SNR it buys.
-
-These tours also need PyHySCO, and the susceptibility tour downloads about
-2 MB of data into ``~/.cache/bartorch-examples``::
-
-    pip install PyHySCO

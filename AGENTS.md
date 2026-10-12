@@ -48,7 +48,7 @@ would otherwise have been linked against.
 | `src/csrc/substitute/critical.c` | OpenMP's critical-section entry points, forwarded to the runtime with a record per thread of the sections held, so that a section BART's error jumped out of is left when the catch returns. |
 | `src/csrc/substitute/psf.c` | The three `compute_psf*` entry points, so that the adjoint transform a point spread function is comes from the substitution. |
 | `src/cuda/` | The library compiled with CUDA as packages of their own, `bartorch-cuda12` and `bartorch-cuda13`: a pyproject per CUDA major version over the same CMake project (`BARTORCH_CUDA_PACKAGE`), and the `__init__.py` that makes the installed `bartorch_cudaNN/` a package.  `_lib.py` loads the one for torch's CUDA major version in place of the package's own library. |
-| `src/bartorch/` | The package.  Every public interface is flat: `bartorch` and each subpackage export their names from `__init__.py`, and every module beneath them is private, named with a leading underscore.  Public: the functions in `_fourier.py`, `_wavelet.py`, `_thresh.py`, `_util.py`, `_interp.py`, `_kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and in `_training.py` the Lightning training stages, which `learning/__init__.py` imports the first time `Reconstruction` or `RandomGain` is asked for); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `_correct/`, corrections of data and images outside the reconstruction, and `_motion/`, rigid motion from navigators); `io/` (CFL files, ISMRMRD raw data, DICOM and NIfTI images, with the `io` extra); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `_form.py` (the encoding form and the plan it reports) and `_plan.py` (matching a composition against that form). |
+| `src/bartorch/` | The package.  Every public interface is flat: `bartorch` and each subpackage export their names from `__init__.py`, and every module beneath them is private, named with a leading underscore.  Public: the functions in `_fourier.py`, `_wavelet.py`, `_thresh.py`, `_util.py`, `_interp.py`, `_kspace.py` (apodization windows and readout-oversampling removal) and `_settings.py`, re-exported as `bartorch.*`; `linop/` and `nlop/` (a class per operator); `optim/` (a class per BART iteration); `priors/` (BART's regularization terms, and its denoisers); `learning/` (networks for complex images, patchwise execution, self-supervised splitting, uncertainty, and in `_training.py` the Lightning training stages, which `learning/__init__.py` imports the first time `Reconstruction` or `RandomGain` is asked for); `apps/` (BART's reconstruction pipelines, assembled from this package rather than run as commands); `cli/` (BART's command line, served by this package); `tools/` (BART's applications that have no pipeline or operator counterpart, in five sections, and two with no BART command behind them: `_correct/`, corrections of data and images outside the reconstruction, and `_motion/`, rigid motion from navigators); `io/` (CFL files, ISMRMRD raw data, DICOM and NIfTI images); `interop.py` (the deepinv adapter).  Private: `_abi.py` (the ctypes signatures, generated from the header), `_lib.py` (finding and loading the library), `_marshal.py` (what an ABI argument looks like), `_backend.py` (which library serves BLAS and LAPACK), `_buffer.py` (a tensor over one of BART's buffers, host or device), `_dispatch.py` (running a command on tensors), `_operator.py` (what every operator shares), `_grid.py` (what the operations on a grid share, including BART's motion layout), `_finufft.py` and `_cuda.py` (the substitution's and the card's controls), `_catalogue.py` and `_options.py` (what BART declares, and what each option is called here), `_call.py` (the mark on a hand-written wrapper, and wrappers built from the catalogue), `_coverage.py` (where each command is exposed, or why not), `_reference.py` (the reconstruction commands the apps are tested against); inside `linop/`, `_form.py` (the encoding form and the plan it reports) and `_plan.py` (matching a composition against that form). |
 | `scripts/gen_abi.py` | Generates `_abi.py` from `src/csrc/include/bartorch.h`. Run after changing the header; `tests/test_abi.py` fails when the checked-in file is not what it writes. |
 | `scripts/gen_catalogue.py` | Generates `_catalogue.py` from the BART sources: every command, its arguments, and every option with both spellings. Run after a submodule bump. |
 | `scripts/run_tests.sh` | Builds whatever changed on the C side, then runs the suite against `src/`, without installing. |
@@ -1316,10 +1316,10 @@ is:
 
 | Section | Directory | What is in it |
 | --- | --- | --- |
-| User guide | `docs/guides/user/` | Prerequisites, installation, reporting issues, questions, security; nothing conceptual |
-| Developer guide | `docs/guides/developer/` | Building, layout, workflow, style, terminology, documentation, pull requests |
-| Explanation | `docs/explanation/` | The concepts: execution model, data layout and the conversion of data into it, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation, learned reconstruction |
-| Examples | `docs/examples/` | The gallery: executable scripts rendered by sphinx-gallery into `docs/auto_examples/` |
+| User guide | `docs/guides/user/` | One page: supported platforms, installation from wheels, getting help; nothing conceptual |
+| Developer guide | `docs/guides/developer/` | Installation (source builds, pre-commit hooks), workflow (pull requests, code of conduct), style, documentation, terminology, internals, layout, the BART fork |
+| Explanations | `docs/explanation/` | The concepts: execution model, data layout and the conversion of data into it, inverse problems, encoding, non-Cartesian sampling, nonlinear models, differentiation, learned reconstruction |
+| Examples | `docs/gallery/`, `docs/examples/` | The Examples, Course and Tours pages in `docs/gallery/`; the executable scripts in `docs/examples/`, rendered by sphinx-gallery into `docs/auto_examples/` |
 | API reference | `docs/api/` | One page per public module, listing its objects in tables |
 | Misc | `docs/misc/` | License, related projects, citation |
 
@@ -1341,8 +1341,10 @@ has no previous or next reference.  The Course is the shortest coherent path
 that gives a new user the framework's core mental model and enough practical
 competence to work independently.  Tours are useful applications, advanced
 branches or specialised workflows that are not necessary for that core
-competence.  The Examples page carries a Course table and a Tours table, and
-`tests/test_docs.py` holds both to `GALLERY_SECTIONS`.
+competence.  `docs/gallery/index.md`, the Examples page, carries a Course
+table and a Tours table listing every lesson and tour; `course.md` and
+`tours.md` beside it carry their own tables and the hidden toctrees over the
+example pages, and `tests/test_docs.py` holds all three to `GALLERY_SECTIONS`.
 
 Figures use `docs/gallery_style.py`; no script sets font sizes or DPI.  A
 complex image is drawn with `gallery_style.domain` and keyed with
@@ -1351,15 +1353,15 @@ complex image is drawn with `gallery_style.domain` and keyed with
 An example is a Python script under `docs/examples/<section>/`, named
 `NN-title.py`, whose module docstring becomes the page and whose numeric prefix
 orders it within its section. A section is a directory with a `README.rst`
-holding its heading and a paragraph stating its aim and what it needs beyond
-the common packages; `docs/conf.py` lists the sections in the order a reader
-meets them.  `docs/examples/README.rst` is the header of the gallery's root,
-which sphinx-gallery writes to `auto_examples/index.rst` and which is the
-*Examples* page: its table links each section's page, and below it every
-section's paragraph and thumbnails follow.  Each section page is
-sphinx-gallery's own, with the section's paragraph and thumbnails and a toctree
-of its examples, so the sidebar reads Examples, section, example
-(`max_navbar_depth` 3).  `tests/test_docs.py` holds the table to the sections. Code that is not about this library -- figure
+holding its heading and a paragraph stating its aim; the packages it needs
+beyond the common ones are named on the Course or Tours page.  `docs/conf.py`
+lists the sections in the order a reader meets them.
+`docs/examples/README.rst` is the header of the gallery's root, which
+sphinx-gallery writes to `auto_examples/index.rst` as an `:orphan:`, so the
+gallery adds no navigation of its own; each section page is sphinx-gallery's,
+with the section's paragraph and thumbnails.  The sidebar reads Examples,
+Course or Tours, example (`max_navbar_depth` 3), through the toctrees of
+`docs/gallery/`. Code that is not about this library -- figure
 layout, colormaps, the phantom's arithmetic -- goes between
 `# sphinx_gallery_start_ignore` and `# sphinx_gallery_end_ignore`, which keeps
 it off the page and in the downloadable script and notebook. Anything a reader
@@ -1378,7 +1380,7 @@ for download is left as sphinx-gallery writes it.
 
 `./scripts/build_docs.sh` renders the example pages without running them, which
 needs no compiled library; `--execute` runs them, which needs one and the
-packages `docs/examples/README.rst` names. The docs workflow does both, and
+packages `docs/gallery/index.md` names. The docs workflow does both, and
 publishes the executed build into the `gh-pages` branch, which Pages serves:
 one directory per version, `latest` from `main` and `vX.Y.Z` and `stable`
 from a release tag, with the version switcher reading `versions.json` beside

@@ -13,7 +13,7 @@ so its Fourier transform is a non-uniform FFT (NUFFT) rather than an FFT. You
 meet it in {class}`~bartorch.linop.NUFFT` and
 {class}`~bartorch.linop.NoncartesianSense`, and inside `nufft`, `pics`, `nlinv`
 and `moba` whenever you pass a trajectory. Lesson 7 of the
-{doc}`Course <../auto_examples/index>` computes the transform, density
+{doc}`Course <../gallery/course>` computes the transform, density
 compensation and the point spread function, and lesson 8 reconstructs radial
 SENSE.
 

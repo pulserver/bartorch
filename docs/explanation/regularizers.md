@@ -13,7 +13,7 @@ so you add a penalty that expresses what you know about it: few significant
 wavelet coefficients, piecewise-constant intensity, low rank across a contrast
 axis. You choose the term and its weight $\lambda$; the solver
 ({doc}`solvers`) does the rest. Lesson 5 of the
-{doc}`Course <../auto_examples/index>` compares three terms and sweeps their
+{doc}`Course <../gallery/course>` compares three terms and sweeps their
 weights, and lesson 10 replaces the term with a denoising network.
 
 ## Capabilities
