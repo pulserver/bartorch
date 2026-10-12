@@ -113,7 +113,7 @@ UNDIFFERENTIATED = {
     "Hyperecho": (
         "H",
         dict(n=2 * 5 + 1, e=TE_S, f=FLIP),
-        lambda: simulators.HyperechoSimulator(flip=FLIP * torch.ones(5), ESP=1e3 * TE_S, TR=1e15),
+        lambda: simulators.HyperechoSimulator(flip=FLIP * torch.ones(5), ESP=1e3 * TE_S),
         1.0,
     ),
     "Spinecho": (
