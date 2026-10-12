@@ -1,16 +1,12 @@
 # Tours
 
-Each tour stands on its own: it opens with what it shows and the lessons of
-the {doc}`course` it assumes, so you can read any of them once you have the
-Course behind you.
+Standalone examples beyond the {doc}`course`. Each names the lessons it assumes.
 
 ## Acquisition and corrections
 
-Corrections you apply to the data before the reconstruction, or to the image
-after it, each on its own. Most of them simulate the artefact from a known
-truth, so you can see how much the correction recovers; the EPI
-susceptibility tour corrects measured data instead, and checks the result
-against an independent field map. These tours also need the following
+Corrections before and after reconstruction. Most are tested on a simulated
+artefact with a known truth; the EPI susceptibility tour uses measured data and
+an independent field map. These tours also need the following
 packages, and the susceptibility tour downloads about 2 MB of data into
 `~/.cache/bartorch-examples`:
 
@@ -43,8 +39,7 @@ background.
 
 ## Learning workflows
 
-What comes after lessons 10 and 11, when you train and use a learned
-regularizer on real problems. {doc}`/explanation/learned-reconstruction`
+Training and use of learned regularizers beyond lessons 10 and 11. {doc}`/explanation/learned-reconstruction`
 explains where a network enters a reconstruction. These tours also need:
 
 ```bash

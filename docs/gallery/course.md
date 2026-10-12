@@ -11,7 +11,7 @@ your own. Read them in order: each one starts from what the previous one built.
 | {doc}`3. Coil sensitivities </auto_examples/02-parallel-imaging/01-coil-calibration>` | Coil sensitivity estimation and its effect on the reconstruction |
 | {doc}`4. Joint reconstruction of image and sensitivity maps </auto_examples/02-parallel-imaging/02-nonlinear-inversion>` | Joint estimation of image and coil sensitivities from a small calibration region |
 | {doc}`5. Choosing a regularizer </auto_examples/03-regularization/01-regularized-reconstruction>` | Tikhonov, wavelet and total-variation regularization; regularization weight |
-| {doc}`6. Custom encoding and solver </auto_examples/03-regularization/02-operators-and-solvers>` | Encoding operator and solver written out, equal to `pics` |
+| {doc}`6. Custom encoding and solver </auto_examples/03-regularization/02-operators-and-solvers>` | Encoding operator and solver, identical to `pics` |
 | {doc}`7. Basics of non-Cartesian imaging </auto_examples/04-non-cartesian/01-trajectories-and-transforms>` | Trajectories, NUFFT, density compensation, point spread function |
 | {doc}`8. Radial SENSE </auto_examples/04-non-cartesian/02-radial-sense>` | Golden-angle radial SENSE |
 | {doc}`9. Nonlinear inversion for T2 mapping </auto_examples/05-model-based/01-quantitative-models>` | Model-based $T_2$ mapping from raw data |

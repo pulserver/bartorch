@@ -1,13 +1,13 @@
 # Developer guide
 
-How the repository is built, tested, documented and contributed to.
+Building, testing, documenting and contributing.
 `AGENTS.md` at the repository root records the design rules of the native
 library and the operator layer.
 
 | Page | Contents |
 | --- | --- |
-| {doc}`installation` | Source builds and their options, FINUFFT backends, toolchain, clone, editable installation, pre-commit hooks, local builds |
-| {doc}`workflow` | Change procedure, checks, pull requests and CI, generated files, submodule updates, tests, code of conduct |
+| {doc}`installation` | Toolchain, source builds, FINUFFT backends, editable install, pre-commit hooks |
+| {doc}`workflow` | Checks, pull requests and CI, generated files, submodule updates, code of conduct |
 | {doc}`style` | Python, C and docstring conventions |
 | {doc}`documentation` | Documentation types, scientific writing, docstrings |
 | {doc}`terminology` | Vocabulary and conventions of code and documentation |

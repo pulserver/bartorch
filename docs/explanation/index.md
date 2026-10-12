@@ -1,10 +1,7 @@
 # Explanations
 
-The concepts behind bartorch, one page each, in the order data meets them:
-from the call into BART, through the encoding and the inverse problem, to
-learned reconstruction and performance. Each page opens with a summary, lists
-what bartorch does with the code and the tests behind each item, and shows the
-mechanism in one figure. Exact interfaces are in {doc}`../api/index`, and
+The concepts behind bartorch, one page each, from the call into BART to
+learned reconstruction and performance. Exact interfaces are in {doc}`../api/index`, and
 complete workflows in the {doc}`examples <../gallery/index>`.
 
 | Page | Contents |

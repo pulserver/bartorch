@@ -1,7 +1,7 @@
 # Examples
 
-Every page here runs when the documentation is built, so every figure and
-every number on it comes from the code you see. Each page has an *Open in
+Executed when the documentation is built: every figure and number comes from
+the code on the page. Each page has an *Open in
 Colab* button, so you need nothing but a browser to run it.
 The ideas behind them are in {doc}`/explanation/index`, and every function they
 call is in {doc}`/api/index`.
@@ -13,22 +13,22 @@ Eleven lessons from a k-space tensor to a learned reconstruction, read in order
 
 | Lesson | Contents |
 | --- | --- |
-| {doc}`Your data as tensors </auto_examples/01-basics/01-tensors-and-commands>` | Tensors in BART's layout; BART commands on tensors |
-| {doc}`From k-space to an image </auto_examples/01-basics/02-from-kspace-to-image>` | Undersampled Cartesian reconstruction, step by step |
-| {doc}`Coil sensitivities </auto_examples/02-parallel-imaging/01-coil-calibration>` | Coil sensitivity estimation and its effect on the reconstruction |
-| {doc}`Joint reconstruction of image and sensitivity maps </auto_examples/02-parallel-imaging/02-nonlinear-inversion>` | Joint estimation of image and coil sensitivities from a small calibration region |
-| {doc}`Choosing a regularizer </auto_examples/03-regularization/01-regularized-reconstruction>` | Tikhonov, wavelet and total-variation regularization; regularization weight |
-| {doc}`Custom encoding and solver </auto_examples/03-regularization/02-operators-and-solvers>` | Encoding operator and solver written out, equal to `pics` |
-| {doc}`Basics of non-Cartesian imaging </auto_examples/04-non-cartesian/01-trajectories-and-transforms>` | Trajectories, NUFFT, density compensation, point spread function |
-| {doc}`Radial SENSE </auto_examples/04-non-cartesian/02-radial-sense>` | Golden-angle radial SENSE |
-| {doc}`Nonlinear inversion for T2 mapping </auto_examples/05-model-based/01-quantitative-models>` | Model-based $T_2$ mapping from raw data |
-| {doc}`Plug-and-play reconstruction </auto_examples/06-learning/01-plug-and-play>` | Plug-and-play with a pretrained denoiser |
-| {doc}`Training an unrolled network </auto_examples/06-learning/02-modl-with-admm>` | Unrolled network trained through ADMM |
+| {doc}`1. Your data as tensors </auto_examples/01-basics/01-tensors-and-commands>` | Tensors in BART's layout; BART commands on tensors |
+| {doc}`2. From k-space to an image </auto_examples/01-basics/02-from-kspace-to-image>` | Undersampled Cartesian reconstruction, step by step |
+| {doc}`3. Coil sensitivities </auto_examples/02-parallel-imaging/01-coil-calibration>` | Coil sensitivity estimation and its effect on the reconstruction |
+| {doc}`4. Joint reconstruction of image and sensitivity maps </auto_examples/02-parallel-imaging/02-nonlinear-inversion>` | Joint estimation of image and coil sensitivities from a small calibration region |
+| {doc}`5. Choosing a regularizer </auto_examples/03-regularization/01-regularized-reconstruction>` | Tikhonov, wavelet and total-variation regularization; regularization weight |
+| {doc}`6. Custom encoding and solver </auto_examples/03-regularization/02-operators-and-solvers>` | Encoding operator and solver, identical to `pics` |
+| {doc}`7. Basics of non-Cartesian imaging </auto_examples/04-non-cartesian/01-trajectories-and-transforms>` | Trajectories, NUFFT, density compensation, point spread function |
+| {doc}`8. Radial SENSE </auto_examples/04-non-cartesian/02-radial-sense>` | Golden-angle radial SENSE |
+| {doc}`9. Nonlinear inversion for T2 mapping </auto_examples/05-model-based/01-quantitative-models>` | Model-based $T_2$ mapping from raw data |
+| {doc}`10. Plug-and-play reconstruction </auto_examples/06-learning/01-plug-and-play>` | Plug-and-play with a pretrained denoiser |
+| {doc}`11. Training an unrolled network </auto_examples/06-learning/02-modl-with-admm>` | Unrolled network trained through ADMM |
 
 ## Tours
 
-Corrections, dynamic and quantitative workflows, and learning workflows, each
-standalone ({doc}`tours`).
+Standalone examples beyond the Course. Each names the lessons it assumes
+({doc}`tours`).
 
 | Tour | Contents |
 | --- | --- |
