@@ -208,7 +208,7 @@ that is what a registration or segmentation package reads.
  .. code-block:: none
 
 
-    PosixPath('/tmp/tmp2mzgx_ut/t2-map.nii.gz')
+    PosixPath('/tmp/tmpc5ol9aic/t2-map.nii.gz')
 
 
 
@@ -285,7 +285,7 @@ What this tour built, stated the way you would ask an agent for it:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 39.711 seconds)
+   **Total running time of the script:** (0 minutes 48.395 seconds)
 
 
 .. _sphx_glr_download_auto_examples_08-workflows_03-maps-from-scanner-images.py:

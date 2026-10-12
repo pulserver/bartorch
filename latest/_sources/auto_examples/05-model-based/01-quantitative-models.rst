@@ -263,7 +263,7 @@ loop over the model alone.
 
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
       warnings.warn(
-    reconstruct, then fit:   4.1 s
+    reconstruct, then fit:   5.7 s
 
 
 
@@ -302,7 +302,7 @@ Gauss-Newton step requires.
 
  .. code-block:: none
 
-    model inside the operator:  11.5 s
+    model inside the operator:  16.2 s
 
 
 
@@ -347,7 +347,7 @@ identical to the fit above.
 
  .. code-block:: none
 
-    apps.moba:  12.2 s
+    apps.moba:  16.2 s
 
 
 
@@ -516,7 +516,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 32.235 seconds)
+   **Total running time of the script:** (0 minutes 44.383 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-quantitative-models.py:
