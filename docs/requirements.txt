@@ -22,4 +22,4 @@ matplotlib>=3.7
 cmap>=0.6
 # The PDF manual: scripts/build_docs_pdf.sh prints the single-page build with
 # headless Chromium, which `python -m playwright install chromium` provides.
-playwright>=1.42
+playwright>=1.63.0
