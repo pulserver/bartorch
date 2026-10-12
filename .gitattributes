@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.npy binary
+*.npz binary
+*.mat binary
+*.h5 binary
+*.cfl binary
+*.ipynb linguist-documentation=true
+
+# BART and the other third-party sources are not counted as this project's code.
+external/** linguist-vendored=true
+attic/** linguist-documentation=true

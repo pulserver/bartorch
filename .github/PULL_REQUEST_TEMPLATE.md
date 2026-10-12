@@ -12,6 +12,6 @@
      ./scripts/build_docs.sh for documentation. Numerical changes state the reference
      and the tolerance. State hardware or optional dependencies that were not available. -->
 
-## Public API and documentation
+## Documentation impact
 
 <!-- Changes to public behaviour, and the documentation updated for them; "None" otherwise. -->
