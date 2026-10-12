@@ -1,10 +1,10 @@
 # Miscellaneous
 
-| Page | Purpose |
+| Page | Contents |
 | --- | --- |
-| {doc}`license` | bartorch's license, and the licenses of the components it embeds and depends on |
-| {doc}`related_projects` | Projects with a direct technical relationship to bartorch |
-| {doc}`contributors` | Contributors, and how to cite work that uses bartorch |
+| {doc}`license` | License of bartorch and of the components it embeds and depends on |
+| {doc}`related_projects` | Projects related to bartorch |
+| {doc}`contributors` | Contributors; citation |
 
 ```{toctree}
 :hidden:

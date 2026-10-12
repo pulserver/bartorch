@@ -13,7 +13,7 @@ library and the operator layer.
 | {doc}`terminology` | Vocabulary and conventions of code and documentation |
 | {doc}`internals/index` | Rules, derivations and measurements behind the explanation pages |
 | {doc}`layout` | Directories of the repository and modules of the package |
-| {doc}`bart-fork` | The downstream BART fork: branches, patch scope, synchronisation with Codeberg |
+| {doc}`bart-fork` | Downstream BART fork: branches, patch scope, synchronisation with Codeberg |
 
 ```{toctree}
 :hidden:

@@ -18,16 +18,16 @@ packages, and the susceptibility tour downloads about 2 MB of data into
 pip install SimpleITK PyHySCO
 ```
 
-| Tour | What it establishes |
+| Tour | Contents |
 | --- | --- |
-| {doc}`/auto_examples/07-tours/01-readout-oversampling-and-apodization` | Remove readout oversampling, and compare Fermi and Hann apodization. |
-| {doc}`/auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | Correct the Nyquist ghost of an EPI train, and regrid a ramp-sampled readout. |
-| {doc}`/auto_examples/07-tours/03-bias-field` | Estimate the receive bias field of a head array with N4. |
-| {doc}`/auto_examples/07-tours/04-gradient-nonlinearity` | Undo the distortion of gradient nonlinearity from the coil's spherical-harmonic coefficients. |
-| {doc}`/auto_examples/07-tours/05-spiral-deblurring` | Deblur a spiral image off resonance, by multifrequency interpolation and by a time-segmented reconstruction. |
-| {doc}`/auto_examples/07-tours/06-navigator-motion` | Track rigid head motion from three orthogonal navigator planes. |
-| {doc}`/auto_examples/07-tours/07-epi-susceptibility-distortion` | Correct the susceptibility distortion of a 3 T EPI pair with reversed phase encoding, downloaded from OpenNeuro. |
-| {doc}`/auto_examples/07-tours/08-noise-prewhitening` | Prewhiten correlated channel noise, and measure the SNR it buys. |
+| {doc}`/auto_examples/07-tours/01-readout-oversampling-and-apodization` | Readout oversampling removal; Fermi and Hann apodization |
+| {doc}`/auto_examples/07-tours/02-epi-ghost-and-ramp-sampling` | EPI Nyquist ghost correction; ramp-sampling regridding |
+| {doc}`/auto_examples/07-tours/03-bias-field` | Receive bias field estimation with N4 |
+| {doc}`/auto_examples/07-tours/04-gradient-nonlinearity` | Gradient nonlinearity correction from spherical-harmonic coefficients |
+| {doc}`/auto_examples/07-tours/05-spiral-deblurring` | Spiral off-resonance deblurring: multifrequency interpolation, time-segmented reconstruction |
+| {doc}`/auto_examples/07-tours/06-navigator-motion` | Rigid head motion from orthogonal navigator planes |
+| {doc}`/auto_examples/07-tours/07-epi-susceptibility-distortion` | EPI susceptibility distortion correction from reversed phase encoding |
+| {doc}`/auto_examples/07-tours/08-noise-prewhitening` | Noise prewhitening and SNR |
 
 ## Dynamic and quantitative workflows
 
@@ -35,11 +35,11 @@ The Course's encodings applied to a time series and to quantitative mapping.
 {doc}`/explanation/non-cartesian` and {doc}`/explanation/nonlinear` give the
 background.
 
-| Tour | What it establishes |
+| Tour | Contents |
 | --- | --- |
-| {doc}`/auto_examples/08-workflows/01-dynamic-golden-angle` | Reconstruct a dynamic contrast-enhanced series from one continuous golden-angle radial scan, with total variation along time. |
-| {doc}`/auto_examples/08-workflows/02-subspace-t1-mapping` | Map $T_1$ from one continuous inversion-recovery scan, by reconstructing the coefficients of a subspace of the signal curves. |
-| {doc}`/auto_examples/08-workflows/03-maps-from-scanner-images` | Fit a $T_2$ decay to magnitude images read from DICOM, as the scanner exports them, and write the map back. |
+| {doc}`/auto_examples/08-workflows/01-dynamic-golden-angle` | Dynamic golden-angle radial reconstruction with temporal total variation |
+| {doc}`/auto_examples/08-workflows/02-subspace-t1-mapping` | Subspace $T_1$ mapping from a continuous inversion-recovery scan |
+| {doc}`/auto_examples/08-workflows/03-maps-from-scanner-images` | $T_2$ mapping from DICOM magnitude images |
 
 ## Learning workflows
 
@@ -51,13 +51,13 @@ explains where a network enters a reconstruction. These tours also need:
 pip install lightning torchio monai deepinv
 ```
 
-| Tour | What it establishes |
+| Tour | Contents |
 | --- | --- |
-| {doc}`/auto_examples/09-learning-workflows/01-networks-for-complex-volumes` | Networks for complex multi-contrast volumes, applied patch by patch. |
-| {doc}`/auto_examples/09-learning-workflows/02-staged-training` | Training an unrolled network in stages, within the memory of one iteration. |
-| {doc}`/auto_examples/09-learning-workflows/03-self-supervised-training` | Self-supervised training from undersampled data alone. |
-| {doc}`/auto_examples/09-learning-workflows/04-annealed-plug-and-play` | Plug-and-play with a noise level that anneals over the iterations. |
-| {doc}`/auto_examples/09-learning-workflows/05-uncertainty` | Voxel-wise uncertainty, calibrated. |
+| {doc}`/auto_examples/09-learning-workflows/01-networks-for-complex-volumes` | Networks for complex multi-contrast volumes; patchwise execution |
+| {doc}`/auto_examples/09-learning-workflows/02-staged-training` | Staged training of unrolled networks |
+| {doc}`/auto_examples/09-learning-workflows/03-self-supervised-training` | Self-supervised training from undersampled data |
+| {doc}`/auto_examples/09-learning-workflows/04-annealed-plug-and-play` | Plug-and-play with an annealed noise level |
+| {doc}`/auto_examples/09-learning-workflows/05-uncertainty` | Calibrated voxel-wise uncertainty |
 
 ```{toctree}
 :hidden:
