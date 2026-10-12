@@ -646,15 +646,15 @@ assumes, so you can read any of them once you have the Course behind you.</p>
 </tbody>
 </table>
 </div>
-<p>The scripts need a built <code class="docutils literal notranslate"><span class="pre">bartorch</span></code> with its <code class="docutils literal notranslate"><span class="pre">io</span></code> extra, <code class="docutils literal notranslate"><span class="pre">brainweb-dl</span></code>, which downloads the
+<p>The scripts need a built <code class="docutils literal notranslate"><span class="pre">bartorch</span></code>, <code class="docutils literal notranslate"><span class="pre">brainweb-dl</span></code>, which downloads the
 BrainWeb phantoms several examples build their images from, and
 <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> and <code class="docutils literal notranslate"><span class="pre">cmap</span></code> for the figures:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s1">'bartorch[io]'</span> <span class="n">brainweb</span><span class="o">-</span><span class="n">dl</span> <span class="n">matplotlib</span> <span class="n">cmap</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">bartorch</span> <span class="n">brainweb</span><span class="o">-</span><span class="n">dl</span> <span class="n">matplotlib</span> <span class="n">cmap</span>
 </pre></div>
 </div>
 <p>The learned-regularization lessons and tours additionally require <code class="docutils literal notranslate"><span class="pre">lightning</span></code>,
-<code class="docutils literal notranslate"><span class="pre">torchio</span></code>, <code class="docutils literal notranslate"><span class="pre">monai</span></code> and <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>, and the corrections tours <code class="docutils literal notranslate"><span class="pre">SimpleITK</span></code>
-and <code class="docutils literal notranslate"><span class="pre">PyHySCO</span></code>; each section page names what it needs.</p>
+<code class="docutils literal notranslate"><span class="pre">torchio</span></code>, <code class="docutils literal notranslate"><span class="pre">monai</span></code> and <code class="docutils literal notranslate"><span class="pre">deepinv</span></code>, and the corrections tours
+<code class="docutils literal notranslate"><span class="pre">PyHySCO</span></code>; each section page names what it needs.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"></div></section>
 <section id="basics">
 <h2>Basics<a class="headerlink" href="#basics" title="Link to this heading">#</a></h2>
@@ -779,9 +779,9 @@ a time-segmented reconstruction.</p></li>
 encoding, downloaded from OpenNeuro.</p></li>
 <li><p>Prewhiten correlated channel noise, and measure the SNR it buys.</p></li>
 </ul>
-<p>These tours also need the following packages, and the susceptibility tour
-downloads about 2 MB of data into <code class="docutils literal notranslate"><span class="pre">~/.cache/bartorch-examples</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">SimpleITK</span> <span class="n">PyHySCO</span>
+<p>These tours also need PyHySCO, and the susceptibility tour downloads about
+2 MB of data into <code class="docutils literal notranslate"><span class="pre">~/.cache/bartorch-examples</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">PyHySCO</span>
 </pre></div>
 </div>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In this tour you apply two corrections to Cartesian k-space before reconstruction. The readout is usually sampled at twice the density the matrix requires; removing that oversampling gives the image the prescribed matrix. And the truncation of k-space at the edge of the acquired matrix causes Gibbs ringing next to every sharp edge, which an apodization window reduces at the cost of resolution."><img alt="" src="../_images/sphx_glr_01-readout-oversampling-and-apodization_thumb.png" />

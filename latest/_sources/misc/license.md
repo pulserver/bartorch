@@ -29,7 +29,8 @@ BART's license:
 
 The following are installed as separate packages, each under its own license,
 and are not redistributed by bartorch: PyTorch, NumPy, SciPy, BlochSim,
-MRI-NUFFT, and the optional MKL, DeepInverse, SimpleITK and PyHySCO.  PyHySCO
+MRI-NUFFT, SimpleITK, ismrmrd, pydicom, nibabel, and the optional MKL,
+DeepInverse and PyHySCO.  PyHySCO
 is GPL-3.0-only; it is installed only on request (the `pyhysco` extra) and
 imported only when {func}`bartorch.tools.correct_susceptibility` is called.
 The CUDA wheel links the CUDA runtime, cuFFT and cuBLAS dynamically and does

@@ -770,8 +770,7 @@ functions and classes with no BART command behind them.</p>
 <section id="corrections">
 <h2>Corrections<a class="headerlink" href="#corrections" title="Link to this heading">#</a></h2>
 <p>Corrections applied to data or images outside the reconstruction.  Bias field
-and gradient nonlinearity correction resample with SimpleITK
-(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'bartorch[correct]'</span></code>), and spiral deblurring uses Triton on a
+and gradient nonlinearity correction resample with SimpleITK, and spiral deblurring uses Triton on a
 CUDA device when it is installed.  Susceptibility correction runs PyHySCO,
 which is GPL-3.0-only, is not distributed with bartorch and is imported only
 when <a class="reference internal" href="../generated/bartorch.tools.correct_susceptibility.html#bartorch.tools.correct_susceptibility" title="bartorch.tools.correct_susceptibility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_susceptibility</span></code></a> is called
@@ -835,7 +834,7 @@ when <a class="reference internal" href="../generated/bartorch.tools.correct_sus
 <section id="rigid-motion-from-navigators">
 <h2>Rigid motion from navigators<a class="headerlink" href="#rigid-motion-from-navigators" title="Link to this heading">#</a></h2>
 <p>Plane reconstruction by the non-uniform transform of this package, rigid
-registration by SimpleITK (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'bartorch[motion]'</span></code>), and a
+registration by SimpleITK, and a
 constant-velocity extended Kalman filter over the registered poses.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>

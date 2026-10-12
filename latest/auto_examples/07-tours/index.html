@@ -554,9 +554,9 @@ a time-segmented reconstruction.</p></li>
 encoding, downloaded from OpenNeuro.</p></li>
 <li><p>Prewhiten correlated channel noise, and measure the SNR it buys.</p></li>
 </ul>
-<p>These tours also need the following packages, and the susceptibility tour
-downloads about 2 MB of data into <code class="docutils literal notranslate"><span class="pre">~/.cache/bartorch-examples</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">SimpleITK</span> <span class="n">PyHySCO</span>
+<p>These tours also need PyHySCO, and the susceptibility tour downloads about
+2 MB of data into <code class="docutils literal notranslate"><span class="pre">~/.cache/bartorch-examples</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">PyHySCO</span>
 </pre></div>
 </div>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In this tour you apply two corrections to Cartesian k-space before reconstruction. The readout is usually sampled at twice the density the matrix requires; removing that oversampling gives the image the prescribed matrix. And the truncation of k-space at the edge of the acquired matrix causes Gibbs ringing next to every sharp edge, which an apodization window reduces at the cost of resolution."><img alt="" src="../../_images/sphx_glr_01-readout-oversampling-and-apodization_thumb.png" />

@@ -68,15 +68,15 @@ assumes, so you can read any of them once you have the Course behind you.
    * - :doc:`09-learning-workflows/index`
      - Networks for complex volumes, staged and self-supervised training, annealed plug-and-play and uncertainty
 
-The scripts need a built ``bartorch`` with its ``io`` extra, ``brainweb-dl``, which downloads the
+The scripts need a built ``bartorch``, ``brainweb-dl``, which downloads the
 BrainWeb phantoms several examples build their images from, and
 ``matplotlib`` and ``cmap`` for the figures::
 
-    pip install 'bartorch[io]' brainweb-dl matplotlib cmap
+    pip install bartorch brainweb-dl matplotlib cmap
 
 The learned-regularization lessons and tours additionally require ``lightning``,
-``torchio``, ``monai`` and ``deepinv``, and the corrections tours ``SimpleITK``
-and ``PyHySCO``; each section page names what it needs.
+``torchio``, ``monai`` and ``deepinv``, and the corrections tours
+``PyHySCO``; each section page names what it needs.
 
 
 .. raw:: html
@@ -489,10 +489,10 @@ against an independent field map.
   encoding, downloaded from OpenNeuro.
 - Prewhiten correlated channel noise, and measure the SNR it buys.
 
-These tours also need the following packages, and the susceptibility tour
-downloads about 2 MB of data into ``~/.cache/bartorch-examples``::
+These tours also need PyHySCO, and the susceptibility tour downloads about
+2 MB of data into ``~/.cache/bartorch-examples``::
 
-    pip install SimpleITK PyHySCO
+    pip install PyHySCO
 
 
 .. raw:: html

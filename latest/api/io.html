@@ -547,8 +547,7 @@ per-contrast values, and the image geometry as one <code class="docutils literal
 indices <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">z)</span></code> – the last three axes of an image tensor, reversed – to
 RAS coordinates in millimetres, the convention of NIfTI.  The image writers
 take the same affine, so an image read from one format is written to the other
-in the same place.  ISMRMRD, DICOM and NIfTI need the <code class="docutils literal notranslate"><span class="pre">io</span></code> extra:
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'bartorch[io]'</span></code>.</p>
+in the same place.</p>
 <p>CFL arrays are NumPy arrays in BART’s dimension order, the reverse of a
 C-order tensor shape, so <code class="docutils literal notranslate"><span class="pre">array.T</span></code> converts between the two.</p>
 <div class="pst-scrollable-table-container"><table class="table">
