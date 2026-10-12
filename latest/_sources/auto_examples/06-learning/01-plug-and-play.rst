@@ -230,7 +230,7 @@ You run the same prior under ADMM and under FISTA.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<07:21, 295kB/s]     19%|█▉        | 24.0M/125M [00:00<00:01, 61.2MB/s]     31%|███       | 38.1M/125M [00:00<00:01, 77.0MB/s]     41%|████      | 50.6M/125M [00:00<00:00, 84.7MB/s]     50%|████▉     | 62.1M/125M [00:00<00:00, 77.0MB/s]     58%|█████▊    | 71.8M/125M [00:01<00:00, 75.4MB/s]     69%|██████▉   | 85.6M/125M [00:01<00:00, 91.5MB/s]     77%|███████▋  | 96.0M/125M [00:01<00:00, 73.3MB/s]     95%|█████████▍| 118M/125M [00:01<00:00, 107MB/s]      100%|██████████| 125M/125M [00:02<00:00, 57.9MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<03:50, 566kB/s]      7%|▋         | 8.38M/125M [00:00<00:03, 33.2MB/s]     12%|█▏        | 15.0M/125M [00:00<00:02, 45.9MB/s]     18%|█▊        | 22.0M/125M [00:00<00:01, 55.0MB/s]     23%|██▎       | 28.2M/125M [00:00<00:01, 58.3MB/s]     28%|██▊       | 34.5M/125M [00:00<00:01, 60.2MB/s]     33%|███▎      | 41.1M/125M [00:00<00:01, 62.6MB/s]     38%|███▊      | 47.9M/125M [00:00<00:01, 65.0MB/s]     50%|████▉     | 62.2M/125M [00:01<00:00, 90.9MB/s]     57%|█████▋    | 71.2M/125M [00:01<00:00, 70.3MB/s]     70%|██████▉   | 86.9M/125M [00:01<00:00, 93.4MB/s]     78%|███████▊  | 96.9M/125M [00:01<00:00, 56.1MB/s]     91%|█████████▏| 114M/125M [00:01<00:00, 77.9MB/s]     100%|█████████▉| 124M/125M [00:02<00:00, 66.1MB/s]    100%|██████████| 125M/125M [00:02<00:00, 63.5MB/s]
 
 
 
@@ -387,7 +387,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 51.678 seconds)
+   **Total running time of the script:** (0 minutes 40.140 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

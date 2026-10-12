@@ -1,7 +1,6 @@
 # Internals
 
-The rules, derivations and measurements behind the explanation pages, for
-maintainers and for anyone who needs the detail an explanation leaves out.
+Rules, derivations and measurements behind the explanation pages.
 
 | Page | Explanation it supports |
 | --- | --- |

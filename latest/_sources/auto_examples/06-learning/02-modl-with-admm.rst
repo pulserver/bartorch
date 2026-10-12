@@ -70,9 +70,9 @@ repeats it. The network enters the proximal step through
 - Cut the memory of a deeper unrolled network with checkpointing or
   per-iteration training.
 
-Previous: :doc:`01-plug-and-play`. Next: the Tours on
-:doc:`/auto_examples/index`, where you continue with standalone topics; those
-in :doc:`../09-learning-workflows/index` cover networks for complex volumes,
+Previous: :doc:`01-plug-and-play`. Next: the :doc:`Tours </gallery/tours>`,
+where you continue with standalone topics; the learning workflows among them
+cover networks for complex volumes,
 staged and self-supervised training, annealed plug-and-play and
 uncertainty.
 
@@ -414,9 +414,9 @@ denoiser, the conjugate-gradient solves and :math:`\rho`.
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:16 • 0:00:00 0.73it/s loss: 0.000 psnr:
-                                                                   32.696 ssim:     
-                                                                   0.885            
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:12 • 0:00:00 0.97it/s loss: 0.000 psnr:
+                                                                   32.748 ssim:     
+                                                                   0.890            
     rho ended at 0.027
 
 
@@ -494,7 +494,7 @@ penalty in place of the network, run for fifty iterations rather than five.
              adjoint   PSNR 23.71 dB   SSIM 0.679
             CG SENSE   PSNR 29.69 dB   SSIM 0.681
        ADMM, wavelet   PSNR 31.64 dB   SSIM 0.898
-           MoDL, K=5   PSNR 32.70 dB   SSIM 0.884
+           MoDL, K=5   PSNR 32.75 dB   SSIM 0.889
 
 
 
@@ -579,7 +579,7 @@ is propagated through all of them:
 
  .. code-block:: none
 
-    rho's gradient: 0.000585573 recorded, 0.000585573 recomputed
+    rho's gradient: 0.000688128 recorded, 0.000688128 recomputed
 
 
 
@@ -691,7 +691,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (5 minutes 5.081 seconds)
+   **Total running time of the script:** (3 minutes 49.988 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:

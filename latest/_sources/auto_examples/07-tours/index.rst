@@ -23,11 +23,6 @@ against an independent field map.
   encoding, downloaded from OpenNeuro.
 - Prewhiten correlated channel noise, and measure the SNR it buys.
 
-These tours also need PyHySCO, and the susceptibility tour downloads about
-2 MB of data into ``~/.cache/bartorch-examples``::
-
-    pip install PyHySCO
-
 
 .. raw:: html
 

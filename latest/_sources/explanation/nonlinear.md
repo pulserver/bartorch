@@ -12,7 +12,7 @@ You meet a nonlinear forward model when the coil sensitivities are unknowns
 alongside the image, or when the image is a function of tissue parameters such
 as $T_1$ or $T_2$. Model-based reconstruction fits the parameter maps directly
 to k-space, $y_{c,e} = P_e F (S_c \cdot M_e(\theta))$, so every contrast
-constrains the same few maps. Lesson 4 of the {doc}`Course <../auto_examples/index>`
+constrains the same few maps. Lesson 4 of the {doc}`Course <../gallery/course>`
 estimates image and coils jointly, and lesson 9 fits a $T_2$ map to k-space.
 
 ## Capabilities

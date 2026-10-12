@@ -114,6 +114,8 @@ Lesson counts follow from this criterion and are not targets. A lesson that is t
 
 **Tours.** The sections after the Course are standalone, one gallery directory per group. A Tour opens with its objective and a **Prerequisites** line naming the Course lessons it assumes, and has no previous or next reference. Its prerequisites are stated and not repeated.
 
+The Examples page, `docs/gallery/index.md`, lists every lesson and every Tour. The Course page lists the lessons in one numbered table; the Tours page lists the Tours in one headed table per group, with the packages the group needs beyond the common ones. These pages' toctrees, not sphinx-gallery's, place the example pages in the navigation.
+
 In both parts, an example is **not a conversational tutorial**. Code, figures, and scientific results dominate the page. Prose supplies the context necessary to understand the problem, consequential methodological choices, conventions, and interpretation. A lesson may have objectives and transitions; it does not narrate execution.
 
 A substantial example will often include:

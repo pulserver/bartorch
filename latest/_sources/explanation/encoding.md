@@ -13,7 +13,7 @@ scanner acquired, and every reconstruction you assemble yourself starts from
 one. You build the standard encodings with a constructor, extend them with
 diagonals, sums and operators of your own, and hand the result to a solver or
 to autograd as one BART operator. Lesson 6 of the
-{doc}`Course <../auto_examples/index>` builds the SENSE operator, checks its
+{doc}`Course <../gallery/course>` builds the SENSE operator, checks its
 adjoint and extends it with an operator written in Python.
 
 ## Capabilities

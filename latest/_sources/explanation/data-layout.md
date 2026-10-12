@@ -13,7 +13,7 @@ read from a scanner file, a trajectory designed in another package, an image
 compared against another reconstruction. Two reconstructions of the same data
 agree only if they agree on where each axis lies in memory, on the units of the
 trajectory, and on the centring and scaling of the Fourier transform. Lesson 1
-of the {doc}`Course <../auto_examples/index>` shows the shapes a command takes
+of the {doc}`Course <../gallery/course>` shows the shapes a command takes
 and returns.
 
 ## Capabilities

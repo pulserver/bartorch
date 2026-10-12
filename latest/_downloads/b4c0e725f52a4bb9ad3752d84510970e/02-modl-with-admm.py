@@ -51,9 +51,9 @@ repeats it. The network enters the proximal step through
 - Cut the memory of a deeper unrolled network with checkpointing or
   per-iteration training.
 
-Previous: :doc:`01-plug-and-play`. Next: the Tours on
-:doc:`/auto_examples/index`, where you continue with standalone topics; those
-in :doc:`../09-learning-workflows/index` cover networks for complex volumes,
+Previous: :doc:`01-plug-and-play`. Next: the :doc:`Tours </gallery/tours>`,
+where you continue with standalone topics; the learning workflows among them
+cover networks for complex volumes,
 staged and self-supervised training, annealed plug-and-play and
 uncertainty.
 """

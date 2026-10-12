@@ -13,7 +13,7 @@ CPU or on a CUDA device, and you get tensors back. Choose the level that fits
 the task. A standard reconstruction is one call to an app. An encoding BART has
 no command for, a solver inside an outer loop, or a gradient through the
 reconstruction needs the operators and solvers. Calibration, trajectories and
-simulation are tools. Lesson 1 of the {doc}`Course <../auto_examples/index>`
+simulation are tools. Lesson 1 of the {doc}`Course <../gallery/course>`
 calls a command on a tensor, and lesson 6 assembles `pics` by hand.
 
 ## Capabilities

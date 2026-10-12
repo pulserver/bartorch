@@ -13,7 +13,7 @@ $\tfrac12\lVert Ax-y\rVert_2^2 + \lambda\,g(Gx)$ for an encoding $A$ and the
 terms of {doc}`regularizers`, and is called as `solver(y, A)`. You choose it
 from the terms, then its step size or penalty parameter and its iteration
 count. Each solver also exists as a step block, for a loop of your own or an
-unrolled network. Lesson 6 of the {doc}`Course <../auto_examples/index>` runs
+unrolled network. Lesson 6 of the {doc}`Course <../gallery/course>` runs
 FISTA by hand and reproduces `pics` with it.
 
 ## Capabilities

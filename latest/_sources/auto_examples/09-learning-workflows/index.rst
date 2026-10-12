@@ -15,9 +15,7 @@ regularizer on real problems.
 - Voxel-wise uncertainty, calibrated.
 
 :doc:`/explanation/learned-reconstruction` explains where a network enters a
-reconstruction. These tours also need::
-
-    pip install lightning torchio monai deepinv
+reconstruction.
 
 
 .. raw:: html

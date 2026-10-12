@@ -2,12 +2,12 @@
 
 Exact contracts of the public objects: parameters, defaults, shapes, units,
 conventions and restrictions.  Concepts are in {doc}`../explanation/index`,
-complete workflows in the {doc}`examples <../auto_examples/index>`.
+complete workflows in the {doc}`examples <../gallery/index>`.
 
 | Page | Module | Contents |
 | --- | --- | --- |
 | {doc}`functions` | `bartorch` | Fourier and non-uniform Fourier transforms, density compensation, k-space windows, wavelet transforms, thresholding, array functions, runtime settings |
-| {doc}`tools` | `bartorch.tools` | BART's commands as functions — simulation, sampling, calibration, preprocessing, registration, metrics and low-rank completion — and corrections and rigid motion estimation outside the reconstruction |
+| {doc}`tools` | `bartorch.tools` | BART commands as functions: simulation, sampling, calibration, preprocessing, registration, metrics, low-rank completion; corrections and rigid motion estimation |
 | {doc}`linop` | `bartorch.linop` | Linear operators, operator algebra and MRI encoding operators |
 | {doc}`nlop` | `bartorch.nlop` | Nonlinear operators, MRI and signal models, Gauss-Newton methods |
 | {doc}`optim` | `bartorch.optim` | Iterative solvers, iteration blocks and data scaling |
