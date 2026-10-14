@@ -37,17 +37,17 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           # setuptools-scm reads the version from the tag history.
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install build
       - run: python -m build --sdist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sdist
           path: dist/*.tar.gz
@@ -65,7 +65,7 @@ jobs:
         # links against the Universal C Runtime official CPython uses.
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           # setuptools-scm reads the version from the tag history.
@@ -88,7 +88,7 @@ jobs:
         shell: pwsh
         run: |
           "${{ steps.msys2.outputs.msys2-location }}\clang64\bin" >> $env:GITHUB_PATH
-      - uses: pypa/cibuildwheel@v2.23
+      - uses: pypa/cibuildwheel@v4.2
         env:
           # One build per platform: the wheel is tagged py3 and carries no
           # interpreter, so building it once per Python would only produce the
@@ -158,7 +158,7 @@ jobs:
               llvm-readobj --coff-imports unpacked/bartorch/libbartorch.dll unpacked/bartorch/libbartorch_finufft_x86_64_v{2,3,4}.dll | grep 'Name:' | sort -u | tee imports.txt
               ! grep -Ei 'libomp|libgomp|libc\+\+|libunwind|libwinpthread|msys' imports.txt ;;
           esac
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.os }}
           path: wheelhouse/*.whl
@@ -177,11 +177,11 @@ jobs:
         # The oldest and the newest Python the package supports.
         python: ["3.10", "3.14"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: wheels-${{ matrix.os }}
           path: wheelhouse
@@ -231,7 +231,7 @@ jobs:
     env:
       CUDA_HOME: ${{ matrix.home }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           # setuptools-scm reads the version from the tag history.
@@ -292,7 +292,7 @@ jobs:
           size=$(stat -c %s wheelhouse/*.whl)
           echo "wheel: $size bytes"
           test "$size" -lt 100000000
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: cuda-wheel-${{ matrix.cuda }}
           path: wheelhouse/*.whl
@@ -319,15 +319,15 @@ jobs:
           - cuda: "13"
             torch: cu130
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: wheels-ubuntu-latest
           path: base
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: cuda-wheel-${{ matrix.cuda }}
           path: cuda
@@ -377,11 +377,11 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: sdist
           path: dist
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: wheels-*
           path: dist
@@ -402,7 +402,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: cuda-wheel-${{ matrix.cuda }}
           path: dist
