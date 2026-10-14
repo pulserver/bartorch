@@ -348,7 +348,7 @@ identical to the fit above.
 
  .. code-block:: none
 
-    apps.moba:  12.0 s
+    apps.moba:  11.8 s
 
 
 
@@ -517,7 +517,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 24.783 seconds)
+   **Total running time of the script:** (0 minutes 24.559 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-quantitative-models.py:
