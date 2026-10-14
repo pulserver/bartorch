@@ -1027,7 +1027,7 @@ def test_nlinv_maps_detect_phase_poles_only_in_a_volume_thicker_than_the_detecti
     image = bartorch.fft(bt.phantom(64, coils=COILS, kspace=True)[:, 0], (-1, -2), inverse=True)
     slab = bartorch.fft(image[:, None].repeat(1, partitions, 1, 1), (-1, -2, -3))
     if refused:
-        with pytest.raises(bartorch.BartError, match="compute_curl_map"):
+        with pytest.raises(bartorch.BartError, match=r"0 < odims\[i\]"):
             apps.nlinv_maps(slab, phase_pole=0)
     else:
         assert apps.nlinv_maps(slab, phase_pole=0).shape == slab.shape
