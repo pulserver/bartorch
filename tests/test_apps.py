@@ -8,6 +8,7 @@ twice, once by BART and once by this package.
 from __future__ import annotations
 
 import logging
+import os
 
 import numpy as np
 import pytest
@@ -925,12 +926,22 @@ def test_nlinv_pics_is_nlinv_maps_then_pics_then_partial_fourier_for_a_volume():
     assert torch.equal(ours, composed)
 
 
-def test_nlinv_pics_is_nlinv_maps_then_pics_along_a_trajectory():
-    """To round-off rather than the bits, as for ``pics`` itself: a second call
-    of the same function differs by thread order and, under ``eigen_step``, by
-    the start of BART's power iteration, which on macOS reaches 1.4e-4 of the
-    peak.  The tolerance is 1e-3 of the peak, below the 4e-3 by which a
-    ``radius`` that is not forwarded changes the image."""
+@pytest.fixture
+def _one_thread():
+    """Threads sum FINUFFT's spreading in the order they finish; one does not."""
+    bartorch.set_num_threads(1)
+    yield
+    bartorch.set_num_threads(os.cpu_count() or 1)
+
+
+def test_nlinv_pics_is_nlinv_maps_then_pics_along_a_trajectory(_one_thread):
+    """To round-off rather than the bits, as for ``pics`` itself: under
+    ``eigen_step`` a second call differs by the start of BART's power
+    iteration, which on macOS reaches 1.4e-4 of the peak.  On one thread, as
+    the 32 spokes within ``radius=8`` fit a grid of 16 points so loosely that
+    the order of a threaded sum moves the maps by 2e-2.  The tolerance is 1e-3
+    of the peak, far below the 0.14 by which a ``radius`` that is not
+    forwarded changes the image."""
     traj, _, measured = _radial()
 
     maps = apps.nlinv_maps(measured, traj, radius=8.0)
@@ -1042,6 +1053,66 @@ def test_nlinv_maps_on_the_central_lines_are_those_of_the_central_lines_zero_fil
     parallel = (full.conj() * maps).sum(dim=0).abs()[truth.abs() > 0]
     assert float(parallel.min()) > 0.98
     assert float(parallel.median()) > 0.999
+
+
+def _full_grid_radial_maps(kspace, traj, shape, radius=12.0):
+    """``nlinv -t`` on the whole grid, the samples beyond ``radius`` zeroed."""
+    centre = traj.real.square().sum(dim=-1).sqrt() <= radius
+    _, maps = bt.nlinv(
+        (kspace * centre)[..., None],
+        traj=traj,
+        maps=1,
+        return_sensitivities=True,
+        x=(*shape[::-1], 1)[:3],
+    )
+    maps = maps.reshape(kspace.shape[0], *shape)
+    return maps / bartorch.rss(maps, axes=(0,), keepdim=True)
+
+
+def _kooshball(size, spokes):
+    """Full spokes through the centre of a ``size``-cube, in random directions."""
+    directions = torch.randn(spokes, 3, generator=torch.Generator().manual_seed(0))
+    directions = directions / directions.norm(dim=-1, keepdim=True)
+    radii = torch.arange(size, dtype=torch.float32) - size / 2
+    return (directions[:, None, :] * radii[None, :, None]).contiguous()
+
+
+def test_nlinv_maps_of_the_central_samples_of_a_plane_are_those_of_the_whole_grid():
+    """Fitting the samples within ``radius`` on a grid of ``2 radius`` points,
+    with the Sobolev ``a`` scaled to it, gives the maps of ``nlinv -t`` on the
+    whole grid with the other samples zeroed: within 2e-2 of parallel at every
+    voxel of the object, and 1e-3 at half of them."""
+    traj, _, measured = _radial()
+    full = _full_grid_radial_maps(measured, traj, (32, 32))
+
+    maps = apps.nlinv_maps(measured, traj)
+    assert maps.shape == full.shape
+    inside = torch.as_tensor(bt.phantom(32)).abs() > 0
+    parallel = (full.conj() * maps).sum(dim=0).abs()[inside]
+    assert float(parallel.min()) > 0.98
+    assert float(parallel.median()) > 0.999
+
+
+def test_nlinv_maps_along_a_3d_trajectory_are_closer_to_the_coils_than_the_whole_grid_fit():
+    """The whole-grid fit takes the zeroed samples beyond ``radius`` for
+    measurements of zero; fitting the central samples alone does not.  On a
+    32-cube the two agree to 0.99 at half the voxels of the object, and the
+    worst voxel of the new maps is 0.77 from parallel to the coils that made
+    the data, against 0.74 for the whole-grid fit."""
+    size = 32
+    sens = bt.coils(t=bt.grid(D=(size,) * 3), n=COILS)
+    sens = sens / bartorch.rss(sens, axes=(0,), keepdim=True)
+    truth = torch.as_tensor(bt.phantom((size,) * 3)).to(torch.complex64)
+    traj = _kooshball(size, 1000)
+    measured = bartorch.nufft(sens * truth, traj)[..., 0]
+    full = _full_grid_radial_maps(measured, traj, (size,) * 3)
+
+    maps = apps.nlinv_maps(measured, traj, shape=(size,) * 3)
+    assert maps.shape == (COILS, size, size, size)
+    inside = truth.abs() > 0
+    assert float((full.conj() * maps).sum(dim=0).abs()[inside].median()) > 0.98
+    true = (sens.conj() * maps).sum(dim=0).abs()[inside].min()
+    assert float(true) > float((sens.conj() * full).sum(dim=0).abs()[inside].min())
 
 
 # --- partial_fourier -------------------------------------------------------
