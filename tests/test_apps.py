@@ -1005,6 +1005,21 @@ def test_nlinv_maps_detect_phase_poles_only_when_asked(kind, shape, caplog):
     assert detected[1] > 0
 
 
+@pytest.mark.parametrize(("partitions", "refused"), [(2, True), (3, False)])
+def test_nlinv_maps_detect_phase_poles_only_in_a_volume_thicker_than_the_detection_circle(
+    partitions, refused
+):
+    """BART's circle is a twentieth of the longest axis rounded up, 2 points on
+    a 24-point plane, and an axis no longer than it is refused."""
+    sens, truth = _cartesian_object()
+    slab = bartorch.fft((sens * truth)[:, None].repeat(1, partitions, 1, 1), (-1, -2, -3))
+    if refused:
+        with pytest.raises(bartorch.BartError, match="compute_curl_map"):
+            apps.nlinv_maps(slab, phase_pole=0)
+    else:
+        assert apps.nlinv_maps(slab, phase_pole=0).shape == slab.shape
+
+
 # --- partial_fourier -------------------------------------------------------
 
 

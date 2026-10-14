@@ -72,13 +72,20 @@ def nlinv_maps(
         detected and moved into the image (``nlinv --phase-pole``); 0 after
         every step, ``None`` never. At a shared phase pole the smoothness of
         the maps drives every coil's sensitivity towards zero, and a coil
-        combination over them goes dark there.
+        combination over them goes dark there. BART refuses the detection on
+        a volume with an axis no longer than a twentieth of its longest,
+        rounded up.
 
     Returns
     -------
     torch.Tensor
         Complex maps: of the shape of ``kspace`` for Cartesian data,
         ``(coils, y, x)`` on the image grid of the trajectory otherwise.
+
+    Raises
+    ------
+    ~bartorch.BartError
+        If ``phase_pole`` is set for a volume too thin for BART's detection.
     """
     kspace = kspace.to(torch.complex64)
     options = {} if phase_pole is None else {"phase_pole": int(phase_pole)}
