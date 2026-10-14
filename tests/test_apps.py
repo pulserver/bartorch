@@ -1009,15 +1009,39 @@ def test_nlinv_maps_detect_phase_poles_only_when_asked(kind, shape, caplog):
 def test_nlinv_maps_detect_phase_poles_only_in_a_volume_thicker_than_the_detection_circle(
     partitions, refused
 ):
-    """BART's circle is a twentieth of the longest axis rounded up, 2 points on
-    a 24-point plane, and an axis no longer than it is refused."""
-    sens, truth = _cartesian_object()
-    slab = bartorch.fft((sens * truth)[:, None].repeat(1, partitions, 1, 1), (-1, -2, -3))
+    """BART's circle is a twentieth of the longest axis of the grid ``nlinv``
+    runs on, rounded up: 2 points on the 24 central lines of a 64-point plane
+    (it would be 4 on the plane itself), and an axis no longer than it is
+    refused."""
+    image = bartorch.fft(bt.phantom(64, coils=COILS, kspace=True)[:, 0], (-1, -2), inverse=True)
+    slab = bartorch.fft(image[:, None].repeat(1, partitions, 1, 1), (-1, -2, -3))
     if refused:
         with pytest.raises(bartorch.BartError, match="compute_curl_map"):
             apps.nlinv_maps(slab, phase_pole=0)
     else:
         assert apps.nlinv_maps(slab, phase_pole=0).shape == slab.shape
+
+
+def test_nlinv_maps_on_the_central_lines_are_those_of_the_central_lines_zero_filled():
+    """Fitting the central lines on their own grid, with the Sobolev ``a``
+    scaled to it, gives the maps of ``nlinv`` on the zero-filled full grid:
+    within 2e-2 of parallel at every voxel of the object, and 1e-3 at half of
+    them. ``a`` left at BART's default gives smoother maps, 0.38 at the
+    worst voxel."""
+    sens = bt.coils(t=bt.grid(D=(64, 64, 1)), n=8)[:, 0]
+    sens = sens / bartorch.rss(sens, axes=(0,), keepdim=True)
+    truth = torch.as_tensor(bt.phantom(64)).to(torch.complex64)
+    kspace = bartorch.fft(sens * truth, (-1, -2))
+    low = torch.zeros_like(kspace)
+    low[:, 20:44, 20:44] = kspace[:, 20:44, 20:44]
+    _, full = bt.nlinv(low[:, None], maps=1, return_sensitivities=True)
+    full = full.reshape(kspace.shape)
+    full = full / bartorch.rss(full, axes=(0,), keepdim=True)
+
+    maps = apps.nlinv_maps(kspace)
+    parallel = (full.conj() * maps).sum(dim=0).abs()[truth.abs() > 0]
+    assert float(parallel.min()) > 0.98
+    assert float(parallel.median()) > 0.999
 
 
 # --- partial_fourier -------------------------------------------------------

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import torch
 
+import bartorch
 from bartorch import tools
 
 __all__ = ["nlinv_maps"]
@@ -13,17 +14,38 @@ def _normalized(maps: torch.Tensor) -> torch.Tensor:
     return maps / maps.abs().square().sum(dim=0, keepdim=True).sqrt().clamp_min(1e-12)
 
 
+def _centre(n: int, m: int) -> slice:
+    """The ``m`` points of an axis of ``n`` whose centre, ``m // 2``, is the axis's, ``n // 2``."""
+    return slice(n // 2 - m // 2, n // 2 - m // 2 + m)
+
+
+#: ``a`` of BART's Sobolev weighting ``(1 + a |k / n|^2)^(-b/2)`` of the
+#: sensitivities, ``k / n`` the frequency relative to the grid they are on.
+SOBOLEV_A = 220.0
+
+
 def _cartesian_maps(volume: torch.Tensor, size: int, **options) -> torch.Tensor:
-    """Sensitivities of ``(coils, z, y, x)`` k-space, fitted to its central ``size`` lines."""
+    """Sensitivities of ``(coils, z, y, x)`` k-space, fitted to its central ``size`` lines.
+
+    ``nlinv`` runs on the grid of the central lines alone, and the maps are
+    brought to the grid of ``volume`` by zero-filling their k-space. The
+    Sobolev ``a`` is scaled by the square of the ratio of the two grids along
+    the shortest cropped axis, so that the weighting is, there, the one the
+    full grid gives.
+    """
     if volume.shape[0] == 1:
         return torch.ones_like(volume)
-    centre = tuple(
-        slice((n - min(size, n)) // 2, (n + min(size, n)) // 2) for n in volume.shape[1:]
-    )
-    low = torch.zeros_like(volume)
-    low[(slice(None), *centre)] = volume[(slice(None), *centre)]
+    lines = [min(size, n) for n in volume.shape[1:]]
+    centre = (slice(None), *(_centre(n, m) for n, m in zip(volume.shape[1:], lines)))
+    cropped = [m / n for n, m in zip(volume.shape[1:], lines) if m < n]
+    if cropped:
+        options = {"alpha": SOBOLEV_A * max(cropped) ** 2, **options}
+    low = volume[centre].contiguous()
     _, maps = tools.nlinv(low, maps=1, return_sensitivities=True, **options)
-    return _normalized(maps.reshape(volume.shape))
+    axes = tuple(i for i in (-1, -2, -3) if volume.shape[i] > 1)
+    spectrum = torch.zeros_like(volume)
+    spectrum[centre] = bartorch.fft(maps.reshape(low.shape), axes)
+    return _normalized(bartorch.fft(spectrum, axes, inverse=True))
 
 
 def _radial_maps(
@@ -51,7 +73,10 @@ def nlinv_maps(
     """Coil sensitivity maps fitted to the low-resolution centre of k-space.
 
     One set of maps from ``bart nlinv -m 1``, normalized to unit root sum of
-    squares over the coils (unit sensitivity for one coil).
+    squares over the coils (unit sensitivity for one coil). Cartesian maps are
+    fitted on the grid of the central lines alone, with the Sobolev weighting
+    of the sensitivities scaled to that grid, and zero-filled in k-space to
+    the grid of ``kspace``.
 
     Parameters
     ----------
@@ -73,8 +98,9 @@ def nlinv_maps(
         every step, ``None`` never. At a shared phase pole the smoothness of
         the maps drives every coil's sensitivity towards zero, and a coil
         combination over them goes dark there. BART refuses the detection on
-        a volume with an axis no longer than a twentieth of its longest,
-        rounded up.
+        a grid with an axis no longer than a twentieth of its longest, rounded
+        up: for Cartesian data the grid of the central lines, so a volume of
+        fewer than 3 partitions at the default ``size``.
 
     Returns
     -------
@@ -85,7 +111,7 @@ def nlinv_maps(
     Raises
     ------
     ~bartorch.BartError
-        If ``phase_pole`` is set for a volume too thin for BART's detection.
+        If ``phase_pole`` is set for a grid too thin for BART's detection.
     """
     kspace = kspace.to(torch.complex64)
     options = {} if phase_pole is None else {"phase_pole": int(phase_pole)}
