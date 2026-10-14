@@ -932,6 +932,7 @@ def _one_thread():
     bartorch.set_num_threads(1)
     yield
     bartorch.set_num_threads(os.cpu_count() or 1)
+    _finufft.set_threads(0)
 
 
 def test_nlinv_pics_is_nlinv_maps_then_pics_along_a_trajectory(_one_thread):
