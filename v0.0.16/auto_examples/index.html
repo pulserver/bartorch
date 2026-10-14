@@ -1,0 +1,823 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Gallery source pages &#8212; bartorch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9832df02" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=12bee5f2"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=a5fa425f"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.16';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/capabilities.js?v=421ebb92"></script>
+    <link rel="canonical" href="https://pulserver.github.io/bartorch/stable/auto_examples/index.html" />
+    <link rel="icon" href="../_static/bartorch-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="v0.0.16" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bartorch-mark.svg" class="logo__image only-light" alt="bartorch"/>
+    <img src="../_static/bartorch-mark-dark.svg" class="logo__image only-dark pst-js-only" alt="bartorch"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Homepage
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../guides/user/index.html">User guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../guides/developer/index.html">Developer guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/installation.html">Development installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/workflow.html">Development workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/style.html">Coding style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/documentation.html">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/terminology.html">Terminology and conventions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../guides/developer/internals/index.html">Internals</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/data-layout.html">Array layouts and file conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/encoding.html">Encoding form and lowering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/nufft.html">NUFFT substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/solvers.html">Regularized least squares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/model-based.html">Model-based command routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../guides/developer/internals/performance.html">Backends and timings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/layout.html">Repository layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/developer/bart-fork.html">BART fork</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation/index.html">Explanations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/execution-model.html">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/data-layout.html">Data layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/encoding.html">Encoding operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/non-cartesian.html">Non-Cartesian transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/regularizers.html">Regularizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/solvers.html">Solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/nonlinear.html">Model-based reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/learned-reconstruction.html">Learned reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/performance.html">Performance</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../gallery/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/course.html">Course</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="01-basics/01-tensors-and-commands.html">1. Your data as tensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01-basics/02-from-kspace-to-image.html">2. From k-space to an image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-parallel-imaging/01-coil-calibration.html">3. Coil sensitivities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-parallel-imaging/02-nonlinear-inversion.html">4. Joint reconstruction of image and sensitivity maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-regularization/01-regularized-reconstruction.html">5. Choosing a regularizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-regularization/02-operators-and-solvers.html">6. Custom encoding and solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-non-cartesian/01-trajectories-and-transforms.html">7. Basics of non-Cartesian imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-non-cartesian/02-radial-sense.html">8. Radial SENSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05-model-based/01-quantitative-models.html">9. Nonlinear inversion for T2 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-learning/01-plug-and-play.html">10. Plug-and-play reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-learning/02-modl-with-admm.html">11. Training an unrolled network</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../gallery/tours.html">Tours</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/01-readout-oversampling-and-apodization.html">Readout oversampling and apodization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/02-epi-ghost-and-ramp-sampling.html">EPI Nyquist ghost and ramp sampling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/03-bias-field.html">Receive bias field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/04-gradient-nonlinearity.html">Gradient nonlinearity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/05-spiral-deblurring.html">Off-resonance correction of spiral imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/06-navigator-motion.html">Rigid head motion from navigators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/07-epi-susceptibility-distortion.html">Susceptibility distortion in EPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-tours/08-noise-prewhitening.html">Noise prewhitening</a></li>
+<li class="toctree-l3"><a class="reference internal" href="08-workflows/01-dynamic-golden-angle.html">Dynamic golden-angle radial MRI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="08-workflows/02-subspace-t1-mapping.html">Subspace-constrained T1 mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="08-workflows/03-maps-from-scanner-images.html">Parameter maps from scanner images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/01-networks-for-complex-volumes.html">Networks for complex volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/02-staged-training.html">Staged training of an unrolled network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/03-self-supervised-training.html">Training without a reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/04-annealed-plug-and-play.html">Annealed plug-and-play</a></li>
+<li class="toctree-l3"><a class="reference internal" href="09-learning-workflows/05-uncertainty.html">Uncertainty estimation</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/functions.html">Array functions and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">BART commands as functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/linop.html">Linear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/nlop.html">Nonlinear operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/optim.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/priors.html">Regularization and denoising</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apps.html">Reconstruction pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/learning.html">Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interop.html">Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/io.html">File I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cli.html">Command line</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../misc/index.html">Miscellaneous</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../misc/license.html">License and third-party notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../misc/related_projects.html">Related projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../misc/contributors.html">Contributors and citation</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch/edit/main/docs/auto_examples/index.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pulserver/bartorch/issues/new?title=Issue%20on%20page%20%2Fauto_examples/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/auto_examples/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Gallery source pages</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">Basics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-imaging">Parallel imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization">Regularization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-imaging">Non-Cartesian imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-based-reconstruction">Model-based reconstruction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learned-regularization">Learned regularization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-acquisition-and-corrections">Tours: acquisition and corrections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-dynamic-and-quantitative-workflows">Tours: dynamic and quantitative workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-learning-workflows">Tours: learning workflows</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="gallery-source-pages">
+<h1>Gallery source pages<a class="headerlink" href="#gallery-source-pages" title="Link to this heading">#</a></h1>
+<p>The pages sphinx-gallery generates from the example scripts. The documentation
+presents them through <a class="reference internal" href="../gallery/index.html"><span class="doc">Examples</span></a> and the Course and Tours pages
+under it.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"></div><section id="basics">
+<h2>Basics<a class="headerlink" href="#basics" title="Link to this heading">#</a></h2>
+<p>You start from the data a scanner gives you, multichannel k-space, and end
+with an image. Lesson 1 shows how BART’s arrays look as PyTorch tensors and how
+you call a BART command on them. Lesson 2 reconstructs an undersampled
+Cartesian scan through the three steps the rest of the Course builds on:
+channel compression, coil sensitivities from ESPIRiT, and a regularized SENSE
+reconstruction. <a class="reference internal" href="../explanation/encoding.html"><span class="doc">Encoding operators</span></a> derives the signal model, and
+<a class="reference internal" href="../explanation/data-layout.html"><span class="doc">Data layout</span></a> lists the array layouts.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="If you have used BART before, you know its arrays as CFL files on disk and its commands as programs you call from a shell. bartorch runs the same BART inside your Python process: every command is a Python function that takes and returns torch.Tensor objects, with no files and no subprocess in between. In this lesson you see what your data look like on that side: how a multichannel image and its k-space are laid out as tensors, which Fourier transform takes one to the other, and how a BART command line maps onto a function call."><img alt="" src="../_images/sphx_glr_01-tensors-and-commands_thumb.png" />
+<p><a class="reference internal" href="01-basics/01-tensors-and-commands.html"><span class="doc">1. Your data as tensors</span></a></p>
+  <div class="sphx-glr-thumbnail-title">1. Your data as tensors</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 1 you saw how BART&#x27;s arrays look as tensors and how its FFT takes a fully sampled k-space to an image. A real scan is rarely fully sampled: you skip phase-encoding lines to shorten it, and the image folds onto itself. In this lesson you reconstruct such a scan, one step at a time, and after each step you look at what it did to the image."><img alt="" src="../_images/sphx_glr_02-from-kspace-to-image_thumb.png" />
+<p><a class="reference internal" href="01-basics/02-from-kspace-to-image.html"><span class="doc">2. From k-space to an image</span></a></p>
+  <div class="sphx-glr-thumbnail-title">2. From k-space to an image</div>
+</div></div></section>
+<section id="parallel-imaging">
+<h2>Parallel imaging<a class="headerlink" href="#parallel-imaging" title="Link to this heading">#</a></h2>
+<p>A SENSE reconstruction is only as good as its coil sensitivities. In lesson 3
+you estimate them from the autocalibration region, by direct division and by
+ESPIRiT, and see what a poor estimate does to the image. In lesson 4 the
+calibration region is too small for that, and you estimate the image and the
+sensitivities together by nonlinear inversion. If your channels carry
+correlated noise, whiten them first: the tour
+<a class="reference internal" href="07-tours/08-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a> shows how.
+<a class="reference internal" href="../explanation/encoding.html"><span class="doc">Encoding operators</span></a> and <a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Model-based reconstruction</span></a> give the
+background.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lesson 2 you estimated the coil sensitivities with ESPIRiT from a block of 24 central lines and passed them to pics without examining them. SENSE [#sense]_ solves"><img alt="" src="../_images/sphx_glr_01-coil-calibration_thumb.png" />
+<p><a class="reference internal" href="02-parallel-imaging/01-coil-calibration.html"><span class="doc">3. Coil sensitivities</span></a></p>
+  <div class="sphx-glr-thumbnail-title">3. Coil sensitivities</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 3 you saw ESPIRiT fail with eight ACS lines while nonlinear inversion kept working, because it fits the sensitivities to every acquired sample rather than to the ACS block alone. In this lesson you keep only six central lines, too few for any separate calibration, and reconstruct the image and the sensitivities together."><img alt="" src="../_images/sphx_glr_02-nonlinear-inversion_thumb.png" />
+<p><a class="reference internal" href="02-parallel-imaging/02-nonlinear-inversion.html"><span class="doc">4. Joint reconstruction of image and sensitivity maps</span></a></p>
+  <div class="sphx-glr-thumbnail-title">4. Joint reconstruction of image and sensitivity maps</div>
+</div></div></section>
+<section id="regularization">
+<h2>Regularization<a class="headerlink" href="#regularization" title="Link to this heading">#</a></h2>
+<p>Past the acceleration your coils can support, SENSE amplifies noise and leaves
+aliasing behind. A regularizer adds what you know about the image. In lesson 5
+you compare Tikhonov, wavelet and total-variation penalties on one scan and
+choose their weight. In lesson 6 you write the same reconstruction yourself, as
+an encoding operator and a solver, which is how you reconstruct anything BART
+has no command for. <a class="reference internal" href="../explanation/regularizers.html"><span class="doc">Regularizers</span></a> and <a class="reference internal" href="../explanation/solvers.html"><span class="doc">Solvers</span></a> explain
+the penalties and the iterations.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lesson 2 you reconstructed an undersampled scan with a wavelet penalty at a weight of 0.004, both fixed without justification. In this lesson you choose them. You reconstruct one noisy, undersampled SENSE acquisition with three different penalties, sweep the weight of each, and compare under- and over-regularized images. Then you combine two penalties in one reconstruction."><img alt="" src="../_images/sphx_glr_01-regularized-reconstruction_thumb.png" />
+<p><a class="reference internal" href="03-regularization/01-regularized-reconstruction.html"><span class="doc">5. Choosing a regularizer</span></a></p>
+  <div class="sphx-glr-thumbnail-title">5. Choosing a regularizer</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 5 you handed pics the data, the maps and a penalty, and it did the rest. In this lesson you assemble the same reconstruction from its parts. You build the SENSE encoding operator, check its adjoint, run the solver on it, and obtain exactly what pics returns, bit for bit. Then you extend the operator with one written in Python, and differentiate through it."><img alt="" src="../_images/sphx_glr_02-operators-and-solvers_thumb.png" />
+<p><a class="reference internal" href="03-regularization/02-operators-and-solvers.html"><span class="doc">6. Custom encoding and solver</span></a></p>
+  <div class="sphx-glr-thumbnail-title">6. Custom encoding and solver</div>
+</div></div></section>
+<section id="non-cartesian-imaging">
+<h2>Non-Cartesian imaging<a class="headerlink" href="#non-cartesian-imaging" title="Link to this heading">#</a></h2>
+<p>Radial and spiral trajectories sample k-space off the grid, so the Fourier
+transform becomes a NUFFT. In lesson 7 you meet trajectories, the NUFFT,
+density compensation and the point spread function. In lesson 8 you
+reconstruct an undersampled golden-angle radial scan by non-Cartesian SENSE,
+with coil sensitivities estimated from the radial data themselves. The tour
+<a class="reference internal" href="08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a> extends it to a time
+series. <a class="reference internal" href="../explanation/non-cartesian.html"><span class="doc">Non-Cartesian transform</span></a> defines the transform and its
+accuracy.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lessons 2 to 6 every sample sat on the Cartesian grid, so the FFT and its inverse were all the Fourier transforms you needed. In this lesson you leave the grid. You sample the same brain slice along radial and spiral trajectories, reconstruct it by gridding, and see what each step of that reconstruction does to the image."><img alt="" src="../_images/sphx_glr_01-trajectories-and-transforms_thumb.png" />
+<p><a class="reference internal" href="04-non-cartesian/01-trajectories-and-transforms.html"><span class="doc">7. Basics of non-Cartesian imaging</span></a></p>
+  <div class="sphx-glr-thumbnail-title">7. Basics of non-Cartesian imaging</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 7 you computed radial trajectories, the NUFFT, density compensation and the point spread function, and saw that omitting spokes produces streak artefacts. In this lesson you reconstruct an undersampled golden-angle radial scan with eight receive coils: you estimate the coil sensitivities from the radial data, then reconstruct by gridding, by iterative SENSE, and by SENSE with a total-variation penalty."><img alt="" src="../_images/sphx_glr_02-radial-sense_thumb.png" />
+<p><a class="reference internal" href="04-non-cartesian/02-radial-sense.html"><span class="doc">8. Radial SENSE</span></a></p>
+  <div class="sphx-glr-thumbnail-title">8. Radial SENSE</div>
+</div></div></section>
+<section id="model-based-reconstruction">
+<h2>Model-based reconstruction<a class="headerlink" href="#model-based-reconstruction" title="Link to this heading">#</a></h2>
+<p>To map <span class="math notranslate nohighlight">\(T_2\)</span> you usually reconstruct one image per echo and fit a decay
+in every voxel. In lesson 9 you put the decay into the forward model instead,
+and fit the maps directly to the multi-echo k-space, so that every echo
+constrains the same unknowns. The tours
+<a class="reference internal" href="08-workflows/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a> and
+<a class="reference internal" href="08-workflows/03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a> show the linear
+subspace alternative and a fit to DICOM images. <a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Model-based reconstruction</span></a>
+compares the formulations.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lesson 8 you reconstructed one image from undersampled radial data, and in lesson 4 you solved a model that is nonlinear in its unknowns, image times coil sensitivities, by Gauss-Newton. In this lesson you apply both to quantitative imaging. You estimate a T_2 map from an undersampled multi-echo spin-echo scan twice: first by reconstructing an image per echo and fitting the decay voxel by voxel, then by fitting the signal model directly to the k-space data, and you compare the accuracy of the two at the same undersampling."><img alt="" src="../_images/sphx_glr_01-quantitative-models_thumb.png" />
+<p><a class="reference internal" href="05-model-based/01-quantitative-models.html"><span class="doc">9. Nonlinear inversion for T2 mapping</span></a></p>
+  <div class="sphx-glr-thumbnail-title">9. Nonlinear inversion for T2 mapping</div>
+</div></div></section>
+<section id="learned-regularization">
+<h2>Learned regularization<a class="headerlink" href="#learned-regularization" title="Link to this heading">#</a></h2>
+<p>A learned reconstruction keeps the encoding operator and the data consistency
+of an iterative reconstruction, and puts a network where the regularizer was.
+In lesson 10 you take a pretrained denoiser and use it inside BART’s ADMM and
+FISTA, with no training at all: plug-and-play. In lesson 11 you train a network
+through BART’s ADMM, end to end (MoDL). The learning
+workflows among the <a class="reference internal" href="../gallery/tours.html"><span class="doc">Tours</span></a> go further.
+<a class="reference internal" href="../explanation/learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a> explains where a network enters a
+reconstruction.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lesson 9 the prior knowledge was a signal model; in lesson 5 it was an explicit penalty, a wavelet or total-variation term with a weight. In this lesson the prior is a pretrained denoising network, used in place of the penalty inside the same ADMM and FISTA iterations."><img alt="" src="../_images/sphx_glr_01-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="06-learning/01-plug-and-play.html"><span class="doc">10. Plug-and-play reconstruction</span></a></p>
+  <div class="sphx-glr-thumbnail-title">10. Plug-and-play reconstruction</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 the proximal step of ADMM was a denoiser pretrained on photographs, never trained on MR images or on the residual aliasing of an undersampled scan. In this lesson you train the denoiser through the iteration: a fixed number of ADMM steps is unrolled into one network, which is fitted end to end against fully sampled images."><img alt="" src="../_images/sphx_glr_02-modl-with-admm_thumb.png" />
+<p><a class="reference internal" href="06-learning/02-modl-with-admm.html"><span class="doc">11. Training an unrolled network</span></a></p>
+  <div class="sphx-glr-thumbnail-title">11. Training an unrolled network</div>
+</div></div></section>
+<section id="tours-acquisition-and-corrections">
+<h2>Tours: acquisition and corrections<a class="headerlink" href="#tours-acquisition-and-corrections" title="Link to this heading">#</a></h2>
+<p>Corrections you apply to the data before the reconstruction, or to the image
+after it, each on its own. Most of them simulate the artefact from a known
+truth, so you can see how much the correction recovers; the EPI
+susceptibility tour corrects measured data instead, and checks the result
+against an independent field map.</p>
+<ul class="simple">
+<li><p>Remove readout oversampling, and compare Fermi and Hann apodization.</p></li>
+<li><p>Correct the Nyquist ghost of an EPI train, and regrid a ramp-sampled readout.</p></li>
+<li><p>Estimate the receive bias field of a head array with N4.</p></li>
+<li><p>Undo the distortion of gradient nonlinearity from the coil’s
+spherical-harmonic coefficients.</p></li>
+<li><p>Deblur a spiral image off resonance, by multifrequency interpolation and by
+a time-segmented reconstruction.</p></li>
+<li><p>Track rigid head motion from three orthogonal navigator planes.</p></li>
+<li><p>Correct the susceptibility distortion of a 3 T EPI pair with reversed phase
+encoding, downloaded from OpenNeuro.</p></li>
+<li><p>Prewhiten correlated channel noise, and measure the SNR it buys.</p></li>
+</ul>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In this tour you apply two corrections to Cartesian k-space before reconstruction. The readout is usually sampled at twice the density the matrix requires; removing that oversampling gives the image the prescribed matrix. And the truncation of k-space at the edge of the acquired matrix causes Gibbs ringing next to every sharp edge, which an apodization window reduces at the cost of resolution."><img alt="" src="../_images/sphx_glr_01-readout-oversampling-and-apodization_thumb.png" />
+<p><a class="reference internal" href="07-tours/01-readout-oversampling-and-apodization.html"><span class="doc">Readout oversampling and apodization</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Readout oversampling and apodization</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An EPI readout acquires k-space as a train of lines with alternating readout gradient polarity, and before those lines make a Cartesian k-space you correct two things. A timing error between the readout gradient and the ADC, and eddy currents, shift the echoes of the reversed lines against the forward ones; the odd/even phase this leaves gives you a Nyquist ghost, a copy of the object shifted by half the field of view along the phase-encoding direction. And if you sample on the ramps of the readout gradient, to shorten the echo spacing, your samples are uniform in time but not in k_x."><img alt="" src="../_images/sphx_glr_02-epi-ghost-and-ramp-sampling_thumb.png" />
+<p><a class="reference internal" href="07-tours/02-epi-ghost-and-ramp-sampling.html"><span class="doc">EPI Nyquist ghost and ramp sampling</span></a></p>
+  <div class="sphx-glr-thumbnail-title">EPI Nyquist ghost and ramp sampling</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="When you combine the images of a receive array by root sum of squares, what you get is the object weighted by the root sum of squares of the coil sensitivities. That weight is smooth, multiplicative and largest near the elements, so it shades the image: the same tissue looks brighter near the array than far from it. The shading biases segmentation, intensity-based registration and any quantitative comparison across the field of view."><img alt="" src="../_images/sphx_glr_03-bias-field_thumb.png" />
+<p><a class="reference internal" href="07-tours/03-bias-field.html"><span class="doc">Receive bias field</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Receive bias field</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Spatial encoding assumes that every gradient field changes linearly with position. A real gradient coil departs from that more and more with the distance from isocentre, so each spin is encoded at a position displaced from its true one. The image is warped, by a few millimetres at the edge of a head-sized field of view and by centimetres at the edge of a body-sized one, and the voxel volume changes with the warp. The displacement is a property of the coil: the manufacturer states it as the coefficients of a spherical-harmonic expansion of each gradient field [#janke]_. To correct it you evaluate that expansion at every voxel and resample the image at the positions where the voxels were actually encoded."><img alt="" src="../_images/sphx_glr_04-gradient-nonlinearity_thumb.png" />
+<p><a class="reference internal" href="07-tours/04-gradient-nonlinearity.html"><span class="doc">Gradient nonlinearity</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Gradient nonlinearity</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you correct the blurring that B_0 off-resonance causes in a spiral image. A spiral readout reaches each k-space radius at its own time, so a spin off resonance by f picks up a phase 2\pi f\, t(k) that grows from the centre of k-space outwards. In a Cartesian scan the same phase is linear along the readout and only shifts the spin; on a spiral it is radial, and it spreads the spin into a ring. With a readout of tens of milliseconds, the field near the sinuses and the ear canals is enough to smear the orbitofrontal and temporal cortex over several voxels."><img alt="" src="../_images/sphx_glr_05-spiral-deblurring_thumb.png" />
+<p><a class="reference internal" href="07-tours/05-spiral-deblurring.html"><span class="doc">Off-resonance correction of spiral imaging</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Off-resonance correction of spiral imaging</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you measure how a head moves during a scan, from navigators. If the head moves, the anatomy is in a different place for the readouts that encode it, and the image is blurred and ghosted. Prospective correction moves the imaging field of view with the head before each readout, and for that it needs the rigid pose of the head, six degrees of freedom, measured again and again during the scan. A navigator is a short, low-resolution acquisition interleaved with the imaging readouts; registering it against the first navigator of the scan tells you how the head has moved since [#ehman]_."><img alt="" src="../_images/sphx_glr_06-navigator-motion_thumb.png" />
+<p><a class="reference internal" href="07-tours/06-navigator-motion.html"><span class="doc">Rigid head motion from navigators</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Rigid head motion from navigators</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you correct the susceptibility distortion of a measured EPI pair. In an echo-planar image, the phase-encoding direction is sampled once per echo spacing rather than once per dwell time, so its bandwidth per pixel is only a few tens of hertz. A spin off resonance by \Delta f is displaced along phase encoding by \Delta f divided by that bandwidth, which near the frontal sinus and the petrous bone comes to several millimetres at 3 T. The orbitofrontal cortex and the temporal poles are compressed or stretched, and signal piles up where neighbouring voxels are displaced onto the same place."><img alt="" src="../_images/sphx_glr_07-epi-susceptibility-distortion_thumb.png" />
+<p><a class="reference internal" href="07-tours/07-epi-susceptibility-distortion.html"><span class="doc">Susceptibility distortion in EPI</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Susceptibility distortion in EPI</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you measure how much signal-to-noise ratio (SNR) a SENSE reconstruction loses when the noise of the receive channels is correlated, and how much of it you get back by prewhitening with a noise-only acquisition."><img alt="" src="../_images/sphx_glr_08-noise-prewhitening_thumb.png" />
+<p><a class="reference internal" href="07-tours/08-noise-prewhitening.html"><span class="doc">Noise prewhitening</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Noise prewhitening</div>
+</div></div></section>
+<section id="tours-dynamic-and-quantitative-workflows">
+<h2>Tours: dynamic and quantitative workflows<a class="headerlink" href="#tours-dynamic-and-quantitative-workflows" title="Link to this heading">#</a></h2>
+<p>The Course’s encodings applied to a time series and to quantitative mapping.</p>
+<ul class="simple">
+<li><p>Reconstruct a dynamic contrast-enhanced series from one continuous
+golden-angle radial scan, with total variation along time.</p></li>
+<li><p>Map <span class="math notranslate nohighlight">\(T_1\)</span> from one continuous inversion-recovery scan, by
+reconstructing the coefficients of a subspace of the signal curves.</p></li>
+<li><p>Fit a <span class="math notranslate nohighlight">\(T_2\)</span> decay to magnitude images read from DICOM, as the scanner
+exports them, and write the map back.</p></li>
+</ul>
+<p><a class="reference internal" href="../explanation/non-cartesian.html"><span class="doc">Non-Cartesian transform</span></a> and <a class="reference internal" href="../explanation/nonlinear.html"><span class="doc">Model-based reconstruction</span></a> give the
+background.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In this tour you reconstruct a dynamic contrast-enhanced series from one continuous golden-angle radial acquisition, which you cut into frames of thirteen spokes each after the scan. On its own, each frame is undersampled about fifteenfold, and its gridding reconstruction is dominated by streaks. Consecutive frames, however, show the same anatomy and differ by a slow change of contrast, so you reconstruct all frames jointly with a penalty on the temporal variation of the series. You compare frame-by-frame gridding with that joint reconstruction on the images, on an x-t profile, and on the time-intensity curve a perfusion analysis would read."><img alt="" src="../_images/sphx_glr_01-dynamic-golden-angle_thumb.png" />
+<p><a class="reference internal" href="08-workflows/01-dynamic-golden-angle.html"><span class="doc">Dynamic golden-angle radial MRI</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Dynamic golden-angle radial MRI</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you estimate a T_1 map from a single continuous inversion-recovery acquisition in which each of four hundred time points is encoded by one radial spoke, so each frame on its own is undersampled about two-hundredfold. The recovery curves of all plausible T_1 values span a subspace of low dimension; reconstructing the few coefficients of that subspace instead of the individual frames reduces the number of unknowns by two orders of magnitude."><img alt="" src="../_images/sphx_glr_02-subspace-t1-mapping_thumb.png" />
+<p><a class="reference internal" href="08-workflows/02-subspace-t1-mapping.html"><span class="doc">Subspace-constrained T1 mapping</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Subspace-constrained T1 mapping</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In this tour you estimate a T_2 map from the magnitude images a scanner exports, without the raw data: you read a multi-echo spin-echo series from DICOM, fit the decay voxel by voxel, and write the map back as a DICOM series of the same study and as a NIfTI volume. The geometry and the echo times pass from the scanner&#x27;s files through the fit to the output unchanged, so the map overlays the images it was computed from."><img alt="" src="../_images/sphx_glr_03-maps-from-scanner-images_thumb.png" />
+<p><a class="reference internal" href="08-workflows/03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Parameter maps from scanner images</div>
+</div></div></section>
+<section id="tours-learning-workflows">
+<h2>Tours: learning workflows<a class="headerlink" href="#tours-learning-workflows" title="Link to this heading">#</a></h2>
+<p>What comes after lessons 10 and 11, when you train and use a learned
+regularizer on real problems.</p>
+<ul class="simple">
+<li><p>Networks for complex multi-contrast volumes, applied patch by patch.</p></li>
+<li><p>Training an unrolled network in stages, within the memory of one iteration.</p></li>
+<li><p>Self-supervised training from undersampled data alone.</p></li>
+<li><p>Plug-and-play with a noise level that anneals over the iterations.</p></li>
+<li><p>Voxel-wise uncertainty, calibrated.</p></li>
+</ul>
+<p><a class="reference internal" href="../explanation/learned-reconstruction.html"><span class="doc">Learned reconstruction</span></a> explains where a network enters a
+reconstruction.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In lessons 10 and 11 your network denoised one complex 2D slice. The data you most need a learned reconstruction for are larger: a 3D volume of several contrasts, the subspace coefficients of MR fingerprinting, the frames of a cine. In this tour you train a 3D denoiser on patches of a complex, multi-contrast brain volume, apply it to the whole volume of another subject patch by patch, the way it would run on a scanner GPU too small for the volume, and check that the patch boundaries leave no seams."><img alt="" src="../_images/sphx_glr_01-networks-for-complex-volumes_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/01-networks-for-complex-volumes.html"><span class="doc">Networks for complex volumes</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Networks for complex volumes</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 11 you trained an unrolled network end to end, which keeps the activations of every iteration in memory for the backward pass. For a 2D slice that memory is affordable; for a 3D volume, or a series of them, it exceeds a single GPU. In this tour you train an unrolled network for fourfold undersampled, eight-channel Cartesian brain data in three stages whose memory is bounded by one iteration, and you check that it removes the residual aliasing and the g-factor noise that CG-SENSE leaves at this acceleration."><img alt="" src="../_images/sphx_glr_02-staged-training_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/02-staged-training.html"><span class="doc">Staged training of an unrolled network</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Staged training of an unrolled network</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The networks of lesson 11 and of 02-staged-training learn from fully sampled reference images. Dynamic and high-dimensional acquisitions -- a cine, a functional run, a fingerprinting series -- are rarely acquired fully sampled: undersampling is what makes them fit in a breath-hold or a scan time, so you have no reference to train against. In this tour you train the unrolled network of 02-staged-training from undersampled k-space alone and measure how much of the supervised network&#x27;s image quality it keeps."><img alt="" src="../_images/sphx_glr_03-self-supervised-training_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/03-self-supervised-training.html"><span class="doc">Training without a reference</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Training without a reference</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In lesson 10 you plugged a denoiser someone else had trained, on photographs, into ADMM at one noise level you chose. In this tour you train the denoiser yourself, on MR images alone and without any encoding, and use it as the regularizer of an ADMM reconstruction whose denoising strength decreases over the iterations. You then apply the same network, unchanged, at an acceleration where CG-SENSE breaks down."><img alt="" src="../_images/sphx_glr_04-annealed-plug-and-play_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/04-annealed-plug-and-play.html"><span class="doc">Annealed plug-and-play</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Annealed plug-and-play</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A learned reconstruction returns an image without saying where it may be wrong. Where the undersampling leaves the image underdetermined, the network fills in what its training data suggest, and a hallucinated structure looks like real anatomy. In this tour you attach a voxel-wise error bar to the unrolled reconstruction of 02-staged-training, calibrate it so that it contains the true error in a stated fraction of voxels, and look at where in the head the reconstruction is least certain."><img alt="" src="../_images/sphx_glr_05-uncertainty_thumb.png" />
+<p><a class="reference internal" href="09-learning-workflows/05-uncertainty.html"><span class="doc">Uncertainty estimation</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Uncertainty estimation</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">Basics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-imaging">Parallel imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization">Regularization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-cartesian-imaging">Non-Cartesian imaging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-based-reconstruction">Model-based reconstruction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learned-regularization">Learned regularization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-acquisition-and-corrections">Tours: acquisition and corrections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-dynamic-and-quantitative-workflows">Tours: dynamic and quantitative workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tours-learning-workflows">Tours: learning workflows</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By bartorch contributors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024–2026, bartorch contributors.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

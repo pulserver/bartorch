@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=05ca6594"></script>
+    <script src="../_static/documentation_options.js?v=12bee5f2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.15';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.16';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="prev" title="Regularization and denoising" href="priors.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.15" />
+  <meta name="docsearch:version" content="v0.0.16" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -534,7 +534,7 @@ interface they are assembled from.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.apps.nlinv_maps.html#bartorch.apps.nlinv_maps" title="bartorch.apps.nlinv_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlinv_maps</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">nlinv</span></code></p></td>
-<td><p>One set of coil sensitivity maps from <code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">-m</span> <span class="pre">1</span></code> on the low-resolution centre of k-space, normalized to unit root sum of squares; Cartesian or along a trajectory</p></td>
+<td><p>One set of coil sensitivity maps from <code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">-m</span> <span class="pre">1</span></code> on a grid of the low-resolution centre of k-space, zero-filled to the image grid and normalized to unit root sum of squares, with <code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">--phase-pole</span></code> on request; Cartesian or along a two- or three-dimensional trajectory</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.apps.partial_fourier.html#bartorch.apps.partial_fourier" title="bartorch.apps.partial_fourier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fourier</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">homodyne</span></code></p></td>

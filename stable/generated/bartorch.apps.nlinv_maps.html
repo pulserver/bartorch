@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=05ca6594"></script>
+    <script src="../_static/documentation_options.js?v=12bee5f2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.15';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.16';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -68,7 +68,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.15" />
+  <meta name="docsearch:version" content="v0.0.16" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -518,26 +518,43 @@
 <span class="sig-prename descclassname"><span class="pre">bartorch.apps.</span></span><span class="sig-name descname"><span class="pre">nlinv_maps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.apps.nlinv_maps" title="Link to this definition">#</a></dt>
 <dd><p>Coil sensitivity maps fitted to the low-resolution centre of k-space.</p>
 <p>One set of maps from <code class="docutils literal notranslate"><span class="pre">bart</span> <span class="pre">nlinv</span> <span class="pre">-m</span> <span class="pre">1</span></code>, normalized to unit root sum of
-squares over the coils (unit sensitivity for one coil).</p>
+squares over the coils (unit sensitivity for one coil). The maps are
+fitted on a grid of the low-resolution centre alone, with the Sobolev
+weighting of the sensitivities scaled to that grid, and zero-filled in
+k-space to the image grid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kspace</strong> (<em>torch.Tensor</em>) – Complex k-space. Cartesian: <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">[z,]</span> <span class="pre">y,</span> <span class="pre">x)</span></code> on the
 reconstruction grid. Non-Cartesian: <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">shots,</span> <span class="pre">samples)</span></code>.</p></li>
 <li><p><strong>traj</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – Trajectory <code class="docutils literal notranslate"><span class="pre">(shots,</span> <span class="pre">samples,</span> <span class="pre">3)</span></code> in units of the image grid; <code class="docutils literal notranslate"><span class="pre">None</span></code>
-for Cartesian data.</p></li>
+for Cartesian data. Its kz may be nonzero.</p></li>
 <li><p><strong>size</strong> (<em>int</em><em>, </em><em>default=24</em>) – Cartesian: lines of every encoded axis, around the centre, the maps
 are fitted to.</p></li>
 <li><p><strong>radius</strong> (<em>float</em><em>, </em><em>default=12.0</em>) – Non-Cartesian: distance from the k-space centre, in grid units, within
-which samples are fitted.</p></li>
+which samples are fitted, on a grid of <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">ceil(radius)</span></code> points an
+axis.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>default=None</em>) – Non-Cartesian: image grid of the maps, <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>;
+<code class="docutils literal notranslate"><span class="pre">None</span></code> for the one BART estimates from <code class="docutils literal notranslate"><span class="pre">traj</span></code>.</p></li>
+<li><p><strong>phase_pole</strong> (<em>int</em><em>, </em><em>default=None</em>) – Gauss-Newton step after which the phase poles the maps share are
+detected and moved into the image (<code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">--phase-pole</span></code>); 0 after
+every step, <code class="docutils literal notranslate"><span class="pre">None</span></code> never. At a shared phase pole the smoothness of
+the maps drives every coil’s sensitivity towards zero, and a coil
+combination over them goes dark there. BART refuses the detection on
+a grid with an axis no longer than a twentieth of its longest, rounded
+up: the grid of the central lines, so a volume of fewer than 3
+partitions at the default <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Complex maps: of the shape of <code class="docutils literal notranslate"><span class="pre">kspace</span></code> for Cartesian data,
-<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> on the image grid of the trajectory otherwise.</p>
+<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*shape)</span></code> otherwise.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bartorch.BartError.html#bartorch.BartError" title="bartorch.BartError"><strong>BartError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">phase_pole</span></code> is set for a grid too thin for BART’s detection.</p>
 </dd>
 </dl>
 </dd></dl>

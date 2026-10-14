@@ -520,7 +520,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (11 minutes 2.335 seconds)
+   **Total running time of the script:** (16 minutes 17.658 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py:

@@ -20,7 +20,7 @@ interface they are assembled from.
 | --- | --- | --- |
 | {obj}`~bartorch.apps.pics` | `pics` | Identical output on a Cartesian grid; agrees to floating-point round-off along a trajectory |
 | {obj}`~bartorch.apps.nlinv_pics` | `nlinv`, `pics`, `homodyne` | {obj}`~bartorch.apps.nlinv_maps`, then a wavelet `pics` solve, then, for Cartesian k-space only, {obj}`~bartorch.apps.partial_fourier`; Cartesian or along a trajectory |
-| {obj}`~bartorch.apps.nlinv_maps` | `nlinv` | One set of coil sensitivity maps from `nlinv -m 1` on the low-resolution centre of k-space, normalized to unit root sum of squares; Cartesian or along a trajectory |
+| {obj}`~bartorch.apps.nlinv_maps` | `nlinv` | One set of coil sensitivity maps from `nlinv -m 1` on a grid of the low-resolution centre of k-space, zero-filled to the image grid and normalized to unit root sum of squares, with `nlinv --phase-pole` on request; Cartesian or along a two- or three-dimensional trajectory |
 | {obj}`~bartorch.apps.partial_fourier` | `homodyne` | `homodyne -I -C` along each axis acquired on one side of k-space only, the side and the acquired fraction read from the sampling mask |
 | {obj}`~bartorch.apps.pocsense` | none | The POCSENSE projections swept by BART's `pocs` iteration |
 | {obj}`~bartorch.apps.mobafit` | `mobafit` | Per-voxel Levenberg-Marquardt over a BlochSim model; returns named parameter maps in physical units |

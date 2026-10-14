@@ -159,7 +159,7 @@ any pair of vectors, random ones included:
 
  .. code-block:: none
 
-    relative difference 2.41e-07
+    relative difference 1.20e-07
 
 
 
@@ -348,7 +348,7 @@ only a complex check tells the two apart. Here the gradient of
 
  .. code-block:: none
 
-    relative difference from 2 A^H (Ax - y): 2.05e-07
+    relative difference from 2 A^H (Ax - y): 2.06e-07
 
 
 
@@ -429,7 +429,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.033 seconds)
+   **Total running time of the script:** (0 minutes 6.515 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03-regularization_02-operators-and-solvers.py:

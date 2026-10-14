@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:25.463** total execution time for 8 files **from auto_examples/07-tours**:
+**00:32.967** total execution time for 8 files **from auto_examples/07-tours**:
 
 .. container::
 
@@ -33,26 +33,26 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``07-epi-susceptibility-distortion.py``)
-     - 00:05.089
+     - 00:06.219
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_06-navigator-motion.py` (``06-navigator-motion.py``)
-     - 00:04.668
+     - 00:05.984
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_05-spiral-deblurring.py` (``05-spiral-deblurring.py``)
-     - 00:04.148
+     - 00:05.269
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_08-noise-prewhitening.py` (``08-noise-prewhitening.py``)
-     - 00:04.080
+     - 00:05.079
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_03-bias-field.py` (``03-bias-field.py``)
-     - 00:03.384
+     - 00:04.804
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py` (``02-epi-ghost-and-ramp-sampling.py``)
-     - 00:02.163
+     - 00:02.853
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_04-gradient-nonlinearity.py` (``04-gradient-nonlinearity.py``)
-     - 00:01.111
+     - 00:01.571
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_01-readout-oversampling-and-apodization.py` (``01-readout-oversampling-and-apodization.py``)
-     - 00:00.820
+     - 00:01.188
      - 0.0
