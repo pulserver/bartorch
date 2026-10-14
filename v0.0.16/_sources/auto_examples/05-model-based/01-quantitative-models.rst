@@ -302,7 +302,7 @@ Gauss-Newton step requires.
 
  .. code-block:: none
 
-    model inside the operator:  17.2 s
+    model inside the operator:  17.0 s
 
 
 
@@ -348,7 +348,7 @@ identical to the fit above.
 
  .. code-block:: none
 
-    apps.moba:  17.3 s
+    apps.moba:  16.4 s
 
 
 
@@ -517,7 +517,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 36.698 seconds)
+   **Total running time of the script:** (0 minutes 35.468 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-quantitative-models.py:
