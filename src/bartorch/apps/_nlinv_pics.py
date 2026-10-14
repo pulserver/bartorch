@@ -17,6 +17,7 @@ def nlinv_pics(
     iterations: int = 30,
     size: int = 24,
     radius: float = 12.0,
+    phase_pole: int | None = None,
 ) -> torch.Tensor:
     """Wavelet-regularized SENSE reconstruction with coil sensitivities fitted to the data.
 
@@ -44,6 +45,10 @@ def nlinv_pics(
     radius : float, default=12.0
         Non-Cartesian: distance from the k-space centre, in grid units, within
         which samples are fitted.
+    phase_pole : int, default=None
+        Gauss-Newton step of ``nlinv`` after which phase poles of the
+        sensitivities are moved into the image; 0 after every step, ``None``
+        never (:func:`nlinv_maps`).
 
     Returns
     -------
@@ -53,7 +58,7 @@ def nlinv_pics(
         trajectory otherwise.
     """
     kspace = kspace.to(torch.complex64)
-    maps = apps.nlinv_maps(kspace, traj, size=size, radius=radius)
+    maps = apps.nlinv_maps(kspace, traj, size=size, radius=radius, phase_pole=phase_pole)
     if traj is not None:
         image = apps.pics(
             kspace,

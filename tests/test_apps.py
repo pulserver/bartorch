@@ -7,6 +7,8 @@ twice, once by BART and once by this package.
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 import pytest
 import torch
@@ -901,13 +903,13 @@ def test_nlinv_pics_is_nlinv_maps_then_pics_then_partial_fourier(keep):
     partial = _acquired(bartorch.fft(sens * truth, (-1, -2)), keep)
     sampled = partial.abs().sum(dim=0) > 0
 
-    maps = apps.nlinv_maps(partial, size=16)
+    maps = apps.nlinv_maps(partial, size=16, phase_pole=0)
     image = apps.pics(
         partial[:, None], maps[:, None], regularizers=priors.Wavelet((-1, -2), 0.01), maxiter=10
     )
     composed = apps.partial_fourier(image.reshape(SIZE, SIZE), sampled)
 
-    ours = apps.nlinv_pics(partial, wavelet=0.01, iterations=10, size=16)
+    ours = apps.nlinv_pics(partial, wavelet=0.01, iterations=10, size=16, phase_pole=0)
     assert torch.equal(ours, composed)
 
 
@@ -981,6 +983,26 @@ def test_nlinv_maps_of_one_coil_are_ones(kind, shape):
     maps = apps.nlinv_maps(kspace[:1], traj)
     assert maps.shape == (1, *shape[1:])
     assert torch.equal(maps, torch.ones_like(maps))
+
+
+@pytest.mark.parametrize(("kind", "shape"), _MAPS_INPUTS)
+def test_nlinv_maps_detect_phase_poles_only_when_asked(kind, shape, caplog):
+    """BART logs the circle its pole detection integrates the phase around
+    each time the detection runs: under ``phase_pole=0``, and never without it."""
+    kspace, traj = _coil_data(kind)
+    detected = []
+    for phase_pole in (None, 0):
+        caplog.clear()
+        with caplog.at_level(logging.DEBUG, logger="bartorch.bart"):
+            bartorch.set_debug_level(4)
+            try:
+                maps = apps.nlinv_maps(kspace, traj, phase_pole=phase_pole)
+            finally:
+                bartorch.set_debug_level(1)
+        assert maps.shape == shape
+        detected.append(sum("Circle diameter" in m for m in caplog.messages))
+    assert detected[0] == 0
+    assert detected[1] > 0
 
 
 # --- partial_fourier -------------------------------------------------------
