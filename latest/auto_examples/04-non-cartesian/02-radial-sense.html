@@ -716,7 +716,7 @@ ADMM.</p>
 <li><img src="../../_images/sphx_glr_02-radial-sense_006.png" srcset="../../_images/sphx_glr_02-radial-sense_006.png" alt="gridding error, CG-SENSE error, SENSE + TV error" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_02-radial-sense_007.png" srcset="../../_images/sphx_glr_02-radial-sense_007.png" alt="enlarged, reference, gridding, CG-SENSE, SENSE + TV" class = "sphx-glr-multi-img"/></li>
 </ul>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>pics: 0.57 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>pics: 1.02 s
 </pre></div>
 </div>
 <p>The penalty suppresses the noise as well as the streaks. Its residual
@@ -731,7 +731,7 @@ of k-space the spokes cover. The NRMSE and SSIM against the reference:</p>
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">: NRMSE </span><span class="si">{</span><span class="n">nrmse</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, SSIM </span><span class="si">{</span><span class="n">ssim</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  gridding: NRMSE 0.324, SSIM 0.418
-  CG-SENSE: NRMSE 0.087, SSIM 0.565
+  CG-SENSE: NRMSE 0.087, SSIM 0.566
 SENSE + TV: NRMSE 0.084, SSIM 0.863
 </pre></div>
 </div>
@@ -762,7 +762,7 @@ operator.</p>
 </span><span class="n">relative</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">difference</span> <span class="o">/</span> <span class="n">reconstruction</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference from pics: </span><span class="si">{</span><span class="n">relative</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>operator and solver: 0.57 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>operator and solver: 0.98 s
 relative difference from pics: 0.0e+00
 </pre></div>
 </div>
@@ -794,7 +794,7 @@ printed above), and <code class="docutils literal notranslate"><span class="pre"
 </span><span class="n">relative</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="p">(</span><span class="n">paired</span> <span class="o">-</span> <span class="n">assembled</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span> <span class="o">/</span> <span class="n">assembled</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">relative difference </span><span class="si">{</span><span class="n">relative</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>without the Toeplitz normal: 0.22 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>without the Toeplitz normal: 0.43 s
 relative difference 3.2e-02
 </pre></div>
 </div>
@@ -893,7 +893,7 @@ inhomogeneity. <em>IEEE Trans Signal Process</em> 53(9):3393-3402 (2005).
 <a class="reference external" href="https://doi.org/10.1109/TSP.2005.853152">https://doi.org/10.1109/TSP.2005.853152</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.881 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.767 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-non-cartesian-02-radial-sense-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/bc84ed3e92e55e20c8e03a42ea2633b5/02-radial-sense.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02-radial-sense.ipynb</span></code></a></p>

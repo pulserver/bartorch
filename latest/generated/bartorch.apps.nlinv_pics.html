@@ -535,6 +535,9 @@ for Cartesian data.</p></li>
 sensitivities are fitted to.</p></li>
 <li><p><strong>radius</strong> (<em>float</em><em>, </em><em>default=12.0</em>) – Non-Cartesian: distance from the k-space centre, in grid units, within
 which samples are fitted.</p></li>
+<li><p><strong>phase_pole</strong> (<em>int</em><em>, </em><em>default=None</em>) – Gauss-Newton step of <code class="docutils literal notranslate"><span class="pre">nlinv</span></code> after which phase poles of the
+sensitivities are moved into the image; 0 after every step, <code class="docutils literal notranslate"><span class="pre">None</span></code>
+never (<a class="reference internal" href="bartorch.apps.nlinv_maps.html#bartorch.apps.nlinv_maps" title="bartorch.apps.nlinv_maps"><code class="xref py py-func docutils literal notranslate"><span class="pre">nlinv_maps()</span></code></a>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
