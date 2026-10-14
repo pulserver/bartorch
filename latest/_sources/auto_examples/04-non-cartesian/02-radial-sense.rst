@@ -347,7 +347,7 @@ ADMM.
 
  .. code-block:: none
 
-    pics: 0.85 s
+    pics: 0.57 s
 
 
 
@@ -428,7 +428,7 @@ operator.
 
  .. code-block:: none
 
-    operator and solver: 0.81 s
+    operator and solver: 0.57 s
     relative difference from pics: 0.0e+00
 
 
@@ -478,7 +478,7 @@ printed above), and ``toeplitz=False`` asks for the transform pair.
 
  .. code-block:: none
 
-    without the Toeplitz normal: 0.34 s
+    without the Toeplitz normal: 0.22 s
     relative difference 3.2e-02
 
 
@@ -598,7 +598,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.992 seconds)
+   **Total running time of the script:** (0 minutes 4.881 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_02-radial-sense.py:
