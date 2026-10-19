@@ -88,7 +88,7 @@ jobs:
         shell: pwsh
         run: |
           "${{ steps.msys2.outputs.msys2-location }}\clang64\bin" >> $env:GITHUB_PATH
-      - uses: pypa/cibuildwheel@v4.2
+      - uses: pypa/cibuildwheel@v4.3
         env:
           # One build per platform: the wheel is tagged py3 and carries no
           # interpreter, so building it once per Python would only produce the
