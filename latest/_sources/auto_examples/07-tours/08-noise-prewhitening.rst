@@ -334,7 +334,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.900 seconds)
+   **Total running time of the script:** (0 minutes 4.278 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_08-noise-prewhitening.py:

@@ -677,9 +677,9 @@ slices of subject 4. First the denoiser on its own, at three noise levels:</p>
 </span>        <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="n">noisy</span><span class="p">)</span><span class="p">,</span> <span class="n">score</span><span class="p">(</span><span class="n">denoised</span><span class="p">)</span><span class="w">
 </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">sigma </span><span class="si">{</span><span class="n">sigma</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">before</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB noisy, </span><span class="si">{</span><span class="n">after</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> denoised</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sigma 0.01: 41.46 dB noisy, 41.13 denoised
-sigma 0.05: 27.17 dB noisy, 27.16 denoised
-sigma 0.1: 21.06 dB noisy, 21.06 denoised
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sigma 0.01: 41.46 dB noisy, 43.41 denoised
+sigma 0.05: 27.17 dB noisy, 33.20 denoised
+sigma 0.1: 21.06 dB noisy, 28.81 denoised
 </pre></div>
 </div>
 <p>The gain grows with the noise level: about 2 dB at 0.01, about 8 dB at 0.1.
@@ -725,9 +725,9 @@ follow each schedule iteration by iteration:</p>
 </span><span class="n">cg</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">[</span><a class="sphx-glr-backref-module-bartorch-optim sphx-glr-backref-type-py-function reference internal" href="../../generated/bartorch.optim.cg.html#bartorch.optim.cg" title="bartorch.optim.cg"><span class="n">optim</span><span class="o">.</span><span class="n">cg</span></a><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">kspace</span><span class="p">]</span><span class="p">)</span><span class="w">
 </span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">CG SENSE, 20 iterations</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cg</span><span class="w">
 </span></pre></div></div>
-<img src="../../_images/sphx_glr_04-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_001.png" alt="04 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 27.01 dB
-            fixed, 0.03   PSNR 27.14 dB
-            fixed, 0.01   PSNR 27.48 dB
+<img src="../../_images/sphx_glr_04-annealed-plug-and-play_001.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_001.png" alt="04 annealed plug and play" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  annealed, 0.1 to 0.01   PSNR 30.98 dB
+            fixed, 0.03   PSNR 30.83 dB
+            fixed, 0.01   PSNR 29.79 dB
 CG SENSE, 20 iterations   PSNR 24.21 dB
 </pre></div>
 </div>
@@ -743,7 +743,7 @@ field of view; the plug-and-play error is confined to the head and largest
 at the cortex.</p>
 <ul class="sphx-glr-horizontal">
 <li><img src="../../_images/sphx_glr_04-annealed-plug-and-play_002.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_002.png" alt="reference, CG-SENSE, annealed plug-and-play" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_04-annealed-plug-and-play_003.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_003.png" alt="CG-SENSE NRMSE 0.124, annealed plug-and-play NRMSE 0.090" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_04-annealed-plug-and-play_003.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_003.png" alt="CG-SENSE NRMSE 0.124, annealed plug-and-play NRMSE 0.056" class = "sphx-glr-multi-img"/></li>
 </ul>
 </section>
 <section id="transfer-to-another-acquisition">
@@ -761,9 +761,9 @@ at the cortex.</p>
 </span></pre></div></div>
 <ul class="sphx-glr-horizontal">
 <li><img src="../../_images/sphx_glr_04-annealed-plug-and-play_004.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_004.png" alt="reference, CG-SENSE, R = 6, annealed, R = 6" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_04-annealed-plug-and-play_005.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_005.png" alt="CG-SENSE, R = 6 NRMSE 0.168, annealed, R = 6 NRMSE 0.139" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_04-annealed-plug-and-play_005.png" srcset="../../_images/sphx_glr_04-annealed-plug-and-play_005.png" alt="CG-SENSE, R = 6 NRMSE 0.168, annealed, R = 6 NRMSE 0.059" class = "sphx-glr-multi-img"/></li>
 </ul>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>R = 6: annealed plug-and-play 23.72 dB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>R = 6: annealed plug-and-play 30.87 dB
 R = 6: CG SENSE 21.98 dB
 </pre></div>
 </div>
@@ -785,9 +785,9 @@ as it is:</p>
 </span>        <span class="n">made</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="p">[</span><a class="sphx-glr-backref-module-bartorch-learning sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../../generated/bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><span class="n">pnp</span></a><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">kspace</span><span class="p">]</span><span class="p">)</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="s2">lambda </span><span class="si">{</span><span class="n">lam</span><span class="si">:</span><span class="s2">.0e</span><span class="si">}</span><span class="s2">: PSNR </span><span class="si">{</span><span class="n">score</span><span class="p">(</span><span class="n">made</span><span class="p">)</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2"> dB</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>lambda 1e-05: PSNR 27.01 dB
-lambda 1e-04: PSNR 27.01 dB
-lambda 1e-03: PSNR 27.37 dB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>lambda 1e-05: PSNR 29.49 dB
+lambda 1e-04: PSNR 30.98 dB
+lambda 1e-03: PSNR 29.73 dB
 </pre></div>
 </div>
 <p>Both a tenth and ten times the weight score more than 1 dB below
@@ -835,7 +835,7 @@ Evans AC. Design and construction of a realistic digital brain phantom.
 <a class="reference external" href="https://doi.org/10.1109/42.712135">https://doi.org/10.1109/42.712135</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 43.393 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 32.885 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-09-learning-workflows-04-annealed-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/57e953f4a53dcfa50461997155a32462/04-annealed-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">04-annealed-plug-and-play.ipynb</span></code></a></p>

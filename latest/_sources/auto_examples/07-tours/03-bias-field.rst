@@ -93,23 +93,23 @@ grey matter, and you measure the uniformity of each class over those.
 
     Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 4.03kB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 5.19kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 97.0kB [00:00, 324kB/s] 
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 274kB [00:00, 1.18MB/s] 
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 441kB [00:00, 1.23MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.18MB [00:00, 4.31MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.23MB [00:00, 3.07MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.72MB [00:00, 8.35MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.16MB [00:00, 7.31MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.67MB [00:00, 8.84MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.53MB [00:00, 9.17MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.58MB [00:00, 9.05MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.49MB [00:00, 9.12MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.49MB [00:00, 8.97MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.41MB [00:01, 8.94MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.38MB [00:00, 8.69MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.30MB [00:01, 8.32MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.23MB [00:01, 8.27MB/s]
 
                                                                     
 
@@ -453,7 +453,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.142 seconds)
+   **Total running time of the script:** (0 minutes 5.447 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_03-bias-field.py:
