@@ -78,9 +78,11 @@ def _mkl_library() -> Path | None:
     """A full MKL in this environment, if one is installed.
 
     The ``mkl`` wheel puts its libraries under the install prefix rather than
-    beside the package, and that prefix is not always ``sys.prefix``.
+    beside the package, and that prefix is not always ``sys.prefix``.  The
+    interpreter a virtual environment was made from (``sys.base_prefix``) is
+    not searched: an MKL there was never installed into this environment.
     """
-    roots = {Path(sysconfig.get_paths()["data"]), Path(sys.prefix), Path(sys.base_prefix)}
+    roots = dict.fromkeys([Path(sys.prefix), Path(sysconfig.get_paths()["data"])])
     names = (
         "libmkl_rt.dylib",
         "libmkl_rt.so.2",
@@ -89,7 +91,7 @@ def _mkl_library() -> Path | None:
         "mkl_rt.2.dll",
         "mkl_rt.3.dll",
     )
-    for root in sorted(roots):
+    for root in roots:
         for sub in ("lib", "lib64", "Library/bin"):
             for name in names:
                 candidate = root / sub / name

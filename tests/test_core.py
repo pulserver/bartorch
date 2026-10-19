@@ -233,6 +233,31 @@ def test_an_installed_mkl_serves_every_routine():
     assert set(bartorch.backend_sources().values()) == {"mkl"}
 
 
+def test_mkl_is_not_taken_from_the_interpreter_a_venv_was_made_from(tmp_path, monkeypatch):
+    from bartorch import _backend
+
+    base, env = tmp_path / "base", tmp_path / "venv"
+    (base / "lib").mkdir(parents=True)
+    (base / "lib" / "libmkl_rt.so.2").touch()
+    (env / "lib").mkdir(parents=True)
+    monkeypatch.setattr(sys, "base_prefix", str(base))
+    monkeypatch.setattr(sys, "prefix", str(env))
+    monkeypatch.setattr(_backend.sysconfig, "get_paths", lambda: {"data": str(env)})
+    assert _backend._mkl_library() is None
+
+
+def test_the_environments_own_mkl_comes_before_the_install_data_path(tmp_path, monkeypatch):
+    from bartorch import _backend
+
+    data, env = tmp_path / "a-data", tmp_path / "z-venv"
+    for root in (data, env):
+        (root / "lib").mkdir(parents=True)
+        (root / "lib" / "libmkl_rt.so.2").touch()
+    monkeypatch.setattr(sys, "prefix", str(env))
+    monkeypatch.setattr(_backend.sysconfig, "get_paths", lambda: {"data": str(data)})
+    assert _backend._mkl_library() == env / "lib" / "libmkl_rt.so.2"
+
+
 def test_a_named_backend_can_be_asked_for():
     from bartorch import _backend
 
