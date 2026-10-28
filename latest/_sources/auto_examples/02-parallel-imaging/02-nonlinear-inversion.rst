@@ -310,7 +310,7 @@ hundred iterations or a relative tolerance of a tenth:
 
  .. code-block:: none
 
-    largest difference from nlinv: 1.0e-03
+    largest difference from nlinv: 4.8e-04
     NRMSE 0.078
 
 
@@ -423,7 +423,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.655 seconds)
+   **Total running time of the script:** (0 minutes 7.039 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py:

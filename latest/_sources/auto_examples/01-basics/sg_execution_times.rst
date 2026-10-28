@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:16.170** total execution time for 2 files **from auto_examples/01-basics**:
+**00:21.242** total execution time for 2 files **from auto_examples/01-basics**:
 
 .. container::
 
@@ -33,8 +33,8 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_01-basics_02-from-kspace-to-image.py` (``02-from-kspace-to-image.py``)
-     - 00:15.147
+     - 00:19.966
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_01-tensors-and-commands.py` (``01-tensors-and-commands.py``)
-     - 00:01.023
+     - 00:01.276
      - 0.0

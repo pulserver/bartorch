@@ -430,7 +430,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 15.787 seconds)
+   **Total running time of the script:** (1 minutes 35.118 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_05-uncertainty.py:
