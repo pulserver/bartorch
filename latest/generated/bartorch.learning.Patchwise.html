@@ -534,8 +534,20 @@ and the weights.</p>
 <p>With <code class="docutils literal notranslate"><span class="pre">shift</span></code> the patch grid is offset by a random amount at every call,
 drawn from PyTorch’s generator, so seams fall in a different place at each
 iteration of a reconstruction, and <a class="reference internal" href="bartorch.learning.Unrolled.html#bartorch.learning.Unrolled" title="bartorch.learning.Unrolled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unrolled</span></code></a>
-recomputes a checkpointed step exactly.  The image is zero-padded by the
-offset in front and to a whole patch behind.</p>
+recomputes a checkpointed step exactly.  With <code class="docutils literal notranslate"><span class="pre">shift=True</span></code> the image is
+zero-padded by the offset in front and to a whole patch behind, which
+costs a layer of patches along every axis: a 256^3 volume in 64^3 patches
+becomes 125 of them.  With <code class="docutils literal notranslate"><span class="pre">shift=&quot;circular&quot;</span></code> the image is rolled by the
+offset instead, so the patches that cross its far edge wrap round to its
+near one and a volume of whole patches stays at its own count, 64; the
+image is padded behind only to a whole patch, as without a shift.  The
+wrapped patches join opposite faces of the field of view, where an image
+with a background is empty.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">skip_zero</span></code> a patch that is zero in every item and channel, such as
+background or padding, does not reach the network and is zero in the
+result, which spares the network’s time on the empty part of a volume.
+It is the network’s output for such a patch only when that is zero, as
+for a residual denoiser of a nonnegative image.</p>
 <p>The network is moved to <code class="docutils literal notranslate"><span class="pre">device</span></code> at every call if it is elsewhere, so a
 training loop that moves the whole model does not move it; its parameters
 remain the same objects.</p>
@@ -551,14 +563,21 @@ host otherwise.</p></li>
 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> is bfloat16 on a card that supports it, float16 on one that
 does not (such as a T4), and none on the host.</p></li>
 <li><p><strong>batch</strong> (<em>int</em><em>, </em><em>default=1</em>) – Patches per call of the network.</p></li>
-<li><p><strong>shift</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Offset the patch grid at random at every call.</p></li>
+<li><p><strong>shift</strong> (<em>bool</em><em> or </em><em>&quot;circular&quot;</em><em>, </em><em>default=True</em>) – Offset the patch grid at random at every call, padding the image
+(<code class="docutils literal notranslate"><span class="pre">True</span></code>) or rolling it (<code class="docutils literal notranslate"><span class="pre">&quot;circular&quot;</span></code>).</p></li>
 <li><p><strong>overlap</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Without gradient, with the image on the host and the network on a card,
 copy one group of patches on a second stream while the network computes
 on another.</p></li>
+<li><p><strong>skip_zero</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Leave the patches that are zero throughout out of the network, zero.</p></li>
+<li><p><strong>autotune</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Let cuDNN time its convolution algorithms on a card for each new
+shape (<code class="docutils literal notranslate"><span class="pre">torch.backends.cudnn.benchmark</span></code>) for the length of a call,
+and restore the setting after it.  The first call pays the timing;
+the patches of every later one share their shape.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">patch</span></code> not of two or three positive extents, or <code class="docutils literal notranslate"><span class="pre">batch</span></code> below one.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">patch</span></code> not of two or three positive extents, <code class="docutils literal notranslate"><span class="pre">batch</span></code> below one,
+    or <code class="docutils literal notranslate"><span class="pre">shift</span></code> neither a bool nor <code class="docutils literal notranslate"><span class="pre">&quot;circular&quot;</span></code>.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

@@ -159,6 +159,7 @@ bartorch.optim
    POCS
    Tikhonov
    maxeigen
+   mean_diagonal
    POCSBlock
    cg
    ist
