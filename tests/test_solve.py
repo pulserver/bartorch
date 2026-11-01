@@ -1031,3 +1031,26 @@ def test_a_solve_placed_elsewhere_moves_its_operands_and_returns_home():
     assert seen == [(torch.complex64, torch.complex64)]
     assert solver._placed(solve, y, None).device == y.device
     assert not solver._moves(y)
+
+
+@pytest.mark.parametrize("route", ["call", "inverse"])
+def test_a_solve_on_another_device_is_the_same_solve(_small_encoding, monkeypatch, route):
+    """The call and ``inverse`` hand themselves to the placement once, then solve there."""
+    A, y = _small_encoding
+    solver = optim.CG(0.1, maxiter=9, device="cpu")
+    asked = []
+
+    def moves(data):
+        asked.append(data.shape)
+        return len(asked) == 1
+
+    monkeypatch.setattr(solver, "_moves", moves)
+    b = A.adjoint(y)
+    made = solver(y, A) if route == "call" else solver.inverse(b, A)
+    want = (
+        optim.CG(0.1, maxiter=9)(y, A)
+        if route == "call"
+        else optim.CG(0.1, maxiter=9).inverse(b, A)
+    )
+    torch.testing.assert_close(made, want, rtol=0, atol=0)
+    assert len(asked) == 2
