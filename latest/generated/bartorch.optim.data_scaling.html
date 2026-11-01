@@ -532,6 +532,8 @@ as for a non-Cartesian acquisition; without one, from the k-space
 centre, as BART’s <code class="docutils literal notranslate"><span class="pre">estscaling</span></code> does.</p></li>
 <li><p><strong>percentile</strong> (<em>float</em><em>, </em><em>default=None</em>) – Percentile of the sorted magnitudes to take in place of BART’s rule.</p></li>
 <li><p><strong>compat</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Take the median, BART’s legacy estimate.  Only with <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
+<li><p><strong>adjoint</strong> (<em>torch.Tensor</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">A^H</span> <span class="pre">y</span></code> when the caller has it already, as a solve’s start does;
+<code class="docutils literal notranslate"><span class="pre">A</span></code> is then not applied again.  Only with <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
