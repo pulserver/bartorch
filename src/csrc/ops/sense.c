@@ -1522,7 +1522,7 @@ extern const struct linop_s* grid_transform_create(const bart_dim_t cim_dims[DIM
 		const bart_dim_t pat_dims[DIMS], const complex float* pattern,
 		const bart_dim_t bas_dims[DIMS], const complex float* basis, int toeplitz);
 extern const struct linop_s* grid_sampled_create(const bart_dim_t cim_dims[DIMS], bart_dim_t T, bart_dim_t S, int components,
-		const bart_dim_t* positions, const bart_dim_t bas_dims[DIMS], const complex float* basis,
+		const bart_dim_t* positions, const complex float* weights, const bart_dim_t bas_dims[DIMS], const complex float* basis,
 		int kspace_readout, int toeplitz);
 extern const struct linop_s* wave_transform_create(const bart_dim_t dom_dims[DIMS], bart_dim_t wx, const complex float* psf,
 		int centred, const bart_dim_t pat_dims[DIMS], const complex float* pattern,
@@ -1655,7 +1655,7 @@ static const struct linop_s* form_transform(const struct bartorch_encoding* f, c
 
 		if (NULL != f->positions)
 			return grid_sampled_create(cim_dims, f->frames, f->shots, f->components, f->positions,
-					f->bas_dims, f->basis, f->kspace_readout, f->toeplitz);
+					f->position_weights, f->bas_dims, f->basis, f->kspace_readout, f->toeplitz);
 
 		/* With no k-space factor the transform is the whole of it:
 		 * centred, which is what `bartorch.tools.fft` is and so what a
