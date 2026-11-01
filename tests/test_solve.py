@@ -790,6 +790,14 @@ def test_the_scaling_by_selection_is_bart_sorting_the_magnitudes(compat, percent
     assert got == pytest.approx(want, rel=1e-6)
 
 
+def test_the_scaling_of_nothing_is_zero_and_a_percentile_is_a_fraction():
+    from bartorch.optim._scaling import _scaling_norm
+
+    assert _scaling_norm(torch.empty(0), False, None) == 0.0
+    with pytest.raises(ValueError, match="fraction"):
+        _scaling_norm(torch.ones(4), False, 1.5)
+
+
 def test_a_wavelet_term_reused_answers_as_a_freshly_built_one():
     """BART's wavelet threshold draws its shifts from a generator of its own;
     the solve rewinds it, so a kept term answers as a fresh one would."""
