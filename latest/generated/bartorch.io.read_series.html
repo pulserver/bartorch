@@ -532,7 +532,9 @@ narrowest of radians, degrees, milliradians, <code class="docutils literal notra
 integer type after its rescale, else the values’ own span.  Wrapped phase fills its
 span, so a warning is issued when the values fill less than 80% of the span
 used, or fall outside a given one: a reconstruction of one’s own may scale
-phase in a way no rule can guess.</p>
+phase in a way no rule can guess.  A warning is also issued when the phase
+takes fewer than 256 distinct values: phase rounded on export (to whole
+radians, say) carries no field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

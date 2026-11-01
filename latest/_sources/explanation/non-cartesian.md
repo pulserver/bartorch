@@ -122,6 +122,19 @@ whichever form `--nufft-conf` selects. `toeplitz=False`, or
 storage forms and the compressed function's mask are in
 {doc}`../guides/developer/internals/nufft`.
 
+### Samples on the grid
+
+Samples moved onto the grid beforehand, by GROG-type gridding for example,
+need no NUFFT. {func}`~bartorch.linop.CartesianSense` takes them as
+`positions` with one index more than the phase encodes, `(z, y, x)` in 3D,
+and a weight per sample: its square root of the density compensation, say.
+Integer positions make $h$ periodic over the image itself, so the normal is a
+per-voxel kernel between FFTs on the image grid, not the doubled one. The
+kernel, $\sum_t \lvert w \rvert^2 \overline{\Phi[a', t]}\,\Phi[a, t]$ over
+each place's samples, is summed straight from the samples and kept only at the
+places they reach; on a card it runs through the same cuFFT callbacks, coil
+kernels and coil slabs as the Cartesian normal.
+
 ## Examples
 
 - {doc}`../auto_examples/04-non-cartesian/01-trajectories-and-transforms`:

@@ -509,6 +509,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spreading-fft-and-deapodization">Spreading, FFT and deapodization</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#density-compensation">Density compensation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#toeplitz-normal">Toeplitz normal</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#samples-on-the-grid">Samples on the grid</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
@@ -642,6 +643,19 @@ whichever form <code class="docutils literal notranslate"><span class="pre">--nu
 storage forms and the compressed function’s mask are in
 <a class="reference internal" href="../guides/developer/internals/nufft.html"><span class="doc">NUFFT substitution</span></a>.</p>
 </section>
+<section id="samples-on-the-grid">
+<h3>Samples on the grid<a class="headerlink" href="#samples-on-the-grid" title="Link to this heading">#</a></h3>
+<p>Samples moved onto the grid beforehand, by GROG-type gridding for example,
+need no NUFFT. <a class="reference internal" href="../generated/bartorch.linop.CartesianSense.html#bartorch.linop.CartesianSense" title="bartorch.linop.CartesianSense"><code class="xref py py-func docutils literal notranslate"><span class="pre">CartesianSense()</span></code></a> takes them as
+<code class="docutils literal notranslate"><span class="pre">positions</span></code> with one index more than the phase encodes, <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> in 3D,
+and a weight per sample: its square root of the density compensation, say.
+Integer positions make <span class="math notranslate nohighlight">\(h\)</span> periodic over the image itself, so the normal is a
+per-voxel kernel between FFTs on the image grid, not the doubled one. The
+kernel, <span class="math notranslate nohighlight">\(\sum_t \lvert w \rvert^2 \overline{\Phi[a', t]}\,\Phi[a, t]\)</span> over
+each place’s samples, is summed straight from the samples and kept only at the
+places they reach; on a card it runs through the same cuFFT callbacks, coil
+kernels and coil slabs as the Cartesian normal.</p>
+</section>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
@@ -729,6 +743,7 @@ series cut into frames after the acquisition and reconstructed jointly.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spreading-fft-and-deapodization">Spreading, FFT and deapodization</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#density-compensation">Density compensation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#toeplitz-normal">Toeplitz normal</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#samples-on-the-grid">Samples on the grid</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
