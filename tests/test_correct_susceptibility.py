@@ -74,7 +74,7 @@ def test_correction_returns_tensors_in_the_callers_orientation() -> None:
 def test_correction_recovers_the_imposed_displacement() -> None:
     up, down, shift = displaced_pair()
     result = correct_susceptibility(up, down, voxel_size=(1.0, 1.0, 1.0), max_iter=8)
-    assert result.field_map.abs().max() == pytest.approx(shift.max(), rel=0.4)
+    assert result.field_map.abs().max().item() == pytest.approx(float(shift.max()), rel=0.4)
     before = (up - down).abs().mean()
     after = (result.blip_up - result.blip_down).abs().mean()
     assert after < before
@@ -84,7 +84,7 @@ def test_correction_recovers_the_imposed_displacement() -> None:
 def test_field_is_in_the_units_of_the_voxel_size() -> None:
     up, down, shift = displaced_pair()
     result = correct_susceptibility(up, down, voxel_size=(2.0, 1.0, 1.0), max_iter=8)
-    assert result.field_map.abs().max() == pytest.approx(2.0 * shift.max(), rel=0.4)
+    assert result.field_map.abs().max().item() == pytest.approx(2.0 * float(shift.max()), rel=0.4)
 
 
 @needs_pyhysco
@@ -95,7 +95,7 @@ def test_corrected_pair_is_in_the_intensity_units_of_the_input() -> None:
     up, down, phantom = 7.0 * up + 3.0, 7.0 * down + 3.0, 7.0 * phantom + 3.0
     result = correct_susceptibility(up, down, voxel_size=(1.0, 1.0, 1.0), max_iter=8)
     for corrected, distorted in ((result.blip_up, up), (result.blip_down, down)):
-        assert corrected.mean() == pytest.approx(phantom.mean(), rel=0.02)
+        assert corrected.mean().item() == pytest.approx(phantom.mean().item(), rel=0.02)
         assert (corrected - phantom).abs().mean() < 0.5 * (distorted - phantom).abs().mean()
 
 
