@@ -5,8 +5,6 @@ from __future__ import annotations
 import torch
 
 from bartorch import _call
-from bartorch._dispatch import _ensure_ready, _lock
-from bartorch._lib import library
 from bartorch._operator import as_operand
 
 _estscaling = _call.build("estscaling", __name__)
@@ -50,6 +48,10 @@ def data_scaling(
 
     Notes
     -----
+    The order statistics are found by selection (``torch.kthvalue``), on the
+    operator's card when it has one, rather than by BART's sort of the whole
+    image on the host; they are the same values.
+
     Without ``A`` the estimate is BART's ``estimate_scaling``: the
     root-sum-of-squares image of the fully sampled central region of k-space,
     at most 32 samples along each axis, corrected for the region's size, and the
@@ -74,14 +76,38 @@ def data_scaling(
 
     adjoint = A.adjoint(y)
     image = as_operand(adjoint, tuple(adjoint.shape), "the adjoint image")
-    _ensure_ready()
-    with _lock:
-        return float(
-            library().bartorch_scaling_norm(
-                image.numel(),
-                image.data_ptr(),
-                1.0,
-                int(compat),
-                -1.0 if percentile is None else float(percentile),
-            )
-        )
+    magnitudes = image.reshape(-1).abs()
+    card = getattr(A, "device", None)
+    if card is not None and torch.device(card).type == "cuda" and magnitudes.device.type == "cpu":
+        # Selection over tens of millions of values is seconds on the host
+        # and milliseconds on the card the operator already uses.
+        magnitudes = magnitudes.to(card)
+    return _scaling_norm(magnitudes, compat, percentile)
+
+
+def _scaling_norm(magnitudes: torch.Tensor, compat: bool, percentile: float | None) -> float:
+    """BART's ``estimate_scaling_norm`` over ``magnitudes``, by selection where they lie.
+
+    The same order statistics BART sorts the whole array for -- the median at
+    ``n // 2``, the 90th percentile at ``trunc(0.9 n)``, the maximum, or the
+    asked-for percentile -- found with ``kthvalue``, on the card when the
+    image is there.
+    """
+    n = magnitudes.numel()
+    if n == 0:
+        return 0.0
+    m = magnitudes.to(torch.float32)
+
+    def at(i: int) -> float:
+        return float(torch.kthvalue(m, min(n - 1, max(0, i)) + 1).values)
+
+    if percentile is not None and percentile > 0:
+        if percentile > 1:
+            raise ValueError(f"the percentile is a fraction, at most one, not {percentile}")
+        return at(int(n * percentile))
+    median = at(n // 2)
+    if compat:
+        return median
+    p90 = at(int(n * 0.9))
+    top = float(m.max())
+    return p90 if (top - p90) < 2 * (p90 - median) else top

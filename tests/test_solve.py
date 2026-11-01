@@ -764,6 +764,40 @@ def test_the_scaling_for_a_trajectory_is_the_other_branch():
     assert optim.data_scaling(y * 4.0, A=A) == pytest.approx(4 * scale, rel=1e-5)
 
 
+@pytest.mark.parametrize("compat, percentile", [(False, None), (True, None), (False, 0.99)])
+def test_the_scaling_by_selection_is_bart_sorting_the_magnitudes(compat, percentile):
+    """data_scaling with an operator finds BART's order statistics by selection;
+    they are those BART's estimate_scaling_norm sorts the image for, to the
+    last bit of the magnitude (torch's and the C library's ``cabsf`` differ there)."""
+    from bartorch._dispatch import _ensure_ready
+    from bartorch._lib import library
+
+    n = 16
+    traj = bt.traj(readout=n, spokes=24, radial=True)
+    maps = _rand(2, n, n)
+    A = linop.NoncartesianSense(maps, (n, n), traj=traj)
+    y = A(_rand(n, n))
+    image = A.adjoint(y).contiguous()
+    _ensure_ready()
+    want = library().bartorch_scaling_norm(
+        image.numel(),
+        image.data_ptr(),
+        1.0,
+        int(compat),
+        -1.0 if percentile is None else percentile,
+    )
+    got = optim.data_scaling(y, A=A, compat=compat, percentile=percentile)
+    assert got == pytest.approx(want, rel=1e-6)
+
+
+def test_the_scaling_of_nothing_is_zero_and_a_percentile_is_a_fraction():
+    from bartorch.optim._scaling import _scaling_norm
+
+    assert _scaling_norm(torch.empty(0), False, None) == 0.0
+    with pytest.raises(ValueError, match="fraction"):
+        _scaling_norm(torch.ones(4), False, 1.5)
+
+
 def test_a_wavelet_term_reused_answers_as_a_freshly_built_one():
     """BART's wavelet threshold draws its shifts from a generator of its own;
     the solve rewinds it, so a kept term answers as a fresh one would."""
