@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**04:55.584** total execution time for 2 files **from auto_examples/06-learning**:
+**04:26.335** total execution time for 2 files **from auto_examples/06-learning**:
 
 .. container::
 
@@ -33,8 +33,8 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_06-learning_02-modl-with-admm.py` (``02-modl-with-admm.py``)
-     - 04:19.092
+     - 03:47.053
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_01-plug-and-play.py` (``01-plug-and-play.py``)
-     - 00:36.492
+     - 00:39.282
      - 0.0

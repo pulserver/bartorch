@@ -543,6 +543,9 @@ by one.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
+<p>The order statistics are found by selection (<code class="docutils literal notranslate"><span class="pre">torch.kthvalue</span></code>), on the
+operator’s card when it has one, rather than by BART’s sort of the whole
+image on the host; they are the same values.</p>
 <p>Without <code class="docutils literal notranslate"><span class="pre">A</span></code> the estimate is BART’s <code class="docutils literal notranslate"><span class="pre">estimate_scaling</span></code>: the
 root-sum-of-squares image of the fully sampled central region of k-space,
 at most 32 samples along each axis, corrected for the region’s size, and the
