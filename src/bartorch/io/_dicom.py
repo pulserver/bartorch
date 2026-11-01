@@ -82,7 +82,9 @@ def read_dicom(path: str | Sequence[str], *, series: Any = None) -> Images:
     time and flip angle, then trigger time, temporal position and b-value, and
     contrasts are ordered by those fields in that order; within a contrast,
     slices are ordered along the slice normal.  Every contrast has to cover the
-    same slices.
+    same slices.  An enhanced (multi-frame) dataset is read frame by frame, each
+    frame taking its position, orientation, rescale and timings from its own
+    functional groups or the shared ones.
 
     Parameters
     ----------
@@ -116,20 +118,25 @@ def read_dicom(path: str | Sequence[str], *, series: Any = None) -> Images:
     Raises
     ------
     ValueError
-        If no series matches, several do and ``series`` is not given, the
-        files are multi-frame, two images share a contrast and a slice, or the
-        contrasts cover different slices.
+        If no series matches, several do and ``series`` is not given, two
+        images share a contrast and a slice, or the contrasts cover different
+        slices.
     ImportError
         If ``pydicom`` is not installed.
     """
     pydicom = import_module("pydicom")
-    datasets = _read_files(pydicom, path)
-    datasets = _select(datasets, series)
-    if any(int(getattr(ds, "NumberOfFrames", 1) or 1) > 1 for ds in datasets):
-        raise ValueError(
-            "multi-frame (enhanced) DICOM is not read; convert it with dcm2niix and use read_nifti"
-        )
+    datasets = _select(_read_files(pydicom, path), series)
+    image, affine, timings, first = _stack(datasets)
+    return Images(torch.from_numpy(image), affine, timings, first)
 
+
+def _stack(datasets: list[Any]) -> tuple[np.ndarray, torch.Tensor, dict[str, torch.Tensor], Any]:
+    """Images of one series sorted into ``(contrasts, slices, rows, columns)``.
+
+    Returns the ``float32`` image with the rescale applied, its affine, the
+    timings of each contrast, and the dataset a frame of the first image came
+    from, as a template.
+    """
     first = datasets[0]
     orientation = np.asarray(first.ImageOrientationPatient, float)
     along_row, along_column = orientation[:3], orientation[3:]
@@ -181,7 +188,7 @@ def read_dicom(path: str | Sequence[str], *, series: Any = None) -> Images:
         name: torch.tensor([key[n] for key in contrasts], dtype=torch.float64)
         for n, name in enumerate(_TIMINGS)
     }
-    return Images(torch.from_numpy(image), affine, timings, first)
+    return image, affine, timings, getattr(first, "dataset", first)
 
 
 def _series_affine(first: Any, last: Any, slices: int) -> torch.Tensor:
@@ -380,11 +387,91 @@ def _read_files(pydicom: Any, path: str | Sequence[str]) -> list[Any]:
             ds = pydicom.dcmread(file)
         except pydicom.errors.InvalidDicomError:
             continue
-        if "PixelData" in ds and "ImagePositionPatient" in ds:
+        if "PixelData" not in ds:
+            continue
+        if "PerFrameFunctionalGroupsSequence" in ds:
+            datasets.extend(_frames(ds))
+        elif "ImagePositionPatient" in ds:
             datasets.append(ds)
     if not datasets:
         raise ValueError(f"{path} holds no DICOM images")
     return datasets
+
+
+#: Where an enhanced MR dataset keeps each field a classic image states at its
+#: top level: the functional group, the attribute in it, and the classic keyword.
+_FRAME_FIELDS = (
+    ("PlanePositionSequence", "ImagePositionPatient", "ImagePositionPatient"),
+    ("PlaneOrientationSequence", "ImageOrientationPatient", "ImageOrientationPatient"),
+    ("PixelMeasuresSequence", "PixelSpacing", "PixelSpacing"),
+    ("PixelMeasuresSequence", "SliceThickness", "SliceThickness"),
+    ("PixelMeasuresSequence", "SpacingBetweenSlices", "SpacingBetweenSlices"),
+    ("PixelValueTransformationSequence", "RescaleSlope", "RescaleSlope"),
+    ("PixelValueTransformationSequence", "RescaleIntercept", "RescaleIntercept"),
+    ("MREchoSequence", "EffectiveEchoTime", "EchoTime"),
+    ("MRTimingAndRelatedParametersSequence", "RepetitionTime", "RepetitionTime"),
+    ("MRTimingAndRelatedParametersSequence", "FlipAngle", "FlipAngle"),
+    ("MRModifierSequence", "InversionTimes", "InversionTime"),
+    ("CardiacSynchronizationSequence", "NominalCardiacTriggerDelayTime", "TriggerTime"),
+    ("FrameContentSequence", "TemporalPositionIndex", "TemporalPositionIdentifier"),
+    ("MRDiffusionSequence", "DiffusionBValue", "DiffusionBValue"),
+    ("MRImageFrameTypeSequence", "ComplexImageComponent", "ComplexImageComponent"),
+    ("MRImageFrameTypeSequence", "FrameType", "ImageType"),
+)
+
+
+class _Frame:
+    """One frame of an enhanced dataset, answering as a classic image would.
+
+    A field is looked up in the frame's own functional groups, then in the
+    shared ones, then at the top level of the dataset.
+    """
+
+    def __init__(self, dataset: Any, index: int, fields: dict[str, Any], pixels: Any) -> None:
+        self.dataset, self._index, self._fields, self._pixels = dataset, index, fields, pixels
+
+    def __getattr__(self, name: str) -> Any:
+        fields = self.__dict__.get("_fields", {})
+        if name in fields:
+            return fields[name]
+        return getattr(self.__dict__["dataset"], name)
+
+    def __contains__(self, name: str) -> bool:
+        return name in self._fields or name in self.dataset
+
+    def get(self, name: str, default: Any = None) -> Any:
+        return self._fields[name] if name in self._fields else self.dataset.get(name, default)
+
+    @property
+    def pixel_array(self) -> np.ndarray:
+        return self._pixels()[self._index]
+
+
+def _frames(ds: Any) -> list[_Frame]:
+    """The frames of an enhanced dataset; its pixels are decoded once, when first asked for."""
+    shared = ds.get("SharedFunctionalGroupsSequence")
+    shared = shared[0] if shared else None
+    decoded: list[np.ndarray] = []
+
+    def pixels() -> np.ndarray:
+        if not decoded:
+            array = ds.pixel_array
+            decoded.append(array.reshape(-1, *array.shape[-2:]))
+        return decoded[0]
+
+    frames = []
+    for index, group in enumerate(ds.PerFrameFunctionalGroupsSequence):
+        fields = {}
+        for sequence, attribute, keyword in _FRAME_FIELDS:
+            for source in (group, shared):
+                if source is not None and sequence in source and source[sequence].value:
+                    item = source[sequence].value[0]
+                    if attribute in item:
+                        fields[keyword] = item.data_element(attribute).value
+                        break
+        if "ImagePositionPatient" in fields and "ImageOrientationPatient" in fields:
+            frames.append(_Frame(ds, index, fields, pixels))
+    return frames
 
 
 def _select(datasets: list[Any], series: Any) -> list[Any]:

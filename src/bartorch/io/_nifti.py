@@ -33,7 +33,9 @@ def read_nifti(path: str | Sequence[str]) -> Images:
         geometry, one per contrast as BIDS stores the echoes of a multi-echo
         acquisition.  A JSON sidecar beside a file, of the same name, gives its
         ``EchoTime``, ``InversionTime`` and ``RepetitionTime`` in seconds and
-        its ``FlipAngle`` in degrees.
+        its ``FlipAngle`` in degrees.  A file of several volumes whose sidecar
+        states one value but also a list of one per volume under the plural
+        key, ``EchoTimes`` say, takes the list.
 
     Returns
     -------
@@ -70,6 +72,14 @@ def read_nifti(path: str | Sequence[str]) -> Images:
         sidecar = _sidecar(file)
         for name, key in _SIDECAR.items():
             value = sidecar.get(key)
+            plural = sidecar.get(f"{key}s")
+            if (
+                data.shape[-1] > 1
+                and isinstance(plural, list)
+                and len(plural) == data.shape[-1]
+                and not isinstance(value, list)
+            ):
+                value = plural
             values = np.broadcast_to(
                 np.nan if value is None else np.asarray(value, float), (data.shape[-1],)
             )

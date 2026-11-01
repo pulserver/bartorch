@@ -46,7 +46,7 @@ def test_recovers_a_localised_field() -> None:
     estimate = field_map_from_phase(coils, echo_time=ECHO_TIME, smoothing=1.0)
 
     hot = inside & (field > 0.5 * field.max())
-    assert estimate[hot].mean() == pytest.approx(field[hot].mean(), rel=0.35)
+    assert estimate[hot].mean().item() == pytest.approx(field[hot].mean().item(), rel=0.35)
     quiet = inside & (field < 1.0)
     assert estimate[quiet].abs().mean() < 0.15 * field.max()
 
