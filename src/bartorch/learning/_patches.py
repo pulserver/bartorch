@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import itertools
 
 import torch
@@ -36,8 +37,21 @@ class Patchwise(nn.Module):
     With ``shift`` the patch grid is offset by a random amount at every call,
     drawn from PyTorch's generator, so seams fall in a different place at each
     iteration of a reconstruction, and :class:`~bartorch.learning.Unrolled`
-    recomputes a checkpointed step exactly.  The image is zero-padded by the
-    offset in front and to a whole patch behind.
+    recomputes a checkpointed step exactly.  With ``shift=True`` the image is
+    zero-padded by the offset in front and to a whole patch behind, which
+    costs a layer of patches along every axis: a 256^3 volume in 64^3 patches
+    becomes 125 of them.  With ``shift="circular"`` the image is rolled by the
+    offset instead, so the patches that cross its far edge wrap round to its
+    near one and a volume of whole patches stays at its own count, 64; the
+    image is padded behind only to a whole patch, as without a shift.  The
+    wrapped patches join opposite faces of the field of view, where an image
+    with a background is empty.
+
+    With ``skip_zero`` a patch that is zero in every item and channel, such as
+    background or padding, does not reach the network and is zero in the
+    result, which spares the network's time on the empty part of a volume.
+    It is the network's output for such a patch only when that is zero, as
+    for a residual denoiser of a nonnegative image.
 
     The network is moved to ``device`` at every call if it is elsewhere, so a
     training loop that moves the whole model does not move it; its parameters
@@ -59,17 +73,26 @@ class Patchwise(nn.Module):
         does not (such as a T4), and none on the host.
     batch : int, default=1
         Patches per call of the network.
-    shift : bool, default=True
-        Offset the patch grid at random at every call.
+    shift : bool or "circular", default=True
+        Offset the patch grid at random at every call, padding the image
+        (``True``) or rolling it (``"circular"``).
     overlap : bool, default=True
         Without gradient, with the image on the host and the network on a card,
         copy one group of patches on a second stream while the network computes
         on another.
+    skip_zero : bool, default=False
+        Leave the patches that are zero throughout out of the network, zero.
+    autotune : bool, default=False
+        On a card, let cuDNN time its convolution algorithms for each new
+        shape (``torch.backends.cudnn.benchmark``) for the length of a call,
+        and restore the setting after it.  The first call pays the timing;
+        the patches of every later one share their shape.
 
     Raises
     ------
     ValueError
-        ``patch`` not of two or three positive extents, or ``batch`` below one.
+        ``patch`` not of two or three positive extents, ``batch`` below one,
+        or ``shift`` neither a bool nor ``"circular"``.
 
     Examples
     --------
@@ -85,8 +108,10 @@ class Patchwise(nn.Module):
         device=None,
         dtype="auto",
         batch: int = 1,
-        shift: bool = True,
+        shift: bool | str = True,
         overlap: bool = True,
+        skip_zero: bool = False,
+        autotune: bool = False,
     ):
         super().__init__()
         patch = tuple(int(p) for p in patch)
@@ -94,6 +119,8 @@ class Patchwise(nn.Module):
             raise ValueError(f"a patch spans 2 or 3 axes, each of at least one voxel, not {patch}")
         if batch < 1:
             raise ValueError(f"a call takes at least one patch, not {batch}")
+        if not isinstance(shift, bool) and "circular" != shift:
+            raise ValueError(f'shift is True, False or "circular", not {shift!r}')
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.net = net
@@ -101,8 +128,10 @@ class Patchwise(nn.Module):
         self.device = torch.device(device)
         self.dtype = _autocast_dtype(self.device, dtype)
         self.batch = int(batch)
-        self.shift = bool(shift)
+        self.shift = shift
         self.overlap = bool(overlap)
+        self.skip_zero = bool(skip_zero)
+        self.autotune = bool(autotune)
 
     def forward(self, x: torch.Tensor, sigma=None, **keywords) -> torch.Tensor:
         """Apply the network to every patch of ``x``.
@@ -132,35 +161,57 @@ class Patchwise(nn.Module):
         n = x.shape[0]
         extent = x.shape[-dims:]
         lead = x.ndim - dims
+        axes = tuple(range(lead, x.ndim))
 
         offset = [int(torch.randint(p, ())) if self.shift and p > 1 else 0 for p in self.patch]
-        after = [(-(e + o)) % p for e, o, p in zip(extent, offset, self.patch)]
+        rolled = "circular" == self.shift and any(offset)
+        if rolled:
+            x_in, front = torch.roll(x, offset, axes), [0] * dims
+        else:
+            x_in, front = x, offset
+        after = [(-(e + o)) % p for e, o, p in zip(extent, front, self.patch)]
         pad = []
-        for o, a in zip(reversed(offset), reversed(after)):
+        for o, a in zip(reversed(front), reversed(after)):
             pad += [o, a]
-        padded = F.pad(x, pad) if any(pad) else x
+        padded = F.pad(x_in, pad) if any(pad) else x_in
         grid = [range(0, s, p) for s, p in zip(padded.shape[lead:], self.patch)]
         corners = list(itertools.product(*grid))
+        if self.skip_zero:
+            corners = [c for c in corners if bool(padded[self._window(c, lead)].detach().any())]
 
         out = torch.zeros(padded.shape, dtype=torch.float32, device=x.device)
+        crop = (slice(None),) * lead + tuple(slice(o, o + e) for o, e in zip(front, extent))
         moving = "cpu" == x.device.type and "cuda" == self.device.type
         chunks = [corners[i : i + self.batch] for i in range(0, len(corners), self.batch)]
-        if moving and self.overlap and not torch.is_grad_enabled():
-            self._overlapped(padded, chunks, lead, n, sigma, keywords, out)
-            return out[
-                (slice(None),) * lead + tuple(slice(o, o + e) for o, e in zip(offset, extent))
-            ]
-        for start in range(0, len(corners), self.batch):
-            chunk = corners[start : start + self.batch]
-            pieces = torch.cat([padded[self._window(c, lead)] for c in chunk])
-            if moving and not pieces.requires_grad:
-                pieces = pieces.pin_memory()
-            pieces = pieces.to(self.device, non_blocking=moving)
-            made = self._run(pieces, len(chunk), n, sigma, keywords)
-            made = made.to(x.device, torch.float32).reshape(len(chunk), n, *made.shape[1:])
-            for i, c in enumerate(chunk):
-                out[self._window(c, lead)] = made[i]
-        return out[(slice(None),) * lead + tuple(slice(o, o + e) for o, e in zip(offset, extent))]
+        with self._tuned():
+            if moving and self.overlap and not torch.is_grad_enabled():
+                if chunks:
+                    self._overlapped(padded, chunks, lead, n, sigma, keywords, out)
+            else:
+                for chunk in chunks:
+                    pieces = torch.cat([padded[self._window(c, lead)] for c in chunk])
+                    if moving and not pieces.requires_grad:
+                        pieces = pieces.pin_memory()
+                    pieces = pieces.to(self.device, non_blocking=moving)
+                    made = self._run(pieces, len(chunk), n, sigma, keywords)
+                    made = made.to(x.device, torch.float32).reshape(len(chunk), n, *made.shape[1:])
+                    for i, c in enumerate(chunk):
+                        out[self._window(c, lead)] = made[i]
+        out = out[crop]
+        return torch.roll(out, [-o for o in offset], axes) if rolled else out
+
+    @contextlib.contextmanager
+    def _tuned(self):
+        """cuDNN's algorithm search on for the call, under ``autotune`` on a card."""
+        if not (self.autotune and "cuda" == self.device.type):
+            yield
+            return
+        before = torch.backends.cudnn.benchmark
+        torch.backends.cudnn.benchmark = True
+        try:
+            yield
+        finally:
+            torch.backends.cudnn.benchmark = before
 
     def _overlapped(self, padded, chunks, lead: int, n: int, sigma, keywords, out) -> None:
         """The patch loop with copies overlapping the network, for inference from the host.
@@ -235,5 +286,6 @@ class Patchwise(nn.Module):
     def extra_repr(self) -> str:
         return (
             f"patch={self.patch}, device={self.device}, dtype={self.dtype}, "
-            f"batch={self.batch}, shift={self.shift}, overlap={self.overlap}"
+            f"batch={self.batch}, shift={self.shift!r}, overlap={self.overlap}, "
+            f"skip_zero={self.skip_zero}, autotune={self.autotune}"
         )

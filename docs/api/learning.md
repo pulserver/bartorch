@@ -21,7 +21,7 @@ backward strategy uses.
 | --- | --- |
 | {obj}`~bartorch.learning.UNet` | Residual UNet on 2D or 3D real channels, optionally over a frame axis, conditioned on the iteration index, the noise level and a class |
 | {obj}`~bartorch.learning.ComplexNet` | A real network applied to complex images, their leading axes and real and imaginary parts as its channels, normalized by the peak or whitened |
-| {obj}`~bartorch.learning.Patchwise` | A network applied patch by patch on a device, with a randomly shifted grid and mixed precision, to an image held elsewhere |
+| {obj}`~bartorch.learning.Patchwise` | A network applied patch by patch on a device, with a randomly shifted or rolled grid, empty patches skipped and mixed precision, to an image held elsewhere |
 
 | Precision on the device | `Patchwise(dtype="auto")` |
 | --- | --- |

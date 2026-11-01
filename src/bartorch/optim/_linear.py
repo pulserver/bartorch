@@ -232,6 +232,47 @@ def maxeigen(
     return float(value.value)
 
 
+def mean_diagonal(A, *, probes: int = 1, seed: int = 0) -> float:
+    r"""Estimate the mean of the diagonal of :math:`A^H A` from random probes (Hutchinson).
+
+    For a probe :math:`v` of independent standard complex normal entries,
+    :math:`\operatorname{Re} v^H A^H A v / \lVert v \rVert^2` estimates the
+    trace of the normal operator over its size.  A penalty stated relative to
+    this value, :math:`\rho = \lambda d`, keeps its meaning however the data,
+    the density weights or a subspace basis scale the encoding, which a
+    plug-and-play penalty annealed as :math:`\lambda d / \sigma_k^2` needs.
+
+    Parameters
+    ----------
+    A : LinearOperator
+        Encoding operator; its :meth:`~bartorch.linop.LinearOperator.normal` is
+        applied once per probe.
+    probes : int, default=1
+        Probes averaged.  The relative spread of one probe is about
+        :math:`1/\sqrt{n}` for an operator of :math:`n` unknowns with a flat
+        diagonal, so a volume needs one.
+    seed : int, default=0
+        Seed of the host generator the probes are drawn from.
+
+    Returns
+    -------
+    float
+        The estimate.
+
+    Examples
+    --------
+    >>> rho = 0.05 * mean_diagonal(A) / sigma**2
+    """
+    if probes < 1:
+        raise ValueError(f"the estimate takes at least one probe, not {probes}")
+    generator = torch.Generator().manual_seed(int(seed))
+    total = 0.0
+    for _ in range(int(probes)):
+        v = torch.randn(A.ishape, dtype=torch.complex64, generator=generator)
+        total += float(torch.vdot(v.reshape(-1), A.normal(v).reshape(-1)).real / v.norm() ** 2)
+    return total / probes
+
+
 def _conditioner(precond, shape):
     """``precond`` as a BART operator, checked to map the image to itself."""
     if precond is None:
@@ -623,6 +664,13 @@ class CG(_Solver):
     precond : LinearOperator, default=None
         Left preconditioner :math:`M` from ``A.ishape`` to itself, positive
         definite (``lsqr2_create``'s ``precond_op``); BART's reconstructions use none.
+    device : torch.device or str, default=None
+        Where the vectors of the solve live.  The data, the start and the
+        right-hand side are copied there, and the image is returned on the
+        device the data came from, so an encoding built on a card solves for
+        an image held on the host without the iteration's vectors crossing at
+        every step; the card's cached blocks are released afterwards.  ``None``
+        solves where the data is.
 
     Raises
     ------
@@ -643,6 +691,7 @@ class CG(_Solver):
     >>> CG(maxiter=30)(kspace, A)
     >>> CG(terms=Tikhonov(0.1, bias=prior))(kspace, A)
     >>> CG(terms=[Tikhonov(0.1, operator=G), Tikhonov(0.01)])(kspace, A)
+    >>> CG(0.5, maxiter=5, device="cuda").inverse(rhs, A, x0=x)  # (A^H A + 0.5) x = rhs
     """
 
     _algorithm = "cg"
@@ -656,11 +705,13 @@ class CG(_Solver):
         tol: float = 0.0,
         cclambda: float = 0.0,
         precond=None,
+        device=None,
     ):
         super().__init__(L2(lambda_) if lambda_ else None, maxiter, cclambda, precond)
         self.lambda_ = float(lambda_)
         self.terms = _as_quadratics(terms)
         self.tol = float(tol)
+        self.device = None if device is None else torch.device(device)
 
     def _settings(self) -> dict:
         return {"cg_tol": self.tol}
@@ -703,6 +754,9 @@ class CG(_Solver):
         the data-consistency layer of an unrolled network.
         """
         from bartorch.linop._base import _tracking
+
+        if self._moves(y):
+            return self._placed(lambda b, w: self(b, A, w, steps=steps), y, x0)
 
         made = _item_by_item(self, y, A, x0, steps=steps)
         if made is not None:
@@ -761,25 +815,62 @@ class CG(_Solver):
         rate = torch.zeros((), dtype=torch.float64)
         return _Resolvent.apply(rhs, rate, point, solve, None, data)
 
-    def _inverse(self, A, g: torch.Tensor) -> torch.Tensor:
-        """``N^-1 g``, driven from the right-hand side rather than from data.
+    def inverse(self, b: torch.Tensor, A, x0: torch.Tensor | None = None) -> torch.Tensor:
+        r"""Solve the normal equations from their right-hand side.
 
-        ``_WithNormal(Identity, A.gram())`` is an operator whose adjoint is the
-        identity and whose normal is ``A^H A``, so conjugate gradients on it
-        solves ``N w = g`` instead of ``N w = A^H g``.  The same terms and the
-        same weight go in, so it is the same ``N`` the forward pass inverted;
-        and an encoding built with ``toeplitz=True`` keeps its point-spread
-        convolution through :meth:`~bartorch.linop.LinearOperator.gram`, so the
-        backward pass costs the same as the forward one.
+        Where calling the solver forms :math:`A^H y` from data, this solves
+        :math:`N x = b` for a given ``b`` of ``A.ishape``, with :math:`N` the
+        normal operator the call inverts, :math:`A^H A + \lambda I` plus the
+        terms' :math:`w_i G_i^H G_i`.  A splitting method whose x-update has
+        a right-hand side of its own, :math:`A^H y + \rho (z - u)`, calls this
+        with :math:`A^H y` computed once.  The terms' biases do not enter: they
+        belong to the right-hand side, which the caller supplies.
+
+        Parameters
+        ----------
+        b : tensor
+            Right-hand side of ``A.ishape``.
+        A : LinearOperator
+            Encoding operator, whose normal (:meth:`~bartorch.linop.LinearOperator.gram`)
+            is applied; an encoding built with ``toeplitz=True`` applies its
+            point-spread convolution.
+        x0 : tensor, default=None
+            Starting image of ``A.ishape``; zero when omitted.
+
+        Returns
+        -------
+        torch.Tensor
+            Complex64 image of ``A.ishape``, on ``b``'s device.
+
+        Notes
+        -----
+        ``_WithNormal(Identity, A.gram())`` is an operator whose adjoint is
+        the identity and whose normal is :math:`A^H A`, so conjugate gradients
+        on it solves :math:`N x = b` instead of :math:`N x = A^H b`.  The
+        backward pass of a call solves through the same route, so it costs
+        what the forward pass does.  No gradient is recorded.
         """
+        if self._moves(b):
+            return self._placed(lambda r, w: self.inverse(r, A, w), b, x0)
+        normal = A.gram()
+        for term in self.terms:
+            G = term._operator(A.ishape)
+            normal = normal + (term.weight * G.gram() if 1.0 != term.weight else G.gram())
+        return self._from_rhs(normal, b, x0)
+
+    def _inverse(self, A, g: torch.Tensor) -> torch.Tensor:
+        """``N^-1 g``, the backward pass of a call: ``A`` already holds the terms stacked."""
+        return self._from_rhs(A.gram(), g, None)
+
+    def _from_rhs(self, normal, b: torch.Tensor, x0: torch.Tensor | None) -> torch.Tensor:
+        """Conjugate gradients on ``(normal + lambda) x = b``."""
         from bartorch.linop import Identity
         from bartorch.linop._base import _WithNormal
 
-        shape = A.ishape
         return _solve(
-            _WithNormal(Identity(shape), A.gram()),
-            g,
-            None,
+            _WithNormal(Identity(normal.ishape), normal),
+            b,
+            x0,
             self._algorithm,
             self.regularizers,
             maxiter=self.maxiter,
@@ -788,12 +879,24 @@ class CG(_Solver):
             **self._settings(),
         )
 
+    def _moves(self, y: torch.Tensor) -> bool:
+        return self.device is not None and y.device != self.device
+
+    def _placed(self, solve, y: torch.Tensor, x0: torch.Tensor | None) -> torch.Tensor:
+        """``solve(y, x0)`` with both on :attr:`device`, the image brought back to ``y``'s."""
+        home = y.device
+        made = solve(y.to(self.device), None if x0 is None else x0.to(self.device)).to(home)
+        if self.device.type == "cuda":
+            torch.cuda.empty_cache()
+        return made
+
     def _in_library(self, y: torch.Tensor, A, x0: torch.Tensor | None = None) -> torch.Tensor:
         return self(y, A, x0)
 
     def __repr__(self) -> str:
         terms = f", terms={self.terms!r}" if self.terms else ""
-        return f"CG(lambda_={self.lambda_}{terms}, maxiter={self.maxiter}, tol={self.tol})"
+        device = "" if self.device is None else f", device={str(self.device)!r}"
+        return f"CG(lambda_={self.lambda_}{terms}, maxiter={self.maxiter}, tol={self.tol}{device})"
 
 
 class IST(_Solver):
