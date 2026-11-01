@@ -521,7 +521,9 @@
 time and flip angle, then trigger time, temporal position and b-value, and
 contrasts are ordered by those fields in that order; within a contrast,
 slices are ordered along the slice normal.  Every contrast has to cover the
-same slices.</p>
+same slices.  An enhanced (multi-frame) dataset is read frame by frame, each
+frame taking its position, orientation, rescale and timings from its own
+functional groups or the shared ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -556,9 +558,9 @@ where the files do not state one.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – If no series matches, several do and <code class="docutils literal notranslate"><span class="pre">series</span></code> is not given, the
-    files are multi-frame, two images share a contrast and a slice, or the
-    contrasts cover different slices.</p></li>
+<li><p><strong>ValueError</strong> – If no series matches, several do and <code class="docutils literal notranslate"><span class="pre">series</span></code> is not given, two
+    images share a contrast and a slice, or the contrasts cover different
+    slices.</p></li>
 <li><p><strong>ImportError</strong> – If <code class="docutils literal notranslate"><span class="pre">pydicom</span></code> is not installed.</p></li>
 </ul>
 </dd>

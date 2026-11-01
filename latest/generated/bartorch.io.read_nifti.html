@@ -523,7 +523,9 @@
 geometry, one per contrast as BIDS stores the echoes of a multi-echo
 acquisition.  A JSON sidecar beside a file, of the same name, gives its
 <code class="docutils literal notranslate"><span class="pre">EchoTime</span></code>, <code class="docutils literal notranslate"><span class="pre">InversionTime</span></code> and <code class="docutils literal notranslate"><span class="pre">RepetitionTime</span></code> in seconds and
-its <code class="docutils literal notranslate"><span class="pre">FlipAngle</span></code> in degrees.</p>
+its <code class="docutils literal notranslate"><span class="pre">FlipAngle</span></code> in degrees.  A file of several volumes whose sidecar
+states one value but also a list of one per volume under the plural
+key, <code class="docutils literal notranslate"><span class="pre">EchoTimes</span></code> say, takes the list.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A named tuple of <code class="docutils literal notranslate"><span class="pre">image</span></code>, <code class="docutils literal notranslate"><span class="pre">(contrasts,</span> <span class="pre">z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> where the volumes

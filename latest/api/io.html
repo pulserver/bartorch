@@ -547,15 +547,31 @@ C-order tensor shape, so <code class="docutils literal notranslate"><span class=
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.io.write_nifti.html#bartorch.io.write_nifti" title="bartorch.io.write_nifti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_nifti</span></code></a></p></td>
 <td><p>Write an image and its affine as NIfTI, and its timings as a BIDS sidecar</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.io.readcfl.html#bartorch.io.readcfl" title="bartorch.io.readcfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">readcfl</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.io.read_series.html#bartorch.io.read_series" title="bartorch.io.read_series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_series</span></code></a></p></td>
+<td><p>Read a DICOM or NIfTI series with its magnitude and phase, or real and imaginary, images paired into one complex image, phase in radians, and its acquisition</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.io.Series.html#bartorch.io.Series" title="bartorch.io.Series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Series</span></code></a></p></td>
+<td><p>What <code class="docutils literal notranslate"><span class="pre">read_series</span></code> returns: the image, its affine, its acquisition and a header to write from</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.io.Acquisition.html#bartorch.io.Acquisition" title="bartorch.io.Acquisition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Acquisition</span></code></a></p></td>
+<td><p>Timings per contrast, voxel size, main-field direction in voxel axes, field strength, vendor, body part and the phase scaling used</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.io.readcfl.html#bartorch.io.readcfl" title="bartorch.io.readcfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">readcfl</span></code></a></p></td>
 <td><p>Read <code class="docutils literal notranslate"><span class="pre">name.hdr</span></code> and <code class="docutils literal notranslate"><span class="pre">name.cfl</span></code> into a NumPy array in BART’s dimension order</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.io.writecfl.html#bartorch.io.writecfl" title="bartorch.io.writecfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writecfl</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.io.writecfl.html#bartorch.io.writecfl" title="bartorch.io.writecfl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writecfl</span></code></a></p></td>
 <td><p>Write a NumPy array in BART’s dimension order as <code class="docutils literal notranslate"><span class="pre">name.hdr</span></code> and <code class="docutils literal notranslate"><span class="pre">name.cfl</span></code></p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>How a series stores the parts of a complex image differs by vendor: Siemens
+writes magnitude and phase as two series, GE and Philips write them into one,
+and an enhanced (multi-frame) dataset tags each frame.  <code class="docutils literal notranslate"><span class="pre">read_series</span></code> finds
+each image’s part from the standard and private tags, and scales phase from
+the span of stored values that stands for one turn.  A reconstruction of one’s
+own may store phase in any span, so <code class="docutils literal notranslate"><span class="pre">phase_range=</span></code> states it, and a warning
+says when the values do not fill the span used.</p>
 <p><a class="reference internal" href="../auto_examples/08-workflows/03-maps-from-scanner-images.html"><span class="doc">Parameter maps from scanner images</span></a> reads a
 multi-echo series from DICOM, fits a <span class="math notranslate nohighlight">\(T_2\)</span> map to it and writes the map back.</p>
 </section>
