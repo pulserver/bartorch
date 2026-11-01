@@ -949,3 +949,108 @@ def test_cg_takes_quadratic_terms_and_not_proximal_ones(_small_encoding):
 def test_a_solver_says_what_it_was_given():
     assert "Tikhonov" in repr(optim.CG(terms=optim.Tikhonov(0.5)))
     assert "terms" not in repr(optim.CG(0.5))
+
+
+# --- solving from the right-hand side -------------------------------------------------
+
+
+def test_inverse_from_the_adjoint_is_the_call(_small_encoding):
+    """``inverse(A^H y)`` solves the normal equations the call solves from ``y``."""
+    A, y = _small_encoding
+    solver = optim.CG(0.1, maxiter=300)
+    torch.testing.assert_close(solver.inverse(A.adjoint(y), A), solver(y, A), rtol=1e-4, atol=1e-5)
+
+
+def test_inverse_takes_the_terms_normals_and_not_their_biases(_small_encoding):
+    """A splitting method passes its own right-hand side, so a bias would count twice."""
+    A, y = _small_encoding
+    G = linop.FFT(A.ishape, axes=(-2, -1))
+    terms = [optim.Tikhonov(0.3, operator=G, bias=_rand(*G.oshape))]
+    b = _rand(*A.ishape)
+    got = optim.CG(0.05, terms=terms, maxiter=300).inverse(b, A)
+
+    M, Gm = _dense(A), _dense(G)
+    lhs = M.conj().T @ M + 0.05 * torch.eye(M.shape[1], dtype=torch.complex64)
+    lhs = lhs + 0.3 * (Gm.conj().T @ Gm)
+    want = torch.linalg.solve(lhs, b.reshape(-1)).reshape(A.ishape)
+    assert (got - want).abs().max() / want.abs().max() < 1e-4
+
+
+def test_inverse_starts_where_it_is_told(_small_encoding):
+    """From the answer itself, one iteration leaves it where it is."""
+    A, y = _small_encoding
+    solver = optim.CG(0.1, maxiter=300)
+    b = A.adjoint(y)
+    x = solver.inverse(b, A)
+    torch.testing.assert_close(
+        optim.CG(0.1, maxiter=1).inverse(b, A, x0=x), x, rtol=1e-3, atol=1e-4
+    )
+
+
+def test_a_device_where_the_data_already_is_changes_nothing(_small_encoding):
+    A, y = _small_encoding
+    torch.testing.assert_close(
+        optim.CG(0.1, maxiter=9, device="cpu")(y, A), optim.CG(0.1, maxiter=9)(y, A), rtol=0, atol=0
+    )
+    assert "device='cpu'" in repr(optim.CG(device="cpu"))
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="needs a card")
+def test_the_vectors_of_a_solve_on_a_card_come_back_to_the_host(_small_encoding):
+    A, y = _small_encoding
+    on_card = optim.CG(0.1, maxiter=30, device="cuda")
+    b = A.adjoint(y)
+    for made in (on_card(y, A), on_card.inverse(b, A, x0=torch.zeros_like(b))):
+        assert made.device == y.device
+        torch.testing.assert_close(made, optim.CG(0.1, maxiter=30)(y, A), rtol=1e-3, atol=1e-4)
+
+
+def test_the_mean_diagonal_is_the_trace_over_the_size(_small_encoding):
+    A, _ = _small_encoding
+    M = _dense(A)
+    exact = float(torch.diagonal(M.conj().T @ M).real.mean())
+    assert abs(optim.mean_diagonal(A, probes=64) - exact) / exact < 0.05
+    assert optim.mean_diagonal(A, seed=3) == optim.mean_diagonal(A, seed=3)
+    with pytest.raises(ValueError, match="at least one probe"):
+        optim.mean_diagonal(A, probes=0)
+
+
+def test_a_solve_placed_elsewhere_moves_its_operands_and_returns_home():
+    """What ``device=`` does around a solve, observed through the operands it is handed."""
+    seen = []
+
+    def solve(b, w):
+        seen.append((b.dtype, None if w is None else w.dtype))
+        return b * 2
+
+    solver = optim.CG(device="cpu")
+    y = torch.ones(3, dtype=torch.complex64)
+    made = solver._placed(solve, y, torch.zeros(3, dtype=torch.complex64))
+    assert made.device == y.device
+    torch.testing.assert_close(made, 2 * y)
+    assert seen == [(torch.complex64, torch.complex64)]
+    assert solver._placed(solve, y, None).device == y.device
+    assert not solver._moves(y)
+
+
+@pytest.mark.parametrize("route", ["call", "inverse"])
+def test_a_solve_on_another_device_is_the_same_solve(_small_encoding, monkeypatch, route):
+    """The call and ``inverse`` hand themselves to the placement once, then solve there."""
+    A, y = _small_encoding
+    solver = optim.CG(0.1, maxiter=9, device="cpu")
+    asked = []
+
+    def moves(data):
+        asked.append(data.shape)
+        return len(asked) == 1
+
+    monkeypatch.setattr(solver, "_moves", moves)
+    b = A.adjoint(y)
+    made = solver(y, A) if route == "call" else solver.inverse(b, A)
+    want = (
+        optim.CG(0.1, maxiter=9)(y, A)
+        if route == "call"
+        else optim.CG(0.1, maxiter=9).inverse(b, A)
+    )
+    torch.testing.assert_close(made, want, rtol=0, atol=0)
+    assert len(asked) == 2

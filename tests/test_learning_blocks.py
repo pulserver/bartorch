@@ -174,7 +174,7 @@ class _Pointwise(nn.Module):
         return torch.tanh(self.mix(v)) * s
 
 
-@pytest.mark.parametrize("shift", [False, True])
+@pytest.mark.parametrize("shift", [False, True, "circular"])
 def test_patchwise_application_of_a_voxel_wise_network_is_the_whole_application(device, shift):
     torch.manual_seed(0)
     net = _Pointwise()
@@ -213,6 +213,68 @@ def test_patchwise_inference_from_the_host_is_the_whole_application(device, over
         made = patchwise(x, sigma)
         assert made.device == x.device
         assert torch.allclose(made, whole(x, sigma), atol=1e-6)
+
+
+class _Counting(nn.Module):
+    """A voxel-wise network without a bias, so zero in is zero out, counting its patches."""
+
+    def __init__(self):
+        super().__init__()
+        self.mix = nn.Conv3d(4, 4, 1, bias=False)
+        self.seen = 0
+
+    def forward(self, v):
+        self.seen += v.shape[0]
+        return torch.tanh(self.mix(v))
+
+
+@pytest.mark.parametrize("seed", range(4))
+def test_a_rolled_grid_keeps_a_volume_of_whole_patches_at_its_own_count(seed):
+    """Padding for the offset costs a layer of patches along each offset axis; rolling does not."""
+    x = torch.randn(1, 4, 8, 8, 8)
+    seen = {}
+    for shift in (True, "circular"):
+        torch.manual_seed(seed)
+        offset = [int(torch.randint(4, ())) for _ in range(3)]
+        torch.manual_seed(seed)
+        net = _Counting()
+        torch.manual_seed(seed)
+        with torch.no_grad():
+            made = learning.Patchwise(net, patch=(4, 4, 4), device="cpu", shift=shift)(x)
+            seen[shift] = net.seen
+            torch.testing.assert_close(made, net(x), rtol=1e-6, atol=1e-6)
+    assert seen["circular"] == 8
+    assert seen[True] == 8 * math.prod(3 / 2 if o else 1 for o in offset)
+
+
+@pytest.mark.parametrize("shift", [False, "circular"])
+def test_empty_patches_are_left_out_of_the_network(device, shift):
+    torch.manual_seed(0)
+    net = _Counting()
+    patchwise = learning.Patchwise(net, patch=(4, 4, 4), device=device, shift=shift, skip_zero=True)
+    x = torch.zeros(1, 4, 8, 8, 8)
+    x[..., 1:3, 2:4, 1:3] = torch.randn(1, 4, 2, 2, 2)
+    with torch.no_grad():
+        made = patchwise(x)
+    assert net.seen == 1 if shift is False else 1 <= net.seen <= 8
+    torch.testing.assert_close(made, net.to("cpu")(x), rtol=1e-6, atol=1e-6)
+    net.seen = 0
+    with torch.no_grad():
+        assert torch.equal(patchwise(torch.zeros_like(x)), torch.zeros_like(x))
+    assert net.seen == 0
+
+
+def test_a_shift_is_a_bool_or_circular():
+    with pytest.raises(ValueError, match="circular"):
+        learning.Patchwise(nn.Identity(), (4, 4), device="cpu", shift="wrap")
+
+
+def test_autotuning_is_scoped_to_the_call():
+    before = torch.backends.cudnn.benchmark
+    patchwise = learning.Patchwise(nn.Identity(), (4, 4), device="cpu", autotune=True)
+    patchwise(torch.randn(1, 1, 8, 8))
+    assert torch.backends.cudnn.benchmark == before
+    assert "autotune=True" in repr(patchwise)
 
 
 def test_the_network_is_put_back_on_its_device_if_moved():

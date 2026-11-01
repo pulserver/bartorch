@@ -25,6 +25,7 @@ from bartorch.optim._linear import (
     PRIDU,
     Tikhonov,
     maxeigen,
+    mean_diagonal,
 )
 from bartorch.optim._pocs import POCS, POCSBlock
 from bartorch.optim._scaling import data_scaling
@@ -50,5 +51,6 @@ __all__ = [
     "ist",
     "pocs",
     "maxeigen",
+    "mean_diagonal",
     "pridu",
 ]
