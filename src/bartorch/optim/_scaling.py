@@ -18,6 +18,7 @@ def data_scaling(
     A=None,
     percentile: float | None = None,
     compat: bool = False,
+    adjoint: torch.Tensor | None = None,
 ) -> float:
     """Estimate the factor by which BART's reconstructions divide the data.
 
@@ -39,6 +40,9 @@ def data_scaling(
         Percentile of the sorted magnitudes to take in place of BART's rule.
     compat : bool, default=False
         Take the median, BART's legacy estimate.  Only with ``A``.
+    adjoint : torch.Tensor, default=None
+        ``A^H y`` when the caller has it already, as a solve's start does;
+        ``A`` is then not applied again.  Only with ``A``.
 
     Returns
     -------
@@ -74,7 +78,8 @@ def data_scaling(
         estimate = _estscaling(y, **({} if percentile is None else {"percentile": percentile}))
         return float(estimate.reshape(-1)[0].abs())
 
-    adjoint = A.adjoint(y)
+    if adjoint is None:
+        adjoint = A.adjoint(y)
     image = as_operand(adjoint, tuple(adjoint.shape), "the adjoint image")
     magnitudes = image.reshape(-1).abs()
     card = getattr(A, "device", None)
