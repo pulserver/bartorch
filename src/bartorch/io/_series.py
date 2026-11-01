@@ -56,6 +56,7 @@ _PHASE_RANGES = (
 
 #: Fraction of an assumed span the phase of an image has to fill.  Wrapped phase
 #: fills its span: the noise outside the object alone is spread over all of it.
+_MIN_LEVELS = 256
 _COVERAGE = 0.8
 
 
@@ -132,7 +133,9 @@ def read_series(
     integer type after its rescale, else the values' own span.  Wrapped phase fills its
     span, so a warning is issued when the values fill less than 80% of the span
     used, or fall outside a given one: a reconstruction of one's own may scale
-    phase in a way no rule can guess.
+    phase in a way no rule can guess.  A warning is also issued when the phase
+    takes fewer than 256 distinct values: phase rounded on export (to whole
+    radians, say) carries no field.
 
     Parameters
     ----------
@@ -377,6 +380,7 @@ def _combine(
         return parts["MAGNITUDE"].astype(np.float32, copy=False), None
     stored = parts["PHASE"]
     span = _phase_span(stored, phase_range, ranges)
+    _check_levels(stored, span)
     low, high = span
     phase = (stored - np.float32(low)) * np.float32(2 * math.pi / (high - low)) - np.float32(
         math.pi
@@ -389,6 +393,23 @@ def _combine(
         magnitude = np.ones_like(stored)
     image = magnitude * np.exp(1j * phase)
     return image.astype(np.complex64), span
+
+
+def _check_levels(stored: np.ndarray, span: tuple[float, float]) -> None:
+    """Warn when the phase takes few distinct values: rounded on export (to whole radians,
+    say), it no longer carries a field."""
+    finite = stored[np.isfinite(stored)].ravel()
+    if finite.size > 1_000_000:
+        finite = finite[:: finite.size // 1_000_000]
+    levels = np.unique(finite).size
+    if levels < min(_MIN_LEVELS, finite.size // 4):
+        spread = float(finite.max() - finite.min()) / (span[1] - span[0])
+        step = 2 * math.pi * spread / max(levels - 1, 1)
+        warnings.warn(
+            f"the phase holds only {levels} distinct values, about {step:.2g} rad apart: "
+            "it looks rounded on export and cannot give a field map",
+            stacklevel=4,
+        )
 
 
 def _phase_span(
