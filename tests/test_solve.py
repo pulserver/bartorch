@@ -790,6 +790,17 @@ def test_the_scaling_by_selection_is_bart_sorting_the_magnitudes(compat, percent
     assert got == pytest.approx(want, rel=1e-6)
 
 
+def test_a_given_adjoint_is_the_scaling_of_the_data_it_came_from():
+    n = 16
+    traj = bt.traj(readout=n, spokes=24, radial=True)
+    A = linop.NoncartesianSense(_rand(2, n, n), (n, n), traj=traj)
+    y = A(_rand(n, n))
+    want = optim.data_scaling(y, A=A)
+    given = A.adjoint(y)
+    assert optim.data_scaling(y, A=A, adjoint=given) == pytest.approx(want, rel=1e-6)
+    assert optim.data_scaling(None, A=A, adjoint=2 * given) == pytest.approx(2 * want, rel=1e-6)
+
+
 def test_the_scaling_of_nothing_is_zero_and_a_percentile_is_a_fraction():
     from bartorch.optim._scaling import _scaling_norm
 
@@ -1045,8 +1056,17 @@ def test_the_mean_diagonal_is_the_trace_over_the_size(_small_encoding):
     exact = float(torch.diagonal(M.conj().T @ M).real.mean())
     assert abs(optim.mean_diagonal(A, probes=64) - exact) / exact < 0.05
     assert optim.mean_diagonal(A, seed=3) == optim.mean_diagonal(A, seed=3)
+    assert optim.mean_diagonal(A, seed=3, device="cpu") == optim.mean_diagonal(A, seed=3)
     with pytest.raises(ValueError, match="at least one probe"):
         optim.mean_diagonal(A, probes=0)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="needs a card")
+def test_the_mean_diagonal_on_the_card_is_the_trace_over_the_size(_small_encoding):
+    A, _ = _small_encoding
+    M = _dense(A)
+    exact = float(torch.diagonal(M.conj().T @ M).real.mean())
+    assert abs(optim.mean_diagonal(A, probes=64, device="cuda") - exact) / exact < 0.05
 
 
 def test_a_solve_placed_elsewhere_moves_its_operands_and_returns_home():

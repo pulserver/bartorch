@@ -232,7 +232,7 @@ def maxeigen(
     return float(value.value)
 
 
-def mean_diagonal(A, *, probes: int = 1, seed: int = 0) -> float:
+def mean_diagonal(A, *, probes: int = 1, seed: int = 0, device=None) -> float:
     r"""Estimate the mean of the diagonal of :math:`A^H A` from random probes (Hutchinson).
 
     For a probe :math:`v` of independent standard complex normal entries,
@@ -252,7 +252,12 @@ def mean_diagonal(A, *, probes: int = 1, seed: int = 0) -> float:
         :math:`1/\sqrt{n}` for an operator of :math:`n` unknowns with a flat
         diagonal, so a volume needs one.
     seed : int, default=0
-        Seed of the host generator the probes are drawn from.
+        Seed of the generator the probes are drawn from.
+    device : torch.device or str, default=None
+        Where the probes are drawn, applied and reduced; on the host when
+        omitted.  On the operator's card a volume's probe never crosses the
+        bus, and the generator is the card's, so the estimate differs from the
+        host's by the probe's spread.
 
     Returns
     -------
@@ -265,10 +270,11 @@ def mean_diagonal(A, *, probes: int = 1, seed: int = 0) -> float:
     """
     if probes < 1:
         raise ValueError(f"the estimate takes at least one probe, not {probes}")
-    generator = torch.Generator().manual_seed(int(seed))
+    on = torch.device("cpu" if device is None else device)
+    generator = torch.Generator(device=on).manual_seed(int(seed))
     total = 0.0
     for _ in range(int(probes)):
-        v = torch.randn(A.ishape, dtype=torch.complex64, generator=generator)
+        v = torch.randn(A.ishape, dtype=torch.complex64, generator=generator, device=on)
         total += float(torch.vdot(v.reshape(-1), A.normal(v).reshape(-1)).real / v.norm() ** 2)
     return total / probes
 
