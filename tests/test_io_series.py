@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import warnings
 
 import nibabel
 import numpy as np
@@ -437,3 +438,25 @@ def test_a_dcm2niix_export_pairs_a_4d_magnitude_with_per_echo_phase(tmp_path):
     np.testing.assert_allclose(read.acquisition.echo_time.numpy(), [4.0, 9.0])
     assert read.acquisition.phase_range == (-4096.0, 4096.0)
     _assert_phase(read.image, 2)
+
+
+def test_phase_rounded_on_export_is_warned_about(tmp_path):
+    """Phase rounded to whole radians (as some NIfTI exports store it) has a handful of
+    values and no field left in it."""
+    magnitude = _nifti(
+        tmp_path / "a_part-mag.nii", _magnitude(0).astype(np.float32), EchoTime=0.005
+    )
+    rounded = np.rint(_phase(0)).astype(np.int16)
+    phase = _nifti(tmp_path / "a_part-phase.nii", rounded, EchoTime=0.005)
+    with pytest.warns(UserWarning, match="distinct values"):
+        io.read_series([magnitude, phase])
+
+
+def test_phase_with_many_levels_reads_without_warning(tmp_path):
+    magnitude = _nifti(
+        tmp_path / "a_part-mag.nii", _magnitude(0).astype(np.float32), EchoTime=0.005
+    )
+    phase = _nifti(tmp_path / "a_part-phase.nii", _phase(0).astype(np.float32), EchoTime=0.005)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        io.read_series([magnitude, phase])
