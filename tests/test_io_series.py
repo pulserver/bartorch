@@ -460,3 +460,12 @@ def test_phase_with_many_levels_reads_without_warning(tmp_path):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         io.read_series([magnitude, phase])
+
+
+def test_rounded_phase_is_found_in_a_large_volume():
+    from bartorch.io._series import _check_levels
+
+    rng = np.random.default_rng(0)
+    rounded = np.rint(rng.uniform(-np.pi, np.pi, 1_200_000)).astype(np.int16)
+    with pytest.warns(UserWarning, match="7 distinct values"):
+        _check_levels(rounded, (-math.pi, math.pi))
