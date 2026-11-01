@@ -834,7 +834,7 @@ def test_sampled_positions_are_checked(maps, positions_2d):
     with pytest.raises(ValueError, match="pattern or positions"):
         linop.CartesianSense(maps, (Y, X), pattern=torch.ones(Y, 1), positions=positions_2d)
     with pytest.raises(ValueError, match="indices"):
-        linop.CartesianSense(maps, (Y, X), positions=torch.zeros(4, 2, dtype=torch.long))
+        linop.CartesianSense(maps, (Y, X), positions=torch.zeros(4, 3, dtype=torch.long))
     with pytest.raises(ValueError, match="outside"):
         linop.CartesianSense(maps, (Y, X), positions=torch.full((4, 1), Y))
     with pytest.raises(ValueError, match="basis"):
@@ -893,6 +893,119 @@ def test_on_a_card_a_2d_sampled_encoding_is_the_host_one(maps, positions_2d):
         samples = _rand(*A.oshape)
         want = host.adjoint(samples)
         assert (A.adjoint(samples) - want).abs().max() / want.abs().max() < 1e-5
+
+
+# --- single samples on the grid ---------------------------------------------
+#
+# A position with one index more than the phase encodes -- (z, y, x) in 3D --
+# is one sample on the grid, as gridded non-Cartesian samples are; a weight
+# per position multiplies it and enters the normal squared.
+
+
+def _points(frames, shots, shape, seed):
+    """Positions (frames, shots, 3), some repeated, the second frame padded, and a weight each."""
+    torch.manual_seed(seed)
+    out = torch.stack([torch.randint(0, n, (frames, shots)) for n in shape], -1)
+    out[1, -2:] = -1
+    weights = (torch.rand(frames, shots) + 0.5).to(torch.complex64)
+    return out, weights
+
+
+def _read_points(spectra, positions, weights, b):
+    """(coils, coeffs, z, y, x) spectra read at the positions, contracted with b."""
+    frames, shots = positions.shape[:2]
+    out = torch.zeros(spectra.shape[0], frames, shots, dtype=spectra.dtype)
+    for t in range(frames):
+        for s in range(shots):
+            z, y, x = (int(i) for i in positions[t, s])
+            if z >= 0:
+                out[:, t, s] = weights[t, s] * (b[:, t] * spectra[:, :, z, y, x]).sum(1)
+    return out
+
+
+def _points_pattern(positions, weights, shape):
+    """The dense pattern with the same normal: per frame, the root of the summed squared weights."""
+    frames, shots = positions.shape[:2]
+    out = torch.zeros(frames, *shape, dtype=torch.float64)
+    for t in range(frames):
+        for s in range(shots):
+            index = tuple(int(i) for i in positions[t, s])
+            if min(index) >= 0:
+                out[(t, *index)] += float(weights[t, s].abs()) ** 2
+    return out.sqrt().to(torch.complex64)
+
+
+def test_points_are_the_dense_spectrum_at_the_positions_and_the_normal_is_the_dense_one():
+    coils, z, y, x, frames, coeffs, shots = 3, 4, 6, 5, 5, 2, 30
+    torch.manual_seed(21)
+    maps, b, image = _rand(coils, z, y, x), _rand(coeffs, frames), _rand(coeffs, z, y, x)
+    positions, weights = _points(frames, shots, (z, y, x), 22)
+    A = linop.CartesianSense(maps, (coeffs, z, y, x), positions=positions, weights=weights, basis=b)
+    assert A.oshape == (coils, frames, shots)
+
+    want = _read_points(_fftc(maps[:, None] * image, (-3, -2, -1)), positions, weights, b)
+    got = A(image)
+    assert (got - want).abs().max() / want.abs().max() < 1e-5
+    assert _adjointness(A) < 1e-5
+
+    slow = linop.CartesianSense(
+        maps, (coeffs, z, y, x), positions=positions, weights=weights, basis=b, toeplitz=False
+    )
+    dense = linop.CartesianSense(
+        maps, (coeffs, z, y, x), pattern=_points_pattern(positions, weights, (z, y, x)), basis=b
+    )
+    want = slow.adjoint(slow(image))
+    for got in (A.normal(image), dense.normal(image)):
+        assert (got - want).abs().max() / want.abs().max() < 1e-5
+
+
+def test_points_in_2d_without_a_basis_or_weights(maps):
+    torch.manual_seed(23)
+    positions = torch.stack([torch.randint(0, Y, (12,)), torch.randint(0, X, (12,))], -1)
+    A = linop.CartesianSense(maps, (Y, X), positions=positions)
+    assert A.oshape == (COILS, 12)
+    image = _rand(Y, X)
+    want = A.adjoint(A(image))
+    assert (A.normal(image) - want).abs().max() / want.abs().max() < 1e-5
+    assert _adjointness(A) < 1e-5
+
+
+def test_points_are_checked(maps):
+    with pytest.raises(ValueError, match="k-space along every axis"):
+        linop.CartesianSense(
+            maps, (Y, X), positions=torch.zeros(4, 2, dtype=torch.long), readout="image"
+        )
+    with pytest.raises(ValueError, match="weights of"):
+        linop.CartesianSense(
+            maps, (Y, X), positions=torch.zeros(4, 2, dtype=torch.long), weights=torch.ones(3)
+        )
+
+
+@requires_cuda
+def test_on_a_card_points_run_through_cufft_and_are_the_host_ones():
+    coils, z, y, x, frames, coeffs, shots = 3, 4, 6, 5, 5, 2, 30
+    torch.manual_seed(24)
+    maps, b, image = _rand(coils, z, y, x), _rand(coeffs, frames), _rand(coeffs, z, y, x)
+    positions, weights = _points(frames, shots, (z, y, x), 25)
+    kwargs = dict(positions=positions, weights=weights, basis=b)
+    A = linop.CartesianSense(maps, (coeffs, z, y, x), device="cuda", **kwargs)
+    host = linop.CartesianSense(maps, (coeffs, z, y, x), **kwargs)
+
+    before = library().bartorch_grid_fused()
+    got = A(image)
+    assert library().bartorch_grid_fused() > before, "the forward ran through cuFFT's callbacks"
+    want = host(image)
+    assert (got - want).abs().max() / want.abs().max() < 1e-5
+
+    samples = _rand(*A.oshape)
+    want = host.adjoint(samples)
+    assert (A.adjoint(samples) - want).abs().max() / want.abs().max() < 1e-5
+
+    before = library().bartorch_grid_fused()
+    got = A.normal(image)
+    assert library().bartorch_grid_fused() > before, "the normal ran through cuFFT's callbacks"
+    want = host.normal(image)
+    assert (got - want).abs().max() / want.abs().max() < 1e-5
 
 
 # --- wave in the coil loop ---------------------------------------------------

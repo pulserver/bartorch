@@ -315,13 +315,17 @@ struct bartorch_encoding {
 	/* A table of the phase encodes that were sampled, instead of a dense
 	 * pattern: `frames` x `shots` places of `components` indices
 	 * each -- (y) for a 2D image, (z, y) for a 3D one, -1 for padding --
-	 * with the whole readout along each.  `kspace_readout` says the
+	 * with the whole readout along each; or, with one index more, (y, x)
+	 * or (z, y, x), single samples on the grid.  `kspace_readout` says the
 	 * samples are in k-space along the readout rather than transformed
-	 * back along it.  NULL `positions` is dense samples. */
+	 * back along it.  NULL `positions` is dense samples.
+	 * `position_weights`, `frames` x `shots` complex floats or NULL,
+	 * weight each entry: forward by itself, on the adjoint conjugated. */
 	int64_t frames;
 	int64_t shots;
 	int components;
 	const int64_t* positions;
+	const void* position_weights;
 	int kspace_readout;
 
 	/* A wave: the oversampled readout the coil images are zero-filled to,

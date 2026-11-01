@@ -199,10 +199,12 @@ class _CartesianNative(_Segmentable, _GridSense):
         return build_form(self, self._form())
 
 
-def _checked_positions(positions, frames, encodes) -> torch.Tensor:
+def _checked_positions(positions, frames, encodes, readout=None) -> torch.Tensor:
     """Positions as int64 on the host, checked against the frames a basis has and the phase encodes.
 
-    Checked before the operator is built, which happens as it is made.
+    With ``readout``, the readout's length, a position may also carry one
+    index more, along it: a single sample on the grid.  Checked before the
+    operator is built, which happens as it is made.
     """
     pos = torch.as_tensor(positions)
     if pos.is_floating_point() or pos.is_complex():
@@ -215,6 +217,8 @@ def _checked_positions(positions, frames, encodes) -> torch.Tensor:
         raise ValueError(f"positions over frames {lead} need a basis to contract them")
     if frames is not None and lead != (frames,):
         raise ValueError(f"positions over frames {lead}, and a basis of {frames}")
+    if readout is not None and pos.shape[-1] == len(encodes) + 1:
+        encodes = (*encodes, readout)
     if pos.shape[-1] != len(encodes):
         raise ValueError(
             f"positions of {pos.shape[-1]} indices, "
@@ -238,6 +242,13 @@ class _CartesianSampled(_GridSense):
     nothing the size of the phase-encode plane is held for them.  The
     transforms, the basis and the normal are :class:`_CartesianNative`'s, over
     the pattern the positions stand for.
+
+    With one index more -- ``(y, x)``, ``(z, y, x)`` -- each position is a
+    single sample on the grid, as gridded non-Cartesian samples are, and the
+    samples are ``(*batches, coils, [frames,] shots)``.  The normal's kernel
+    is then summed from the samples and kept only where they fall, and the
+    normal transforms every spatial axis: one grid, not the doubled one a
+    NUFFT's Toeplitz normal needs.
     """
 
     def __init__(
@@ -248,6 +259,7 @@ class _CartesianSampled(_GridSense):
         basis,
         readout="kspace",
         toeplitz=True,
+        weights=None,
         **kwargs,
     ):
         from bartorch.linop._sense import _grid_ndim
@@ -263,7 +275,18 @@ class _CartesianSampled(_GridSense):
             sensitivities, image_shape, kwargs.get("kernels", False), kwargs.get("ndim")
         )
         encodes = tuple(image_shape)[len(image_shape) - ndim : -1]
-        self._positions = _checked_positions(positions, frames, encodes)
+        self._positions = _checked_positions(positions, frames, encodes, int(image_shape[-1]))
+        self._points = self._positions.shape[-1] == len(encodes) + 1
+        if self._points and readout != "kspace":
+            raise ValueError("samples on the grid are in k-space along every axis")
+        self._position_weights = None
+        if weights is not None:
+            w = torch.as_tensor(weights)
+            if tuple(w.shape) != tuple(self._positions.shape[:-1]):
+                raise ValueError(
+                    f"weights of {tuple(w.shape)}, for positions of {tuple(self._positions.shape)}"
+                )
+            self._position_weights = w.to(device="cpu", dtype=torch.complex64).contiguous()
         self._kspace_readout = readout == "kspace"
         self._grid_toeplitz = bool(toeplitz)
         super().__init__(sensitivities, image_shape, **kwargs)
@@ -278,10 +301,12 @@ class _CartesianSampled(_GridSense):
         return self._grid_basis is not None
 
     def _kspace_tail(self):
-        return (*self.encoding, int(self._positions.shape[-2]), int(self.spatial[-1]))
+        readout = () if self._points else (int(self.spatial[-1]),)
+        return (*self.encoding, int(self._positions.shape[-2]), *readout)
 
     def _kspace_vector(self):
-        base = {1: self.spatial[-1], 2: int(self._positions.shape[-2]), _layout.COIL: self.coils}
+        readout = 1 if self._points else self.spatial[-1]
+        base = {1: readout, 2: int(self._positions.shape[-2]), _layout.COIL: self.coils}
         return self._encoding_vector(base, self.encoding)
 
     def _form(self) -> Form:
@@ -295,6 +320,7 @@ class _CartesianSampled(_GridSense):
             kernels=self.kernels,
             basis=None if b is None else Array(b, bvec),
             positions=pos,
+            position_weights=self._position_weights,
             frames=1 if b is None else int(b.shape[1]),
             shots=int(pos.shape[-2]),
             components=int(pos.shape[-1]),
@@ -851,6 +877,14 @@ def CartesianSense(  # noqa: N802  (it is a constructor)
         encodes, ``([frames,] shots, d)`` with ``d`` indexing ``(y,)`` in 2D or
         ``(z, y)`` in 3D, and ``-1`` padding frames with fewer shots.  The
         samples are then ``(*batches, [batch,] coils, [frames,] shots, x)``.
+        With ``d`` one more, indexing ``(y, x)`` or ``(z, y, x)``, each
+        position is a single sample on the grid -- gridded non-Cartesian
+        samples, say -- and the samples are ``(*batches, [batch,] coils,
+        [frames,] shots)``.
+    weights : tensor, default=None
+        With ``positions``, a weight per position ``([frames,] shots)``, such
+        as the square root of a density compensation: it multiplies the
+        samples, conjugated on the adjoint, and enters the normal squared.
     readout : {"kspace", "image"}, default='kspace'
         With ``positions``, whether the samples are in k-space along the
         readout or already inverse-transformed along it (hybrid space).

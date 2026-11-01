@@ -198,7 +198,10 @@ class Form:
         and leaves this as the image's.
     positions : tensor, optional
         Phase-encode places as int64 ``(frames, shots, components)``, ``-1``
-        for padding, instead of a dense pattern.
+        for padding, instead of a dense pattern; with one component more than
+        the phase-encode axes, single samples on the grid.
+    position_weights : tensor, optional
+        complex64 ``(frames, shots)`` weights of the positions' entries.
     coeffs : int
         Coefficients the image carries, for the plan's report alone.
     stacked : bool
@@ -225,6 +228,7 @@ class Form:
     stack_positions: torch.Tensor | None = None
     item_vector: tuple[int, ...] | None = None
     positions: torch.Tensor | None = None
+    position_weights: torch.Tensor | None = None
     frames: int = 1
     shots: int = 0
     components: int = 0
@@ -306,6 +310,9 @@ class Form:
             out.append(
                 Factor("positions", tuple(self.positions.shape), ("frames", "samples"), "table")
             )
+        if self.position_weights is not None:
+            shape = tuple(self.position_weights.shape)
+            out.append(Factor("position weights", shape, ("frames", "samples"), "table"))
         if self.weights is not None:
             out.append(Factor("weights", tuple(self.weights.tensor.shape), ("samples",)))
         if self.slice_phase is not None:
@@ -388,6 +395,8 @@ class Form:
         s.shots = int(self.shots)
         s.components = int(self.components)
         s.positions = 0 if self.positions is None else self.positions.data_ptr()
+        w = self.position_weights
+        s.position_weights = 0 if w is None else w.data_ptr()
         s.kspace_readout = int(self.kspace_readout)
 
         s.readout = int(self.readout)
@@ -435,7 +444,8 @@ class Form:
             self.slice_phase,
         )
         out = [a.tensor for a in arrays if a is not None]
-        out += [t for t in (self.positions, self.psf, self.stack_positions) if t is not None]
+        held = (self.positions, self.position_weights, self.psf, self.stack_positions)
+        out += [t for t in held if t is not None]
         if self.contraction is not None:
             out += [self.contraction.sample.tensor, self.contraction.image.tensor]
         return (*out, *self._keep)

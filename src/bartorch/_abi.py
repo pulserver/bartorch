@@ -65,6 +65,7 @@ class Encoding(ctypes.Structure):
         ("shots", ctypes.c_int64),
         ("components", ctypes.c_int),
         ("positions", ctypes.c_void_p),
+        ("position_weights", ctypes.c_void_p),
         ("kspace_readout", ctypes.c_int),
         ("readout", ctypes.c_int64),
         ("psf", ctypes.c_void_p),

@@ -358,11 +358,13 @@ __device__ static inline bart_dim_t grid_spectrum_at(const struct bartorch_grid_
 	return (0 > j) ? -1 : batch * L + j;
 }
 
-/* table[e X + x] = centring * sum_r B[t R + r] bank[r per + at(x, place of e)],
- * with t = e / S, zero for a padding entry.  B NULL is one coefficient. */
+/* table[e X + x] = W[e] * centring * sum_r B[t R + r] bank[r per + at(x0 + x, place of e)],
+ * with t = e / S, zero for a padding entry.  B NULL is one coefficient, W
+ * NULL no weights; a place's coordinates are (z, y, x0). */
 __global__ static void kern_bank_to_table(bart_dim_t E, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* entry_u, const int* u_coord, const unsigned int* mask, const int* prefix,
-		struct bartorch_grid_axes ax, const cuFloatComplex* B, const cuFloatComplex* bank, cuFloatComplex* table)
+		struct bartorch_grid_axes ax, const cuFloatComplex* B, const cuFloatComplex* W,
+		const cuFloatComplex* bank, cuFloatComplex* table)
 {
 	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
 	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
@@ -377,10 +379,13 @@ __global__ static void kern_bank_to_table(bart_dim_t E, bart_dim_t X, bart_dim_t
 
 		if (0 <= u) {
 
-			bart_dim_t c[3] = { i - e * X, u_coord[2 * u + 1], u_coord[2 * u] };
+			bart_dim_t c[3] = { u_coord[3 * u + 2] + i - e * X, u_coord[3 * u + 1], u_coord[3 * u] };
 
 			cuFloatComplex m;
 			bart_dim_t at = grid_spectrum_at(&ax, L, mask, prefix, c, &m);
+
+			if (NULL != W)
+				m = cuCmulf(m, W[e]);
 
 			if (0 <= at) {
 
@@ -401,12 +406,13 @@ __global__ static void kern_bank_to_table(bart_dim_t E, bart_dim_t X, bart_dim_t
 	}
 }
 
-/* The adjoint: bank[r per + at(x, u)] = conj(centring) * sum over the entries
- * e of place u of conj(B[t R + r]) table[e X + x].  Each (u, x) is its own
- * place of the spectrum, so no two threads write the same one. */
+/* The adjoint: bank[r per + at(x0 + x, u)] = conj(centring) * sum over the
+ * entries e of place u of conj(W[e] B[t R + r]) table[e X + x].  Each (u, x)
+ * is its own place of the spectrum, so no two threads write the same one. */
 __global__ static void kern_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* csr_start, const int* csr, const int* u_coord, const unsigned int* mask, const int* prefix,
-		struct bartorch_grid_axes ax, const cuFloatComplex* B, cuFloatComplex* bank, const cuFloatComplex* table)
+		struct bartorch_grid_axes ax, const cuFloatComplex* B, const cuFloatComplex* W,
+		cuFloatComplex* bank, const cuFloatComplex* table)
 {
 	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
 	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
@@ -415,7 +421,8 @@ __global__ static void kern_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t
 	for (bart_dim_t i = start; i < n; i += stride) {
 
 		bart_dim_t u = i / X;
-		bart_dim_t c[3] = { i - u * X, u_coord[2 * u + 1], u_coord[2 * u] };
+		bart_dim_t x = i - u * X;
+		bart_dim_t c[3] = { u_coord[3 * u + 2] + x, u_coord[3 * u + 1], u_coord[3 * u] };
 
 		cuFloatComplex m;
 		bart_dim_t at = grid_spectrum_at(&ax, L, mask, prefix, c, &m);
@@ -432,7 +439,10 @@ __global__ static void kern_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t
 			for (bart_dim_t k = csr_start[u]; k < csr_start[u + 1]; k++) {
 
 				bart_dim_t e = csr[k];
-				cuFloatComplex v = table[e * X + c[0]];
+				cuFloatComplex v = table[e * X + x];
+
+				if (NULL != W)
+					v = cuCmulf(cuConjf(W[e]), v);
 
 				acc = cuCaddf(acc, (NULL == B) ? v : cuCmulf(cuConjf(B[(e / S) * R + r]), v));
 			}
@@ -444,20 +454,24 @@ __global__ static void kern_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t
 
 extern "C" void bartorch_cuda_bank_to_table(bart_dim_t E, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* entry_u, const int* u_coord, const unsigned int* mask, const int* prefix,
-		const struct bartorch_grid_axes* ax, const _Complex float* B, const _Complex float* bank, _Complex float* table)
+		const struct bartorch_grid_axes* ax, const _Complex float* B, const _Complex float* W,
+		const _Complex float* bank, _Complex float* table)
 {
 	kern_bank_to_table<<<grid_for(E * X), 256, 0, cuda_get_stream()>>>(E, X, S, R, L, per, entry_u, u_coord,
-			mask, prefix, *ax, (const cuFloatComplex*)B, (const cuFloatComplex*)bank, (cuFloatComplex*)table);
+			mask, prefix, *ax, (const cuFloatComplex*)B, (const cuFloatComplex*)W,
+			(const cuFloatComplex*)bank, (cuFloatComplex*)table);
 
 	CUDA_KERNEL_ERROR;
 }
 
 extern "C" void bartorch_cuda_table_to_bank(bart_dim_t U, bart_dim_t X, bart_dim_t S, int R, bart_dim_t L, bart_dim_t per,
 		const int* csr_start, const int* csr, const int* u_coord, const unsigned int* mask, const int* prefix,
-		const struct bartorch_grid_axes* ax, const _Complex float* B, _Complex float* bank, const _Complex float* table)
+		const struct bartorch_grid_axes* ax, const _Complex float* B, const _Complex float* W,
+		_Complex float* bank, const _Complex float* table)
 {
 	kern_table_to_bank<<<grid_for(U * X), 256, 0, cuda_get_stream()>>>(U, X, S, R, L, per, csr_start, csr, u_coord,
-			mask, prefix, *ax, (const cuFloatComplex*)B, (cuFloatComplex*)bank, (const cuFloatComplex*)table);
+			mask, prefix, *ax, (const cuFloatComplex*)B, (const cuFloatComplex*)W,
+			(cuFloatComplex*)bank, (const cuFloatComplex*)table);
 
 	CUDA_KERNEL_ERROR;
 }
