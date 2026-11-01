@@ -982,7 +982,9 @@ def test_inverse_starts_where_it_is_told(_small_encoding):
     solver = optim.CG(0.1, maxiter=300)
     b = A.adjoint(y)
     x = solver.inverse(b, A)
-    torch.testing.assert_close(optim.CG(0.1, maxiter=1).inverse(b, A, x0=x), x, rtol=1e-3, atol=1e-4)
+    torch.testing.assert_close(
+        optim.CG(0.1, maxiter=1).inverse(b, A, x0=x), x, rtol=1e-3, atol=1e-4
+    )
 
 
 def test_a_device_where_the_data_already_is_changes_nothing(_small_encoding):
@@ -1011,3 +1013,21 @@ def test_the_mean_diagonal_is_the_trace_over_the_size(_small_encoding):
     assert optim.mean_diagonal(A, seed=3) == optim.mean_diagonal(A, seed=3)
     with pytest.raises(ValueError, match="at least one probe"):
         optim.mean_diagonal(A, probes=0)
+
+
+def test_a_solve_placed_elsewhere_moves_its_operands_and_returns_home():
+    """What ``device=`` does around a solve, observed through the operands it is handed."""
+    seen = []
+
+    def solve(b, w):
+        seen.append((b.dtype, None if w is None else w.dtype))
+        return b * 2
+
+    solver = optim.CG(device="cpu")
+    y = torch.ones(3, dtype=torch.complex64)
+    made = solver._placed(solve, y, torch.zeros(3, dtype=torch.complex64))
+    assert made.device == y.device
+    torch.testing.assert_close(made, 2 * y)
+    assert seen == [(torch.complex64, torch.complex64)]
+    assert solver._placed(solve, y, None).device == y.device
+    assert not solver._moves(y)

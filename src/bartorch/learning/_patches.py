@@ -83,7 +83,7 @@ class Patchwise(nn.Module):
     skip_zero : bool, default=False
         Leave the patches that are zero throughout out of the network, zero.
     autotune : bool, default=False
-        On a card, let cuDNN time its convolution algorithms for each new
+        Let cuDNN time its convolution algorithms on a card for each new
         shape (``torch.backends.cudnn.benchmark``) for the length of a call,
         and restore the setting after it.  The first call pays the timing;
         the patches of every later one share their shape.
@@ -202,8 +202,8 @@ class Patchwise(nn.Module):
 
     @contextlib.contextmanager
     def _tuned(self):
-        """cuDNN's algorithm search on for the call, under ``autotune`` on a card."""
-        if not (self.autotune and "cuda" == self.device.type):
+        """cuDNN's algorithm search on for the call, under ``autotune``; the host ignores it."""
+        if not self.autotune:
             yield
             return
         before = torch.backends.cudnn.benchmark
