@@ -331,6 +331,9 @@ bartorch.io
    write_dicom
    read_nifti
    write_nifti
+   read_series
+   Series
+   Acquisition
    readcfl
    writecfl
 
