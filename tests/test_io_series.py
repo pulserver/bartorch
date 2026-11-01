@@ -412,3 +412,28 @@ def test_phase_over_a_whole_signed_type_takes_the_type_as_a_turn(tmp_path):
     read = io.read_series(tmp_path / "int16")
     assert read.acquisition.phase_range == (-32768.0, 32768.0)
     _assert_phase(read.image, 1)
+
+
+def test_a_dcm2niix_export_pairs_a_4d_magnitude_with_per_echo_phase(tmp_path):
+    """As dcm2niix exports it: one 4D magnitude whose sidecar lists ``EchoTimes``,
+    and a phase file per echo in [-4096, 4096); a part with no sidecar takes the
+    other part's timings."""
+    magnitude = np.stack([_magnitude(e) for e in range(2)], axis=0).astype(np.float32)
+    path = tmp_path / "gre_4.nii"
+    nibabel.save(
+        nibabel.Nifti1Image(np.transpose(magnitude, (3, 2, 1, 0)), _affine().numpy()), path
+    )
+    (tmp_path / "gre_4.json").write_text(
+        json.dumps({"EchoTime": 0.004, "EchoTimes": [0.004, 0.009]})
+    )
+    files = [path]
+    for echo in range(2):
+        phase = _siemens_phase(_phase(echo)).astype(np.int16) * 2 - 4096
+        name = tmp_path / f"gre_5_ph_{echo + 1}.nii"
+        nibabel.save(nibabel.Nifti1Image(np.transpose(phase, (2, 1, 0)), _affine().numpy()), name)
+        files.append(name)
+    read = io.read_series(files)
+    assert read.image.shape == (2, *SHAPE)
+    np.testing.assert_allclose(read.acquisition.echo_time.numpy(), [4.0, 9.0])
+    assert read.acquisition.phase_range == (-4096.0, 4096.0)
+    _assert_phase(read.image, 2)

@@ -121,7 +121,9 @@ def read_series(
     tag, Philips's private one, and the values of ``ImageType``; a NIfTI file by
     its sidecar's ``ImageType``, then a BIDS ``part-`` entity, then ``phase``,
     ``real`` or ``imag`` in its name.  An image none of these place is
-    magnitude.  The parts have to cover the same contrasts and slices.
+    magnitude.  The parts have to cover the same contrasts and slices, and agree
+    on every timing both state; a timing one part does not state is taken from
+    another.
 
     Phase is scaled to radians from the span of stored values that stands for
     one turn.  Given ``phase_range``, that span is used.  Otherwise it is the
@@ -280,11 +282,15 @@ def _same(part, shape, keys, part_affine, affine, part_timings, timings) -> None
     if not np.allclose(part_affine.numpy(), affine.numpy(), atol=1e-3):
         raise ValueError(f"the {part.lower()} images lie elsewhere than the others")
     for name, values in timings.items():
-        if not torch.allclose(part_timings[name], values, equal_nan=True, atol=1e-3):
+        theirs = part_timings[name]
+        both = ~(torch.isnan(theirs) | torch.isnan(values))
+        if not torch.allclose(theirs[both], values[both], atol=1e-3):
             raise ValueError(
-                f"the {part.lower()} images have {name} {part_timings[name].tolist()}, "
+                f"the {part.lower()} images have {name} {theirs.tolist()}, "
                 f"the others {values.tolist()}"
             )
+        # A part whose files state no timing takes the other part's.
+        values.copy_(torch.where(torch.isnan(values), theirs, values))
 
 
 def _dicom_part(ds: Any) -> str:
