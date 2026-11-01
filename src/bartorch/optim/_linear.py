@@ -777,7 +777,7 @@ class CG(_Solver):
         """
         from bartorch.linop._base import _tracking
 
-        if self._moves(y):
+        if self._moves(y, A):
             return self._placed(lambda b, w: self(b, A, w, steps=steps), y, x0)
 
         made = _item_by_item(self, y, A, x0, steps=steps)
@@ -872,7 +872,7 @@ class CG(_Solver):
         backward pass of a call solves through the same route, so it costs
         what the forward pass does.  No gradient is recorded.
         """
-        if self._moves(b):
+        if self._moves(b, A):
             return self._placed(lambda r, w: self.inverse(r, A, w), b, x0)
         normal = A.gram()
         for term in self.terms:
@@ -901,8 +901,15 @@ class CG(_Solver):
             **self._settings(),
         )
 
-    def _moves(self, y: torch.Tensor) -> bool:
-        return self.device is not None and not _same_device(y.device, self.device)
+    def _moves(self, y: torch.Tensor, A=None) -> bool:
+        if self.device is None or _same_device(y.device, self.device):
+            return False
+        built = getattr(A, "device", None)
+        if self.device.type == "cuda" and (built is None or torch.device(built).type != "cuda"):
+            raise ValueError(
+                f"a solve on {self.device} needs an encoding built there; this one is on the host"
+            )
+        return True
 
     def _placed(self, solve, y: torch.Tensor, x0: torch.Tensor | None) -> torch.Tensor:
         """``solve(y, x0)`` with both on :attr:`device`, the image brought back to ``y``'s."""

@@ -807,6 +807,11 @@ def test_the_scaling_of_nothing_is_zero_and_a_percentile_is_a_fraction():
     assert _scaling_norm(torch.empty(0), False, None) == 0.0
     with pytest.raises(ValueError, match="fraction"):
         _scaling_norm(torch.ones(4), False, 1.5)
+    m = torch.rand(1001, generator=torch.Generator().manual_seed(0)).square()
+    for compat, percentile in ((False, None), (True, None), (False, 0.99)):
+        assert _scaling_norm(m, compat, percentile, sort=True) == _scaling_norm(
+            m, compat, percentile, sort=False
+        )
 
 
 def test_a_wavelet_term_reused_answers_as_a_freshly_built_one():
@@ -1040,23 +1045,29 @@ def test_a_device_where_the_data_already_is_changes_nothing(_small_encoding):
     assert "device='cpu'" in repr(optim.CG(device="cpu"))
 
 
-def test_a_device_without_an_index_is_the_same_device():
+def test_a_device_without_an_index_is_the_same_device(_small_encoding):
     from bartorch.optim._linear import _same_device
 
     cpu = torch.device("cpu")
     assert _same_device(cpu, torch.device("cpu"))
     assert not _same_device(cpu, torch.device("cuda"))
     assert not optim.CG(0.1, device="cpu")._moves(torch.zeros(2))
+    host, y = _small_encoding
+    with pytest.raises(ValueError, match="built there"):
+        optim.CG(0.1, device="cuda")(y, host)
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="needs a card")
 def test_the_vectors_of_a_solve_on_a_card_come_back_to_the_host(_small_encoding):
-    A, y = _small_encoding
+    host, y = _small_encoding
+    torch.manual_seed(0)
+    A = linop.CartesianSense(_rand(3, 8, 8), (8, 8), device="cuda")
     on_card = optim.CG(0.1, maxiter=30, device="cuda")
-    b = A.adjoint(y)
+    b = host.adjoint(y)
+    want = optim.CG(0.1, maxiter=30)(y, host)
     for made in (on_card(y, A), on_card.inverse(b, A, x0=torch.zeros_like(b))):
         assert made.device == y.device
-        torch.testing.assert_close(made, optim.CG(0.1, maxiter=30)(y, A), rtol=1e-3, atol=1e-4)
+        torch.testing.assert_close(made, want, rtol=1e-3, atol=1e-4)
 
 
 def test_the_mean_diagonal_is_the_trace_over_the_size(_small_encoding):
@@ -1103,7 +1114,7 @@ def test_a_solve_on_another_device_is_the_same_solve(_small_encoding, monkeypatc
     solver = optim.CG(0.1, maxiter=9, device="cpu")
     asked = []
 
-    def moves(data):
+    def moves(data, A=None):
         asked.append(data.shape)
         return len(asked) == 1
 
