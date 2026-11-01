@@ -1040,6 +1040,15 @@ def test_a_device_where_the_data_already_is_changes_nothing(_small_encoding):
     assert "device='cpu'" in repr(optim.CG(device="cpu"))
 
 
+def test_a_device_without_an_index_is_the_same_device():
+    from bartorch.optim._linear import _same_device
+
+    cpu = torch.device("cpu")
+    assert _same_device(cpu, torch.device("cpu"))
+    assert not _same_device(cpu, torch.device("cuda"))
+    assert not optim.CG(0.1, device="cpu")._moves(torch.zeros(2))
+
+
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="needs a card")
 def test_the_vectors_of_a_solve_on_a_card_come_back_to_the_host(_small_encoding):
     A, y = _small_encoding
