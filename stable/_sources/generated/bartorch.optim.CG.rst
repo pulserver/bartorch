@@ -9,4 +9,6 @@
 
    .. automethod:: __call__
 
+   .. automethod:: inverse
+
 

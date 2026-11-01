@@ -42,6 +42,7 @@ Terms are the objects of {mod}`bartorch.priors`; an
 | {obj}`~bartorch.optim.ADMM` | Alternating direction method of multipliers |
 | {obj}`~bartorch.optim.PRIDU` | Chambolle-Pock primal-dual iteration |
 | {obj}`~bartorch.optim.maxeigen` | Power-iteration estimate of the largest eigenvalue of $A^H A$ |
+| {obj}`~bartorch.optim.mean_diagonal` | Hutchinson estimate of the mean diagonal of $A^H A$, the scale of a penalty |
 
 ## Projection methods
 

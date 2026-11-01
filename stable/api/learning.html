@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=e3e4e611"></script>
+    <script src="../_static/documentation_options.js?v=5818640c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.19';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="prev" title="Reconstruction pipelines" href="apps.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.18" />
+  <meta name="docsearch:version" content="v0.0.19" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -546,7 +546,7 @@ backward strategy uses.</p>
 <td><p>A real network applied to complex images, their leading axes and real and imaginary parts as its channels, normalized by the peak or whitened</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Patchwise</span></code></a></p></td>
-<td><p>A network applied patch by patch on a device, with a randomly shifted grid and mixed precision, to an image held elsewhere</p></td>
+<td><p>A network applied patch by patch on a device, with a randomly shifted or rolled grid, empty patches skipped and mixed precision, to an image held elsewhere</p></td>
 </tr>
 </tbody>
 </table>

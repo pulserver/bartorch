@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=e3e4e611"></script>
+    <script src="../_static/documentation_options.js?v=5818640c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.19';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.18" />
+  <meta name="docsearch:version" content="v0.0.19" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -503,6 +503,7 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.CG"><code class="docutils literal notranslate"><span class="pre">CG</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.CG.__call__"><code class="docutils literal notranslate"><span class="pre">CG.__call__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.CG.inverse"><code class="docutils literal notranslate"><span class="pre">CG.inverse()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -540,6 +541,12 @@
 <code class="docutils literal notranslate"><span class="pre">cclambda</span></code>).</p></li>
 <li><p><strong>precond</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a><em>, </em><em>default=None</em>) – Left preconditioner <span class="math notranslate nohighlight">\(M\)</span> from <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code> to itself, positive
 definite (<code class="docutils literal notranslate"><span class="pre">lsqr2_create</span></code>’s <code class="docutils literal notranslate"><span class="pre">precond_op</span></code>); BART’s reconstructions use none.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Where the vectors of the solve live.  The data, the start and the
+right-hand side are copied there, and the image is returned on the
+device the data came from, so an encoding built on a card solves for
+an image held on the host without the iteration’s vectors crossing at
+every step; the card’s cached blocks are released afterwards.  <code class="docutils literal notranslate"><span class="pre">None</span></code>
+solves where the data is.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -557,6 +564,7 @@ normals.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">30</span><span class="p">)(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="n">terms</span><span class="o">=</span><span class="n">Tikhonov</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">prior</span><span class="p">))(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="n">terms</span><span class="o">=</span><span class="p">[</span><span class="n">Tikhonov</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">operator</span><span class="o">=</span><span class="n">G</span><span class="p">),</span> <span class="n">Tikhonov</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)])(</span><span class="n">kspace</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CG</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># (A^H A + 0.5) x = rhs</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -588,6 +596,42 @@ second solve with the same normal operator
 gradient.  For a linearization of a nonlinear operator the gradient also
 reaches the point it was linearized at.  The solve can therefore serve as
 the data-consistency layer of an unrolled network.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bartorch.optim.CG.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bartorch.optim.CG.inverse" title="Link to this definition">#</a></dt>
+<dd><p>Solve the normal equations from their right-hand side.</p>
+<p>Where calling the solver forms <span class="math notranslate nohighlight">\(A^H y\)</span> from data, this solves
+<span class="math notranslate nohighlight">\(N x = b\)</span> for a given <code class="docutils literal notranslate"><span class="pre">b</span></code> of <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code>, with <span class="math notranslate nohighlight">\(N\)</span> the
+normal operator the call inverts, <span class="math notranslate nohighlight">\(A^H A + \lambda I\)</span> plus the
+terms’ <span class="math notranslate nohighlight">\(w_i G_i^H G_i\)</span>.  A splitting method whose x-update has
+a right-hand side of its own, <span class="math notranslate nohighlight">\(A^H y + \rho (z - u)\)</span>, calls this
+with <span class="math notranslate nohighlight">\(A^H y\)</span> computed once.  The terms’ biases do not enter: they
+belong to the right-hand side, which the caller supplies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>tensor</em>) – Right-hand side of <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code>.</p></li>
+<li><p><strong>A</strong> (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator" title="bartorch.linop.LinearOperator"><em>LinearOperator</em></a>) – Encoding operator, whose normal (<a class="reference internal" href="bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.gram" title="bartorch.linop.LinearOperator.gram"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gram()</span></code></a>)
+is applied; an encoding built with <code class="docutils literal notranslate"><span class="pre">toeplitz=True</span></code> applies its
+point-spread convolution.</p></li>
+<li><p><strong>x0</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Starting image of <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code>; zero when omitted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complex64 image of <code class="docutils literal notranslate"><span class="pre">A.ishape</span></code>, on <code class="docutils literal notranslate"><span class="pre">b</span></code>’s device.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><code class="docutils literal notranslate"><span class="pre">_WithNormal(Identity,</span> <span class="pre">A.gram())</span></code> is an operator whose adjoint is
+the identity and whose normal is <span class="math notranslate nohighlight">\(A^H A\)</span>, so conjugate gradients
+on it solves <span class="math notranslate nohighlight">\(N x = b\)</span> instead of <span class="math notranslate nohighlight">\(N x = A^H b\)</span>.  The
+backward pass of a call solves through the same route, so it costs
+what the forward pass does.  No gradient is recorded.</p>
 </dd></dl>
 
 </dd></dl>
@@ -625,6 +669,7 @@ the data-consistency layer of an unrolled network.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.CG"><code class="docutils literal notranslate"><span class="pre">CG</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.CG.__call__"><code class="docutils literal notranslate"><span class="pre">CG.__call__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bartorch.optim.CG.inverse"><code class="docutils literal notranslate"><span class="pre">CG.inverse()</span></code></a></li>
 </ul>
 </li>
 </ul>

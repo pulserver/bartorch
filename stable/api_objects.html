@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=e3e4e611"></script>
+    <script src="_static/documentation_options.js?v=5818640c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.19';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.18" />
+  <meta name="docsearch:version" content="v0.0.19" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -899,43 +899,46 @@ the same objects in tables; this page generates the page of each.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.maxeigen.html#bartorch.optim.maxeigen" title="bartorch.optim.maxeigen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxeigen</span></code></a></p></td>
 <td><p>Estimate the largest eigenvalue of the normal operator by power iteration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.POCSBlock.html#bartorch.optim.POCSBlock" title="bartorch.optim.POCSBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POCSBlock</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.mean_diagonal.html#bartorch.optim.mean_diagonal" title="bartorch.optim.mean_diagonal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_diagonal</span></code></a></p></td>
+<td><p>Estimate the mean of the diagonal of <span class="math notranslate nohighlight">\(A^H A\)</span> from random probes (Hutchinson).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.POCSBlock.html#bartorch.optim.POCSBlock" title="bartorch.optim.POCSBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POCSBlock</span></code></a></p></td>
 <td><p>One sweep of projections onto convex sets, BART's <code class="docutils literal notranslate"><span class="pre">pocs</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.cg.html#bartorch.optim.cg" title="bartorch.optim.cg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cg</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.cg.html#bartorch.optim.cg" title="bartorch.optim.cg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cg</span></code></a></p></td>
 <td><p>Solve a linear least-squares problem by conjugate gradients.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.ist.html#bartorch.optim.ist" title="bartorch.optim.ist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ist</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.ist.html#bartorch.optim.ist" title="bartorch.optim.ist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ist</span></code></a></p></td>
 <td><p>Solve a regularized least-squares problem by iterative soft thresholding.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.fista.html#bartorch.optim.fista" title="bartorch.optim.fista"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fista</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.fista.html#bartorch.optim.fista" title="bartorch.optim.fista"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fista</span></code></a></p></td>
 <td><p>Solve a regularized least-squares problem by fast iterative soft thresholding.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">admm</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.admm.html#bartorch.optim.admm" title="bartorch.optim.admm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">admm</span></code></a></p></td>
 <td><p>Solve a regularized least-squares problem by alternating direction multipliers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.pridu.html#bartorch.optim.pridu" title="bartorch.optim.pridu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pridu</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.pridu.html#bartorch.optim.pridu" title="bartorch.optim.pridu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pridu</span></code></a></p></td>
 <td><p>Solve a regularized least-squares problem by a primal-dual iteration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.pocs.html#bartorch.optim.pocs" title="bartorch.optim.pocs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocs</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.pocs.html#bartorch.optim.pocs" title="bartorch.optim.pocs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocs</span></code></a></p></td>
 <td><p>Projection onto convex sets in one call: <code class="docutils literal notranslate"><span class="pre">optim.POCS(projections,</span> <span class="pre">**settings)(y,</span> <span class="pre">x0=x0)</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ISTBlock</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.ISTBlock.html#bartorch.optim.ISTBlock" title="bartorch.optim.ISTBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ISTBlock</span></code></a></p></td>
 <td><p>One iteration of iterative soft thresholding, BART's <code class="docutils literal notranslate"><span class="pre">ist</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.FISTABlock.html#bartorch.optim.FISTABlock" title="bartorch.optim.FISTABlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FISTABlock</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.FISTABlock.html#bartorch.optim.FISTABlock" title="bartorch.optim.FISTABlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FISTABlock</span></code></a></p></td>
 <td><p>One iteration of fast iterative soft thresholding, BART's <code class="docutils literal notranslate"><span class="pre">fista</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.ADMMBlock.html#bartorch.optim.ADMMBlock" title="bartorch.optim.ADMMBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ADMMBlock</span></code></a></p></td>
 <td><p>One iteration of the alternating direction method of multipliers, BART's <code class="docutils literal notranslate"><span class="pre">admm</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.PRIDUBlock.html#bartorch.optim.PRIDUBlock" title="bartorch.optim.PRIDUBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIDUBlock</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.PRIDUBlock.html#bartorch.optim.PRIDUBlock" title="bartorch.optim.PRIDUBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIDUBlock</span></code></a></p></td>
 <td><p>One iteration of BART's primal-dual algorithm, <code class="docutils literal notranslate"><span class="pre">chambolle_pock</span></code> (<code class="docutils literal notranslate"><span class="pre">italgos.c</span></code>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FixedPoint</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.FixedPoint.html#bartorch.optim.FixedPoint" title="bartorch.optim.FixedPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FixedPoint</span></code></a></p></td>
 <td><p>Iteration block run to its fixed point and differentiated there (deep equilibrium).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_scaling</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.optim.data_scaling.html#bartorch.optim.data_scaling" title="bartorch.optim.data_scaling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_scaling</span></code></a></p></td>
 <td><p>Estimate the factor by which BART's reconstructions divide the data.</p></td>
 </tr>
 </tbody>

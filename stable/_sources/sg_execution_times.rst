@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**28:04.169** total execution time for 27 files **from all galleries**:
+**23:00.534** total execution time for 27 files **from all galleries**:
 
 .. container::
 
@@ -33,83 +33,83 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py` (``examples/09-learning-workflows/01-networks-for-complex-volumes.py``)
-     - 11:15.988
+     - 06:14.047
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_02-modl-with-admm.py` (``examples/06-learning/02-modl-with-admm.py``)
-     - 04:43.646
+     - 04:21.944
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_03-self-supervised-training.py` (``examples/09-learning-workflows/03-self-supervised-training.py``)
-     - 03:58.765
+     - 04:09.855
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_02-staged-training.py` (``examples/09-learning-workflows/02-staged-training.py``)
-     - 02:27.056
+     - 02:29.662
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_05-uncertainty.py` (``examples/09-learning-workflows/05-uncertainty.py``)
-     - 01:35.842
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06-learning_01-plug-and-play.py` (``examples/06-learning/01-plug-and-play.py``)
-     - 00:54.628
+     - 01:45.284
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py` (``examples/09-learning-workflows/04-annealed-plug-and-play.py``)
-     - 00:42.635
+     - 00:45.540
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06-learning_01-plug-and-play.py` (``examples/06-learning/01-plug-and-play.py``)
+     - 00:38.316
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05-model-based_01-quantitative-models.py` (``examples/05-model-based/01-quantitative-models.py``)
-     - 00:34.626
+     - 00:36.534
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-regularization_01-regularized-reconstruction.py` (``examples/03-regularization/01-regularized-reconstruction.py``)
-     - 00:17.649
+     - 00:17.081
      - 0.0
    * - :ref:`sphx_glr_auto_examples_08-workflows_02-subspace-t1-mapping.py` (``examples/08-workflows/02-subspace-t1-mapping.py``)
-     - 00:15.616
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04-non-cartesian_02-radial-sense.py` (``examples/04-non-cartesian/02-radial-sense.py``)
-     - 00:09.078
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_08-workflows_01-dynamic-golden-angle.py` (``examples/08-workflows/01-dynamic-golden-angle.py``)
-     - 00:07.395
+     - 00:15.997
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py` (``examples/02-parallel-imaging/02-nonlinear-inversion.py``)
-     - 00:07.272
+     - 00:14.351
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_01-coil-calibration.py` (``examples/02-parallel-imaging/01-coil-calibration.py``)
-     - 00:06.901
+     - 00:08.631
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_01-basics_02-from-kspace-to-image.py` (``examples/01-basics/02-from-kspace-to-image.py``)
-     - 00:06.426
+   * - :ref:`sphx_glr_auto_examples_04-non-cartesian_02-radial-sense.py` (``examples/04-non-cartesian/02-radial-sense.py``)
+     - 00:08.281
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_08-workflows_01-dynamic-golden-angle.py` (``examples/08-workflows/01-dynamic-golden-angle.py``)
+     - 00:06.928
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-regularization_02-operators-and-solvers.py` (``examples/03-regularization/02-operators-and-solvers.py``)
-     - 00:06.352
+     - 00:06.235
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01-basics_02-from-kspace-to-image.py` (``examples/01-basics/02-from-kspace-to-image.py``)
+     - 00:06.124
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_06-navigator-motion.py` (``examples/07-tours/06-navigator-motion.py``)
-     - 00:06.010
+     - 00:05.951
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_05-spiral-deblurring.py` (``examples/07-tours/05-spiral-deblurring.py``)
-     - 00:05.126
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_08-noise-prewhitening.py` (``examples/07-tours/08-noise-prewhitening.py``)
-     - 00:05.020
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_03-bias-field.py` (``examples/07-tours/03-bias-field.py``)
-     - 00:04.795
+     - 00:05.861
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``examples/07-tours/07-epi-susceptibility-distortion.py``)
-     - 00:03.815
+     - 00:05.651
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_08-noise-prewhitening.py` (``examples/07-tours/08-noise-prewhitening.py``)
+     - 00:04.603
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_03-bias-field.py` (``examples/07-tours/03-bias-field.py``)
+     - 00:04.551
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py` (``examples/07-tours/02-epi-ghost-and-ramp-sampling.py``)
-     - 00:02.709
+     - 00:02.438
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py` (``examples/04-non-cartesian/01-trajectories-and-transforms.py``)
-     - 00:01.729
+     - 00:01.750
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_04-gradient-nonlinearity.py` (``examples/07-tours/04-gradient-nonlinearity.py``)
-     - 00:01.553
+     - 00:01.543
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_01-tensors-and-commands.py` (``examples/01-basics/01-tensors-and-commands.py``)
-     - 00:01.282
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_01-readout-oversampling-and-apodization.py` (``examples/07-tours/01-readout-oversampling-and-apodization.py``)
-     - 00:01.174
+     - 00:01.156
      - 0.0
    * - :ref:`sphx_glr_auto_examples_08-workflows_03-maps-from-scanner-images.py` (``examples/08-workflows/03-maps-from-scanner-images.py``)
-     - 00:01.081
+     - 00:01.140
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_01-readout-oversampling-and-apodization.py` (``examples/07-tours/01-readout-oversampling-and-apodization.py``)
+     - 00:01.079
      - 0.0
