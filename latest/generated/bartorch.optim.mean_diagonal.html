@@ -535,9 +535,10 @@ applied once per probe.</p></li>
 diagonal, so a volume needs one.</p></li>
 <li><p><strong>seed</strong> (<em>int</em><em>, </em><em>default=0</em>) – Seed of the generator the probes are drawn from.</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Where the probes are drawn, applied and reduced; on the host when
-omitted.  On the operator’s card a volume’s probe never crosses the
-bus, and the generator is the card’s, so the estimate differs from the
-host’s by the probe’s spread.</p></li>
+omitted.  On the card the operator was built on, a volume’s probe never
+crosses the bus; the generator is the card’s, so the estimate differs
+from the host’s by the probe’s spread.  An operator built elsewhere is
+applied where it was built.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
