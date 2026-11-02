@@ -52,7 +52,7 @@ def kernels_available() -> bool:
     """Whether this library carries the CUDA kernels and a card is present."""
     try:
         return bool(_library().bartorch_na3d_built()) and torch.cuda.is_available()
-    except (OSError, AttributeError):
+    except (ImportError, OSError, AttributeError):
         return False
 
 

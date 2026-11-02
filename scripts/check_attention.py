@@ -4,8 +4,9 @@
     python scripts/check_attention.py --standalone    # attention.cu alone, built by nvcc
 
 With ``--standalone`` the one translation unit is compiled into a library of
-its own and used in place of ``libbartorch``'s passes, so a change to the
-kernels can be checked on a card without building BART: it needs ``nvcc``.
+its own and used in place of ``libbartorch``'s passes, and the Python side is
+read from this checkout without importing bartorch, so a change to the kernels
+can be checked on a card without building BART: it needs ``nvcc`` and torch.
 
 The passes and their gradients are compared with the plain-torch path in
 float64, in each element type, and then timed at the sizes a denoiser meets:
@@ -24,9 +25,25 @@ from pathlib import Path
 
 import torch
 
-from bartorch.learning import _neighborhood as na
-
 ROOT = Path(__file__).resolve().parent.parent
+
+#: The module under test, set by main(): the package's, or with --standalone the file itself,
+#: loaded without importing bartorch, whose library may predate these passes.
+na = None
+
+
+def load_module(standalone_file: bool):
+    if not standalone_file:
+        from bartorch.learning import _neighborhood
+
+        return _neighborhood
+    import importlib.util
+
+    path = ROOT / "src" / "bartorch" / "learning" / "_neighborhood.py"
+    spec = importlib.util.spec_from_file_location("na3d_under_test", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def standalone(arch: str | None) -> ctypes.CDLL:
@@ -137,6 +154,8 @@ def main():
         "--arch", help="compute capability without the dot, e.g. 89; the card's by default"
     )
     args = ap.parse_args()
+    global na
+    na = load_module(args.standalone)
     if args.standalone:
         lib = standalone(args.arch)
         na._library = lambda: lib
