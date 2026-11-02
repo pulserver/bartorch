@@ -1045,13 +1045,17 @@ def test_a_device_where_the_data_already_is_changes_nothing(_small_encoding):
     assert "device='cpu'" in repr(optim.CG(device="cpu"))
 
 
-def test_a_device_without_an_index_is_the_same_device(_small_encoding):
+def test_a_device_without_an_index_is_the_same_device(_small_encoding, monkeypatch):
     from bartorch.optim._linear import _same_device
 
     cpu = torch.device("cpu")
     assert _same_device(cpu, torch.device("cpu"))
     assert not _same_device(cpu, torch.device("cuda"))
     assert not optim.CG(0.1, device="cpu")._moves(torch.zeros(2))
+    assert optim.CG(0.1, device="cpu")._moves(torch.zeros(2, device="meta"))
+    monkeypatch.setattr(torch.cuda, "current_device", lambda: 0)
+    assert _same_device(torch.device("cuda"), torch.device("cuda", 0))
+    assert not _same_device(torch.device("cuda"), torch.device("cuda", 1))
     host, y = _small_encoding
     with pytest.raises(ValueError, match="built there"):
         optim.CG(0.1, device="cuda")(y, host)
