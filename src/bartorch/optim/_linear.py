@@ -255,9 +255,10 @@ def mean_diagonal(A, *, probes: int = 1, seed: int = 0, device=None) -> float:
         Seed of the generator the probes are drawn from.
     device : torch.device or str, default=None
         Where the probes are drawn, applied and reduced; on the host when
-        omitted.  On the operator's card a volume's probe never crosses the
-        bus, and the generator is the card's, so the estimate differs from the
-        host's by the probe's spread.
+        omitted.  On the card the operator was built on, a volume's probe never
+        crosses the bus; the generator is the card's, so the estimate differs
+        from the host's by the probe's spread.  An operator built elsewhere is
+        applied where it was built.
 
     Returns
     -------
@@ -271,12 +272,27 @@ def mean_diagonal(A, *, probes: int = 1, seed: int = 0, device=None) -> float:
     if probes < 1:
         raise ValueError(f"the estimate takes at least one probe, not {probes}")
     on = torch.device("cpu" if device is None else device)
+    home = torch.device(getattr(A, "device", None) or "cpu")
     generator = torch.Generator(device=on).manual_seed(int(seed))
     total = 0.0
     for _ in range(int(probes)):
         v = torch.randn(A.ishape, dtype=torch.complex64, generator=generator, device=on)
-        total += float(torch.vdot(v.reshape(-1), A.normal(v).reshape(-1)).real / v.norm() ** 2)
+        # A BART operator applies where it was built; a probe drawn elsewhere visits it.
+        made = A.normal(v.to(home)).to(on)
+        total += float(torch.vdot(v.reshape(-1), made.reshape(-1)).real / v.norm() ** 2)
     return total / probes
+
+
+def _same_device(a: torch.device, b: torch.device) -> bool:
+    """Whether ``a`` and ``b`` are one device; ``cuda`` without an index is the current card."""
+    if a.type != b.type:
+        return False
+    if a.type == "cuda":
+        current = torch.cuda.current_device()
+        return (a.index if a.index is not None else current) == (
+            b.index if b.index is not None else current
+        )
+    return a.index == b.index or a.index is None or b.index is None
 
 
 def _conditioner(precond, shape):
@@ -761,7 +777,7 @@ class CG(_Solver):
         """
         from bartorch.linop._base import _tracking
 
-        if self._moves(y):
+        if self._moves(y, A):
             return self._placed(lambda b, w: self(b, A, w, steps=steps), y, x0)
 
         made = _item_by_item(self, y, A, x0, steps=steps)
@@ -856,7 +872,7 @@ class CG(_Solver):
         backward pass of a call solves through the same route, so it costs
         what the forward pass does.  No gradient is recorded.
         """
-        if self._moves(b):
+        if self._moves(b, A):
             return self._placed(lambda r, w: self.inverse(r, A, w), b, x0)
         normal = A.gram()
         for term in self.terms:
@@ -885,8 +901,15 @@ class CG(_Solver):
             **self._settings(),
         )
 
-    def _moves(self, y: torch.Tensor) -> bool:
-        return self.device is not None and y.device != self.device
+    def _moves(self, y: torch.Tensor, A=None) -> bool:
+        if self.device is None or _same_device(y.device, self.device):
+            return False
+        built = getattr(A, "device", None)
+        if self.device.type == "cuda" and (built is None or torch.device(built).type != "cuda"):
+            raise ValueError(
+                f"a solve on {self.device} needs an encoding built there; this one is on the host"
+            )
+        return True
 
     def _placed(self, solve, y: torch.Tensor, x0: torch.Tensor | None) -> torch.Tensor:
         """``solve(y, x0)`` with both on :attr:`device`, the image brought back to ``y``'s."""

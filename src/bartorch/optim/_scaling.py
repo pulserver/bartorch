@@ -90,21 +90,28 @@ def data_scaling(
     return _scaling_norm(magnitudes, compat, percentile)
 
 
-def _scaling_norm(magnitudes: torch.Tensor, compat: bool, percentile: float | None) -> float:
+def _scaling_norm(
+    magnitudes: torch.Tensor, compat: bool, percentile: float | None, sort: bool | None = None
+) -> float:
     """BART's ``estimate_scaling_norm`` over ``magnitudes``, by selection where they lie.
 
     The same order statistics BART sorts the whole array for -- the median at
     ``n // 2``, the 90th percentile at ``trunc(0.9 n)``, the maximum, or the
-    asked-for percentile -- found with ``kthvalue``, on the card when the
-    image is there.
+    asked-for percentile -- found with ``kthvalue`` on the host and by one
+    sort on a card, where selection over tens of millions of values is slow.
     """
     n = magnitudes.numel()
     if n == 0:
         return 0.0
     m = magnitudes.to(torch.float32)
+    # On a card one radix sort beats repeated selection; on the host selection wins.
+    ordered = torch.sort(m).values if (m.is_cuda if sort is None else sort) else None
 
     def at(i: int) -> float:
-        return float(torch.kthvalue(m, min(n - 1, max(0, i)) + 1).values)
+        i = min(n - 1, max(0, i))
+        if ordered is not None:
+            return float(ordered[i])
+        return float(torch.kthvalue(m, i + 1).values)
 
     if percentile is not None and percentile > 0:
         if percentile > 1:
@@ -114,5 +121,5 @@ def _scaling_norm(magnitudes: torch.Tensor, compat: bool, percentile: float | No
     if compat:
         return median
     p90 = at(int(n * 0.9))
-    top = float(m.max())
+    top = float(m.max() if ordered is None else ordered[-1])
     return p90 if (top - p90) < 2 * (p90 - median) else top
