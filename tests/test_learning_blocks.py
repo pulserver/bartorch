@@ -473,6 +473,22 @@ def test_a_patchwise_network_is_called_without_a_noise_level_when_given_none():
     assert "overlap=True" in repr(learning.Patchwise(net, (4, 4), device="cpu"))
 
 
+class _Labelled(nn.Module):
+    """A network that, like a class-conditioned UNet, needs one label per patch."""
+
+    def forward(self, v, sigma, y):
+        assert y.shape == (v.shape[0],) and sigma.shape == (v.shape[0],)
+        return v
+
+
+@pytest.mark.parametrize("batch", [1, 3])
+def test_one_items_keywords_are_repeated_for_every_patch_of_a_batch(batch):
+    run = learning.Patchwise(_Labelled(), (4, 4), device="cpu", shift=False, batch=batch)
+    x = torch.randn(1, 1, 8, 8)
+    made = run(x, torch.full((1,), 0.1), y=torch.zeros(1, dtype=torch.long))
+    torch.testing.assert_close(made, x)
+
+
 def test_dropout_randomises_training_and_not_evaluation():
     torch.manual_seed(0)
     net = _perturbed(learning.UNet(2, spatial=2, widths=(8, 16), dropout=0.5))

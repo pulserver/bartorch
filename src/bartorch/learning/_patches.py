@@ -266,7 +266,7 @@ class Patchwise(nn.Module):
         """One call of the network over ``count`` patches of each of ``n`` items."""
 
         def repeat(value):
-            if isinstance(value, torch.Tensor) and value.ndim and n == value.shape[0] and n > 1:
+            if isinstance(value, torch.Tensor) and value.ndim and n == value.shape[0]:
                 return value.to(self.device).repeat(count)
             return value.to(self.device) if isinstance(value, torch.Tensor) else value
 
