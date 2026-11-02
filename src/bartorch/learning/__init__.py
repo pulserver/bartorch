@@ -9,6 +9,8 @@ blocks a fixed number of times, and a network used as a regularizer is
 :class:`bartorch.priors.ImplicitPrior`.  :func:`split` partitions acquired
 samples for self-supervised training, and :func:`moments` and
 :func:`calibrate` give a voxel-wise uncertainty.
+:class:`NeighborhoodAttention3d` lets each voxel of a 3D feature map attend to
+a window around it, through CUDA kernels of this library on a card.
 
 :class:`Reconstruction` trains a network in one of the three stages of an
 unrolled network, on ``lightning``, and :class:`RandomGain` is a ``torchio``
@@ -19,6 +21,7 @@ importing this package imports no training library.
 from __future__ import annotations
 
 from bartorch.learning._channels import ComplexNet, as_complex, as_real
+from bartorch.learning._neighborhood import NeighborhoodAttention3d, neighborhood_attention3d
 from bartorch.learning._nets import UNet
 from bartorch.learning._patches import Patchwise
 from bartorch.learning._splitting import split
@@ -30,6 +33,7 @@ _TRAINING = ("RandomGain", "Reconstruction")
 
 __all__ = [
     "ComplexNet",
+    "NeighborhoodAttention3d",
     "Patchwise",
     "RandomGain",
     "Reconstruction",
@@ -39,6 +43,7 @@ __all__ = [
     "as_real",
     "calibrate",
     "moments",
+    "neighborhood_attention3d",
     "split",
 ]
 

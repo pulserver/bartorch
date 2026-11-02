@@ -38,6 +38,9 @@ BARTORCH_ENCODING_NORMAL = 5
 BARTORCH_ENCODING_SEGMENTED = 6
 BARTORCH_ENCODING_STACKED = 7
 BARTORCH_ENCODING_ITEMS = 8
+BARTORCH_NA_FLOAT32 = 0
+BARTORCH_NA_FLOAT16 = 1
+BARTORCH_NA_BFLOAT16 = 2
 
 
 class Encoding(ctypes.Structure):
@@ -346,6 +349,10 @@ SYMBOLS = (
     "bartorch_nufft_reset_counters",
     "bartorch_toeplitz_counter",
     "bartorch_toeplitz_reset_counters",
+    "bartorch_na3d_built",
+    "bartorch_na3d_gather_dot",
+    "bartorch_na3d_gather_sum",
+    "bartorch_na3d_scatter_sum",
     "bartorch_on_device",
 )
 
@@ -1255,6 +1262,50 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
     lib.bartorch_toeplitz_counter.argtypes = [ctypes.c_int]
     lib.bartorch_toeplitz_reset_counters.restype = None
     lib.bartorch_toeplitz_reset_counters.argtypes = []
+    lib.bartorch_na3d_built.restype = ctypes.c_int
+    lib.bartorch_na3d_built.argtypes = []
+    lib.bartorch_na3d_gather_dot.restype = ctypes.c_int
+    lib.bartorch_na3d_gather_dot.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.c_int64,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_void_p,
+    ]
+    lib.bartorch_na3d_gather_sum.restype = ctypes.c_int
+    lib.bartorch_na3d_gather_sum.argtypes = [
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_int64,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_void_p,
+    ]
+    lib.bartorch_na3d_scatter_sum.restype = ctypes.c_int
+    lib.bartorch_na3d_scatter_sum.argtypes = [
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_int64,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_void_p,
+    ]
     lib.bartorch_on_device.restype = ctypes.c_int
     lib.bartorch_on_device.argtypes = [ctypes.c_void_p]
     return lib

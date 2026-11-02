@@ -939,6 +939,33 @@ BARTORCH_API void bartorch_nufft_reset_counters(void);
 BARTORCH_API int64_t bartorch_toeplitz_counter(int which);
 BARTORCH_API void bartorch_toeplitz_reset_counters(void);
 
+/*
+ * Neighbourhood attention over a 3D grid, for bartorch.learning.  Each voxel
+ * attends to the window x window x window voxels around it, the window shifted
+ * inwards at an edge.  Arrays are (groups, voxels, channels), channels fastest,
+ * voxels z-major; weights are (groups, voxels, window^3) float32.  Channels are
+ * 8, 16, 32 or 64, the window odd and at most 9, and the element type one of
+ * the BARTORCH_NA_* below.  Each runs on the cudaStream_t passed as a void* and
+ * returns 0 or the CUDA error it met; without CUDA, built() is 0 and the rest
+ * return -1.
+ *
+ *   gather_dot   s[i, m] = sum_c a[i, c] b[n(i, m), c]
+ *   gather_sum   o[i, c] = sum_m s[i, m] b[n(i, m), c]
+ *   scatter_sum  o[j, c] = sum over (i, m) with n(i, m) = j of s[i, m] a[i, c]
+ */
+enum bartorch_na_dtype {
+	BARTORCH_NA_FLOAT32 = 0,
+	BARTORCH_NA_FLOAT16 = 1,
+	BARTORCH_NA_BFLOAT16 = 2,
+};
+BARTORCH_API int bartorch_na3d_built(void);
+BARTORCH_API int bartorch_na3d_gather_dot(const void* a, const void* b, float* s, int64_t groups,
+		int nz, int ny, int nx, int channels, int window, int dtype, void* stream);
+BARTORCH_API int bartorch_na3d_gather_sum(const float* s, const void* b, void* o, int64_t groups,
+		int nz, int ny, int nx, int channels, int window, int dtype, void* stream);
+BARTORCH_API int bartorch_na3d_scatter_sum(const float* s, const void* a, void* o, int64_t groups,
+		int nz, int ny, int nx, int channels, int window, int dtype, void* stream);
+
 /* Whether a pointer is device memory; always false without CUDA. */
 BARTORCH_API int bartorch_on_device(const void* ptr);
 
