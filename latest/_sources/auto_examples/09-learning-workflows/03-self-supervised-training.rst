@@ -307,7 +307,7 @@ and you score them, and CG-SENSE, against its reference:
 
  .. code-block:: none
 
-                  supervised   PSNR 30.01 dB   SSIM 0.950
+                  supervised   PSNR 30.03 dB   SSIM 0.944
              self-supervised   PSNR 28.59 dB   SSIM 0.726
      CG SENSE, 20 iterations   PSNR 24.27 dB   SSIM 0.558
 
@@ -397,7 +397,7 @@ the split above, without the held-out quarter, and compare with the full
 
  .. code-block:: none
 
-          supervised: PSNR 30.01 dB from Omega, 27.36 dB from Theta
+          supervised: PSNR 30.03 dB from Omega, 27.52 dB from Theta
      self-supervised: PSNR 28.59 dB from Omega, 27.90 dB from Theta
 
 
@@ -450,7 +450,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 2.323 seconds)
+   **Total running time of the script:** (4 minutes 0.076 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_03-self-supervised-training.py:
