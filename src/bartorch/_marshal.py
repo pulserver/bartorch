@@ -19,6 +19,7 @@ __all__ = [
     "dim_vector",
     "dims",
     "float_buffer",
+    "float_pointer",
     "floats",
     "ints",
     "int64s",
@@ -129,6 +130,11 @@ def text_buffer(size: int) -> ctypes.Array:
 def float_buffer(ptr: int, count: int) -> ctypes.Array:
     """A view of ``count`` floats at ``ptr``, without a copy."""
     return (ctypes.c_float * count).from_address(ptr)
+
+
+def float_pointer(ptr: int):
+    """A ``float*`` at the address ``ptr``, for an entry point that takes one."""
+    return ctypes.cast(ctypes.c_void_p(ptr), ctypes.POINTER(ctypes.c_float))
 
 
 def null_apply() -> ctypes.Array:

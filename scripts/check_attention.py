@@ -159,6 +159,9 @@ def main():
     if args.standalone:
         lib = standalone(args.arch)
         na._library = lambda: lib
+        na._float_pointer = lambda address: ctypes.cast(
+            ctypes.c_void_p(address), ctypes.POINTER(ctypes.c_float)
+        )
     if not na.kernels_available():
         raise SystemExit("no card, or no CUDA passes in this library")
     print(torch.cuda.get_device_name(), flush=True)

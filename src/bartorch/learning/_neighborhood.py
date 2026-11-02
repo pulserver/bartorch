@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import ctypes
-
 import torch
 from torch import nn
 
@@ -34,18 +32,25 @@ def _attend_reference(q, k, v, extent, window, bias, heads):
     """Neighbourhood attention in plain torch on ``(groups, voxels, channels)``."""
     index = _neighbours(extent, window, q.device)
     scale = q.shape[-1] ** -0.5
+    work = torch.promote_types(q.dtype, torch.float32)
     kn = k[:, index]  # (groups, voxels, window^3, channels)
-    logits = torch.einsum("gvc,gvmc->gvm", q.float() * scale, kn.float())
+    logits = torch.einsum("gvc,gvmc->gvm", q.to(work) * scale, kn.to(work))
     if bias is not None:
-        logits = logits + bias.float().repeat(q.shape[0] // heads, 1)[:, None, :]
+        logits = logits + bias.to(work).repeat(q.shape[0] // heads, 1)[:, None, :]
     attention = logits.softmax(-1)
-    return torch.einsum("gvm,gvmc->gvc", attention, v[:, index].float()).to(q.dtype)
+    return torch.einsum("gvm,gvmc->gvc", attention, v[:, index].to(work)).to(q.dtype)
 
 
 def _library():
     from bartorch._lib import library
 
     return library()
+
+
+def _float_pointer(address: int):
+    from bartorch._marshal import float_pointer
+
+    return float_pointer(address)
 
 
 def kernels_available() -> bool:
@@ -56,23 +61,19 @@ def kernels_available() -> bool:
         return False
 
 
-def _floats(t: torch.Tensor):
-    return ctypes.cast(ctypes.c_void_p(t.data_ptr()), ctypes.POINTER(ctypes.c_float))
-
-
 def _call(name: str, x, y, out, extent, window: int):
     """One CUDA pass; ``x`` and ``out`` are float32 weights or elements, as the pass takes them."""
     groups, _, channels = y.shape
     nz, ny, nx = extent
     if name == "gather_dot":  # elements, elements -> weights
-        first, third = ctypes.c_void_p(x.data_ptr()), _floats(out)
+        first, third = x.data_ptr(), _float_pointer(out.data_ptr())
     else:  # weights, elements -> elements
-        first, third = _floats(x), ctypes.c_void_p(out.data_ptr())
+        first, third = _float_pointer(x.data_ptr()), out.data_ptr()
     with torch.cuda.device(y.device):
         stream = torch.cuda.current_stream(y.device).cuda_stream
         error = getattr(_library(), f"bartorch_na3d_{name}")(
             first,
-            ctypes.c_void_p(y.data_ptr()),
+            y.data_ptr(),
             third,
             groups,
             nz,
@@ -81,7 +82,7 @@ def _call(name: str, x, y, out, extent, window: int):
             channels,
             window,
             _DTYPES[y.dtype],
-            ctypes.c_void_p(stream),
+            stream,
         )
     if error:
         raise RuntimeError(f"bartorch_na3d_{name} failed with CUDA error {error}")
