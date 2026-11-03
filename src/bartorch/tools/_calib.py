@@ -8,7 +8,7 @@ from bartorch import _call
 from bartorch._call import curated
 from bartorch._dispatch import dispatch
 
-__all__ = ["caldir", "ecalib", "nlinv", "whiten"]
+__all__ = ["caldir", "ecalib", "nlinv", "rovir_fov", "whiten"]
 
 
 @curated("ecalib")
@@ -271,6 +271,123 @@ def whiten(
         return found
     white, matrix, *covariance = found
     return (white, *([matrix] if return_matrix else []), *covariance)
+
+
+def rovir_fov(
+    kspace: torch.Tensor,
+    traj: torch.Tensor,
+    coils: int,
+    *,
+    keep: int | None = None,
+    size: int = 48,
+    extent: float = 2.0,
+    iterations: int = 15,
+    return_energy: bool = False,
+):
+    r"""ROVir coil compression from non-Cartesian samples, rejecting what is past the field of view.
+
+    A grid exactly the size of the field of view, as gridding without
+    oversampling (GROG) gives, folds whatever lies past its edge -- the neck
+    below a head -- back into the image.  Region-optimized virtual coils
+    (ROVir, Kim et al. [1]_) remove it before the reconstruction.  Each
+    channel's samples near the centre of k-space are gridded by the adjoint
+    of :class:`bartorch.linop.NUFFT`, weighted by
+    :func:`bartorch.estimate_density`, onto a ``size`` image covering
+    ``extent`` times the field of view on every axis.  The wanted region is
+    the field of view and the interference region is the rest of that image:
+    geometry only, no mask of the anatomy.  :func:`rovir` solves the
+    generalized eigenproblem of their channel correlations and
+    orthonormalizes its vectors, so that whitened noise stays white.
+
+    ROVir's directions of highest wanted-to-rejected ratio are often weak
+    ones.  So ``keep`` of them are kept, which drops the few that carry the
+    interference, and the SVD of the image in them keeps the ``coils`` of
+    most energy, as :func:`cc` would.
+
+    Parameters
+    ----------
+    kspace : torch.Tensor
+        ``(channels, *frames, samples)`` whitened samples; every readout
+        starts at the centre of k-space, so a prefix of each is near it.
+    traj : torch.Tensor
+        ``(*frames, samples, ndim)`` in grid units of the field of view,
+        ``kx, ky[, kz]``, as for :class:`bartorch.linop.NUFFT`.
+    coils : int
+        Virtual coils kept.
+    keep : int, default=None
+        ROVir directions the SVD chooses from; ``None`` keeps ``coils``, which
+        is ROVir alone.
+    size : int, default=48
+        Edge of the low-resolution image the regions are read on.
+    extent : float, default=2.0
+        Its field of view over the reconstruction's, on every axis.
+    iterations : int, default=15
+        Pipe-Menon iterations of the density.
+    return_energy : bool, default=False
+        Also return the share of the field of view's energy the virtual coils
+        keep, and their energy outside it over inside it.
+
+    Returns
+    -------
+    matrix : torch.Tensor
+        ``(channels, channels, 1, 1, 1)``, as :func:`ccapply` takes it with
+        ``p=coils``: its first ``coils`` rows are the virtual coils.
+    energy : tuple of float
+        ``(kept, outside_over_inside)``, when ``return_energy``.
+
+    Notes
+    -----
+    The interference correlation includes the noise of the larger image, so
+    noiseless samples make it singular and the eigenproblem fails.
+
+    References
+    ----------
+    .. [1] Kim D, Cauley SF, Nayak KS, Leahy RM, Haldar JP. Region-optimized
+       virtual (ROVir) coils: localization and/or suppression of spatial
+       regions using sensor-domain beamforming. Magn Reson Med 2021;86:197-212.
+
+    Examples
+    --------
+    >>> matrix = rovir_fov(kspace, traj, coils=6, keep=36)
+    >>> virtual = ccapply(kspace[..., None], matrix, p=6)
+    """
+    from bartorch._fourier import estimate_density
+    from bartorch.linop import NUFFT
+    from bartorch.tools import rovir  # built from the catalogue below
+
+    channels, ndim = kspace.shape[0], traj.shape[-1]
+    k = traj.to(torch.float32) * extent  # cycles per field of view -> per the larger one
+    near = k.abs().amax(-1) < size / 2 - 0.5
+    samples = near.shape[-1]
+    first = int(near.reshape(-1, samples).sum(-1).max())  # readouts run centre-out
+    k = k[..., :first, :].reshape(-1, first, ndim)
+    k = k.clamp(-size / 2 + 0.5, size / 2 - 0.5).contiguous()
+    near = near[..., :first].reshape(-1, first)
+    y = kspace[..., :first].reshape(channels, -1, first)
+    grid = (size,) * ndim
+    weights = (estimate_density(k, grid, iterations=iterations) * near).sqrt().contiguous()
+    nufft = NUFFT(k, (channels, *grid), weights=weights, toeplitz=False)
+    images = nufft.adjoint((y * weights).to(torch.complex64).contiguous()).to(torch.complex64)
+
+    inner = round(size / extent)
+    lo = (size - inner) // 2
+    wanted = torch.zeros(grid, dtype=torch.bool)
+    wanted[(slice(lo, lo + inner),) * ndim] = True
+    transform = rovir((images * wanted).contiguous(), (images * ~wanted).contiguous())
+    # ccapply's virtual coil j is sum_c conj(transform[j, c]) x_c: its rows, as columns here.
+    q = transform.reshape(channels, channels).mT.to(torch.complex128)[:, : keep or coils]
+    x = images.reshape(channels, -1).to(torch.complex128)
+    u = torch.linalg.svd(q.conj().mT @ x, full_matrices=False)[0][:, :coils]
+    w = q @ u
+    matrix = torch.zeros(channels, channels, 1, 1, 1, dtype=torch.complex64)
+    matrix[:coils, :, 0, 0, 0] = w.mT.to(torch.complex64)
+    if not return_energy:
+        return matrix
+    inside = wanted.flatten()
+    v = w.conj().mT @ x
+    kept = float(v[:, inside].abs().pow(2).sum() / x[:, inside].abs().pow(2).sum())
+    ratio = float(v[:, ~inside].abs().pow(2).sum() / v[:, inside].abs().pow(2).sum())
+    return matrix, (kept, ratio)
 
 
 #: Commands in this section without a hand-written wrapper, built from the catalogue.
