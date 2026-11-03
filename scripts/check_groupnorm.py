@@ -73,7 +73,7 @@ def standalone(arch: str | None) -> ctypes.CDLL:
     lib.bartorch_gn_silu.restype = ctypes.c_int
     lib.bartorch_gn_silu.argtypes = [
         v, v, ctypes.c_int64, ctypes.c_int64, ctypes.c_int64, ctypes.c_int,
-        v, v, v, v, ctypes.c_float, ctypes.c_int, ctypes.c_int, v, v,
+        v, v, v, v, ctypes.c_float, ctypes.c_int, ctypes.c_int, ctypes.c_int, v, v,
     ]  # fmt: skip
     return lib
 
@@ -88,15 +88,19 @@ def exact(x, groups, weight, bias, scale, shift):
     return F.silu(h * (1 + scale.double().reshape(shape)) + shift.double().reshape(shape))
 
 
-def check(dtype, shape, groups=32):
+def check(dtype, shape, groups=32, last=False):
     torch.manual_seed(0)
     n, c = shape[:2]
     x = (2 + 3 * torch.randn(shape, device="cuda")).to(dtype)
+    if last:
+        x = x.to(memory_format=torch.channels_last_3d)
     weight, bias = torch.randn(c, device="cuda"), torch.randn(c, device="cuda")
     scale, shift = 0.3 * torch.randn(n, c, device="cuda"), torch.randn(n, c, device="cuda")
     with torch.no_grad():
         made = gn.group_norm_silu(x, groups, weight, bias, scale, shift)
     want = exact(x, groups, weight, bias, scale, shift)
+    if last and not made.is_contiguous(memory_format=torch.channels_last_3d):
+        raise AssertionError("the channels-last pass changed the layout")
     return float((made.double() - want).abs().max() / want.abs().max())
 
 
@@ -126,11 +130,22 @@ def bench(channels, extent, dtype=torch.float16, groups=32):
     def fused():
         return gn.group_norm_silu(x, groups, weight, bias, scale, shift)
 
+    xl = x.to(memory_format=torch.channels_last_3d)
+
+    def eager_last():
+        h = F.group_norm(xl.float(), groups, weight, bias).type(xl.dtype)
+        return F.silu(h * (1 + s5) + t5)
+
+    def fused_last():
+        return gn.group_norm_silu(xl, groups, weight, bias, scale, shift)
+
     with torch.no_grad():
         row = {"channels": channels, "extent": extent}
         row["eager fp32 norm ms"] = 1e3 * timed(eager)
         row["eager fp16 norm ms"] = 1e3 * timed(half_norm)
         row["fused ms"] = 1e3 * timed(fused)
+        row["eager channels-last ms"] = 1e3 * timed(eager_last)
+        row["fused channels-last ms"] = 1e3 * timed(fused_last)
     row["bytes moved MB (floor)"] = 3 * x.numel() * x.element_size() / 1e6
     return {k: round(v, 3) if isinstance(v, float) else v for k, v in row.items()}
 
@@ -161,8 +176,9 @@ def main():
             (1, 64, 64, 64, 64),
             (3, 512, 8, 8, 8),
         ):
-            key = str(dtype).removeprefix("torch.")
-            worst[key] = max(worst.get(key, 0.0), check(dtype, shape))
+            for last in (False, True):
+                key = str(dtype).removeprefix("torch.") + (" channels-last" if last else "")
+                worst[key] = max(worst.get(key, 0.0), check(dtype, shape, last=last))
     print("largest relative error against float64:", json.dumps(worst), flush=True)
 
     for channels, extent in (

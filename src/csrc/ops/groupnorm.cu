@@ -12,7 +12,9 @@
  * with the norm's affine w, b and the FiLM s, t each optional (NULL), and act
  * SiLU when asked for, the identity otherwise.  x and y are
  * (items, channels, voxels), voxels fastest -- a contiguous NC(D)HW tensor --
- * in float, half or bfloat16; w, b are (channels) float32, s, t (items,
+ * or with channels_last (items, voxels, channels), channels fastest -- a
+ * channels-last N(D)HWC one, which cuDNN's convolutions prefer -- in float,
+ * half or bfloat16; w, b are (channels) float32, s, t (items,
  * channels) float32.  Statistics are in float32 by Welford's method; a group
  * is spread over several blocks, whose partial sums a second pass merges.
  * y may be x.
@@ -170,6 +172,127 @@ __global__ void apply(const T* x, T* y, int64_t channels, int64_t voxels, int pe
 	}
 }
 
+/*
+ * Channels-last (items, voxels, channels): the partial statistics of every group of an
+ * item over part blockIdx.y of its voxels.  Each thread follows one channel down the
+ * voxels (or several, when there are more channels than threads), so a row of channels
+ * is read whole by neighbouring threads; the channels of each group are merged at the end.
+ */
+template <typename T>
+__global__ void partial_stats_last(const T* __restrict__ x, int64_t voxels, int channels, int groups, int parts,
+		float* __restrict__ partial)
+{
+	extern __shared__ welford entries[];
+
+	const int64_t item = blockIdx.x;
+	const int part = blockIdx.y;
+	const int64_t per = (voxels + parts - 1) / parts;
+	const int64_t lo = part * per;
+	const int64_t hi = (lo + per < voxels) ? lo + per : voxels;
+	const T* base = x + item * voxels * channels;
+	const int rows = (channels <= THREADS) ? THREADS / channels : 1;
+
+	if (channels <= THREADS) {
+		const int t = threadIdx.x;
+		if (t < rows * channels) {
+			const int r = t / channels, c = t % channels;
+			welford w = { 0.f, 0.f, 0.f };
+			for (int64_t v = lo + r; v < hi; v += rows) {
+				const float value = to_float(base[v * channels + c]);
+				w.count += 1.f;
+				const float delta = value - w.mean;
+				w.mean += delta / w.count;
+				w.m2 += delta * (value - w.mean);
+			}
+			entries[t] = w;
+		}
+	} else {
+		for (int c = threadIdx.x; c < channels; c += THREADS) {
+			welford w = { 0.f, 0.f, 0.f };
+			for (int64_t v = lo; v < hi; v++) {
+				const float value = to_float(base[v * channels + c]);
+				w.count += 1.f;
+				const float delta = value - w.mean;
+				w.mean += delta / w.count;
+				w.m2 += delta * (value - w.mean);
+			}
+			entries[c] = w;
+		}
+	}
+	__syncthreads();
+
+	const int per_group = channels / groups;
+	for (int g = threadIdx.x; g < groups; g += THREADS) {
+		welford w = { 0.f, 0.f, 0.f };
+		for (int r = 0; r < rows; r++)
+			for (int j = 0; j < per_group; j++)
+				w = merge(w, entries[r * channels + g * per_group + j]);
+		float* out = partial + ((item * groups + g) * parts + part) * 3;
+		out[0] = w.count;
+		out[1] = w.mean;
+		out[2] = w.m2;
+	}
+}
+
+/* Each item's channel as one multiply-add: y = act(x * ab[0] + ab[1]). */
+__global__ void coefficients(int64_t items, int channels, int per_group, const float* __restrict__ stats,
+		const float* __restrict__ weight, const float* __restrict__ bias, const float* __restrict__ scale,
+		const float* __restrict__ shift, float* __restrict__ ab)
+{
+	for (int64_t row = blockIdx.x * (int64_t)blockDim.x + threadIdx.x; row < items * channels;
+			row += (int64_t)blockDim.x * gridDim.x) {
+		const int64_t c = row % channels, item = row / channels;
+		const int64_t group = item * (channels / per_group) + c / per_group;
+		const float mean = stats[2 * group], rstd = stats[2 * group + 1];
+		const float w = weight ? weight[c] : 1.f;
+		const float b = bias ? bias[c] : 0.f;
+		const float s = scale ? 1.f + scale[row] : 1.f;
+		const float t = shift ? shift[row] : 0.f;
+		ab[2 * row] = rstd * w * s;
+		ab[2 * row + 1] = (b - mean * rstd * w) * s + t;
+	}
+}
+
+template <typename T>
+__global__ void apply_last(const T* x, T* y, int64_t items, int64_t voxels, int channels, const float* __restrict__ ab, int silu)
+{
+	const int64_t total = items * voxels * channels;
+	for (int64_t i = blockIdx.x * (int64_t)blockDim.x + threadIdx.x; i < total; i += (int64_t)blockDim.x * gridDim.x) {
+		const int64_t c = i % channels, item = i / (voxels * channels);
+		const int64_t row = item * channels + c;
+		float v = to_float(x[i]) * ab[2 * row] + ab[2 * row + 1];
+		if (silu)
+			v = v / (1.f + __expf(-v));
+		y[i] = from_float<T>(v);
+	}
+}
+
+template <typename T>
+cudaError_t run_last(const void* x, void* y, int64_t items, int64_t channels, int64_t voxels, int groups,
+		const float* weight, const float* bias, const float* scale, const float* shift, float eps, int silu,
+		float* workspace, cudaStream_t stream)
+{
+	const int per_group = (int)(channels / groups);
+	const int parts = (int)parts_of(per_group * voxels);
+	const int64_t n_groups = items * groups;
+	float* partial = workspace;
+	float* stats = partial + n_groups * parts * 3;
+	float* ab = stats + 2 * n_groups;
+	const int entries = (channels <= THREADS) ? (int)(THREADS / channels * channels) : (int)channels;
+
+	partial_stats_last<T><<<dim3((unsigned)items, parts), THREADS, entries * sizeof(welford), stream>>>(
+			(const T*)x, voxels, (int)channels, groups, parts, partial);
+	finish_stats<<<(unsigned)((n_groups + 127) / 128), 128, 0, stream>>>(partial, n_groups, parts, eps, stats);
+	coefficients<<<(unsigned)((items * channels + 127) / 128), 128, 0, stream>>>(
+			items, (int)channels, per_group, stats, weight, bias, scale, shift, ab);
+
+	int64_t blocks = (items * voxels * channels + THREADS * 8 - 1) / (THREADS * 8);
+	blocks = (blocks < 1) ? 1 : (blocks > 65535 * 16) ? 65535 * 16 : blocks;
+	apply_last<T><<<(unsigned)blocks, THREADS, 0, stream>>>((const T*)x, (T*)y, items, voxels, (int)channels, ab, silu);
+
+	return cudaGetLastError();
+}
+
 template <typename T>
 cudaError_t run(const void* x, void* y, int64_t items, int64_t channels, int64_t voxels, int groups,
 		const float* weight, const float* bias, const float* scale, const float* shift, float eps, int silu,
@@ -202,14 +325,16 @@ int64_t bartorch_gn_workspace(int64_t items, int64_t channels, int64_t voxels, i
 	if (groups < 1 || channels % groups)
 		return -1;
 	const int64_t n_groups = items * groups;
-	return n_groups * parts_of(channels / groups * voxels) * 3 + 2 * n_groups;
+	return n_groups * parts_of(channels / groups * voxels) * 3 + 2 * n_groups + 2 * items * channels;
 }
 
 int bartorch_gn_silu(const void* x, void* y, int64_t items, int64_t channels, int64_t voxels, int groups,
 		const void* weight, const void* bias, const void* scale, const void* shift, float eps, int silu,
-		int dtype, void* workspace, void* stream)
+		int channels_last, int dtype, void* workspace, void* stream)
 {
 	if (items < 1 || channels < 1 || voxels < 1 || groups < 1 || channels % groups || items * channels > 2147483647LL)
+		return (int)cudaErrorInvalidValue;
+	if (channels_last && channels > 4096)  /* the statistics' shared memory holds a Welford sum per channel */
 		return (int)cudaErrorInvalidValue;
 
 	const float* w = (const float*)weight;
@@ -220,12 +345,16 @@ int bartorch_gn_silu(const void* x, void* y, int64_t items, int64_t channels, in
 	cudaStream_t st = (cudaStream_t)stream;
 	cudaError_t e;
 
+#define BARTORCH_GN_RUN(T) (channels_last \
+		? run_last<T>(x, y, items, channels, voxels, groups, w, b, s, t, eps, silu, ws, st) \
+		: run<T>(x, y, items, channels, voxels, groups, w, b, s, t, eps, silu, ws, st))
 	switch (dtype) {
-	case BARTORCH_NA_FLOAT32: e = run<float>(x, y, items, channels, voxels, groups, w, b, s, t, eps, silu, ws, st); break;
-	case BARTORCH_NA_FLOAT16: e = run<__half>(x, y, items, channels, voxels, groups, w, b, s, t, eps, silu, ws, st); break;
-	case BARTORCH_NA_BFLOAT16: e = run<__nv_bfloat16>(x, y, items, channels, voxels, groups, w, b, s, t, eps, silu, ws, st); break;
+	case BARTORCH_NA_FLOAT32: e = BARTORCH_GN_RUN(float); break;
+	case BARTORCH_NA_FLOAT16: e = BARTORCH_GN_RUN(__half); break;
+	case BARTORCH_NA_BFLOAT16: e = BARTORCH_GN_RUN(__nv_bfloat16); break;
 	default: e = cudaErrorInvalidValue;
 	}
+#undef BARTORCH_GN_RUN
 
 	return (cudaSuccess == e) ? 0 : (int)e;
 }

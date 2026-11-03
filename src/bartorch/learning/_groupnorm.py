@@ -37,6 +37,14 @@ def _reference(x, groups, weight, bias, scale, shift, eps, silu):
     return h.to(x.dtype)
 
 
+def _channels_last(x) -> bool:
+    """Whether ``x`` is channels last (N(D)HWC, as cuDNN prefers) and not also contiguous."""
+    if x.ndim not in (4, 5) or x.is_contiguous():
+        return False
+    layout = torch.channels_last_3d if x.ndim == 5 else torch.channels_last
+    return x.is_contiguous(memory_format=layout) and x.shape[1] <= 4096
+
+
 def _pointer(t):
     return None if t is None else t.data_ptr()
 
@@ -65,7 +73,9 @@ def group_norm_silu(
     one write, in ``x``'s own element type (float32, float16 or bfloat16) with
     float32 statistics -- where eager torch reads and writes the activations
     four or five times, with casts around the norm.  Anywhere else plain torch
-    computes the same, also with float32 statistics.
+    computes the same, also with float32 statistics. ``x`` may be contiguous or
+    channels last (``torch.channels_last_3d``, which cuDNN's convolutions
+    prefer), and the output keeps its layout.
 
     Parameters
     ----------
@@ -108,7 +118,9 @@ def _launch(x, groups, weight, bias, scale, shift, eps, silu):
     lib = _library()
     n, channels = x.shape[:2]
     voxels = x[0, 0].numel()
-    x = x.contiguous()
+    last = _channels_last(x)
+    if not last:
+        x = x.contiguous()
     device = x.device
     w = _as_float(weight, device, (channels,))
     b = _as_float(bias, device, (channels,))
@@ -131,6 +143,7 @@ def _launch(x, groups, weight, bias, scale, shift, eps, silu):
             _pointer(t),
             float(eps),
             int(bool(silu)),
+            int(last),
             _DTYPES[x.dtype],
             workspace.data_ptr(),
             stream,

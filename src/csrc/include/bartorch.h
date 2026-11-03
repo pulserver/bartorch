@@ -972,8 +972,9 @@ BARTORCH_API int bartorch_na3d_scatter_sum(const float* s, const void* a, void* 
  *
  *   y[n, c, v] = act(((x[n, c, v] - mean[n, g]) * rstd[n, g] * w[c] + b[c]) * (1 + s[n, c]) + t[n, c])
  *
- * x and y are (items, channels, voxels), voxels fastest, of a BARTORCH_NA_*
- * element type, and y may be x; weight and bias are (channels) float32, scale
+ * x and y are (items, channels, voxels), voxels fastest, or with channels_last
+ * nonzero (items, voxels, channels), channels fastest (at most 4096), of a
+ * BARTORCH_NA_* element type, and y may be x; weight and bias are (channels) float32, scale
  * and shift (items, channels) float32, each NULL when absent; act is SiLU
  * when silu is nonzero.  Statistics are float32.  workspace holds
  * bartorch_gn_workspace(...) floats on the card (-1 for a bad shape).  Runs on
@@ -984,7 +985,7 @@ BARTORCH_API int bartorch_gn_built(void);
 BARTORCH_API int64_t bartorch_gn_workspace(int64_t items, int64_t channels, int64_t voxels, int groups);
 BARTORCH_API int bartorch_gn_silu(const void* x, void* y, int64_t items, int64_t channels, int64_t voxels,
 		int groups, const void* weight, const void* bias, const void* scale, const void* shift, float eps,
-		int silu, int dtype, void* workspace, void* stream);
+		int silu, int channels_last, int dtype, void* workspace, void* stream);
 
 /* Whether a pointer is device memory; always false without CUDA. */
 BARTORCH_API int bartorch_on_device(const void* ptr);

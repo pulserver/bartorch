@@ -78,7 +78,7 @@ class _HostGroupNorm:
         return 2 * items * groups
 
     def bartorch_gn_silu(
-        self, x, y, n, c, voxels, groups, w, b, s, t, eps, silu, dtype, ws, stream
+        self, x, y, n, c, voxels, groups, w, b, s, t, eps, silu, last, dtype, ws, stream
     ):
         if self.fail:
             return self.fail
@@ -87,8 +87,13 @@ class _HostGroupNorm:
         def optional(pointer, *shape):
             return None if pointer is None else _view(pointer, *shape)
 
+        def volume(pointer):  # (n, c, voxels), whichever way it lies in memory
+            if last:
+                return _view(pointer, n, voxels, c).transpose(1, 2)
+            return _view(pointer, n, c, voxels)
+
         made = _groupnorm._reference(
-            _view(x, n, c, voxels),
+            volume(x),
             groups,
             optional(w, c),
             optional(b, c),
@@ -97,7 +102,7 @@ class _HostGroupNorm:
             eps,
             bool(silu),
         )
-        _view(y, n, c, voxels)[:] = made
+        volume(y)[:] = made
         return 0
 
 
@@ -166,3 +171,16 @@ def test_group_norm_pass_reports_its_error(monkeypatch):
     monkeypatch.setattr(_groupnorm, "_library", lambda: _HostGroupNorm(fail=700))
     with pytest.raises(RuntimeError, match="CUDA error 700"):
         _groupnorm._launch(torch.randn(1, 4, 8), 2, None, None, None, None, 1e-5, False)
+
+
+def test_group_norm_pass_keeps_a_channels_last_layout(monkeypatch):
+    monkeypatch.setattr(_groupnorm, "_library", _HostGroupNorm)
+    torch.manual_seed(2)
+    x = (1 + torch.randn(2, 8, 3, 4, 5)).to(memory_format=torch.channels_last_3d)
+    assert _groupnorm._channels_last(x)
+    scale, shift = torch.randn(2, 8), torch.randn(2, 8)
+    made = _groupnorm._launch(x, 4, None, None, scale, shift, 1e-5, True)
+    assert made.is_contiguous(memory_format=torch.channels_last_3d)
+    want = _groupnorm._reference(x, 4, None, None, scale, shift, 1e-5, True)
+    torch.testing.assert_close(made, want)
+    assert not _groupnorm._channels_last(torch.zeros(1, 4, 1, 1, 1))  # contiguous either way: not

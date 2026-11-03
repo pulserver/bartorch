@@ -1333,6 +1333,7 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
         ctypes.c_float,
         ctypes.c_int,
         ctypes.c_int,
+        ctypes.c_int,
         ctypes.c_void_p,
         ctypes.c_void_p,
     ]
