@@ -90,6 +90,12 @@ def _inner(a, b):
     return torch.vdot(a.flatten(), b.flatten()).real.item()
 
 
+def _assert_adjoint_pair(ax, y, x, ahy, rel):
+    """<Ax, y> equals <x, A^H y> to `rel` of |Ax| |y|, the scale of either side."""
+    scale = torch.linalg.vector_norm(ax).item() * torch.linalg.vector_norm(y).item()
+    assert abs(_inner(ax, y) - _inner(x, ahy)) <= rel * scale
+
+
 @requires_finufft
 def test_matches_an_explicit_dft_on_a_radial_trajectory():
     n = 64
@@ -135,7 +141,7 @@ def test_adjoint_identity_holds():
     A = linop.NUFFT(traj, (1, n, n), toeplitz=False)
     x = torch.randn(*A.ishape, dtype=torch.complex64)
     y = torch.randn(*A.oshape, dtype=torch.complex64)
-    assert _inner(A(x), y) == pytest.approx(_inner(x, A.adjoint(y)), rel=1e-3)
+    _assert_adjoint_pair(A(x), y, x, A.adjoint(y), rel=1e-3)
 
 
 @requires_finufft
@@ -235,7 +241,7 @@ def test_the_substituted_operator_is_its_own_adjoint_pair(in_tools):
     ax = bartorch.nufft(x, traj)
     ahy = bartorch.nufft_adjoint(y, traj, (1, n, n))
 
-    assert _inner(ax, y) == pytest.approx(_inner(x, ahy), rel=1e-4)
+    _assert_adjoint_pair(ax, y, x, ahy, rel=1e-4)
 
 
 @requires_finufft
@@ -256,7 +262,7 @@ def test_weights_multiply_the_transform_and_their_conjugate_its_adjoint(in_tools
     k = torch.randn(spokes, n, 1, dtype=torch.complex64)
     adjoint = bartorch.nufft_adjoint(k, traj, (1, n, n), p=weights)
     forward = bartorch.nufft(x, traj, p=weights)
-    assert _inner(forward, k) == pytest.approx(_inner(x, adjoint), rel=1e-4)
+    _assert_adjoint_pair(forward, k, x, adjoint, rel=1e-4)
 
 
 @requires_finufft
@@ -1972,7 +1978,7 @@ def test_encoding_axes_behind_a_batch_are_transformed_a_batch_item_at_a_time():
     y = torch.randn(*A.oshape, dtype=torch.complex64)
     torch.testing.assert_close(A(x), torch.stack([one(x[c]) for c in range(coils)]))
     torch.testing.assert_close(A.adjoint(y), torch.stack([one.adjoint(y[c]) for c in range(coils)]))
-    assert _inner(A(x), y) == pytest.approx(_inner(x, A.adjoint(y)), rel=1e-3)
+    _assert_adjoint_pair(A(x), y, x, A.adjoint(y), rel=1e-3)
 
 
 def test_a_failed_install_is_reported_as_the_refusal_it_leads_to(monkeypatch, caplog):
