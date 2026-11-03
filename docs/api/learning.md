@@ -24,6 +24,7 @@ backward strategy uses.
 | {obj}`~bartorch.learning.Patchwise` | A network applied patch by patch on a device, with a randomly shifted or rolled grid, empty patches skipped and mixed precision, to an image held elsewhere |
 | {obj}`~bartorch.learning.NeighborhoodAttention3d` | Multi-head attention of each voxel of a 3D feature map over a window around it, with a bias per relative position; linear in the volume |
 | {obj}`~bartorch.learning.neighborhood_attention3d` | The operation itself on queries, keys and values: through this library's CUDA kernels on a card, in plain torch elsewhere |
+| {obj}`~bartorch.learning.group_norm_silu` | A diffusion UNet's group norm, noise-level scale and shift and SiLU in one pass over memory on a card (float32 statistics), plain torch elsewhere or under autograd |
 
 | Precision on the device | `Patchwise(dtype="auto")` |
 | --- | --- |

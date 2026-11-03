@@ -353,6 +353,9 @@ SYMBOLS = (
     "bartorch_na3d_gather_dot",
     "bartorch_na3d_gather_sum",
     "bartorch_na3d_scatter_sum",
+    "bartorch_gn_built",
+    "bartorch_gn_workspace",
+    "bartorch_gn_silu",
     "bartorch_on_device",
 )
 
@@ -1304,6 +1307,33 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
         ctypes.c_int,
         ctypes.c_int,
         ctypes.c_int,
+        ctypes.c_void_p,
+    ]
+    lib.bartorch_gn_built.restype = ctypes.c_int
+    lib.bartorch_gn_built.argtypes = []
+    lib.bartorch_gn_workspace.restype = ctypes.c_int64
+    lib.bartorch_gn_workspace.argtypes = [
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.c_int,
+    ]
+    lib.bartorch_gn_silu.restype = ctypes.c_int
+    lib.bartorch_gn_silu.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.c_int,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_float,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_void_p,
         ctypes.c_void_p,
     ]
     lib.bartorch_on_device.restype = ctypes.c_int
