@@ -230,7 +230,7 @@ You run the same prior under ADMM and under FISTA.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      1%|          | 1.12M/125M [00:00<00:11, 11.7MB/s]     28%|██▊       | 35.1M/125M [00:00<00:00, 214MB/s]      55%|█████▌    | 68.6M/125M [00:00<00:00, 275MB/s]     76%|███████▌  | 94.9M/125M [00:00<00:00, 230MB/s]     95%|█████████▍| 118M/125M [00:00<00:00, 226MB/s]     100%|██████████| 125M/125M [00:00<00:00, 220MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      3%|▎         | 3.25M/125M [00:00<00:03, 33.3MB/s]      5%|▌         | 6.50M/125M [00:00<00:04, 30.5MB/s]      8%|▊         | 9.50M/125M [00:00<00:04, 28.4MB/s]     10%|▉         | 12.2M/125M [00:00<00:04, 26.1MB/s]     12%|█▏        | 15.5M/125M [00:00<00:04, 28.2MB/s]     15%|█▌        | 19.0M/125M [00:00<00:03, 30.8MB/s]     18%|█▊        | 22.0M/125M [00:00<00:03, 30.3MB/s]     20%|██        | 25.0M/125M [00:00<00:03, 30.4MB/s]     22%|██▏       | 28.0M/125M [00:01<00:03, 25.7MB/s]     26%|██▌       | 32.6M/125M [00:01<00:03, 30.3MB/s]     29%|██▊       | 35.8M/125M [00:01<00:03, 29.6MB/s]     31%|███       | 38.8M/125M [00:01<00:03, 25.9MB/s]     33%|███▎      | 41.6M/125M [00:01<00:03, 26.5MB/s]     36%|███▌      | 45.0M/125M [00:01<00:02, 28.5MB/s]     38%|███▊      | 47.9M/125M [00:01<00:02, 28.3MB/s]     41%|████      | 50.8M/125M [00:01<00:03, 25.7MB/s]     43%|████▎     | 53.4M/125M [00:02<00:02, 25.1MB/s]     45%|████▍     | 55.9M/125M [00:02<00:03, 22.1MB/s]     47%|████▋     | 58.4M/125M [00:02<00:03, 23.0MB/s]     49%|████▉     | 61.0M/125M [00:02<00:02, 24.2MB/s]     54%|█████▍    | 67.6M/125M [00:02<00:01, 36.4MB/s]    100%|██████████| 125M/125M [00:02<00:00, 50.6MB/s] 
 
 
 
@@ -387,7 +387,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 51.154 seconds)
+   **Total running time of the script:** (0 minutes 53.694 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

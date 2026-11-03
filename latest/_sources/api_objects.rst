@@ -278,6 +278,7 @@ bartorch.tools
    cc
    ccapply
    rovir
+   rovir_fov
    whiten
    estvar
    phasepole

@@ -187,9 +187,9 @@ coil sensitivities, sampling pattern or k-space enter the training.
 
  .. code-block:: none
 
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 
 
 
@@ -228,7 +228,7 @@ slices of subject 4. First the denoiser on its own, at three noise levels:
 
  .. code-block:: none
 
-    sigma 0.01: 41.46 dB noisy, 41.41 denoised
+    sigma 0.01: 41.46 dB noisy, 41.13 denoised
     sigma 0.05: 27.17 dB noisy, 27.16 denoised
     sigma 0.1: 21.06 dB noisy, 21.06 denoised
 
@@ -317,7 +317,7 @@ follow each schedule iteration by iteration:
 
        annealed, 0.1 to 0.01   PSNR 27.01 dB
                  fixed, 0.03   PSNR 27.14 dB
-                 fixed, 0.01   PSNR 27.50 dB
+                 fixed, 0.01   PSNR 27.48 dB
      CG SENSE, 20 iterations   PSNR 24.21 dB
 
 
@@ -450,9 +450,9 @@ as it is:
 
  .. code-block:: none
 
-    lambda 1e-05: PSNR 27.02 dB
+    lambda 1e-05: PSNR 27.01 dB
     lambda 1e-04: PSNR 27.01 dB
-    lambda 1e-03: PSNR 27.52 dB
+    lambda 1e-03: PSNR 27.37 dB
 
 
 
@@ -504,7 +504,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 43.098 seconds)
+   **Total running time of the script:** (0 minutes 42.833 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py:

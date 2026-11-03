@@ -352,9 +352,9 @@ stage, which makes it the cheapest of the three.
 
  .. code-block:: none
 
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
 
 
 
@@ -475,11 +475,11 @@ prior.
  .. code-block:: none
 
                    untrained   PSNR 26.45 dB   SSIM 0.654
-         denoiser pretrained   PSNR 27.54 dB   SSIM 0.926
-                      greedy   PSNR 27.62 dB   SSIM 0.749
-                  end to end   PSNR 29.21 dB   SSIM 0.860
+         denoiser pretrained   PSNR 26.32 dB   SSIM 0.913
+                      greedy   PSNR 28.16 dB   SSIM 0.795
+                  end to end   PSNR 29.06 dB   SSIM 0.839
      CG SENSE, 20 iterations   PSNR 24.30 dB   SSIM 0.558
-    learned step: 1.149
+    learned step: 1.139
 
 
 
@@ -513,7 +513,7 @@ reaches on a real dataset.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_02-staged-training_002.png
-         :alt: CG-SENSE NRMSE 0.137, unrolled, staged NRMSE 0.080
+         :alt: CG-SENSE NRMSE 0.137, unrolled, staged NRMSE 0.081
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_02-staged-training_002.png
          :class: sphx-glr-multi-img
 
@@ -557,7 +557,7 @@ back to the network's precision.
 
  .. code-block:: none
 
-    restored: PSNR 29.21 dB
+    restored: PSNR 29.06 dB
 
 
 
@@ -643,7 +643,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 25.498 seconds)
+   **Total running time of the script:** (2 minutes 25.625 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_02-staged-training.py:
