@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+
 import torch
 from torch import nn
 
@@ -61,6 +63,16 @@ def kernels_available() -> bool:
         return False
 
 
+@contextlib.contextmanager
+def _on(device):
+    """The current stream of ``device``'s card, with that card current; no stream off a card."""
+    if device.type != "cuda":
+        yield None
+        return
+    with torch.cuda.device(device):
+        yield torch.cuda.current_stream(device).cuda_stream
+
+
 def _call(name: str, x, y, out, extent, window: int):
     """One CUDA pass; ``x`` and ``out`` are float32 weights or elements, as the pass takes them."""
     groups, _, channels = y.shape
@@ -69,8 +81,7 @@ def _call(name: str, x, y, out, extent, window: int):
         first, third = x.data_ptr(), _float_pointer(out.data_ptr())
     else:  # weights, elements -> elements
         first, third = _float_pointer(x.data_ptr()), out.data_ptr()
-    with torch.cuda.device(y.device):
-        stream = torch.cuda.current_stream(y.device).cuda_stream
+    with _on(y.device) as stream:
         error = getattr(_library(), f"bartorch_na3d_{name}")(
             first,
             y.data_ptr(),

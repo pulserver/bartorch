@@ -98,7 +98,15 @@ def group_norm_silu(
     if not fast:
         return _reference(x, groups, weight, bias, scale, shift, eps, silu)
 
+    return _launch(x, groups, weight, bias, scale, shift, eps, silu)
+
+
+def _launch(x, groups, weight, bias, scale, shift, eps, silu):
+    """The library's pass on ``x`` wherever its memory is; the caller has checked it can run."""
+    from bartorch.learning._neighborhood import _on
+
     lib = _library()
+    n, channels = x.shape[:2]
     voxels = x[0, 0].numel()
     x = x.contiguous()
     device = x.device
@@ -109,8 +117,7 @@ def group_norm_silu(
     size = lib.bartorch_gn_workspace(n, channels, voxels, groups)
     workspace = torch.empty(size, device=device, dtype=torch.float32)
     out = torch.empty_like(x)
-    with torch.cuda.device(device):
-        stream = torch.cuda.current_stream(device).cuda_stream
+    with _on(device) as stream:
         error = lib.bartorch_gn_silu(
             x.data_ptr(),
             out.data_ptr(),
