@@ -365,7 +365,9 @@ def rovir_fov(
     near = near[..., :first].reshape(-1, first)
     y = kspace[..., :first].reshape(channels, -1, first)
     grid = (size,) * ndim
-    weights = (estimate_density(k, grid, iterations=iterations) * near).sqrt().contiguous()
+    # One trajectory: every readout shares the density, as one image is gridded from them all.
+    density = estimate_density(k.reshape(-1, ndim), grid, iterations=iterations).reshape(near.shape)
+    weights = (density * near).sqrt().contiguous()
     nufft = NUFFT(k, (channels, *grid), weights=weights, toeplitz=False)
     images = nufft.adjoint((y * weights).to(torch.complex64).contiguous()).to(torch.complex64)
 
