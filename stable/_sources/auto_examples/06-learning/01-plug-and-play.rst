@@ -230,7 +230,7 @@ You run the same prior under ADMM and under FISTA.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<01:43, 1.26MB/s]      1%|          | 1.00M/125M [00:00<00:22, 5.79MB/s]      6%|▌         | 7.00M/125M [00:00<00:03, 31.5MB/s]     35%|███▌      | 43.8M/125M [00:00<00:00, 170MB/s]      62%|██████▏   | 77.2M/125M [00:00<00:00, 223MB/s]     85%|████████▌ | 106M/125M [00:00<00:00, 238MB/s]     100%|██████████| 125M/125M [00:00<00:00, 196MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      0%|          | 128k/125M [00:00<01:41, 1.29MB/s]      1%|          | 1.00M/125M [00:00<00:21, 5.89MB/s]      6%|▌         | 7.38M/125M [00:00<00:03, 33.6MB/s]     37%|███▋      | 46.1M/125M [00:00<00:00, 180MB/s]      83%|████████▎ | 103M/125M [00:00<00:00, 331MB/s]     100%|██████████| 125M/125M [00:00<00:00, 242MB/s]
 
 
 
@@ -387,7 +387,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 38.316 seconds)
+   **Total running time of the script:** (0 minutes 38.524 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

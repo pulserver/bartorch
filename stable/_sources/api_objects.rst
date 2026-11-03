@@ -214,6 +214,9 @@ bartorch.learning
    UNet
    ComplexNet
    Patchwise
+   NeighborhoodAttention3d
+   neighborhood_attention3d
+   group_norm_silu
    Unrolled
    split
    moments
@@ -278,6 +281,7 @@ bartorch.tools
    cc
    ccapply
    rovir
+   rovir_fov
    whiten
    estvar
    phasepole

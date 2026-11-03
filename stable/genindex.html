@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=5818640c"></script>
+    <script src="_static/documentation_options.js?v=989155d3"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -55,7 +55,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.19';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.20';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -67,7 +67,7 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.19" />
+  <meta name="docsearch:version" content="v0.0.20" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -767,6 +767,8 @@
       <li><a href="generated/bartorch.learning.ComplexNet.html#bartorch.learning.ComplexNet.forward">forward() (bartorch.learning.ComplexNet method)</a>
 
       <ul>
+        <li><a href="generated/bartorch.learning.NeighborhoodAttention3d.html#bartorch.learning.NeighborhoodAttention3d.forward">(bartorch.learning.NeighborhoodAttention3d method)</a>
+</li>
         <li><a href="generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise.forward">(bartorch.learning.Patchwise method)</a>
 </li>
         <li><a href="generated/bartorch.learning.UNet.html#bartorch.learning.UNet.forward">(bartorch.learning.UNet method)</a>
@@ -826,15 +828,17 @@
 </li>
       <li><a href="generated/bartorch.tools.GradientCoefficients.html#bartorch.tools.GradientCoefficients">GradientCoefficients (class in bartorch.tools)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.Gradunwarp.html#bartorch.tools.Gradunwarp">Gradunwarp (class in bartorch.tools)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.linop.LinearOperator.html#bartorch.linop.LinearOperator.gram">gram() (bartorch.linop.LinearOperator method)</a>
 </li>
       <li><a href="generated/bartorch.tools.grid.html#bartorch.tools.grid">grid() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.tools.grog.html#bartorch.tools.grog">grog() (in module bartorch.tools)</a>
+</li>
+      <li><a href="generated/bartorch.learning.group_norm_silu.html#bartorch.learning.group_norm_silu">group_norm_silu() (in module bartorch.learning)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1018,6 +1022,10 @@
 </li>
       <li><a href="generated/bartorch.tools.ncalib.html#bartorch.tools.ncalib">ncalib() (in module bartorch.tools)</a>
 </li>
+      <li><a href="generated/bartorch.learning.neighborhood_attention3d.html#bartorch.learning.neighborhood_attention3d">neighborhood_attention3d() (in module bartorch.learning)</a>
+</li>
+      <li><a href="generated/bartorch.learning.NeighborhoodAttention3d.html#bartorch.learning.NeighborhoodAttention3d">NeighborhoodAttention3d (class in bartorch.learning)</a>
+</li>
       <li><a href="generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv">nlinv() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.apps.nlinv_maps.html#bartorch.apps.nlinv_maps">nlinv_maps() (in module bartorch.apps)</a>
@@ -1028,10 +1036,10 @@
 </li>
       <li><a href="generated/bartorch.tools.noise.html#bartorch.tools.noise">noise() (in module bartorch.tools)</a>
 </li>
-      <li><a href="generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense">NoncartesianSense (class in bartorch.linop)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/bartorch.linop.NoncartesianSense.html#bartorch.linop.NoncartesianSense">NoncartesianSense (class in bartorch.linop)</a>
+</li>
       <li><a href="generated/bartorch.nlop.NoncartesianSense.html#bartorch.nlop.NoncartesianSense">NoncartesianSense() (in module bartorch.nlop)</a>
 </li>
       <li><a href="generated/bartorch.nlop.NonlinearOperator.html#bartorch.nlop.NonlinearOperator">NonlinearOperator (class in bartorch.nlop)</a>
@@ -1202,10 +1210,10 @@
 </li>
       <li><a href="generated/bartorch.remove_readout_oversampling.html#bartorch.remove_readout_oversampling">remove_readout_oversampling() (in module bartorch)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.linop.Repeat.html#bartorch.linop.Repeat">Repeat (class in bartorch.linop)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/bartorch.tools.RigidRegistration.html#bartorch.tools.RigidRegistration.resample">resample() (bartorch.tools.RigidRegistration method)</a>
 </li>
       <li><a href="generated/bartorch.tools.NavigatorMotionTracker.html#bartorch.tools.NavigatorMotionTracker.reset">reset() (bartorch.tools.NavigatorMotionTracker method)</a>
@@ -1247,6 +1255,8 @@
       <li><a href="generated/bartorch.cli.route.html#bartorch.cli.route">route() (in module bartorch.cli)</a>
 </li>
       <li><a href="generated/bartorch.tools.rovir.html#bartorch.tools.rovir">rovir() (in module bartorch.tools)</a>
+</li>
+      <li><a href="generated/bartorch.tools.rovir_fov.html#bartorch.tools.rovir_fov">rovir_fov() (in module bartorch.tools)</a>
 </li>
       <li><a href="generated/bartorch.rss.html#bartorch.rss">rss() (in module bartorch)</a>
 </li>

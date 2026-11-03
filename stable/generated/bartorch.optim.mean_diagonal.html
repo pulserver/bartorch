@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=5818640c"></script>
+    <script src="../_static/documentation_options.js?v=989155d3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.19';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.20';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.19" />
+  <meta name="docsearch:version" content="v0.0.20" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -533,7 +533,12 @@ applied once per probe.</p></li>
 <li><p><strong>probes</strong> (<em>int</em><em>, </em><em>default=1</em>) – Probes averaged.  The relative spread of one probe is about
 <span class="math notranslate nohighlight">\(1/\sqrt{n}\)</span> for an operator of <span class="math notranslate nohighlight">\(n\)</span> unknowns with a flat
 diagonal, so a volume needs one.</p></li>
-<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>default=0</em>) – Seed of the host generator the probes are drawn from.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>default=0</em>) – Seed of the generator the probes are drawn from.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Where the probes are drawn, applied and reduced; on the host when
+omitted.  On the card the operator was built on, a volume’s probe never
+crosses the bus; the generator is the card’s, so the estimate differs
+from the host’s by the probe’s spread.  An operator built elsewhere is
+applied where it was built.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

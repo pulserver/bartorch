@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=5818640c"></script>
+    <script src="../_static/documentation_options.js?v=989155d3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.19';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.20';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.19" />
+  <meta name="docsearch:version" content="v0.0.20" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -543,7 +543,14 @@ are <code class="docutils literal notranslate"><span class="pre">(*batches,</spa
 <li><p><strong>positions</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Alternative to <code class="docutils literal notranslate"><span class="pre">pattern</span></code>: integer indices of the acquired phase
 encodes, <code class="docutils literal notranslate"><span class="pre">([frames,]</span> <span class="pre">shots,</span> <span class="pre">d)</span></code> with <code class="docutils literal notranslate"><span class="pre">d</span></code> indexing <code class="docutils literal notranslate"><span class="pre">(y,)</span></code> in 2D or
 <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y)</span></code> in 3D, and <code class="docutils literal notranslate"><span class="pre">-1</span></code> padding frames with fewer shots.  The
-samples are then <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">coils,</span> <span class="pre">[frames,]</span> <span class="pre">shots,</span> <span class="pre">x)</span></code>.</p></li>
+samples are then <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">coils,</span> <span class="pre">[frames,]</span> <span class="pre">shots,</span> <span class="pre">x)</span></code>.
+With <code class="docutils literal notranslate"><span class="pre">d</span></code> one more, indexing <code class="docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> or <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>, each
+position is a single sample on the grid – gridded non-Cartesian
+samples, say – and the samples are <code class="docutils literal notranslate"><span class="pre">(*batches,</span> <span class="pre">[batch,]</span> <span class="pre">coils,</span>
+<span class="pre">[frames,]</span> <span class="pre">shots)</span></code>.</p></li>
+<li><p><strong>weights</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – With <code class="docutils literal notranslate"><span class="pre">positions</span></code>, a weight per position <code class="docutils literal notranslate"><span class="pre">([frames,]</span> <span class="pre">shots)</span></code>, such
+as the square root of a density compensation: it multiplies the
+samples, conjugated on the adjoint, and enters the normal squared.</p></li>
 <li><p><strong>readout</strong> (<em>{&quot;kspace&quot;</em><em>, </em><em>&quot;image&quot;}</em><em>, </em><em>default='kspace'</em>) – With <code class="docutils literal notranslate"><span class="pre">positions</span></code>, whether the samples are in k-space along the
 readout or already inverse-transformed along it (hybrid space).</p></li>
 <li><p><strong>basis</strong> (<em>tensor</em><em>, </em><em>default=None</em>) – Temporal subspace basis <code class="docutils literal notranslate"><span class="pre">(coeffs,</span> <span class="pre">frames)</span></code>.</p></li>
