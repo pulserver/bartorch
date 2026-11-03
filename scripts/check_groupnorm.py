@@ -20,7 +20,7 @@ from __future__ import annotations
 import argparse
 import ctypes
 import json
-import subprocess
+import subprocess  # nosec B404 - runs nvcc, a fixed command
 import tempfile
 import time
 from pathlib import Path
@@ -59,7 +59,7 @@ def standalone(arch: str | None) -> ctypes.CDLL:
         "-I", str(ROOT / "src" / "csrc"),
         "-o", str(out), str(ROOT / "src" / "csrc" / "ops" / "groupnorm.cu"),
     ]  # fmt: skip
-    subprocess.run(command, check=True)
+    subprocess.run(command, check=True)  # nosec B603 - nvcc on this checkout's source
     lib = ctypes.CDLL(str(out))
     lib.bartorch_gn_built.restype = ctypes.c_int
     lib.bartorch_gn_workspace.restype = ctypes.c_int64
