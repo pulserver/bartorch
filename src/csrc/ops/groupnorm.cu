@@ -53,6 +53,22 @@ int64_t parts_of(int64_t group_size)
 	return (p < 1) ? 1 : (p > MAX_PARTS) ? MAX_PARTS : p;
 }
 
+/*
+ * Channels last, a block reads all of an item's channels over a run of voxels, so
+ * an item is split by its whole size, not a group's, and into smaller runs: with
+ * few items and many channels (a UNet's deep levels) a split by group would leave
+ * the card with a handful of blocks.
+ */
+const int64_t CHUNK_LAST = 4096;
+const int MAX_PARTS_LAST = 256;
+
+int64_t parts_last(int64_t channels, int64_t voxels)
+{
+	int64_t p = (channels * voxels + CHUNK_LAST - 1) / CHUNK_LAST;
+	p = (p > voxels) ? voxels : p;
+	return (p < 1) ? 1 : (p > MAX_PARTS_LAST) ? MAX_PARTS_LAST : p;
+}
+
 struct welford {
 	float count, mean, m2;
 };
@@ -273,7 +289,7 @@ cudaError_t run_last(const void* x, void* y, int64_t items, int64_t channels, in
 		float* workspace, cudaStream_t stream)
 {
 	const int per_group = (int)(channels / groups);
-	const int parts = (int)parts_of(per_group * voxels);
+	const int parts = (int)parts_last(channels, voxels);
 	const int64_t n_groups = items * groups;
 	float* partial = workspace;
 	float* stats = partial + n_groups * parts * 3;
@@ -325,7 +341,8 @@ int64_t bartorch_gn_workspace(int64_t items, int64_t channels, int64_t voxels, i
 	if (groups < 1 || channels % groups)
 		return -1;
 	const int64_t n_groups = items * groups;
-	return n_groups * parts_of(channels / groups * voxels) * 3 + 2 * n_groups + 2 * items * channels;
+	const int64_t a = parts_of(channels / groups * voxels), b = parts_last(channels, voxels);
+	return n_groups * ((a > b) ? a : b) * 3 + 2 * n_groups + 2 * items * channels;
 }
 
 int bartorch_gn_silu(const void* x, void* y, int64_t items, int64_t channels, int64_t voxels, int groups,
