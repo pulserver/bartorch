@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=236dd7ce"></script>
+    <script src="../_static/documentation_options.js?v=341957a8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.21';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.22';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.21" />
+  <meta name="docsearch:version" content="v0.0.22" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -551,9 +551,15 @@ FFTs on the image grid: no NUFFT and no oversampled grid.</p>
 takes consecutive samples.</p></li>
 <li><p><strong>reach</strong> (<em>int</em><em>, </em><em>default=4</em>) – Displacements the correlation is tabulated to, in cells.</p></li>
 <li><p><strong>upsample</strong> (<em>int</em><em>, </em><em>default=8</em>) – Table steps per cell.</p></li>
-<li><p><strong>batch</strong> (<em>int</em><em>, </em><em>default=65536</em>) – Kernels solved at once.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>default=None</em>) – Where the kernels are solved (a card is much faster); the result is on
-the host.  <code class="docutils literal notranslate"><span class="pre">None</span></code> uses the samples’ device.</p></li>
+<li><p><strong>batch</strong> (<em>int</em><em>, </em><em>default=1048576</em>) – Targets per pass on a card: what it holds besides the samples.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>default=None</em>) – Where the kernels are solved; the result is on the host.  <code class="docutils literal notranslate"><span class="pre">None</span></code>
+uses the samples’ device.  Each target’s kernel is solved in single
+precision by a compiled loop: one target per thread on a card, the
+targets spread over the cores on the host.  The card holds the samples
+and <code class="docutils literal notranslate"><span class="pre">batch</span></code> targets’ indices and results, nothing else.</p></li>
+<li><p><strong>double</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Solve the kernels in double precision, by torch (slow, for checks).</p></li>
+<li><p><strong>also</strong> (<em>sequence</em><em> of </em><em>torch.Tensor</em><em>, </em><em>default=</em><em>(</em><em>)</em>) – More samples shaped as <code class="docutils literal notranslate"><span class="pre">kspace</span></code>, such as a draw of pure noise, moved
+by the same kernels without solving them again.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -561,7 +567,8 @@ the host.  <code class="docutils literal notranslate"><span class="pre">None</sp
 <code class="docutils literal notranslate"><span class="pre">(M,)</span></code>, the <code class="docutils literal notranslate"><span class="pre">shot</span></code> (flat index of <code class="docutils literal notranslate"><span class="pre">*shots</span></code>) and <code class="docutils literal notranslate"><span class="pre">sample</span></code> each
 came from, <code class="docutils literal notranslate"><span class="pre">noise</span></code> <code class="docutils literal notranslate"><span class="pre">(M,)</span></code> (each value’s noise variance per coil for
 unit white noise on the samples) and <code class="docutils literal notranslate"><span class="pre">weights()</span></code>, the weights of unit
-mean square that whiten the values.</p>
+mean square that whiten the values; <code class="docutils literal notranslate"><span class="pre">also</span></code> holds the values of the
+extra samples, in their order.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>gridded</p>

@@ -95,6 +95,7 @@ recorded by autograd.
 | {obj}`~bartorch.cuda_available` | Whether the library was built with CUDA and a device is present |
 | {obj}`~bartorch.set_cuda_streams` | Number of CUDA streams BART uses |
 | {obj}`~bartorch.use_cuda_memcache` | Whether BART caches freed device memory |
+| {obj}`~bartorch.empty_cuda_memcache` | Return BART's cached device memory to the driver |
 
 ## Build information
 

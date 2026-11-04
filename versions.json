@@ -1,19 +1,19 @@
 [
   {
-    "name": "v0.0.21 (stable)",
-    "version": "v0.0.21",
+    "name": "v0.0.22 (stable)",
+    "version": "v0.0.22",
     "url": "https://pulserver.github.io/bartorch/stable/",
     "preferred": true
+  },
+  {
+    "name": "v0.0.21",
+    "version": "v0.0.21",
+    "url": "https://pulserver.github.io/bartorch/v0.0.21/"
   },
   {
     "name": "v0.0.20",
     "version": "v0.0.20",
     "url": "https://pulserver.github.io/bartorch/v0.0.20/"
-  },
-  {
-    "name": "v0.0.19",
-    "version": "v0.0.19",
-    "url": "https://pulserver.github.io/bartorch/v0.0.19/"
   },
   {
     "name": "latest",

@@ -347,7 +347,7 @@ ADMM.
 
  .. code-block:: none
 
-    pics: 0.81 s
+    pics: 1.04 s
 
 
 
@@ -379,8 +379,8 @@ of k-space the spokes cover. The NRMSE and SSIM against the reference:
  .. code-block:: none
 
         gridding: NRMSE 0.324, SSIM 0.418
-        CG-SENSE: NRMSE 0.087, SSIM 0.566
-      SENSE + TV: NRMSE 0.084, SSIM 0.862
+        CG-SENSE: NRMSE 0.087, SSIM 0.565
+      SENSE + TV: NRMSE 0.086, SSIM 0.854
 
 
 
@@ -428,7 +428,7 @@ operator.
 
  .. code-block:: none
 
-    operator and solver: 0.78 s
+    operator and solver: 1.00 s
     relative difference from pics: 0.0e+00
 
 
@@ -478,7 +478,7 @@ printed above), and ``toeplitz=False`` asks for the transform pair.
 
  .. code-block:: none
 
-    without the Toeplitz normal: 0.47 s
+    without the Toeplitz normal: 0.45 s
     relative difference 3.2e-02
 
 
@@ -598,7 +598,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.307 seconds)
+   **Total running time of the script:** (0 minutes 9.104 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04-non-cartesian_02-radial-sense.py:

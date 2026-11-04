@@ -59,153 +59,6 @@ at where the coil sensitivities come from.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    Downloading tissues:   0%|          | 0/10 [00:00<?, ?it/s]
-
-    Downloading phantom_1.0mm_normal_bck: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_bck: 1.00kB [00:00, 4.18kB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 134kB [00:00, 452kB/s]  
-
-    Downloading phantom_1.0mm_normal_bck: 460kB [00:00, 1.36MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 708kB [00:00, 1.71MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 917kB [00:00, 1.75MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 1.15MB [00:00, 1.92MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 1.37MB [00:00, 1.95MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 1.56MB [00:01, 1.89MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 1.75MB [00:01, 1.76MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 1.92MB [00:01, 1.47MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 2.07MB [00:01, 1.30MB/s]
-
-    Downloading phantom_1.0mm_normal_bck: 2.21MB [00:01, 1.24MB/s]
-
-                                                                  
-    Downloading tissues:  10%|█         | 1/10 [00:02<00:22,  2.52s/it]
-
-    Downloading phantom_1.0mm_normal_csf: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_csf: 1.00kB [00:00, 5.78kB/s]
-
-    Downloading phantom_1.0mm_normal_csf: 204kB [00:00, 821kB/s]  
-
-                                                                
-    Downloading tissues:  20%|██        | 2/10 [00:03<00:11,  1.43s/it]
-
-    Downloading phantom_1.0mm_normal_gry: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_gry: 1.00kB [00:00, 6.91kB/s]
-
-    Downloading phantom_1.0mm_normal_gry: 204kB [00:00, 901kB/s]  
-
-    Downloading phantom_1.0mm_normal_gry: 1.00MB [00:00, 3.71MB/s]
-
-                                                                  
-    Downloading tissues:  30%|███       | 3/10 [00:03<00:07,  1.13s/it]
-
-    Downloading phantom_1.0mm_normal_wht: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_wht: 1.00kB [00:00, 5.94kB/s]
-
-    Downloading phantom_1.0mm_normal_wht: 196kB [00:00, 805kB/s]  
-
-                                                                
-    Downloading tissues:  40%|████      | 4/10 [00:04<00:05,  1.05it/s]
-
-    Downloading phantom_1.0mm_normal_fat: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_fat: 1.00kB [00:00, 7.79kB/s]
-
-    Downloading phantom_1.0mm_normal_fat: 196kB [00:00, 907kB/s]  
-
-                                                                
-    Downloading tissues:  50%|█████     | 5/10 [00:05<00:04,  1.15it/s]
-
-    Downloading phantom_1.0mm_normal_m-s: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_m-s: 1.00kB [00:00, 5.50kB/s]
-
-    Downloading phantom_1.0mm_normal_m-s: 204kB [00:00, 800kB/s]  
-
-    Downloading phantom_1.0mm_normal_m-s: 769kB [00:00, 2.05MB/s]
-
-    Downloading phantom_1.0mm_normal_m-s: 1.25MB [00:00, 2.78MB/s]
-
-    Downloading phantom_1.0mm_normal_m-s: 1.75MB [00:00, 3.16MB/s]
-
-    Downloading phantom_1.0mm_normal_m-s: 2.25MB [00:00, 3.37MB/s]
-
-                                                                  
-    Downloading tissues:  60%|██████    | 6/10 [00:06<00:04,  1.02s/it]
-
-    Downloading phantom_1.0mm_normal_skn: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_skn: 1.00kB [00:00, 4.87kB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 173kB [00:00, 641kB/s]  
-
-    Downloading phantom_1.0mm_normal_skn: 769kB [00:00, 2.16MB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 1.25MB [00:00, 2.73MB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 1.65MB [00:00, 3.04MB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 1.96MB [00:00, 3.12MB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 2.27MB [00:00, 2.95MB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 2.58MB [00:01, 2.79MB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 2.85MB [00:01, 2.25MB/s]
-
-    Downloading phantom_1.0mm_normal_skn: 3.08MB [00:01, 1.89MB/s]
-
-                                                                  
-    Downloading tissues:  70%|███████   | 7/10 [00:08<00:03,  1.28s/it]
-
-    Downloading phantom_1.0mm_normal_skl: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_skl: 1.00kB [00:00, 6.84kB/s]
-
-    Downloading phantom_1.0mm_normal_skl: 196kB [00:00, 903kB/s]  
-
-                                                                
-    Downloading tissues:  80%|████████  | 8/10 [00:09<00:02,  1.08s/it]
-
-    Downloading phantom_1.0mm_normal_gli: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_gli: 1.00kB [00:00, 5.67kB/s]
-
-                                                                  
-    Downloading tissues:  90%|█████████ | 9/10 [00:09<00:00,  1.10it/s]
-
-    Downloading phantom_1.0mm_normal_mit: 0.00B [00:00, ?B/s]
-
-    Downloading phantom_1.0mm_normal_mit: 1.00kB [00:00, 4.85kB/s]
-
-    Downloading phantom_1.0mm_normal_mit: 204kB [00:00, 751kB/s]  
-
-    Downloading phantom_1.0mm_normal_mit: 769kB [00:00, 1.93MB/s]
-
-    Downloading phantom_1.0mm_normal_mit: 1.25MB [00:00, 2.41MB/s]
-
-    Downloading phantom_1.0mm_normal_mit: 1.75MB [00:00, 2.67MB/s]
-
-                                                                  
-    Downloading tissues: 100%|██████████| 10/10 [00:10<00:00,  1.02s/it]
-                                                                        
 
 
 
@@ -626,7 +479,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 17.714 seconds)
+   **Total running time of the script:** (0 minutes 6.630 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01-basics_02-from-kspace-to-image.py:
