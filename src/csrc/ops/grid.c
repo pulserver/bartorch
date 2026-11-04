@@ -70,7 +70,7 @@ extern void bartorch_cb_grid_forward(struct bartorch_cb_grid* p, complex float* 
 		const complex float* src, const complex float* map);
 extern void bartorch_cb_grid_inverse(struct bartorch_cb_grid* p, complex float* dst, complex float* volume,
 		const complex float* bank, const complex float* map);
-extern int bartorch_cuda_contract_grid(bart_dim_t L, bart_dim_t B, int R, complex float* bank, const complex float* K);
+extern int bartorch_cuda_contract_grid(bart_dim_t L, bart_dim_t B, int R, complex float* bank, const float* K, int real);
 
 /* What the kernels between the gathered spectrum and a table of samples read
  * of the transform's layout (kernels.cu). */
@@ -110,7 +110,10 @@ struct grid_s {
 
 	/* The normal through cuFFT's callbacks: the axes it transforms, the
 	 * places of a plane the pattern keeps, and the kernel at each of them
-	 * (NULL where it is one), on the host. */
+	 * (NULL where it is one), on the host.  The kernel is Hermitian, so it
+	 * is kept as its upper triangle, entry (i, j), i <= j, of place l at
+	 * `(i + j (j + 1) / 2) kept + l`: real floats where it is real (a real
+	 * basis), else complex floats as pairs. */
 	bart_flags_t flags;
 	bart_dim_t R;
 	bart_dim_t vol;
@@ -120,7 +123,8 @@ struct grid_s {
 	bart_dim_t words;
 	unsigned int* mask;
 	int* prefix;
-	complex float* kernel;
+	float* kernel;
+	bool kreal;
 	complex float* mod[3];
 
 	/* The same on the card, made the first time the normal is asked for
@@ -129,7 +133,7 @@ struct grid_s {
 	struct bartorch_cb_grid* cb;
 	unsigned int* dmask;
 	int* dprefix;
-	complex float* dkernel;
+	float* dkernel;
 	complex float* dmod[3];
 
 	/* Whether the normal is the closed form or the two applications. */
@@ -280,9 +284,63 @@ static complex float* grid_kernel(bart_dim_t kdims[DIMS], const bart_dim_t pat_d
 
 /* What the callbacks need, on the host: the places of a plane some frame
  * samples, as a bit per place and a count before each word, and the kernel at
- * those places alone, `kernel[(l R + r) R + c]` -- or no kernel, where every
- * kept place's is one. */
+ * those places alone, as the upper triangle grid_keep_kernel keeps -- or no
+ * kernel, where every kept place's is one. */
 static void grid_mods(struct grid_s* d);
+
+/* Entries of a Hermitian R x R kernel's upper triangle. */
+static bart_dim_t tri_count(bart_dim_t R)
+{
+	return R * (R + 1) / 2;
+}
+
+/* Where entry (r, c) of place l is kept, and whether it is the conjugate of what is kept. */
+static bart_dim_t tri_at(bart_dim_t kept, bart_dim_t l, bart_dim_t r, bart_dim_t c, bool* conjugate)
+{
+	bart_dim_t lo = (r < c) ? r : c;
+	bart_dim_t hi = (r < c) ? c : r;
+	*conjugate = (r > c);
+	return (lo + hi * (hi + 1) / 2) * kept + l;
+}
+
+/* The upper triangle `packed`, complex, as the kernel: real floats where every
+ * entry is real, the complex pairs otherwise.  Takes `packed` over. */
+static void grid_keep_kernel(struct grid_s* d, complex float* packed, bart_dim_t count)
+{
+	bool real = true;
+
+	for (bart_dim_t i = 0; (i < count) && real; i++)
+		real = (0.f == cimagf(packed[i]));
+
+	d->kreal = real;
+
+	if (!real) {
+
+		d->kernel = (float*)packed;
+		return;
+	}
+
+	float* r = xmalloc((size_t)MAX(1, count) * sizeof(float));
+
+	for (bart_dim_t i = 0; i < count; i++)
+		r[i] = crealf(packed[i]);
+
+	xfree(packed);
+	d->kernel = r;
+}
+
+/* Entry (r, c) of the kernel at kept place l. */
+static complex float grid_kernel_at(const struct grid_s* d, bart_dim_t l, bart_dim_t r, bart_dim_t c)
+{
+	if (NULL == d->kernel)
+		return 1.f;
+
+	bool cj;
+	bart_dim_t i = tri_at(d->kept, l, r, c, &cj);
+	complex float v = d->kreal ? d->kernel[i] : ((const complex float*)d->kernel)[i];
+
+	return cj ? conjf(v) : v;
+}
 
 static void grid_compress(struct grid_s* d, const bart_dim_t kdims[DIMS], const complex float* K,
 		const bart_dim_t pat_dims[DIMS], const complex float* pattern)
@@ -325,7 +383,7 @@ static void grid_compress(struct grid_s* d, const bart_dim_t kdims[DIMS], const 
 	d->kept = n;
 	d->plane = places;
 
-	complex float* kernel = xmalloc((size_t)MAX(1, n * R * R) * sizeof(complex float));
+	complex float* kernel = xmalloc((size_t)MAX(1, n * tri_count(R)) * sizeof(complex float));
 	bool ones = (1 == R);
 
 	bart_dim_t l = 0;
@@ -335,12 +393,13 @@ static void grid_compress(struct grid_s* d, const bart_dim_t kdims[DIMS], const 
 		if (0 == (d->mask[p >> 5] & (1u << (p & 31))))
 			continue;
 
-		for (bart_dim_t r = 0; r < R; r++)
-			for (bart_dim_t c = 0; c < R; c++) {
+		for (bart_dim_t c = 0; c < R; c++)
+			for (bart_dim_t r = 0; r <= c; r++) {
 
 				complex float v = K[p + places * (r + R * c)];
+				bool cj;
 
-				kernel[(l * R + r) * R + c] = v;
+				kernel[tri_at(n, l, r, c, &cj)] = v;
 				ones = ones && (1.f == v);
 			}
 
@@ -350,10 +409,12 @@ static void grid_compress(struct grid_s* d, const bart_dim_t kdims[DIMS], const 
 	if (ones) {
 
 		xfree(kernel);
-		kernel = NULL;
-	}
+		d->kernel = NULL;
 
-	d->kernel = kernel;
+	} else {
+
+		grid_keep_kernel(d, kernel, n * tri_count(R));
+	}
 
 	grid_mods(d);
 }
@@ -403,10 +464,10 @@ static bool grid_ready(struct grid_s* d, const void* ref)
 
 		if (NULL != d->kernel) {
 
-			bart_dim_t kd[1] = { d->kept * d->R * d->R };
+			bart_dim_t kd[1] = { d->kept * tri_count(d->R) * (d->kreal ? 1 : 2) };
 
-			d->dkernel = md_alloc_gpu(1, kd, CFL_SIZE);
-			md_copy(1, kd, d->dkernel, d->kernel, CFL_SIZE);
+			d->dkernel = md_alloc_gpu(1, kd, sizeof(float));
+			md_copy(1, kd, d->dkernel, d->kernel, sizeof(float));
 		}
 
 		for (int a = 0; a < 3; a++) {
@@ -556,7 +617,7 @@ static void grid_fused(struct grid_s* d, complex float* dst, const complex float
 			grid_in(d, bank + r * per, volume, hybrid, src + c * coil_step + r * coeff_step, m);
 
 		if (NULL != d->dkernel)
-			bartorch_cuda_contract_grid(d->kept, d->batch, (int)d->R, bank, d->dkernel);
+			bartorch_cuda_contract_grid(d->kept, d->batch, (int)d->R, bank, d->dkernel, d->kreal);
 
 		for (bart_dim_t r = 0; r < d->R; r++)
 			grid_out(d, dst + c * coil_step + r * coeff_step, volume, hybrid, bank + r * per, m);
@@ -1008,7 +1069,7 @@ static void points_host_normal(const struct grid_s* d, complex float* dst, const
 					complex float acc = 0.f;
 
 					for (bart_dim_t cc = 0; cc < R; cc++)
-						acc += ((NULL == d->kernel) ? 1.f : d->kernel[(l * R + r) * R + cc]) * in[cc];
+						acc += grid_kernel_at(d, l, r, cc) * in[cc];
 
 					v[r * C * d->vol] = acc;
 				}
@@ -1298,6 +1359,7 @@ static struct grid_s* grid_state(const bart_dim_t cim_dims[DIMS],
 	d->mask = NULL;
 	d->prefix = NULL;
 	d->kernel = NULL;
+	d->kreal = false;
 	d->tried = false;
 	d->cb = NULL;
 	d->dmask = NULL;
@@ -1618,16 +1680,17 @@ static struct grid_s* sampled_state(const bart_dim_t cim_dims[DIMS], bart_dim_t 
 			n += __builtin_popcount(bits);
 		}
 
-		/* kernel[(u R + r) R + c] = sum over the entries e of place u of
-		 * |w_e|^2 conj(B[t, r]) B[t, c], t the frame of e. */
-		complex float* kernel = xmalloc((size_t)MAX(1, U * R * R) * sizeof(complex float));
+		/* Entry (r, c) at place u = sum over the entries e of place u of
+		 * |w_e|^2 conj(B[t, r]) B[t, c], t the frame of e: Hermitian, so
+		 * the upper triangle alone. */
+		complex float* kernel = xmalloc((size_t)MAX(1, U * tri_count(R)) * sizeof(complex float));
 		bool ones = (1 == R);
 
 #pragma omp parallel for reduction(&&:ones)
 		for (bart_dim_t u = 0; u < U; u++) {
 
-			for (bart_dim_t r = 0; r < R; r++) {
-				for (bart_dim_t c = 0; c < R; c++) {
+			for (bart_dim_t c = 0; c < R; c++) {
+				for (bart_dim_t r = 0; r <= c; r++) {
 
 					complex double acc = 0.;
 
@@ -1640,7 +1703,9 @@ static struct grid_s* sampled_state(const bart_dim_t cim_dims[DIMS], bart_dim_t 
 						acc += a * ((NULL == bt) ? 1.f : (conjf(bt[t * R + r]) * bt[t * R + c]));
 					}
 
-					kernel[(u * R + r) * R + c] = (complex float)acc;
+					bool cj;
+
+					kernel[tri_at(U, u, r, c, &cj)] = (complex float)acc;
 					ones = ones && (1. == acc);
 				}
 			}
@@ -1649,10 +1714,12 @@ static struct grid_s* sampled_state(const bart_dim_t cim_dims[DIMS], bart_dim_t 
 		if (ones) {
 
 			xfree(kernel);
-			kernel = NULL;
-		}
+			d->kernel = NULL;
 
-		d->kernel = kernel;
+		} else {
+
+			grid_keep_kernel(d, kernel, U * tri_count(R));
+		}
 
 		grid_mods(d);
 	}

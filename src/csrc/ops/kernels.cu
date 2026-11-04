@@ -274,14 +274,17 @@ extern "C" int bartorch_cuda_contract_upper_real(bart_dim_t L, int R, _Complex f
 /* A coil's gathered spectrum under a Cartesian normal, laid out with the
  * coefficients slowest, the batch next and the kept places fastest,
  * multiplied at each place by that place's coefficients-by-coefficients
- * kernel and written back over itself.  Entry (r, c) of the kernel at place l
- * is `K[(l R + r) R + c]`: the kernel varies over the transformed plane only,
- * so every batch reads the same one. */
-__global__ static void kern_contract_grid(bart_dim_t L, bart_dim_t B, int R, cuFloatComplex* bank, const cuFloatComplex* K)
+ * kernel and written back over itself.  The kernel is Hermitian and kept as
+ * its upper triangle: entry (i, j), i <= j, at place l is at
+ * `(i + j (j + 1) / 2) L + l`, real floats with `real`, complex pairs
+ * otherwise; the kernel varies over the transformed plane only, so every
+ * batch reads the same one. */
+__global__ static void kern_contract_grid(bart_dim_t L, bart_dim_t B, int R, cuFloatComplex* bank, const float* K, int real)
 {
 	bart_dim_t start = threadIdx.x + (bart_dim_t)blockDim.x * blockIdx.x;
 	bart_stride_t stride = (bart_dim_t)blockDim.x * gridDim.x;
 	bart_dim_t n = L * B;
+	const cuFloatComplex* Kc = (const cuFloatComplex*)K;
 
 	for (bart_dim_t i = start; i < n; i += stride) {
 
@@ -296,20 +299,39 @@ __global__ static void kern_contract_grid(bart_dim_t L, bart_dim_t B, int R, cuF
 
 			cuFloatComplex acc = make_cuFloatComplex(0.f, 0.f);
 
-			for (int c = 0; c < R; c++)
-				acc = cuCaddf(acc, cuCmulf(K[(l * R + r) * R + c], in[c]));
+			for (int c = 0; c < R; c++) {
+
+				int lo = (r < c) ? r : c;
+				int hi = (r < c) ? c : r;
+				bart_dim_t at = (bart_dim_t)(lo + hi * (hi + 1) / 2) * L + l;
+				cuFloatComplex k;
+
+				if (real) {
+
+					k = make_cuFloatComplex(K[at], 0.f);
+
+				} else {
+
+					k = Kc[at];
+
+					if (r > c)
+						k = cuConjf(k);
+				}
+
+				acc = cuCaddf(acc, cuCmulf(k, in[c]));
+			}
 
 			bank[r * n + i] = acc;
 		}
 	}
 }
 
-extern "C" int bartorch_cuda_contract_grid(bart_dim_t L, bart_dim_t B, int R, _Complex float* bank, const _Complex float* K)
+extern "C" int bartorch_cuda_contract_grid(bart_dim_t L, bart_dim_t B, int R, _Complex float* bank, const float* K, int real)
 {
 	if ((R < 1) || (R > CONTRACT_MAX))
 		return -1;
 
-	kern_contract_grid<<<grid_for(L * B), 256, 0, cuda_get_stream()>>>(L, B, R, (cuFloatComplex*)bank, (const cuFloatComplex*)K);
+	kern_contract_grid<<<grid_for(L * B), 256, 0, cuda_get_stream()>>>(L, B, R, (cuFloatComplex*)bank, K, real);
 
 	CUDA_KERNEL_ERROR;
 
