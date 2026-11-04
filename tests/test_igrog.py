@@ -140,6 +140,7 @@ def test_the_card_gridder_matches_the_host_loop():
     host = tools.igrog(y, traj.float(), (n, n), calib, also=[noise])
     card = tools.igrog(y, traj.float(), (n, n), calib, also=[noise], device="cuda")
     assert torch.equal(host.index, card.index)
-    for a, b in [(host.values, card.values), (host.also[0], card.also[0])]:
-        assert (a - b).norm() / a.norm() < 1e-4
+    # Both solve in single precision; white noise is where it shows (about 2e-4 from double).
+    for a, b, tol in [(host.values, card.values, 1e-4), (host.also[0], card.also[0], 1e-3)]:
+        assert (a - b).norm() / a.norm() < tol
     torch.testing.assert_close(card.noise, host.noise, rtol=1e-3, atol=0)
