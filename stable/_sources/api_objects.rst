@@ -263,6 +263,7 @@ bartorch.tools
    upat
    raga
    grog
+   igrog
    psf
    wavepsf
    estdims

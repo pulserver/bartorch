@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:22.967** total execution time for 2 files **from auto_examples/03-regularization**:
+**00:21.275** total execution time for 2 files **from auto_examples/03-regularization**:
 
 .. container::
 
@@ -33,8 +33,8 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_03-regularization_01-regularized-reconstruction.py` (``01-regularized-reconstruction.py``)
-     - 00:16.734
+     - 00:15.444
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-regularization_02-operators-and-solvers.py` (``02-operators-and-solvers.py``)
-     - 00:06.233
+     - 00:05.831
      - 0.0
