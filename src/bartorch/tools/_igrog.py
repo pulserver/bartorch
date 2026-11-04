@@ -69,19 +69,21 @@ def _lagrange4(t: torch.Tensor) -> torch.Tensor:
     )
 
 
-def _interpolate(cc: _Correlation, table: torch.Tensor, disp: torch.Tensor) -> torch.Tensor:
+def _interpolate(
+    cc: _Correlation, table: torch.Tensor, disp: torch.Tensor, double: bool
+) -> torch.Tensor:
     """``Q`` at displacements ``(..., d)``, as ``(..., C, C)``."""
     d, U, R = disp.shape[-1], cc.upsample, cc.reach
     u = (disp.double() + R) * U
     base = torch.floor(u).long()
-    w = _lagrange4(u - base)
+    w = _lagrange4(u - base).to(torch.float64 if double else torch.float32)
     coils, size = table.shape[0], table.shape[2]
-    flat_table = table.reshape(coils, coils, -1)
+    flat_table = table.reshape(coils, coils, -1).to(torch.complex128 if double else torch.complex64)
     shape = disp.shape[:-1]
-    out = torch.zeros(*shape, coils, coils, dtype=torch.complex128, device=disp.device)
+    out = torch.zeros(*shape, coils, coils, dtype=flat_table.dtype, device=disp.device)
     for taps in torch.cartesian_prod(*[torch.arange(4)] * d).reshape(-1, d).tolist():
         flat = torch.zeros(shape, dtype=torch.long, device=disp.device)
-        wt = torch.ones(shape, dtype=torch.float64, device=disp.device)
+        wt = torch.ones(shape, dtype=w.dtype, device=disp.device)
         for a in range(d):
             flat = flat * size + (base[..., a] + taps[a] - 1)
             wt = wt * w[..., a, taps[a]]
@@ -90,20 +92,20 @@ def _interpolate(cc: _Correlation, table: torch.Tensor, disp: torch.Tensor) -> t
 
 
 def _kernels(
-    cc: _Correlation, table: torch.Tensor, offsets: torch.Tensor, lam: float
+    cc: _Correlation, table: torch.Tensor, offsets: torch.Tensor, lam: float, double: bool
 ) -> torch.Tensor:
     """Wiener kernels ``(M, C, D C)`` of sources at ``offsets`` ``(M, D, d)`` from their targets."""
     M, D, _ = offsets.shape
     C = table.shape[0]
     disp = (offsets[:, :, None] - offsets[:, None]).reshape(M, D * D, -1)
     Rss = (
-        _interpolate(cc, table, disp)
+        _interpolate(cc, table, disp, double)
         .reshape(M, D, D, C, C)
         .permute(0, 1, 3, 2, 4)
         .reshape(M, D * C, D * C)
     )
     Rss = 0.5 * (Rss + Rss.mH)
-    Rts = _interpolate(cc, table, -offsets).permute(0, 2, 1, 3).reshape(M, C, D * C)
+    Rts = _interpolate(cc, table, -offsets, double).permute(0, 2, 1, 3).reshape(M, C, D * C)
     tr = torch.diagonal(Rss, dim1=-2, dim2=-1).real.mean(-1)
     Rss = Rss + (lam * tr)[:, None, None] * torch.eye(D * C, dtype=Rss.dtype, device=Rss.device)
     return torch.cholesky_solve(Rts.mH, torch.linalg.cholesky(Rss)).mH
@@ -144,6 +146,7 @@ def igrog(
     upsample: int = 8,
     batch: int = 65536,
     device=None,
+    double: bool | None = None,
 ):
     r"""Non-Cartesian samples moved to their nearest grid point by closed-form GRAPPA (iGROG).
 
@@ -197,6 +200,9 @@ def igrog(
     device : torch.device, default=None
         Where the kernels are solved (a card is much faster); the result is on
         the host.  ``None`` uses the samples' device.
+    double : bool, default=None
+        Solve the kernels in double precision; ``None`` does so on the host
+        and in single precision on a card, where double is slow.
 
     Returns
     -------
@@ -222,6 +228,8 @@ def igrog(
     tr = traj.reshape(-1, P, d).cpu()
     y = kspace.reshape(kspace.shape[0], -1, P)
     card = torch.device(device) if device is not None else y.device
+    if double is None:
+        double = card.type == "cpu"
     if sources > P:
         raise ValueError("more sources than samples per readout")
     calibs = [calib] if isinstance(calib, torch.Tensor) else list(calib)
@@ -257,7 +265,7 @@ def igrog(
         for b in range(0, idx.numel(), batch):
             ib = idx[b : b + batch]
             s, sb = shot[ib], src[ib]
-            W = _kernels(cc, table, off[ib].to(card), lam)  # (B, C, D C)
+            W = _kernels(cc, table, off[ib].to(card), lam, double)  # (B, C, D C)
             v = y[:, s[:, None], sb].permute(1, 2, 0).reshape(len(s), -1)  # (B, D C), source-major
             out[:, ib] = torch.einsum("bcj,bj->cb", W, v.to(card, W.dtype)).to(
                 "cpu", torch.complex64

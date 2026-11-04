@@ -75,3 +75,24 @@ def test_groups_pick_their_own_calibration():
     assert torch.allclose(
         one.values, two.values, rtol=1e-3, atol=1e-4 * float(one.values.abs().max())
     )
+
+
+def test_single_precision_matches_double():
+    """A card solves the kernels in single precision; the gridded samples barely move."""
+    n = 32
+    _, kspace = _object(n)
+    angles = torch.linspace(0, math.pi, 24, dtype=torch.float64)[:-1] + 0.1
+    s = torch.arange(-10, 10.5, 0.5, dtype=torch.float64)
+    traj = torch.stack(
+        [s[None] * torch.cos(angles)[:, None], s[None] * torch.sin(angles)[:, None]], -1
+    )
+    y = kspace(traj).to(torch.complex64)
+    c = torch.arange(-8, 8, dtype=torch.float64)
+    ky, kx = torch.meshgrid(c, c, indexing="ij")
+    calib = kspace(torch.stack([kx, ky], -1)).to(torch.complex64)
+    double = tools.igrog(y, traj.float(), (n, n), calib, double=True)
+    single = tools.igrog(y, traj.float(), (n, n), calib, double=False)
+    assert torch.equal(double.index, single.index)
+    rel = (single.values - double.values).norm() / double.values.norm()
+    assert rel < 1e-3, rel
+    assert torch.allclose(single.noise, double.noise, rtol=1e-2)
