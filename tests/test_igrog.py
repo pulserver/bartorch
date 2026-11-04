@@ -96,3 +96,23 @@ def test_single_precision_matches_double():
     rel = (single.values - double.values).norm() / double.values.norm()
     assert rel < 1e-3, rel
     assert torch.allclose(single.noise, double.noise, rtol=1e-2)
+
+
+def test_also_moves_extra_samples_by_the_same_kernels():
+    n = 32
+    _, kspace = _object(n)
+    angles = torch.tensor([0.3, 1.1, 2.0, 2.7], dtype=torch.float64)
+    s = torch.arange(-10, 10.5, 0.5, dtype=torch.float64)
+    traj = torch.stack(
+        [s[None] * torch.cos(angles)[:, None], s[None] * torch.sin(angles)[:, None]], -1
+    )
+    y = kspace(traj).to(torch.complex64)
+    c = torch.arange(-8, 8, dtype=torch.float64)
+    ky, kx = torch.meshgrid(c, c, indexing="ij")
+    calib = kspace(torch.stack([kx, ky], -1)).to(torch.complex64)
+    noise = torch.randn(y.shape, dtype=torch.complex64, generator=torch.Generator().manual_seed(1))
+    both = tools.igrog(y, traj.float(), (n, n), calib, also=[noise])
+    alone = tools.igrog(noise, traj.float(), (n, n), calib)
+    assert len(both.also) == 1
+    # Same kernels (they come from the calibration and the trajectory only).
+    torch.testing.assert_close(both.also[0], alone.values)

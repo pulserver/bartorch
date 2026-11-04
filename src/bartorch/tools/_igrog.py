@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import torch
 
@@ -30,6 +30,7 @@ class _Gridded:
     sample: torch.Tensor
     shape: tuple
     noise: torch.Tensor
+    also: list = field(default_factory=list)
 
     def weights(self) -> torch.Tensor:
         """``1 / sqrt(noise)`` at unit mean square: the weights that whiten the gridded samples."""
@@ -147,6 +148,7 @@ def igrog(
     batch: int = 65536,
     device=None,
     double: bool | None = None,
+    also=(),
 ):
     r"""Non-Cartesian samples moved to their nearest grid point by closed-form GRAPPA (iGROG).
 
@@ -203,6 +205,9 @@ def igrog(
     double : bool, default=None
         Solve the kernels in double precision; ``None`` does so on the host
         and in single precision on a card, where double is slow.
+    also : sequence of torch.Tensor, default=()
+        More samples shaped as ``kspace``, such as a draw of pure noise, moved
+        by the same kernels without solving them again.
 
     Returns
     -------
@@ -211,7 +216,8 @@ def igrog(
         ``(M,)``, the ``shot`` (flat index of ``*shots``) and ``sample`` each
         came from, ``noise`` ``(M,)`` (each value's noise variance per coil for
         unit white noise on the samples) and ``weights()``, the weights of unit
-        mean square that whiten the values.
+        mean square that whiten the values; ``also`` holds the values of the
+        extra samples, in their order.
 
     References
     ----------
@@ -257,6 +263,8 @@ def igrog(
         raise ValueError(f"sources reach {far:.2f} cells apart; the table reaches {lim:.2f}")
 
     out = torch.empty(y.shape[0], shot.numel(), dtype=torch.complex64)
+    extra = [a.reshape(a.shape[0], -1, P) for a in also]
+    extra_out = [torch.empty(a.shape[0], shot.numel(), dtype=torch.complex64) for a in extra]
     noise = torch.empty(shot.numel(), dtype=torch.float32)
     which = torch.zeros_like(shot) if group is None else group.reshape(-1).cpu()[shot]
     for gi, cc in enumerate(tables):
@@ -271,4 +279,9 @@ def igrog(
                 "cpu", torch.complex64
             )
             noise[ib] = (W.abs().square().sum((1, 2)) / W.shape[1]).float().cpu()
-    return _Gridded(out, lin, shot, sample, tuple(shape), noise)
+            for a, o in zip(extra, extra_out):
+                v = a[:, s[:, None], sb].permute(1, 2, 0).reshape(len(s), -1)
+                o[:, ib] = torch.einsum("bcj,bj->cb", W, v.to(card, W.dtype)).to(
+                    "cpu", torch.complex64
+                )
+    return _Gridded(out, lin, shot, sample, tuple(shape), noise, extra_out)
