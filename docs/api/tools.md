@@ -37,6 +37,7 @@ functions and classes with no BART command behind them.
 | {obj}`~bartorch.tools.upat` | Regular undersampling pattern with a fully sampled centre |
 | {obj}`~bartorch.tools.raga` | Indices of a RAGA (rational approximation of the golden angle) radial ordering |
 | {obj}`~bartorch.tools.grog` | Radial data gridded onto a Cartesian grid by GROG |
+| {obj}`~bartorch.tools.igrog` | Non-Cartesian samples moved onto the grid by closed-form GRAPPA kernels (iGROG) |
 | {obj}`~bartorch.tools.psf` | Point spread function of a trajectory |
 | {obj}`~bartorch.tools.wavepsf` | Wave-CAIPI point spread function in hybrid space |
 | {obj}`~bartorch.tools.estdims` | Image dimensions implied by a non-Cartesian trajectory |
