@@ -356,6 +356,7 @@ SYMBOLS = (
     "bartorch_gn_built",
     "bartorch_gn_workspace",
     "bartorch_gn_silu",
+    "bartorch_grog_grid",
     "bartorch_on_device",
 )
 
@@ -1336,6 +1337,27 @@ def bind(lib: ctypes.CDLL) -> ctypes.CDLL:
         ctypes.c_int,
         ctypes.c_void_p,
         ctypes.c_void_p,
+    ]
+    lib.bartorch_grog_grid.restype = ctypes.c_int
+    lib.bartorch_grog_grid.argtypes = [
+        ctypes.c_int,
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.c_float,
+        ctypes.c_void_p,
+        ctypes.c_int64,
+        ctypes.c_int64,
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.c_int64,
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.c_int64,
+        ctypes.POINTER(ctypes.c_int64),
+        ctypes.POINTER(ctypes.c_int64),
+        ctypes.POINTER(ctypes.c_int64),
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.POINTER(ctypes.c_float),
     ]
     lib.bartorch_on_device.restype = ctypes.c_int
     lib.bartorch_on_device.argtypes = [ctypes.c_void_p]

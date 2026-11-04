@@ -71,45 +71,114 @@ def _lagrange4(t: torch.Tensor) -> torch.Tensor:
 
 
 def _interpolate(
-    cc: _Correlation, table: torch.Tensor, disp: torch.Tensor, double: bool
+    rows: torch.Tensor, size: int, cc: _Correlation, disp: torch.Tensor
 ) -> torch.Tensor:
-    """``Q`` at displacements ``(..., d)``, as ``(..., C, C)``."""
+    """``Q`` at displacements ``(..., d)`` as ``(..., C C)``, from ``(nodes, C C)`` rows."""
     d, U, R = disp.shape[-1], cc.upsample, cc.reach
     u = (disp.double() + R) * U
     base = torch.floor(u).long()
-    w = _lagrange4(u - base).to(torch.float64 if double else torch.float32)
-    coils, size = table.shape[0], table.shape[2]
-    flat_table = table.reshape(coils, coils, -1).to(torch.complex128 if double else torch.complex64)
+    w = _lagrange4(u - base).to(rows.real.dtype)  # (..., d, 4)
     shape = disp.shape[:-1]
-    out = torch.zeros(*shape, coils, coils, dtype=flat_table.dtype, device=disp.device)
+    out = torch.zeros(*shape, rows.shape[1], dtype=rows.dtype, device=disp.device)
+    # Node index and weight of each tap along each axis; a tap is one node per axis.
+    strides = [size ** (d - 1 - a) for a in range(d)]
+    node = [
+        (base[..., a, None] + torch.arange(-1, 3, device=disp.device)) * strides[a]
+        for a in range(d)
+    ]
     for taps in torch.cartesian_prod(*[torch.arange(4)] * d).reshape(-1, d).tolist():
-        flat = torch.zeros(shape, dtype=torch.long, device=disp.device)
-        wt = torch.ones(shape, dtype=w.dtype, device=disp.device)
-        for a in range(d):
-            flat = flat * size + (base[..., a] + taps[a] - 1)
+        flat = node[0][..., taps[0]]
+        wt = w[..., 0, taps[0]]
+        for a in range(1, d):
+            flat = flat + node[a][..., taps[a]]
             wt = wt * w[..., a, taps[a]]
-        out += wt[..., None, None] * flat_table[:, :, flat].movedim((0, 1), (-2, -1))
+        out.add_(rows.index_select(0, flat.reshape(-1)).view(*shape, -1) * wt[..., None])
     return out
 
 
 def _kernels(
-    cc: _Correlation, table: torch.Tensor, offsets: torch.Tensor, lam: float, double: bool
+    cc: _Correlation, rows: torch.Tensor, size: int, offsets: torch.Tensor, lam: float
 ) -> torch.Tensor:
-    """Wiener kernels ``(M, C, D C)`` of sources at ``offsets`` ``(M, D, d)`` from their targets."""
-    M, D, _ = offsets.shape
-    C = table.shape[0]
-    disp = (offsets[:, :, None] - offsets[:, None]).reshape(M, D * D, -1)
-    Rss = (
-        _interpolate(cc, table, disp, double)
-        .reshape(M, D, D, C, C)
-        .permute(0, 1, 3, 2, 4)
-        .reshape(M, D * C, D * C)
+    """Wiener kernels ``(M, C, D C)`` of sources at ``offsets`` ``(M, D, d)`` from their targets.
+
+    ``Q(-δ) = Q(δ)^H`` and ``Q(0)`` is one node, so only the source pairs ``i < j``
+    and the source-to-target displacements are interpolated.
+    """
+    M, D, d = offsets.shape
+    C = int(round(rows.shape[1] ** 0.5))
+    pairs = [(i, j) for i in range(D) for j in range(i + 1, D)]
+    disp = torch.stack(
+        [offsets[:, i] - offsets[:, j] for i, j in pairs] + [-offsets[:, k] for k in range(D)], 1
     )
+    q = _interpolate(rows, size, cc, disp).view(M, len(pairs) + D, C, C)
+    zero = _interpolate(rows, size, cc, torch.zeros(1, d, device=offsets.device)).view(C, C)
+    Rss = torch.empty(M, D, D, C, C, dtype=rows.dtype, device=offsets.device)
+    for k in range(D):
+        Rss[:, k, k] = zero
+    for p, (i, j) in enumerate(pairs):
+        Rss[:, i, j] = q[:, p]
+        Rss[:, j, i] = q[:, p].mH
+    Rss = Rss.permute(0, 1, 3, 2, 4).reshape(M, D * C, D * C)
     Rss = 0.5 * (Rss + Rss.mH)
-    Rts = _interpolate(cc, table, -offsets, double).permute(0, 2, 1, 3).reshape(M, C, D * C)
+    Rts = q[:, len(pairs) :].permute(0, 2, 1, 3).reshape(M, C, D * C)
     tr = torch.diagonal(Rss, dim1=-2, dim2=-1).real.mean(-1)
     Rss = Rss + (lam * tr)[:, None, None] * torch.eye(D * C, dtype=Rss.dtype, device=Rss.device)
     return torch.cholesky_solve(Rts.mH, torch.linalg.cholesky(Rss)).mH
+
+
+def _grog_grid():
+    """The library's host gridder, ``bartorch_grog_grid``."""
+    from bartorch._lib import library
+
+    return library().bartorch_grog_grid
+
+
+_GROG_ERRORS = {
+    1: "a missing argument",
+    2: "a bad shape (sources x coils is at most 256)",
+    3: "out of memory",
+    4: "an index out of range",
+    5: "a kernel system that is not positive definite",
+    6: "a displacement beyond the correlation table",
+}
+
+
+def _native(cc, lam, tr, sets, shot, sample, src, outs, noise):
+    """Grid the targets ``(shot, sample)`` of every set in ``sets`` with the host loop.
+
+    ``sets`` are ``(C, S, P)`` complex64 on the host; ``outs`` the ``(C, M)``
+    results and ``noise`` ``(M,)``, written in place.
+    """
+    d = tr.shape[-1]
+    C, D = cc.table.shape[0], src.shape[1]
+    table = cc.table.movedim((0, 1), (-2, -1)).contiguous()  # (nodes..., C, C)
+    traj = tr.float().contiguous()
+    shot, sample = shot.contiguous(), sample.contiguous()
+    src = src.contiguous()
+    from bartorch._marshal import float_pointer, int64_pointer, pointers
+
+    err = _grog_grid()(
+        d,
+        C,
+        D,
+        cc.reach,
+        cc.upsample,
+        float(lam),
+        table.data_ptr(),
+        traj.shape[0],
+        traj.shape[1],
+        float_pointer(traj.data_ptr()),
+        len(sets),
+        pointers([a.data_ptr() for a in sets]),
+        shot.numel(),
+        int64_pointer(shot.data_ptr()),
+        int64_pointer(sample.data_ptr()),
+        int64_pointer(src.data_ptr()),
+        pointers([o.data_ptr() for o in outs]),
+        float_pointer(noise.data_ptr()),
+    )
+    if err:
+        raise RuntimeError(f"igrog: the host gridder stopped on {_GROG_ERRORS.get(err, err)}")
 
 
 def _sources(traj: torch.Tensor, shot: torch.Tensor, sample: torch.Tensor, sources: int, spacing):
@@ -147,7 +216,7 @@ def igrog(
     upsample: int = 8,
     batch: int = 65536,
     device=None,
-    double: bool | None = None,
+    double: bool = False,
     also=(),
 ):
     r"""Non-Cartesian samples moved to their nearest grid point by closed-form GRAPPA (iGROG).
@@ -200,11 +269,12 @@ def igrog(
     batch : int, default=65536
         Kernels solved at once.
     device : torch.device, default=None
-        Where the kernels are solved (a card is much faster); the result is on
-        the host.  ``None`` uses the samples' device.
-    double : bool, default=None
-        Solve the kernels in double precision; ``None`` does so on the host
-        and in single precision on a card, where double is slow.
+        Where the kernels are solved; the result is on the host.  ``None``
+        uses the host, where a compiled loop solves each target's kernel in
+        single precision over all cores; on a card they are solved in batches
+        of ``batch`` by torch.
+    double : bool, default=False
+        Solve the kernels in double precision, by torch (slow, for checks).
     also : sequence of torch.Tensor, default=()
         More samples shaped as ``kspace``, such as a draw of pure noise, moved
         by the same kernels without solving them again.
@@ -233,9 +303,8 @@ def igrog(
     P = traj.shape[-2]
     tr = traj.reshape(-1, P, d).cpu()
     y = kspace.reshape(kspace.shape[0], -1, P)
-    card = torch.device(device) if device is not None else y.device
-    if double is None:
-        double = card.type == "cpu"
+    card = torch.device(device) if device is not None else torch.device("cpu")
+    host = card.type == "cpu" and not double
     if sources > P:
         raise ValueError("more sources than samples per readout")
     calibs = [calib] if isinstance(calib, torch.Tensor) else list(calib)
@@ -267,13 +336,29 @@ def igrog(
     extra_out = [torch.empty(a.shape[0], shot.numel(), dtype=torch.complex64) for a in extra]
     noise = torch.empty(shot.numel(), dtype=torch.float32)
     which = torch.zeros_like(shot) if group is None else group.reshape(-1).cpu()[shot]
+    if host:
+        sets = [a.to("cpu", torch.complex64).contiguous() for a in [y, *extra]]
+        for gi, cc in enumerate(tables):
+            idx = torch.nonzero(which == gi).squeeze(1)
+            if idx.numel() == 0:
+                continue
+            outs = [torch.empty(a.shape[0], idx.numel(), dtype=torch.complex64) for a in sets]
+            nb = torch.empty(idx.numel(), dtype=torch.float32)
+            _native(cc, lam, tr, sets, shot[idx], sample[idx], src[idx], outs, nb)
+            for o, r in zip([out, *extra_out], outs):
+                o[:, idx] = r
+            noise[idx] = nb
+        return _Gridded(out, lin, shot, sample, tuple(shape), noise, extra_out)
     for gi, cc in enumerate(tables):
-        table = cc.table.to(card)
+        # The table as (nodes, C C) rows, so each tap gathers contiguous rows.
+        dtype = torch.complex128 if double else torch.complex64
+        size = cc.table.shape[2]
+        rows = cc.table.reshape(cc.table.shape[0] ** 2, -1).T.contiguous().to(card, dtype)
         idx = torch.nonzero(which == gi).squeeze(1)
         for b in range(0, idx.numel(), batch):
             ib = idx[b : b + batch]
             s, sb = shot[ib], src[ib]
-            W = _kernels(cc, table, off[ib].to(card), lam, double)  # (B, C, D C)
+            W = _kernels(cc, rows, size, off[ib].to(card), lam)  # (B, C, D C)
             v = y[:, s[:, None], sb].permute(1, 2, 0).reshape(len(s), -1)  # (B, D C), source-major
             out[:, ib] = torch.einsum("bcj,bj->cb", W, v.to(card, W.dtype)).to(
                 "cpu", torch.complex64

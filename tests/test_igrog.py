@@ -78,7 +78,7 @@ def test_groups_pick_their_own_calibration():
 
 
 def test_single_precision_matches_double():
-    """A card solves the kernels in single precision; the gridded samples barely move."""
+    """The host loop solves the kernels in single precision; the gridded samples barely move."""
     n = 32
     _, kspace = _object(n)
     angles = torch.linspace(0, math.pi, 24, dtype=torch.float64)[:-1] + 0.1

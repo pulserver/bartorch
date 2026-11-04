@@ -328,6 +328,7 @@ set(BARTORCH_SOURCES
     src/csrc/ops/iter.c
     src/csrc/ops/attention.c
     src/csrc/ops/groupnorm.c
+    src/csrc/ops/grog.c
 
     src/csrc/substitute/backend.c
     src/csrc/substitute/ref_blas.c

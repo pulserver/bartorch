@@ -137,6 +137,11 @@ def float_pointer(ptr: int):
     return ctypes.cast(ctypes.c_void_p(ptr), ctypes.POINTER(ctypes.c_float))
 
 
+def int64_pointer(ptr: int):
+    """An ``int64_t*`` at the address ``ptr``, for an entry point that takes one."""
+    return ctypes.cast(ctypes.c_void_p(ptr), ctypes.POINTER(ctypes.c_int64))
+
+
 def null_apply() -> ctypes.Array:
     """The NULL an apply callback the caller did not give is passed as.
 
