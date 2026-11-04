@@ -548,6 +548,15 @@ backward strategy uses.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.learning.Patchwise.html#bartorch.learning.Patchwise" title="bartorch.learning.Patchwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Patchwise</span></code></a></p></td>
 <td><p>A network applied patch by patch on a device, with a randomly shifted or rolled grid, empty patches skipped and mixed precision, to an image held elsewhere</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.learning.NeighborhoodAttention3d.html#bartorch.learning.NeighborhoodAttention3d" title="bartorch.learning.NeighborhoodAttention3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeighborhoodAttention3d</span></code></a></p></td>
+<td><p>Multi-head attention of each voxel of a 3D feature map over a window around it, with a bias per relative position; linear in the volume</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.learning.neighborhood_attention3d.html#bartorch.learning.neighborhood_attention3d" title="bartorch.learning.neighborhood_attention3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neighborhood_attention3d</span></code></a></p></td>
+<td><p>The operation itself on queries, keys and values: through this library’s CUDA kernels on a card, in plain torch elsewhere</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.learning.group_norm_silu.html#bartorch.learning.group_norm_silu" title="bartorch.learning.group_norm_silu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_norm_silu</span></code></a></p></td>
+<td><p>A diffusion UNet’s group norm, noise-level scale and shift and SiLU in one pass over memory on a card (float32 statistics), plain torch elsewhere or under autograd</p></td>
+</tr>
 </tbody>
 </table>
 </div>

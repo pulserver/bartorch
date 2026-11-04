@@ -93,47 +93,263 @@ grey matter, and you measure the uniformity of each class over those.
 
     Downloading T1+ICBM+normal+1mm+pn0+rf0: 0.00B [00:00, ?B/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 3.78kB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.00kB [00:00, 5.31kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 431kB [00:00, 1.42MB/s] 
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 40.1kB [00:00, 152kB/s] 
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.50MB [00:00, 4.53MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 120kB [00:00, 342kB/s] 
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.21MB [00:00, 5.42MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 326kB [00:00, 803kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.95MB [00:00, 6.09MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 529kB [00:00, 1.14MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.62MB [00:00, 5.92MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 670kB [00:00, 1.12MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.25MB [00:00, 5.75MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 816kB [00:00, 1.12MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.83MB [00:01, 5.15MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 964kB [00:01, 1.13MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.36MB [00:01, 3.66MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.09MB [00:01, 1.15MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.79MB [00:01, 2.83MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.20MB [00:01, 1.06MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.13MB [00:01, 2.27MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.33MB [00:01, 1.03MB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.40MB [00:02, 2.06MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.43MB [00:01, 862kB/s] 
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.64MB [00:02, 1.98MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.51MB [00:01, 740kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.85MB [00:02, 1.94MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.59MB [00:02, 617kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.05MB [00:02, 1.81MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.65MB [00:02, 523kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.23MB [00:02, 1.75MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.71MB [00:02, 405kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.41MB [00:02, 1.76MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.75MB [00:02, 406kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.58MB [00:02, 1.69MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.79MB [00:02, 389kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.74MB [00:02, 1.62MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.83MB [00:02, 370kB/s]
 
-    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.90MB [00:03, 1.54MB/s]
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.87MB [00:03, 318kB/s]
 
-                                                                    
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.91MB [00:03, 331kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.94MB [00:03, 312kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 1.98MB [00:03, 294kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.00MB [00:03, 292kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.04MB [00:03, 285kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.08MB [00:03, 289kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.12MB [00:03, 311kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.17MB [00:04, 326kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.21MB [00:04, 336kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.27MB [00:04, 361kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.31MB [00:04, 341kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.36MB [00:04, 367kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.40MB [00:04, 342kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.43MB [00:04, 276kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.46MB [00:05, 264kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.50MB [00:05, 273kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.53MB [00:05, 273kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.57MB [00:05, 281kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.61MB [00:05, 287kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.65MB [00:05, 306kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.70MB [00:05, 324kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.75MB [00:06, 347kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.80MB [00:06, 355kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.85MB [00:06, 379kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.91MB [00:06, 408kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 2.97MB [00:06, 430kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.04MB [00:06, 456kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.09MB [00:06, 448kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.15MB [00:06, 438kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.20MB [00:07, 433kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.25MB [00:07, 423kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.31MB [00:07, 383kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.38MB [00:07, 425kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.42MB [00:07, 398kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.46MB [00:07, 326kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.50MB [00:08, 309kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.53MB [00:08, 291kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.56MB [00:08, 289kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.60MB [00:08, 307kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.65MB [00:08, 323kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.69MB [00:08, 334kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.75MB [00:08, 343kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.79MB [00:08, 366kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.84MB [00:09, 382kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.91MB [00:09, 392kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 3.94MB [00:09, 365kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.01MB [00:09, 429kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.05MB [00:09, 408kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.10MB [00:09, 393kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.15MB [00:09, 401kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.21MB [00:10, 407kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.27MB [00:10, 425kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.32MB [00:10, 427kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.38MB [00:10, 443kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.44MB [00:10, 454kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.49MB [00:10, 403kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.55MB [00:10, 463kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.61MB [00:10, 449kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.65MB [00:11, 423kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.71MB [00:11, 440kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.77MB [00:11, 431kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.83MB [00:11, 445kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.89MB [00:11, 456kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.95MB [00:11, 463kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 4.99MB [00:11, 429kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.06MB [00:12, 465kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.11MB [00:12, 431kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.15MB [00:12, 401kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.19MB [00:12, 373kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.23MB [00:12, 360kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.27MB [00:12, 352kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.32MB [00:12, 355kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.37MB [00:12, 356kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.42MB [00:13, 376kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.47MB [00:13, 389kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.52MB [00:13, 416kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.58MB [00:13, 436kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.65MB [00:13, 450kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.71MB [00:13, 477kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.78MB [00:13, 493kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.85MB [00:13, 508kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 5.93MB [00:14, 535kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.00MB [00:14, 551kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.08MB [00:14, 584kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.14MB [00:14, 514kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.22MB [00:14, 579kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.28MB [00:14, 545kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.34MB [00:14, 526kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.41MB [00:15, 531kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.48MB [00:15, 533kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.56MB [00:15, 553kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.63MB [00:15, 568kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.71MB [00:15, 578kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.78MB [00:15, 576kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.87MB [00:15, 601kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 6.95MB [00:15, 619kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.03MB [00:16, 628kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.12MB [00:16, 644kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.21MB [00:16, 667kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.30MB [00:16, 692kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.37MB [00:16, 642kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.46MB [00:16, 670kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.54MB [00:16, 650kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.62MB [00:17, 635kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.69MB [00:17, 625kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.75MB [00:17, 580kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.83MB [00:17, 579kB/s]
+
+    Downloading T1+ICBM+normal+1mm+pn0+rf0: 7.88MB [00:17, 535kB/s]
+
+                                                                   
 
 
 
@@ -475,7 +691,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 8.443 seconds)
+   **Total running time of the script:** (0 minutes 23.210 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_03-bias-field.py:

@@ -52,6 +52,7 @@ bartorch
    cuda_available
    set_cuda_streams
    use_cuda_memcache
+   empty_cuda_memcache
    bart_version
    build_info
    backend_sources
@@ -214,6 +215,9 @@ bartorch.learning
    UNet
    ComplexNet
    Patchwise
+   NeighborhoodAttention3d
+   neighborhood_attention3d
+   group_norm_silu
    Unrolled
    split
    moments
@@ -260,6 +264,7 @@ bartorch.tools
    upat
    raga
    grog
+   igrog
    psf
    wavepsf
    estdims
