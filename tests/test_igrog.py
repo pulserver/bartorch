@@ -75,3 +75,72 @@ def test_groups_pick_their_own_calibration():
     assert torch.allclose(
         one.values, two.values, rtol=1e-3, atol=1e-4 * float(one.values.abs().max())
     )
+
+
+def test_single_precision_matches_double():
+    """The host loop solves the kernels in single precision; the gridded samples barely move."""
+    n = 32
+    _, kspace = _object(n)
+    angles = torch.linspace(0, math.pi, 24, dtype=torch.float64)[:-1] + 0.1
+    s = torch.arange(-10, 10.5, 0.5, dtype=torch.float64)
+    traj = torch.stack(
+        [s[None] * torch.cos(angles)[:, None], s[None] * torch.sin(angles)[:, None]], -1
+    )
+    y = kspace(traj).to(torch.complex64)
+    c = torch.arange(-8, 8, dtype=torch.float64)
+    ky, kx = torch.meshgrid(c, c, indexing="ij")
+    calib = kspace(torch.stack([kx, ky], -1)).to(torch.complex64)
+    double = tools.igrog(y, traj.float(), (n, n), calib, double=True)
+    single = tools.igrog(y, traj.float(), (n, n), calib, double=False)
+    assert torch.equal(double.index, single.index)
+    rel = (single.values - double.values).norm() / double.values.norm()
+    assert rel < 1e-3, rel
+    assert torch.allclose(single.noise, double.noise, rtol=1e-2)
+
+
+def test_also_moves_extra_samples_by_the_same_kernels():
+    n = 32
+    _, kspace = _object(n)
+    angles = torch.tensor([0.3, 1.1, 2.0, 2.7], dtype=torch.float64)
+    s = torch.arange(-10, 10.5, 0.5, dtype=torch.float64)
+    traj = torch.stack(
+        [s[None] * torch.cos(angles)[:, None], s[None] * torch.sin(angles)[:, None]], -1
+    )
+    y = kspace(traj).to(torch.complex64)
+    c = torch.arange(-8, 8, dtype=torch.float64)
+    ky, kx = torch.meshgrid(c, c, indexing="ij")
+    calib = kspace(torch.stack([kx, ky], -1)).to(torch.complex64)
+    noise = torch.randn(y.shape, dtype=torch.complex64, generator=torch.Generator().manual_seed(1))
+    both = tools.igrog(y, traj.float(), (n, n), calib, also=[noise])
+    alone = tools.igrog(noise, traj.float(), (n, n), calib)
+    assert len(both.also) == 1
+    # Same kernels (they come from the calibration and the trajectory only).
+    torch.testing.assert_close(both.also[0], alone.values)
+
+
+def test_the_card_gridder_matches_the_host_loop():
+    import pytest
+
+    from bartorch._lib import library
+
+    if not torch.cuda.is_available() or not library().bartorch_grog_cuda_built():
+        pytest.skip("no card, or a build without CUDA")
+    n = 32
+    _, kspace = _object(n)
+    angles = torch.tensor([0.3, 1.1, 2.0, 2.7], dtype=torch.float64)
+    s = torch.arange(-10, 10.5, 0.5, dtype=torch.float64)
+    traj = torch.stack(
+        [s[None] * torch.cos(angles)[:, None], s[None] * torch.sin(angles)[:, None]], -1
+    )
+    y = kspace(traj).to(torch.complex64)
+    c = torch.arange(-8, 8, dtype=torch.float64)
+    ky, kx = torch.meshgrid(c, c, indexing="ij")
+    calib = kspace(torch.stack([kx, ky], -1)).to(torch.complex64)
+    noise = torch.randn(y.shape, dtype=torch.complex64, generator=torch.Generator().manual_seed(1))
+    host = tools.igrog(y, traj.float(), (n, n), calib, also=[noise])
+    card = tools.igrog(y, traj.float(), (n, n), calib, also=[noise], device="cuda")
+    assert torch.equal(host.index, card.index)
+    # Both solve in single precision; white noise is where it shows (about 2e-4 from double).
+    for a, b, tol in [(host.values, card.values, 1e-4), (host.also[0], card.also[0], 1e-3)]:
+        assert (a - b).norm() / a.norm() < tol
+    torch.testing.assert_close(card.noise, host.noise, rtol=1e-3, atol=0)

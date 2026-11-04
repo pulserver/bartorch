@@ -20,6 +20,7 @@ __all__ = [
     "available",
     "device",
     "device_count",
+    "empty_memcache",
     "free_memory",
     "ordered",
     "set_streams",
@@ -79,6 +80,11 @@ def use_memcache(enable: bool) -> None:
     each application either way.
     """
     library().bartorch_cuda_use_memcache(int(bool(enable)))
+
+
+def empty_memcache() -> None:
+    """Hand the device memory BART keeps for its own reuse back to the driver."""
+    library().bartorch_cuda_memcache_clear_all()
 
 
 @contextmanager

@@ -33,6 +33,11 @@ def test_free_memory_reports_minus_one_without_a_device():
         assert bartorch._cuda.free_memory() == -1
 
 
+def test_emptying_barts_device_cache_is_safe_with_or_without_a_device():
+    bartorch.empty_cuda_memcache()  # a no-op without CUDA, a release with it
+    bartorch.empty_cuda_memcache()
+
+
 def test_a_device_tensor_is_refused_with_a_message_naming_the_remedy():
     if bartorch._cuda.available() or not torch.cuda.is_available():
         pytest.skip("a device is usable here, so the refusal does not apply")

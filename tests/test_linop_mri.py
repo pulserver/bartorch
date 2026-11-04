@@ -959,6 +959,22 @@ def test_points_are_the_dense_spectrum_at_the_positions_and_the_normal_is_the_de
         assert (got - want).abs().max() / want.abs().max() < 1e-5
 
 
+def test_points_normal_with_a_real_basis_keeps_a_real_kernel_and_is_the_two_applications():
+    """A real basis makes the kernel real symmetric, kept as R (R + 1) / 2 floats a place."""
+    coils, z, y, x, frames, coeffs, shots = 3, 4, 6, 5, 7, 3, 30
+    torch.manual_seed(23)
+    maps, image = _rand(coils, z, y, x), _rand(coeffs, z, y, x)
+    b = torch.randn(coeffs, frames).to(torch.complex64)
+    positions, weights = _points(frames, shots, (z, y, x), 24)
+    A = linop.CartesianSense(maps, (coeffs, z, y, x), positions=positions, weights=weights, basis=b)
+    slow = linop.CartesianSense(
+        maps, (coeffs, z, y, x), positions=positions, weights=weights, basis=b, toeplitz=False
+    )
+    want = slow.adjoint(slow(image))
+    got = A.normal(image)
+    assert (got - want).abs().max() / want.abs().max() < 1e-5
+
+
 def test_points_in_2d_without_a_basis_or_weights(maps):
     torch.manual_seed(23)
     positions = torch.stack([torch.randint(0, Y, (12,)), torch.randint(0, X, (12,))], -1)

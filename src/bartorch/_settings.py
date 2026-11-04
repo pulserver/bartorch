@@ -15,6 +15,7 @@ __all__ = [
     "bart_version",
     "build_info",
     "cuda_available",
+    "empty_cuda_memcache",
     "get_debug_level",
     "set_copy_inputs",
     "set_cuda_streams",
@@ -68,6 +69,25 @@ def set_cuda_streams(n: int) -> None:
         If BART refuses ``n``.
     """
     _cuda.set_streams(n)
+
+
+def empty_cuda_memcache() -> None:
+    """Hand the device memory BART's cache holds back to the driver.
+
+    The cache keeps what an operator freed for its next application, which
+    makes an iterative solve's allocations cheap; between stages that run
+    elsewhere -- a solve, then a network -- it holds memory nothing uses.
+    Clearing it there frees that memory without slowing the solve.  A no-op
+    without CUDA.
+
+    Examples
+    --------
+    >>> x = optim.CG(maxiter=3, device="cuda").inverse(b, A, x)
+    >>> bartorch.empty_cuda_memcache()
+    """
+    from bartorch._lib import library
+
+    library().bartorch_cuda_memcache_clear_all()
 
 
 def use_cuda_memcache(enable: bool) -> None:

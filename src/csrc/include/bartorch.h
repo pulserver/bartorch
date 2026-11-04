@@ -987,6 +987,43 @@ BARTORCH_API int bartorch_gn_silu(const void* x, void* y, int64_t items, int64_t
 		int groups, const void* weight, const void* bias, const void* scale, const void* shift, float eps,
 		int silu, int channels_last, int dtype, void* workspace, void* stream);
 
+/*
+ * iGROG gridding on the host, for bartorch.tools.igrog: each target sample
+ * (shot[m], sample[m]) is moved to its nearest grid point by a closed-form
+ * Wiener GRAPPA kernel over its sources src[m, :] (samples of the same shot),
+ * built in single precision from the coil cross-correlation table and solved
+ * by Cholesky with the ridge lam * trace / (sources * coils).
+ *
+ *   table    (2 reach upsample + 1)^ndim x (coils, coils) complex float,
+ *            axes in trajectory order, Q at displacement d on the table grid
+ *   traj     (shots, samples, ndim) float, grid units
+ *   data     sets pointers to (coils, shots, samples) complex float
+ *   out      sets pointers to (coils, targets) complex float
+ *   noise    (targets) float, sum |W|^2 / coils, or NULL
+ *
+ * ndim is 2 or 3 and sources x coils at most 256.  Returns 0, or 1 for a
+ * NULL argument, 2 a bad shape, 3 out of memory, 4 an index out of range,
+ * 5 a Cholesky failure, 6 a displacement beyond the table.
+ */
+BARTORCH_API int bartorch_grog_grid(int ndim, int64_t coils, int64_t sources, int64_t reach, int64_t upsample,
+		float lam, const void* table, int64_t shots, int64_t samples, const float* traj, int64_t sets,
+		const void* const* data, int64_t targets, const int64_t* shot, const int64_t* sample,
+		const int64_t* src, void* const* out, float* noise);
+
+/*
+ * The same on the card, one target per thread: every array is device memory,
+ * data and out are device arrays of sets device pointers, and status is one
+ * device int the caller zeroes, raised to the codes above (4, 5 or 6) by a
+ * target that fails.  sources x coils is at most 48.  Runs on the cudaStream_t
+ * passed as a void* and returns 0 or the CUDA error of the launch, -2 for a
+ * shape it does not take; without CUDA, cuda_built() is 0 and the grid returns -1.
+ */
+BARTORCH_API int bartorch_grog_cuda_built(void);
+BARTORCH_API int bartorch_grog_grid_cuda(int ndim, int64_t coils, int64_t sources, int64_t reach,
+		int64_t upsample, float lam, const void* table, int64_t shots, int64_t samples, const float* traj,
+		int64_t sets, const void* data, int64_t targets, const int64_t* shot, const int64_t* sample,
+		const int64_t* src, const void* out, float* noise, void* status, void* stream);
+
 /* Whether a pointer is device memory; always false without CUDA. */
 BARTORCH_API int bartorch_on_device(const void* ptr);
 
