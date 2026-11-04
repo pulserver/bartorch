@@ -263,3 +263,21 @@ int bartorch_grog_grid(int ndim, int64_t coils, int64_t sources, int64_t reach, 
 	}
 	return bad;
 }
+
+#ifndef USE_CUDA
+
+/* Without CUDA the card gridder (grog.cu) is absent. */
+int bartorch_grog_cuda_built(void) { return 0; }
+
+int bartorch_grog_grid_cuda(int ndim, int64_t coils, int64_t sources, int64_t reach, int64_t upsample, float lam,
+		const void* table, int64_t shots, int64_t samples, const float* traj, int64_t sets, const void* data,
+		int64_t targets, const int64_t* shot, const int64_t* sample, const int64_t* src, const void* out,
+		float* noise, void* status, void* stream)
+{
+	(void)ndim; (void)coils; (void)sources; (void)reach; (void)upsample; (void)lam; (void)table; (void)shots;
+	(void)samples; (void)traj; (void)sets; (void)data; (void)targets; (void)shot; (void)sample; (void)src;
+	(void)out; (void)noise; (void)status; (void)stream;
+	return -1;
+}
+
+#endif

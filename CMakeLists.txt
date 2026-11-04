@@ -344,7 +344,7 @@ if(OpenMP_C_FOUND AND (WIN32 OR APPLE))
 endif()
 
 if(BARTORCH_CUDA)
-    list(APPEND BARTORCH_SOURCES src/csrc/ops/kernels.cu src/csrc/ops/fft_callbacks.cu src/csrc/ops/attention.cu src/csrc/ops/groupnorm.cu)
+    list(APPEND BARTORCH_SOURCES src/csrc/ops/kernels.cu src/csrc/ops/fft_callbacks.cu src/csrc/ops/attention.cu src/csrc/ops/groupnorm.cu src/csrc/ops/grog.cu)
 
     # The passes around a volume's transform, which cuFFT links into the
     # transform when a plan is made (src/csrc/ops/fft_callbacks.cu).  It takes them as

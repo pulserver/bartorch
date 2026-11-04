@@ -116,3 +116,30 @@ def test_also_moves_extra_samples_by_the_same_kernels():
     assert len(both.also) == 1
     # Same kernels (they come from the calibration and the trajectory only).
     torch.testing.assert_close(both.also[0], alone.values)
+
+
+def test_the_card_gridder_matches_the_host_loop():
+    import pytest
+
+    from bartorch._lib import library
+
+    if not torch.cuda.is_available() or not library().bartorch_grog_cuda_built():
+        pytest.skip("no card, or a build without CUDA")
+    n = 32
+    _, kspace = _object(n)
+    angles = torch.tensor([0.3, 1.1, 2.0, 2.7], dtype=torch.float64)
+    s = torch.arange(-10, 10.5, 0.5, dtype=torch.float64)
+    traj = torch.stack(
+        [s[None] * torch.cos(angles)[:, None], s[None] * torch.sin(angles)[:, None]], -1
+    )
+    y = kspace(traj).to(torch.complex64)
+    c = torch.arange(-8, 8, dtype=torch.float64)
+    ky, kx = torch.meshgrid(c, c, indexing="ij")
+    calib = kspace(torch.stack([kx, ky], -1)).to(torch.complex64)
+    noise = torch.randn(y.shape, dtype=torch.complex64, generator=torch.Generator().manual_seed(1))
+    host = tools.igrog(y, traj.float(), (n, n), calib, also=[noise])
+    card = tools.igrog(y, traj.float(), (n, n), calib, also=[noise], device="cuda")
+    assert torch.equal(host.index, card.index)
+    for a, b in [(host.values, card.values), (host.also[0], card.also[0])]:
+        assert (a - b).norm() / a.norm() < 1e-4
+    torch.testing.assert_close(card.noise, host.noise, rtol=1e-3, atol=0)

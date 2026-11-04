@@ -1010,6 +1010,20 @@ BARTORCH_API int bartorch_grog_grid(int ndim, int64_t coils, int64_t sources, in
 		const void* const* data, int64_t targets, const int64_t* shot, const int64_t* sample,
 		const int64_t* src, void* const* out, float* noise);
 
+/*
+ * The same on the card, one target per thread: every array is device memory,
+ * data and out are device arrays of sets device pointers, and status is one
+ * device int the caller zeroes, raised to the codes above (4, 5 or 6) by a
+ * target that fails.  sources x coils is at most 48.  Runs on the cudaStream_t
+ * passed as a void* and returns 0 or the CUDA error of the launch, -2 for a
+ * shape it does not take; without CUDA, cuda_built() is 0 and the grid returns -1.
+ */
+BARTORCH_API int bartorch_grog_cuda_built(void);
+BARTORCH_API int bartorch_grog_grid_cuda(int ndim, int64_t coils, int64_t sources, int64_t reach,
+		int64_t upsample, float lam, const void* table, int64_t shots, int64_t samples, const float* traj,
+		int64_t sets, const void* data, int64_t targets, const int64_t* shot, const int64_t* sample,
+		const int64_t* src, const void* out, float* noise, void* status, void* stream);
+
 /* Whether a pointer is device memory; always false without CUDA. */
 BARTORCH_API int bartorch_on_device(const void* ptr);
 

@@ -181,6 +181,71 @@ def _native(cc, lam, tr, sets, shot, sample, src, outs, noise):
         raise RuntimeError(f"igrog: the host gridder stopped on {_GROG_ERRORS.get(err, err)}")
 
 
+def _card_grid(cc, lam, tr, sets, shot, sample, src, card, batch):
+    """The card gridder over ``batch`` targets at a time; ``None`` when this build has none.
+
+    ``sets`` are ``(C, S, P)`` complex64 on ``card``; returns the ``(C, M)``
+    results of each set and ``(M,)`` noise gains, on the host.
+    """
+    from bartorch._lib import library
+    from bartorch._marshal import float_pointer, int64_pointer
+
+    lib = library()
+    C, D = cc.table.shape[0], src.shape[1]
+    if not lib.bartorch_grog_cuda_built() or C * D > 48:
+        return None
+    d = tr.shape[-1]
+    table = cc.table.movedim((0, 1), (-2, -1)).contiguous().to(card)
+    traj = tr.float().contiguous().to(card)
+    data = torch.tensor([a.data_ptr() for a in sets], dtype=torch.int64, device=card)
+    M = shot.numel()
+    outs = [torch.empty(a.shape[0], M, dtype=torch.complex64) for a in sets]
+    noise = torch.empty(M, dtype=torch.float32)
+    status = torch.zeros(1, dtype=torch.int32, device=card)
+    with torch.cuda.device(card):
+        stream = torch.cuda.current_stream(card).cuda_stream
+        for b in range(0, M, batch):
+            e = min(M, b + batch)
+            sh, sa = shot[b:e].to(card), sample[b:e].to(card)
+            sr = src[b:e].contiguous().to(card)
+            res = [torch.empty(a.shape[0], e - b, dtype=torch.complex64, device=card) for a in sets]
+            nb = torch.empty(e - b, dtype=torch.float32, device=card)
+            ptrs = torch.tensor([o.data_ptr() for o in res], dtype=torch.int64, device=card)
+            err = lib.bartorch_grog_grid_cuda(
+                d,
+                C,
+                D,
+                cc.reach,
+                cc.upsample,
+                float(lam),
+                table.data_ptr(),
+                traj.shape[0],
+                traj.shape[1],
+                float_pointer(traj.data_ptr()),
+                len(sets),
+                data.data_ptr(),
+                e - b,
+                int64_pointer(sh.data_ptr()),
+                int64_pointer(sa.data_ptr()),
+                int64_pointer(sr.data_ptr()),
+                ptrs.data_ptr(),
+                float_pointer(nb.data_ptr()),
+                status.data_ptr(),
+                stream,
+            )
+            if err == -2:
+                return None
+            if err:
+                raise RuntimeError(f"igrog: the card gridder failed with CUDA error {err}")
+            for o, r in zip(outs, res):
+                o[:, b:e] = r.cpu()
+            noise[b:e] = nb.cpu()
+    code = int(status.item())
+    if code:
+        raise RuntimeError(f"igrog: the card gridder stopped on {_GROG_ERRORS.get(code, code)}")
+    return outs, noise
+
+
 def _sources(traj: torch.Tensor, shot: torch.Tensor, sample: torch.Tensor, sources: int, spacing):
     """Sample indices ``(M, sources)`` of each target's sources along its readout."""
     S, P, _ = traj.shape
@@ -214,7 +279,7 @@ def igrog(
     spacing: float | None = 1.0,
     reach: int = 4,
     upsample: int = 8,
-    batch: int = 65536,
+    batch: int = 1 << 20,
     device=None,
     double: bool = False,
     also=(),
@@ -266,13 +331,14 @@ def igrog(
         Displacements the correlation is tabulated to, in cells.
     upsample : int, default=8
         Table steps per cell.
-    batch : int, default=65536
-        Kernels solved at once.
+    batch : int, default=1048576
+        Targets per pass on a card: what it holds besides the samples.
     device : torch.device, default=None
         Where the kernels are solved; the result is on the host.  ``None``
-        uses the host, where a compiled loop solves each target's kernel in
-        single precision over all cores; on a card they are solved in batches
-        of ``batch`` by torch.
+        uses the samples' device.  Each target's kernel is solved in single
+        precision by a compiled loop: one target per thread on a card, the
+        targets spread over the cores on the host.  The card holds the samples
+        and ``batch`` targets' indices and results, nothing else.
     double : bool, default=False
         Solve the kernels in double precision, by torch (slow, for checks).
     also : sequence of torch.Tensor, default=()
@@ -303,8 +369,7 @@ def igrog(
     P = traj.shape[-2]
     tr = traj.reshape(-1, P, d).cpu()
     y = kspace.reshape(kspace.shape[0], -1, P)
-    card = torch.device(device) if device is not None else torch.device("cpu")
-    host = card.type == "cpu" and not double
+    card = torch.device(device) if device is not None else y.device
     if sources > P:
         raise ValueError("more sources than samples per readout")
     calibs = [calib] if isinstance(calib, torch.Tensor) else list(calib)
@@ -336,27 +401,44 @@ def igrog(
     extra_out = [torch.empty(a.shape[0], shot.numel(), dtype=torch.complex64) for a in extra]
     noise = torch.empty(shot.numel(), dtype=torch.float32)
     which = torch.zeros_like(shot) if group is None else group.reshape(-1).cpu()[shot]
-    if host:
+
+    def store(idx, values, gains):
+        for o, r in zip([out, *extra_out], values):
+            o[:, idx] = r
+        noise[idx] = gains
+
+    groups = [(cc, torch.nonzero(which == gi).squeeze(1)) for gi, cc in enumerate(tables)]
+    groups = [(cc, idx) for cc, idx in groups if idx.numel()]
+    if not double and card.type == "cuda":
+        sets = [a.to(card, torch.complex64).contiguous() for a in [y, *extra]]
+        got = []
+        for cc, idx in groups:
+            got.append(_card_grid(cc, lam, tr, sets, shot[idx], sample[idx], src[idx], card, batch))
+            if got[-1] is None:  # no card gridder in this build, or a shape it does not take
+                break
+        del sets
+        if all(g is not None for g in got):
+            for (_, idx), g in zip(groups, got):
+                store(idx, *g)
+            return _Gridded(out, lin, shot, sample, tuple(shape), noise, extra_out)
+    elif not double:
         sets = [a.to("cpu", torch.complex64).contiguous() for a in [y, *extra]]
-        for gi, cc in enumerate(tables):
-            idx = torch.nonzero(which == gi).squeeze(1)
-            if idx.numel() == 0:
-                continue
+        for cc, idx in groups:
             outs = [torch.empty(a.shape[0], idx.numel(), dtype=torch.complex64) for a in sets]
-            nb = torch.empty(idx.numel(), dtype=torch.float32)
-            _native(cc, lam, tr, sets, shot[idx], sample[idx], src[idx], outs, nb)
-            for o, r in zip([out, *extra_out], outs):
-                o[:, idx] = r
-            noise[idx] = nb
+            gains = torch.empty(idx.numel(), dtype=torch.float32)
+            _native(cc, lam, tr, sets, shot[idx], sample[idx], src[idx], outs, gains)
+            store(idx, outs, gains)
         return _Gridded(out, lin, shot, sample, tuple(shape), noise, extra_out)
+    # Torch: double precision, or a card this build has no gridder for.
+    step = min(batch, 65536)  # its (B, D C, D C) systems are what bound the batch
     for gi, cc in enumerate(tables):
         # The table as (nodes, C C) rows, so each tap gathers contiguous rows.
         dtype = torch.complex128 if double else torch.complex64
         size = cc.table.shape[2]
         rows = cc.table.reshape(cc.table.shape[0] ** 2, -1).T.contiguous().to(card, dtype)
         idx = torch.nonzero(which == gi).squeeze(1)
-        for b in range(0, idx.numel(), batch):
-            ib = idx[b : b + batch]
+        for b in range(0, idx.numel(), step):
+            ib = idx[b : b + step]
             s, sb = shot[ib], src[ib]
             W = _kernels(cc, rows, size, off[ib].to(card), lam)  # (B, C, D C)
             v = y[:, s[:, None], sb].permute(1, 2, 0).reshape(len(s), -1)  # (B, D C), source-major
