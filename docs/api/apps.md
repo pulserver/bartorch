@@ -24,4 +24,6 @@ interface they are assembled from.
 | {obj}`~bartorch.apps.partial_fourier` | `homodyne` | `homodyne -I -C` along each axis acquired on one side of k-space only, the side and the acquired fraction read from the sampling mask |
 | {obj}`~bartorch.apps.pocsense` | none | The POCSENSE projections swept by BART's `pocs` iteration |
 | {obj}`~bartorch.apps.mobafit` | `mobafit` | Per-voxel Levenberg-Marquardt over a BlochSim model; returns named parameter maps in physical units |
+| {obj}`~bartorch.apps.buda` | none | Blip-up/blip-down EPI: one image from shots of opposite phase-encode polarity, each encoded by {obj}`~bartorch.linop.CartesianSense` under {obj}`~bartorch.linop.FieldCorrected` at its own sample times, solved jointly with an iteration {obj}`~bartorch.apps.pics` would choose |
+| {obj}`~bartorch.apps.shot_phase` | none | Each shot's low-resolution image phase, from its own field-corrected SENSE image, for {obj}`~bartorch.apps.buda` |
 | {obj}`~bartorch.apps.moba` | `moba` | Same Gauss-Newton method over a BlochSim model inside the encoding, with the coils known or estimated jointly under Sobolev weighting; returns named parameter maps in physical units, not held to the command's output |
