@@ -107,11 +107,11 @@ def axes_flags(axes, ndim: int) -> int:
 
 
 def check_device(held: torch.device | None, x: torch.Tensor, what: str) -> None:
-    """Raise if ``x`` is not on ``held``, the device an operator's own data is on.
+    """Raise if ``x`` is on a card and the operator's data is on the host.
 
-    BART dereferences an operand and the data an operator holds as if both
-    were where the operator was built, so a host operator handed a device
-    tensor reads device memory from the host.
+    BART dereferences the data an operator holds where its operand is, so a
+    host operator handed a device tensor reads host memory from the card.  An
+    operator built on a card takes host operands: it moves them itself.
 
     Parameters
     ----------
@@ -125,13 +125,13 @@ def check_device(held: torch.device | None, x: torch.Tensor, what: str) -> None:
     Raises
     ------
     ValueError
-        When ``x`` is on another device.
+        When ``x`` is on a card and ``held`` is the host.
     """
-    if held is None or same_device(held, x.device):
+    if held is None or torch.device(held).type != "cpu" or x.device.type == "cpu":
         return
     raise ValueError(
-        f"{what} is on {x.device} but the operator was built on {held}; "
-        f"move one of them with .to({str(x.device)!r}) or .to({str(held)!r})"
+        f"{what} is on {x.device} but the operator was built on the host; "
+        f"build it on {x.device} or move {what} to the host with .cpu()"
     )
 
 

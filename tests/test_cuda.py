@@ -12,6 +12,7 @@ import bartorch
 import bartorch._reference as ref
 import bartorch.tools as bt
 from bartorch import linop
+from bartorch._operator import check_device
 
 requires_cuda = pytest.mark.skipif(
     not bartorch._cuda.available(), reason="no CUDA device, or the library was built without CUDA"
@@ -177,31 +178,40 @@ def _sense_on(device: str, n: int = 16, coils: int = 2) -> linop.CartesianSense:
     return linop.CartesianSense(sensitivities, (n, n), pattern=pattern)
 
 
-def test_an_operand_on_another_device_than_the_operator_is_refused_before_bart_sees_it():
-    A = _sense_on("cpu")
-    A._h  # noqa: B018 -- builds the operator, which records where its data is
-    A.device = torch.device("cuda", 0)
-    x = torch.randn(A.ishape, dtype=torch.complex64)
-    with pytest.raises(ValueError, match="built on cuda:0"):
-        A(x)
+def test_a_device_operand_for_a_host_operator_is_refused_before_bart_sees_it():
+    x = torch.empty(4, dtype=torch.complex64, device="meta")
+    with pytest.raises(ValueError, match="built on the host"):
+        check_device(torch.device("cpu"), x, "input")
+
+
+def test_an_operator_holding_no_data_takes_an_operand_anywhere():
+    check_device(None, torch.empty(4, dtype=torch.complex64, device="meta"), "input")
 
 
 @requires_cuda
-@pytest.mark.parametrize(("built", "operand"), [("cpu", "cuda"), ("cuda", "cpu")])
-def test_mixing_host_and_device_tensors_raises_instead_of_crashing(built, operand):
-    A = _sense_on(built)
-    x = torch.randn(A.ishape, dtype=torch.complex64, device=operand)
-    y = torch.randn(A.oshape, dtype=torch.complex64, device=operand)
-    with pytest.raises(ValueError, match="move one of them"):
+def test_a_device_operand_for_a_host_operator_raises_instead_of_crashing():
+    A = _sense_on("cpu")
+    x = torch.randn(A.ishape, dtype=torch.complex64, device="cuda")
+    y = torch.randn(A.oshape, dtype=torch.complex64, device="cuda")
+    with pytest.raises(ValueError, match="built on the host"):
         A(x)
-    with pytest.raises(ValueError, match="move one of them"):
+    with pytest.raises(ValueError, match="built on the host"):
         A.H(y)
-    with pytest.raises(ValueError, match="move one of them"):
+    with pytest.raises(ValueError, match="built on the host"):
         bartorch.optim.cg(y, A, maxiter=2)
 
 
 @requires_cuda
-def test_a_bare_cuda_device_is_the_current_card():
+def test_a_starting_image_on_the_bare_cuda_device_is_on_the_current_card():
     A = _sense_on("cuda")
-    x = torch.randn(A.ishape, dtype=torch.complex64, device=f"cuda:{torch.cuda.current_device()}")
-    assert A(x).device == x.device
+    y = torch.randn(A.oshape, dtype=torch.complex64, device=f"cuda:{torch.cuda.current_device()}")
+    x0 = torch.zeros(A.ishape, dtype=torch.complex64, device="cuda")
+    assert bartorch.optim.cg(y, A, x0=x0, maxiter=2).device == y.device
+
+
+@requires_cuda
+def test_a_starting_image_on_another_device_than_the_data_is_refused():
+    A = _sense_on("cuda")
+    y = torch.randn(A.oshape, dtype=torch.complex64, device="cuda")
+    with pytest.raises(ValueError, match="x0 is on cpu"):
+        bartorch.optim.cg(y, A, x0=torch.zeros(A.ishape, dtype=torch.complex64), maxiter=2)
