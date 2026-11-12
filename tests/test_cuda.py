@@ -202,7 +202,7 @@ def test_a_device_operand_for_a_host_operator_raises_instead_of_crashing():
 
 
 @requires_cuda
-def test_a_starting_image_on_the_bare_cuda_device_is_on_the_current_card():
+def test_a_starting_image_made_on_the_bare_cuda_device_is_on_the_current_card():
     A = _sense_on("cuda")
     y = torch.randn(A.oshape, dtype=torch.complex64, device=f"cuda:{torch.cuda.current_device()}")
     x0 = torch.zeros(A.ishape, dtype=torch.complex64, device="cuda")

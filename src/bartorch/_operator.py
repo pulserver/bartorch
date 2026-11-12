@@ -135,17 +135,6 @@ def check_device(held: torch.device | None, x: torch.Tensor, what: str) -> None:
     )
 
 
-def same_device(a: torch.device, b: torch.device) -> bool:
-    """Whether ``a`` and ``b`` name one device, with a bare ``cuda`` as the current card."""
-    a, b = torch.device(a), torch.device(b)
-    if a.type != b.type:
-        return False
-    if a.type != "cuda":
-        return True
-    current = torch.cuda.current_device() if a.index is None or b.index is None else None
-    return (current if a.index is None else a.index) == (current if b.index is None else b.index)
-
-
 def as_operand(x: Any, shape: Shape, what: str) -> torch.Tensor:
     """A contiguous complex64 tensor of ``shape``, on a device BART can reach."""
     if not isinstance(x, torch.Tensor):
