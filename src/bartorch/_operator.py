@@ -106,6 +106,46 @@ def axes_flags(axes, ndim: int) -> int:
     return _axes_to_flags(axes, ndim)
 
 
+def check_device(held: torch.device | None, x: torch.Tensor, what: str) -> None:
+    """Raise if ``x`` is not on ``held``, the device an operator's own data is on.
+
+    BART dereferences an operand and the data an operator holds as if both
+    were where the operator was built, so a host operator handed a device
+    tensor reads device memory from the host.
+
+    Parameters
+    ----------
+    held : torch.device or None
+        Where the operator's data is; ``None`` for an operator that holds none.
+    x : torch.Tensor
+        The operand.
+    what : str
+        The operand's name in the message.
+
+    Raises
+    ------
+    ValueError
+        When ``x`` is on another device.
+    """
+    if held is None or same_device(held, x.device):
+        return
+    raise ValueError(
+        f"{what} is on {x.device} but the operator was built on {held}; "
+        f"move one of them with .to({str(x.device)!r}) or .to({str(held)!r})"
+    )
+
+
+def same_device(a: torch.device, b: torch.device) -> bool:
+    """Whether ``a`` and ``b`` name one device, with a bare ``cuda`` as the current card."""
+    a, b = torch.device(a), torch.device(b)
+    if a.type != b.type:
+        return False
+    if a.type != "cuda":
+        return True
+    current = torch.cuda.current_device() if a.index is None or b.index is None else None
+    return (current if a.index is None else a.index) == (current if b.index is None else b.index)
+
+
 def as_operand(x: Any, shape: Shape, what: str) -> torch.Tensor:
     """A contiguous complex64 tensor of ``shape``, on a device BART can reach."""
     if not isinstance(x, torch.Tensor):
@@ -288,6 +328,7 @@ class Operator:
                 f"{type(self).__name__} defines neither _create nor this method"
             )
         x = as_operand(x, ishape, "input")
+        check_device(self.device, x, "input")
         if out is None:
             y = torch.empty(oshape, dtype=torch.complex64, device=x.device)
         else:

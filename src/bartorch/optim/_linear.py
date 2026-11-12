@@ -17,7 +17,7 @@ import torch
 from bartorch import _marshal
 from bartorch._dispatch import BartError, _ensure_ready, _lock, _on_device
 from bartorch._lib import library
-from bartorch._operator import as_operand
+from bartorch._operator import as_operand, check_device, same_device
 from bartorch.optim._blocks import (
     ADMMBlock,
     FISTABlock,
@@ -335,10 +335,13 @@ def _solve(
     appended to it."""
     op = A._bart()
     y = as_operand(y, op.oshape, "y")
+    check_device(op.device, y, "y")
     if x0 is None:
         x = torch.zeros(op.ishape, dtype=torch.complex64, device=y.device)
     else:
         x = as_operand(x0, op.ishape, "x0").clone()
+        if not same_device(x.device, y.device):
+            raise ValueError(f"x0 is on {x.device} but y is on {y.device}")
 
     _ensure_ready()
     lib = library()

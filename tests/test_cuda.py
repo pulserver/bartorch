@@ -169,3 +169,44 @@ def test_a_tool_that_is_not_kept_on_the_card_still_answers_on_it():
     assert out.device.type == "cuda"
     expected = bartorch.fftmod(img.cpu(), (-2, -1))
     torch.testing.assert_close(out.cpu(), expected, rtol=1e-4, atol=1e-5)
+
+
+def _sense_on(device: str, n: int = 16, coils: int = 2) -> linop.CartesianSense:
+    sensitivities = torch.ones(coils, n, n, dtype=torch.complex64, device=device)
+    pattern = torch.ones(n, n, dtype=torch.complex64, device=device)
+    return linop.CartesianSense(sensitivities, (n, n), pattern=pattern)
+
+
+def test_an_operand_on_another_device_than_the_operator_is_refused_before_bart_sees_it():
+    A = _sense_on("cpu")
+    A._h  # noqa: B018 -- builds the operator, which records where its data is
+    A.device = torch.device("cuda", 0)
+    x = torch.randn(A.ishape, dtype=torch.complex64)
+    y = torch.randn(A.oshape, dtype=torch.complex64)
+    with pytest.raises(ValueError, match="built on cuda:0"):
+        A(x)
+    with pytest.raises(ValueError, match="built on cuda:0"):
+        A.H(y)
+    with pytest.raises(ValueError, match="built on cuda:0"):
+        bartorch.optim.cg(y, A, maxiter=2)
+
+
+@requires_cuda
+@pytest.mark.parametrize(("built", "operand"), [("cpu", "cuda"), ("cuda", "cpu")])
+def test_mixing_host_and_device_tensors_raises_instead_of_crashing(built, operand):
+    A = _sense_on(built)
+    x = torch.randn(A.ishape, dtype=torch.complex64, device=operand)
+    y = torch.randn(A.oshape, dtype=torch.complex64, device=operand)
+    with pytest.raises(ValueError, match="move one of them"):
+        A(x)
+    with pytest.raises(ValueError, match="move one of them"):
+        A.H(y)
+    with pytest.raises(ValueError, match="move one of them"):
+        bartorch.optim.cg(y, A, maxiter=2)
+
+
+@requires_cuda
+def test_a_bare_cuda_device_is_the_current_card():
+    A = _sense_on("cuda")
+    x = torch.randn(A.ishape, dtype=torch.complex64, device=f"cuda:{torch.cuda.current_device()}")
+    assert A(x).device == x.device
