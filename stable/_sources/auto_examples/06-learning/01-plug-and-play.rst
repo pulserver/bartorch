@@ -230,7 +230,7 @@ You run the same prior under ADMM and under FISTA.
  .. code-block:: none
 
     Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
-      0%|          | 0.00/125M [00:00<?, ?B/s]      1%|          | 640k/125M [00:00<00:19, 6.55MB/s]     10%|█         | 12.9M/125M [00:00<00:01, 77.3MB/s]     16%|█▋        | 20.2M/125M [00:00<00:01, 70.7MB/s]     22%|██▏       | 27.1M/125M [00:00<00:01, 56.0MB/s]     26%|██▋       | 32.9M/125M [00:00<00:01, 48.6MB/s]     30%|███       | 37.9M/125M [00:00<00:02, 41.3MB/s]     34%|███▍      | 42.1M/125M [00:01<00:02, 29.7MB/s]     37%|███▋      | 45.5M/125M [00:01<00:03, 22.7MB/s]     39%|███▊      | 48.2M/125M [00:01<00:03, 21.9MB/s]     41%|████      | 50.8M/125M [00:01<00:03, 21.0MB/s]     43%|████▎     | 53.0M/125M [00:01<00:03, 20.5MB/s]     44%|████▍     | 55.1M/125M [00:01<00:03, 20.8MB/s]     46%|████▋     | 57.6M/125M [00:02<00:03, 21.7MB/s]     49%|████▊     | 60.6M/125M [00:02<00:02, 23.9MB/s]     55%|█████▍    | 67.9M/125M [00:02<00:01, 37.3MB/s]     67%|██████▋   | 83.8M/125M [00:02<00:00, 71.9MB/s]     77%|███████▋  | 96.1M/125M [00:02<00:00, 87.8MB/s]     94%|█████████▍| 117M/125M [00:02<00:00, 126MB/s]      100%|██████████| 125M/125M [00:02<00:00, 51.3MB/s]
+      0%|          | 0.00/125M [00:00<?, ?B/s]      1%|          | 640k/125M [00:00<00:19, 6.52MB/s]      8%|▊         | 9.75M/125M [00:00<00:02, 58.8MB/s]     42%|████▏     | 51.8M/125M [00:00<00:00, 233MB/s]      62%|██████▏   | 77.2M/125M [00:00<00:00, 233MB/s]     80%|███████▉  | 99.5M/125M [00:00<00:00, 89.6MB/s]     93%|█████████▎| 115M/125M [00:01<00:00, 68.1MB/s]     100%|██████████| 125M/125M [00:01<00:00, 78.4MB/s]
 
 
 
@@ -387,7 +387,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 54.458 seconds)
+   **Total running time of the script:** (0 minutes 52.350 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_01-plug-and-play.py:

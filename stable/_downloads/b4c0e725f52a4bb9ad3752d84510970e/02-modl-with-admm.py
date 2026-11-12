@@ -103,7 +103,7 @@ def outline(axis, crop):
 
 def scaled(estimate, reference):
     """``estimate`` scaled to ``reference`` in the least-squares sense."""
-    a, b = estimate.abs().double(), reference.abs().double()
+    a, b = estimate.detach().abs().double().cpu(), reference.detach().abs().double().cpu()
     return (float((a * b).sum() / (a * a).sum()) * a).float()
 
 
@@ -202,6 +202,11 @@ from torch.utils.data import DataLoader
 
 _ = torch.manual_seed(0)
 
+# The operator, its data and the network are on one device: the card when
+# there is one.
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"device: {DEVICE}")
+
 train_images = images[:24]
 valid_images = images[24:]
 print(f"{len(train_images)} slices to train, {len(valid_images)} to validate")
@@ -229,7 +234,8 @@ density = density / density.sum() * (SIZE / ACCELERATION)
 lines = torch.rand(SIZE, generator=torch.Generator().manual_seed(1)) < density
 lines[SIZE // 2 - CENTRE // 2 : SIZE // 2 + CENTRE // 2] = True
 # sphinx_gallery_end_ignore
-pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
+pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous().to(DEVICE)
+sensitivities = sensitivities.to(DEVICE)
 
 A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
 print(f"{int(lines.sum())} of {SIZE} phase encodes")
@@ -246,9 +252,9 @@ NOISE = 0.005
 
 def measure(images, generator=None):
     """Images, their noisy k-space and the adjoint reconstructions."""
-    x = torch.stack(list(images))
+    x = torch.stack(list(images)).to(DEVICE)
     y = torch.stack([A(item) for item in x])
-    noise = torch.randn(y.shape, dtype=torch.complex64, generator=generator)
+    noise = torch.randn(y.shape, dtype=torch.complex64, generator=generator).to(DEVICE)
     y = y + NOISE * noise
     return x, y, torch.stack([A.H(item) for item in y])
 
@@ -406,7 +412,7 @@ class Reconstruction(lightning.LightningModule):
 
 trainer = lightning.Trainer(
     max_epochs=EPOCHS,
-    accelerator="cpu",
+    accelerator="gpu" if DEVICE.type == "cuda" else "cpu",
     logger=False,
     enable_checkpointing=False,
     enable_model_summary=False,
@@ -414,6 +420,7 @@ trainer = lightning.Trainer(
 )
 trainer.fit(Reconstruction(model), train_loader, valid_loader)
 
+model.to(DEVICE)
 print(f"rho ended at {float(block.rho.detach()):.3f}")
 
 # %%
@@ -454,7 +461,7 @@ for name, estimate in rows.items():
     print(f"{name:>16}   PSNR {made[0]:5.2f} dB   SSIM {made[1]:.3f}")
 
 # sphinx_gallery_start_ignore
-reference = truth[0]
+reference = truth[0].cpu()
 top = float(reference.abs().max())
 learned_name = f"MoDL, K={ITERATIONS}"
 zoom = (slice(70, 118), slice(40, 88))
