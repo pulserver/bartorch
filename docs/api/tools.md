@@ -116,6 +116,7 @@ when {obj}`~bartorch.tools.correct_susceptibility` is called
 | {obj}`~bartorch.tools.deblur` | Off-resonance deblurring of a spiral image |
 | {obj}`~bartorch.tools.correct_susceptibility` | Susceptibility distortion correction from a reversed phase-encoding pair, by PyHySCO |
 | {obj}`~bartorch.tools.SusceptibilityCorrection` | Corrected pair and displacement field from {obj}`~bartorch.tools.correct_susceptibility` |
+| {obj}`~bartorch.tools.displacement_off_resonance` | Off-resonance in Hz from the displacement of a {obj}`~bartorch.tools.SusceptibilityCorrection`, at the cell centres |
 
 ## Rigid motion from navigators
 

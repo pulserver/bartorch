@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 import torch
 
-__all__ = ["SusceptibilityCorrection", "correct_susceptibility"]
+__all__ = ["SusceptibilityCorrection", "correct_susceptibility", "displacement_off_resonance"]
 
 Optimizer = Literal["gauss-newton", "lbfgs", "admm"]
 
@@ -268,3 +268,65 @@ def _in_input_units(objective, holder, field: torch.Tensor):
         objective.corr1 * holder.intensity_scale + holder.intensity_offset * (1 + jacobian),
         objective.corr2 * holder.intensity_scale + holder.intensity_offset * (1 - jacobian),
     )
+
+
+def displacement_off_resonance(
+    field_map: torch.Tensor,
+    voxel_size: tuple[float, ...],
+    line_time: float,
+    *,
+    phase_encoding_axis: int = 0,
+) -> torch.Tensor:
+    r"""Return the off-resonance in Hz that displaces an EPI image as a correction's field does.
+
+    The displacement :math:`b` of :class:`SusceptibilityCorrection` is defined
+    on the cell edges along the phase-encoding axis, in the units of
+    ``voxel_size``; it is averaged onto the cell centres and divided by the
+    voxel size there.  A voxel off resonance by :math:`f` accrues
+    :math:`e^{i 2 \pi f t}`, and a blip-up shot reads the :math:`n` lines of
+    the grid :math:`\Delta t` apart, so its image is displaced by
+    :math:`f n \Delta t` voxels; the correction samples it at :math:`x + b`,
+    hence
+
+    .. math::
+
+        f = -\frac{b}{n \, \Delta t}
+
+    for k-space centred with its first line at :math:`-n/2`, as
+    :func:`~bartorch.linop.CartesianSense` encodes it.
+
+    Parameters
+    ----------
+    field_map : torch.Tensor
+        A correction's displacement: one sample longer than the images along
+        ``phase_encoding_axis``.
+    voxel_size : tuple of float
+        Voxel size per axis, as given to :func:`correct_susceptibility`.
+    line_time : float
+        Time between consecutive lines of the grid in the blip-up shot, in s:
+        the echo spacing over the lines one blip steps; positive where the
+        shot's sample time grows with the line index.
+    phase_encoding_axis : int, default=0
+        As given to :func:`correct_susceptibility`.
+
+    Returns
+    -------
+    torch.Tensor
+        Off-resonance in Hz on the image grid.
+
+    Raises
+    ------
+    ValueError
+        If ``line_time`` is zero or ``voxel_size`` does not give one value per
+        axis.
+    """
+    if line_time == 0:
+        raise ValueError("line_time must not be zero")
+    if len(voxel_size) != field_map.ndim:
+        raise ValueError(f"voxel_size has {len(voxel_size)} entries for a {field_map.ndim}D field")
+    axis = phase_encoding_axis % field_map.ndim
+    edges = field_map.movedim(axis, 0)
+    centres = 0.5 * (edges[:-1] + edges[1:])
+    lines = centres.shape[0]
+    voxels = centres / voxel_size[axis]
+    return (-voxels / (lines * line_time)).movedim(0, axis)

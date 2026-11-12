@@ -7,7 +7,7 @@ import importlib.util
 import pytest
 import torch
 
-from bartorch.tools import correct_susceptibility
+from bartorch.tools import correct_susceptibility, displacement_off_resonance
 
 needs_pyhysco = pytest.mark.skipif(
     importlib.util.find_spec("EPI_MRI") is None,
@@ -136,3 +136,38 @@ def test_two_dimensional_pair_reports_the_upstream_limit() -> None:
             voxel_size=(1.0, 1.0),
             max_iter=6,
         )
+
+
+def test_off_resonance_is_minus_the_displacement_over_the_phase_encode_time() -> None:
+    edges = torch.zeros(17, 8)
+    edges[:, :4] = 3.0  # mm, on the 17 edges of 16 cells
+    hz = displacement_off_resonance(edges, (1.5, 1.0), 2e-3, phase_encoding_axis=0)
+    assert hz.shape == (16, 8)
+    assert hz[:, :4] == pytest.approx(torch.full((16, 4), -2.0 / (16 * 2e-3)))
+    assert hz[:, 4:] == pytest.approx(torch.zeros(16, 4))
+    across = displacement_off_resonance(edges.T, (1.0, 1.5), 2e-3, phase_encoding_axis=1)
+    assert across == pytest.approx(hz.T)
+
+
+@needs_pyhysco
+def test_the_off_resonance_of_a_corrected_epi_pair_is_the_one_that_displaced_it() -> None:
+    """Sign, centring and units, against the field an EPI pair was encoded at."""
+    from bartorch import linop
+    from tests._epi_pair import acquire, coil_maps, disc, field, times
+
+    n, line_time = 64, 1e-3
+    image, maps = disc(n), coil_maps(n, 4)
+    support = image.abs() > 0
+    truth = field(n, 80.0) * support
+    pair = []
+    for polarity in (+1, -1):
+        kspace = acquire(image, maps, truth, times(n, line_time, polarity), range(n))
+        coils = linop.CartesianSense(maps, (n, n))
+        pair.append(coils.H(kspace.reshape(coils.oshape)).reshape(n, n).abs().double())
+    stack = [part[:, :, None].repeat(1, 1, 3) for part in pair]
+    result = correct_susceptibility(*stack, voxel_size=(1.0, 1.0, 1.0), alpha=30.0, max_iter=20)
+    hz = displacement_off_resonance(result.field_map.float(), (1.0, 1.0, 1.0), line_time)[:, :, 1]
+    inside = support & (truth.abs() > 10.0)
+    correlation = torch.corrcoef(torch.stack([hz[inside], truth[inside]]))[0, 1]
+    assert float(correlation) > 0.9
+    assert float((hz - truth)[inside].abs().mean()) < 0.25 * float(truth[inside].abs().mean())
