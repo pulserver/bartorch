@@ -106,6 +106,35 @@ def axes_flags(axes, ndim: int) -> int:
     return _axes_to_flags(axes, ndim)
 
 
+def check_device(held: torch.device | None, x: torch.Tensor, what: str) -> None:
+    """Raise if ``x`` is on a card and the operator's data is on the host.
+
+    BART dereferences the data an operator holds where its operand is, so a
+    host operator handed a device tensor reads host memory from the card.  An
+    operator built on a card takes host operands: it moves them itself.
+
+    Parameters
+    ----------
+    held : torch.device or None
+        Where the operator's data is; ``None`` for an operator that holds none.
+    x : torch.Tensor
+        The operand.
+    what : str
+        The operand's name in the message.
+
+    Raises
+    ------
+    ValueError
+        When ``x`` is on a card and ``held`` is the host.
+    """
+    if held is None or torch.device(held).type != "cpu" or x.device.type == "cpu":
+        return
+    raise ValueError(
+        f"{what} is on {x.device} but the operator was built on the host; "
+        f"build it on {x.device} or move {what} to the host with .cpu()"
+    )
+
+
 def as_operand(x: Any, shape: Shape, what: str) -> torch.Tensor:
     """A contiguous complex64 tensor of ``shape``, on a device BART can reach."""
     if not isinstance(x, torch.Tensor):
@@ -288,6 +317,7 @@ class Operator:
                 f"{type(self).__name__} defines neither _create nor this method"
             )
         x = as_operand(x, ishape, "input")
+        check_device(self.device, x, "input")
         if out is None:
             y = torch.empty(oshape, dtype=torch.complex64, device=x.device)
         else:
