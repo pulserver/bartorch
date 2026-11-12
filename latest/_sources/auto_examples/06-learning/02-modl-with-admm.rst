@@ -101,7 +101,7 @@ One subject, 24 slices and one sampling pattern are a phantom, not a
 training set. The trained weights are not expected to generalise; the
 lesson is about the construction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 192-209
+.. GENERATED FROM PYTHON SOURCE LINES 192-214
 
 .. code-block:: Python
 
@@ -118,6 +118,11 @@ lesson is about the construction.
 
     _ = torch.manual_seed(0)
 
+    # The operator, its data and the network are on one device: the card when
+    # there is one.
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"device: {DEVICE}")
+
     train_images = images[:24]
     valid_images = images[24:]
     print(f"{len(train_images)} slices to train, {len(valid_images)} to validate")
@@ -130,12 +135,13 @@ lesson is about the construction.
 
  .. code-block:: none
 
+    device: cpu
     24 slices to train, 8 to validate
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 210-218
+.. GENERATED FROM PYTHON SOURCE LINES 215-223
 
 The acquisition
 ---------------
@@ -146,7 +152,7 @@ pattern is the same for every slice, so one operator serves the whole
 dataset. If each item had its own pattern, you would need one operator per
 item.
 
-.. GENERATED FROM PYTHON SOURCE LINES 218-238
+.. GENERATED FROM PYTHON SOURCE LINES 223-244
 
 .. code-block:: Python
 
@@ -157,7 +163,8 @@ item.
     sensitivities = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
     sensitivities /= bartorch.rss(sensitivities, axes=(0,), keepdim=True)
 
-    pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous()
+    pattern = lines.to(torch.complex64)[:, None].expand(SIZE, SIZE).contiguous().to(DEVICE)
+    sensitivities = sensitivities.to(DEVICE)
 
     A = linop.CartesianSense(sensitivities, (SIZE, SIZE), pattern=pattern)
     print(f"{int(lines.sum())} of {SIZE} phase encodes")
@@ -177,7 +184,7 @@ item.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 239-244
+.. GENERATED FROM PYTHON SOURCE LINES 245-250
 
 The k-space of a slice is :math:`A x` plus complex Gaussian noise. ``A`` is
 built for one image, so you apply it to a batch item by item. The blocks in
@@ -185,7 +192,7 @@ built for one image, so you apply it to a batch item by item. The blocks in
 accepts a batch even though the operator does not. ``measure`` also returns
 :math:`A^H y`, the image the unrolled network starts from.
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-269
+.. GENERATED FROM PYTHON SOURCE LINES 250-275
 
 .. code-block:: Python
 
@@ -194,9 +201,9 @@ accepts a batch even though the operator does not. ``measure`` also returns
 
     def measure(images, generator=None):
         """Images, their noisy k-space and the adjoint reconstructions."""
-        x = torch.stack(list(images))
+        x = torch.stack(list(images)).to(DEVICE)
         y = torch.stack([A(item) for item in x])
-        noise = torch.randn(y.shape, dtype=torch.complex64, generator=generator)
+        noise = torch.randn(y.shape, dtype=torch.complex64, generator=generator).to(DEVICE)
         y = y + NOISE * noise
         return x, y, torch.stack([A.H(item) for item in y])
 
@@ -214,7 +221,7 @@ accepts a batch even though the operator does not. ``measure`` also returns
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 270-289
+.. GENERATED FROM PYTHON SOURCE LINES 276-295
 
 Two training slices, the sampling pattern (phase encoding vertical), and
 what the network starts from on a validation slice: :math:`A^H y`, with the
@@ -236,7 +243,7 @@ transformed with it. Here each subject holds one image, and the transform is
 a flip and a rotation of at most eight degrees: the tissue the denoiser
 learns stays the same, its orientation varies.
 
-.. GENERATED FROM PYTHON SOURCE LINES 289-326
+.. GENERATED FROM PYTHON SOURCE LINES 295-332
 
 .. code-block:: Python
 
@@ -284,7 +291,7 @@ learns stays the same, its orientation varies.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 327-346
+.. GENERATED FROM PYTHON SOURCE LINES 333-352
 
 The network
 -----------
@@ -306,7 +313,7 @@ Three objects:
 written at the top; ``cg_maxiter`` is the budget of the x-update, MoDL's
 ten conjugate-gradient steps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 346-365
+.. GENERATED FROM PYTHON SOURCE LINES 352-371
 
 .. code-block:: Python
 
@@ -343,7 +350,7 @@ ten conjugate-gradient steps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 366-374
+.. GENERATED FROM PYTHON SOURCE LINES 372-380
 
 Training
 --------
@@ -354,7 +361,7 @@ a forward pass, a loss against the fully sampled image, and metrics from
 reconstruction that produced it. The gradient is propagated through the
 denoiser, the conjugate-gradient solves and :math:`\rho`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 374-419
+.. GENERATED FROM PYTHON SOURCE LINES 380-426
 
 .. code-block:: Python
 
@@ -393,7 +400,7 @@ denoiser, the conjugate-gradient solves and :math:`\rho`.
 
     trainer = lightning.Trainer(
         max_epochs=EPOCHS,
-        accelerator="cpu",
+        accelerator="gpu" if DEVICE.type == "cuda" else "cpu",
         logger=False,
         enable_checkpointing=False,
         enable_model_summary=False,
@@ -401,6 +408,7 @@ denoiser, the conjugate-gradient solves and :math:`\rho`.
     )
     trainer.fit(Reconstruction(model), train_loader, valid_loader)
 
+    model.to(DEVICE)
     print(f"rho ended at {float(block.rho.detach()):.3f}")
 
 
@@ -411,10 +419,10 @@ denoiser, the conjugate-gradient solves and :math:`\rho`.
 
  .. code-block:: none
 
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:13 • 0:00:00 0.87it/s loss: 0.000 psnr:
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:10 • 0:00:00 1.13it/s loss: 0.000 psnr:
                                                                    32.724 ssim:     
                                                                    0.889            
     rho ended at 0.027
@@ -422,7 +430,7 @@ denoiser, the conjugate-gradient solves and :math:`\rho`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 420-427
+.. GENERATED FROM PYTHON SOURCE LINES 427-434
 
 Results
 -------
@@ -432,7 +440,7 @@ validation k-space: the adjoint it starts from; conjugate-gradient SENSE,
 which fits the data term alone; and the same ADMM iteration with a wavelet
 penalty in place of the network, run for fifty iterations rather than five.
 
-.. GENERATED FROM PYTHON SOURCE LINES 427-477
+.. GENERATED FROM PYTHON SOURCE LINES 434-484
 
 .. code-block:: Python
 
@@ -499,7 +507,7 @@ penalty in place of the network, run for fifty iterations rather than five.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 478-527
+.. GENERATED FROM PYTHON SOURCE LINES 485-534
 
 The error maps share one scale. CG SENSE removes most of the aliasing but
 amplifies the noise, which covers the whole field of view. The wavelet
@@ -551,7 +559,7 @@ Compare the gradient of ``rho`` with and without checkpointing. ``rho``
 enters every iteration and every conjugate-gradient solve, so its gradient
 is propagated through all of them:
 
-.. GENERATED FROM PYTHON SOURCE LINES 527-543
+.. GENERATED FROM PYTHON SOURCE LINES 534-550
 
 .. code-block:: Python
 
@@ -584,7 +592,7 @@ is propagated through all of them:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 544-559
+.. GENERATED FROM PYTHON SOURCE LINES 551-566
 
 The two gradients agree to every printed digit: checkpointing changes the
 memory, not the result.
@@ -602,7 +610,7 @@ The block was trained for five iterations. Wrap the same trained block in
 a new :class:`~bartorch.learning.Unrolled` with fewer or more iterations
 and evaluate it on the validation slices; this needs forward passes only.
 
-.. GENERATED FROM PYTHON SOURCE LINES 559-578
+.. GENERATED FROM PYTHON SOURCE LINES 566-585
 
 .. code-block:: Python
 
@@ -626,7 +634,7 @@ and evaluate it on the validation slices; this needs forward passes only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 579-606
+.. GENERATED FROM PYTHON SOURCE LINES 586-613
 
 PSNR rises up to the five iterations the block was trained for and falls
 beyond them: at 8 and 12 iterations it is below the wavelet penalty again.
@@ -656,7 +664,7 @@ What this lesson built, stated the way you would ask an agent for it:
    SSIM on validation). Compare against CG SENSE and wavelet ADMM, and check
    that checkpoint=True reproduces the gradient of rho.
 
-.. GENERATED FROM PYTHON SOURCE LINES 608-637
+.. GENERATED FROM PYTHON SOURCE LINES 615-644
 
 References
 ----------
@@ -691,7 +699,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 16.776 seconds)
+   **Total running time of the script:** (3 minutes 21.306 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:
