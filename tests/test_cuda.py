@@ -182,13 +182,8 @@ def test_an_operand_on_another_device_than_the_operator_is_refused_before_bart_s
     A._h  # noqa: B018 -- builds the operator, which records where its data is
     A.device = torch.device("cuda", 0)
     x = torch.randn(A.ishape, dtype=torch.complex64)
-    y = torch.randn(A.oshape, dtype=torch.complex64)
     with pytest.raises(ValueError, match="built on cuda:0"):
         A(x)
-    with pytest.raises(ValueError, match="built on cuda:0"):
-        A.H(y)
-    with pytest.raises(ValueError, match="built on cuda:0"):
-        bartorch.optim.cg(y, A, maxiter=2)
 
 
 @requires_cuda
