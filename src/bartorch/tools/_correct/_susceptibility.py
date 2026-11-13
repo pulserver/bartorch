@@ -147,6 +147,7 @@ def correct_susceptibility(
     optimizer: Optimizer = "gauss-newton",
     max_iter: int = 10,
     device: torch.device | str | None = None,
+    prealign: bool = True,
 ) -> SusceptibilityCorrection:
     """Correct susceptibility distortion from a pair with reversed phase encoding.
 
@@ -176,6 +177,16 @@ def correct_susceptibility(
     device : torch.device or str, default=None
         Device of the computation, which runs in float64; that of ``blip_up``
         if ``None``.
+
+    prealign : bool, default=True
+        Remove the uniform displacement first: the pair's profiles along the
+        phase-encoding axis are cross-correlated, each image is moved half
+        of the lag towards the other, and PyHySCO estimates the remaining
+        field. A uniform off-resonance, such as a centre frequency off the
+        sample's resonance, displaces the pair in opposite directions by
+        many voxels when the phase-encode bandwidth per voxel is low, more
+        than the field PyHySCO estimates from zero can recover. The removed
+        displacement is part of the returned ``field_map``.
 
     Returns
     -------
@@ -216,6 +227,16 @@ def correct_susceptibility(
     parts = _require_pyhysco()
     resolved = torch.device(device) if device is not None else blip_up.device
 
+    axis = phase_encoding_axis % blip_up.ndim
+    offset = 0.0
+    if prealign:
+        # The blip-down image is the blip-up one moved by ``lag`` voxels; the
+        # undistorted object lies half-way, at x + offset in the blip-up
+        # image and x - offset in the blip-down one.
+        offset = -0.5 * _profile_lag(blip_up, blip_down, axis)
+        blip_up = _sampled(blip_up, offset, axis)
+        blip_down = _sampled(blip_down, -offset, axis)
+
     holder = _data_object(
         blip_up,
         blip_down,
@@ -248,7 +269,8 @@ def correct_susceptibility(
     shape = list(holder.m)
     up, down = _in_input_units(objective, holder, field)
     return SusceptibilityCorrection(
-        field_map=field.reshape(list(parts["m_plus"](holder.m))).permute(holder.p),
+        field_map=field.reshape(list(parts["m_plus"](holder.m))).permute(holder.p)
+        + offset * float(voxel_size[axis]),
         blip_up=up.reshape(shape).permute(holder.p),
         blip_down=down.reshape(shape).permute(holder.p),
     )
@@ -267,4 +289,35 @@ def _in_input_units(objective, holder, field: torch.Tensor):
     return (
         objective.corr1 * holder.intensity_scale + holder.intensity_offset * (1 + jacobian),
         objective.corr2 * holder.intensity_scale + holder.intensity_offset * (1 - jacobian),
+    )
+
+
+def _profile_lag(blip_up: torch.Tensor, blip_down: torch.Tensor, axis: int) -> float:
+    """Return the lag, in voxels, by which ``blip_down`` is ``blip_up`` moved along ``axis``.
+
+    The magnitude profiles along ``axis`` (summed over the other axes) are
+    cross-correlated circularly, and the peak is refined to a fraction of a
+    voxel by a parabola through it and its neighbours.
+    """
+    others = [d for d in range(blip_up.ndim) if d != axis]
+    up = blip_up.abs().to(torch.float64)
+    down = blip_down.abs().to(torch.float64)
+    a = up.sum(dim=others) if others else up
+    b = down.sum(dim=others) if others else down
+    a, b = a - a.mean(), b - b.mean()
+    n = a.numel()
+    xc = torch.fft.irfft(torch.conj(torch.fft.rfft(a)) * torch.fft.rfft(b), n=n)
+    k = int(torch.argmax(xc))
+    before, peak, after = float(xc[(k - 1) % n]), float(xc[k]), float(xc[(k + 1) % n])
+    curvature = before - 2.0 * peak + after
+    lag = k + (0.5 * (before - after) / curvature if curvature < 0 else 0.0)
+    return lag - n if lag > n / 2 else lag
+
+
+def _sampled(image: torch.Tensor, offset: float, axis: int) -> torch.Tensor:
+    """Return ``image`` sampled at ``x + offset`` voxels along ``axis``, linearly, wrapping around."""
+    whole = int(torch.floor(torch.tensor(offset)))
+    fraction = offset - whole
+    return (1.0 - fraction) * torch.roll(image, -whole, dims=axis) + fraction * torch.roll(
+        image, -(whole + 1), dims=axis
     )
