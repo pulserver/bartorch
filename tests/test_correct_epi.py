@@ -242,3 +242,52 @@ def test_correcting_a_train_leaves_no_signal_outside_the_object(device):
     estimate = _ifftc(np.concatenate([_numpy(line) for line in corrected], axis=0))
     background = np.abs(image) < 1e-6
     assert np.abs(estimate)[background].max() / np.abs(estimate).max() < 1e-3
+
+
+def _reference_train(per_echo, *, drift=0.2, echoes=8):
+    """A blip-free train: reversed echo k carries ``per_echo[k]``.
+
+    Every echo also carries an off-resonance phase growing ``drift`` rad per echo.
+    """
+    line = _navigator_line(coils=2)
+    lines, flags = [], []
+    for echo in range(echoes):
+        drifted = line * np.exp(1j * drift * echo)
+        backwards = echo % 2 == 1
+        stored = _delayed(drifted, per_echo[echo])[..., ::-1] if backwards else drifted
+        lines.append(stored)
+        flags.append(backwards)
+    flipped = bt.correct_lines([(t, f) for t, f in zip(_tensors(lines), flags, strict=True)])
+    return flipped, flags
+
+
+def test_the_reference_fit_is_the_correction_of_each_reversed_echo(device):
+    """Each reversed echo gets minus its own phase, forward echoes nothing, the drift cancels."""
+    per_echo = {k: [0.1 * k, 0.5 + 0.05 * k] for k in range(8)}
+    lines, flags = _reference_train(per_echo)
+    fit = bt.estimate_epi_echo_phase([line.to(device) for line in lines], flags)
+    assert fit.shape == (8, 2) and fit.device.type == device
+    fit = _numpy(fit)
+    np.testing.assert_array_equal(fit[0::2], 0.0)
+    for echo in (1, 3, 5):
+        np.testing.assert_allclose(fit[echo], [-v for v in per_echo[echo]], atol=0.05)
+    # The last echo has a forward echo on one side only: it takes echo 5's fit.
+    np.testing.assert_allclose(fit[7], fit[5])
+
+
+def test_the_reference_fit_undoes_the_phase_of_a_reversed_imaging_line():
+    impressed = [0.3, 0.8]
+    lines, flags = _reference_train(dict.fromkeys(range(8), impressed), drift=0.0)
+    fit = bt.estimate_epi_echo_phase(lines, flags)
+    line = _navigator_line(coils=2)
+    stored = _delayed(line, impressed)[..., ::-1]
+    corrected = bt.correct_lines([(_tensors([stored])[0], True)], fit[3])[0]
+    np.testing.assert_allclose(_numpy(corrected), line, atol=1e-2)
+
+
+def test_a_reference_without_both_polarities_is_refused():
+    line = torch.ones(2, 16, dtype=torch.complex64)
+    with pytest.raises(ValueError, match="no forward echo"):
+        bt.estimate_epi_echo_phase([line] * 3, [False] * 3)
+    with pytest.raises(ValueError, match="polarities"):
+        bt.estimate_epi_echo_phase([line] * 3, [False] * 2)

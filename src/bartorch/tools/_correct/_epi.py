@@ -6,7 +6,12 @@ import math
 
 import torch
 
-__all__ = ["correct_lines", "epi_ramp_operator", "estimate_epi_phase"]
+__all__ = [
+    "correct_lines",
+    "epi_ramp_operator",
+    "estimate_epi_echo_phase",
+    "estimate_epi_phase",
+]
 
 
 def _hybrid(rows: torch.Tensor, *, inverse: bool = True) -> torch.Tensor:
@@ -129,8 +134,6 @@ def estimate_epi_phase(
     ValueError
         If fewer than three lines are given, or the order is negative.
     """
-    from bartorch._util import unwrap
-
     if len(navigator_lines) < 3:
         raise ValueError(
             f"the navigator is three lines of alternating polarity, got {len(navigator_lines)}"
@@ -139,16 +142,98 @@ def estimate_epi_phase(
         raise ValueError("polynomial_order must be non-negative")
 
     forward = 0.5 * (_hybrid(navigator_lines[0]) + _hybrid(navigator_lines[2]))
-    backward = _hybrid(navigator_lines[1])
-    cross = (forward * backward.conj()).sum(0)
+    return _fit_odd_even(forward, _hybrid(navigator_lines[1]), polynomial_order)
 
+
+def _fit_odd_even(forward: torch.Tensor, backward: torch.Tensor, order: int) -> torch.Tensor:
+    """Weighted polynomial fit of the phase of ``forward * conj(backward)``, in hybrid space."""
+    from bartorch._util import unwrap
+
+    cross = (forward * backward.conj()).sum(0)
     weights = cross.abs().to(torch.float64)
     phase = unwrap(torch.angle(cross).to(torch.complex64), -1).real.to(torch.float64)
     coordinate = _readout_coordinate(phase.shape[0], phase.device)
     keep = weights > 0.1 * weights.max()
-    design = torch.stack([coordinate[keep] ** p for p in range(polynomial_order + 1)], dim=-1)
+    design = torch.stack([coordinate[keep] ** p for p in range(order + 1)], dim=-1)
     scaled = design * weights[keep, None]
     return torch.linalg.lstsq(scaled, (phase[keep] * weights[keep])[:, None]).solution[:, 0]
+
+
+def estimate_epi_echo_phase(
+    reference_lines: list[torch.Tensor],
+    reversed_lines: list[bool],
+    *,
+    polynomial_order: int = 1,
+) -> torch.Tensor:
+    r"""Odd/even phase of every echo of an EPI train, fitted to a blip-free reference train.
+
+    The reference is the imaging train played with every phase-encode
+    gradient at zero, so echo :math:`k` sees the read gradient, eddy currents
+    and timing of echo :math:`k` of every imaging train.  For each reversed
+    echo, the forward echoes either side of it stand in for the line it would
+    have been read forward, their mean cancelling the off-resonance phase that
+    grows linearly along the train, and the phase of the reversed echo
+    against them is fitted as :func:`estimate_epi_phase` fits a navigator's.
+    A reversed echo with a forward echo on one side only (the first or last
+    of the train) takes the fit of the nearest reversed echo that has both,
+    or, in a train too short to have one, the one-sided fit.  Forward echoes
+    define the grid and take no correction.
+
+    Parameters
+    ----------
+    reference_lines : list of torch.Tensor
+        The reference train's ``(coils, samples)`` lines in echo order,
+        reversed lines already flipped into forward readout order.
+    reversed_lines : list of bool
+        Whether each echo was read with the negative read gradient.
+    polynomial_order : int, default=1
+        Polynomial order; one is a constant and a linear term.
+
+    Returns
+    -------
+    torch.Tensor
+        Float64 ``(echoes, polynomial_order + 1)`` coefficients, lowest order
+        first, on the reference's device, in the coordinate of
+        :func:`estimate_epi_phase`: row :math:`k` is what
+        :func:`correct_lines` applies to a reversed line of echo :math:`k`,
+        zeros for a forward echo.
+
+    Raises
+    ------
+    ValueError
+        If the two lists differ in length, the train has no forward echo next
+        to a reversed one, or the order is negative.
+    """
+    if len(reference_lines) != len(reversed_lines):
+        raise ValueError(
+            f"{len(reference_lines)} reference lines but {len(reversed_lines)} polarities"
+        )
+    if polynomial_order < 0:
+        raise ValueError("polynomial_order must be non-negative")
+    count = len(reference_lines)
+    flags = [bool(flag) for flag in reversed_lines]
+    hybrid = [_hybrid(line) for line in reference_lines]
+    device = hybrid[0].device if hybrid else None
+    coefficients = torch.zeros(count, polynomial_order + 1, dtype=torch.float64, device=device)
+
+    interior, edges = [], []
+    for echo in range(count):
+        if not flags[echo]:
+            continue
+        sides = [j for j in (echo - 1, echo + 1) if 0 <= j < count and not flags[j]]
+        if not sides:
+            continue
+        forward = sum(hybrid[j] for j in sides) / len(sides)
+        fit = _fit_odd_even(forward, hybrid[echo], polynomial_order)
+        coefficients[echo] = fit
+        (interior if len(sides) == 2 else edges).append(echo)
+    if not interior and not edges:
+        raise ValueError("the reference train has no forward echo next to a reversed one")
+    if interior:
+        for echo in edges:
+            nearest = min(interior, key=lambda other: abs(other - echo))
+            coefficients[echo] = coefficients[nearest]
+    return coefficients
 
 
 def correct_lines(

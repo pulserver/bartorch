@@ -10,7 +10,12 @@ optional.  Each is imported by the functions that use it.
 from __future__ import annotations
 
 from bartorch.tools._correct._bias import bias_field_correct
-from bartorch.tools._correct._epi import correct_lines, epi_ramp_operator, estimate_epi_phase
+from bartorch.tools._correct._epi import (
+    correct_lines,
+    epi_ramp_operator,
+    estimate_epi_echo_phase,
+    estimate_epi_phase,
+)
 from bartorch.tools._correct._fieldmap import field_map_from_phase
 from bartorch.tools._correct._gradunwarp import (
     CoefficientAccessor,
@@ -19,7 +24,11 @@ from bartorch.tools._correct._gradunwarp import (
 )
 from bartorch.tools._correct._reslice import reslice
 from bartorch.tools._correct._spiral import ReadoutTiming, SpiralTransfer, deblur, fit_transfer
-from bartorch.tools._correct._susceptibility import SusceptibilityCorrection, correct_susceptibility
+from bartorch.tools._correct._susceptibility import (
+    SusceptibilityCorrection,
+    apply_susceptibility,
+    correct_susceptibility,
+)
 
 __all__ = [
     "CoefficientAccessor",
@@ -28,11 +37,13 @@ __all__ = [
     "ReadoutTiming",
     "SpiralTransfer",
     "SusceptibilityCorrection",
+    "apply_susceptibility",
     "bias_field_correct",
     "correct_lines",
     "correct_susceptibility",
     "deblur",
     "epi_ramp_operator",
+    "estimate_epi_echo_phase",
     "estimate_epi_phase",
     "field_map_from_phase",
     "fit_transfer",
