@@ -181,7 +181,7 @@ def correct_susceptibility(
     prealign : bool, default=True
         Remove the uniform displacement first: the pair's profiles along the
         phase-encoding axis are cross-correlated, each image is moved half
-        of the lag towards the other, and PyHySCO estimates the remaining
+        of the lag, in whole voxels, towards the other, and PyHySCO estimates the remaining
         field. A uniform off-resonance, such as a centre frequency off the
         sample's resonance, displaces the pair in opposite directions by
         many voxels when the phase-encode bandwidth per voxel is low, more
@@ -233,7 +233,9 @@ def correct_susceptibility(
         # The blip-down image is the blip-up one moved by ``lag`` voxels; the
         # undistorted object lies half-way, at x + offset in the blip-up
         # image and x - offset in the blip-down one.
-        offset = -0.5 * _profile_lag(blip_up, blip_down, axis)
+        # Whole voxels only: a roll does not blur, and PyHySCO takes the
+        # remaining half voxel at most.
+        offset = -float(round(0.5 * _profile_lag(blip_up, blip_down, axis)))
         blip_up = _sampled(blip_up, offset, axis)
         blip_down = _sampled(blip_down, -offset, axis)
 
