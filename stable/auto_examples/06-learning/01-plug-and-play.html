@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=8fe5d5b5"></script>
+    <script src="../../_static/documentation_options.js?v=1af05764"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.23';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.24';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -72,7 +72,7 @@
     <link rel="prev" title="9. Nonlinear inversion for T2 mapping" href="../05-model-based/01-quantitative-models.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.23" />
+  <meta name="docsearch:version" content="v0.0.24" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -527,7 +527,7 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="plug-and-play-reconstruction">
 <span id="sphx-glr-auto-examples-06-learning-01-plug-and-play-py"></span><h1>10. Plug-and-play reconstruction<a class="headerlink" href="#plug-and-play-reconstruction" title="Link to this heading">#</a></h1>
-<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/v0.0.23/_colab/06-learning/01-plug-and-play.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
+<a class="reference external image-reference" href="https://colab.research.google.com/github/pulserver/bartorch/blob/gh-pages/v0.0.24/_colab/06-learning/01-plug-and-play.ipynb"><img alt="Open in Colab" class="colab-badge" src="https://colab.research.google.com/assets/colab-badge.svg" />
 </a>
 <p>In lesson 9 the prior knowledge was a signal model; in lesson 5 it was an
 explicit penalty, a wavelet or total-variation term with a weight. In this
@@ -648,13 +648,15 @@ You run the same prior under ADMM and under FISTA.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Downloading: "https://huggingface.co/deepinv/drunet/resolve/main/drunet_deepinv_gray_finetune_26k.pth?download=true" to /home/runner/.cache/torch/hub/checkpoints/drunet_deepinv_gray_finetune_26k.pth
 
   0%|          | 0.00/125M [00:00&lt;?, ?B/s]
-  1%|          | 640k/125M [00:00&lt;00:19, 6.52MB/s]
-  8%|▊         | 9.75M/125M [00:00&lt;00:02, 58.8MB/s]
- 42%|████▏     | 51.8M/125M [00:00&lt;00:00, 233MB/s]
- 62%|██████▏   | 77.2M/125M [00:00&lt;00:00, 233MB/s]
- 80%|███████▉  | 99.5M/125M [00:00&lt;00:00, 89.6MB/s]
- 93%|█████████▎| 115M/125M [00:01&lt;00:00, 68.1MB/s]
-100%|██████████| 125M/125M [00:01&lt;00:00, 78.4MB/s]
+  0%|          | 128k/125M [00:00&lt;01:50, 1.18MB/s]
+  1%|          | 1.00M/125M [00:00&lt;00:23, 5.51MB/s]
+  5%|▌         | 6.50M/125M [00:00&lt;00:04, 28.3MB/s]
+ 19%|█▉        | 23.5M/125M [00:00&lt;00:01, 85.9MB/s]
+ 47%|████▋     | 58.8M/125M [00:00&lt;00:00, 186MB/s]
+ 62%|██████▏   | 76.8M/125M [00:00&lt;00:00, 151MB/s]
+ 74%|███████▍  | 92.2M/125M [00:00&lt;00:00, 142MB/s]
+ 99%|█████████▉| 123M/125M [00:00&lt;00:00, 191MB/s]
+100%|██████████| 125M/125M [00:00&lt;00:00, 142MB/s]
 </pre></div>
 </div>
 <p>The error maps are on one scale. Under ADMM the denoiser removes the noise
@@ -765,7 +767,7 @@ image restoration with deep denoiser prior. <em>IEEE Trans Pattern Anal Mach
 Intell</em> 44(10):6360-6376 (2022). <a class="reference external" href="https://doi.org/10.1109/TPAMI.2021.3088914">https://doi.org/10.1109/TPAMI.2021.3088914</a></p>
 </aside>
 </aside>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 52.350 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 28.043 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-learning-01-plug-and-play-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/51d621c9981b908bc0655f32fc40806e/01-plug-and-play.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01-plug-and-play.ipynb</span></code></a></p>

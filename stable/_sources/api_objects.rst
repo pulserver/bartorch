@@ -303,6 +303,7 @@ bartorch.tools
    lrmatrix
    epi_ramp_operator
    estimate_epi_phase
+   estimate_epi_echo_phase
    correct_lines
    bias_field_correct
    reslice
@@ -315,6 +316,7 @@ bartorch.tools
    fit_transfer
    deblur
    correct_susceptibility
+   apply_susceptibility
    SusceptibilityCorrection
    reconstruct_navigator
    RigidRegistration

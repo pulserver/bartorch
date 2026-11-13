@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**23:55.816** total execution time for 5 files **from auto_examples/09-learning-workflows**:
+**10:47.048** total execution time for 5 files **from auto_examples/09-learning-workflows**:
 
 .. container::
 
@@ -33,17 +33,17 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py` (``01-networks-for-complex-volumes.py``)
-     - 15:14.594
+     - 04:52.032
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_03-self-supervised-training.py` (``03-self-supervised-training.py``)
-     - 03:57.822
+     - 02:42.068
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_02-staged-training.py` (``02-staged-training.py``)
-     - 02:24.355
+     - 01:34.162
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_05-uncertainty.py` (``05-uncertainty.py``)
-     - 01:36.632
+     - 01:08.390
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py` (``04-annealed-plug-and-play.py``)
-     - 00:42.414
+     - 00:30.396
      - 0.0

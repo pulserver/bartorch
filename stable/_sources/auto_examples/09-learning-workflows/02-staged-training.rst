@@ -475,11 +475,11 @@ prior.
  .. code-block:: none
 
                    untrained   PSNR 26.45 dB   SSIM 0.654
-         denoiser pretrained   PSNR 27.54 dB   SSIM 0.926
-                      greedy   PSNR 27.62 dB   SSIM 0.749
-                  end to end   PSNR 29.21 dB   SSIM 0.860
+         denoiser pretrained   PSNR 27.34 dB   SSIM 0.928
+                      greedy   PSNR 27.72 dB   SSIM 0.737
+                  end to end   PSNR 28.93 dB   SSIM 0.812
      CG SENSE, 20 iterations   PSNR 24.30 dB   SSIM 0.558
-    learned step: 1.149
+    learned step: 1.153
 
 
 
@@ -513,7 +513,7 @@ reaches on a real dataset.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_02-staged-training_002.png
-         :alt: CG-SENSE NRMSE 0.137, unrolled, staged NRMSE 0.080
+         :alt: CG-SENSE NRMSE 0.137, unrolled, staged NRMSE 0.082
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_02-staged-training_002.png
          :class: sphx-glr-multi-img
 
@@ -557,7 +557,7 @@ back to the network's precision.
 
  .. code-block:: none
 
-    restored: PSNR 29.21 dB
+    restored: PSNR 28.94 dB
 
 
 
@@ -643,7 +643,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 24.355 seconds)
+   **Total running time of the script:** (1 minutes 34.162 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_02-staged-training.py:
