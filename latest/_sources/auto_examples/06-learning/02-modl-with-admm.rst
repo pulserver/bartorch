@@ -422,9 +422,9 @@ denoiser, the conjugate-gradient solves and :math:`\rho`.
     /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:10 • 0:00:00 1.13it/s loss: 0.000 psnr:
-                                                                   32.724 ssim:     
-                                                                   0.889            
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:15 • 0:00:00 0.79it/s loss: 0.000 psnr:
+                                                                   32.696 ssim:     
+                                                                   0.885            
     rho ended at 0.027
 
 
@@ -502,7 +502,7 @@ penalty in place of the network, run for fifty iterations rather than five.
              adjoint   PSNR 23.71 dB   SSIM 0.679
             CG SENSE   PSNR 29.69 dB   SSIM 0.681
        ADMM, wavelet   PSNR 31.64 dB   SSIM 0.898
-           MoDL, K=5   PSNR 32.73 dB   SSIM 0.888
+           MoDL, K=5   PSNR 32.70 dB   SSIM 0.884
 
 
 
@@ -587,7 +587,7 @@ is propagated through all of them:
 
  .. code-block:: none
 
-    rho's gradient: 0.000277808 recorded, 0.000277808 recomputed
+    rho's gradient: 0.000585573 recorded, 0.000585573 recomputed
 
 
 
@@ -699,7 +699,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 21.306 seconds)
+   **Total running time of the script:** (4 minutes 44.112 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:

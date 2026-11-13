@@ -537,6 +537,14 @@ polarity.</p></li>
 <li><p><strong>max_iter</strong> (<em>int</em><em>, </em><em>default=10</em>) – Optimizer iterations.</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em> or </em><em>str</em><em>, </em><em>default=None</em>) – Device of the computation, which runs in float64; that of <code class="docutils literal notranslate"><span class="pre">blip_up</span></code>
 if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>prealign</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Remove the uniform displacement first: the pair’s profiles along the
+phase-encoding axis are cross-correlated, each image is moved half
+of the lag, in whole voxels, towards the other, and PyHySCO estimates the remaining
+field. A uniform off-resonance, such as a centre frequency off the
+sample’s resonance, displaces the pair in opposite directions by
+many voxels when the phase-encode bandwidth per voxel is low, more
+than the field PyHySCO estimates from zero can recover. The removed
+displacement is part of the returned <code class="docutils literal notranslate"><span class="pre">field_map</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
