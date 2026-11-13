@@ -103,6 +103,7 @@ when {obj}`~bartorch.tools.correct_susceptibility` is called
 | --- | --- |
 | {obj}`~bartorch.tools.epi_ramp_operator` | Band-limited resampling of a ramp-sampled EPI readout onto a uniform grid |
 | {obj}`~bartorch.tools.estimate_epi_phase` | Odd/even phase of an EPI readout, fitted to a three-line navigator |
+| {obj}`~bartorch.tools.estimate_epi_echo_phase` | Odd/even phase of every echo of an EPI train, fitted to a blip-free reference train |
 | {obj}`~bartorch.tools.correct_lines` | Reversal of EPI lines into forward readout order, with the odd/even phase removed |
 | {obj}`~bartorch.tools.bias_field_correct` | Receive-field (bias) correction by N4 |
 | {obj}`~bartorch.tools.reslice` | Resampling of an image onto another prescription's grid from header geometry |

@@ -10,7 +10,12 @@ optional.  Each is imported by the functions that use it.
 from __future__ import annotations
 
 from bartorch.tools._correct._bias import bias_field_correct
-from bartorch.tools._correct._epi import correct_lines, epi_ramp_operator, estimate_epi_phase
+from bartorch.tools._correct._epi import (
+    correct_lines,
+    epi_ramp_operator,
+    estimate_epi_echo_phase,
+    estimate_epi_phase,
+)
 from bartorch.tools._correct._fieldmap import field_map_from_phase
 from bartorch.tools._correct._gradunwarp import (
     CoefficientAccessor,
@@ -33,6 +38,7 @@ __all__ = [
     "correct_susceptibility",
     "deblur",
     "epi_ramp_operator",
+    "estimate_epi_echo_phase",
     "estimate_epi_phase",
     "field_map_from_phase",
     "fit_transfer",
