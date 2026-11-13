@@ -24,7 +24,11 @@ from bartorch.tools._correct._gradunwarp import (
 )
 from bartorch.tools._correct._reslice import reslice
 from bartorch.tools._correct._spiral import ReadoutTiming, SpiralTransfer, deblur, fit_transfer
-from bartorch.tools._correct._susceptibility import SusceptibilityCorrection, correct_susceptibility
+from bartorch.tools._correct._susceptibility import (
+    SusceptibilityCorrection,
+    apply_susceptibility,
+    correct_susceptibility,
+)
 
 __all__ = [
     "CoefficientAccessor",
@@ -33,6 +37,7 @@ __all__ = [
     "ReadoutTiming",
     "SpiralTransfer",
     "SusceptibilityCorrection",
+    "apply_susceptibility",
     "bias_field_correct",
     "correct_lines",
     "correct_susceptibility",
