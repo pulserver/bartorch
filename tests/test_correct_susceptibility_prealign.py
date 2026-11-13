@@ -8,7 +8,9 @@ from bartorch.tools._correct._susceptibility import _profile_lag, _sampled
 def _disk(centre_row: float) -> torch.Tensor:
     rows = torch.arange(96, dtype=torch.float64)[:, None, None]
     cols = torch.arange(64, dtype=torch.float64)[None, :, None]
-    return (((rows - centre_row) ** 2 + (cols - 32) ** 2) < 15**2).to(torch.float64).expand(96, 64, 3)
+    return (
+        (((rows - centre_row) ** 2 + (cols - 32) ** 2) < 15**2).to(torch.float64).expand(96, 64, 3)
+    )
 
 
 def test_the_lag_of_a_pair_moved_apart_is_found_to_a_fraction_of_a_voxel():

@@ -116,6 +116,7 @@ when {obj}`~bartorch.tools.correct_susceptibility` is called
 | {obj}`~bartorch.tools.fit_transfer` | Fit of a {obj}`~bartorch.tools.SpiralTransfer` to a readout's time map |
 | {obj}`~bartorch.tools.deblur` | Off-resonance deblurring of a spiral image |
 | {obj}`~bartorch.tools.correct_susceptibility` | Susceptibility distortion correction from a reversed phase-encoding pair, by PyHySCO |
+| {obj}`~bartorch.tools.apply_susceptibility` | An image corrected with a known displacement field, by PyHySCO's model, so one field estimated per slice serves every image of it |
 | {obj}`~bartorch.tools.SusceptibilityCorrection` | Corrected pair and displacement field from {obj}`~bartorch.tools.correct_susceptibility` |
 
 ## Rigid motion from navigators
