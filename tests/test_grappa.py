@@ -1,6 +1,5 @@
 import math
 
-import pytest
 import torch
 
 import bartorch
@@ -52,10 +51,10 @@ def test_the_spirit_inconsistency_adjoint_satisfies_the_inner_product_identity(d
     x = torch.randn(4, 8, 10, dtype=torch.complex64, generator=generator).to(device)
     y = torch.randn(4, 8, 10, dtype=torch.complex64, generator=generator).to(device)
 
-    forward = torch.vdot(operator(x).flatten(), y.flatten())
-    backward = torch.vdot(x.flatten(), operator.H(y).flatten())
+    forward = torch.vdot(operator(x).flatten(), y.flatten()).item()
+    backward = torch.vdot(x.flatten(), operator.H(y).flatten()).item()
 
-    assert forward == pytest.approx(backward, rel=1e-4)
+    assert abs(forward - backward) <= 1e-4 * abs(forward)
 
 
 def test_the_spirit_kernel_applied_in_the_image_domain_is_its_cyclic_convolution_in_kspace():
