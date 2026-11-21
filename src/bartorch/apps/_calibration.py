@@ -107,6 +107,7 @@ def nlinv_maps(
     radius: float = 12.0,
     shape: tuple[int, ...] | None = None,
     phase_pole: int | None = None,
+    sobolev: float | None = None,
 ) -> torch.Tensor:
     """Coil sensitivity maps fitted to the low-resolution centre of k-space.
 
@@ -143,6 +144,12 @@ def nlinv_maps(
         a grid with an axis no longer than a twentieth of its longest, rounded
         up: the grid of the central lines, so a volume of fewer than 3
         partitions at the default ``size``.
+    sobolev : float, default=None
+        Sobolev weight ``a`` of the sensitivities on the fitting grid
+        (``nlinv -a``); ``None`` for BART's, scaled from the image grid to the
+        fitting grid. A lower weight lets the maps follow sensitivities that
+        change fast across the grid, such as those of a slab whose end
+        partitions carry signal and wrap onto each other.
 
     Returns
     -------
@@ -157,6 +164,8 @@ def nlinv_maps(
     """
     kspace = kspace.to(torch.complex64)
     options = {} if phase_pole is None else {"phase_pole": int(phase_pole)}
+    if sobolev is not None:
+        options["alpha"] = float(sobolev)
     if traj is not None:
         return _radial_maps(kspace, traj, radius, shape, **options)
     flat = kspace.ndim == 3

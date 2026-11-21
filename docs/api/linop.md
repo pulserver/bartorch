@@ -65,6 +65,7 @@ implement and {doc}`../explanation/learned-reconstruction` their autograd behavi
 | {obj}`~bartorch.linop.Convolve` | Convolution with a fixed kernel |
 | {obj}`~bartorch.linop.Gradient` | Forward finite differences with circular boundary, stacked on a new leading axis |
 | {obj}`~bartorch.linop.Sobolev` | A smooth image from k-space coefficients under a Sobolev weighting, as NLINV and `moba` fit coils and field maps |
+| {obj}`~bartorch.linop.spirit_consistency` | SPIRiT inconsistency `G - I` of multichannel k-space, a quadratic penalty for CG, ADMM or plug-and-play data consistency |
 
 ## Stacking and block composition
 

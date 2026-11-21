@@ -56,6 +56,10 @@ functions and classes with no BART command behind them.
 | {obj}`~bartorch.tools.calmat` | Calibration matrix of the k-space centre |
 | {obj}`~bartorch.tools.ecaltwo` | Second stage of ESPIRiT calibration |
 | {obj}`~bartorch.tools.walsh` | Walsh coil combination, for use with {obj}`~bartorch.tools.ecaltwo` |
+| {obj}`~bartorch.tools.spirit_kernel` | SPIRiT kernel fitted on a calibration region |
+| {obj}`~bartorch.tools.spirit_weights` | Image-domain coil mixing of a SPIRiT kernel on a grid |
+| {obj}`~bartorch.tools.slice_grappa_kernel` | Split-slice GRAPPA kernels, with the leak block, for blipped-CAIPI multiband k-space |
+| {obj}`~bartorch.tools.slice_grappa` | Bands separated from collapsed multiband k-space by split-slice GRAPPA kernels |
 | {obj}`~bartorch.tools.nlinv` | Image and sensitivities jointly by nonlinear inversion (wrapped) |
 | {obj}`~bartorch.tools.ncalib` | Sensitivities from non-Cartesian data by nonlinear inversion (ENLIVE) |
 | {obj}`~bartorch.tools.cc` | Coil compression matrix (SVD, geometric or ESPIRiT) |
