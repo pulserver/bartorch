@@ -989,6 +989,23 @@ def test_nlinv_maps_have_unit_root_sum_of_squares_over_the_coils(kind, shape):
     assert torch.allclose(rss, torch.ones_like(rss), atol=1e-5)
 
 
+@pytest.mark.parametrize(("kind", "shape"), _MAPS_INPUTS[:2])
+def test_a_given_sobolev_weight_is_the_one_nlinv_fits_the_maps_with(kind, shape, monkeypatch):
+    from bartorch.apps import _calibration
+
+    given = []
+    fit = _calibration.tools.nlinv
+
+    def recorded(*args, **kwargs):
+        given.append(kwargs.get("alpha"))
+        return fit(*args, **kwargs)
+
+    monkeypatch.setattr(_calibration.tools, "nlinv", recorded)
+    kspace, traj = _coil_data(kind)
+    apps.nlinv_maps(kspace, traj, size=8, sobolev=0.5)
+    assert given == [0.5]
+
+
 @pytest.mark.parametrize(("kind", "shape"), _MAPS_INPUTS)
 def test_nlinv_maps_of_one_coil_are_ones(kind, shape):
     kspace, traj = _coil_data(kind)
