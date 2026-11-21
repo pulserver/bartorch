@@ -1,5 +1,6 @@
 import math
 
+import pytest
 import torch
 
 import bartorch
@@ -89,3 +90,9 @@ def test_split_slice_grappa_separates_two_blipped_caipi_bands_it_was_calibrated_
         expected[inner]
     )
     assert error < 0.1
+
+
+@pytest.mark.parametrize("size", [4, 31])
+def test_a_spirit_kernel_is_refused_when_it_is_even_or_wider_than_the_calibration(size):
+    with pytest.raises(ValueError):
+        tools.spirit_kernel(torch.ones(2, 12, 12, dtype=torch.complex64), size)
