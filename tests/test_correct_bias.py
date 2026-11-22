@@ -55,6 +55,28 @@ def test_a_volume_is_corrected_as_readily_as_a_slice():
     assert bt.bias_field_correct(volume * field).shape == volume.shape
 
 
+def test_running_every_iteration_removes_more_of_a_strong_shading():
+    """A ten-fold rise towards the edge, as a close-fitting array gives."""
+    y, x = torch.meshgrid(torch.linspace(-1, 1, 96), torch.linspace(-1, 1, 96), indexing="ij")
+    radius = (x**2 + y**2).sqrt()
+    truth = (radius < 0.8).double() * (1.0 + 0.3 * (torch.sin(9 * x) * torch.sin(7 * y) > 0))
+    observed = truth * torch.exp(2.3 * radius**2 / 0.64)
+    inside = truth > 0
+
+    def unevenness(image):
+        ratio = image[inside] / truth[inside]
+        return float(ratio.std() / ratio.mean())
+
+    stopped = bt.bias_field_correct(observed, mask=inside.to(torch.uint8))
+    full = bt.bias_field_correct(
+        observed,
+        mask=inside.to(torch.uint8),
+        iterations=(200,) * 4,
+        convergence_threshold=0.0,
+    )
+    assert unevenness(full) < 0.7 * unevenness(stopped)
+
+
 def test_a_four_dimensional_image_is_refused():
     with pytest.raises(ValueError, match="2D or 3D"):
         bt.bias_field_correct(torch.ones(2, 4, 8, 8))

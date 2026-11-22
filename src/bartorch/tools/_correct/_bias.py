@@ -21,6 +21,7 @@ def bias_field_correct(
     shrink_factor: int = 4,
     iterations: tuple[int, ...] = (50, 50, 50, 50),
     fitting_levels: int | None = None,
+    convergence_threshold: float = 1e-3,
     return_field: bool = False,
 ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
     """Divide a magnitude image by its N4-estimated multiplicative bias field.
@@ -43,6 +44,11 @@ def bias_field_correct(
     fitting_levels : int, default=None
         Number of fitting levels, at most ``len(iterations)``; the first
         entries of ``iterations`` are used.  ``len(iterations)`` if ``None``.
+    convergence_threshold : float, default=1e-3
+        Change of the field's coefficient of variation below which a level
+        stops before its ``iterations``. A strong shading, such as a close-fitting
+        array's several-fold rise from the centre to the cortex, needs 0 so
+        that every level runs its full ``iterations``.
     return_field : bool, default=False
         Also return the field.
 
@@ -81,6 +87,7 @@ def bias_field_correct(
     levels = len(iterations) if fitting_levels is None else int(fitting_levels)
     corrector = sitk.N4BiasFieldCorrectionImageFilter()
     corrector.SetMaximumNumberOfIterations([int(count) for count in iterations][:levels])
+    corrector.SetConvergenceThreshold(float(convergence_threshold))
     if shrink_factor > 1:
         factors = [shrink_factor] * volume.GetDimension()
         corrector.Execute(sitk.Shrink(volume, factors), sitk.Shrink(mask_volume, factors))
