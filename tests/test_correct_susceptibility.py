@@ -125,14 +125,50 @@ def test_unknown_optimizer_is_rejected() -> None:
         correct_susceptibility(up, down, voxel_size=(1.0, 1.0, 1.0), optimizer="newton-raphson")
 
 
-@needs_pyhysco
-def test_two_dimensional_pair_reports_the_upstream_limit() -> None:
-    """PyHySCO 0.0.4's own 2D regulariser builds a 3D transform and fails."""
-    up, down, _ = displaced_pair(shape=(24, 32, 32))
-    with pytest.raises(NotImplementedError, match="two-dimensional"):
-        correct_susceptibility(
-            up[:, :, 16].contiguous(),
-            down[:, :, 16].contiguous(),
-            voxel_size=(1.0, 1.0),
-            max_iter=6,
+def displaced_slice(shape=(64, 64), amplitude=2.0, voxel=2.0):
+    """A smooth head-like slice and the pair a smooth field displaces it into, in mm."""
+    rows, columns = torch.meshgrid(
+        *[torch.linspace(-1, 1, n, dtype=torch.float64) for n in shape], indexing="ij"
+    )
+    radius = (rows / 0.75) ** 2 + (columns / 0.6) ** 2
+    phantom = torch.sigmoid((1 - radius) * 12) * (
+        1 + 0.4 * torch.cos(6 * rows) * torch.cos(5 * columns)
+    )
+    shift = amplitude * torch.exp(-((rows + 0.4) ** 2 + columns**2) / 0.15)
+    index = torch.arange(shape[0], dtype=torch.float64)[:, None]
+
+    def warp(offset):
+        source = (index + offset).clamp(0, shape[0] - 1)
+        lower = source.floor().long().clamp(max=shape[0] - 2)
+        fraction = source - lower
+        sampled = (
+            phantom.gather(0, lower) * (1 - fraction) + phantom.gather(0, lower + 1) * fraction
         )
+        return sampled * (1 + torch.gradient(offset, dim=0)[0])
+
+    # The phantom sampled at x - b, its mass kept, is displaced by +b: the
+    # blip-up image.
+    return warp(-shift), warp(shift), shift * voxel, radius < 0.8
+
+
+def _centred(field_map):
+    return 0.5 * (field_map[1:] + field_map[:-1])
+
+
+@needs_pyhysco
+def test_a_slice_pair_is_corrected_to_the_full_displacement() -> None:
+    up, down, shift, inside = displaced_slice()
+    result = correct_susceptibility(up, down, voxel_size=(2.0, 2.0), prealign=False)
+    field = _centred(result.field_map)
+    assert result.field_map.shape == (up.shape[0] + 1, up.shape[1])
+    slope = (field[inside] * shift[inside]).sum() / (shift[inside] ** 2).sum()
+    assert slope.item() == pytest.approx(1.0, abs=0.15)
+
+
+@needs_pyhysco
+def test_a_few_bright_voxels_do_not_stiffen_the_field() -> None:
+    up, down, _, _ = displaced_slice()
+    plain = correct_susceptibility(up, down, voxel_size=(2.0, 2.0), prealign=False)
+    up[2, 2] = down[2, 2] = 20 * up.max()
+    bright = correct_susceptibility(up, down, voxel_size=(2.0, 2.0), prealign=False)
+    assert (bright.field_map - plain.field_map).abs().max() < 0.1 * plain.field_map.abs().max()

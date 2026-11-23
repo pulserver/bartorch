@@ -16,6 +16,7 @@ from __future__ import annotations
 from bartorch.tools import (
     _calib,
     _correct,
+    _grappa,
     _igrog,
     _lowrank,
     _motion,
@@ -25,6 +26,7 @@ from bartorch.tools import (
 )
 from bartorch.tools._calib import *  # noqa: F401,F403
 from bartorch.tools._correct import *  # noqa: F401,F403
+from bartorch.tools._grappa import *  # noqa: F401,F403
 from bartorch.tools._igrog import *  # noqa: F401,F403
 from bartorch.tools._lowrank import *  # noqa: F401,F403
 from bartorch.tools._motion import *  # noqa: F401,F403
@@ -34,7 +36,7 @@ from bartorch.tools._simulate import *  # noqa: F401,F403
 
 __all__ = sorted(
     {*_simulate.__all__, *_sampling.__all__, *_igrog.__all__, *_calib.__all__, *_process.__all__}
-    | {*_lowrank.__all__, *_correct.__all__, *_motion.__all__}
+    | {*_lowrank.__all__, *_correct.__all__, *_motion.__all__, *_grappa.__all__}
 )
 
 

@@ -17,13 +17,11 @@ __all__ = ["SusceptibilityCorrection", "apply_susceptibility", "correct_suscepti
 
 Optimizer = Literal["gauss-newton", "lbfgs", "admm"]
 
-#: PyHySCO's axis order, phase encoding last, and its inverse, by
-#: ``(ndim, phase-encoding axis)``.
-_PERMUTATIONS: dict[tuple[int, int], tuple[list[int], list[int]]] = {
-    (2, 0): ([1, 0], [1, 0]),
-    (2, 1): ([0, 1], [0, 1]),
-    (3, 0): ([2, 1, 0], [2, 1, 0]),
-    (3, 1): ([2, 0, 1], [1, 2, 0]),
+#: PyHySCO's axis order of a volume, phase encoding last, and its inverse,
+#: by phase-encoding axis.
+_PERMUTATIONS: dict[int, tuple[list[int], list[int]]] = {
+    0: ([2, 1, 0], [2, 1, 0]),
+    1: ([2, 0, 1], [1, 2, 0]),
 }
 
 
@@ -56,8 +54,8 @@ def _require_pyhysco() -> dict[str, Any]:
             EPIMRIDistortionCorrection,
         )
         from EPI_MRI.ImageModels import Interp1D
-        from EPI_MRI.LinearOperators import myLaplacian2D, myLaplacian3D
-        from EPI_MRI.utils import m_plus, normalize
+        from EPI_MRI.LinearOperators import myLaplacian3D
+        from EPI_MRI.utils import m_plus
         from optimization.ADMM import ADMM
         from optimization.GaussNewton import GaussNewton
         from optimization.LBFGS import LBFGS
@@ -70,9 +68,8 @@ def _require_pyhysco() -> dict[str, Any]:
         "DataObject": DataObject,
         "correction": EPIMRIDistortionCorrection,
         "Interp1D": Interp1D,
-        "laplacian": {2: myLaplacian2D, 3: myLaplacian3D},
+        "laplacian": myLaplacian3D,
         "m_plus": m_plus,
-        "normalize": normalize,
         "optimizers": {"gauss-newton": GaussNewton, "lbfgs": LBFGS, "admm": ADMM},
     }
 
@@ -127,13 +124,35 @@ def _data_object(
     down = blip_down.to(device=device, dtype=dtype).permute(permutation)
     holder.im1, holder.im2 = up, down
     holder.intensity_offset = torch.minimum(up.min(), down.min())
-    holder.intensity_scale = (torch.maximum(up.max(), down.max()) - holder.intensity_offset) / 256
-    normalised_up, normalised_down = parts["normalize"](up, down)
+    holder.intensity_scale = _intensity_scale(up, down, holder.intensity_offset)
+    normalised_up = (up - holder.intensity_offset) / holder.intensity_scale
+    normalised_down = (down - holder.intensity_offset) / holder.intensity_scale
     holder.I1 = parts["Interp1D"](normalised_up, holder.omega, holder.m, dtype=dtype, device=device)
     holder.I2 = parts["Interp1D"](
         normalised_down, holder.omega, holder.m, dtype=dtype, device=device
     )
     return holder
+
+
+#: Quantile of the pair's intensities that PyHySCO's data term sees as 256.
+INTENSITY_QUANTILE = 0.99
+
+
+def _intensity_scale(up: torch.Tensor, down: torch.Tensor, offset: torch.Tensor) -> torch.Tensor:
+    """Return the intensity per unit of PyHySCO's ``[0, 256]`` scale.
+
+    The weight of the smoothness penalty is relative to the data term, which
+    grows with the square of the image intensity; the pair's
+    ``INTENSITY_QUANTILE`` maps to 256, so a few bright voxels, such as
+    vessels or fat, do not set that weight.
+    """
+    values = torch.cat([up.reshape(-1), down.reshape(-1)]) - offset
+    if values.numel() > 2**24:
+        values = values[:: values.numel() // 2**24 + 1]
+    level = torch.quantile(values, INTENSITY_QUANTILE)
+    if level <= 0:
+        level = values.max()
+    return torch.clamp(level, min=torch.finfo(values.dtype).tiny) / 256
 
 
 def correct_susceptibility(
@@ -161,13 +180,14 @@ def correct_susceptibility(
     ----------
     blip_up, blip_down : torch.Tensor
         Real images of one shape, 2D or 3D, with opposite phase-encoding
-        polarity.
+        polarity. A 2D pair is corrected in its plane only.
     voxel_size : tuple of float
         Voxel size per axis of the images, in millimetres.
     phase_encoding_axis : int, default=0
         Phase-encoding axis: one of the first two axes of the images.
     alpha : float, default=300.0
-        Weight of the smoothness penalty on the field.
+        Weight of the smoothness penalty on the field, against a data term
+        in which the pair's ``INTENSITY_QUANTILE`` intensity is 256.
     beta : float, default=0.0001
         Weight of the invertibility constraint.
     optimizer : {"gauss-newton", "lbfgs", "admm"}, default='gauss-newton'
@@ -177,7 +197,6 @@ def correct_susceptibility(
     device : torch.device or str, default=None
         Device of the computation, which runs in float64; that of ``blip_up``
         if ``None``.
-
     prealign : bool, default=True
         Remove the uniform displacement first: the pair's profiles along the
         phase-encoding axis are cross-correlated, each image is moved half
@@ -201,8 +220,6 @@ def correct_susceptibility(
         If the images differ in shape, ``voxel_size`` does not give one value
         per axis, the phase-encoding axis is not one of the first two, or the
         optimizer is unknown.
-    NotImplementedError
-        If PyHySCO's two-dimensional regularizer fails on a 2D pair.
 
     References
     ----------
@@ -215,15 +232,27 @@ def correct_susceptibility(
         )
     if len(voxel_size) != blip_up.ndim:
         raise ValueError(f"voxel_size has {len(voxel_size)} entries for a {blip_up.ndim}D image")
-    key = (blip_up.ndim, phase_encoding_axis % max(blip_up.ndim, 1))
-    if key not in _PERMUTATIONS:
+    if blip_up.ndim not in (2, 3) or phase_encoding_axis % blip_up.ndim not in _PERMUTATIONS:
         raise ValueError(
             f"no PyHySCO axis order for a {blip_up.ndim}D image with phase encoding along "
             f"axis {phase_encoding_axis}; images are 2D or 3D and the axis is 0 or 1"
         )
     if optimizer not in ("gauss-newton", "lbfgs", "admm"):
         raise ValueError(f"unknown optimizer {optimizer!r}")
-    permutation, inverse = _PERMUTATIONS[key]
+    if blip_up.ndim == 2:
+        return _corrected_slice(
+            blip_up,
+            blip_down,
+            voxel_size=tuple(voxel_size),
+            phase_encoding_axis=phase_encoding_axis,
+            alpha=alpha,
+            beta=beta,
+            optimizer=optimizer,
+            max_iter=max_iter,
+            device=device,
+            prealign=prealign,
+        )
+    permutation, inverse = _PERMUTATIONS[phase_encoding_axis % blip_up.ndim]
     parts = _require_pyhysco()
     resolved = torch.device(device) if device is not None else blip_up.device
 
@@ -249,18 +278,8 @@ def correct_susceptibility(
         dtype=torch.float64,
         device=resolved,
     )
-    try:
-        objective = parts["correction"](
-            holder, alpha, beta, regularizer=parts["laplacian"][blip_up.ndim]
-        )
-        initial = objective.initialize(blur_result=blip_up.ndim == 3)
-    except IndexError as error:
-        if blip_up.ndim == 2:
-            raise NotImplementedError(
-                "PyHySCO cannot correct a two-dimensional pair: its two-dimensional "
-                "regularizer indexes a third axis; pass the volume instead"
-            ) from error
-        raise
+    objective = parts["correction"](holder, alpha, beta, regularizer=parts["laplacian"])
+    initial = objective.initialize(blur_result=True)
 
     solver = parts["optimizers"][optimizer](objective, max_iter=max_iter, verbose=False, path=None)
     # PyHySCO writes an iteration log file unless pointed elsewhere.
@@ -275,6 +294,32 @@ def correct_susceptibility(
         + offset * float(voxel_size[axis]),
         blip_up=up.reshape(shape).permute(holder.p),
         blip_down=down.reshape(shape).permute(holder.p),
+    )
+
+
+#: Thickness, in in-plane voxels, of the planes a slice is stacked into.
+_SLICE_DEPTH = 100.0
+
+
+def _corrected_slice(blip_up, blip_down, *, voxel_size, phase_encoding_axis, **options):
+    """:func:`correct_susceptibility` of a 2D pair, by PyHySCO's three-dimensional model.
+
+    The slice is repeated in three planes thick enough that the smoothness
+    penalty across them, and at the stack's ends, which pulls the field
+    towards zero, is negligible against that within the slice.
+    """
+    depth = _SLICE_DEPTH * max(voxel_size)
+    result = correct_susceptibility(
+        blip_up.unsqueeze(-1).expand(*blip_up.shape, 3),
+        blip_down.unsqueeze(-1).expand(*blip_down.shape, 3),
+        voxel_size=(*voxel_size, depth),
+        phase_encoding_axis=phase_encoding_axis,
+        **options,
+    )
+    return SusceptibilityCorrection(
+        field_map=result.field_map[..., 1].contiguous(),
+        blip_up=result.blip_up[..., 1].contiguous(),
+        blip_down=result.blip_down[..., 1].contiguous(),
     )
 
 
