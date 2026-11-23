@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=1af05764"></script>
+    <script src="_static/documentation_options.js?v=a10cd579"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.24" />
+  <meta name="docsearch:version" content="v0.0.25" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -724,58 +724,61 @@ the same objects in tables; this page generates the page of each.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Sobolev.html#bartorch.linop.Sobolev" title="bartorch.linop.Sobolev"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sobolev</span></code></a></p></td>
 <td><p>Image from Sobolev-weighted k-space coefficients, BART's <code class="docutils literal notranslate"><span class="pre">linop_noir_weights</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.concatenate.html#bartorch.linop.concatenate" title="bartorch.linop.concatenate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concatenate</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.spirit_consistency.html#bartorch.linop.spirit_consistency" title="bartorch.linop.spirit_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spirit_consistency</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">G</span> <span class="pre">-</span> <span class="pre">I</span></code> on <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*grid)</span></code> centred, unitary k-space: the SPIRiT inconsistency.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.concatenate.html#bartorch.linop.concatenate" title="bartorch.linop.concatenate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concatenate</span></code></a></p></td>
 <td><p>Apply every operator to the same input and concatenate the outputs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.stack.html#bartorch.linop.stack" title="bartorch.linop.stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.stack.html#bartorch.linop.stack" title="bartorch.linop.stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack</span></code></a></p></td>
 <td><p>Apply every operator to the same input and stack the outputs on a new axis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.hstack.html#bartorch.linop.hstack" title="bartorch.linop.hstack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hstack</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.hstack.html#bartorch.linop.hstack" title="bartorch.linop.hstack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hstack</span></code></a></p></td>
 <td><p>Split the input between the operators along <code class="docutils literal notranslate"><span class="pre">axis</span></code> and sum the outputs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.block_diag.html#bartorch.linop.block_diag" title="bartorch.linop.block_diag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_diag</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.block_diag.html#bartorch.linop.block_diag" title="bartorch.linop.block_diag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_diag</span></code></a></p></td>
 <td><p>Block-diagonal operator over <code class="docutils literal notranslate"><span class="pre">ops</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.block.html#bartorch.linop.block" title="bartorch.linop.block"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.block.html#bartorch.linop.block" title="bartorch.linop.block"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block</span></code></a></p></td>
 <td><p>Block matrix of operators.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Reshape.html#bartorch.linop.Reshape" title="bartorch.linop.Reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reshape</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Reshape.html#bartorch.linop.Reshape" title="bartorch.linop.Reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reshape</span></code></a></p></td>
 <td><p>Reshape, BART's <code class="docutils literal notranslate"><span class="pre">linop_reshape</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Transpose.html#bartorch.linop.Transpose" title="bartorch.linop.Transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Transpose</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Transpose.html#bartorch.linop.Transpose" title="bartorch.linop.Transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Transpose</span></code></a></p></td>
 <td><p>Swap two axes, BART's <code class="docutils literal notranslate"><span class="pre">linop_transpose</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Permute.html#bartorch.linop.Permute" title="bartorch.linop.Permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Permute</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Permute.html#bartorch.linop.Permute" title="bartorch.linop.Permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Permute</span></code></a></p></td>
 <td><p>Rearrange the axes, BART's <code class="docutils literal notranslate"><span class="pre">linop_permute</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Flip.html#bartorch.linop.Flip" title="bartorch.linop.Flip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Flip</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Flip.html#bartorch.linop.Flip" title="bartorch.linop.Flip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Flip</span></code></a></p></td>
 <td><p>Reverse <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_flip</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Roll.html#bartorch.linop.Roll" title="bartorch.linop.Roll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Roll</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Roll.html#bartorch.linop.Roll" title="bartorch.linop.Roll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Roll</span></code></a></p></td>
 <td><p>Shift along one axis, BART's <code class="docutils literal notranslate"><span class="pre">linop_shift</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Pad.html#bartorch.linop.Pad" title="bartorch.linop.Pad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pad</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Pad.html#bartorch.linop.Pad" title="bartorch.linop.Pad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pad</span></code></a></p></td>
 <td><p>Make each axis longer, BART's <code class="docutils literal notranslate"><span class="pre">linop_padding</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Resize.html#bartorch.linop.Resize" title="bartorch.linop.Resize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resize</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Resize.html#bartorch.linop.Resize" title="bartorch.linop.Resize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resize</span></code></a></p></td>
 <td><p>Crop or zero-fill about the centre of each axis, BART's <code class="docutils literal notranslate"><span class="pre">resize</span> <span class="pre">-c</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Extract.html#bartorch.linop.Extract" title="bartorch.linop.Extract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Extract</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Extract.html#bartorch.linop.Extract" title="bartorch.linop.Extract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Extract</span></code></a></p></td>
 <td><p>Take the block of <code class="docutils literal notranslate"><span class="pre">oshape</span></code> that starts at <code class="docutils literal notranslate"><span class="pre">start</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_extract</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Hankel.html#bartorch.linop.Hankel" title="bartorch.linop.Hankel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Hankel</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Hankel.html#bartorch.linop.Hankel" title="bartorch.linop.Hankel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Hankel</span></code></a></p></td>
 <td><p>Sliding window along <code class="docutils literal notranslate"><span class="pre">axis</span></code> (Hankel matrix), BART's <code class="docutils literal notranslate"><span class="pre">linop_hankelization</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Sum.html#bartorch.linop.Sum" title="bartorch.linop.Sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sum</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Sum.html#bartorch.linop.Sum" title="bartorch.linop.Sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sum</span></code></a></p></td>
 <td><p>Sum over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_sum</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScaledSum</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.ScaledSum.html#bartorch.linop.ScaledSum" title="bartorch.linop.ScaledSum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScaledSum</span></code></a></p></td>
 <td><p>Sum over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, divided by the square root of how many were summed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Mean.html#bartorch.linop.Mean" title="bartorch.linop.Mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Mean</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Mean.html#bartorch.linop.Mean" title="bartorch.linop.Mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Mean</span></code></a></p></td>
 <td><p>Average over <code class="docutils literal notranslate"><span class="pre">axes</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_avg</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.linop.Repeat.html#bartorch.linop.Repeat" title="bartorch.linop.Repeat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Repeat</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.linop.Repeat.html#bartorch.linop.Repeat" title="bartorch.linop.Repeat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Repeat</span></code></a></p></td>
 <td><p>Repeat along <code class="docutils literal notranslate"><span class="pre">axes</span></code> up to <code class="docutils literal notranslate"><span class="pre">shape</span></code>, BART's <code class="docutils literal notranslate"><span class="pre">linop_repmat</span></code>.</p></td>
 </tr>
 </tbody>
@@ -1167,6 +1170,18 @@ the same objects in tables; this page generates the page of each.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.walsh.html#bartorch.tools.walsh" title="bartorch.tools.walsh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">walsh</span></code></a></p></td>
 <td><p>Estimate coil sensitivities using walsh method (use with ecaltwo).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.spirit_kernel.html#bartorch.tools.spirit_kernel" title="bartorch.tools.spirit_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spirit_kernel</span></code></a></p></td>
+<td><p>Return the SPIRiT kernel: each sample predicted from its neighbourhood in every coil.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.spirit_weights.html#bartorch.tools.spirit_weights" title="bartorch.tools.spirit_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spirit_weights</span></code></a></p></td>
+<td><p>Return the image-domain form of a SPIRiT kernel on a grid: the coil mixing at every voxel.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.slice_grappa_kernel.html#bartorch.tools.slice_grappa_kernel" title="bartorch.tools.slice_grappa_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_grappa_kernel</span></code></a></p></td>
+<td><p>Return split-slice GRAPPA kernels that separate the bands of collapsed multiband k-space.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.slice_grappa.html#bartorch.tools.slice_grappa" title="bartorch.tools.slice_grappa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_grappa</span></code></a></p></td>
+<td><p>Return each band's k-space separated from collapsed multiband k-space by split-slice GRAPPA.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.nlinv.html#bartorch.tools.nlinv" title="bartorch.tools.nlinv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlinv</span></code></a></p></td>
 <td><p>Image and coil sensitivities estimated jointly by nonlinear inversion.</p></td>

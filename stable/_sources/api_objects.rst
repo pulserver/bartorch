@@ -86,6 +86,7 @@ bartorch.linop
    Convolve
    Gradient
    Sobolev
+   spirit_consistency
    concatenate
    stack
    hstack
@@ -278,6 +279,10 @@ bartorch.tools
    calmat
    ecaltwo
    walsh
+   spirit_kernel
+   spirit_weights
+   slice_grappa_kernel
+   slice_grappa
    nlinv
    ncalib
    cc

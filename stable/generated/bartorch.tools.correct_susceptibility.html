@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=1af05764"></script>
+    <script src="../_static/documentation_options.js?v=a10cd579"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -68,7 +68,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.24" />
+  <meta name="docsearch:version" content="v0.0.25" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -526,12 +526,13 @@ read from or written to disk.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>blip_up</strong> (<em>torch.Tensor</em>) – Real images of one shape, 2D or 3D, with opposite phase-encoding
-polarity.</p></li>
+polarity. A 2D pair is corrected in its plane only.</p></li>
 <li><p><strong>blip_down</strong> (<em>torch.Tensor</em>) – Real images of one shape, 2D or 3D, with opposite phase-encoding
-polarity.</p></li>
+polarity. A 2D pair is corrected in its plane only.</p></li>
 <li><p><strong>voxel_size</strong> (<em>tuple</em><em> of </em><em>float</em>) – Voxel size per axis of the images, in millimetres.</p></li>
 <li><p><strong>phase_encoding_axis</strong> (<em>int</em><em>, </em><em>default=0</em>) – Phase-encoding axis: one of the first two axes of the images.</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=300.0</em>) – Weight of the smoothness penalty on the field.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>default=300.0</em>) – Weight of the smoothness penalty on the field, against a data term
+in which the pair’s <code class="docutils literal notranslate"><span class="pre">INTENSITY_QUANTILE</span></code> intensity is 256.</p></li>
 <li><p><strong>beta</strong> (<em>float</em><em>, </em><em>default=0.0001</em>) – Weight of the invertibility constraint.</p></li>
 <li><p><strong>optimizer</strong> (<em>{&quot;gauss-newton&quot;</em><em>, </em><em>&quot;lbfgs&quot;</em><em>, </em><em>&quot;admm&quot;}</em><em>, </em><em>default='gauss-newton'</em>) – PyHySCO optimizer.</p></li>
 <li><p><strong>max_iter</strong> (<em>int</em><em>, </em><em>default=10</em>) – Optimizer iterations.</p></li>
@@ -559,7 +560,6 @@ displacement is part of the returned <code class="docutils literal notranslate">
 <li><p><strong>ValueError</strong> – If the images differ in shape, <code class="docutils literal notranslate"><span class="pre">voxel_size</span></code> does not give one value
     per axis, the phase-encoding axis is not one of the first two, or the
     optimizer is unknown.</p></li>
-<li><p><strong>NotImplementedError</strong> – If PyHySCO’s two-dimensional regularizer fails on a 2D pair.</p></li>
 </ul>
 </dd>
 </dl>

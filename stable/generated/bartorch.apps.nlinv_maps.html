@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=1af05764"></script>
+    <script src="../_static/documentation_options.js?v=a10cd579"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -68,7 +68,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.24" />
+  <meta name="docsearch:version" content="v0.0.25" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -544,6 +544,11 @@ combination over them goes dark there. BART refuses the detection on
 a grid with an axis no longer than a twentieth of its longest, rounded
 up: the grid of the central lines, so a volume of fewer than 3
 partitions at the default <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p></li>
+<li><p><strong>sobolev</strong> (<em>float</em><em>, </em><em>default=None</em>) – Sobolev weight <code class="docutils literal notranslate"><span class="pre">a</span></code> of the sensitivities on the fitting grid
+(<code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">-a</span></code>); <code class="docutils literal notranslate"><span class="pre">None</span></code> for BART’s, scaled from the image grid to the
+fitting grid. A lower weight lets the maps follow sensitivities that
+change fast across the grid, such as those of a slab whose end
+partitions carry signal and wrap onto each other.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

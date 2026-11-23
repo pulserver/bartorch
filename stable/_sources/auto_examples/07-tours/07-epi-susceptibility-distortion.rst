@@ -306,8 +306,8 @@ and as the root-mean-square difference relative to the mean image.
 
  .. code-block:: none
 
-    blip-up vs blip-down, acquired : correlation 0.871, RMS difference 21 % of the mean image
-    blip-up vs blip-down, corrected: correlation 0.989, RMS difference 6 % of the mean image
+    blip-up vs blip-down, acquired : correlation 0.868, RMS difference 22 % of the mean image
+    blip-up vs blip-down, corrected: correlation 0.993, RMS difference 5 % of the mean image
 
 
 
@@ -398,10 +398,10 @@ and second order.
 
     shim, EPI       [1746, -3889, -287, 575, 111, -87, -1, -28]
     shim, field map [1747, -3883, -285, 583, 125, -23, -45, -40]
-    field over the brain: -45 to +47 Hz (1st to 99th percentile)
+    field over the brain: -42 to +45 Hz (1st to 99th percentile)
     displaced by more than one voxel: 7 % of the brain voxels
-    estimate vs field map over the brain: correlation 0.38, slope 0.31
-    estimate vs field map over the displaced voxels: correlation 0.61, slope 0.30
+    estimate vs field map over the brain: correlation 0.29, slope 0.31
+    estimate vs field map over the displaced voxels: correlation 0.56, slope 0.34
 
 
 
@@ -463,7 +463,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.421 seconds)
+   **Total running time of the script:** (0 minutes 4.301 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07-tours_07-epi-susceptibility-distortion.py:

@@ -422,7 +422,7 @@ denoiser, the conjugate-gradient solves and :math:`\rho`.
     /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
     /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
     /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:08 • 0:00:00 1.35it/s loss: 0.000 psnr:
+    Epoch 14/14 ━━━━━━━━━━━━━━━━━ 12/12 0:00:09 • 0:00:00 1.29it/s loss: 0.000 psnr:
                                                                    32.724 ssim:     
                                                                    0.889            
     rho ended at 0.027
@@ -699,7 +699,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 50.839 seconds)
+   **Total running time of the script:** (2 minutes 50.197 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06-learning_02-modl-with-admm.py:
