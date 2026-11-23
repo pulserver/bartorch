@@ -112,7 +112,549 @@ of a fast high-resolution scan.
 
  .. code-block:: none
 
-    test volume (3, 64, 64, 64), torch.complex64
+
+
+    Downloading subject04_wht: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_bck: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_csf: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_gry: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_bck: 1.00kB [00:04, 245B/s]
+
+    Downloading subject04_bck: 209kB [00:04, 70.2kB/s]
+
+    Downloading subject04_wht: 1.00kB [00:04, 231B/s]
+
+    Downloading subject04_csf: 1.00kB [00:04, 230B/s]
+
+    Downloading subject04_wht: 209kB [00:04, 66.0kB/s]
+
+    Downloading subject04_csf: 201kB [00:04, 63.3kB/s]
+
+    Downloading subject04_bck: 320kB [00:04, 108kB/s] 
+
+    Downloading subject04_wht: 513kB [00:04, 188kB/s] 
+
+    Downloading subject04_gry: 1.00kB [00:04, 216B/s]
+
+    Downloading subject04_wht: 769kB [00:04, 312kB/s]
+
+    Downloading subject04_gry: 209kB [00:04, 62.0kB/s]
+
+    Downloading subject04_csf: 513kB [00:04, 175kB/s] 
+
+    Downloading subject04_gry: 311kB [00:04, 100kB/s] 
+
+    Downloading subject04_wht: 1.00MB [00:05, 417kB/s]
+
+    Downloading subject04_gry: 513kB [00:05, 190kB/s]
+
+    Downloading subject04_bck: 513kB [00:05, 159kB/s]
+
+    Downloading subject04_csf: 769kB [00:05, 262kB/s]
+
+    Downloading subject04_wht: 1.25MB [00:05, 531kB/s]
+
+    Downloading subject04_gry: 769kB [00:05, 332kB/s]
+
+    Downloading subject04_wht: 1.50MB [00:05, 678kB/s]
+
+    Downloading subject04_csf: 1.00MB [00:05, 370kB/s]
+
+    Downloading subject04_gry: 1.00MB [00:05, 486kB/s]
+
+    Downloading subject04_wht: 1.75MB [00:05, 842kB/s]
+
+    Downloading subject04_csf: 1.25MB [00:05, 513kB/s]
+
+    Downloading subject04_gry: 1.25MB [00:05, 618kB/s]
+
+    Downloading subject04_wht: 2.00MB [00:05, 1.02MB/s]
+
+    Downloading subject04_bck: 769kB [00:05, 229kB/s]
+
+    Downloading subject04_csf: 1.50MB [00:05, 664kB/s]
+
+    Downloading subject04_wht: 2.25MB [00:06, 1.14MB/s]
+
+    Downloading subject04_gry: 1.50MB [00:06, 757kB/s]
+
+    Downloading subject04_csf: 1.75MB [00:06, 788kB/s]
+
+    Downloading subject04_wht: 2.50MB [00:06, 1.19MB/s]
+
+    Downloading subject04_gry: 1.75MB [00:06, 852kB/s]
+
+    Downloading subject04_bck: 1.00MB [00:06, 308kB/s]
+
+    Downloading subject04_csf: 2.00MB [00:06, 872kB/s]
+
+    Downloading subject04_wht: 2.75MB [00:06, 1.34MB/s]
+
+    Downloading subject04_wht: 3.06MB [00:06, 1.64MB/s]
+
+    Downloading subject04_gry: 2.00MB [00:06, 930kB/s]
+
+                                                      
+
+    Downloading subject04_csf: 2.25MB [00:06, 966kB/s]
+
+    Downloading subject04_wht: 3.50MB [00:06, 2.22MB/s]
+
+    Downloading subject04_csf: 2.50MB [00:06, 1.15MB/s]
+
+    Downloading subject04_gry: 2.25MB [00:06, 1.02MB/s]
+
+    Downloading subject04_wht: 4.00MB [00:06, 2.40MB/s]
+
+    Downloading subject04_csf: 2.75MB [00:06, 1.38MB/s]
+
+    Downloading subject04_gry: 2.50MB [00:06, 1.12MB/s]
+
+    Downloading subject04_wht: 4.50MB [00:06, 2.82MB/s]
+
+    Downloading subject04_csf: 3.00MB [00:06, 1.42MB/s]
+
+    Downloading subject04_wht: 5.00MB [00:07, 3.16MB/s]
+
+    Downloading subject04_gry: 2.75MB [00:07, 1.19MB/s]
+
+    Downloading subject04_csf: 3.25MB [00:07, 1.56MB/s]
+
+    Downloading subject04_wht: 5.33MB [00:07, 2.97MB/s]
+
+    Downloading subject04_fat: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_csf: 3.50MB [00:07, 1.61MB/s]
+
+    Downloading subject04_gry: 3.00MB [00:07, 1.20MB/s]
+
+    Downloading subject04_wht: 5.63MB [00:07, 2.73MB/s]
+
+    Downloading subject04_csf: 3.75MB [00:07, 1.77MB/s]
+
+    Downloading subject04_wht: 5.90MB [00:07, 2.56MB/s]
+
+    Downloading subject04_gry: 3.25MB [00:07, 1.29MB/s]
+
+    Downloading subject04_csf: 4.00MB [00:07, 1.68MB/s]
+
+    Downloading subject04_wht: 6.15MB [00:07, 2.38MB/s]
+
+    Downloading subject04_gry: 3.50MB [00:07, 1.41MB/s]
+
+    Downloading subject04_csf: 4.25MB [00:07, 1.64MB/s]
+
+    Downloading subject04_wht: 6.38MB [00:07, 2.20MB/s]
+
+    Downloading subject04_gry: 3.75MB [00:07, 1.51MB/s]
+
+    Downloading subject04_csf: 4.50MB [00:07, 1.63MB/s]
+
+    Downloading subject04_wht: 6.60MB [00:07, 2.03MB/s]
+
+    Downloading subject04_gry: 4.00MB [00:07, 1.51MB/s]
+
+    Downloading subject04_wht: 6.79MB [00:08, 1.84MB/s]
+
+    Downloading subject04_csf: 4.75MB [00:08, 1.60MB/s]
+
+    Downloading subject04_wht: 7.00MB [00:08, 1.65MB/s]
+
+    Downloading subject04_gry: 4.25MB [00:08, 1.34MB/s]
+
+    Downloading subject04_csf: 5.00MB [00:08, 1.36MB/s]
+
+    Downloading subject04_fat: 1.00kB [00:01, 915B/s]
+
+    Downloading subject04_wht: 7.25MB [00:08, 1.53MB/s]
+
+    Downloading subject04_gry: 4.50MB [00:08, 1.24MB/s]
+
+    Downloading subject04_csf: 5.25MB [00:08, 1.43MB/s]
+
+    Downloading subject04_fat: 201kB [00:01, 228kB/s]
+
+    Downloading subject04_wht: 7.50MB [00:08, 1.57MB/s]
+
+    Downloading subject04_fat: 302kB [00:01, 327kB/s]
+
+    Downloading subject04_gry: 4.75MB [00:08, 1.24MB/s]
+
+    Downloading subject04_csf: 5.50MB [00:08, 1.38MB/s]
+
+    Downloading subject04_wht: 7.75MB [00:08, 1.62MB/s]
+
+    Downloading subject04_wht: 8.00MB [00:08, 1.68MB/s]
+
+    Downloading subject04_gry: 5.00MB [00:08, 1.27MB/s]
+
+    Downloading subject04_csf: 5.75MB [00:08, 1.37MB/s]
+
+    Downloading subject04_fat: 513kB [00:01, 469kB/s]
+
+    Downloading subject04_wht: 8.25MB [00:09, 1.71MB/s]
+
+    Downloading subject04_gry: 5.25MB [00:08, 1.33MB/s]
+
+    Downloading subject04_csf: 6.00MB [00:09, 1.32MB/s]
+
+    Downloading subject04_wht: 8.50MB [00:09, 1.65MB/s]
+
+    Downloading subject04_gry: 5.50MB [00:09, 1.35MB/s]
+
+    Downloading subject04_csf: 6.25MB [00:09, 1.33MB/s]
+
+    Downloading subject04_wht: 8.75MB [00:09, 1.65MB/s]
+
+    Downloading subject04_fat: 769kB [00:02, 508kB/s]
+
+    Downloading subject04_wht: 9.00MB [00:09, 1.84MB/s]
+
+    Downloading subject04_gry: 5.75MB [00:09, 1.27MB/s]
+
+    Downloading subject04_csf: 6.50MB [00:09, 1.33MB/s]
+
+    Downloading subject04_wht: 9.25MB [00:09, 1.84MB/s]
+
+    Downloading subject04_csf: 6.75MB [00:09, 1.38MB/s]
+
+    Downloading subject04_gry: 6.00MB [00:09, 1.25MB/s]
+
+    Downloading subject04_wht: 9.50MB [00:09, 1.84MB/s]
+
+    Downloading subject04_fat: 1.00MB [00:02, 554kB/s]
+
+    Downloading subject04_csf: 7.00MB [00:09, 1.40MB/s]
+
+    Downloading subject04_wht: 9.75MB [00:09, 1.88MB/s]
+
+    Downloading subject04_gry: 6.25MB [00:09, 1.21MB/s]
+
+    Downloading subject04_wht: 10.0MB [00:10, 1.91MB/s]
+
+    Downloading subject04_csf: 7.25MB [00:09, 1.42MB/s]
+
+    Downloading subject04_wht: 10.3MB [00:10, 1.95MB/s]
+
+    Downloading subject04_gry: 6.50MB [00:10, 1.20MB/s]
+
+    Downloading subject04_csf: 7.50MB [00:10, 1.43MB/s]
+
+    Downloading subject04_wht: 10.5MB [00:10, 1.89MB/s]
+
+    Downloading subject04_fat: 1.25MB [00:03, 523kB/s]
+
+    Downloading subject04_gry: 6.75MB [00:10, 1.16MB/s]
+
+    Downloading subject04_csf: 7.75MB [00:10, 1.41MB/s]
+
+    Downloading subject04_fat: 1.50MB [00:03, 646kB/s]
+
+    Downloading subject04_csf: 8.00MB [00:10, 1.38MB/s]
+
+    Downloading subject04_gry: 7.00MB [00:10, 1.12MB/s]
+
+    Downloading subject04_wht: 10.8MB [00:10, 1.26MB/s]
+
+    Downloading subject04_csf: 8.25MB [00:10, 1.53MB/s]
+
+                                                      
+
+    Downloading subject04_gry: 7.50MB [00:10, 1.55MB/s]
+
+    Downloading subject04_csf: 8.75MB [00:10, 1.96MB/s]
+
+                                                       
+
+    Downloading subject04_gry: 8.00MB [00:10, 1.89MB/s]
+
+    Downloading subject04_csf: 9.00MB [00:11, 1.64MB/s]
+
+    Downloading subject04_gry: 8.50MB [00:11, 2.13MB/s]
+
+    Downloading subject04_gry: 8.95MB [00:11, 2.38MB/s]
+
+    Downloading subject04_mus: 0.00B [00:00, ?B/s]
+
+                                                       
+
+    Downloading subject04_gry: 9.25MB [00:11, 2.35MB/s]
+
+    Downloading subject04_gry: 9.50MB [00:11, 2.32MB/s]
+
+    Downloading subject04_m-s: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_gry: 9.75MB [00:11, 2.37MB/s]
+
+    Downloading subject04_gry: 10.0MB [00:11, 1.97MB/s]
+
+    Downloading subject04_mus: 1.00kB [00:00, 1.82kB/s]
+
+    Downloading subject04_skl: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_mus: 188kB [00:00, 370kB/s]  
+
+    Downloading subject04_gry: 10.3MB [00:12, 1.88MB/s]
+
+    Downloading subject04_mus: 513kB [00:00, 986kB/s]
+
+    Downloading subject04_gry: 10.5MB [00:12, 1.76MB/s]
+
+    Downloading subject04_mus: 769kB [00:00, 1.29MB/s]
+
+    Downloading subject04_mus: 1.00MB [00:01, 1.54MB/s]
+
+    Downloading subject04_gry: 10.8MB [00:12, 1.60MB/s]
+
+    Downloading subject04_m-s: 1.00kB [00:00, 1.16kB/s]
+
+    Downloading subject04_mus: 1.25MB [00:01, 1.73MB/s]
+
+    Downloading subject04_m-s: 206kB [00:00, 288kB/s]  
+
+    Downloading subject04_mus: 1.50MB [00:01, 1.88MB/s]
+
+    Downloading subject04_gry: 11.0MB [00:12, 1.49MB/s]
+
+    Downloading subject04_mus: 1.75MB [00:01, 1.97MB/s]
+
+    Downloading subject04_gry: 11.3MB [00:12, 1.41MB/s]
+
+    Downloading subject04_mus: 2.00MB [00:01, 2.02MB/s]
+
+    Downloading subject04_m-s: 513kB [00:01, 598kB/s]
+
+    Downloading subject04_mus: 2.25MB [00:01, 2.08MB/s]
+
+    Downloading subject04_skl: 1.00kB [00:00, 1.04kB/s]
+
+    Downloading subject04_m-s: 769kB [00:01, 806kB/s]
+
+    Downloading subject04_gry: 11.5MB [00:13, 1.34MB/s]
+
+    Downloading subject04_skl: 184kB [00:01, 234kB/s]  
+
+    Downloading subject04_mus: 2.50MB [00:01, 2.10MB/s]
+
+    Downloading subject04_skl: 280kB [00:01, 344kB/s]
+
+    Downloading subject04_mus: 2.75MB [00:01, 2.13MB/s]
+
+    Downloading subject04_m-s: 1.00MB [00:01, 947kB/s]
+
+    Downloading subject04_gry: 11.8MB [00:13, 1.33MB/s]
+
+    Downloading subject04_mus: 3.00MB [00:02, 2.08MB/s]
+
+    Downloading subject04_m-s: 1.25MB [00:01, 1.13MB/s]
+
+    Downloading subject04_skl: 513kB [00:01, 559kB/s]
+
+    Downloading subject04_gry: 12.0MB [00:13, 1.26MB/s]
+
+    Downloading subject04_mus: 3.25MB [00:02, 1.92MB/s]
+
+    Downloading subject04_m-s: 1.50MB [00:02, 1.18MB/s]
+
+    Downloading subject04_mus: 3.50MB [00:02, 1.80MB/s]
+
+    Downloading subject04_skl: 769kB [00:01, 726kB/s]
+
+    Downloading subject04_gry: 12.3MB [00:13, 1.25MB/s]
+
+    Downloading subject04_m-s: 1.75MB [00:02, 1.23MB/s]
+
+    Downloading subject04_mus: 3.75MB [00:02, 1.69MB/s]
+
+    Downloading subject04_gry: 12.5MB [00:13, 1.23MB/s]
+
+    Downloading subject04_m-s: 2.00MB [00:02, 1.28MB/s]
+
+    Downloading subject04_skl: 1.00MB [00:01, 782kB/s]
+
+    Downloading subject04_mus: 4.00MB [00:02, 1.66MB/s]
+
+    Downloading subject04_gry: 12.8MB [00:14, 1.20MB/s]
+
+    Downloading subject04_mus: 4.25MB [00:02, 1.67MB/s]
+
+    Downloading subject04_m-s: 2.25MB [00:02, 1.29MB/s]
+
+    Downloading subject04_skl: 1.25MB [00:02, 873kB/s]
+
+    Downloading subject04_gry: 13.0MB [00:14, 1.27MB/s]
+
+    Downloading subject04_mus: 4.50MB [00:03, 1.55MB/s]
+
+    Downloading subject04_m-s: 2.50MB [00:02, 1.26MB/s]
+
+    Downloading subject04_skl: 1.50MB [00:02, 1.01MB/s]
+
+    Downloading subject04_gry: 13.3MB [00:14, 1.28MB/s]
+
+    Downloading subject04_m-s: 2.75MB [00:03, 1.19MB/s]
+
+    Downloading subject04_mus: 4.75MB [00:03, 1.20MB/s]
+
+    Downloading subject04_skl: 1.75MB [00:02, 894kB/s] 
+
+    Downloading subject04_gry: 13.5MB [00:14, 1.08MB/s]
+
+    Downloading subject04_m-s: 3.00MB [00:03, 1.17MB/s]
+
+    Downloading subject04_mus: 5.00MB [00:03, 1.20MB/s]
+
+    Downloading subject04_skl: 2.00MB [00:03, 969kB/s]
+
+    Downloading subject04_gry: 13.8MB [00:14, 1.20MB/s]
+
+    Downloading subject04_m-s: 3.25MB [00:03, 1.26MB/s]
+
+    Downloading subject04_mus: 5.25MB [00:03, 1.30MB/s]
+
+    Downloading subject04_m-s: 3.50MB [00:03, 1.32MB/s]
+
+    Downloading subject04_mus: 5.50MB [00:03, 1.34MB/s]
+
+    Downloading subject04_skl: 2.25MB [00:03, 972kB/s]
+
+    Downloading subject04_gry: 14.0MB [00:15, 967kB/s] 
+
+    Downloading subject04_mus: 5.75MB [00:04, 1.35MB/s]
+
+    Downloading subject04_m-s: 3.75MB [00:03, 1.28MB/s]
+
+    Downloading subject04_skl: 2.50MB [00:03, 956kB/s]
+
+    Downloading subject04_m-s: 4.00MB [00:04, 1.38MB/s]
+
+    Downloading subject04_mus: 6.00MB [00:04, 1.30MB/s]
+
+    Downloading subject04_m-s: 4.25MB [00:04, 1.48MB/s]
+
+                                                      
+
+                                                      
+
+    Downloading subject04_m-s: 4.75MB [00:04, 1.82MB/s]
+
+                                                       
+
+    Downloading subject04_m-s: 5.00MB [00:04, 1.92MB/s]
+
+    Downloading subject04_m-s: 5.25MB [00:04, 1.94MB/s]
+
+    Downloading subject04_m-s: 5.50MB [00:04, 2.05MB/s]
+
+    Downloading subject04_m-s: 5.75MB [00:04, 2.08MB/s]
+
+    Downloading subject04_fat2: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_dura: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_ves: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_m-s: 6.00MB [00:04, 1.99MB/s]
+
+    Downloading subject04_m-s: 6.25MB [00:05, 1.96MB/s]
+
+    Downloading subject04_m-s: 6.50MB [00:05, 1.80MB/s]
+
+    Downloading subject04_m-s: 6.75MB [00:05, 1.42MB/s]
+
+                                                       
+
+    Downloading subject04_fat2: 1.00kB [00:01, 977B/s]
+
+    Downloading subject04_ves: 1.00kB [00:01, 1.02kB/s]
+
+    Downloading subject04_dura: 1.00kB [00:01, 961B/s]
+
+    Downloading subject04_fat2: 209kB [00:01, 253kB/s]
+
+    Downloading subject04_ves: 205kB [00:01, 257kB/s]  
+
+    Downloading subject04_dura: 209kB [00:01, 246kB/s]
+
+    Downloading subject04_fat2: 513kB [00:01, 603kB/s]
+
+    Downloading subject04_ves: 513kB [00:01, 591kB/s]
+
+    Downloading subject04_mrw: 0.00B [00:00, ?B/s]
+
+    Downloading subject04_ves: 769kB [00:01, 860kB/s]
+
+    Downloading subject04_fat2: 769kB [00:01, 803kB/s]
+
+    Downloading subject04_dura: 311kB [00:01, 261kB/s]
+
+    Downloading subject04_ves: 1.00MB [00:01, 1.07MB/s]
+
+    Downloading subject04_fat2: 1.00MB [00:01, 990kB/s]
+
+    Downloading subject04_ves: 1.25MB [00:01, 1.20MB/s]
+
+    Downloading subject04_fat2: 1.25MB [00:01, 947kB/s]
+
+    Downloading subject04_ves: 1.50MB [00:02, 1.14MB/s]
+
+    Downloading subject04_dura: 513kB [00:02, 295kB/s]
+
+    Downloading subject04_ves: 1.75MB [00:02, 1.17MB/s]
+
+    Downloading subject04_fat2: 1.50MB [00:02, 878kB/s]
+
+    Downloading subject04_fat2: 1.75MB [00:02, 1.00MB/s]
+
+    Downloading subject04_ves: 2.00MB [00:02, 1.09MB/s]
+
+    Downloading subject04_fat2: 2.00MB [00:02, 1.03MB/s]
+
+    Downloading subject04_dura: 769kB [00:02, 362kB/s]
+
+    Downloading subject04_mrw: 1.00kB [00:01, 785B/s]
+
+    Downloading subject04_ves: 2.25MB [00:02, 1.04MB/s]
+
+    Downloading subject04_mrw: 96.2kB [00:01, 94.1kB/s]
+
+                                                      
+
+    Downloading subject04_fat2: 2.25MB [00:02, 1.05MB/s]
+
+    Downloading subject04_ves: 2.50MB [00:02, 1.12MB/s]
+
+    Downloading subject04_fat2: 2.50MB [00:03, 1.17MB/s]
+
+    Downloading subject04_mrw: 513kB [00:01, 488kB/s]  
+
+    Downloading subject04_ves: 2.75MB [00:03, 1.05MB/s]
+
+    Downloading subject04_fat2: 2.75MB [00:03, 1.19MB/s]
+
+    Downloading subject04_mrw: 769kB [00:01, 630kB/s]
+
+                                                       
+
+                                                        
+
+    Downloading subject04_mrw: 1.00MB [00:02, 799kB/s]
+
+    Downloading subject04_mrw: 1.25MB [00:02, 1.03MB/s]
+
+    Downloading subject04_mrw: 1.50MB [00:02, 1.20MB/s]
+
+    Downloading subject04_mrw: 1.75MB [00:02, 1.26MB/s]
+
+    Downloading subject04_mrw: 2.00MB [00:02, 1.08MB/s]
+
+    Downloading subject04_mrw: 2.25MB [00:03, 1.32MB/s]
+
+                                                       test volume (3, 64, 64, 64), torch.complex64
 
 
 
@@ -329,7 +871,7 @@ volume.
     *
 
       .. image-sg:: /auto_examples/09-learning-workflows/images/sphx_glr_01-networks-for-complex-volumes_003.png
-         :alt: noisy NRMSE 0.131, denoised, whole NRMSE 0.095
+         :alt: noisy NRMSE 0.131, denoised, whole NRMSE 0.098
          :srcset: /auto_examples/09-learning-workflows/images/sphx_glr_01-networks-for-complex-volumes_003.png
          :class: sphx-glr-multi-img
 
@@ -346,9 +888,9 @@ volume.
  .. code-block:: none
 
     noisy                  relative error 0.1850
-    whole volume           relative error 0.1125, departure from the whole volume 0.0000
-    fixed grid             relative error 0.1156, departure from the whole volume 0.0321
-    8 random grids         relative error 0.1213, departure from the whole volume 0.0537
+    whole volume           relative error 0.1147, departure from the whole volume 0.0000
+    fixed grid             relative error 0.1169, departure from the whole volume 0.0321
+    8 random grids         relative error 0.1219, departure from the whole volume 0.0487
 
 
 
@@ -520,7 +1062,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (6 minutes 58.124 seconds)
+   **Total running time of the script:** (5 minutes 13.382 seconds)
 
 
 .. _sphx_glr_download_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py:

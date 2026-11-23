@@ -544,6 +544,11 @@ combination over them goes dark there. BART refuses the detection on
 a grid with an axis no longer than a twentieth of its longest, rounded
 up: the grid of the central lines, so a volume of fewer than 3
 partitions at the default <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p></li>
+<li><p><strong>sobolev</strong> (<em>float</em><em>, </em><em>default=None</em>) – Sobolev weight <code class="docutils literal notranslate"><span class="pre">a</span></code> of the sensitivities on the fitting grid
+(<code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">-a</span></code>); <code class="docutils literal notranslate"><span class="pre">None</span></code> for BART’s, scaled from the image grid to the
+fitting grid. A lower weight lets the maps follow sensitivities that
+change fast across the grid, such as those of a slab whose end
+partitions carry signal and wrap onto each other.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
