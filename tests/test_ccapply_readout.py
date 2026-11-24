@@ -33,3 +33,11 @@ def test_a_readout_of_other_channels_is_refused():
 
     with pytest.raises(ValueError, match="channels"):
         tools.ccapply_readout(torch.zeros(6, 10, dtype=torch.complex64), matrix, p=4)
+
+
+@pytest.mark.parametrize("p", [0, 9])
+def test_a_virtual_channel_count_outside_the_array_is_refused(p):
+    matrix = torch.eye(8, dtype=torch.complex64)
+
+    with pytest.raises(ValueError, match="between"):
+        tools.ccapply_readout(torch.zeros(8, 10, dtype=torch.complex64), matrix, p=p)
