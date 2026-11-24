@@ -64,6 +64,7 @@ functions and classes with no BART command behind them.
 | {obj}`~bartorch.tools.ncalib` | Sensitivities from non-Cartesian data by nonlinear inversion (ENLIVE) |
 | {obj}`~bartorch.tools.cc` | Coil compression matrix (SVD, geometric or ESPIRiT) |
 | {obj}`~bartorch.tools.ccapply` | Application of a coil compression matrix |
+| {obj}`~bartorch.tools.ccapply_readout` | One streamed readout projected onto the virtual channels of an SVD compression matrix |
 | {obj}`~bartorch.tools.rovir` | Coil compression by region-optimized virtual coils (ROVir) |
 | {obj}`~bartorch.tools.rovir_fov` | ROVir from non-Cartesian samples, rejecting what lies outside the field of view, then SVD to the virtual coils |
 | {obj}`~bartorch.tools.whiten` | Noise prewhitening from a noise measurement, optionally returning the whitening matrix and the noise covariance (wrapped) |
