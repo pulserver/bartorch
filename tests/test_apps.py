@@ -1035,6 +1035,20 @@ def test_a_given_sobolev_weight_is_the_one_nlinv_fits_the_maps_with(kind, shape,
     assert given == [0.5]
 
 
+@pytest.mark.parametrize(("kind", "shape"), _MAPS_INPUTS[:2])
+def test_nlinv_maps_are_fitted_on_the_device_of_the_kspace_and_agree_with_the_host(
+    kind, shape, device
+):
+    kspace, traj = _coil_data(kind)
+    host = apps.nlinv_maps(kspace, traj, size=8)
+    maps = apps.nlinv_maps(kspace.to(device), traj, size=8)
+
+    assert maps.device.type == device
+    assert maps.shape == shape
+    error = (maps.cpu() - host).abs().max() / host.abs().max()
+    assert float(error) < 1e-3
+
+
 @pytest.mark.parametrize(("kind", "shape"), _MAPS_INPUTS)
 def test_nlinv_maps_of_one_coil_are_ones(kind, shape):
     kspace, traj = _coil_data(kind)
