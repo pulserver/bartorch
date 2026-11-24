@@ -8,7 +8,7 @@ from bartorch import _call
 from bartorch._call import curated
 from bartorch._dispatch import dispatch
 
-__all__ = ["caldir", "ecalib", "nlinv", "rovir_fov", "whiten"]
+__all__ = ["caldir", "ccapply_readout", "ecalib", "nlinv", "rovir_fov", "whiten"]
 
 
 @curated("ecalib")
@@ -390,6 +390,47 @@ def rovir_fov(
     kept = float(v[:, inside].abs().pow(2).sum() / x[:, inside].abs().pow(2).sum())
     ratio = float(v[:, ~inside].abs().pow(2).sum() / v[:, inside].abs().pow(2).sum())
     return matrix, (kept, ratio)
+
+
+def ccapply_readout(readout: torch.Tensor, matrix: torch.Tensor, p: int) -> torch.Tensor:
+    """Virtual channels of one readout under an SVD compression, as ``ccapply -S`` gives them.
+
+    An SVD compression is one matrix for all of k-space, so a readout streamed
+    on its own is projected by it directly, without a call into BART: the
+    virtual channel ``j`` is ``sum_c conj(matrix[j, c]) readout[c]``.
+
+    Parameters
+    ----------
+    readout : torch.Tensor
+        ``(channels, ...)`` samples, the channels first.
+    matrix : torch.Tensor
+        The compression matrix of :func:`cc` with ``S=True``, ``(channels,
+        channels)`` or ``(channels, channels, 1, 1, 1)``.
+    p : int
+        Virtual channels kept.
+
+    Returns
+    -------
+    torch.Tensor
+        ``(p, ...)``, in the dtype of ``readout``.
+
+    Raises
+    ------
+    ValueError
+        If ``readout`` and ``matrix`` differ in channels, or ``p`` is not
+        between 1 and the channels.
+    """
+    channels = readout.shape[0]
+    square = matrix.reshape(matrix.shape[0], matrix.shape[1])
+    if square.shape != (channels, channels):
+        raise ValueError(
+            f"a readout of {channels} channels cannot be projected by a "
+            f"{tuple(square.shape)} matrix"
+        )
+    if not 1 <= p <= channels:
+        raise ValueError(f"p is {p}; it has to be between 1 and {channels}")
+    virtual = square[:p].conj().to(readout.dtype).to(readout.device)
+    return (virtual @ readout.reshape(channels, -1)).reshape(p, *readout.shape[1:])
 
 
 #: Commands in this section without a hand-written wrapper, built from the catalogue.
