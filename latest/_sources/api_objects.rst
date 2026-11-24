@@ -289,6 +289,7 @@ bartorch.tools
    ncalib
    cc
    ccapply
+   ccapply_readout
    rovir
    rovir_fov
    whiten
