@@ -22,6 +22,8 @@ interface they are assembled from.
 | {obj}`~bartorch.apps.nlinv_pics` | `nlinv`, `pics`, `homodyne` | {obj}`~bartorch.apps.nlinv_maps`, then a wavelet `pics` solve, then, for Cartesian k-space only, {obj}`~bartorch.apps.partial_fourier`; Cartesian or along a trajectory |
 | {obj}`~bartorch.apps.nlinv_maps` | `nlinv` | One set of coil sensitivity maps from `nlinv -m 1` on a grid of the low-resolution centre of k-space, zero-filled to the image grid and normalized to unit root sum of squares, with `nlinv --phase-pole` on request; Cartesian or along a two- or three-dimensional trajectory |
 | {obj}`~bartorch.apps.partial_fourier` | `homodyne` | `homodyne -I -C` along each axis acquired on one side of k-space only, the side and the acquired fraction read from the sampling mask |
+| {obj}`~bartorch.apps.partial_fourier_range` | none | The acquired range of a partial-Fourier axis, read from the sampling mask |
+| {obj}`~bartorch.apps.partial_fourier_phase` | none | The homodyne phase of an image: its k-space where a sample and its conjugate were both acquired |
 | {obj}`~bartorch.apps.pocsense` | none | The POCSENSE projections swept by BART's `pocs` iteration |
 | {obj}`~bartorch.apps.mobafit` | `mobafit` | Per-voxel Levenberg-Marquardt over a BlochSim model; returns named parameter maps in physical units |
 | {obj}`~bartorch.apps.moba` | `moba` | Same Gauss-Newton method over a BlochSim model inside the encoding, with the coils known or estimated jointly under Sobolev weighting; returns named parameter maps in physical units, not held to the command's output |

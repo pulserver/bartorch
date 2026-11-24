@@ -1079,6 +1079,12 @@ the same objects in tables; this page generates the page of each.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.apps.partial_fourier.html#bartorch.apps.partial_fourier" title="bartorch.apps.partial_fourier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fourier</span></code></a></p></td>
 <td><p>Homodyne completion of an image reconstructed from partial-Fourier k-space.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.apps.partial_fourier_range.html#bartorch.apps.partial_fourier_range" title="bartorch.apps.partial_fourier_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fourier_range</span></code></a></p></td>
+<td><p>First and last line acquired along a partial-Fourier <code class="docutils literal notranslate"><span class="pre">axis</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> where it is not one.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.apps.partial_fourier_phase.html#bartorch.apps.partial_fourier_phase" title="bartorch.apps.partial_fourier_phase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fourier_phase</span></code></a></p></td>
+<td><p>Homodyne phase of <code class="docutils literal notranslate"><span class="pre">image</span></code>: its k-space where a sample and its conjugate were both acquired.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.apps.pocsense.html#bartorch.apps.pocsense" title="bartorch.apps.pocsense"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pocsense</span></code></a></p></td>
 <td><p>POCSENSE reconstruction by projections onto convex sets.</p></td>
 </tr>
@@ -1263,6 +1269,18 @@ the same objects in tables; this page generates the page of each.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.correct_lines.html#bartorch.tools.correct_lines" title="bartorch.tools.correct_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_lines</span></code></a></p></td>
 <td><p>Flip reversed EPI lines into forward readout order and remove their phase.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.shot_encoding.html#bartorch.tools.shot_encoding" title="bartorch.tools.shot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_encoding</span></code></a></p></td>
+<td><p>Encoding of a segmented acquisition whose shots each multiply the image by their own phase.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.shot_phase_basis.html#bartorch.tools.shot_phase_basis" title="bartorch.tools.shot_phase_basis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_phase_basis</span></code></a></p></td>
+<td><p>Legendre products in <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">x</span></code> of total degree at most <code class="docutils literal notranslate"><span class="pre">order</span></code>, per partition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.estimate_shot_phases.html#bartorch.tools.estimate_shot_phases" title="bartorch.tools.estimate_shot_phases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_shot_phases</span></code></a></p></td>
+<td><p>Phase each shot of a segmented acquisition adds to <code class="docutils literal notranslate"><span class="pre">image</span></code>, relative to the first shot's.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bartorch.tools.shot_residual.html#bartorch.tools.shot_residual" title="bartorch.tools.shot_residual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_residual</span></code></a></p></td>
+<td><p>Data residual of <code class="docutils literal notranslate"><span class="pre">image</span></code> under the shot <code class="docutils literal notranslate"><span class="pre">phases</span></code>, relative to the placed k-space.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_field_correct</span></code></a></p></td>
 <td><p>Divide a magnitude image by its N4-estimated multiplicative bias field.</p></td>

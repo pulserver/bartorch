@@ -781,6 +781,18 @@ when <a class="reference internal" href="../generated/bartorch.tools.correct_sus
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.tools.correct_lines.html#bartorch.tools.correct_lines" title="bartorch.tools.correct_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_lines</span></code></a></p></td>
 <td><p>Reversal of EPI lines into forward readout order, with the odd/even phase removed</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.tools.shot_encoding.html#bartorch.tools.shot_encoding" title="bartorch.tools.shot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_encoding</span></code></a></p></td>
+<td><p>MUSE encoding of a segmented acquisition, each shot’s lines read from the image times that shot’s phase</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.tools.shot_phase_basis.html#bartorch.tools.shot_phase_basis" title="bartorch.tools.shot_phase_basis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_phase_basis</span></code></a></p></td>
+<td><p>Legendre products per partition that a shot’s phase is fitted on</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.tools.estimate_shot_phases.html#bartorch.tools.estimate_shot_phases" title="bartorch.tools.estimate_shot_phases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_shot_phases</span></code></a></p></td>
+<td><p>Smooth phase each shot of a segmented acquisition adds, fitted by damped Gauss-Newton against an image</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.tools.shot_residual.html#bartorch.tools.shot_residual" title="bartorch.tools.shot_residual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_residual</span></code></a></p></td>
+<td><p>Data residual of an image under given shot phases</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_field_correct</span></code></a></p></td>
 <td><p>Receive-field (bias) correction by N4</p></td>
 </tr>
