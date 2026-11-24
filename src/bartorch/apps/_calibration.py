@@ -7,7 +7,7 @@ import math
 import torch
 
 import bartorch
-from bartorch import tools
+from bartorch import _cuda, tools
 
 __all__ = ["nlinv_maps"]
 
@@ -35,6 +35,13 @@ def _upsampled(maps: torch.Tensor, shape: tuple[int, ...]) -> torch.Tensor:
     return _normalized(bartorch.fft(spectrum, axes, inverse=True))
 
 
+def _on_device(kspace: torch.Tensor, options: dict) -> dict:
+    """``options`` with BART's own GPU fit (``nlinv -g``) for k-space on a CUDA device BART can run on."""
+    if kspace.device.type == "cuda" and _cuda.available():
+        return {**options, "g": True}
+    return options
+
+
 def _scaled_sobolev(grid: list[int], shape: tuple[int, ...], options: dict) -> dict:
     """``options`` with the Sobolev ``a`` scaled from ``shape`` to the smaller ``grid``.
 
@@ -59,9 +66,9 @@ def _cartesian_maps(volume: torch.Tensor, size: int, **options) -> torch.Tensor:
     grid = [min(size, n) for n in shape]
     centre = (slice(None), *(_centre(n, m) for n, m in zip(shape, grid)))
     low = volume[centre].contiguous()
-    options = _scaled_sobolev(grid, shape, options)
+    options = _on_device(volume, _scaled_sobolev(grid, shape, options))
     _, maps = tools.nlinv(low, maps=1, return_sensitivities=True, **options)
-    return _upsampled(maps.reshape(low.shape), shape)
+    return _upsampled(maps.reshape(low.shape).to(volume.device), shape)
 
 
 def _radial_maps(
@@ -87,7 +94,7 @@ def _radial_maps(
     grid = [min(2 * math.ceil(radius), n) for n in shape]
     centre = traj.real.square().sum(dim=-1).sqrt() <= radius
     samples = kspace[:, centre][:, None, :, None]
-    options = _scaled_sobolev(grid, shape, options)
+    options = _on_device(kspace, _scaled_sobolev(grid, shape, options))
     _, maps = tools.nlinv(
         samples,
         traj=traj[centre][None],
@@ -96,7 +103,7 @@ def _radial_maps(
         x=(*grid[::-1], 1)[:3],
         **options,
     )
-    return _upsampled(maps.reshape(kspace.shape[0], *grid), shape)
+    return _upsampled(maps.reshape(kspace.shape[0], *grid).to(kspace.device), shape)
 
 
 def nlinv_maps(
@@ -154,8 +161,9 @@ def nlinv_maps(
     Returns
     -------
     torch.Tensor
-        Complex maps: of the shape of ``kspace`` for Cartesian data,
-        ``(coils, *shape)`` otherwise.
+        Complex maps on the device of ``kspace``: of the shape of ``kspace``
+        for Cartesian data, ``(coils, *shape)`` otherwise. k-space on a CUDA
+        device is fitted on the GPU by BART's own ``nlinv -g``.
 
     Raises
     ------
