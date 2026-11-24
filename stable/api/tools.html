@@ -45,7 +45,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=a10cd579"></script>
+    <script src="../_static/documentation_options.js?v=b678551f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pulserver.github.io/bartorch/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.0.26';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -70,7 +70,7 @@
     <link rel="prev" title="Array functions and settings" href="functions.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="v0.0.25" />
+  <meta name="docsearch:version" content="v0.0.26" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -780,6 +780,18 @@ when <a class="reference internal" href="../generated/bartorch.tools.correct_sus
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.tools.correct_lines.html#bartorch.tools.correct_lines" title="bartorch.tools.correct_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_lines</span></code></a></p></td>
 <td><p>Reversal of EPI lines into forward readout order, with the odd/even phase removed</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.tools.shot_encoding.html#bartorch.tools.shot_encoding" title="bartorch.tools.shot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_encoding</span></code></a></p></td>
+<td><p>MUSE encoding of a segmented acquisition, each shot’s lines read from the image times that shot’s phase</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.tools.shot_phase_basis.html#bartorch.tools.shot_phase_basis" title="bartorch.tools.shot_phase_basis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_phase_basis</span></code></a></p></td>
+<td><p>Legendre products per partition that a shot’s phase is fitted on</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.tools.estimate_shot_phases.html#bartorch.tools.estimate_shot_phases" title="bartorch.tools.estimate_shot_phases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_shot_phases</span></code></a></p></td>
+<td><p>Smooth phase each shot of a segmented acquisition adds, fitted by damped Gauss-Newton against an image</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/bartorch.tools.shot_residual.html#bartorch.tools.shot_residual" title="bartorch.tools.shot_residual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shot_residual</span></code></a></p></td>
+<td><p>Data residual of an image under given shot phases</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../generated/bartorch.tools.bias_field_correct.html#bartorch.tools.bias_field_correct" title="bartorch.tools.bias_field_correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_field_correct</span></code></a></p></td>
 <td><p>Receive-field (bias) correction by N4</p></td>

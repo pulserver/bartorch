@@ -261,7 +261,7 @@ over the model alone.
 
  .. code-block:: none
 
-    reconstruct, then fit:   0.6 s
+    reconstruct, then fit:   0.8 s
 
 
 
@@ -300,7 +300,7 @@ Gauss-Newton step requires.
 
  .. code-block:: none
 
-    model inside the operator:  10.9 s
+    model inside the operator:  15.6 s
 
 
 
@@ -346,7 +346,7 @@ identical to the fit above.
 
  .. code-block:: none
 
-    apps.moba:  11.2 s
+    apps.moba:  15.6 s
 
 
 
@@ -515,7 +515,7 @@ References
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 23.871 seconds)
+   **Total running time of the script:** (0 minutes 33.454 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05-model-based_01-quantitative-models.py:

@@ -241,6 +241,8 @@ bartorch.apps
    nlinv_pics
    nlinv_maps
    partial_fourier
+   partial_fourier_range
+   partial_fourier_phase
    pocsense
    mobafit
    moba
@@ -310,6 +312,10 @@ bartorch.tools
    estimate_epi_phase
    estimate_epi_echo_phase
    correct_lines
+   shot_encoding
+   shot_phase_basis
+   estimate_shot_phases
+   shot_residual
    bias_field_correct
    reslice
    GradientCoefficients

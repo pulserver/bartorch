@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**16:10.602** total execution time for 27 files **from all galleries**:
+**28:19.007** total execution time for 27 files **from all galleries**:
 
 .. container::
 
@@ -33,83 +33,83 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_01-networks-for-complex-volumes.py` (``examples/09-learning-workflows/01-networks-for-complex-volumes.py``)
-     - 04:43.199
+     - 11:48.595
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_02-modl-with-admm.py` (``examples/06-learning/02-modl-with-admm.py``)
-     - 02:50.197
+     - 04:34.697
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_03-self-supervised-training.py` (``examples/09-learning-workflows/03-self-supervised-training.py``)
-     - 02:47.761
+     - 03:59.296
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_02-staged-training.py` (``examples/09-learning-workflows/02-staged-training.py``)
-     - 01:40.026
+     - 02:25.993
      - 0.0
    * - :ref:`sphx_glr_auto_examples_09-learning-workflows_05-uncertainty.py` (``examples/09-learning-workflows/05-uncertainty.py``)
-     - 01:12.909
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py` (``examples/09-learning-workflows/04-annealed-plug-and-play.py``)
-     - 00:31.150
+     - 01:35.671
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06-learning_01-plug-and-play.py` (``examples/06-learning/01-plug-and-play.py``)
-     - 00:27.039
+     - 00:48.738
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_09-learning-workflows_04-annealed-plug-and-play.py` (``examples/09-learning-workflows/04-annealed-plug-and-play.py``)
+     - 00:43.286
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05-model-based_01-quantitative-models.py` (``examples/05-model-based/01-quantitative-models.py``)
-     - 00:23.871
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_08-workflows_02-subspace-t1-mapping.py` (``examples/08-workflows/02-subspace-t1-mapping.py``)
-     - 00:12.919
+     - 00:33.454
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-regularization_01-regularized-reconstruction.py` (``examples/03-regularization/01-regularized-reconstruction.py``)
-     - 00:12.704
+     - 00:18.060
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py` (``examples/02-parallel-imaging/02-nonlinear-inversion.py``)
-     - 00:11.519
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_01-coil-calibration.py` (``examples/02-parallel-imaging/01-coil-calibration.py``)
-     - 00:07.268
+   * - :ref:`sphx_glr_auto_examples_08-workflows_02-subspace-t1-mapping.py` (``examples/08-workflows/02-subspace-t1-mapping.py``)
+     - 00:15.990
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-non-cartesian_02-radial-sense.py` (``examples/04-non-cartesian/02-radial-sense.py``)
-     - 00:05.757
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_06-navigator-motion.py` (``examples/07-tours/06-navigator-motion.py``)
-     - 00:05.211
+     - 00:08.607
      - 0.0
    * - :ref:`sphx_glr_auto_examples_08-workflows_01-dynamic-golden-angle.py` (``examples/08-workflows/01-dynamic-golden-angle.py``)
-     - 00:05.168
+     - 00:07.136
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_02-nonlinear-inversion.py` (``examples/02-parallel-imaging/02-nonlinear-inversion.py``)
+     - 00:07.100
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02-parallel-imaging_01-coil-calibration.py` (``examples/02-parallel-imaging/01-coil-calibration.py``)
+     - 00:06.671
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_02-from-kspace-to-image.py` (``examples/01-basics/02-from-kspace-to-image.py``)
-     - 00:05.156
+     - 00:06.421
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03-regularization_02-operators-and-solvers.py` (``examples/03-regularization/02-operators-and-solvers.py``)
-     - 00:04.963
+     - 00:06.312
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_06-navigator-motion.py` (``examples/07-tours/06-navigator-motion.py``)
+     - 00:05.969
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_05-spiral-deblurring.py` (``examples/07-tours/05-spiral-deblurring.py``)
-     - 00:04.945
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``examples/07-tours/07-epi-susceptibility-distortion.py``)
-     - 00:04.301
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07-tours_03-bias-field.py` (``examples/07-tours/03-bias-field.py``)
-     - 00:03.755
+     - 00:04.889
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_08-noise-prewhitening.py` (``examples/07-tours/08-noise-prewhitening.py``)
-     - 00:03.494
+     - 00:04.872
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_03-bias-field.py` (``examples/07-tours/03-bias-field.py``)
+     - 00:04.756
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07-tours_07-epi-susceptibility-distortion.py` (``examples/07-tours/07-epi-susceptibility-distortion.py``)
+     - 00:03.078
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_02-epi-ghost-and-ramp-sampling.py` (``examples/07-tours/02-epi-ghost-and-ramp-sampling.py``)
-     - 00:01.954
+     - 00:02.701
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04-non-cartesian_01-trajectories-and-transforms.py` (``examples/04-non-cartesian/01-trajectories-and-transforms.py``)
-     - 00:01.466
+     - 00:01.708
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_04-gradient-nonlinearity.py` (``examples/07-tours/04-gradient-nonlinearity.py``)
-     - 00:01.185
+     - 00:01.535
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01-basics_01-tensors-and-commands.py` (``examples/01-basics/01-tensors-and-commands.py``)
-     - 00:00.941
+     - 00:01.271
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07-tours_01-readout-oversampling-and-apodization.py` (``examples/07-tours/01-readout-oversampling-and-apodization.py``)
-     - 00:00.916
+     - 00:01.144
      - 0.0
    * - :ref:`sphx_glr_auto_examples_08-workflows_03-maps-from-scanner-images.py` (``examples/08-workflows/03-maps-from-scanner-images.py``)
-     - 00:00.828
+     - 00:01.058
      - 0.0
