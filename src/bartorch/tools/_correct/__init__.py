@@ -1,6 +1,7 @@
 """Corrections of MRI data and images outside the reconstruction.
 
-EPI readout corrections, receive-field (bias) correction, gradient
+EPI readout corrections, the shot-to-shot phase of segmented acquisitions
+(MUSE), receive-field (bias) correction, gradient
 nonlinearity correction, off-resonance field maps and spiral deblurring, and
 susceptibility correction from a reversed phase-encoding pair.  SimpleITK
 resamples; Triton and PyHySCO (``pip install 'bartorch[pyhysco]'``) are
@@ -23,6 +24,12 @@ from bartorch.tools._correct._gradunwarp import (
     Gradunwarp,
 )
 from bartorch.tools._correct._reslice import reslice
+from bartorch.tools._correct._shots import (
+    estimate_shot_phases,
+    shot_encoding,
+    shot_phase_basis,
+    shot_residual,
+)
 from bartorch.tools._correct._spiral import ReadoutTiming, SpiralTransfer, deblur, fit_transfer
 from bartorch.tools._correct._susceptibility import (
     SusceptibilityCorrection,
@@ -45,7 +52,11 @@ __all__ = [
     "epi_ramp_operator",
     "estimate_epi_echo_phase",
     "estimate_epi_phase",
+    "estimate_shot_phases",
     "field_map_from_phase",
     "fit_transfer",
     "reslice",
+    "shot_encoding",
+    "shot_phase_basis",
+    "shot_residual",
 ]

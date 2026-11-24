@@ -847,6 +847,35 @@ def test_undersampling_alone_is_not_partial_fourier():
     assert _partial_fourier(sampled, axis=0) == (1.0, False)
 
 
+def test_an_even_axis_without_its_unpaired_first_line_is_not_partial_fourier():
+    sampled = np.zeros((32, 4), dtype=bool)
+    sampled[1:] = True
+    assert apps.partial_fourier_range(sampled, 0) is None
+
+
+def test_the_partial_fourier_range_is_the_acquired_lines():
+    sampled = torch.zeros((4, 32), dtype=torch.bool)
+    sampled[:, 8:] = True
+    assert apps.partial_fourier_range(sampled, -1) == (8, 31)
+    assert apps.partial_fourier_range(sampled, 0) is None
+
+
+@pytest.mark.parametrize("keep", [slice(0, 22), slice(10, SIZE)])
+def test_the_partial_fourier_phase_is_the_phase_of_a_smoothly_phased_object(keep):
+    _, truth = _cartesian_object()
+    y = torch.linspace(-1, 1, SIZE)[:, None]
+    phase = torch.exp(1j * (0.8 * y + 0.4 * y.mT)).to(torch.complex64)
+    image = truth * phase
+    sampled = torch.zeros((SIZE, SIZE), dtype=torch.bool)
+    sampled[keep] = True
+    kspace = bartorch.fft(image, (-1, -2), unitary=True) * sampled
+    zero_filled = bartorch.fft(kspace, (-1, -2), inverse=True, unitary=True)
+    estimate = apps.partial_fourier_phase(zero_filled.reshape(SIZE, SIZE), sampled)
+    inside = truth.abs() > 0.1 * truth.abs().max()
+    error = torch.angle(estimate * phase.conj())[inside]
+    assert float(error.abs().median()) < 0.1
+
+
 def _cartesian_object():
     sens = bt.coils(t=bt.grid(D=(SIZE, SIZE, 1)), n=COILS)[:, 0]
     sens = sens / bartorch.rss(sens, axes=(0,), keepdim=True)

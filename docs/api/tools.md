@@ -109,6 +109,10 @@ when {obj}`~bartorch.tools.correct_susceptibility` is called
 | {obj}`~bartorch.tools.estimate_epi_phase` | Odd/even phase of an EPI readout, fitted to a three-line navigator |
 | {obj}`~bartorch.tools.estimate_epi_echo_phase` | Odd/even phase of every echo of an EPI train, fitted to a blip-free reference train |
 | {obj}`~bartorch.tools.correct_lines` | Reversal of EPI lines into forward readout order, with the odd/even phase removed |
+| {obj}`~bartorch.tools.shot_encoding` | MUSE encoding of a segmented acquisition, each shot's lines read from the image times that shot's phase |
+| {obj}`~bartorch.tools.shot_phase_basis` | Legendre products per partition that a shot's phase is fitted on |
+| {obj}`~bartorch.tools.estimate_shot_phases` | Smooth phase each shot of a segmented acquisition adds, fitted by damped Gauss-Newton against an image |
+| {obj}`~bartorch.tools.shot_residual` | Data residual of an image under given shot phases |
 | {obj}`~bartorch.tools.bias_field_correct` | Receive-field (bias) correction by N4 |
 | {obj}`~bartorch.tools.reslice` | Resampling of an image onto another prescription's grid from header geometry |
 | {obj}`~bartorch.tools.GradientCoefficients` | Spherical-harmonic coefficient table of a gradient coil |
