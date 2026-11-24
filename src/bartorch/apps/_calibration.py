@@ -36,7 +36,7 @@ def _upsampled(maps: torch.Tensor, shape: tuple[int, ...]) -> torch.Tensor:
 
 
 def _on_device(kspace: torch.Tensor, options: dict) -> dict:
-    """``options`` with BART's own GPU fit (``nlinv -g``) for k-space on a CUDA device BART can run on."""
+    """``options`` with BART's GPU fit (``nlinv -g``) for k-space on a CUDA device BART runs on."""
     if kspace.device.type == "cuda" and _cuda.available():
         return {**options, "g": True}
     return options
