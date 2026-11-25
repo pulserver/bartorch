@@ -3,7 +3,7 @@ import math
 import pytest
 import torch
 
-from bartorch import linop, tools
+from bartorch import linop, optim, tools
 
 VOXEL = (2.5e-3, 2e-3, 2e-3)
 
@@ -89,7 +89,7 @@ def test_the_rigid_encoding_adjoint_matches_its_forward(device):
     assert abs(forward - adjoint) < 1e-3 * abs(forward)
 
 
-def test_shot_poses_fitted_against_the_true_image_are_the_true_poses(device):
+def test_shot_poses_fitted_from_the_image_solved_at_rest_are_the_true_poses(device):
     image, maps, masks = _scan()
     turns = torch.stack([_turn(0, 0.0), _turn(0, 0.03) @ _turn(1, -0.02), _turn(2, 0.025)])
     shifts = torch.tensor(
@@ -98,16 +98,16 @@ def test_shot_poses_fitted_against_the_true_image_are_the_true_poses(device):
     kspace = tools.rigid_encoding(maps, masks, VOXEL, turns, shifts, device=device)(
         image.to(device)
     ).cpu()
-    _, _, before = tools.estimate_rigid_motion(
-        kspace, maps, masks, image, VOXEL, steps=0, device=device
-    )
-    found, moved, after = tools.estimate_rigid_motion(
-        kspace, maps, masks, image, VOXEL, steps=6, device=device
+    at_rest = tools.rigid_encoding(maps, masks, VOXEL, device=device)
+    start = optim.CG(lambda_=1e-3, maxiter=10)(kspace.to(device), at_rest).cpu()
+    found, moved, solved, residual = tools.estimate_rigid_motion(
+        kspace, maps, masks, start, VOXEL, steps=4, device=device
     )
     angle = torch.arccos(((torch.einsum("sij,sij->s", found, turns) - 1) / 2).clamp(-1, 1))
     assert float(angle.max()) < 2e-3
     assert float((moved - shifts).abs().max()) < 0.05 * min(VOXEL)
-    assert after < 0.05 * before
+    assert _relative(solved, image) < 0.2 * _relative(start, image)
+    assert residual < 1e-3
 
 
 def test_a_line_placed_by_two_shots_is_refused():

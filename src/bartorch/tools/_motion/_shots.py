@@ -154,20 +154,26 @@ def estimate_rigid_motion(
     shifts: torch.Tensor | None = None,
     *,
     steps: int = 3,
-    damping: float = 1e-2,
+    iterations: int = 40,
+    lambda_: float = 1e-5,
     device=None,
-) -> tuple[torch.Tensor, torch.Tensor, float]:
-    r"""Rigid pose of each shot of a segmented 3D acquisition, relative to the first, from data.
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, float]:
+    r"""Rigid pose of each shot of a segmented 3D acquisition relative to the first, and its image.
 
-    The poses of :func:`rigid_encoding` are moved, from ``rotations`` and
-    ``shifts``, by ``steps`` Levenberg-Marquardt steps on the data residual
-    of ``image``. The Jacobian is in closed form: a turn
-    :math:`\delta` composed after :math:`R_s` moves the rotated wavenumber
-    :math:`k'` by :math:`-\delta \times k'`, so the derivative of a sample
-    along it is :math:`2\pi i\, k' \times \mathcal{F}[S x\, r]`, which three
-    transforms of the image weighted by its position :math:`r` give for every
-    shot at once; a shift multiplies a sample by :math:`-2\pi i\, k`. The
-    first shot stays at rest.
+    Each of ``steps`` Gauss-Newton steps linearises the encoding of
+    :func:`rigid_encoding` about the current poses and image and solves for
+    the image and the pose steps together, by ``iterations`` conjugate
+    gradients on :math:`\| A x + J \delta - y \|^2 + \lambda \| (x, \delta) \|^2`
+    with :math:`J` scaled to unit columns, from the current image. Solved
+    jointly, the image cannot absorb the inconsistency a pose leaves in the
+    data, as it does when the two are fitted in turn. :math:`J` is in closed
+    form: a turn :math:`\delta` composed after :math:`R_s` moves the rotated
+    wavenumber :math:`k'` by :math:`-\delta \times k'`, so a sample's
+    derivative along it is :math:`2\pi i\, k' \times \mathcal{F}[S x\, r]`,
+    which one transform of the image weighted by its position :math:`r` gives
+    for every shot at once; a shift multiplies a sample by
+    :math:`-2\pi i\, k`. The first shot stays at rest. Data are scaled to a
+    peak of one for the solve.
 
     Parameters
     ----------
@@ -176,16 +182,20 @@ def estimate_rigid_motion(
     masks : torch.Tensor
         ``(shots, z, y)`` booleans, the lines each shot placed.
     image : torch.Tensor
-        ``(z, y, x)`` complex image, in the first shot's pose.
+        ``(z, y, x)`` complex starting image, in the first shot's pose.
     voxel_size : tuple of float
         ``(z, y, x)`` voxel size, in the length unit of the shifts.
     rotations, shifts : torch.Tensor, default=None
         ``(shots, 3, 3)`` and ``(shots, 3)`` starting poses, as
         :func:`rigid_encoding` takes them; ``None`` starts at rest.
     steps : int, default=3
-        Levenberg-Marquardt steps.
-    damping : float, default=1e-2
-        Weight of the curvature's diagonal added to it.
+        Gauss-Newton steps.
+    iterations : int, default=40
+        Conjugate-gradient iterations of each step.
+    lambda_ : float, default=1e-5
+        Tikhonov weight of the joint solve, on the image and on the scaled
+        pose steps alike; a larger weight damps the pose steps enough to
+        stall them.
     device : torch.device or str, default=None
         Where the transforms run.
 
@@ -195,10 +205,12 @@ def estimate_rigid_motion(
         ``(shots, 3, 3)`` float64 rotation matrices.
     shifts : torch.Tensor
         ``(shots, 3)`` float64 displacements.
+    image : torch.Tensor
+        ``(z, y, x)`` image of the last step, on the device of ``image``.
     residual : float
-        ``||A x - M y|| / ||M y||`` under the returned poses.
+        ``||A x - M y|| / ||M y||`` of that image under the returned poses.
     """
-    from bartorch import linop
+    from bartorch import linop, optim
 
     grid = tuple(int(n) for n in maps.shape[1:])
     shot, partition, line = _lines(masks)
@@ -206,41 +218,44 @@ def estimate_rigid_motion(
     turn, move = _poses(count, rotations, shifts)
     wavenumbers = _wavenumbers(partition, line, grid, voxel_size)
     on = torch.device(device) if device is not None else maps.device
+    home = image.device
     maps = maps.to(on, torch.complex64)
-    image = image.reshape(grid).to(on, torch.complex64)
     data = kspace.to(on)[:, partition.to(on), line.to(on)].to(torch.complex64)
+    scale = float(data.abs().max()) or 1.0
+    data = data / scale
+    image = image.reshape(grid).to(on, torch.complex64) / scale
     nz, ny, nx = grid
     vz, vy, vx = voxel_size
     axes = [
         (torch.arange(n, dtype=torch.float32, device=on) - n // 2) * v
         for n, v in ((nx, vx), (ny, vy), (nz, vz))
     ]
-    weighted = torch.stack(
-        [
-            image * axes[0][None, None, :],
-            image * axes[1][None, :, None],
-            image * axes[2][:, None, None],
-        ]
-    )
     owner = shot.to(on)
     lab = wavenumbers.to(on, torch.float32)
+    size, unknowns = math.prod(grid), 6 * (count - 1)
 
-    def model(batch):
+    def reads(batch):
         traj, rotated, phase = _sampling(wavenumbers, shot, turn, move, grid, voxel_size)
-        reads = linop.NoncartesianSense(
+        operator = linop.NoncartesianSense(
             maps,
-            (batch, *grid),
+            grid if batch is None else (batch, *grid),
             traj=traj.to(on),
             weights=phase.to(on),
             device=device,
-            toeplitz=False,
         )
-        return reads, rotated.to(on, torch.float32)
+        return operator, rotated.to(on, torch.float32)
 
-    stacked = torch.cat([image[None], weighted])
     for _ in range(steps):
-        reads, rotated = model(4)
-        read = reads(stacked)
+        transform, rotated = reads(4)
+        weighted = torch.stack(
+            [
+                image,
+                image * axes[0][None, None, :],
+                image * axes[1][None, :, None],
+                image * axes[2][:, None, None],
+            ]
+        )
+        read = transform(weighted)
         signal, moments = read[0], read[1:].permute(1, 2, 3, 0)
         turned = rotated[None].expand_as(moments.real)
         cross = torch.linalg.cross(turned, moments.real) + 1j * torch.linalg.cross(
@@ -249,21 +264,35 @@ def estimate_rigid_motion(
         jacobian = torch.cat(
             [2j * math.pi * cross, -2j * math.pi * lab[None] * signal[..., None]], dim=-1
         )
-        error = signal - data
-        flat = jacobian.permute(1, 0, 2, 3).reshape(jacobian.shape[1], -1, 6)
-        residual = error.permute(1, 0, 2).reshape(error.shape[1], -1)
-        curvature = torch.zeros((count, 6, 6), dtype=torch.float64, device=on)
-        slope = torch.zeros((count, 6), dtype=torch.float64, device=on)
-        curvature.index_add_(
-            0, owner, torch.einsum("lsi,lsj->lij", flat.conj(), flat).real.double()
+        norms = torch.zeros((count, 6), dtype=torch.float32, device=on)
+        norms.index_add_(0, owner, jacobian.abs().square().sum(dim=(0, 2)))
+        norms = norms.sqrt().clamp_min(1e-30)
+        jacobian = jacobian / norms[owner][None, :, None, :]
+        coefficient_shape = (count, 6)
+
+        def along(steps_, jacobian=jacobian):
+            full = torch.zeros(coefficient_shape, dtype=steps_.dtype, device=steps_.device)
+            full[1:] = steps_.reshape(count - 1, 6)
+            return (jacobian * full[owner.to(steps_.device)][None, :, None, :]).sum(-1)
+
+        def against(samples, jacobian=jacobian):
+            per_line = (jacobian.conj() * samples[..., None]).sum(dim=(0, 2))
+            full = torch.zeros(coefficient_shape, dtype=samples.dtype, device=samples.device)
+            full.index_add_(0, owner.to(samples.device), per_line)
+            return full[1:].reshape(-1)
+
+        poses = linop.LinearOperator.from_callbacks(tuple(data.shape), (unknowns,), along, against)
+        single, _ = reads(None)
+        joint = linop.hstack(
+            [single @ linop.Reshape(grid, (size,)), poses @ linop.Real((unknowns,))]
         )
-        slope.index_add_(0, owner, torch.einsum("lsi,ls->li", flat.conj(), residual).real.double())
-        curvature = curvature + damping * torch.diag_embed(
-            torch.diagonal(curvature, dim1=-2, dim2=-1).clamp_min(1e-30)
-        )
-        step = -torch.linalg.solve(curvature[1:], slope[1:]).cpu()
+        start = torch.cat([image.reshape(-1), torch.zeros(unknowns, dtype=image.dtype, device=on)])
+        solved = optim.CG(lambda_=lambda_, maxiter=iterations)(data, joint, x0=start)
+        image = solved[:size].reshape(grid).to(on)
+        step = (solved[size:].real.reshape(count - 1, 6) / norms[1:]).double().cpu()
         turn[1:] = turn[1:] @ torch.linalg.matrix_exp(_skew(step[:, :3]))
         move[1:] = move[1:] + step[:, 3:]
-    reads, _ = model(1)
-    error = reads(image[None])[0] - data
-    return turn, move, float(error.norm() / data.norm().clamp_min(1e-30))
+    single, _ = reads(None)
+    error = single(image) - data
+    residual = float(error.norm() / data.norm().clamp_min(1e-30))
+    return turn, move, (image * scale).to(home), residual
