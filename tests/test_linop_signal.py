@@ -46,6 +46,23 @@ def test_a_matrix_broadcasts_over_the_axes_it_has_one_of():
     torch.testing.assert_close(A(x)[:, 0], want, rtol=1e-4, atol=1e-4)
 
 
+def test_a_matrix_given_on_a_device_applies_its_forward_adjoint_and_normal_there(device):
+    """A square contraction, so BART multiplies out the Gram matrix at construction."""
+    t, n = 4, 6
+    matrix = _rand(t, t, n).to(device)
+    A = linop.Matrix(matrix, (t, 1, n), (1, t, n))
+    x = _rand(1, t, n).to(device)
+    y = _rand(t, 1, n).to(device)
+
+    forward = torch.einsum("ktn,tn->kn", matrix, x[0])
+    adjoint = torch.einsum("ktn,kn->tn", matrix.conj(), y[:, 0])
+    normal = torch.einsum("ktn,kn->tn", matrix.conj(), forward)
+
+    torch.testing.assert_close(A(x)[:, 0], forward, rtol=1e-4, atol=1e-4)
+    torch.testing.assert_close(A.H(y)[0], adjoint, rtol=1e-4, atol=1e-4)
+    torch.testing.assert_close(A.normal(x)[0], normal, rtol=1e-4, atol=1e-4)
+
+
 def test_a_matrix_needs_one_axis_per_axis_of_the_operator():
     with pytest.raises(ValueError, match="one axis per axis"):
         linop.Matrix(_rand(3, 4), (3, 1, 5), (1, 4, 5))
