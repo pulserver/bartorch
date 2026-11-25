@@ -10,7 +10,7 @@ hand-written signature; the others are generated from BART's declaration of the
 command and take its options under their long names.  Reconstructions are
 {mod}`bartorch.apps`, or an encoding from {mod}`bartorch.linop` under a solver
 from {mod}`bartorch.optim`; {doc}`../explanation/execution-model` compares the
-two routes.  The last two sections, corrections and rigid motion, hold
+two routes.  The last three sections, corrections and rigid motion, hold
 functions and classes with no BART command behind them.
 
 ```{eval-rst}
@@ -141,3 +141,14 @@ constant-velocity extended Kalman filter over the registered poses.
 | {obj}`~bartorch.tools.RigidMotionEstimate` | 2D or 3D rigid transform with its covariance |
 | {obj}`~bartorch.tools.RigidMotionEKF` | Constant-velocity extended Kalman filter over registered rigid poses |
 | {obj}`~bartorch.tools.NavigatorMotionTracker` | Six-degree-of-freedom pose from a navigator's 2D planes, filtered over time |
+
+## Rigid motion between shots
+
+The shots of a segmented 3D Cartesian acquisition, each read with the object
+in its own rigid pose, encoded through the non-uniform transform, and those
+poses fitted to the data against an image.
+
+| Object | Description |
+| --- | --- |
+| {obj}`~bartorch.tools.rigid_encoding` | SENSE encoding of a segmented 3D acquisition whose shots each see the object in its own rigid pose |
+| {obj}`~bartorch.tools.estimate_rigid_motion` | Rigid pose of each shot relative to the first, fitted by Levenberg-Marquardt with a closed-form Jacobian |
