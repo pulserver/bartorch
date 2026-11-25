@@ -60,16 +60,19 @@ class Matrix(LinearOperator):
         super().__init__()
 
     def _create(self) -> Built:
+        # BART copies the matrix to the host and multiplies out its Gram matrix
+        # there, then moves both to a card on the first device operand; it reads
+        # the pointer it is given as host memory.
+        host = self.matrix.cpu()
         ptr = self._under_lock(
             library().bartorch_linop_matrix,
             DIMS,
             dims(self.oshape),
             dims(self.ishape),
-            dims(tuple(self.matrix.shape)),
-            self.matrix.data_ptr(),
-            device=self.matrix.device,
+            dims(tuple(host.shape)),
+            host.data_ptr(),
         )
-        return Built(ptr, self.ishape, self.oshape, keep=(self.matrix,))
+        return Built(ptr, self.ishape, self.oshape, keep=(host,))
 
 
 class Convolve(LinearOperator):
