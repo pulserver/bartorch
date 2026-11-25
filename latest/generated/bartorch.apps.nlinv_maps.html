@@ -552,8 +552,9 @@ partitions carry signal and wrap onto each other.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Complex maps: of the shape of <code class="docutils literal notranslate"><span class="pre">kspace</span></code> for Cartesian data,
-<code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*shape)</span></code> otherwise.</p>
+<dd class="field-even"><p>Complex maps on the device of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>: of the shape of <code class="docutils literal notranslate"><span class="pre">kspace</span></code>
+for Cartesian data, <code class="docutils literal notranslate"><span class="pre">(coils,</span> <span class="pre">*shape)</span></code> otherwise. k-space on a CUDA
+device is fitted on the GPU by BART’s own <code class="docutils literal notranslate"><span class="pre">nlinv</span> <span class="pre">-g</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
