@@ -115,3 +115,23 @@ def test_a_line_placed_by_two_shots_is_refused():
     masks[1, 0, 0] = True
     with pytest.raises(ValueError, match="more than one shot"):
         tools.rigid_encoding(maps, masks, VOXEL)
+
+
+def test_shot_poses_fitted_on_the_central_half_of_k_space_are_the_true_poses(device):
+    image, maps, masks = _scan(shape=(16, 33, 33))
+    turns = torch.stack([_turn(0, 0.0), _turn(0, 0.03), _turn(2, -0.025)])
+    shifts = torch.tensor(
+        [[0, 0, 0], [0.6e-3, -1.0e-3, 0.8e-3], [-0.8e-3, 0.5e-3, -0.6e-3]], dtype=torch.float64
+    )
+    kspace = tools.rigid_encoding(maps, masks, VOXEL, turns, shifts, device=device)(
+        image.to(device)
+    ).cpu()
+    at_rest = tools.rigid_encoding(maps, masks, VOXEL, device=device)
+    start = optim.CG(lambda_=1e-3, maxiter=10)(kspace.to(device), at_rest).cpu()
+    found, moved, solved, _ = tools.estimate_rigid_motion(
+        kspace, maps, masks, start, VOXEL, steps=4, centre=0.5, device=device
+    )
+    angle = torch.arccos(((torch.einsum("sij,sij->s", found, turns) - 1) / 2).clamp(-1, 1))
+    assert solved.shape == (8, 16, 16) or solved.shape == (8, 17, 17)
+    assert float(angle.max()) < 3e-3
+    assert float((moved - shifts).abs().max()) < 0.1 * min(VOXEL)

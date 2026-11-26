@@ -144,6 +144,32 @@ def rigid_encoding(
     return scatter @ reads
 
 
+def _central(kspace, maps, masks, image, voxel_size, fraction):
+    """Restrict the acquisition to the central ``fraction`` of k-space, coarser grid, same FOV."""
+    from bartorch._fourier import fft
+
+    full = tuple(int(n) for n in maps.shape[1:])
+    kept = tuple(max(2, int(round(n * fraction))) if n > 1 else 1 for n in full)
+    cut = tuple(
+        slice(n // 2 - m // 2, n // 2 - m // 2 + m) for n, m in zip(full, kept, strict=True)
+    )
+    axes = (-3, -2, -1)
+    gain = math.sqrt(math.prod(full) / math.prod(kept))
+
+    def coarse(values):
+        spectrum = fft(values, axes, unitary=True).reshape(values.shape)[(..., *cut)]
+        return fft(spectrum.contiguous(), axes, inverse=True, unitary=True).reshape(spectrum.shape)
+
+    voxel = tuple(v * n / m for v, n, m in zip(voxel_size, full, kept, strict=True))
+    return (
+        kspace[(..., *cut)].contiguous(),
+        coarse(maps.to(torch.complex64)) * gain,
+        masks[:, cut[0], cut[1]].contiguous(),
+        coarse(image.reshape(full).to(torch.complex64)),
+        voxel,
+    )
+
+
 def estimate_rigid_motion(
     kspace: torch.Tensor,
     maps: torch.Tensor,
@@ -156,6 +182,7 @@ def estimate_rigid_motion(
     steps: int = 3,
     iterations: int = 40,
     lambda_: float = 1e-5,
+    centre: float = 1.0,
     device=None,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, float]:
     r"""Rigid pose of each shot of a segmented 3D acquisition relative to the first, and its image.
@@ -173,7 +200,9 @@ def estimate_rigid_motion(
     which one transform of the image weighted by its position :math:`r` gives
     for every shot at once; a shift multiplies a sample by
     :math:`-2\pi i\, k`. The first shot stays at rest. Data are scaled to a
-    peak of one for the solve.
+    peak of one for the solve. With ``centre`` below one, the fit runs on the
+    central fraction of k-space along each axis, on the coarser grid of the
+    same field of view, the maps and the starting image resampled onto it.
 
     Parameters
     ----------
@@ -196,6 +225,8 @@ def estimate_rigid_motion(
         Tikhonov weight of the joint solve, on the image and on the scaled
         pose steps alike; a larger weight damps the pose steps enough to
         stall them.
+    centre : float, default=1.0
+        Fraction of k-space, along each axis, the fit reads.
     device : torch.device or str, default=None
         Where the transforms run.
 
@@ -206,12 +237,17 @@ def estimate_rigid_motion(
     shifts : torch.Tensor
         ``(shots, 3)`` float64 displacements.
     image : torch.Tensor
-        ``(z, y, x)`` image of the last step, on the device of ``image``.
+        ``(z, y, x)`` image of the last step, on the grid the fit ran on, on
+        the device of ``image``.
     residual : float
         ``||A x - M y|| / ||M y||`` of that image under the returned poses.
     """
     from bartorch import linop, optim
 
+    if centre < 1.0:
+        kspace, maps, masks, image, voxel_size = _central(
+            kspace, maps, masks, image, voxel_size, centre
+        )
     grid = tuple(int(n) for n in maps.shape[1:])
     shot, partition, line = _lines(masks)
     count = int(masks.shape[0])
